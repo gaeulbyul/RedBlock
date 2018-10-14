@@ -1,0 +1,8 @@
+*.log
+/_ignore_/
+/.idea/
+/.vs/
+/node_modules/
+/dist/
+/build/
+/RedBlock/

@@ -1,0 +1,86 @@
+*, *:before, *:after {
+  box-sizing: border-box;
+}
+
+:root {
+  --default-font-size: 16px;
+}
+
+body {
+  font-size: var(--default-font-size);
+  font-family: 'NanumGothic', 'Malgun Gothic', sans-serif;
+}
+
+a, a:visited {
+  color: crimson;
+}
+
+hr {
+  border-top: 1px solid #ccc;
+  border-bottom: 0;
+}
+
+.whole {
+  background-color: white;
+}
+
+.whole .title {
+  text-align: center;
+  font-size: 14px;
+  user-select: none;
+}
+
+.menu {
+  width: 250px;
+}
+
+.menu-item {
+  width: 100%;
+  padding: 5px 10px;
+  margin: 3px 0;
+  border-radius: 3px;
+  border: 1px solid gray;
+  font-size: var(--default-font-size);
+  background-color: white;
+  color: black;
+  cursor: pointer;
+}
+
+.menu-item .big-button-img {
+  display: block;
+  margin: 0 auto;
+  width: 100%;
+  max-width: 100px;
+  filter: saturate(50%);
+  transition: filter .2s;
+}
+
+.menu-item:hover {
+  text-decoration: underline;
+  color: crimson;
+}
+
+.menu-item:hover .big-button-img {
+  filter: none;
+}
+
+.option-item {
+  margin: 5px 0;
+  font-size: .8rem;
+  color: #666;
+}
+
+.option-item.on {
+  font-weight: bold;
+  color: green;
+}
+
+.option-item.currentVersion {
+  color: #333;
+}
+
+.warning {
+  padding: .25em 1em;
+
+  font-size: 14px;
+}
