@@ -85,26 +85,28 @@ namespace TwitterAPI {
     return response
   }
 
-  /*
-  export async function blockUserById (id: string): Promise<Response> {
-    const url = 'https://api.twitter.com/1.1/blocks/create.json'
+  export async function blockUser (user: TwitterUser): Promise<boolean> {
+    const shouldNotBlock = _.some([
+      user.blocking,
+      user.following,
+      user.followed_by,
+      user.follow_request_sent
+    ])
+    if (shouldNotBlock) {
+      return false
+    }
+    return blockUserUnsafe(user)
   }
-  */
-  /*
-  async function sendBlockRequest(userId: string): Promise<boolean> {
-    const fetchOptions = generateTwitterAPIOptions({
-      method: 'post'
+
+  export async function blockUserUnsafe (user: TwitterUser): Promise<boolean> {
+    const response = await requestAPI('post', '/blocks/create.json', {
+      user_id: user.id_str,
+      include_entities: false,
+      skip_status: true
     })
-    const body = new URLSearchParams()
-    body.set('user_id', userId)
-    body.set('include_entities', 'false')
-    body.set('skip_status', 'true')
-    fetchOptions.body = body
-    const url = 'https://api.twitter.com/1.1/blocks/create.json'
-    const response = await fetch(url, fetchOptions)
     return response.ok
   }
-  */
+
   /*
   async function getFollowersIds (userName: string, cursor: string = '-1'): Promise<FollowsIdsResponse> {
     const response = await requestAPI('get', '/followers/ids.json', {
