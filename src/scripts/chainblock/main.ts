@@ -1,22 +1,9 @@
-interface ChainBlockFilter {
-  followers: boolean,
-  followings: boolean,
-}
-
 interface ChainBlockerProgressState {
   total: number,
   alreadyBlocked: number,
   skipped: number,
   blockSuccess: number,
   blockFail: number
-}
-
-async function asyncCollect<T> (gen: AsyncIterableIterator<T>) {
-  const result: T[] = []
-  for await (const item of gen) {
-    result.push(item)
-  }
-  return result
 }
 
 class ChainBlocker {
@@ -50,10 +37,11 @@ class ChainBlocker {
         ui.updateProgress(Object.assign({}, progress))
         continue
       }
-      const following = user.following
-      const followedBy = user.followed_by
-      const followRequesting = user.follow_request_sent
-      const followSkip = _.some([following, followedBy, followRequesting])
+      const followSkip = _.some([
+        user.following,
+        user.followed_by,
+        user.follow_request_sent
+      ])
       if (followSkip) {
         ++progress.skipped
         ui.updateProgress(Object.assign({}, progress))
