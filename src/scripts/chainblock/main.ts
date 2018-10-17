@@ -1,4 +1,4 @@
-interface ChainBlockerProgressState {
+interface ChainblockProgress {
   total: number,
   alreadyBlocked: number,
   skipped: number,
@@ -13,12 +13,12 @@ class ChainBlocker {
     const ui = this.ui
     const targetUser = await TwitterAPI.getSingleUserByName(targetUserName)
     ui.updateTarget(targetUser)
-    const progress: ChainBlockerProgressState = {
+    const progress: ChainblockProgress = {
       total: targetUser.followers_count,
       alreadyBlocked: 0,
       skipped: 0,
       blockSuccess: 0,
-      blockFail: 0,
+      blockFail: 0
     }
     for await (const user of TwitterAPI.getAllFollowers(targetUserName)) {
       if (user === 'RateLimitError') {
@@ -28,7 +28,7 @@ class ChainBlocker {
         })
         const second = 1000
         const minute = second * 60
-        await sleep(2 * minute)
+        await sleep(1 * minute)
         continue
       }
       ui.rateLimitResetted()
@@ -49,7 +49,7 @@ class ChainBlocker {
       }
       // console.warn('WARNING: fake block!')
       // TODO: implement block, real block
-      const blockResult = Math.random() * 10 > 2
+      const blockResult = await TwitterAPI.blockUser(user)
       if (blockResult) {
         ++progress.blockSuccess
         ui.updateProgress(Object.assign({}, progress))
@@ -57,12 +57,9 @@ class ChainBlocker {
         ++progress.blockFail
         ui.updateProgress(Object.assign({}, progress))
       }
+      await sleep(10)
     }
-  // 필요한 것:
-  // - "내"* <- 나 자신의 정보
-  // - 내 팔로워
-  // - 내 팔로잉
-  // - ...기존차단여부? (근데 체인블락 많이 돌리면 이게 느릴 듯)
+    ui.finalize(Object.assign({}, progress))
   }
 }
 

@@ -40,20 +40,27 @@ class ChainBlockUI {
     this.attachEvent()
   }
   public updateTarget (targetUser: TwitterUser) {
-    document.querySelector('.redblock-target-name')!.textContent = targetUser.name
-    document.querySelector('.redblock-target-total-followers')!.textContent = targetUser.followers_count.toString()
+    const ui = this.ui
+    ui.querySelector('.redblock-target-name')!.textContent = targetUser.name
+    ui.querySelector('.redblock-target-total-followers')!.textContent = targetUser.followers_count.toString()
+    ui.querySelector<HTMLProgressElement>('.redblock-progress')!.max = targetUser.followers_count
   }
-  public updateProgress (state: ChainBlockerProgressState) {
-    document.querySelector('.redblock-blocked-user')!.textContent = state.blockSuccess.toString()
-    document.querySelector('.redblock-already-blocked-user')!.textContent = state.alreadyBlocked.toString()
-    document.querySelector('.redblock-skipped-user')!.textContent = state.skipped.toString()
-    document.querySelector('.redblock-failed-user')!.textContent = state.blockFail.toString()
-    const progressElem = this.ui.querySelector<HTMLProgressElement>('.redblock-progress')
-    const prg = state.alreadyBlocked + state.skipped + state.blockSuccess + state.blockFail
-    const percentage = Math.round(prg / state.total * 100)
-    progressElem!.value = percentage
+  public updateProgress (progress: ChainblockProgress) {
+    const ui = this.ui
+    ui.querySelector('.redblock-blocked-user')!.textContent = progress.blockSuccess.toString()
+    ui.querySelector('.redblock-already-blocked-user')!.textContent = progress.alreadyBlocked.toString()
+    ui.querySelector('.redblock-skipped-user')!.textContent = progress.skipped.toString()
+    ui.querySelector('.redblock-failed-user')!.textContent = progress.blockFail.toString()
+    const progressBarValue = _.sum([
+      progress.alreadyBlocked,
+      progress.blockFail,
+      progress.blockSuccess,
+      progress.skipped
+    ])
+    ui.querySelector<HTMLProgressElement>('.redblock-progress')!.value = progressBarValue
   }
   public rateLimited (limit: Limit) {
+    const ui = this.ui
     const timeZone = Intl.DateTimeFormat().resolvedOptions().timeZone
     const formatter = new Intl.DateTimeFormat('ko-KR', {
       timeZone,
@@ -63,17 +70,22 @@ class ChainBlockUI {
     // 120000 = 1000 * 60 * 2 = 리밋상태에서 체인블락의 delay간격
     const datetime = new Date((limit.reset * 1000) + 120000)
     const dtstr = formatter.format(datetime)
-    document.querySelector<HTMLElement>('.redblock-ratelimit')!.hidden = false
-    document.querySelector('.redblock-ratelimit-reset')!.textContent = dtstr
+    ui.querySelector<HTMLElement>('.redblock-ratelimit')!.hidden = false
+    ui.querySelector('.redblock-ratelimit-reset')!.textContent = dtstr
   }
   public rateLimitResetted () {
-    document.querySelector<HTMLElement>('.redblock-ratelimit')!.hidden = true
+    this.ui.querySelector<HTMLElement>('.redblock-ratelimit')!.hidden = true
   }
   private attachEvent () {
     this.ui.querySelector('.redblock-close')!.addEventListener('click', event => {
       event.preventDefault()
       this.cleanup()
     })
+  }
+  finalize (progress: ChainblockProgress) {
+    this.updateProgress(progress)
+    const msg = `체인블락 완료! 총 ${progress.blockSuccess}명의 사용자를 차단했습니다.`
+    window.alert(msg)
   }
   cleanup () {
     this.ui.remove()

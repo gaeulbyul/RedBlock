@@ -35,6 +35,10 @@ hr.redblock-hr {
   font-size: 1em;
 }
 
+progress.redblock-progress {
+  width: 100%;
+}
+
 .redblock-controls .normal-btn {
   color: inherit;
 }
