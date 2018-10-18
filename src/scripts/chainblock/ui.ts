@@ -70,7 +70,7 @@ class ChainBlockUI {
     txt('.redblock-target-total-followers', targetUser.followers_count)
     rootElem.querySelector<HTMLProgressElement>('.redblock-progress')!.max = targetUser.followers_count
   }
-  public updateProgress (progress: ChainblockProgress) {
+  public updateProgress (progress: ChainBlockProgress) {
     const rootElem = this.rootElem
     const txt = setText(rootElem)
     txt('.redblock-blocked-user', progress.blockSuccess)
@@ -116,7 +116,7 @@ class ChainBlockUI {
     this.updateState(ChainBlockUIState.Running)
     this.rootElem.querySelector<HTMLElement>('.redblock-ratelimit')!.hidden = true
   }
-  public complete (progress: ChainblockProgress) {
+  public complete (progress: ChainBlockProgress) {
     const currentState = this.state
     this.updateState(ChainBlockUIState.Completed)
     this.updateProgress(progress)

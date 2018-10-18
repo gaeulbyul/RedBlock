@@ -1,4 +1,4 @@
-interface ChainblockProgress {
+interface ChainBlockProgress {
   total: number,
   alreadyBlocked: number,
   skipped: number,
@@ -6,15 +6,24 @@ interface ChainblockProgress {
   blockFail: number
 }
 
+interface ChainBlockOptions {
+  useBlockAllAPI: boolean
+}
+
+const defaultChainBlockOptions: Readonly<ChainBlockOptions> = Object.freeze({
+  useBlockAllAPI: false
+})
+
 class ChainBlocker {
   private ui = new ChainBlockUI
   constructor () {}
-  async start (targetUserName: string) {
+  async start (targetUserName: string, optionsInput: Partial<ChainBlockOptions> = {}) {
+    const options = Object.assign({}, defaultChainBlockOptions, optionsInput)
     const ui = this.ui
     ui.show()
     const targetUser = await TwitterAPI.getSingleUserByName(targetUserName)
     ui.updateTarget(targetUser)
-    const progress: ChainblockProgress = {
+    const progress: ChainBlockProgress = {
       total: targetUser.followers_count,
       alreadyBlocked: 0,
       skipped: 0,
@@ -22,6 +31,20 @@ class ChainBlocker {
       blockFail: 0
     }
     try {
+      const blockAllBuffer: TwitterUser[] = []
+      const blockPromises: Promise<void>[] = []
+      function flushBlockAllBuffer () {
+        const ids = blockAllBuffer.map(user => user.id_str)
+        blockAllBuffer.length = 0
+        blockPromises.push(TwitterExperimentalBlocker.blockAllByIds(ids).then(result => {
+          progress.blockSuccess += result.blocked.length
+          progress.blockFail += result.failed.length
+          if (result.failed.length > 0) {
+            console.error('failed to block these users: ', result.failed.join(','))
+          }
+          ui.updateProgress(Object.assign({}, progress))
+        }))
+      }
       for await (const user of TwitterAPI.getAllFollowers(targetUserName)) {
         const shouldStop = [ChainBlockUIState.Closed, ChainBlockUIState.Stopped].includes(ui.state)
         if (shouldStop) {
@@ -53,16 +76,27 @@ class ChainBlocker {
           ui.updateProgress(Object.assign({}, progress))
           continue
         }
-        const blockResult = await TwitterAPI.blockUser(user)
-        if (blockResult) {
-          ++progress.blockSuccess
-          ui.updateProgress(Object.assign({}, progress))
+        if (options.useBlockAllAPI) {
+          blockAllBuffer.push(user)
+          if (blockAllBuffer.length >= 600) {
+            flushBlockAllBuffer()
+          }
         } else {
-          ++progress.blockFail
-          ui.updateProgress(Object.assign({}, progress))
+          blockPromises.push(TwitterAPI.blockUser(user).then(blockResult => {
+            if (blockResult) {
+              ++progress.blockSuccess
+              ui.updateProgress(Object.assign({}, progress))
+            } else {
+              ++progress.blockFail
+              ui.updateProgress(Object.assign({}, progress))
+            }
+          }))
         }
-        await sleep(10)
       }
+      if (options.useBlockAllAPI) {
+        flushBlockAllBuffer()
+      }
+      await Promise.all(blockPromises)
       ui.complete(Object.assign({}, progress))
     } catch (err) {
       const error = err as Error

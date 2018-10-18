@@ -21,7 +21,8 @@
     {
       "matches": [
         "*://twitter.com/*",
-        "*://mobile.twitter.com/*"
+        "*://mobile.twitter.com/*",
+        "*://tweetdeck.twitter.com/*"
       ],
       "css": [
         "styles/style.css"
@@ -31,6 +32,7 @@
         "vendor/lodash.js",
         "scripts/common.js",
         "scripts/twitter-api.js",
+        "scripts/block-all.js",
         "scripts/chainblock/ui.js",
         "scripts/chainblock/main.js",
         "scripts/chainblock.js"
