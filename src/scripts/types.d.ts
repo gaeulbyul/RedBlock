@@ -76,9 +76,16 @@ interface RBConfirmMessage {
   action: Action.ConfirmChainBlock
 }
 
+interface RBNotifyMessage {
+  action: Action.ShowNotify,
+  title: string,
+  message: string
+}
+
 type RBMessage = RBStartMessage
   | RBStopMessage
   | RBConfirmMessage
+  | RBNotifyMessage
 
 declare namespace uuid {
   function v1 (): string;

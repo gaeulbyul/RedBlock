@@ -12,6 +12,12 @@ function generateToken (): string {
 // 실험적 구현 이상의 용도로 쓰기엔 좋지 않음..
 namespace TwitterExperimentalBlocker {
   export async function blockAllByIds (ids: string[]): Promise<BlockAllResult> {
+    if (ids.length <= 0) {
+      return {
+        blocked: [],
+        failed: []
+      }
+    }
     const tokenElem = document.getElementById('authenticity_token') as HTMLInputElement | null
     const authenticityToken = tokenElem ? tokenElem.value : generateToken()
     const requests: Promise<Response | null>[] = []

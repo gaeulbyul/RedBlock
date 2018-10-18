@@ -1,31 +1,23 @@
 const CHAINBLOCK_UI_HTML = `
-  <div class="redblock-bg modal-container block-dialog" style="display:flex">
-    <div class="redblock-dialog modal modal-content is-autoPosition">
-      <div class="redblock-titlebar">
-        <span class="redblock-title">체인블락</span>
-        (<span class="redblock-state"></span>)
+  <div class="redblock-dialog modal-content is-autoPosition">
+    <progress class="redblock-progress"></progress>
+    <div class="redblock-progress-text">
+      (<span class="redblock-state"></span>):
+      @<span class="redblock-target-username">?</span>의 팔로워
+      <span class="redblock-target-total-followers">0</span>명 중
+      <span class="redblock-blocked-user">0</span>명 차단
+      <br>
+      <small>
+        진행율: <span class="redblock-progress-percentage">0</span>%,
+        이미 차단: <span class="redblock-already-blocked-user">0</span>,
+        스킵: <span class="redblock-skipped-user">0</span>,
+        실패: <span class="redblock-failed-user">0</span>
+      </small>
+      <div hidden class="redblock-ratelimit">
+        리밋입니다. (예상리셋시간: <span class="redblock-ratelimit-reset"></span>)
       </div>
-      <div class="redblock-progress-container">
-        <progress class="redblock-progress"></progress>
-        <div class="redblock-progress-text">
-          <span class="redblock-target-name">?</span>의 팔로워
-          <span class="redblock-target-total-followers">0</span>명 중
-          <span class="redblock-blocked-user">0</span>명 차단함.
-          <br>
-          <small>
-            진행율: <span class="redblock-progress-percentage">0</span>%,
-            이미 차단: <span class="redblock-already-blocked-user">0</span>명,
-            스킵: <span class="redblock-skipped-user">0</span>명,
-            실패: <span class="redblock-failed-user">0</span>명
-          </small>
-          <div hidden class="redblock-ratelimit">
-            리밋입니다. (예상리셋시간: <span class="redblock-ratelimit-reset"></span>)
-          </div>
-        </div>
-      </div>
-      <hr class="redblock-hr">
       <div class="redblock-controls">
-        <button class="redblock-close btn normal-btn">닫기</button>
+        <button class="redblock-close small btn normal-btn">닫기</button>
       </div>
     </div>
   </div>
@@ -51,22 +43,23 @@ function setText (root: Element) {
   }
 }
 
-class ChainBlockUI {
-  private rootElem: HTMLElement = document.createElement('div')
+class ChainBlockUI extends EventEmitter {
+  private readonly rootElem: HTMLElement = document.createElement('div')
   public state: ChainBlockUIState = ChainBlockUIState.Initial
   // public scraper: AsyncIterableIterator<TwitterUser>
   constructor () {
+    super()
     this.rootElem.innerHTML = CHAINBLOCK_UI_HTML
   }
-  public show () {
-    document.body.appendChild(this.rootElem)
+  public show (appendTarget: HTMLElement) {
     this.attachEvent()
     this.updateState(ChainBlockUIState.Running)
+    appendTarget.appendChild(this.rootElem)
   }
   public updateTarget (targetUser: TwitterUser) {
     const rootElem = this.rootElem
     const txt = setText(rootElem)
-    txt('.redblock-target-name', targetUser.name)
+    txt('.redblock-target-username', targetUser.screen_name)
     txt('.redblock-target-total-followers', targetUser.followers_count)
     rootElem.querySelector<HTMLProgressElement>('.redblock-progress')!.max = targetUser.followers_count
   }
@@ -96,6 +89,7 @@ class ChainBlockUI {
       [ChainBlockUIState.Error]: '오류 발생!'
     }
     setText(rootElem)('.redblock-state', message[state] || '')
+    this.emit<ChainBlockUIState>('update-state', state)
   }
   public rateLimited (limit: Limit) {
     this.updateState(ChainBlockUIState.RateLimited)
@@ -121,12 +115,17 @@ class ChainBlockUI {
     this.updateState(ChainBlockUIState.Completed)
     this.updateProgress(progress)
     const reason = currentState === ChainBlockUIState.Running ? '완료' : '중단'
-    const msg = `체인블락 ${reason}! 총 ${progress.blockSuccess}명의 사용자를 차단했습니다.`
-    window.alert(msg)
+    const message = `체인블락 ${reason}! 총 ${progress.blockSuccess}명의 사용자를 차단했습니다.`
+    browser.runtime.sendMessage({
+      action: Action.ShowNotify,
+      title: 'RedBlock',
+      message
+    })
+    // window.alert(msg)
   }
   public error (msg: string) {
     this.updateState(ChainBlockUIState.Error)
-    window.alert(`오류 발생!\n메시지: "${msg}"`)
+    window.alert(`체인블락 오류 발생!\n메시지: "${msg}"`)
   }
   public stop () {
     this.updateState(ChainBlockUIState.Stopped)

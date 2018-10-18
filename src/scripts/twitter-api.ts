@@ -93,6 +93,8 @@ namespace TwitterAPI {
       user.follow_request_sent
     ])
     if (shouldNotBlock) {
+      console.error('!!!!! FATAL!!!!!: attempted to block user that should NOT block!!')
+      debugger
       return false
     }
     return blockUserUnsafe(user)

@@ -13,9 +13,17 @@
   "permissions": [
     "https://twitter.com/*",
     "https://api.twitter.com/*",
+    "https://tweetdeck.twitter.com/*",
     "storage",
+    "notifications",
     "activeTab"
   ],
+
+  "background": {
+    "scripts": [
+      "scripts-bg/background.js"
+    ]
+  },
 
   "content_scripts": [
     {

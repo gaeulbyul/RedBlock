@@ -15,12 +15,44 @@ const defaultChainBlockOptions: Readonly<ChainBlockOptions> = Object.freeze({
 })
 
 class ChainBlocker {
-  private ui = new ChainBlockUI
-  constructor () {}
-  async start (targetUserName: string, optionsInput: Partial<ChainBlockOptions> = {}) {
+  // private ui = new ChainBlockDialog
+  private readonly sessions: Map<string, ChainBlockSession> = new Map
+  private readonly container: HTMLElement = document.createElement('div')
+  constructor () {
+    this.container.className = 'redblock-container'
+    document.body.appendChild(this.container)
+  }
+  start (targetUserName: string, optionsInput: Partial<ChainBlockOptions> = {}) {
+    if (this.sessions.has(targetUserName)) {
+      const ses = this.sessions.get(targetUserName)
+      if (ses!.state !== ChainBlockUIState.Closed) {
+        window.alert(`이미 ${targetUserName}에게 체인블락이 실행중입니다.`)
+        return
+      }
+    }
+    const session = new ChainBlockSession()
+    session.showUI(this.container)
+    session.start(targetUserName, optionsInput)
+    this.sessions.set(targetUserName, session)
+  }
+
+}
+
+class ChainBlockSession extends EventEmitter {
+  private readonly ui = new ChainBlockUI
+  // constructor () {}
+  public showUI(appendTarget: HTMLElement) {
+    this.ui.show(appendTarget)
+  }
+  public stop () {
+    this.ui.stop()
+  }
+  get state () {
+    return this.ui.state
+  }
+  public async start (targetUserName: string, optionsInput: Partial<ChainBlockOptions> = {}) {
     const options = Object.assign({}, defaultChainBlockOptions, optionsInput)
     const ui = this.ui
-    ui.show()
     const targetUser = await TwitterAPI.getSingleUserByName(targetUserName)
     ui.updateTarget(targetUser)
     const progress: ChainBlockProgress = {
@@ -93,7 +125,7 @@ class ChainBlocker {
           }))
         }
       }
-      if (options.useBlockAllAPI) {
+      if (options.useBlockAllAPI && blockAllBuffer.length > 0) {
         flushBlockAllBuffer()
       }
       await Promise.all(blockPromises)

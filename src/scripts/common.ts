@@ -1,7 +1,8 @@
 const enum Action {
   Start = 'RedBlock/Start',
   Stop = 'RedBlock/Stop',
-  ConfirmChainBlock = 'RedBlock/ConfirmedChainBlock'
+  ConfirmChainBlock = 'RedBlock/ConfirmedChainBlock',
+  ShowNotify = 'RedBlock/ShowNotify'
 }
 
 class EventEmitter {
@@ -13,7 +14,7 @@ class EventEmitter {
     this.events[eventName].push(handler)
     return this
   }
-  emit<T> (eventName: string, eventHandlerParameter?: T) {
+  emit<T> (eventName: string, eventHandlerParameter: T) {
     const handlers = this.events[eventName] || []
     // console.info('EventEmitter: emit "%s" with %o', eventName, eventHandlerParameter)
     handlers.forEach(handler => handler(eventHandlerParameter))

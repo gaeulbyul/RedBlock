@@ -1,3 +1,12 @@
+@keyframes fade-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
 .redblock-bg {
   position: fixed;
   display: flex;
@@ -14,31 +23,31 @@
 hr.redblock-hr {
   margin: 3px 0;
 }
+.redblock-container {
+  position: fixed;
+  bottom: 15px;
+  right: 15px;
+  /* PC트위터 기준 상단바 프로필 메뉴는 z-index: 900 */
+  /* 따라서 그보다 낮은 값으로 설정하여 메뉴를 가리지 않도록 함 */
+  z-index: 800;
+}
 .redblock-dialog {
   padding: 15px;
+  margin: 10px 0;
   display: flex;
   flex-direction: column;
-  width: 450px;
-  max-height: 80vh;
+  width: 300px;
+  box-shadow: 0 2px 20px #6666;
+  animation: fade-in .5s;
+  will-change: opacity;
 }
-.redblock-titlebar {
-  margin-bottom: 5px;
-}
-.redblock-title {
-  font-size: 1.25em;
-  font-weight: bold;
-}
-.redblock-title-extra {
-  font-size: 1em;
-}
-.redblock-title-status {
-  font-size: 1em;
-}
-
 progress.redblock-progress {
   width: 100%;
 }
-
+.redblock-controls {
+  margin: 5px 0;
+  float: right;
+}
 .redblock-controls .normal-btn {
   color: inherit;
 }
