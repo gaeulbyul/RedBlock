@@ -48,24 +48,10 @@ namespace TwitterAPI {
     })
     const url = new URL('https://api.twitter.com/1.1' + path)
     let params: URLSearchParams
-    let cacheKeyName  = ''
     if (method === 'get') {
       params = url.searchParams
-      cacheKeyName = `rbcache??${url.toString()}`
-      const cached = window.sessionStorage.getItem(cacheKeyName)
-      if (cached) {
-        const lastCall = new Date(cached).getTime()
-        const now = new Date().getTime()
-        const thirtyMinutes = 1800000
-        if (lastCall + thirtyMinutes < now) {
-          fetchOptions.cache = 'force-cache'
-          console.warn('TwitterAPI#requestAPI: "force-cache" mode applied!')
-        }
-      }
     } else {
       params = new URLSearchParams()
-      // 타입 정의가 잘못된 걸로 보인다...
-      // @ts-ignore
       fetchOptions.body = params
     }
     setDefaultParams(params)
@@ -73,12 +59,6 @@ namespace TwitterAPI {
       params.set(key, value.toString())
     }
     const response = await fetch(url.toString(), fetchOptions)
-    if (method === 'get') {
-      const lastModified = response.headers.get('Last-Modified')
-      if (lastModified) {
-        window.sessionStorage.setItem(cacheKeyName, lastModified)
-      }
-    }
     if (rateLimited(response)) {
       throw new RateLimitError('rate limited')
     }
