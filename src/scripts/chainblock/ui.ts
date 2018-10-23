@@ -23,16 +23,6 @@ const CHAINBLOCK_UI_HTML = `
   </div>
 `
 
-const enum ChainBlockUIState {
-  Initial,
-  Running,
-  RateLimited,
-  Completed,
-  Stopped,
-  Closed,
-  Error
-}
-
 // shortcut function to change element's textContent
 function setText (root: Element) {
   return (query: string, text: string | number) => {
@@ -79,6 +69,7 @@ class ChainBlockUI extends EventEmitter {
     rootElem.querySelector<HTMLProgressElement>('.redblock-progress')!.value = progressBarValue
   }
   public updateState (state: ChainBlockUIState) {
+    this.emit('update-state', state)
     this.state = state
     const rootElem = this.rootElem
     const message: {[key: number]: string} = {
@@ -89,7 +80,6 @@ class ChainBlockUI extends EventEmitter {
       [ChainBlockUIState.Error]: '오류 발생!'
     }
     setText(rootElem)('.redblock-state', message[state] || '')
-    this.emit<ChainBlockUIState>('update-state', state)
   }
   public rateLimited (limit: Limit) {
     this.updateState(ChainBlockUIState.RateLimited)
@@ -123,9 +113,9 @@ class ChainBlockUI extends EventEmitter {
     })
     // window.alert(msg)
   }
-  public error (msg: string) {
+  public error (message: string) {
     this.updateState(ChainBlockUIState.Error)
-    window.alert(`체인블락 오류 발생!\n메시지: "${msg}"`)
+    window.alert(`체인블락 오류 발생!\n메시지: "${message}"`)
   }
   public stop () {
     this.updateState(ChainBlockUIState.Stopped)

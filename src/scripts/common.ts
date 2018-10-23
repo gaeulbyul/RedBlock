@@ -5,17 +5,22 @@ const enum Action {
   ShowNotify = 'RedBlock/ShowNotify'
 }
 
-class EventEmitter {
-  protected events: EventStore = {}
-  on<T> (eventName: string, handler: (t: T) => any) {
-    if (!(eventName in this.events)) {
-      this.events[eventName] = []
+abstract class EventEmitter {
+  protected events: EventStore = new Proxy({}, {
+    get (target: EventStore, name: string, receiver) {
+      const originalValue = Reflect.get(target, name, receiver)
+      return Array.isArray(originalValue) ? originalValue : []
     }
+  })
+  on<T> (eventName: string, handler: (t: T) => any) {
     this.events[eventName].push(handler)
     return this
   }
   emit<T> (eventName: string, eventHandlerParameter: T) {
-    const handlers = this.events[eventName] || []
+    const handlers = [
+      ...this.events[eventName],
+      ...this.events['*']
+    ]
     // console.info('EventEmitter: emit "%s" with %o', eventName, eventHandlerParameter)
     handlers.forEach(handler => handler(eventHandlerParameter))
     return this

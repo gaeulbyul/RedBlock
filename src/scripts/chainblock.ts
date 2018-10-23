@@ -1,3 +1,25 @@
+interface ChainBlockProgress {
+  total: number,
+  alreadyBlocked: number,
+  skipped: number,
+  blockSuccess: number,
+  blockFail: number
+}
+
+interface ChainBlockOptions {
+  useBlockAllAPI: boolean
+}
+
+const enum ChainBlockUIState {
+  Initial,
+  Running,
+  RateLimited,
+  Completed,
+  Stopped,
+  Closed,
+  Error
+}
+
 const blocker = new ChainBlocker()
 
 async function doChainBlock (userName: string) {
