@@ -22,14 +22,16 @@ const enum ChainBlockUIState {
 
 const blocker = new ChainBlocker()
 
-async function doChainBlock (userName: string) {
+async function doChainBlock (targetUserName: string) {
+  const targetUser = await TwitterAPI.getSingleUserByName(targetUserName)
   const confirmMessage = `
-ㅁㅁㅁㅁㅁㅁㅁㅁㅁㅁㅁㅁㅁㅁㅁㅁㅁㅁㅁㅁㅁㅁㅁㅁㅁㅁㅁ
-정말로 @${userName}에게 체인블락을 실행하시겠습니까?
-ㅁㅁㅁㅁㅁㅁㅁㅁㅁㅁㅁㅁㅁㅁㅁㅁㅁㅁㅁㅁㅁㅁㅁㅁㅁㅁㅁ
+ㅁㅁㅁㅁㅁㅁㅁㅁㅁㅁㅁㅁㅁㅁㅁㅁㅁㅁㅁㅁㅁㅁㅁㅁㅁㅁㅁㅁㅁㅁ
+정말로 @${targetUserName}에게 체인블락을 실행하시겠습니까?
+ㅁㅁㅁㅁㅁㅁㅁㅁㅁㅁㅁㅁㅁㅁㅁㅁㅁㅁㅁㅁㅁㅁㅁㅁㅁㅁㅁㅁㅁㅁ
   `.trim()
   if (window.confirm(confirmMessage)) {
-    blocker.start(userName)
+    blocker.add(targetUser)
+    blocker.start()
   }
 }
 

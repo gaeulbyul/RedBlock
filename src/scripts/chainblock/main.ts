@@ -1,10 +1,7 @@
-const defaultChainBlockOptions: Readonly<ChainBlockOptions> = Object.freeze({
-  useBlockAllAPI: true
-})
-
 class ChainBlocker {
   private readonly sessions: Map<string, ChainBlockSession> = new Map
   private readonly container: HTMLElement = document.createElement('div')
+  private running = false
   constructor () {
     this.container.className = 'redblock-container'
     document.body.appendChild(this.container)
@@ -22,7 +19,8 @@ class ChainBlocker {
       }
     })
   }
-  start (targetUserName: string, optionsInput: Partial<ChainBlockOptions> = {}) {
+  add (targetUser: TwitterUser, optionsInput: Partial<ChainBlockOptions> = {}) {
+    const targetUserName = targetUser.screen_name
     if (this.sessions.has(targetUserName)) {
       const ses = this.sessions.get(targetUserName)
       if (ses!.state !== ChainBlockUIState.Closed) {
@@ -30,23 +28,45 @@ class ChainBlocker {
         return
       }
     }
-    const session = new ChainBlockSession()
+    const session = new ChainBlockSession(targetUser, optionsInput)
     session.on<ChainBlockUIState>('update-ui-state', state => {
       if (state === ChainBlockUIState.Closed) {
         this.sessions.delete(targetUserName)
       }
     })
     session.showUI(this.container)
-    session.start(targetUserName, optionsInput)
     this.sessions.set(targetUserName, session)
   }
-
+  async start () {
+    if (this.running) {
+      return
+    } else {
+      this.running = true
+    }
+    const sessions = this.sessions.values()
+    for (const session of sessions) {
+      await session.start()
+    }
+    this.running = false
+  }
 }
 
 class ChainBlockSession extends EventEmitter {
   private readonly ui = new ChainBlockUI
-  constructor () {
+  private targetUser: TwitterUser
+  private chainBlockOptions: ChainBlockOptions = {
+    useBlockAllAPI: true
+  }
+  constructor (targetUser: TwitterUser, optionsInput: Partial<ChainBlockOptions> = {}) {
     super()
+    this.targetUser = targetUser
+    Object.assign(this.chainBlockOptions, optionsInput)
+    Object.freeze(this.chainBlockOptions)
+    this.ui.updateTarget(targetUser)
+    this.ui.on<ChainBlockUIState>('update-state', state => {
+      this.emit('update-ui-state', state)
+    })
+    this.emit('update-target', targetUser)
   }
   public showUI(appendTarget: HTMLElement) {
     this.ui.show(appendTarget)
@@ -57,15 +77,12 @@ class ChainBlockSession extends EventEmitter {
   get state () {
     return this.ui.state
   }
-  public async start (targetUserName: string, optionsInput: Partial<ChainBlockOptions> = {}) {
-    const options = Object.assign({}, defaultChainBlockOptions, optionsInput)
-    const ui = this.ui
-    ui.on<ChainBlockUIState>('update-state', state => {
-      this.emit('update-ui-state', state)
-    })
-    const targetUser = await TwitterAPI.getSingleUserByName(targetUserName)
-    ui.updateTarget(targetUser)
-    this.emit('update-target', targetUser)
+  public async start () {
+    const {
+      ui,
+      targetUser,
+      chainBlockOptions
+    } = this
     const progress: ChainBlockProgress = {
       total: targetUser.followers_count,
       alreadyBlocked: 0,
@@ -92,7 +109,7 @@ class ChainBlockSession extends EventEmitter {
           updateProgress()
         }))
       }
-      for await (const user of TwitterAPI.getAllFollowers(targetUserName)) {
+      for await (const user of TwitterAPI.getAllFollowers(targetUser.screen_name)) {
         const shouldStop = [ChainBlockUIState.Closed, ChainBlockUIState.Stopped].includes(ui.state)
         if (shouldStop) {
           break
@@ -125,7 +142,7 @@ class ChainBlockSession extends EventEmitter {
           updateProgress()
           continue
         }
-        if (options.useBlockAllAPI) {
+        if (chainBlockOptions.useBlockAllAPI) {
           blockAllBuffer.push(user)
           if (blockAllBuffer.length >= 800) {
             flushBlockAllBuffer()
@@ -141,7 +158,7 @@ class ChainBlockSession extends EventEmitter {
           }))
         }
       }
-      if (options.useBlockAllAPI && blockAllBuffer.length > 0) {
+      if (chainBlockOptions.useBlockAllAPI && blockAllBuffer.length > 0) {
         flushBlockAllBuffer()
       }
       await Promise.all(blockPromises)

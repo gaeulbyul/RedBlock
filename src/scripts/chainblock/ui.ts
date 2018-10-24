@@ -43,8 +43,10 @@ class ChainBlockUI extends EventEmitter {
   }
   public show (appendTarget: HTMLElement) {
     this.attachEvent()
-    this.updateState(ChainBlockUIState.Running)
     appendTarget.appendChild(this.rootElem)
+  }
+  public start () {
+    this.updateState(ChainBlockUIState.Running)
   }
   public updateTarget (targetUser: TwitterUser) {
     const rootElem = this.rootElem
@@ -73,6 +75,7 @@ class ChainBlockUI extends EventEmitter {
     this.state = state
     const rootElem = this.rootElem
     const message: {[key: number]: string} = {
+      [ChainBlockUIState.Initial]: '대기 중',
       [ChainBlockUIState.Completed]: '완료',
       [ChainBlockUIState.Running]: '작동 중...',
       [ChainBlockUIState.RateLimited]: '일시정지(리밋)',
@@ -128,7 +131,12 @@ class ChainBlockUI extends EventEmitter {
     this.rootElem.addEventListener('redblock::stop-chainblock', () => { })
     this.rootElem.querySelector('.redblock-close')!.addEventListener('click', event => {
       event.preventDefault()
-      const shouldNotClose = (this.state === ChainBlockUIState.Running && !window.confirm('체인블락을 중단할까요?'))
+      const shouldNotCloseState = [
+        ChainBlockUIState.Running,
+        ChainBlockUIState.RateLimited,
+        ChainBlockUIState.Initial
+      ]
+      const shouldNotClose = (shouldNotCloseState.includes(this.state) && !window.confirm('체인블락을 중단할까요?'))
       if (!shouldNotClose) {
         this.close()
       }
