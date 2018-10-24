@@ -1,0 +1,11 @@
+<!-- angular template -->
+<div class="f2b-user-list">
+  <div class="d-row f2b-user" ng-repeat="user in $ctrl.users track by $index">
+    <div class="d-cell info">
+      <a class="name" title="ID: {{ user.id }}" rel="noopener noreferer" target="_blank" href="https://twitter.com/intent/user?user_id={{ user.id }}">@{{ user.username }}</a>
+    </div>
+    <div class="d-cell actions">
+      <button class="button remove" ng-click="removeUser(user)">제거</button>
+    </div>
+  </div>
+</div>
