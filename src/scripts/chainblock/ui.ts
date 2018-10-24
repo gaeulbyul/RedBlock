@@ -35,18 +35,13 @@ function setText (root: Element) {
 
 class ChainBlockUI extends EventEmitter {
   private readonly rootElem: HTMLElement = document.createElement('div')
-  public state: ChainBlockUIState = ChainBlockUIState.Initial
-  // public scraper: AsyncIterableIterator<TwitterUser>
   constructor () {
     super()
     this.rootElem.innerHTML = CHAINBLOCK_UI_HTML
   }
   public show (appendTarget: HTMLElement) {
-    this.attachEvent()
+    this.attachEvents()
     appendTarget.appendChild(this.rootElem)
-  }
-  public start () {
-    this.updateState(ChainBlockUIState.Running)
   }
   public updateTarget (targetUser: TwitterUser) {
     const rootElem = this.rootElem
@@ -71,8 +66,6 @@ class ChainBlockUI extends EventEmitter {
     rootElem.querySelector<HTMLProgressElement>('.redblock-progress')!.value = progressBarValue
   }
   public updateState (state: ChainBlockUIState) {
-    this.emit('update-state', state)
-    this.state = state
     const rootElem = this.rootElem
     const message: {[key: number]: string} = {
       [ChainBlockUIState.Initial]: '대기 중',
@@ -85,7 +78,6 @@ class ChainBlockUI extends EventEmitter {
     setText(rootElem)('.redblock-state', message[state] || '')
   }
   public rateLimited (limit: Limit) {
-    this.updateState(ChainBlockUIState.RateLimited)
     const rootElem = this.rootElem
     const timeZone = Intl.DateTimeFormat().resolvedOptions().timeZone
     const formatter = new Intl.DateTimeFormat('ko-KR', {
@@ -100,46 +92,36 @@ class ChainBlockUI extends EventEmitter {
     rootElem.querySelector('.redblock-ratelimit-reset')!.textContent = dtstr
   }
   public rateLimitResetted () {
-    this.updateState(ChainBlockUIState.Running)
     this.rootElem.querySelector<HTMLElement>('.redblock-ratelimit')!.hidden = true
   }
   public complete (progress: ChainBlockProgress) {
-    const currentState = this.state
-    this.updateState(ChainBlockUIState.Completed)
     this.updateProgress(progress)
-    const reason = currentState === ChainBlockUIState.Running ? '완료' : '중단'
-    const message = `체인블락 ${reason}! 총 ${progress.blockSuccess}명의 사용자를 차단했습니다.`
+    const message = `체인블락 완료! 총 ${progress.blockSuccess}명의 사용자를 차단했습니다.`
     browser.runtime.sendMessage({
       action: Action.ShowNotify,
       title: 'RedBlock',
       message
     })
-    // window.alert(msg)
   }
   public error (message: string) {
-    this.updateState(ChainBlockUIState.Error)
     window.alert(`체인블락 오류 발생!\n메시지: "${message}"`)
   }
-  public stop () {
-    this.updateState(ChainBlockUIState.Stopped)
+  public stop (progress: ChainBlockProgress) {
+    this.updateProgress(progress)
+    const message = `체인블락 중지! 총 ${progress.blockSuccess}명의 사용자를 차단했습니다.`
+    browser.runtime.sendMessage({
+      action: Action.ShowNotify,
+      title: 'RedBlock',
+      message
+    })
   }
   public close () {
-    this.updateState(ChainBlockUIState.Closed)
     this.rootElem.remove()
   }
-  private attachEvent() {
-    this.rootElem.addEventListener('redblock::stop-chainblock', () => { })
+  private attachEvents () {
     this.rootElem.querySelector('.redblock-close')!.addEventListener('click', event => {
       event.preventDefault()
-      const shouldNotCloseState = [
-        ChainBlockUIState.Running,
-        ChainBlockUIState.RateLimited,
-        ChainBlockUIState.Initial
-      ]
-      const shouldNotClose = (shouldNotCloseState.includes(this.state) && !window.confirm('체인블락을 중단할까요?'))
-      if (!shouldNotClose) {
-        this.close()
-      }
+      this.emit('redblock-ui-close')
     })
   }
 }

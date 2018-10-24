@@ -6,11 +6,11 @@ class ChainBlocker {
     this.container.className = 'redblock-container'
     document.body.appendChild(this.container)
     window.addEventListener('beforeunload', event => {
-      const currentSessionStates = [...this.sessions.values()].map(session => session.state)
       const runningStates = [
         ChainBlockUIState.Running,
         ChainBlockUIState.RateLimited
       ]
+      const currentSessionStates = [...this.sessions.values()].map(session => session.state)
       const shouldPreventUnload = currentSessionStates.filter(st => runningStates.includes(st))
       if (shouldPreventUnload.length > 0) {
         event.preventDefault()
@@ -45,7 +45,9 @@ class ChainBlocker {
     }
     const sessions = this.sessions.values()
     for (const session of sessions) {
-      await session.start()
+      if (session.state === ChainBlockUIState.Initial) {
+        await session.start()
+      }
     }
     this.running = false
   }
@@ -54,28 +56,55 @@ class ChainBlocker {
 class ChainBlockSession extends EventEmitter {
   private readonly ui = new ChainBlockUI
   private targetUser: TwitterUser
+  private __state: ChainBlockUIState = ChainBlockUIState.Initial
   private chainBlockOptions: ChainBlockOptions = {
     useBlockAllAPI: true
+  }
+  private progress: ChainBlockProgress = {
+    total: this.targetUser.followers_count,
+    alreadyBlocked: 0,
+    skipped: 0,
+    blockSuccess: 0,
+    blockFail: 0
   }
   constructor (targetUser: TwitterUser, optionsInput: Partial<ChainBlockOptions> = {}) {
     super()
     this.targetUser = targetUser
+    // load options
     Object.assign(this.chainBlockOptions, optionsInput)
     Object.freeze(this.chainBlockOptions)
-    this.ui.updateTarget(targetUser)
-    this.ui.on<ChainBlockUIState>('update-state', state => {
-      this.emit('update-ui-state', state)
-    })
+    this.prepareUI()
     this.emit('update-target', targetUser)
   }
-  public showUI(appendTarget: HTMLElement) {
+  get state (): ChainBlockUIState {
+    return this.__state
+  }
+  set state (state: ChainBlockUIState) {
+    this.__state = state
+    this.ui.updateState(state)
+  }
+  public showUI (appendTarget: HTMLElement) {
     this.ui.show(appendTarget)
   }
-  public stop () {
-    this.ui.stop()
+  private prepareUI () {
+    this.ui.updateTarget(this.targetUser)
+    this.handleEvents()
   }
-  get state () {
-    return this.ui.state
+  private handleEvents () {
+    this.ui.on('redblock-ui-close', () => {
+      const shouldNotCloseState = [
+        ChainBlockUIState.Running,
+        ChainBlockUIState.RateLimited,
+        ChainBlockUIState.Initial
+      ]
+      const shouldNotClose = (shouldNotCloseState.includes(this.state) && !window.confirm('체인블락을 중단할까요?'))
+      if (!shouldNotClose) {
+        this.stop()
+      }
+    })
+  }
+  public stop () {
+    this.ui.stop(this.progress)
   }
   public async start () {
     const {
@@ -83,13 +112,7 @@ class ChainBlockSession extends EventEmitter {
       targetUser,
       chainBlockOptions
     } = this
-    const progress: ChainBlockProgress = {
-      total: targetUser.followers_count,
-      alreadyBlocked: 0,
-      skipped: 0,
-      blockSuccess: 0,
-      blockFail: 0
-    }
+    const progress = this.progress
     const updateProgress = () => {
       ui.updateProgress(Object.assign({}, progress))
       this.emit('update-progress', progress)
@@ -109,14 +132,17 @@ class ChainBlockSession extends EventEmitter {
           updateProgress()
         }))
       }
+      let stopped = false
       for await (const user of TwitterAPI.getAllFollowers(targetUser.screen_name)) {
-        const shouldStop = [ChainBlockUIState.Closed, ChainBlockUIState.Stopped].includes(ui.state)
+        const shouldStop = [ChainBlockUIState.Closed, ChainBlockUIState.Stopped].includes(this.state)
         if (shouldStop) {
+          stopped = true
           break
         }
         if (user === 'RateLimitError') {
           TwitterAPI.getRateLimitStatus().then((limits: LimitStatus) => {
             const followerLimit = limits.followers['/followers/list']
+            this.state = ChainBlockUIState.RateLimited
             ui.rateLimited(followerLimit)
             this.emit('rate-limit', followerLimit)
           })
@@ -125,6 +151,7 @@ class ChainBlockSession extends EventEmitter {
           await sleep(1 * minute)
           continue
         }
+        this.state = ChainBlockUIState.Running
         ui.rateLimitResetted()
         this.emit('rate-limit-reset', undefined)
         if (user.blocking) {
@@ -162,10 +189,18 @@ class ChainBlockSession extends EventEmitter {
         flushBlockAllBuffer()
       }
       await Promise.all(blockPromises)
-      ui.complete(Object.assign({}, progress))
-      this.emit('complete', progress)
+      if (stopped) {
+        this.state = ChainBlockUIState.Stopped
+        ui.stop(Object.assign({}, progress))
+        this.emit('stopped', progress)
+      } else {
+        this.state = ChainBlockUIState.Completed
+        ui.complete(Object.assign({}, progress))
+        this.emit('complete', progress)
+      }
     } catch (err) {
       const error = err as Error
+      this.state = ChainBlockUIState.Error
       ui.error(error.message)
       this.emit('error', error.message)
       throw err

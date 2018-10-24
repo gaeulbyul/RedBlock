@@ -16,7 +16,7 @@ abstract class EventEmitter {
     this.events[eventName].push(handler)
     return this
   }
-  emit<T> (eventName: string, eventHandlerParameter: T) {
+  emit<T> (eventName: string, eventHandlerParameter?: T) {
     const handlers = [
       ...this.events[eventName],
       ...this.events['*']
