@@ -88,5 +88,5 @@ type RBMessage = RBStartMessage
   | RBNotifyMessage
 
 declare namespace uuid {
-  function v1 (): string;
+  function v1 (): string
 }

@@ -43,7 +43,10 @@ function extractUserNameFromUrl (urlstr: string): string | null {
 }
 
 async function executeChainBlock () {
-  const tabs = await browser.tabs.query({active: true, currentWindow: true})
+  const tabs = await browser.tabs.query({
+    active: true,
+    currentWindow: true
+  })
   const currentTab = tabs[0]
   if (!currentTab) {
     return

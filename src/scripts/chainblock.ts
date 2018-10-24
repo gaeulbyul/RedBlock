@@ -35,8 +35,8 @@ async function doChainBlock (targetUserName: string) {
   }
 }
 
-browser.runtime.onMessage.addListener((msg_: object) => {
-  const message = msg_ as RBMessage
+browser.runtime.onMessage.addListener((msgobj: object) => {
+  const message = msgobj as RBMessage
   switch (message.action) {
     case Action.Start: {
       if (document.querySelector('.mobcb-bg') != null) {
