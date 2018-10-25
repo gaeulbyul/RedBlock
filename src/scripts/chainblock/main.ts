@@ -58,10 +58,10 @@ class ChainBlockSession extends EventEmitter {
   private targetUser: TwitterUser
   private __state: ChainBlockUIState = ChainBlockUIState.Initial
   private chainBlockOptions: ChainBlockOptions = {
-    useBlockAllAPI: true
+    useBlockAllAPI: false
   }
   private progress: ChainBlockProgress = {
-    total: this.targetUser.followers_count,
+    total: 0,
     alreadyBlocked: 0,
     skipped: 0,
     blockSuccess: 0,
@@ -70,6 +70,7 @@ class ChainBlockSession extends EventEmitter {
   constructor (targetUser: TwitterUser, optionsInput: Partial<ChainBlockOptions> = {}) {
     super()
     this.targetUser = targetUser
+    this.progress.total = this.targetUser.followers_count
     // load options
     Object.assign(this.chainBlockOptions, optionsInput)
     Object.freeze(this.chainBlockOptions)
@@ -99,12 +100,10 @@ class ChainBlockSession extends EventEmitter {
       ]
       const shouldNotClose = (shouldNotCloseState.includes(this.state) && !window.confirm('체인블락을 중단할까요?'))
       if (!shouldNotClose) {
-        this.stop()
+        this.ui.stop(this.progress)
+        this.ui.close()
       }
     })
-  }
-  public stop () {
-    this.ui.stop(this.progress)
   }
   public async start () {
     const {
