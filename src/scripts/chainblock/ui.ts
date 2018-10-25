@@ -97,10 +97,11 @@ class ChainBlockUI extends EventEmitter {
   public complete (progress: ChainBlockProgress) {
     this.updateProgress(progress)
     const message = `체인블락 완료! 총 ${progress.blockSuccess}명의 사용자를 차단했습니다.`
-    browser.runtime.sendMessage({
+    browser.runtime.sendMessage<RBNotifyMessage>({
       action: Action.ShowNotify,
-      title: 'RedBlock',
-      message
+      notification: {
+        message
+      }
     })
   }
   public error (message: string) {
@@ -109,10 +110,11 @@ class ChainBlockUI extends EventEmitter {
   public stop (progress: ChainBlockProgress) {
     this.updateProgress(progress)
     const message = `체인블락 중지! 총 ${progress.blockSuccess}명의 사용자를 차단했습니다.`
-    browser.runtime.sendMessage({
+    browser.runtime.sendMessage<RBNotifyMessage>({
       action: Action.ShowNotify,
-      title: 'RedBlock',
-      message
+      notification: {
+        message
+      }
     })
   }
   public close () {

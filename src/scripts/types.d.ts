@@ -78,11 +78,11 @@ interface RBConfirmMessage {
 
 interface RBNotifyMessage {
   action: Action.ShowNotify,
-  title: string,
-  message: string
+  notification: BrowserNotification | { message: string }
 }
 
-type RBMessage = RBStartMessage
+type RBMessage =
+  | RBStartMessage
   | RBStopMessage
   | RBConfirmMessage
   | RBNotifyMessage
