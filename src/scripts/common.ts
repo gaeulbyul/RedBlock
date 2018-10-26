@@ -7,9 +7,13 @@ const enum Action {
 
 abstract class EventEmitter {
   protected events: EventStore = new Proxy({}, {
-    get (target: EventStore, name: string, receiver) {
-      const originalValue = Reflect.get(target, name, receiver)
-      return Array.isArray(originalValue) ? originalValue : []
+    get (target: EventStore, name: string) {
+      const originalValue = Reflect.get(target, name)
+      if (Array.isArray(originalValue)) {
+        return originalValue
+      }
+      Reflect.set(target, name, [])
+      return Reflect.get(target, name)
     }
   })
   on<T> (eventName: string, handler: (t: T) => any) {

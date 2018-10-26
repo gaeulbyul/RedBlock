@@ -123,7 +123,19 @@ class ChainBlockUI extends EventEmitter {
   private attachEvents () {
     this.rootElem.querySelector('.redblock-close')!.addEventListener('click', event => {
       event.preventDefault()
-      this.emit('redblock-ui-close')
+      this.emit('ui-close')
     })
+  }
+  public static changeUserProfileButtonToBlocked (user: TwitterUser) {
+    Array
+      .from(document.querySelectorAll('.ProfileCard[data-user-id]'))
+      .filter(elem => elem.getAttribute('data-user-id') === user.id_str)
+      .map(profile => profile.querySelector<HTMLElement>('.user-actions'))
+      .forEach(actions => {
+        if (actions) {
+          actions.classList.remove('not-following')
+          actions.classList.add('blocked')
+        }
+      })
   }
 }

@@ -38,13 +38,8 @@ browser.runtime.onMessage.addListener((msgobj: object) => {
       if (document.querySelector('.mobcb-bg') != null) {
         window.alert('Mirror Of Block 작동중엔 사용할 수 없습니다.')
         return
-      } else if (document.querySelector('.redblock-bg') != null) {
-        window.alert('이미 Red Block이 실행중입니다.')
-        return
       }
-      doChainBlock(message.userName).then(() => {
-        // console.dir(result)
-      })
+      void doChainBlock(message.userName)
     } break
   }
 })
