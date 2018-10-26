@@ -1,11 +1,7 @@
 type HTTPMethods = 'get' | 'delete' | 'post' | 'put'
 type URLParamsObj = { [key: string]: string | number | boolean }
 
-interface Blockable {
-  id_str: string
-}
-
-interface TwitterUser extends Blockable {
+interface TwitterUser {
   id_str: string,
   screen_name: string,
   name: string,
@@ -30,11 +26,6 @@ interface FollowsIdsResponse {
   ids: string[]
 }
 
-interface BlockAllResult {
-  blocked: string[],
-  failed: string[]
-}
-
 interface Limit {
   limit: number,
   remaining: number,
@@ -46,8 +37,7 @@ interface LimitStatus {
     '/application/rate_limit_status': Limit
   },
   blocks: {
-    '/blocks/create': Limit,
-    '/blocks/destroy': Limit,
+    // note: POST API (create, destroy) not exists.
     '/blocks/list': Limit,
     '/blocks/ids': Limit
   },

@@ -19,7 +19,7 @@ class ChainBlocker {
       }
     })
   }
-  add (targetUser: TwitterUser, optionsInput: Partial<ChainBlockOptions> = {}) {
+  add (targetUser: TwitterUser) {
     const targetUserName = targetUser.screen_name
     if (this.sessions.has(targetUserName)) {
       const ses = this.sessions.get(targetUserName)
@@ -28,8 +28,8 @@ class ChainBlocker {
         return
       }
     }
-    const session = new ChainBlockSession(targetUser, optionsInput)
-    session.on<ChainBlockUIState>('update-ui-state', state => {
+    const session = new ChainBlockSession(targetUser)
+    session.on<ChainBlockUIState>('update-ui-state', (state: ChainBlockUIState) => {
       if (state === ChainBlockUIState.Closed) {
         this.sessions.delete(targetUserName)
       }
@@ -57,10 +57,6 @@ class ChainBlockSession extends EventEmitter {
   private readonly ui = new ChainBlockUI
   private targetUser: TwitterUser
   private __state: ChainBlockUIState = ChainBlockUIState.Initial
-  public readonly chainBlockOptions: ChainBlockOptions = {
-    'unsafe useIdsAPI': false,
-    useBlockAllAPI: false
-  }
   private progress: ChainBlockProgress = {
     total: 0,
     alreadyBlocked: 0,
@@ -68,13 +64,10 @@ class ChainBlockSession extends EventEmitter {
     blockSuccess: 0,
     blockFail: 0
   }
-  constructor (targetUser: TwitterUser, optionsInput: Partial<ChainBlockOptions> = {}) {
+  constructor (targetUser: TwitterUser) {
     super()
     this.targetUser = targetUser
     this.progress.total = this.targetUser.followers_count
-    // load options
-    Object.assign(this.chainBlockOptions, optionsInput)
-    Object.freeze(this.chainBlockOptions)
     this.prepareUI()
     this.emit('update-target', targetUser)
   }
@@ -89,7 +82,6 @@ class ChainBlockSession extends EventEmitter {
     this.ui.show(appendTarget)
   }
   private prepareUI () {
-    this.ui.updateOptions(this.chainBlockOptions)
     this.ui.updateTarget(this.targetUser)
     this.handleEvents()
   }
@@ -108,9 +100,8 @@ class ChainBlockSession extends EventEmitter {
     })
   }
   private async rateLimited () {
-    const path = this.chainBlockOptions['unsafe useIdsAPI'] ? '/followers/ids' : '/followers/ids'
     const limits = await TwitterAPI.getRateLimitStatus()
-    const followerLimit = limits.followers[path]
+    const followerLimit = limits.followers['/followers/list']
     this.state = ChainBlockUIState.RateLimited
     this.ui.rateLimited(followerLimit)
     this.emit('rate-limit', followerLimit)
@@ -137,8 +128,7 @@ class ChainBlockSession extends EventEmitter {
   public async start () {
     const {
       ui,
-      targetUser,
-      chainBlockOptions
+      targetUser
     } = this
     const progress = this.progress
     const updateProgress = () => {
@@ -146,31 +136,9 @@ class ChainBlockSession extends EventEmitter {
       this.emit('update-progress', progress)
     }
     try {
-      const blockAllBuffer: Blockable[] = []
       const blockPromises: Promise<void>[] = []
-      function flushBlockAllBuffer () {
-        if (blockAllBuffer.length <= 0) {
-          return
-        }
-        const ids = blockAllBuffer.map(({ id_str }) => id_str)
-        blockAllBuffer.length = 0
-        blockPromises.push(TwitterExperimentalBlocker.blockAllByIds(ids).then(result => {
-          progress.blockSuccess += result.blocked.length
-          progress.blockFail += result.failed.length
-          if (result.failed.length > 0) {
-            console.error('failed to block these users: ', result.failed.join(','))
-          }
-          updateProgress()
-        }))
-      }
       let stopped = false
-      let scraper: AsyncIterableIterator<RateLimited<TwitterUser | Blockable>>;
-      if (this.chainBlockOptions['unsafe useIdsAPI']) {
-        scraper = TwitterAPI.getAllFollowersIds(targetUser.screen_name)
-      } else {
-        scraper = TwitterAPI.getAllFollowers(targetUser.screen_name)
-      }
-      for await (const user of scraper) {
+      for await (const user of TwitterAPI.getAllFollowers(targetUser.screen_name)) {
         const shouldStop = [ChainBlockUIState.Closed, ChainBlockUIState.Stopped].includes(this.state)
         if (shouldStop) {
           stopped = true
@@ -191,29 +159,21 @@ class ChainBlockSession extends EventEmitter {
             continue
           }
         }
-        if (chainBlockOptions.useBlockAllAPI) {
-          blockAllBuffer.push(user)
-          if (blockAllBuffer.length >= 800) {
-            flushBlockAllBuffer()
-          }
+        let blockUser: Promise<boolean>
+        if ('screen_name' in user) {
+          blockUser = TwitterAPI.blockUser(user)
         } else {
-          let blockUser: Promise<boolean>
-          if ('screen_name' in user) {
-            blockUser = TwitterAPI.blockUser(user)
-          } else {
-            blockUser = TwitterAPI.blockUserUnsafe(user)
-          }
-          blockPromises.push(blockUser.then((blockResult: boolean) => {
-            if (blockResult) {
-              ++progress.blockSuccess
-            } else {
-              ++progress.blockFail
-            }
-            updateProgress()
-          }))
+          blockUser = TwitterAPI.blockUserUnsafe(user)
         }
+        blockPromises.push(blockUser.then((blockResult: boolean) => {
+          if (blockResult) {
+            ++progress.blockSuccess
+          } else {
+            ++progress.blockFail
+          }
+          updateProgress()
+        }))
       }
-      flushBlockAllBuffer()
       await Promise.all(blockPromises)
       if (stopped) {
         this.state = ChainBlockUIState.Stopped
