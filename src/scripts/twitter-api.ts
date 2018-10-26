@@ -1,4 +1,3 @@
-
 namespace TwitterAPI {
   const BEARER_TOKEN = `AAAAAAAAAAAAAAAAAAAAANRILgAAAAAAnNwIzUejRCOuH5E6I8xnZz4puTs%3D1Zv7ttfk8LF81IUq16cHjhLTvJu4FA33AGWWjCpTnA`
 
@@ -80,7 +79,7 @@ namespace TwitterAPI {
     return blockUserUnsafe(user)
   }
 
-  export async function blockUserUnsafe (user: TwitterUser): Promise<boolean> {
+  export async function blockUserUnsafe (user: Blockable): Promise<boolean> {
     const response = await requestAPI('post', '/blocks/create.json', {
       user_id: user.id_str,
       include_entities: false,
@@ -89,7 +88,6 @@ namespace TwitterAPI {
     return response.ok
   }
 
-  /*
   async function getFollowersIds (userName: string, cursor: string = '-1'): Promise<FollowsIdsResponse> {
     const response = await requestAPI('get', '/followers/ids.json', {
       screen_name: userName,
@@ -103,7 +101,29 @@ namespace TwitterAPI {
       throw new Error('response is not ok')
     }
   }
-  */
+
+  export async function* getAllFollowersIds (userName: string): AsyncIterableIterator<RateLimited<Blockable>> {
+    let cursor: string = '-1'
+    while (true) {
+      try {
+        const json = await getFollowersIds(userName, cursor)
+        cursor = json.next_cursor_str
+        yield* json.ids.map(id_str => ({ id_str }))
+        if (cursor === '0') {
+          break
+        } else {
+          await sleep(300)
+          continue
+        }
+      } catch (e) {
+        if (e instanceof RateLimitError) {
+          yield 'RateLimitError'
+        } else {
+          throw e
+        }
+      }
+    }
+  }
 
   async function getFollowersList (userName: string, cursor: string = '-1'): Promise<FollowsListResponse> {
     const response = await requestAPI('get', '/followers/list.json', {
@@ -141,7 +161,6 @@ namespace TwitterAPI {
           throw e
         }
       }
-      // break
     }
   }
 
@@ -172,5 +191,4 @@ namespace TwitterAPI {
     const resources = (await response.json()).resources as LimitStatus
     return resources
   }
-
 }

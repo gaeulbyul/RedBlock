@@ -1,7 +1,11 @@
 type HTTPMethods = 'get' | 'delete' | 'post' | 'put'
 type URLParamsObj = { [key: string]: string | number | boolean }
 
-interface TwitterUser {
+interface Blockable {
+  id_str: string
+}
+
+interface TwitterUser extends Blockable {
   id_str: string,
   screen_name: string,
   name: string,

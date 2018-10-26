@@ -57,7 +57,8 @@ class ChainBlockSession extends EventEmitter {
   private readonly ui = new ChainBlockUI
   private targetUser: TwitterUser
   private __state: ChainBlockUIState = ChainBlockUIState.Initial
-  private chainBlockOptions: ChainBlockOptions = {
+  public readonly chainBlockOptions: ChainBlockOptions = {
+    'unsafe useIdsAPI': false,
     useBlockAllAPI: false
   }
   private progress: ChainBlockProgress = {
@@ -88,6 +89,7 @@ class ChainBlockSession extends EventEmitter {
     this.ui.show(appendTarget)
   }
   private prepareUI () {
+    this.ui.updateOptions(this.chainBlockOptions)
     this.ui.updateTarget(this.targetUser)
     this.handleEvents()
   }
@@ -105,6 +107,33 @@ class ChainBlockSession extends EventEmitter {
       }
     })
   }
+  private async rateLimited () {
+    const path = this.chainBlockOptions['unsafe useIdsAPI'] ? '/followers/ids' : '/followers/ids'
+    const limits = await TwitterAPI.getRateLimitStatus()
+    const followerLimit = limits.followers[path]
+    this.state = ChainBlockUIState.RateLimited
+    this.ui.rateLimited(followerLimit)
+    this.emit('rate-limit', followerLimit)
+  }
+  private async rateLimitResetted () {
+    this.state = ChainBlockUIState.Running
+    this.ui.rateLimitResetted()
+    this.emit('rate-limit-reset', undefined)
+  }
+  private checkUserSkip (user: TwitterUser): 'alreadyBlocked' | 'skipped' | null {
+    if (user.blocking) {
+      return 'alreadyBlocked'
+    }
+    const followSkip = _.some([
+      user.following,
+      user.followed_by,
+      user.follow_request_sent
+    ])
+    if (followSkip) {
+      return 'skipped'
+    }
+    return null
+  }
   public async start () {
     const {
       ui,
@@ -117,10 +146,13 @@ class ChainBlockSession extends EventEmitter {
       this.emit('update-progress', progress)
     }
     try {
-      const blockAllBuffer: TwitterUser[] = []
+      const blockAllBuffer: Blockable[] = []
       const blockPromises: Promise<void>[] = []
       function flushBlockAllBuffer () {
-        const ids = blockAllBuffer.map(user => user.id_str)
+        if (blockAllBuffer.length <= 0) {
+          return
+        }
+        const ids = blockAllBuffer.map(({ id_str }) => id_str)
         blockAllBuffer.length = 0
         blockPromises.push(TwitterExperimentalBlocker.blockAllByIds(ids).then(result => {
           progress.blockSuccess += result.blocked.length
@@ -132,41 +164,32 @@ class ChainBlockSession extends EventEmitter {
         }))
       }
       let stopped = false
-      for await (const user of TwitterAPI.getAllFollowers(targetUser.screen_name)) {
+      let scraper: AsyncIterableIterator<RateLimited<TwitterUser | Blockable>>;
+      if (this.chainBlockOptions['unsafe useIdsAPI']) {
+        scraper = TwitterAPI.getAllFollowersIds(targetUser.screen_name)
+      } else {
+        scraper = TwitterAPI.getAllFollowers(targetUser.screen_name)
+      }
+      for await (const user of scraper) {
         const shouldStop = [ChainBlockUIState.Closed, ChainBlockUIState.Stopped].includes(this.state)
         if (shouldStop) {
           stopped = true
           break
         }
         if (user === 'RateLimitError') {
-          TwitterAPI.getRateLimitStatus().then((limits: LimitStatus) => {
-            const followerLimit = limits.followers['/followers/list']
-            this.state = ChainBlockUIState.RateLimited
-            ui.rateLimited(followerLimit)
-            this.emit('rate-limit', followerLimit)
-          })
+          this.rateLimited()
           const second = 1000
           const minute = second * 60
           await sleep(1 * minute)
           continue
         }
-        this.state = ChainBlockUIState.Running
-        ui.rateLimitResetted()
-        this.emit('rate-limit-reset', undefined)
-        if (user.blocking) {
-          ++progress.alreadyBlocked
-          updateProgress()
-          continue
-        }
-        const followSkip = _.some([
-          user.following,
-          user.followed_by,
-          user.follow_request_sent
-        ])
-        if (followSkip) {
-          ++progress.skipped
-          updateProgress()
-          continue
+        this.rateLimitResetted()
+        if ('screen_name' in user) {
+          const shouldSkip = this.checkUserSkip(user)
+          if (shouldSkip) {
+            progress[shouldSkip]++
+            continue
+          }
         }
         if (chainBlockOptions.useBlockAllAPI) {
           blockAllBuffer.push(user)
@@ -174,7 +197,13 @@ class ChainBlockSession extends EventEmitter {
             flushBlockAllBuffer()
           }
         } else {
-          blockPromises.push(TwitterAPI.blockUser(user).then(blockResult => {
+          let blockUser: Promise<boolean>
+          if ('screen_name' in user) {
+            blockUser = TwitterAPI.blockUser(user)
+          } else {
+            blockUser = TwitterAPI.blockUserUnsafe(user)
+          }
+          blockPromises.push(blockUser.then((blockResult: boolean) => {
             if (blockResult) {
               ++progress.blockSuccess
             } else {
@@ -184,9 +213,7 @@ class ChainBlockSession extends EventEmitter {
           }))
         }
       }
-      if (chainBlockOptions.useBlockAllAPI && blockAllBuffer.length > 0) {
-        flushBlockAllBuffer()
-      }
+      flushBlockAllBuffer()
       await Promise.all(blockPromises)
       if (stopped) {
         this.state = ChainBlockUIState.Stopped

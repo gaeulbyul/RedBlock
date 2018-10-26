@@ -8,6 +8,7 @@ const CHAINBLOCK_UI_HTML = `
       <span class="redblock-blocked-user">0</span>명 차단
       <br>
       <small>
+        <span class="redblock-unsafe-indicator"></span>
         진행율: <span class="redblock-progress-percentage">0</span>%,
         이미 차단: <span class="redblock-already-blocked-user">0</span>,
         스킵: <span class="redblock-skipped-user">0</span>,
@@ -42,6 +43,16 @@ class ChainBlockUI extends EventEmitter {
   public show (appendTarget: HTMLElement) {
     this.attachEvents()
     appendTarget.appendChild(this.rootElem)
+  }
+  public updateOptions(options: ChainBlockOptions) {
+    if (options['unsafe useIdsAPI']) {
+      // 26a0 == '⚠'
+      const indicator = document.querySelector<HTMLElement>('.redblock-unsafe-indicator')
+      if (indicator) {
+        indicator.title = 'Unsafe 모드: 팔로우 체크를 하지 않습니다.'
+        indicator.textContent = '\u26A0'
+      }
+    }
   }
   public updateTarget (targetUser: TwitterUser) {
     const rootElem = this.rootElem

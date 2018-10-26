@@ -7,6 +7,7 @@ interface ChainBlockProgress {
 }
 
 interface ChainBlockOptions {
+  'unsafe useIdsAPI': boolean,
   useBlockAllAPI: boolean
 }
 
@@ -30,7 +31,24 @@ async function doChainBlock (targetUserName: string) {
 ㅁㅁㅁㅁㅁㅁㅁㅁㅁㅁㅁㅁㅁㅁㅁㅁㅁㅁㅁㅁㅁㅁㅁㅁㅁㅁㅁㅁㅁㅁ
   `.trim()
   if (window.confirm(confirmMessage)) {
-    blocker.add(targetUser)
+    const unsafeConfirmMessage = window.confirm(`
+♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥
+CAUTION CAUTION CAUTION CAUTION CAUTION CAUTION
+♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥
+>>>>> unsafe mode? <<<<<
+♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥
+CAUTION CAUTION CAUTION CAUTION CAUTION CAUTION
+♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥
+    `)
+    const cbOptions: ChainBlockOptions = {
+      useBlockAllAPI: false,
+      'unsafe useIdsAPI': false
+    }
+    if (unsafeConfirmMessage) {
+      // cbOptions.useBlockAllAPI = true
+      cbOptions['unsafe useIdsAPI'] = true
+    }
+    blocker.add(targetUser, cbOptions)
     blocker.start()
   }
 }
