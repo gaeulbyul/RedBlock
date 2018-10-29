@@ -22,16 +22,18 @@ interface BrowserNotification {
   progress?: number
 }
 
+type BNotificationOptions = browser.notifications.NotificationOptions
+
 browser.runtime.onMessage.addListener((msgobj: object) => {
   const msg = msgobj as RBMessage
   if (msg.action === Action.ShowNotify) {
-    const notif: browser.notifications.NotificationOptions = {
+    const notif: BNotificationOptions = {
       type: 'basic',
       iconUrl: 'icon/icon-128.png',
       title: 'Red Block',
       message: ''
     }
-    Object.assign<browser.notifications.NotificationOptions, Partial<BrowserNotification>>(notif, msg.notification)
+    Object.assign<BNotificationOptions, Partial<BrowserNotification>>(notif, msg.notification)
     browser.notifications.create(null, notif)
   }
 })

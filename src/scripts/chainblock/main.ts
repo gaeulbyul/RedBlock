@@ -1,6 +1,7 @@
 class ChainBlocker {
   private readonly sessions: Map<string, ChainBlockSession> = new Map
   private readonly container: HTMLElement = document.createElement('div')
+  private readonly allowMultipleSession = false
   constructor () {
     this.container.className = 'redblock-bg'
     this.container.style.display = 'none'
@@ -26,7 +27,7 @@ class ChainBlocker {
     return shouldPreventUnload.length > 0
   }
   public add (targetUser: TwitterUser) {
-    if (this.isRunning()) {
+    if (!this.allowMultipleSession && this.isRunning()) {
       window.alert('이미 체인블락이 실행중입니다.')
       return
     }
@@ -42,20 +43,25 @@ class ChainBlocker {
     session.on('close', () => {
       this.remove(targetUser)
     })
-    session.showUI(this.container)
+    session.appendToContainer(this.container)
     this.sessions.set(targetUserName, session)
   }
   public remove (targetUser: TwitterUser) {
     this.sessions.delete(targetUser.screen_name)
     if (!this.isRunning()) {
-      this.container.style.display = 'none'
+      this.hide()
     }
   }
-  async start () {
+  public show () {
+    this.container.style.display = ''
+  }
+  public hide () {
+    this.container.style.display = 'none'
+  }
+  public async start () {
     if (this.isRunning()) {
       return
     }
-    this.container.style.display = ''
     const sessions = this.sessions.values()
     for (const session of sessions) {
       if (session.state === ChainBlockUIState.Initial) {
@@ -88,7 +94,7 @@ class ChainBlockSession extends EventEmitter {
     this._state = state
     this.ui.updateState(state)
   }
-  public showUI (appendTarget: HTMLElement) {
+  public appendToContainer (appendTarget: HTMLElement) {
     this.ui.show(appendTarget)
   }
   private prepareUI () {
@@ -105,16 +111,29 @@ class ChainBlockSession extends EventEmitter {
       const shouldConfirm = shouldConfirmStates.includes(this.state)
       const shouldClose = (!shouldConfirm || (shouldConfirm && window.confirm('체인블락을 중단할까요?')))
       if (shouldClose) {
-        this.ui.stop(this.progress)
-        this.ui.close()
-        this.emit('close')
+        this.stop()
+        this.close()
       }
     })
   }
+  public stop () {
+    this.state = ChainBlockUIState.Stopped
+    this.ui.stop(copyFrozenObject(this.progress))
+    this.emit('stop')
+  }
+  public complete () {
+    this.state = ChainBlockUIState.Completed
+    this.ui.complete(copyFrozenObject(this.progress))
+    this.emit('complete')
+  }
+  public close() {
+    this.ui.close()
+    this.emit('close')
+  }
   private async rateLimited () {
+    this.state = ChainBlockUIState.RateLimited
     const limits = await TwitterAPI.getRateLimitStatus()
     const followerLimit = limits.followers['/followers/list']
-    this.state = ChainBlockUIState.RateLimited
     this.ui.rateLimited(followerLimit)
     this.emit('rate-limit', followerLimit)
   }
@@ -123,14 +142,14 @@ class ChainBlockSession extends EventEmitter {
     this.ui.rateLimitResetted()
     this.emit('rate-limit-reset', undefined)
   }
-  private checkUserSkip (user: TwitterUser): 'alreadyBlocked' | 'skipped' | null {
-    if (user.blocking) {
+  private checkUserSkip (follower: TwitterUser): 'alreadyBlocked' | 'skipped' | null {
+    if (follower.blocking) {
       return 'alreadyBlocked'
     }
     const followSkip = _.some([
-      user.following,
-      user.followed_by,
-      user.follow_request_sent
+      follower.following,
+      follower.followed_by,
+      follower.follow_request_sent
     ])
     if (followSkip) {
       return 'skipped'
@@ -138,62 +157,62 @@ class ChainBlockSession extends EventEmitter {
     return null
   }
   public async start () {
-    const {
-      ui,
-      targetUser
-    } = this
     const progress = this.progress
     const updateProgress = () => {
-      ui.updateProgress(Object.assign({}, progress))
+      this.ui.updateProgress(copyFrozenObject(this.progress))
       this.emit('update-progress', progress)
     }
     try {
       const blockPromises: Promise<void>[] = []
       let stopped = false
-      for await (const user of TwitterAPI.getAllFollowers(targetUser.screen_name)) {
+      for await (const follower of TwitterAPI.getAllFollowers(this.targetUser)) {
         const shouldStop = [ChainBlockUIState.Closed, ChainBlockUIState.Stopped].includes(this.state)
         if (shouldStop) {
           stopped = true
           break
         }
-        if (user === 'RateLimitError') {
+        if (follower === 'RateLimitError') {
           this.rateLimited()
           const second = 1000
           const minute = second * 60
           await sleep(1 * minute)
           continue
         }
-        this.rateLimitResetted()
-        const shouldSkip = this.checkUserSkip(user)
+        if (this.state === ChainBlockUIState.RateLimited) {
+          this.rateLimitResetted()
+        }
+        this.state = ChainBlockUIState.Running
+        const shouldSkip = this.checkUserSkip(follower)
         if (shouldSkip) {
-          progress[shouldSkip]++
+          ++progress[shouldSkip]
           updateProgress()
           continue
         }
-        blockPromises.push(TwitterAPI.blockUser(user).then((blockResult: boolean) => {
+        blockPromises.push(TwitterAPI.blockUser(follower).then((blockResult: boolean) => {
           if (blockResult) {
             ++progress.blockSuccess
-            ChainBlockUI.changeUserProfileButtonToBlocked(user)
+            ChainBlockUI.changeUserProfileButtonToBlocked(follower)
           } else {
             ++progress.blockFail
           }
           updateProgress()
         }))
+        if (blockPromises.length >= 200) {
+          await Promise.all(blockPromises).then(() => {
+            blockPromises.length = 0
+          })
+        }
       }
       await Promise.all(blockPromises)
       if (stopped) {
-        this.state = ChainBlockUIState.Stopped
-        ui.stop(Object.assign({}, progress))
-        this.emit('stopped', progress)
+        this.stop()
       } else {
-        this.state = ChainBlockUIState.Completed
-        ui.complete(Object.assign({}, progress))
-        this.emit('complete', progress)
+        this.complete()
       }
     } catch (err) {
       const error = err as Error
       this.state = ChainBlockUIState.Error
-      ui.error(error.message)
+      this.ui.error(error.message)
       this.emit('error', error.message)
       throw err
     }

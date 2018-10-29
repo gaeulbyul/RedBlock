@@ -38,6 +38,19 @@ class ChainBlockUI extends EventEmitter {
   constructor () {
     super()
     this.rootElem.innerHTML = CHAINBLOCK_UI_HTML
+    this.updateState(ChainBlockUIState.Initial)
+    this.applyStyleOnMobile()
+  }
+  private applyStyleOnMobile () {
+    if (!document.getElementById('react-root')) {
+      return
+    }
+    const rootElem = this.rootElem
+    const backgroundColor = document.body.style.backgroundColor
+    rootElem.style.backgroundColor = backgroundColor
+    if (/\bnight_mode=1\b/.test(document.cookie)) {
+      rootElem.style.color = 'white'
+    }
   }
   public show (appendTarget: HTMLElement) {
     this.attachEvents()
@@ -50,7 +63,7 @@ class ChainBlockUI extends EventEmitter {
     txt('.redblock-target-total-followers', targetUser.followers_count)
     rootElem.querySelector<HTMLProgressElement>('.redblock-progress')!.max = targetUser.followers_count
   }
-  public updateProgress (progress: ChainBlockProgress) {
+  public updateProgress (progress: Readonly<ChainBlockProgress>) {
     const rootElem = this.rootElem
     const txt = setText(rootElem)
     txt('.redblock-blocked-user', progress.blockSuccess)
@@ -63,6 +76,8 @@ class ChainBlockUI extends EventEmitter {
       progress.blockSuccess,
       progress.skipped
     ])
+    const percentage = Math.round((progressBarValue / progress.total) * 1000) / 10
+    txt('.redblock-progress-percentage', percentage)
     rootElem.querySelector<HTMLProgressElement>('.redblock-progress')!.value = progressBarValue
   }
   public updateState (state: ChainBlockUIState) {
@@ -96,6 +111,7 @@ class ChainBlockUI extends EventEmitter {
   }
   public complete (progress: ChainBlockProgress) {
     this.updateProgress(progress)
+    setText(this.rootElem)('.redblock-progress-percentage', 100)
     const message = `체인블락 완료! 총 ${progress.blockSuccess}명의 사용자를 차단했습니다.`
     browser.runtime.sendMessage<RBNotifyMessage>({
       action: Action.ShowNotify,
@@ -127,15 +143,21 @@ class ChainBlockUI extends EventEmitter {
     })
   }
   public static changeUserProfileButtonToBlocked (user: TwitterUser) {
+    const userId = user.id_str
     Array
-      .from(document.querySelectorAll('.ProfileCard[data-user-id]'))
-      .filter(elem => elem.getAttribute('data-user-id') === user.id_str)
-      .map(profile => profile.querySelector<HTMLElement>('.user-actions'))
+      .from(document.querySelectorAll<HTMLElement>(`.ProfileCard[data-user-id="${userId}"] .user-actions`))
       .forEach(actions => {
-        if (actions) {
-          actions.classList.remove('not-following')
-          actions.classList.add('blocked')
-        }
+        actions.classList.remove('not-following')
+        actions.classList.add('blocked')
+      })
+    Array
+      .from(document.querySelectorAll<HTMLElement>(`#react-root div[role=button][data-testid="${userId}-follow"]`))
+      .forEach(elem => {
+        elem.hidden = true
+        Object.assign(elem.style, {
+          visibility: 'hidden',
+          display: 'none'
+        })
       })
   }
 }

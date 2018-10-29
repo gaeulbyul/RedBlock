@@ -65,16 +65,16 @@ namespace TwitterAPI {
   }
 
   export async function blockUser (user: TwitterUser): Promise<boolean> {
+    if (user.blocking) {
+      return true
+    }
     const shouldNotBlock = _.some([
-      user.blocking,
       user.following,
       user.followed_by,
       user.follow_request_sent
     ])
     if (shouldNotBlock) {
-      console.error('!!!!! FATAL!!!!!: attempted to block user that should NOT block!!')
-      debugger
-      return false
+      throw new Error('!!!!! FATAL!!!!!: attempted to block user that should NOT block!!')
     }
     return blockUserUnsafe(user)
   }
@@ -88,10 +88,10 @@ namespace TwitterAPI {
     return response.ok
   }
 
-  async function getFollowersList (userName: string, cursor: string = '-1'): Promise<FollowsListResponse> {
+  async function getFollowersList (user: TwitterUser, cursor: string = '-1'): Promise<FollowsListResponse> {
     const response = await requestAPI('get', '/followers/list.json', {
-      // user_id: userId
-      screen_name: userName,
+      user_id: user.id_str,
+      // screen_name: userName,
       count: 200,
       skip_status: true,
       include_user_entities: false,
@@ -104,11 +104,11 @@ namespace TwitterAPI {
     }
   }
 
-  export async function* getAllFollowers (userName: string): AsyncIterableIterator<RateLimited<TwitterUser>> {
+  export async function* getAllFollowers (user: TwitterUser): AsyncIterableIterator<RateLimited<TwitterUser>> {
     let cursor: string = '-1'
     while (true) {
       try {
-        const json = await getFollowersList(userName, cursor)
+        const json = await getFollowersList(user, cursor)
         cursor = json.next_cursor_str
         yield* json.users
         if (cursor === '0') {
@@ -129,6 +129,7 @@ namespace TwitterAPI {
 
   export async function getSingleUserByName (userName: string): Promise<TwitterUser> {
     const response = await requestAPI('get', '/users/show.json', {
+      // user_id: user.id_str,
       screen_name: userName,
       skip_status: true,
       include_entities: false

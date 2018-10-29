@@ -46,6 +46,9 @@ progress.redblock-progress {
   margin: 5px 0;
   float: right;
 }
+.redblock-controls .btn {
+  border-radius: 5px;
+}
 .redblock-controls .normal-btn {
   color: inherit;
 }
@@ -56,7 +59,7 @@ progress.redblock-progress {
   margin: 0 5px;
 }
 .redblock-blocked-user {
-  color: crimson;
+  font-weight: bold;
 }
 /* ---------- 모바일 ---------- */
 .redblock-mobile .redblock-bg {
