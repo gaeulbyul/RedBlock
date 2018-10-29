@@ -20,6 +20,10 @@ const blocker = new ChainBlocker()
 
 async function doChainBlock (targetUserName: string) {
   const targetUser = await TwitterAPI.getSingleUserByName(targetUserName)
+  if (targetUser.followers_count <= 0) {
+    window.alert('차단할 팔로워가 전혀 없습니다.')
+    return
+  }
   const confirmMessage = `
 ㅁㅁㅁㅁㅁㅁㅁㅁㅁㅁㅁㅁㅁㅁㅁㅁㅁㅁㅁㅁㅁㅁㅁㅁㅁㅁㅁㅁㅁㅁ
 정말로 @${targetUserName}에게 체인블락을 실행하시겠습니까?
@@ -27,6 +31,8 @@ async function doChainBlock (targetUserName: string) {
   `.trim()
   if (window.confirm(confirmMessage)) {
     blocker.add(targetUser)
+    blocker.show()
+    await sleep(5000)
     blocker.start()
   }
 }
