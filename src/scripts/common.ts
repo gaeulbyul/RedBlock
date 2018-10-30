@@ -1,6 +1,6 @@
 const enum Action {
-  Start = 'RedBlock/Start',
-  Stop = 'RedBlock/Stop',
+  StartChainBlock = 'RedBlock/Start',
+  StopChainBlock = 'RedBlock/Stop',
   ConfirmChainBlock = 'RedBlock/ConfirmedChainBlock',
   ShowNotify = 'RedBlock/ShowNotify'
 }

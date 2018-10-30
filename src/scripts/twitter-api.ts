@@ -1,7 +1,11 @@
 namespace TwitterAPI {
   const BEARER_TOKEN = `AAAAAAAAAAAAAAAAAAAAANRILgAAAAAAnNwIzUejRCOuH5E6I8xnZz4puTs%3D1Zv7ttfk8LF81IUq16cHjhLTvJu4FA33AGWWjCpTnA`
 
-  class RateLimitError extends Error {}
+  export class RateLimitError extends Error {
+    public async getLimitStatus (): Promise<LimitStatus> {
+      return getRateLimitStatus()
+    }
+  }
 
   function rateLimited (resp: Response): boolean {
     return resp.status === 429
@@ -85,7 +89,9 @@ namespace TwitterAPI {
       include_entities: false,
       skip_status: true
     })
-    return response.ok
+    const result = response.ok
+    void response.text()
+    return result
   }
 
   async function getFollowersList (user: TwitterUser, cursor: string = '-1'): Promise<FollowsListResponse> {
@@ -104,7 +110,11 @@ namespace TwitterAPI {
     }
   }
 
-  export async function* getAllFollowers (user: TwitterUser): AsyncIterableIterator<RateLimited<TwitterUser>> {
+  export async function* getAllFollowers (user: TwitterUser, optionsInput: Partial<FollowsScraperOptions> = {}): AsyncIterableIterator<RateLimited<TwitterUser>> {
+    const options: FollowsScraperOptions = {
+      delay: 300
+    }
+    Object.assign(options, optionsInput)
     let cursor: string = '-1'
     while (true) {
       try {
@@ -114,7 +124,7 @@ namespace TwitterAPI {
         if (cursor === '0') {
           break
         } else {
-          await sleep(300)
+          await sleep(options.delay)
           continue
         }
       } catch (e) {

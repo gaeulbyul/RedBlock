@@ -14,7 +14,7 @@ const CHAINBLOCK_UI_HTML = `
         실패: <span class="redblock-failed-user">0</span>
       </small>
       <div hidden class="redblock-ratelimit">
-        리밋입니다. (예상리셋시간: <span class="redblock-ratelimit-reset"></span>)
+        리밋입니다. 잠시만 기다려주세요. (예상리셋시간: <span class="redblock-ratelimit-reset"></span>)
       </div>
       <div class="redblock-controls">
         <button class="redblock-close small btn normal-btn">닫기</button>
@@ -80,12 +80,20 @@ class ChainBlockUI extends EventEmitter {
     txt('.redblock-progress-percentage', percentage)
     rootElem.querySelector<HTMLProgressElement>('.redblock-progress')!.value = progressBarValue
   }
+  public updateProgressUser (update: ChainBlockProgressUpdate) {
+    if (update.reason === 'blockSuccess') {
+      ChainBlockUI.changeUserProfileButtonToBlocked(update.user)
+    } else if (update.reason === 'skipped') {
+      const skipped = this.rootElem.querySelector<HTMLElement>('.redblock-skipped-user')
+      skipped!.title += `@${update.user.screen_name}\n`
+    }
+  }
   public updateState (state: ChainBlockUIState) {
     const rootElem = this.rootElem
     const message: {[key: number]: string} = {
       [ChainBlockUIState.Initial]: '대기 중',
       [ChainBlockUIState.Completed]: '완료',
-      [ChainBlockUIState.Running]: '작동 중...',
+      [ChainBlockUIState.Running]: '실행 중...',
       [ChainBlockUIState.RateLimited]: '일시정지(리밋)',
       [ChainBlockUIState.Stopped]: '정지',
       [ChainBlockUIState.Error]: '오류 발생!'
@@ -112,26 +120,34 @@ class ChainBlockUI extends EventEmitter {
   public complete (progress: ChainBlockProgress) {
     this.updateProgress(progress)
     setText(this.rootElem)('.redblock-progress-percentage', 100)
+    const progressBar = this.rootElem.querySelector<HTMLProgressElement>('.redblock-progress')
+    progressBar!.value = progressBar!.max
     const message = `체인블락 완료! 총 ${progress.blockSuccess}명의 사용자를 차단했습니다.`
+    if (!document.hidden) {
+      sleep(500).then(() => window.alert(message))
+    }
     browser.runtime.sendMessage<RBNotifyMessage>({
       action: Action.ShowNotify,
       notification: {
         message
       }
     })
-  }
-  public error (message: string) {
-    window.alert(`체인블락 오류 발생!\n메시지: "${message}"`)
   }
   public stop (progress: ChainBlockProgress) {
     this.updateProgress(progress)
     const message = `체인블락 중지! 총 ${progress.blockSuccess}명의 사용자를 차단했습니다.`
+    if (!document.hidden) {
+      sleep(500).then(() => window.alert(message))
+    }
     browser.runtime.sendMessage<RBNotifyMessage>({
       action: Action.ShowNotify,
       notification: {
         message
       }
     })
+  }
+  public error(message: string) {
+    window.alert(`체인블락 오류 발생!\n메시지: "${message}"`)
   }
   public close () {
     this.rootElem.remove()

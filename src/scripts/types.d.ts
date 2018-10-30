@@ -13,6 +13,9 @@ interface TwitterUser {
   follow_request_sent: boolean,
   friends_count: number,
   followers_count: number,
+  protected: boolean,
+  verified: boolean,
+  created_at: string, // datetime example: 'Sun Jun 29 05:52:09 +0000 2014'
   description: string
 }
 
@@ -24,6 +27,10 @@ interface FollowsListResponse {
 interface FollowsIdsResponse {
   next_cursor_str: string,
   ids: string[]
+}
+
+interface FollowsScraperOptions {
+  delay: number
 }
 
 interface Limit {
@@ -58,12 +65,12 @@ interface EventStore {
 }
 
 interface RBStartMessage {
-  action: Action.Start,
+  action: Action.StartChainBlock,
   userName: string
 }
 
 interface RBStopMessage {
-  action: Action.Stop
+  action: Action.StopChainBlock
 }
 
 interface RBConfirmMessage {
