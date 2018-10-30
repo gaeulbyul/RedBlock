@@ -29,7 +29,7 @@ browser.runtime.onMessage.addListener((msgobj: object) => {
   if (msg.action === Action.ShowNotify) {
     const notif: BNotificationOptions = {
       type: 'basic',
-      iconUrl: 'icon/icon-128.png',
+      iconUrl: 'icons/icon-128.png',
       title: 'Red Block',
       message: ''
     }
