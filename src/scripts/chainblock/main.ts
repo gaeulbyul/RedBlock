@@ -108,10 +108,17 @@ class ChainBlockSession extends EventEmitter {
         ChainBlockUIState.RateLimited,
         ChainBlockUIState.Initial
       ]
+      const shouldStopStates = [
+        ChainBlockUIState.Running,
+        ChainBlockUIState.RateLimited
+      ]
+      const shouldStop = shouldStopStates.includes(this.state)
       const shouldConfirm = shouldConfirmStates.includes(this.state)
       const shouldClose = (!shouldConfirm || (shouldConfirm && window.confirm('체인블락을 중단할까요?')))
       if (shouldClose) {
-        this.stop()
+        if (shouldStop) {
+          this.stop()
+        }
         this.close()
       }
     })
@@ -154,18 +161,28 @@ class ChainBlockSession extends EventEmitter {
     if (followSkip) {
       return 'skipped'
     }
+    if (follower.followers_count > 50000 || follower.friends_count > 50000) {
+      return 'skipped'
+    }
+    if (follower.verified) {
+      return 'skipped'
+    }
     return null
   }
   public async start () {
-    const progress = this.progress
-    const updateProgress = () => {
+    const updateProgress = (up: ChainBlockProgressUpdate) => {
+      this.progress[up.reason]++
+      this.emit('update-progress', copyFrozenObject(this.progress))
       this.ui.updateProgress(copyFrozenObject(this.progress))
-      this.emit('update-progress', progress)
+      this.ui.updateProgressUser(copyFrozenObject(up))
+    }
+    const followerScraperOptions = {
+      delay: 300
     }
     try {
       const blockPromises: Promise<void>[] = []
       let stopped = false
-      for await (const follower of TwitterAPI.getAllFollowers(this.targetUser)) {
+      for await (const follower of TwitterAPI.getAllFollowers(this.targetUser, followerScraperOptions)) {
         const shouldStop = [ChainBlockUIState.Closed, ChainBlockUIState.Stopped].includes(this.state)
         if (shouldStop) {
           stopped = true
@@ -184,20 +201,20 @@ class ChainBlockSession extends EventEmitter {
         this.state = ChainBlockUIState.Running
         const shouldSkip = this.checkUserSkip(follower)
         if (shouldSkip) {
-          ++progress[shouldSkip]
-          updateProgress()
+          updateProgress({
+            reason: shouldSkip,
+            user: follower
+          })
           continue
         }
-        blockPromises.push(TwitterAPI.blockUser(follower).then((blockResult: boolean) => {
-          if (blockResult) {
-            ++progress.blockSuccess
-            ChainBlockUI.changeUserProfileButtonToBlocked(follower)
-          } else {
-            ++progress.blockFail
-          }
-          updateProgress()
+        blockPromises.push(TwitterAPI.blockUser(follower).then((blocked: boolean) => {
+          const blockResult = blocked ? 'blockSuccess' : 'blockFail'
+          updateProgress({
+            reason: blockResult,
+            user: follower
+          })
         }))
-        if (blockPromises.length >= 200) {
+        if (blockPromises.length >= 60) {
           await Promise.all(blockPromises).then(() => {
             blockPromises.length = 0
           })
