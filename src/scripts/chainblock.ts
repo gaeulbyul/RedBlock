@@ -1,13 +1,13 @@
 interface ChainBlockProgress {
-  total: number,
-  alreadyBlocked: number,
-  skipped: number,
-  blockSuccess: number,
+  total: number
+  alreadyBlocked: number
+  skipped: number
+  blockSuccess: number
   blockFail: number
 }
 
 interface ChainBlockProgressUpdate {
-  reason: 'alreadyBlocked' | 'skipped' | 'blockSuccess' | 'blockFail',
+  reason: 'alreadyBlocked' | 'skipped' | 'blockSuccess' | 'blockFail'
   user: TwitterUser
 }
 
@@ -18,12 +18,12 @@ const enum ChainBlockUIState {
   Completed,
   Stopped,
   Closed,
-  Error
+  Error,
 }
 
 const blocker = new ChainBlocker()
 
-async function doChainBlock (targetUserName: string) {
+async function doChainBlock(targetUserName: string) {
   try {
     const targetUser = await TwitterAPI.getSingleUserByName(targetUserName)
     if (targetUser.protected && !targetUser.following) {
@@ -52,12 +52,14 @@ async function doChainBlock (targetUserName: string) {
 browser.runtime.onMessage.addListener((msgobj: object) => {
   const message = msgobj as RBMessage
   switch (message.action) {
-    case Action.StartChainBlock: {
-      if (document.querySelector('.mobcb-bg') != null) {
-        window.alert('Mirror Of Block 작동중엔 사용할 수 없습니다.')
-        return
+    case Action.StartChainBlock:
+      {
+        if (document.querySelector('.mobcb-bg') != null) {
+          window.alert('Mirror Of Block 작동중엔 사용할 수 없습니다.')
+          return
+        }
+        void doChainBlock(message.userName)
       }
-      void doChainBlock(message.userName)
-    } break
+      break
   }
 })

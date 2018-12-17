@@ -18,7 +18,7 @@
   bottom: 0;
   z-index: 9999;
   overflow: hidden;
-  background-color: rgba(0, 0, 0, .6);
+  background-color: rgba(0, 0, 0, 0.6);
 }
 hr.redblock-hr {
   margin: 3px 0;
@@ -36,7 +36,7 @@ hr.redblock-hr {
   flex-direction: column;
   width: 450px;
   box-shadow: 0 2px 20px #6666;
-  animation: fade-in .5s;
+  animation: fade-in 0.5s;
   will-change: opacity;
 }
 progress.redblock-progress {
@@ -63,7 +63,7 @@ progress.redblock-progress {
 }
 /* ---------- 모바일 ---------- */
 .redblock-mobile .redblock-bg {
-  background-color: rgba(0, 0, 0, .8);
+  background-color: rgba(0, 0, 0, 0.8);
 }
 .redblock-mobile .redblock-dialog {
   border-radius: 10px;
@@ -92,7 +92,7 @@ progress.redblock-progress {
   margin: 0 20px;
 }
 .redblock-mobile .redblock-controls .btn:disabled {
-  opacity: .4;
+  opacity: 0.4;
 }
 
 /* --- 야간모드 off --- */

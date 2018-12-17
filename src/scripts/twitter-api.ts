@@ -2,16 +2,16 @@ namespace TwitterAPI {
   const BEARER_TOKEN = `AAAAAAAAAAAAAAAAAAAAANRILgAAAAAAnNwIzUejRCOuH5E6I8xnZz4puTs%3D1Zv7ttfk8LF81IUq16cHjhLTvJu4FA33AGWWjCpTnA`
 
   export class RateLimitError extends Error {
-    public async getLimitStatus (): Promise<LimitStatus> {
+    public async getLimitStatus(): Promise<LimitStatus> {
       return getRateLimitStatus()
     }
   }
 
-  function rateLimited (resp: Response): boolean {
+  function rateLimited(resp: Response): boolean {
     return resp.status === 429
   }
 
-  function generateTwitterAPIOptions (obj?: RequestInit): RequestInit {
+  function generateTwitterAPIOptions(obj?: RequestInit): RequestInit {
     let csrfToken: string
     const match = /\bct0=([0-9a-f]{32})\b/.exec(document.cookie)
     if (match && match[1]) {
@@ -29,13 +29,13 @@ namespace TwitterAPI {
       mode: 'cors',
       credentials: 'include',
       referrer: location.href,
-      headers
+      headers,
     }
     Object.assign(result, obj)
     return result
   }
 
-  function setDefaultParams (params: URLSearchParams): void {
+  function setDefaultParams(params: URLSearchParams): void {
     params.set('include_profile_interstitial_type', '1')
     params.set('include_blocking', '1')
     params.set('include_blocked_by', '1')
@@ -45,9 +45,13 @@ namespace TwitterAPI {
     params.set('include_can_dm', '1')
   }
 
-  async function requestAPI (method: HTTPMethods, path: string, paramsObj: URLParamsObj = {}): Promise<Response> {
+  async function requestAPI(
+    method: HTTPMethods,
+    path: string,
+    paramsObj: URLParamsObj = {}
+  ): Promise<Response> {
     const fetchOptions = generateTwitterAPIOptions({
-      method
+      method,
     })
     const url = new URL('https://api.twitter.com/1.1' + path)
     let params: URLSearchParams
@@ -68,40 +72,45 @@ namespace TwitterAPI {
     return response
   }
 
-  export async function blockUser (user: TwitterUser): Promise<boolean> {
+  export async function blockUser(user: TwitterUser): Promise<boolean> {
     if (user.blocking) {
       return true
     }
     const shouldNotBlock = _.some([
       user.following,
       user.followed_by,
-      user.follow_request_sent
+      user.follow_request_sent,
     ])
     if (shouldNotBlock) {
-      throw new Error('!!!!! FATAL!!!!!: attempted to block user that should NOT block!!')
+      throw new Error(
+        '!!!!! FATAL!!!!!: attempted to block user that should NOT block!!'
+      )
     }
     return blockUserUnsafe(user)
   }
 
-  export async function blockUserUnsafe (user: TwitterUser): Promise<boolean> {
+  export async function blockUserUnsafe(user: TwitterUser): Promise<boolean> {
     const response = await requestAPI('post', '/blocks/create.json', {
       user_id: user.id_str,
       include_entities: false,
-      skip_status: true
+      skip_status: true,
     })
     const result = response.ok
     void response.text()
     return result
   }
 
-  async function getFollowersList (user: TwitterUser, cursor: string = '-1'): Promise<FollowsListResponse> {
+  async function getFollowersList(
+    user: TwitterUser,
+    cursor: string = '-1'
+  ): Promise<FollowsListResponse> {
     const response = await requestAPI('get', '/followers/list.json', {
       user_id: user.id_str,
       // screen_name: userName,
       count: 200,
       skip_status: true,
       include_user_entities: false,
-      cursor
+      cursor,
     })
     if (response.ok) {
       return response.json() as Promise<FollowsListResponse>
@@ -110,9 +119,12 @@ namespace TwitterAPI {
     }
   }
 
-  export async function* getAllFollowers (user: TwitterUser, optionsInput: Partial<FollowsScraperOptions> = {}): AsyncIterableIterator<RateLimited<TwitterUser>> {
+  export async function* getAllFollowers(
+    user: TwitterUser,
+    optionsInput: Partial<FollowsScraperOptions> = {}
+  ): AsyncIterableIterator<RateLimited<TwitterUser>> {
     const options: FollowsScraperOptions = {
-      delay: 300
+      delay: 300,
     }
     Object.assign(options, optionsInput)
     let cursor: string = '-1'
@@ -137,12 +149,14 @@ namespace TwitterAPI {
     }
   }
 
-  export async function getSingleUserByName (userName: string): Promise<TwitterUser> {
+  export async function getSingleUserByName(
+    userName: string
+  ): Promise<TwitterUser> {
     const response = await requestAPI('get', '/users/show.json', {
       // user_id: user.id_str,
       screen_name: userName,
       skip_status: true,
-      include_entities: false
+      include_entities: false,
     })
     if (response.ok) {
       return response.json() as Promise<TwitterUser>
@@ -151,7 +165,7 @@ namespace TwitterAPI {
     }
   }
 
-  export async function getMyself (): Promise<TwitterUser> {
+  export async function getMyself(): Promise<TwitterUser> {
     const response = await requestAPI('get', '/account/verify_credentials.json')
     if (response.ok) {
       return response.json() as Promise<TwitterUser>
@@ -160,8 +174,11 @@ namespace TwitterAPI {
     }
   }
 
-  export async function getRateLimitStatus (): Promise<LimitStatus> {
-    const response = await requestAPI('get', '/application/rate_limit_status.json')
+  export async function getRateLimitStatus(): Promise<LimitStatus> {
+    const response = await requestAPI(
+      'get',
+      '/application/rate_limit_status.json'
+    )
     const resources = (await response.json()).resources as LimitStatus
     return resources
   }

@@ -1,4 +1,6 @@
-*, *:before, *:after {
+*,
+*:before,
+*:after {
   box-sizing: border-box;
 }
 
@@ -11,7 +13,8 @@ body {
   font-family: 'NanumGothic', 'Malgun Gothic', sans-serif;
 }
 
-a, a:visited {
+a,
+a:visited {
   color: crimson;
 }
 
@@ -52,7 +55,7 @@ hr {
   width: 100%;
   max-width: 100px;
   filter: saturate(50%);
-  transition: filter .2s;
+  transition: filter 0.2s;
 }
 
 .menu-item:hover {
@@ -66,7 +69,7 @@ hr {
 
 .option-item {
   margin: 5px 0;
-  font-size: .8rem;
+  font-size: 0.8rem;
   color: #666;
 }
 
@@ -80,7 +83,7 @@ hr {
 }
 
 .warning {
-  padding: .25em 1em;
+  padding: 0.25em 1em;
 
   font-size: 14px;
 }
