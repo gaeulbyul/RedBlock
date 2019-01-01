@@ -113,23 +113,19 @@ class ChainBlockSession extends EventEmitter {
         ChainBlockUIState.RateLimited,
         ChainBlockUIState.Initial,
       ]
-      /*
       const shouldStopStates = [
         ChainBlockUIState.Running,
-        ChainBlockUIState.RateLimited
+        ChainBlockUIState.RateLimited,
       ]
-      */
-      // const shouldStop = shouldStopStates.includes(this.state)
+      const shouldStop = shouldStopStates.includes(this.state)
       const shouldConfirm = shouldConfirmStates.includes(this.state)
       const shouldClose =
         !shouldConfirm ||
         (shouldConfirm && window.confirm('체인블락을 중단할까요?'))
       if (shouldClose) {
-        /*
         if (shouldStop) {
           this.stop()
         }
-        */
         this.close()
       }
     })
@@ -242,9 +238,7 @@ class ChainBlockSession extends EventEmitter {
         }
       }
       await Promise.all(blockPromises)
-      if (stopped) {
-        this.stop()
-      } else {
+      if (!stopped) {
         this.complete()
       }
     } catch (err) {
