@@ -27,13 +27,13 @@ async function doChainBlock(targetUserName: string) {
   try {
     const targetUser = await TwitterAPI.getSingleUserByName(targetUserName)
     if (targetUser.protected && !targetUser.following) {
-      window.alert('프로텍트 걸린 계정에게 실행할 수 없습니다..')
+      window.alert(i18n`script_alert_unable_to_protected_user`)
     }
     if (targetUser.followers_count <= 0) {
-      window.alert('차단할 팔로워가 없습니다.')
+      window.alert(i18n`script_alert_zero_follower`)
       return
     }
-    const confirmMessage = `정말로 @${targetUserName}에게 체인블락을 실행하시겠습니까?`
+    const confirmMessage = i18n`script_confirm_chain_block${targetUserName}`
     if (window.confirm(confirmMessage)) {
       blocker.add(targetUser)
       blocker.show()
@@ -42,7 +42,7 @@ async function doChainBlock(targetUserName: string) {
     }
   } catch (err) {
     if (err instanceof TwitterAPI.RateLimitError) {
-      window.alert('리밋입니다. 나중에 다시 시도해주세요')
+      window.alert(i18n`script_alert_rate_limited`)
     } else {
       throw err
     }
@@ -55,7 +55,7 @@ browser.runtime.onMessage.addListener((msgobj: object) => {
     case Action.StartChainBlock:
       {
         if (document.querySelector('.mobcb-bg') != null) {
-          window.alert('Mirror Of Block 작동중엔 사용할 수 없습니다.')
+          window.alert(i18n`script_alert_mirror_of_block_running`)
           return
         }
         void doChainBlock(message.userName)

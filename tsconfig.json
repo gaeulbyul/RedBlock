@@ -1,14 +1,10 @@
 // vim:set ft=javascript:
 {
-  "include": [
-    "src/**/*"
-  ],
-  "exclude": [
-    "src/vendor/*"
-  ],
+  "include": ["src/**/*"],
+  "exclude": ["src/vendor/*"],
   "compilerOptions": {
     /* Basic Options */
-    "target": "esnext", /* Specify ECMAScript target version: 'ES3' (default), 'ES5', 'ES2015', 'ES2016', 'ES2017','ES2018' or 'ESNEXT'. */
+    "target": "esnext" /* Specify ECMAScript target version: 'ES3' (default), 'ES5', 'ES2015', 'ES2016', 'ES2017','ES2018' or 'ESNEXT'. */,
     // "module": "none"                         /* Specify module code generation: 'none', 'commonjs', 'amd', 'system', 'umd', 'es2015', or 'ESNext'. */
     "module": "none",
     // "lib": [],                             /* Specify library files to be included in the compilation. */
@@ -20,7 +16,7 @@
     // "declaration": true,                   /* Generates corresponding '.d.ts' file. */
     // "declarationMap": true,                /* Generates a sourcemap for each corresponding '.d.ts' file. */
     // "sourceMap": true,                     /* Generates corresponding '.map' file. */
-    "sourceMap": true,
+    "sourceMap": false,
     // "outFile": "./",                       /* Concatenate and emit output to single file. */
     // "outDir": "./",                        /* Redirect output structure to the directory. */
     "outDir": "build/",
@@ -49,10 +45,10 @@
     // "noUnusedParameters": true,            /* Report errors on unused parameters. */
     // "noImplicitReturns": true,             /* Report error when not all code paths in function return a value. */
     // "noFallthroughCasesInSwitch": true,    /* Report errors for fallthrough cases in switch statement. */
-    "noUnusedLocals": true,                /* Report errors on unused locals. */
-    "noUnusedParameters": true,            /* Report errors on unused parameters. */
-    "noImplicitReturns": true,             /* Report error when not all code paths in function return a value. */
-    "noFallthroughCasesInSwitch": true,    /* Report errors for fallthrough cases in switch statement. */
+    "noUnusedLocals": true /* Report errors on unused locals. */,
+    "noUnusedParameters": true /* Report errors on unused parameters. */,
+    "noImplicitReturns": true /* Report error when not all code paths in function return a value. */,
+    "noFallthroughCasesInSwitch": true /* Report errors for fallthrough cases in switch statement. */,
 
     /* Module Resolution Options */
     // "moduleResolution": "node",            /* Specify module resolution strategy: 'node' (Node.js) or 'classic' (TypeScript pre-1.6). */
@@ -60,10 +56,7 @@
     // "paths": {},                           /* A series of entries which re-map imports to lookup locations relative to the 'baseUrl'. */
     // "rootDirs": [],                        /* List of root folders whose combined content represents the structure of the project at runtime. */
     // "typeRoots": [],                       /* List of folders to include type definitions from. */
-    "typeRoots": [
-      "node_modules/@types",
-      "node_modules/web-ext-types"
-    ]
+    "typeRoots": ["node_modules/@types", "node_modules/web-ext-types"]
     // "types": [],                           /* Type declaration files to be included in compilation. */
     // "allowSyntheticDefaultImports": true,  /* Allow default imports from modules with no default export. This does not affect code emit, just typechecking. */
     // "esModuleInterop": true                   /* Enables emit interoperability between CommonJS and ES Modules via creation of namespace objects for all imports. Implies 'allowSyntheticDefaultImports'. */

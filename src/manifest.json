@@ -1,10 +1,11 @@
 {
-  "description": "더욱 강력한 차단 확장기능",
   "manifest_version": 2,
   "name": "Red Block",
   "author": "Gaeulbyul <aeiou256@gmail.com>",
   "version": "0.1.0",
   "homepage_url": "https://github.com/gaeulbyul/RedBlock",
+  "default_locale": "ko",
+  "description": "__MSG_manifest_description__",
   "icons": {
     "48": "icons/icon-48.png",
     "128": "icons/icon-128.png"
@@ -20,10 +21,7 @@
   ],
 
   "background": {
-    "scripts": [
-      "vendor/browser-polyfill.min.js",
-      "scripts-bg/background.js"
-    ]
+    "scripts": ["vendor/browser-polyfill.min.js", "scripts-bg/background.js"]
   },
 
   "content_scripts": [
@@ -33,9 +31,7 @@
         "*://mobile.twitter.com/*",
         "*://tweetdeck.twitter.com/*"
       ],
-      "css": [
-        "styles/style.css"
-      ],
+      "css": ["styles/style.css"],
       "js": [
         "vendor/browser-polyfill.min.js",
         "vendor/lodash.js",

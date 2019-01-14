@@ -1,0 +1,179 @@
+{
+  "manifest_description": {
+    "message": "새로운 체인블락 확장기능"
+  },
+  "popup_alert_non_twitter": {
+    "message": "체인블락할 유저의 프로필페이지(https://twitter.com/[사용자])에서 실행해주세요."
+  },
+  "popup_extension_version_short": {
+    "message": "버전: $version$",
+    "placeholders": {
+      "version": {
+        "content": "$1"
+      }
+    }
+  },
+  "popup_extension_version_long": {
+    "message": "Red Block 버전 $version$를 사용하고 있습니다.",
+    "placeholders": {
+      "version": {
+        "content": "$1"
+      }
+    }
+  },
+  "popup_chainblock_tooltip": {
+    "message": "팔로워를 수집한 후 일괄적으로 차단합니다."
+  },
+  "popup_chainblock_button": {
+    "message": "체인블락 (팔로워)"
+  },
+  "script_alert_before_unload": {
+    "message": "다른 페이지로 이동하게 되면 현재 작동중인 체인블락은 멈추게 됩니다. 그래도 이동하시겠습니까?"
+  },
+  "script_already_running": {
+    "message": "이미 체인블락이 실행중입니다."
+  },
+  "script_already_running_to_someone": {
+    "message": "이미 $username$에게 체인블락이 실행중입니다.",
+    "placeholders": {
+      "username": {
+        "content": "$1"
+      }
+    }
+  },
+  "script_confirm_stop": {
+    "message": "체인블락을 중단할까요?"
+  },
+  "script_ui_target_username": {
+    "message": "$username$의 팔로워",
+    "placeholders": {
+      "username": {
+        "content": "@<span class=\"redblock-target-username\">$1</span>"
+      }
+    }
+  },
+  "script_ui_total_followers": {
+    "message": "$count$명 중",
+    "placeholders": {
+      "count": {
+        "content": "<span class=\"redblock-target-total-followers\">$1</span>"
+      }
+    }
+  },
+  "script_ui_blocked_followers": {
+    "message": "$count$명 차단",
+    "placeholders": {
+      "count": {
+        "content": "<span class=\"redblock-blocked-user\">$1</span>"
+      }
+    }
+  },
+  "script_ui_progress": {
+    "message": "진행율: $percentage$",
+    "placeholders": {
+      "percentage": {
+        "content": "<span class=\"redblock-progress-percentage\">0</span>%"
+      }
+    }
+  },
+  "script_ui_already_blocked": {
+    "message": "이미 차단: $count$",
+    "placeholders": {
+      "count": {
+        "content": "<span class=\"redblock-already-blocked-user\">$1</span>"
+      }
+    }
+  },
+  "script_ui_skipped": {
+    "message": "스킵: $count$",
+    "placeholders": {
+      "count": {
+        "content": "<span class=\"redblock-skipped-user\">$1</span>"
+      }
+    }
+  },
+  "script_ui_failed": {
+    "message": "실패: $count$",
+    "placeholders": {
+      "count": {
+        "content": "<span class=\"redblock-failed-user\">$1</span>"
+      }
+    }
+  },
+  "script_ui_rate_limited": {
+    "message": "리밋입니다. 잠시만 기다려주세요."
+  },
+  "script_ui_limit_reset_time": {
+    "message": "예상리셋시각: $time$",
+    "placeholders": {
+      "time": {
+        "content": "<span class=\"redblock-ratelimit-reset\">$1</span>"
+      }
+    }
+  },
+  "script_ui_close": {
+    "message": "닫기"
+  },
+  "script_ui_state_initial": {
+    "message": "대기 중"
+  },
+  "script_ui_state_completed": {
+    "message": "완료"
+  },
+  "script_ui_state_running": {
+    "message": "실행 중…"
+  },
+  "script_ui_state_rate_limited": {
+    "message": "리밋"
+  },
+  "script_ui_state_stopped": {
+    "message": "정지"
+  },
+  "script_ui_state_error": {
+    "message": "오류 발생!"
+  },
+  "script_ui_after_complete": {
+    "message": "체인블락 완료! 총 $count$명의 사용자를 차단했습니다.",
+    "placeholders": {
+      "count": {
+        "content": "$1"
+      }
+    }
+  },
+  "script_ui_after_stop": {
+    "message": "체인블락 중지! 총 $count$명의 사용자를 차단했습니다.",
+    "placeholders": {
+      "count": {
+        "content": "$1"
+      }
+    }
+  },
+  "script_ui_alert_error": {
+    "message": "체인블락 오류 발생!\n메시지: $error_message$",
+    "placeholders": {
+      "error_message": {
+        "content": "$1"
+      }
+    }
+  },
+  "script_alert_unable_to_protected_user": {
+    "message": "프로텍트 걸린 계정에게는 실행할 수 없습니다."
+  },
+  "script_alert_zero_follower": {
+    "message": "차단할 팔로워가 없습니다."
+  },
+  "script_confirm_chain_block": {
+    "message": "정말로 $username$에게 체인블락을 실행하시겠습니까?",
+    "placeholders": {
+      "username": {
+        "content": "@$1"
+      }
+    }
+  },
+  "script_alert_rate_limited": {
+    "message": "리밋입니다. 나중에 다시 시도해주세요."
+  },
+  "script_alert_mirror_of_block_running": {
+    "message": "Mirror Of Block 작동중엔 사용할 수 없습니다."
+  }
+}

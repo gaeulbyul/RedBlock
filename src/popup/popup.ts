@@ -53,8 +53,10 @@ async function executeChainBlock() {
   }
   const userName = extractUserNameFromUrl(currentTab.url as string)
   if (!userName) {
+    const message = browser.i18n.getMessage('popup_alert_non_twitter')
+    // alert 메시지가 팝업 내부가 아니라 보이는 페이지에서 뜨도록
     browser.tabs.executeScript(currentTab.id, {
-      code: `window.alert('체인블락할 유저의 프로필페이지(https://twitter.com/[사용자]/followers)에서 실행해주세요.')`,
+      code: `window.alert(\`${message}\`)`,
     })
     return
   }
@@ -72,18 +74,34 @@ document.addEventListener('DOMContentLoaded', () => {
       event.preventDefault()
       executeChainBlock()
     })
-  /*
-  document.querySelector('.menu-item.open-option').onclick = event => {
-    event.preventDefault()
-    browser.runtime.openOptionsPage()
-  }
-  */
   const manifest = browser.runtime.getManifest()
+  const shortMessage = browser.i18n.getMessage(
+    'popup_extension_version_short',
+    manifest.version
+  )
+  const longMessage = browser.i18n.getMessage(
+    'popup_extension_version_long',
+    manifest.version
+  )
   const currentVersion = document.querySelector(
     '.currentVersion'
   ) as HTMLElement
-  currentVersion.textContent = `버전: ${manifest.version}`
-  currentVersion.title = `Red Block 버전 ${
-    manifest.version
-  }을(를) 사용하고 있습니다.`
+  currentVersion.textContent = shortMessage
+  currentVersion.title = longMessage
 })
+
+function loadI18nMessage() {
+  for (const elem of document.querySelectorAll('*[data-i18n-text]')) {
+    const messageId = elem.getAttribute('data-i18n-text')!
+    const message = browser.i18n.getMessage(messageId)
+    elem.textContent = message
+  }
+  for (const elem of document.querySelectorAll('*[data-i18n-attr]')) {
+    const pairs = elem.getAttribute('data-i18n-attr')!.split(',')
+    for (const pair of pairs) {
+      const [attrName, messageId] = pair.split('=').map(s => s.trim())
+      const message = browser.i18n.getMessage(messageId)
+      elem.setAttribute(attrName, message)
+    }
+  }
+}
