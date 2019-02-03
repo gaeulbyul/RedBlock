@@ -67,6 +67,22 @@ async function executeChainBlock() {
   window.close()
 }
 
+function loadI18nMessage() {
+  for (const elem of document.querySelectorAll('*[data-i18n-text]')) {
+    const messageId = elem.getAttribute('data-i18n-text')!
+    const message = browser.i18n.getMessage(messageId)
+    elem.textContent = message
+  }
+  for (const elem of document.querySelectorAll('*[data-i18n-attr]')) {
+    const pairs = elem.getAttribute('data-i18n-attr')!.split(',')
+    for (const pair of pairs) {
+      const [attrName, messageId] = pair.split('=').map(s => s.trim())
+      const message = browser.i18n.getMessage(messageId)
+      elem.setAttribute(attrName, message)
+    }
+  }
+}
+
 document.addEventListener('DOMContentLoaded', () => {
   document
     .querySelector('.menu-item.chain-block-followers')!
@@ -88,20 +104,5 @@ document.addEventListener('DOMContentLoaded', () => {
   ) as HTMLElement
   currentVersion.textContent = shortMessage
   currentVersion.title = longMessage
+  loadI18nMessage()
 })
-
-function loadI18nMessage() {
-  for (const elem of document.querySelectorAll('*[data-i18n-text]')) {
-    const messageId = elem.getAttribute('data-i18n-text')!
-    const message = browser.i18n.getMessage(messageId)
-    elem.textContent = message
-  }
-  for (const elem of document.querySelectorAll('*[data-i18n-attr]')) {
-    const pairs = elem.getAttribute('data-i18n-attr')!.split(',')
-    for (const pair of pairs) {
-      const [attrName, messageId] = pair.split('=').map(s => s.trim())
-      const message = browser.i18n.getMessage(messageId)
-      elem.setAttribute(attrName, message)
-    }
-  }
-}
