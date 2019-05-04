@@ -1,5 +1,6 @@
 namespace TwitterAPI {
   const BEARER_TOKEN = `AAAAAAAAAAAAAAAAAAAAANRILgAAAAAAnNwIzUejRCOuH5E6I8xnZz4puTs%3D1Zv7ttfk8LF81IUq16cHjhLTvJu4FA33AGWWjCpTnA`
+  const DELAY = 300
 
   export class RateLimitError extends Error {
     public async getLimitStatus(): Promise<LimitStatus> {
@@ -76,12 +77,8 @@ namespace TwitterAPI {
     if (user.blocking) {
       return true
     }
-    const shouldNotBlock = _.some([
-      user.following,
-      user.followed_by,
-      user.follow_request_sent,
-    ])
-    if (shouldNotBlock) {
+    const shouldBlock = isSafeToBlock(user)
+    if (!shouldBlock) {
       throw new Error(
         '!!!!! FATAL!!!!!: attempted to block user that should NOT block!!'
       )
@@ -119,14 +116,55 @@ namespace TwitterAPI {
     }
   }
 
-  export async function* getAllFollowers(
+  async function getFollowsIds(
+    followKind: FollowKind,
     user: TwitterUser,
-    optionsInput: Partial<FollowsScraperOptions> = {}
-  ): AsyncIterableIterator<RateLimited<TwitterUser>> {
-    const options: FollowsScraperOptions = {
-      delay: 300,
+    cursor: string = '-1'
+  ): Promise<UserIdsResponse> {
+    const response = await requestAPI('get', `/${followKind}/ids.json`, {
+      user_id: user.id_str,
+      stringify_ids: true,
+      count: 5000,
+      cursor,
+    })
+    if (response.ok) {
+      return response.json() as Promise<UserIdsResponse>
+    } else {
+      throw new Error('response is not ok')
     }
-    Object.assign(options, optionsInput)
+  }
+
+  export async function* getAllFollowsIds(
+    followKind: FollowKind,
+    user: TwitterUser
+  ): AsyncIterableIterator<string> {
+    let cursor: string = '-1'
+    while (true) {
+      try {
+        const json = await getFollowsIds(followKind, user, cursor)
+        cursor = json.next_cursor_str
+        yield* json.ids
+        if (cursor === '0') {
+          break
+        } else {
+          await sleep(DELAY)
+          continue
+        }
+      } catch (e) {
+        // FIXME: should use another type for r.l.error
+        throw e
+        // if (e instanceof RateLimitError) {
+        //   yield 'RateLimitError'
+        // } else {
+        //   throw e
+        // }
+      }
+    }
+  }
+
+  export async function* getAllFollowers(
+    user: TwitterUser
+  ): AsyncIterableIterator<RateLimited<TwitterUser>> {
     let cursor: string = '-1'
     while (true) {
       try {
@@ -136,7 +174,7 @@ namespace TwitterAPI {
         if (cursor === '0') {
           break
         } else {
-          await sleep(options.delay)
+          await sleep(DELAY)
           continue
         }
       } catch (e) {
@@ -165,6 +203,43 @@ namespace TwitterAPI {
     }
   }
 
+  export async function getFriendships(
+    users: TwitterUser[]
+  ): Promise<FriendshipResponse> {
+    const userIds = users.map(user => user.id_str)
+    if (userIds.length === 0) {
+      return []
+    }
+    if (userIds.length > 100) {
+      throw new Error('too many users! (> 100)')
+    }
+    const joinedIds = Array.from(new Set(userIds)).join(',')
+    const response = await requestAPI('get', '/friendships/lookup.json', {
+      user_id: joinedIds,
+    })
+    if (response.ok) {
+      return response.json() as Promise<FriendshipResponse>
+    } else {
+      throw new Error('response is not ok')
+    }
+  }
+
+  export async function getRelationship(
+    sourceUser: TwitterUser,
+    targetUser: TwitterUser
+  ): Promise<Relationship> {
+    const source_id = sourceUser.id_str
+    const target_id = targetUser.id_str
+    const response = await requestAPI('get', '/friendships/show.json', {
+      source_id,
+      target_id,
+    })
+    if (response.ok) {
+      return (await response.json()).relationship as Promise<Relationship>
+    } else {
+      throw new Error('response is not ok')
+    }
+  }
   export async function getMyself(): Promise<TwitterUser> {
     const response = await requestAPI('get', '/account/verify_credentials.json')
     if (response.ok) {

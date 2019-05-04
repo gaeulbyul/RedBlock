@@ -26,9 +26,10 @@ const blocker = new ChainBlocker()
 async function doChainBlock(targetUserName: string) {
   try {
     const targetUser = await TwitterAPI.getSingleUserByName(targetUserName)
-    if (targetUser.protected && !targetUser.following) {
-      window.alert(i18n`script_alert_unable_to_protected_user`)
-    }
+    // TODO: check protect&non-following
+    // if (targetUser.protected && !following) {
+    //   window.alert(i18n`script_alert_unable_to_protected_user`)
+    // }
     if (targetUser.followers_count <= 0) {
       window.alert(i18n`script_alert_zero_follower`)
       return
