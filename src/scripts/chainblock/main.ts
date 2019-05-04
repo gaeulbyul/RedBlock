@@ -190,20 +190,18 @@ class ChainBlockSession extends EventEmitter {
   // .following 속성 제거에 따른 대응
   // BlockThemAll 처럼 미리 내 팔로잉/팔로워를 수집하는 방식을 이용함
   private async getMyFollowsIds(): Promise<Set<string>> {
-    const result = new Set<string>()
     const myself = await TwitterAPI.getMyself()
-    const myFollowings = TwitterAPI.getAllFollowsIds('friends', myself)
-    const myFollowers = TwitterAPI.getAllFollowsIds('followers', myself)
-    console.info('loop 1 start')
-    for await (const followingsId of myFollowings) {
-      result.add(followingsId)
-    }
-    console.info('loop 1 end')
-    console.info('loop 2 start')
-    for await (const followersId of myFollowers) {
-      result.add(followersId)
-    }
-    console.info('loop 2 end')
+    const myFollowings = collectAsync(
+      TwitterAPI.getAllFollowsIds('friends', myself)
+    )
+    const myFollowers = collectAsync(
+      TwitterAPI.getAllFollowsIds('followers', myself)
+    )
+    const result = new Set<string>([
+      ...(await myFollowings),
+      ...(await myFollowers),
+    ])
+    console.dir(result)
     return result
   }
   public async start() {

@@ -80,6 +80,16 @@ function isSafeToBlock(user: TwitterUser): boolean {
   return true
 }
 
+async function collectAsync<T>(
+  generator: AsyncIterableIterator<T>
+): Promise<T[]> {
+  const result: T[] = []
+  for await (const val of generator) {
+    result.push(val)
+  }
+  return result
+}
+
 function i18n(
   strs: TemplateStringsArray,
   ...args: (string | number)[]
