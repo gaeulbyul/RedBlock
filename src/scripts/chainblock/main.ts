@@ -78,6 +78,7 @@ class ChainBlocker {
 
 class ChainBlockSession extends EventEmitter {
   private readonly ui = new ChainBlockUI()
+  private readonly whitelist = new Set<string>()
   private _state: ChainBlockUIState = ChainBlockUIState.Initial
   private progress: ChainBlockProgress = {
     total: 0,
@@ -157,15 +158,14 @@ class ChainBlockSession extends EventEmitter {
     this.emit('rate-limit-reset', undefined)
   }
   private checkUserSkip(
-    follower: TwitterUser,
-    myFollowsIds: Set<string>
+    follower: TwitterUser
   ): 'alreadyBlocked' | 'skipped' | null {
     // TODO: should also use friendships/outgoing api
     // for replace follow_request_sent prop
     if (follower.blocking) {
       return 'alreadyBlocked'
     }
-    if (myFollowsIds.has(follower.id_str)) {
+    if (this.whitelist.has(follower.id_str)) {
       return 'skipped'
     }
     if (follower.followers_count > 50000 || follower.friends_count > 50000) {
@@ -174,35 +174,27 @@ class ChainBlockSession extends EventEmitter {
     if (follower.verified) {
       return 'skipped'
     }
-    {
-      const followerWithDeprecated = follower as TwitterUserWithDeprecatedProps
-      const followSkip = _.some([
-        followerWithDeprecated.following,
-        followerWithDeprecated.followed_by,
-        followerWithDeprecated.follow_request_sent,
-      ])
-      if (followSkip) {
-        return 'skipped'
-      }
+    if (!isSafeToBlock(follower)) {
+      return 'skipped'
     }
     return null
   }
   // .following 속성 제거에 따른 대응
   // BlockThemAll 처럼 미리 내 팔로잉/팔로워를 수집하는 방식을 이용함
-  private async getMyFollowsIds(): Promise<Set<string>> {
+  private async updateWhitelistFromMyFollows(): Promise<void> {
     const myself = await TwitterAPI.getMyself()
+    this.whitelist.clear()
     const myFollowings = collectAsync(
       TwitterAPI.getAllFollowsIds('friends', myself)
-    )
+    ).then(ids => {
+      ids.forEach(id => this.whitelist.add(id))
+    })
     const myFollowers = collectAsync(
       TwitterAPI.getAllFollowsIds('followers', myself)
-    )
-    const result = new Set<string>([
-      ...(await myFollowings),
-      ...(await myFollowers),
-    ])
-    console.dir(result)
-    return result
+    ).then(ids => {
+      ids.forEach(id => this.whitelist.add(id))
+    })
+    await Promise.all([myFollowings, myFollowers])
   }
   public async start() {
     const updateProgress = (up: ChainBlockProgressUpdate) => {
@@ -212,12 +204,11 @@ class ChainBlockSession extends EventEmitter {
       this.ui.updateProgressUser(copyFrozenObject(up))
     }
     try {
-      const myFollowsIds = await this.getMyFollowsIds()
+      await this.updateWhitelistFromMyFollows()
       const blockPromises: Promise<void>[] = []
       let stopped = false
-      for await (const follower of TwitterAPI.getAllFollowers(
-        this.targetUser
-      )) {
+      const followersIterator = TwitterAPI.getAllFollowers(this.targetUser)
+      for await (const follower of followersIterator) {
         const shouldStop = [
           ChainBlockUIState.Closed,
           ChainBlockUIState.Stopped,
@@ -237,7 +228,7 @@ class ChainBlockSession extends EventEmitter {
           this.rateLimitResetted()
         }
         this.state = ChainBlockUIState.Running
-        const shouldSkip = this.checkUserSkip(follower, myFollowsIds)
+        const shouldSkip = this.checkUserSkip(follower)
         if (shouldSkip) {
           updateProgress({
             reason: shouldSkip,
