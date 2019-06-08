@@ -14,7 +14,6 @@
   "permissions": [
     "https://twitter.com/*",
     "https://api.twitter.com/*",
-    "https://tweetdeck.twitter.com/*",
     "storage",
     "notifications",
     "activeTab"
@@ -26,11 +25,7 @@
 
   "content_scripts": [
     {
-      "matches": [
-        "*://twitter.com/*",
-        "*://mobile.twitter.com/*",
-        "*://tweetdeck.twitter.com/*"
-      ],
+      "matches": ["*://twitter.com/*", "*://mobile.twitter.com/*"],
       "css": ["styles/style.css"],
       "js": [
         "vendor/browser-polyfill.min.js",
