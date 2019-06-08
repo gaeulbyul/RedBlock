@@ -1,6 +1,8 @@
 const CHAINBLOCK_UI_HTML = (() => {
+  const cssUrl = browser.runtime.getURL('/styles/dialog.css')
   return `\
-    <div class="redblock-dialog modal-content is-autoPosition">
+    <link rel="stylesheet" href="${cssUrl}">
+    <div class="redblock-dialog">
       <progress class="redblock-progress"></progress>
       <div class="redblock-progress-text">
         (<span class="redblock-state"></span>):
@@ -19,7 +21,7 @@ const CHAINBLOCK_UI_HTML = (() => {
           (예상리셋시각: <span class="redblock-ratelimit-reset"></span>)
         </div>
         <div class="redblock-controls">
-          <button class="redblock-close small btn normal-btn">닫기</button>
+          <button class="redblock-close btn">닫기</button>
         </div>
       </div>
     </div>`
@@ -36,10 +38,15 @@ function setText(root: Element) {
 }
 
 class ChainBlockUI extends EventEmitter {
-  private readonly rootElem: HTMLElement = document.createElement('div')
+  private readonly baseElem: HTMLElement = document.createElement('div')
+  private readonly shadowRoot = this.baseElem.attachShadow({ mode: 'open' })
+  private readonly sRootElem: HTMLElement
   constructor() {
     super()
-    this.rootElem.innerHTML = CHAINBLOCK_UI_HTML
+    this.shadowRoot.innerHTML = CHAINBLOCK_UI_HTML
+    this.sRootElem = this.shadowRoot.querySelector<HTMLElement>(
+      '.redblock-dialog'
+    )!
     this.updateState(ChainBlockUIState.Initial)
     this.applyStyleOnMobile()
   }
@@ -47,19 +54,18 @@ class ChainBlockUI extends EventEmitter {
     if (!document.getElementById('react-root')) {
       return
     }
-    const rootElem = this.rootElem
     const backgroundColor = document.body.style.backgroundColor
-    rootElem.style.backgroundColor = backgroundColor
+    this.sRootElem.style.backgroundColor = backgroundColor
     if (/\bnight_mode=1\b/.test(document.cookie)) {
-      rootElem.style.color = 'white'
+      this.sRootElem.style.color = 'white'
     }
   }
   public show(appendTarget: HTMLElement) {
     this.attachEvents()
-    appendTarget.appendChild(this.rootElem)
+    appendTarget.appendChild(this.baseElem)
   }
   public updateTarget(targetUser: TwitterUser) {
-    const rootElem = this.rootElem
+    const rootElem = this.sRootElem
     const txt = setText(rootElem)
     txt('.redblock-target-username', targetUser.screen_name)
     txt('.redblock-target-total-followers', targetUser.followers_count)
@@ -67,7 +73,7 @@ class ChainBlockUI extends EventEmitter {
       targetUser.followers_count
   }
   public updateProgress(progress: Readonly<ChainBlockProgress>) {
-    const rootElem = this.rootElem
+    const rootElem = this.sRootElem
     const txt = setText(rootElem)
     txt('.redblock-blocked-user', progress.blockSuccess)
     txt('.redblock-already-blocked-user', progress.alreadyBlocked)
@@ -90,14 +96,14 @@ class ChainBlockUI extends EventEmitter {
     if (update.reason === 'blockSuccess') {
       ChainBlockUI.changeUserProfileButtonToBlocked(update.user)
     } else if (update.reason === 'skipped') {
-      const skipped = this.rootElem.querySelector<HTMLElement>(
+      const skipped = this.sRootElem.querySelector<HTMLElement>(
         '.redblock-skipped-user'
       )
       skipped!.title += `@${update.user.screen_name}\n`
     }
   }
   public updateState(state: ChainBlockUIState) {
-    const rootElem = this.rootElem
+    const rootElem = this.sRootElem
     const message: { [key: number]: string } = {
       [ChainBlockUIState.Initial]: '대기 중',
       [ChainBlockUIState.Completed]: '완료',
@@ -109,7 +115,7 @@ class ChainBlockUI extends EventEmitter {
     setText(rootElem)('.redblock-state', message[state] || '')
   }
   public rateLimited(limit: Limit) {
-    const rootElem = this.rootElem
+    const rootElem = this.sRootElem
     /*
     const timeZone = Intl.DateTimeFormat().resolvedOptions().timeZone
     const formatter = new Intl.DateTimeFormat('ko-KR', {
@@ -126,23 +132,25 @@ class ChainBlockUI extends EventEmitter {
     rootElem.querySelector('.redblock-ratelimit-reset')!.textContent = dtstr
   }
   public rateLimitResetted() {
-    this.rootElem.querySelector<HTMLElement>(
+    this.sRootElem.querySelector<HTMLElement>(
       '.redblock-ratelimit'
     )!.hidden = true
   }
   public complete(progress: ChainBlockProgress) {
     this.updateProgress(progress)
-    setText(this.rootElem)('.redblock-progress-percentage', 100)
-    const progressBar = this.rootElem.querySelector<HTMLProgressElement>(
+    setText(this.sRootElem)('.redblock-progress-percentage', 100)
+    const progressBar = this.sRootElem.querySelector<HTMLProgressElement>(
       '.redblock-progress'
     )
     progressBar!.value = progressBar!.max
     const message = `체인블락 완료! 총 ${
       progress.blockSuccess
     }명의 사용자를 차단했습니다.`
-    if (!document.hidden) {
-      sleep(500).then(() => window.alert(message))
-    }
+    // 여러 세션 실행 도중 alert를 하면 block되므로
+    // 비활성화
+    // if (!document.hidden) {
+    //   sleep(500).then(() => window.alert(message))
+    // }
     browser.runtime.sendMessage<RBNotifyMessage>({
       action: Action.ShowNotify,
       notification: {
@@ -155,9 +163,9 @@ class ChainBlockUI extends EventEmitter {
     const message = `체인블락 중지! 총 ${
       progress.blockSuccess
     }명의 사용자를 차단했습니다.`
-    if (!document.hidden) {
-      sleep(500).then(() => window.alert(message))
-    }
+    // if (!document.hidden) {
+    //   sleep(500).then(() => window.alert(message))
+    // }
     browser.runtime.sendMessage<RBNotifyMessage>({
       action: Action.ShowNotify,
       notification: {
@@ -169,10 +177,10 @@ class ChainBlockUI extends EventEmitter {
     window.alert(`체인블락 오류 발생!\n메시지: ${errorMessage}`)
   }
   public close() {
-    this.rootElem.remove()
+    this.baseElem.remove()
   }
   private attachEvents() {
-    this.rootElem
+    this.sRootElem
       .querySelector('.redblock-close')!
       .addEventListener('click', event => {
         event.preventDefault()

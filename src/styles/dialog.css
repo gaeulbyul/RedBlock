@@ -1,0 +1,119 @@
+@keyframes fade-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+hr.redblock-hr {
+  margin: 3px 0;
+}
+.redblock-container {
+  position: fixed;
+  /* PC트위터 기준 상단바 프로필 메뉴는 z-index: 900 */
+  /* 따라서 그보다 낮은 값으로 설정하여 메뉴를 가리지 않도록 함 */
+  z-index: 800;
+}
+.redblock-dialog {
+  padding: 15px;
+  margin: 10px 0;
+  display: flex;
+  flex-direction: column;
+  width: 450px;
+  box-shadow: 0 2px 10px #6666;
+  animation: fade-in 0.5s;
+  will-change: opacity;
+  background-color: #fff;
+}
+progress.redblock-progress {
+  width: 100%;
+}
+.redblock-controls {
+  margin: 5px 0;
+  float: right;
+}
+.redblock-controls .btn {
+  border-radius: 5px;
+  color: inherit;
+  background-color: #ccc;
+}
+.redblock-controls .btn:disabled {
+  cursor: not-allowed;
+}
+.redblock-controls .btn ~ .btn {
+  margin: 0 5px;
+}
+.redblock-blocked-user {
+  font-weight: bold;
+}
+/* ---------- 모바일 ---------- */
+.redblock-mobile .redblock-bg {
+  background-color: rgba(0, 0, 0, 0.8);
+}
+.redblock-mobile .redblock-dialog {
+  border-radius: 10px;
+  min-width: 250px;
+  width: 90vw;
+  max-height: 95vh;
+  font-size: 16px;
+}
+.redblock-mobile hr.redblock-hr {
+  border-top: 1px solid;
+  border-bottom: 0;
+}
+.redblock-mobile .redblock-controls {
+  text-align: right;
+}
+.redblock-mobile .btn {
+  padding: 10px 25px;
+  border: 1px solid;
+  font-size: 1.25em;
+}
+/* 버튼 순서가 차단-닫기 순이 되도록 */
+.block-dialog .btn {
+  float: right;
+}
+.redblock-mobile .redblock-controls .btn ~ .btn {
+  margin: 0 20px;
+}
+.redblock-mobile .redblock-controls .btn:disabled {
+  opacity: 0.4;
+}
+
+/* --- 야간모드 off --- */
+.redblock-mobile-light .redblock-dialog {
+  background-color: #fff;
+  color: #000;
+}
+.redblock-mobile-light .btn {
+  background-color: #ccc;
+  border-color: #999;
+}
+.redblock-mobile-light .redblock-user {
+  color: crimson;
+  text-decoration: underline;
+}
+.redblock-mobile-light .btn.caution-btn {
+  background-color: crimson;
+  color: white;
+}
+
+/* --- 야간모드 on --- */
+.redblock-mobile-dark .redblock-dialog {
+  background-color: #141d26;
+  color: #fff;
+}
+.redblock-mobile-dark .btn {
+  background-color: #1b2836;
+  border-color: #666;
+}
+.redblock-mobile-dark .redblock-user {
+  color: #f47189;
+  text-decoration: underline;
+}
+.redblock-mobile-dark .btn.caution-btn {
+  background-color: crimson;
+  color: white;
+}

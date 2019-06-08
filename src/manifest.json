@@ -38,6 +38,8 @@
     }
   ],
 
+  "web_accessible_resources": ["styles/dialog.css"],
+
   "browser_action": {
     "default_icon": "icons/icon-48.png",
     "default_title": "Red Block",

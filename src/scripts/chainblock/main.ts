@@ -59,7 +59,7 @@ class ChainBlocker {
     }
   }
   public show() {
-    this.container.style.display = ''
+    this.container.style.display = 'block'
   }
   public hide() {
     this.container.style.display = 'none'
