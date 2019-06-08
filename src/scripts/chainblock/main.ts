@@ -8,7 +8,8 @@ class ChainBlocker {
     document.body.appendChild(this.container)
     window.addEventListener('beforeunload', event => {
       if (this.isRunning()) {
-        const message = i18n`script_alert_before_unload`
+        const message =
+          '다른 페이지로 이동하게 되면 현재 작동중인 체인블락은 멈추게 됩니다. 그래도 이동하시겠습니까?'
         event.preventDefault()
         event.returnValue = `[Red Block] ${message}`
         return event.returnValue
@@ -33,14 +34,14 @@ class ChainBlocker {
   }
   public add(targetUser: TwitterUser) {
     if (!this.allowMultipleSession && this.isRunning()) {
-      window.alert(i18n`script_already_running`)
+      window.alert('이미 체인블락이 실행중입니다.')
       return
     }
     const targetUserName = targetUser.screen_name
     if (this.sessions.has(targetUserName)) {
       const ses = this.sessions.get(targetUserName)
       if (ses!.state !== ChainBlockUIState.Closed) {
-        window.alert(i18n`script_already_running_to_someone${targetUserName}`)
+        window.alert(`이미 ${targetUserName}에게 체인블락이 실행중입니다.`)
         return
       }
     }
@@ -122,7 +123,7 @@ class ChainBlockSession extends EventEmitter {
       const shouldConfirm = shouldConfirmStates.includes(this.state)
       const shouldClose =
         !shouldConfirm ||
-        (shouldConfirm && window.confirm(i18n`script_confirm_stop`))
+        (shouldConfirm && window.confirm('체인블락을 중단할까요?'))
       if (shouldClose) {
         if (shouldStop) {
           this.stop()

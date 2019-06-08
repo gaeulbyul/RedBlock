@@ -53,7 +53,8 @@ async function executeChainBlock() {
   }
   const userName = extractUserNameFromUrl(currentTab.url as string)
   if (!userName) {
-    const message = browser.i18n.getMessage('popup_alert_non_twitter')
+    const message =
+      '체인블락할 유저의 프로필페이지(https://twitter.com/[사용자])에서 실행해주세요.'
     // alert 메시지가 팝업 내부가 아니라 보이는 페이지에서 뜨도록
     browser.tabs.executeScript(currentTab.id, {
       code: `window.alert(\`${message}\`)`,
@@ -67,22 +68,6 @@ async function executeChainBlock() {
   window.close()
 }
 
-function loadI18nMessage() {
-  for (const elem of document.querySelectorAll('*[data-i18n-text]')) {
-    const messageId = elem.getAttribute('data-i18n-text')!
-    const message = browser.i18n.getMessage(messageId)
-    elem.textContent = message
-  }
-  for (const elem of document.querySelectorAll('*[data-i18n-attr]')) {
-    const pairs = elem.getAttribute('data-i18n-attr')!.split(',')
-    for (const pair of pairs) {
-      const [attrName, messageId] = pair.split('=').map(s => s.trim())
-      const message = browser.i18n.getMessage(messageId)
-      elem.setAttribute(attrName, message)
-    }
-  }
-}
-
 document.addEventListener('DOMContentLoaded', () => {
   document
     .querySelector('.menu-item.chain-block-followers')!
@@ -91,18 +76,9 @@ document.addEventListener('DOMContentLoaded', () => {
       executeChainBlock()
     })
   const manifest = browser.runtime.getManifest()
-  const shortMessage = browser.i18n.getMessage(
-    'popup_extension_version_short',
-    manifest.version
-  )
-  const longMessage = browser.i18n.getMessage(
-    'popup_extension_version_long',
-    manifest.version
-  )
+  const versionMessage = `버전 ${manifest.version}`
   const currentVersion = document.querySelector(
     '.currentVersion'
   ) as HTMLElement
-  currentVersion.textContent = shortMessage
-  currentVersion.title = longMessage
-  loadI18nMessage()
+  currentVersion.textContent = versionMessage
 })

@@ -31,10 +31,10 @@ async function doChainBlock(targetUserName: string) {
     //   window.alert(i18n`script_alert_unable_to_protected_user`)
     // }
     if (targetUser.followers_count <= 0) {
-      window.alert(i18n`script_alert_zero_follower`)
+      window.alert('차단할 팔로워가 없습니다.')
       return
     }
-    const confirmMessage = i18n`script_confirm_chain_block${targetUserName}`
+    const confirmMessage = `정말로 ${targetUserName}에게 체인블락을 실행하시겠습니까?`
     if (window.confirm(confirmMessage)) {
       blocker.add(targetUser)
       blocker.show()
@@ -43,7 +43,7 @@ async function doChainBlock(targetUserName: string) {
     }
   } catch (err) {
     if (err instanceof TwitterAPI.RateLimitError) {
-      window.alert(i18n`script_alert_rate_limited`)
+      window.alert('리밋입니다. 나중에 다시 시도해주세요.')
     } else {
       throw err
     }
@@ -56,7 +56,7 @@ browser.runtime.onMessage.addListener((msgobj: object) => {
     case Action.StartChainBlock:
       {
         if (document.querySelector('.mobcb-bg') != null) {
-          window.alert(i18n`script_alert_mirror_of_block_running`)
+          window.alert('Mirror Block 작동중엔 사용할 수 없습니다.')
           return
         }
         void doChainBlock(message.userName)

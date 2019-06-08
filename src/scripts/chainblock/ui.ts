@@ -1,34 +1,24 @@
 const CHAINBLOCK_UI_HTML = (() => {
-  const msgTargetUserName = i18n`script_ui_target_username`
-  const msgTotalFollowers = i18n`script_ui_total_followers${''}`
-  const msgBlockedFollowers = i18n`script_ui_blocked_followers${''}`
-  const msgProgress = i18n`script_ui_progress${''}`
-  const msgAlreadyBlocked = i18n`script_ui_already_blocked${''}`
-  const msgSkipped = i18n`script_ui_skipped${''}`
-  const msgFailed = i18n`script_ui_failed${''}`
-  const msgRateLimited = i18n`script_ui_rate_limited`
-  const msgLimitReset = i18n`script_ui_limit_reset_time${''}`
-  const msgClose = i18n`script_ui_close`
   return `\
     <div class="redblock-dialog modal-content is-autoPosition">
       <progress class="redblock-progress"></progress>
       <div class="redblock-progress-text">
         (<span class="redblock-state"></span>):
-        ${msgTargetUserName}
-        ${msgTotalFollowers}
-        ${msgBlockedFollowers}
+        @<span class="redblock-target-username"></span>의 팔로워
+        <span class="redblock-target-total-followers"></span>명 중
+        <span class="redblock-blocked-user"></span>명 차단
         <br>
         <small>
-          ${msgProgress},
-          ${msgAlreadyBlocked},
-          ${msgSkipped},
-          ${msgFailed}
+          진행율: <span class="redblock-progress-percentage">0</span>%,
+          이미 차단: <span class="redblock-already-blocked-user"></span>,
+          스킵: <span class="redblock-skipped-user"></span>,
+          실패: <span class="redblock-failed-user"></span>
         </small>
         <div hidden class="redblock-ratelimit">
-          ${msgRateLimited} (${msgLimitReset})
+          리밋입니다. 잠시만 기다려주세요. (예상리셋시각: )
         </div>
         <div class="redblock-controls">
-          <button class="redblock-close small btn normal-btn">${msgClose}</button>
+          <button class="redblock-close small btn normal-btn">닫기</button>
         </div>
       </div>
     </div>`
@@ -108,12 +98,12 @@ class ChainBlockUI extends EventEmitter {
   public updateState(state: ChainBlockUIState) {
     const rootElem = this.rootElem
     const message: { [key: number]: string } = {
-      [ChainBlockUIState.Initial]: i18n`script_ui_state_initial`,
-      [ChainBlockUIState.Completed]: i18n`script_ui_state_completed`,
-      [ChainBlockUIState.Running]: i18n`script_ui_state_running`,
-      [ChainBlockUIState.RateLimited]: i18n`script_ui_state_rate_limited`,
-      [ChainBlockUIState.Stopped]: i18n`script_ui_state_stopped`,
-      [ChainBlockUIState.Error]: i18n`script_ui_state_error`,
+      [ChainBlockUIState.Initial]: '대기 중',
+      [ChainBlockUIState.Completed]: '완료',
+      [ChainBlockUIState.Running]: '실행 중…',
+      [ChainBlockUIState.RateLimited]: '리밋',
+      [ChainBlockUIState.Stopped]: '정지',
+      [ChainBlockUIState.Error]: '오류 발생!',
     }
     setText(rootElem)('.redblock-state', message[state] || '')
   }
@@ -146,7 +136,9 @@ class ChainBlockUI extends EventEmitter {
       '.redblock-progress'
     )
     progressBar!.value = progressBar!.max
-    const message = i18n`script_ui_after_complete${progress.blockSuccess}`
+    const message = `체인블락 완료! 총 ${
+      progress.blockSuccess
+    }명의 사용자를 차단했습니다.`
     if (!document.hidden) {
       sleep(500).then(() => window.alert(message))
     }
@@ -159,7 +151,9 @@ class ChainBlockUI extends EventEmitter {
   }
   public stop(progress: ChainBlockProgress) {
     this.updateProgress(progress)
-    const message = i18n`script_ui_after_stop${progress.blockSuccess}`
+    const message = `체인블락 중지! 총 ${
+      progress.blockSuccess
+    }명의 사용자를 차단했습니다.`
     if (!document.hidden) {
       sleep(500).then(() => window.alert(message))
     }
@@ -171,7 +165,7 @@ class ChainBlockUI extends EventEmitter {
     })
   }
   public error(errorMessage: string) {
-    window.alert(i18n`script_ui_alert_error${errorMessage}`)
+    window.alert(`체인블락 오류 발생!\n메시지: ${errorMessage}`)
   }
   public close() {
     this.rootElem.remove()

@@ -89,18 +89,3 @@ async function collectAsync<T>(
   }
   return result
 }
-
-function i18n(
-  strs: TemplateStringsArray,
-  ...args: (string | number)[]
-): string {
-  const id = strs[0].trim()
-  const argsString = args.map(e => e.toString())
-  const message = browser.i18n.getMessage(id, ...argsString) as
-    | string
-    | undefined
-  if (typeof message !== 'string' || message.length <= 0) {
-    throw new Error(`Can't find i18n message from id "${id}"`)
-  }
-  return message
-}
