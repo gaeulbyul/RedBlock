@@ -1,7 +1,7 @@
 class ChainBlocker {
   private readonly sessions: Map<string, ChainBlockSession> = new Map()
   private readonly container: HTMLElement = document.createElement('div')
-  private readonly allowMultipleSession = false
+  private readonly allowMultipleSession = true
   constructor() {
     this.container.className = 'redblock-bg'
     this.container.style.display = 'none'
@@ -24,13 +24,10 @@ class ChainBlocker {
       ChainBlockUIState.Running,
       ChainBlockUIState.RateLimited,
     ]
-    const currentSessionStates = [...this.sessions.values()].map(
-      session => session.state
+    const currentRunningSessions = Array.from(this.sessions.values()).filter(
+      session => runningStates.includes(session.state)
     )
-    const shouldPreventUnload = currentSessionStates.filter(st =>
-      runningStates.includes(st)
-    )
-    return shouldPreventUnload.length > 0
+    return currentRunningSessions.length > 0
   }
   public add(targetUser: TwitterUser) {
     if (!this.allowMultipleSession && this.isRunning()) {
@@ -65,13 +62,16 @@ class ChainBlocker {
     this.container.style.display = 'none'
   }
   public async start() {
-    if (this.isRunning()) {
+    if (this.isRunning() && !this.allowMultipleSession) {
       return
     }
     const sessions = this.sessions.values()
     for (const session of sessions) {
       if (session.state === ChainBlockUIState.Initial) {
-        await session.start()
+        const startSession = session.start()
+        if (!this.allowMultipleSession) {
+          await startSession
+        }
       }
     }
   }
