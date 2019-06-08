@@ -10,12 +10,13 @@ const CHAINBLOCK_UI_HTML = (() => {
         <br>
         <small>
           진행율: <span class="redblock-progress-percentage">0</span>%,
-          이미 차단: <span class="redblock-already-blocked-user"></span>,
-          스킵: <span class="redblock-skipped-user"></span>,
-          실패: <span class="redblock-failed-user"></span>
+          이미 차단: <span class="redblock-already-blocked-user">0</span>,
+          스킵: <span class="redblock-skipped-user">0</span>,
+          실패: <span class="redblock-failed-user">0</span>
         </small>
         <div hidden class="redblock-ratelimit">
-          리밋입니다. 잠시만 기다려주세요. (예상리셋시각: )
+          리밋입니다. 잠시만 기다려주세요.
+          (예상리셋시각: <span class="redblock-ratelimit-reset"></span>)
         </div>
         <div class="redblock-controls">
           <button class="redblock-close small btn normal-btn">닫기</button>
