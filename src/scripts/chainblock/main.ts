@@ -21,6 +21,7 @@ class ChainBlocker {
       return false
     }
     const runningStates = [
+      ChainBlockUIState.Initial,
       ChainBlockUIState.Running,
       ChainBlockUIState.RateLimited,
     ]
