@@ -1,7 +1,6 @@
 class ChainBlocker {
   private readonly sessions: Map<string, ChainBlockSession> = new Map()
   private readonly container: HTMLElement = document.createElement('div')
-  private readonly allowMultipleSession = true
   constructor() {
     this.container.className = 'redblock-bg'
     this.container.style.display = 'none'
@@ -31,7 +30,7 @@ class ChainBlocker {
     return currentRunningSessions.length > 0
   }
   public add(targetUser: TwitterUser) {
-    if (!this.allowMultipleSession && this.isRunning()) {
+    if (this.isRunning()) {
       window.alert('이미 체인블락이 실행중입니다.')
       return
     }
@@ -63,18 +62,17 @@ class ChainBlocker {
     this.container.style.display = 'none'
   }
   public async start() {
-    if (this.isRunning() && !this.allowMultipleSession) {
+    if (this.isRunning()) {
       return
     }
     const sessions = this.sessions.values()
+    const sessionPromises: Promise<void>[] = []
     for (const session of sessions) {
       if (session.state === ChainBlockUIState.Initial) {
-        const startSession = session.start()
-        if (!this.allowMultipleSession) {
-          await startSession
-        }
+        sessionPromises.push(session.start().catch(() => {}))
       }
     }
+    return Promise.all(sessionPromises)
   }
 }
 
