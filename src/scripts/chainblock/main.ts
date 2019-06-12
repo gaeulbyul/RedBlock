@@ -30,14 +30,10 @@ class ChainBlocker {
     return currentRunningSessions.length > 0
   }
   public add(targetUser: TwitterUser) {
-    if (this.isRunning()) {
-      window.alert('이미 체인블락이 실행중입니다.')
-      return
-    }
     const targetUserName = targetUser.screen_name
     if (this.sessions.has(targetUserName)) {
-      const ses = this.sessions.get(targetUserName)
-      if (ses!.state !== ChainBlockUIState.Closed) {
+      const ses = this.sessions.get(targetUserName)!
+      if (ses.state !== ChainBlockUIState.Closed) {
         window.alert(`이미 ${targetUserName}에게 체인블락이 실행중입니다.`)
         return
       }
@@ -51,7 +47,7 @@ class ChainBlocker {
   }
   public remove(targetUser: TwitterUser) {
     this.sessions.delete(targetUser.screen_name)
-    if (!this.isRunning()) {
+    if (this.sessions.size <= 0) {
       this.hide()
     }
   }
@@ -62,9 +58,6 @@ class ChainBlocker {
     this.container.style.display = 'none'
   }
   public async start() {
-    if (this.isRunning()) {
-      return
-    }
     const sessions = this.sessions.values()
     const sessionPromises: Promise<void>[] = []
     for (const session of sessions) {

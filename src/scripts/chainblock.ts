@@ -38,7 +38,7 @@ async function doChainBlock(targetUserName: string) {
     if (window.confirm(confirmMessage)) {
       blocker.add(targetUser)
       blocker.show()
-      await sleep(5000)
+      await sleep(3000)
       blocker.start()
     }
   } catch (err) {
