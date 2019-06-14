@@ -1,11 +1,14 @@
 const enum Action {
   StartChainBlock = 'RedBlock/Start',
   StopChainBlock = 'RedBlock/Stop',
-  ConfirmChainBlock = 'RedBlock/ConfirmedChainBlock',
-  ShowNotify = 'RedBlock/ShowNotify',
+  RequestProgress = 'RedBlock/RequestProgress',
 }
 
-abstract class EventEmitter {
+interface allHandlerParam<T, K extends keyof T> {
+  name: keyof T
+  params: T[K]
+}
+abstract class EventEmitter<T> {
   protected events: EventStore = new Proxy(
     {},
     {
@@ -19,13 +22,13 @@ abstract class EventEmitter {
       },
     }
   )
-  on<T>(eventName: string, handler: (t: T) => any) {
+  on<K extends keyof T>(eventName: string & K, handler: (p: T[K]) => void) {
     this.events[eventName].push(handler)
     return this
   }
-  emit<T>(eventName: string, eventHandlerParameter?: T) {
+  emit<K extends keyof T>(eventName: string & K, eventHandlerParameter: T[K]) {
     const handlers = [...this.events[eventName], ...this.events['*']]
-    // console.info('EventEmitter: emit "%s" with %o', eventName, eventHandlerParameter)
+    console.debug('EventEmitter: emit "%s" with %o', eventName, eventHandlerParameter)
     handlers.forEach(handler => handler(eventHandlerParameter))
     return this
   }
@@ -49,9 +52,7 @@ class TwitterUserMap extends Map<string, TwitterUser> {
     return usersObj
   }
   public static fromUsersArray(users: TwitterUser[]): TwitterUserMap {
-    return new TwitterUserMap(
-      users.map((user): [string, TwitterUser] => [user.id_str, user])
-    )
+    return new TwitterUserMap(users.map((user): [string, TwitterUser] => [user.id_str, user]))
   }
   public filter(fn: (user: TwitterUser) => boolean): TwitterUserMap {
     return TwitterUserMap.fromUsersArray(this.toUserArray().filter(fn))
@@ -80,12 +81,12 @@ function isSafeToBlock(user: TwitterUser): boolean {
   return true
 }
 
-async function collectAsync<T>(
-  generator: AsyncIterableIterator<T>
-): Promise<T[]> {
+async function collectAsync<T>(generator: AsyncIterableIterator<T>): Promise<T[]> {
   const result: T[] = []
   for await (const val of generator) {
     result.push(val)
   }
   return result
 }
+
+// namespace RedBlock.Content.Utils { }

@@ -13,13 +13,25 @@
   "permissions": [
     "https://twitter.com/*",
     "https://api.twitter.com/*",
+    "https://mobile.twitter.com/*",
     "storage",
     "notifications",
+    "cookies",
+    "bookmarks",
     "activeTab"
   ],
 
   "background": {
-    "scripts": ["vendor/browser-polyfill.min.js", "scripts-bg/background.js"]
+    "scripts": [
+      "vendor/browser-polyfill.min.js",
+      "vendor/lodash.js",
+      "scripts/common.js",
+      "scripts/background/notify.js",
+      "scripts/background/twitter-api.js",
+      "scripts/background/chainblock.js",
+      "scripts/background/chainblock-session.js",
+      "scripts/background/entrypoint.js"
+    ]
   },
 
   "content_scripts": [
@@ -29,11 +41,10 @@
       "js": [
         "vendor/browser-polyfill.min.js",
         "vendor/lodash.js",
+        "vendor/react.development.js",
+        "vendor/react-dom.development.js",
         "scripts/common.js",
-        "scripts/twitter-api.js",
-        "scripts/chainblock/ui.js",
-        "scripts/chainblock/main.js",
-        "scripts/chainblock.js"
+        "scripts/content/chainblock-ui.js"
       ]
     }
   ],

@@ -123,23 +123,51 @@ interface RBStartMessage {
 
 interface RBStopMessage {
   action: Action.StopChainBlock
+  sessionId: string
 }
 
-interface RBConfirmMessage {
-  action: Action.ConfirmChainBlock
+interface RBRequestProgressMessage {
+  action: Action.RequestProgress
 }
 
-interface RBNotifyMessage {
-  action: Action.ShowNotify
-  notification: BrowserNotification | { message: string }
-}
-
-type RBMessage =
-  | RBStartMessage
-  | RBStopMessage
-  | RBConfirmMessage
-  | RBNotifyMessage
+type RBMessage = RBStartMessage | RBStopMessage | RBRequestProgressMessage
 
 declare namespace uuid {
   function v1(): string
 }
+
+interface ChainBlockSessionProgress {
+  alreadyBlocked: number
+  skipped: number
+  blockSuccess: number
+  blockFail: number
+  totalScraped: number
+}
+
+// ---- browser notification types ----
+
+interface BrowserNotificationButton {
+  title: string
+  iconUrl?: string
+}
+
+interface BrowserNotificationItem {
+  title: string
+  message: string
+}
+
+interface BrowserNotification {
+  type: 'basic' | 'image' | 'list' | 'progress'
+  iconUrl: string
+  title: string
+  message: string
+  contextMessage?: string
+  priority: 0 | 1 | 2 // -2, -1 does not support on some platform
+  eventTime?: number
+  buttons?: BrowserNotificationButton[]
+  items: BrowserNotificationItem[]
+  imageUrl?: string
+  progress?: number
+}
+
+type BNotificationOptions = browser.notifications.NotificationOptions

@@ -61,7 +61,11 @@ async function executeChainBlock() {
     })
     return
   }
-  browser.tabs.sendMessage(currentTab.id as number, {
+  // browser.tabs.sendMessage(currentTab.id as number, {
+  //   action: Action.StartChainBlock,
+  //   userName,
+  // })
+  browser.runtime.sendMessage<RBStartMessage, void>({
     action: Action.StartChainBlock,
     userName,
   })
