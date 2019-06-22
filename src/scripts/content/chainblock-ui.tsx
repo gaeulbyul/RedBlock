@@ -12,12 +12,21 @@ namespace RedBlock.Content.UI {
   class RedBlockSessionUI extends React.Component<RedBlockSessionUIProps, {}> {
     requestStopChainBlock(event: React.MouseEvent<HTMLButtonElement>) {
       event.preventDefault()
-      const sessionId = this.props.sessionId
-      const { screen_name: userName } = this.props.targetUser
-      const confirmMessage = `@${userName}에게 실행한 체인블락을 중단하시겠습니까?`
-      if (!window.confirm(confirmMessage)) {
-        return
+      const { status } = this.props
+      const shouldConfirmStatuses = [
+        ChainBlockSessionStatus.Initial,
+        ChainBlockSessionStatus.Running,
+        ChainBlockSessionStatus.RateLimited,
+      ]
+      const shouldConfirm = shouldConfirmStatuses.includes(status)
+      if (shouldConfirm) {
+        const { screen_name: userName } = this.props.targetUser
+        const confirmMessage = `@${userName}에게 실행한 체인블락을 중단하시겠습니까?`
+        if (!window.confirm(confirmMessage)) {
+          return
+        }
       }
+      const sessionId = this.props.sessionId
       browser.runtime.sendMessage<RBStopMessage>({
         action: Action.StopChainBlock,
         sessionId,
@@ -25,6 +34,7 @@ namespace RedBlock.Content.UI {
     }
     render() {
       const { targetUser, status, progress } = this.props
+      const isInitial = status === ChainBlockSessionStatus.Initial
       const isCompleted = status === ChainBlockSessionStatus.Completed
       const statusMessageObj: { [key: number]: string } = {
         [ChainBlockSessionStatus.Initial]: '대기 중',
@@ -35,11 +45,12 @@ namespace RedBlock.Content.UI {
         [ChainBlockSessionStatus.Error]: '오류 발생!',
       }
       const statusMessage = statusMessageObj[status]
+      const progressBarVal = isInitial ? undefined : progress.totalScraped
       const progressBarMax = isCompleted ? progress.totalScraped : targetUser.followers_count
       const percentage = isCompleted ? 100 : Math.round((progress.totalScraped / progressBarMax) * 1000) / 10
       return (
         <div className="redblock-dialog">
-          <progress className="redblock-progress" value={progress.totalScraped} max={progressBarMax} />
+          <progress className="redblock-progress" value={progressBarVal} max={progressBarMax} />
           <div>
             (<span className="redblock-state">{statusMessage}</span>): @{targetUser.screen_name}의 팔로워{' '}
             {progress.blockSuccess}명 차단
