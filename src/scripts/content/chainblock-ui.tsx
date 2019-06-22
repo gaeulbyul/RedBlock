@@ -8,17 +8,20 @@ interface RedBlockSessionUIProps {
   progress: ChainBlockSessionProgress
 }
 namespace RedBlock.Content.UI {
+  function isRunningStatus(status: ChainBlockSessionStatus): boolean {
+    const runningStatuses = [
+      ChainBlockSessionStatus.Initial,
+      ChainBlockSessionStatus.Running,
+      ChainBlockSessionStatus.RateLimited,
+    ]
+    return runningStatuses.includes(status)
+  }
   const UI_UPDATE_DELAY = 1000
   class RedBlockSessionUI extends React.Component<RedBlockSessionUIProps, {}> {
     requestStopChainBlock(event: React.MouseEvent<HTMLButtonElement>) {
       event.preventDefault()
       const { status } = this.props
-      const shouldConfirmStatuses = [
-        ChainBlockSessionStatus.Initial,
-        ChainBlockSessionStatus.Running,
-        ChainBlockSessionStatus.RateLimited,
-      ]
-      const shouldConfirm = shouldConfirmStatuses.includes(status)
+      const shouldConfirm = isRunningStatus(status)
       if (shouldConfirm) {
         const { screen_name: userName } = this.props.targetUser
         const confirmMessage = `@${userName}에게 실행한 체인블락을 중단하시겠습니까?`
@@ -81,8 +84,14 @@ namespace RedBlock.Content.UI {
     clearAllIntervalFuncs() {
       this.intervals.forEach(n => window.clearInterval(n))
     }
+    hasRunningSession(): boolean {
+      const { sessions } = this.state
+      const runningSessions = Object.values(sessions).filter(ses => {
+        return isRunningStatus(ses.status)
+      })
+      return runningSessions.length >= 0
+    }
     componentWillMount() {
-      // this.intervals = []
       this.registerIntervalFunc(async () => {
         const cbSessionsInfoObj: ChainBlockSessionInfo = await browser.runtime
           .sendMessage({

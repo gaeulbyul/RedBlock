@@ -1,25 +1,16 @@
+interface ChainBlockSessionState {
+  progress: ChainBlockSessionProgress
+  status: ChainBlockSessionStatus
+  targetUser: TwitterUser
+}
 interface ChainBlockSessionInfo {
-  [sessionId: string]: {
-    progress: ChainBlockSessionProgress
-    status: ChainBlockSessionStatus
-    targetUser: TwitterUser
-  }
+  [sessionId: string]: ChainBlockSessionState
 }
 
 namespace RedBlock.Background.ChainBlock {
   export class ChainBlocker {
     private readonly sessions: Map<string, ChainBlockSession> = new Map()
-    constructor() {
-      // window.addEventListener('beforeunload', event => {
-      //   if (this.isRunning()) {
-      //     const message =
-      //       '다른 페이지로 이동하게 되면 현재 작동중인 체인블락은 멈추게 됩니다. 그래도 이동하시겠습니까?'
-      //     event.preventDefault()
-      //     event.returnValue = `[Red Block] ${message}`
-      //     return event.returnValue
-      //   }
-      // })
-    }
+    constructor() {}
     private generateSessionId(targetUser: TwitterUser): string {
       return targetUser.screen_name
     }
@@ -40,18 +31,13 @@ namespace RedBlock.Background.ChainBlock {
     public add(targetUser: TwitterUser): string | null {
       const sessionId = this.generateSessionId(targetUser)
       if (this.sessions.has(sessionId)) {
-        const ses = this.sessions.get(sessionId)!
-        if (ses.status !== ChainBlockSessionStatus.Closed) {
-          window.alert(`이미 ${targetUser.screen_name}에게 체인블락이 실행중입니다.`)
-          return null
-        }
+        window.alert(`이미 ${targetUser.screen_name}에게 체인블락이 실행중입니다.`)
+        return null
       }
       const session = new ChainBlockSession({
         sessionId,
         targetUser,
       })
-      // +ui update: add session
-      // session.appendToContainer(this.container)
       this.sessions.set(sessionId, session)
       return sessionId
     }

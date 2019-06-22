@@ -4,7 +4,6 @@ const enum ChainBlockSessionStatus {
   RateLimited,
   Completed,
   Stopped,
-  Closed,
   Error,
 }
 
@@ -135,7 +134,7 @@ namespace RedBlock.Background.ChainBlock {
         let stopped = false
         const followersIterator = TwitterAPI.getAllFollowers(this.targetUser)
         for await (const follower of followersIterator) {
-          const shouldStop = [ChainBlockSessionStatus.Closed, ChainBlockSessionStatus.Stopped].includes(this.status)
+          const shouldStop = this.status === ChainBlockSessionStatus.Stopped
           if (shouldStop) {
             stopped = true
             break
