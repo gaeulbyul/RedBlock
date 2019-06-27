@@ -7,19 +7,10 @@ const enum ChainBlockSessionStatus {
   Error,
 }
 
-interface ChainBlockSessionInit {
-  sessionId: string
-  targetUser: TwitterUser
-  // TODO: options
-}
-
-interface ChainBlockSessionOptions {
-  // TODO
-}
-
 interface ChainBlockSessionEvents {
   'update-progress': ChainBlockSessionProgress
   'update-state': ChainBlockSessionStatus
+  'update-count': number
   'rate-limit': Limit
   'rate-limit-reset': null
   error: string
@@ -31,8 +22,10 @@ interface ChainBlockSessionEvents {
 namespace RedBlock.Background.ChainBlock {
   export class ChainBlockSession extends EventEmitter<ChainBlockSessionEvents> {
     public readonly id: string
-    private readonly whitelist = new Set<string>()
-    private readonly _targetUser: TwitterUser
+    private readonly _whitelist = new Set<string>()
+    private readonly _targetUser: Readonly<TwitterUser>
+    private _totalCount: number | null
+    private readonly _options: Readonly<ChainBlockSessionOptions>
     private _status: ChainBlockSessionStatus = ChainBlockSessionStatus.Initial
     private _progress: ChainBlockSessionProgress = {
       alreadyBlocked: 0,
@@ -49,7 +42,19 @@ namespace RedBlock.Background.ChainBlock {
     constructor(init: ChainBlockSessionInit) {
       super()
       this.id = init.sessionId
-      this._targetUser = init.targetUser
+      this._targetUser = Object.freeze(init.targetUser)
+      this._options = Object.freeze(init.options)
+      const { targetList } = this._options
+      if (targetList === 'followers') {
+        this._totalCount = init.targetUser.followers_count
+      } else if (targetList === 'friends') {
+        this._totalCount = init.targetUser.friends_count
+      } else {
+        throw new Error('unreachable')
+      }
+    }
+    get totalCount(): number | null {
+      return this._totalCount
     }
     get targetUser(): TwitterUser {
       return this._targetUser
@@ -57,6 +62,13 @@ namespace RedBlock.Background.ChainBlock {
     get status(): ChainBlockSessionStatus {
       return this._status
     }
+    get options(): ChainBlockSessionOptions {
+      return this._options
+    }
+    // private updateTotalCount(count: number): void {
+    //   this._totalCount = count
+    //   this.emit('update-count', count)
+    // }
     private updateStatus(status: ChainBlockSessionStatus): void {
       this._status = status
       this.emit('update-state', status)
@@ -79,6 +91,7 @@ namespace RedBlock.Background.ChainBlock {
     private async rateLimited() {
       this.updateStatus(ChainBlockSessionStatus.RateLimited)
       const limits = await TwitterAPI.getRateLimitStatus()
+      // FIXME
       const followerLimit = limits.followers['/followers/list']
       this.emit('rate-limit', followerLimit)
     }
@@ -92,32 +105,41 @@ namespace RedBlock.Background.ChainBlock {
       if (follower.blocking) {
         return 'alreadyBlocked'
       }
-      if (this.whitelist.has(follower.id_str)) {
-        return 'skipped'
-      }
-      if (follower.followers_count > 50000 || follower.friends_count > 50000) {
-        return 'skipped'
-      }
-      if (follower.verified) {
-        return 'skipped'
-      }
-      if (!isSafeToBlock(follower)) {
+      if (this._whitelist.has(follower.id_str)) {
         return 'skipped'
       }
       return null
     }
     // .following 속성 제거에 따른 대응
     // BlockThemAll 처럼 미리 내 팔로잉/팔로워를 수집하는 방식을 이용함
-    private async updateWhitelistFromMyFollows(): Promise<void> {
+    private async updateWhitelistFromMyFollows(): Promise<boolean> {
+      // XXX too naive -_-
+      const { myFollowers, myFollowings } = this._options
+      if (myFollowers + myFollowings === 'blockblock') {
+        return true
+      }
       const myself = await TwitterAPI.getMyself()
-      this.whitelist.clear()
-      const myFollowings = collectAsync(TwitterAPI.getAllFollowsIds('friends', myself)).then(ids => {
-        ids.forEach(id => this.whitelist.add(id))
-      })
-      const myFollowers = collectAsync(TwitterAPI.getAllFollowsIds('followers', myself)).then(ids => {
-        ids.forEach(id => this.whitelist.add(id))
-      })
-      await Promise.all([myFollowings, myFollowers])
+      this._whitelist.clear()
+      let isOkay = true
+      const addIdsToWhitelist = (ids: Either<Error, string>[]): void => {
+        for (const maybeId of ids) {
+          if (maybeId.ok) {
+            this._whitelist.add(maybeId.value)
+          } else {
+            console.error(maybeId.error)
+            isOkay = false
+            break
+          }
+        }
+      }
+      const myFollowingsList = collectAsync(TwitterAPI.getAllFollowsIds('friends', myself)).then(
+        addIdsToWhitelist.bind(this)
+      )
+      const myFollowersList = collectAsync(TwitterAPI.getAllFollowsIds('followers', myself)).then(
+        addIdsToWhitelist.bind(this)
+      )
+      await Promise.all([myFollowingsList, myFollowersList])
+      return isOkay
     }
     public async start() {
       type FoundReason = keyof ChainBlockSessionProgress
@@ -129,23 +151,33 @@ namespace RedBlock.Background.ChainBlock {
         this.updateProgress(newProgress)
       }
       try {
-        await this.updateWhitelistFromMyFollows()
+        const whitelistUpdateResult = await this.updateWhitelistFromMyFollows()
+        if (!whitelistUpdateResult) {
+          debugger
+          throw new Error('자신의 팔로워 목록을 가져오는 데 실패했습니다.')
+        }
         const blockPromises: Promise<void>[] = []
         let stopped = false
-        const followersIterator = TwitterAPI.getAllFollowers(this.targetUser)
-        for await (const follower of followersIterator) {
+        const followTarget = this._options.targetList
+        const followersIterator = TwitterAPI.getAllFollowsUserList(followTarget, this.targetUser)
+        for await (const maybeFollower of followersIterator) {
           const shouldStop = this.status === ChainBlockSessionStatus.Stopped
           if (shouldStop) {
             stopped = true
             break
           }
-          if (follower === 'RateLimitError') {
-            this.rateLimited()
-            const second = 1000
-            const minute = second * 60
-            await sleep(1 * minute)
-            continue
+          if (!maybeFollower.ok) {
+            if (maybeFollower.error instanceof TwitterAPI.RateLimitError) {
+              this.rateLimited()
+              const second = 1000
+              const minute = second * 60
+              await sleep(1 * minute)
+              continue
+            } else {
+              throw maybeFollower.error
+            }
           }
+          const follower = maybeFollower.value
           if (this.status === ChainBlockSessionStatus.RateLimited) {
             this.rateLimitResetted()
           }

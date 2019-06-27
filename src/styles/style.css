@@ -37,14 +37,15 @@ progress.redblock-progress {
 }
 .redblock-controls {
   margin: 5px 0;
-  float: right;
 }
 .redblock-controls button {
-  padding: 5px 15px;
-  border: 1px solid #666;
-  border-radius: 5px;
-  color: inherit;
-  background-color: #ccc;
+  padding: 5px 30px;
+  border: 0;
+  border-radius: 50px;
+  background-color: #666;
+  color: white;
+  font-size: larger;
+  cursor: pointer;
 }
 .redblock-controls button:disabled {
   cursor: not-allowed;

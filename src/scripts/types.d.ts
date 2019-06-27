@@ -110,15 +110,26 @@ interface LimitStatus {
   }
 }
 
-type RateLimited<T> = T | 'RateLimitError'
-
 interface EventStore {
   [eventName: string]: Function[]
 }
 
+interface EitherRight<T> {
+  ok: true
+  value: T
+}
+
+interface EitherLeft<E> {
+  ok: false
+  error: E
+}
+
+type Either<E, T> = EitherLeft<E> | EitherRight<T>
+
 interface RBStartMessage {
   action: Action.StartChainBlock
   userName: string
+  options: ChainBlockSessionOptions
 }
 
 interface RBStopMessage {
@@ -136,12 +147,39 @@ declare namespace uuid {
   function v1(): string
 }
 
+interface ChainBlockSessionState {
+  progress: ChainBlockSessionProgress
+  status: ChainBlockSessionStatus
+  target: {
+    user: TwitterUser
+    // totalCount: 맞팔로우 체인의 경우, 실행시작 시점에선 정확한 사용자 수를 알 수 없다.
+    // 따라서, null을 통해 '아직 알 수 없음'을 표현한다.
+    totalCount: number | null
+  }
+  options: ChainBlockSessionOptions
+}
+interface ChainBlockSessionInfo {
+  [sessionId: string]: ChainBlockSessionState
+}
+
 interface ChainBlockSessionProgress {
   alreadyBlocked: number
   skipped: number
   blockSuccess: number
   blockFail: number
   totalScraped: number
+}
+
+interface ChainBlockSessionInit {
+  sessionId: string
+  targetUser: TwitterUser
+  options: ChainBlockSessionOptions
+}
+
+interface ChainBlockSessionOptions {
+  targetList: 'followers' | 'friends' // | 'mutual-followers'
+  myFollowers: 'skip' | 'block'
+  myFollowings: 'skip' | 'block'
 }
 
 // ---- browser notification types ----

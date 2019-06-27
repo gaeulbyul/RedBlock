@@ -4,7 +4,7 @@ namespace RedBlock.Background.Entrypoint {
     ChainBlock: { ChainBlocker },
   } = RedBlock.Background
   const chainblocker = new ChainBlocker()
-  async function doChainBlock(targetUserName: string) {
+  async function doChainBlock(targetUserName: string, options: ChainBlockSessionOptions) {
     const myself = await TwitterAPI.getMyself().catch(() => null)
     if (!myself) {
       window.alert('로그인 여부를 확인해주세요.')
@@ -21,8 +21,7 @@ namespace RedBlock.Background.Entrypoint {
       }
       const confirmMessage = `정말로 ${targetUserName}에게 체인블락을 실행하시겠습니까?`
       if (window.confirm(confirmMessage)) {
-        chainblocker.add(targetUser)
-        // blocker.show()
+        chainblocker.add(targetUser, options)
         await sleep(3000)
         chainblocker.start()
       }
@@ -53,7 +52,7 @@ namespace RedBlock.Background.Entrypoint {
         switch (message.action) {
           case Action.StartChainBlock:
             {
-              void doChainBlock(message.userName)
+              void doChainBlock(message.userName, message.options)
             }
             break
           case Action.RequestProgress: {

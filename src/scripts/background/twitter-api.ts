@@ -12,10 +12,7 @@ namespace RedBlock.Background.TwitterAPI {
   }
 
   export async function getRateLimitStatus(): Promise<LimitStatus> {
-    const response = await requestAPI(
-      'get',
-      '/application/rate_limit_status.json'
-    )
+    const response = await requestAPI('get', '/application/rate_limit_status.json')
     const resources = (await response.json()).resources as LimitStatus
     return resources
   }
@@ -24,16 +21,6 @@ namespace RedBlock.Background.TwitterAPI {
     if (user.blocking) {
       return true
     }
-    const shouldBlock = isSafeToBlock(user)
-    if (!shouldBlock) {
-      throw new Error(
-        '!!!!! FATAL!!!!!: attempted to block user that should NOT block!!'
-      )
-    }
-    return blockUserUnsafe(user)
-  }
-
-  export async function blockUserUnsafe(user: TwitterUser): Promise<boolean> {
     const response = await requestAPI('post', '/blocks/create.json', {
       user_id: user.id_str,
       include_entities: false,
@@ -42,25 +29,6 @@ namespace RedBlock.Background.TwitterAPI {
     const result = response.ok
     void response.text()
     return result
-  }
-
-  async function getFollowersList(
-    user: TwitterUser,
-    cursor: string = '-1'
-  ): Promise<FollowsListResponse> {
-    const response = await requestAPI('get', '/followers/list.json', {
-      user_id: user.id_str,
-      // screen_name: userName,
-      count: 200,
-      skip_status: true,
-      include_user_entities: false,
-      cursor,
-    })
-    if (response.ok) {
-      return response.json() as Promise<FollowsListResponse>
-    } else {
-      throw new Error('response is not ok')
-    }
   }
 
   async function getFollowsIds(
@@ -84,59 +52,128 @@ namespace RedBlock.Background.TwitterAPI {
   export async function* getAllFollowsIds(
     followKind: FollowKind,
     user: TwitterUser
-  ): AsyncIterableIterator<string> {
+  ): AsyncIterableIterator<Either<Error, string>> {
     let cursor: string = '-1'
     while (true) {
       try {
         const json = await getFollowsIds(followKind, user, cursor)
         cursor = json.next_cursor_str
-        yield* json.ids
+        yield* json.ids.map(id => ({
+          ok: true as const,
+          value: id,
+        }))
         if (cursor === '0') {
           break
         } else {
           await sleep(DELAY)
           continue
         }
-      } catch (e) {
-        // FIXME: should use another type for r.l.error
-        throw e
-        // if (e instanceof RateLimitError) {
-        //   yield 'RateLimitError'
-        // } else {
-        //   throw e
-        // }
+      } catch (error) {
+        yield {
+          ok: false,
+          error,
+        }
       }
     }
   }
 
-  export async function* getAllFollowers(
+  async function getFollowsUserList(
+    followKind: FollowKind,
+    user: TwitterUser,
+    cursor: string = '-1'
+  ): Promise<FollowsListResponse> {
+    const response = await requestAPI('get', `/${followKind}/list.json`, {
+      user_id: user.id_str,
+      // screen_name: userName,
+      count: 200,
+      skip_status: true,
+      include_user_entities: false,
+      cursor,
+    })
+    if (response.ok) {
+      return response.json() as Promise<FollowsListResponse>
+    } else {
+      throw new Error('response is not ok')
+    }
+  }
+
+  export async function* getAllFollowsUserList(
+    followKind: FollowKind,
     user: TwitterUser
-  ): AsyncIterableIterator<RateLimited<TwitterUser>> {
+  ): AsyncIterableIterator<Either<Error, TwitterUser>> {
     let cursor: string = '-1'
     while (true) {
       try {
-        const json = await getFollowersList(user, cursor)
+        const json = await getFollowsUserList(followKind, user, cursor)
         cursor = json.next_cursor_str
-        yield* json.users
+        yield* json.users.map(user => ({
+          ok: true as const,
+          value: user,
+        }))
         if (cursor === '0') {
           break
         } else {
           await sleep(DELAY)
           continue
         }
-      } catch (e) {
-        if (e instanceof RateLimitError) {
-          yield 'RateLimitError'
-        } else {
-          throw e
+      } catch (error) {
+        yield {
+          ok: false,
+          error,
         }
       }
     }
   }
 
-  export async function getSingleUserByName(
-    userName: string
-  ): Promise<TwitterUser> {
+  export async function getAllMutualFollowersIds(user: TwitterUser): Promise<string[]> {
+    function unwrap<T>(maybeValue: Either<Error, T>) {
+      if (maybeValue.ok) {
+        return maybeValue.value
+      } else {
+        const { error } = maybeValue
+        console.error(error)
+        throw error
+      }
+    }
+    const followingsIds = (await collectAsync(getAllFollowsIds('friends', user))).map(unwrap)
+    const followersIds = (await collectAsync(getAllFollowsIds('followers', user))).map(unwrap)
+    const mutualIds = _.intersection(followingsIds, followersIds)
+    return mutualIds
+  }
+
+  export async function* getAllMutualFollowersUsersList(
+    user: TwitterUser
+  ): AsyncIterableIterator<Either<Error, TwitterUser>> {
+    const mutualIds = await getAllMutualFollowersIds(user)
+    const chunks = _.chunk(mutualIds, 100)
+    for (const chunk of chunks) {
+      const mutualUsers = await getMultipleUsersById(chunk)
+      yield* mutualUsers.map(user => ({
+        ok: true as const,
+        value: user,
+      }))
+    }
+  }
+
+  export async function getMultipleUsersById(userIds: string[]): Promise<TwitterUser[]> {
+    if (userIds.length === 0) {
+      return []
+    }
+    if (userIds.length > 100) {
+      throw new Error('too many users! (> 100)')
+    }
+    const joinedIds = Array.from(new Set(userIds)).join(',')
+    const response = await requestAPI('get', '/users/lookup.json', {
+      user_id: joinedIds,
+    })
+    if (response.ok) {
+      return response.json() as Promise<TwitterUser[]>
+    } else {
+      throw new Error('response is not ok')
+    }
+  }
+
+  export async function getSingleUserByName(userName: string): Promise<TwitterUser> {
     const response = await requestAPI('get', '/users/show.json', {
       // user_id: user.id_str,
       screen_name: userName,
@@ -150,9 +187,7 @@ namespace RedBlock.Background.TwitterAPI {
     }
   }
 
-  export async function getFriendships(
-    users: TwitterUser[]
-  ): Promise<FriendshipResponse> {
+  export async function getFriendships(users: TwitterUser[]): Promise<FriendshipResponse> {
     const userIds = users.map(user => user.id_str)
     if (userIds.length === 0) {
       return []
@@ -171,10 +206,7 @@ namespace RedBlock.Background.TwitterAPI {
     }
   }
 
-  export async function getRelationship(
-    sourceUser: TwitterUser,
-    targetUser: TwitterUser
-  ): Promise<Relationship> {
+  export async function getRelationship(sourceUser: TwitterUser, targetUser: TwitterUser): Promise<Relationship> {
     const source_id = sourceUser.id_str
     const target_id = targetUser.id_str
     const response = await requestAPI('get', '/friendships/show.json', {
@@ -199,9 +231,7 @@ namespace RedBlock.Background.TwitterAPI {
     return csrfTokenCookie.value
   }
 
-  async function generateTwitterAPIOptions(
-    obj?: RequestInit
-  ): Promise<RequestInit> {
+  async function generateTwitterAPIOptions(obj?: RequestInit): Promise<RequestInit> {
     const csrfToken = await getCsrfTokenFromCookies()
     const headers = new Headers()
     headers.set('authorization', `Bearer ${BEARER_TOKEN}`)
@@ -229,11 +259,7 @@ namespace RedBlock.Background.TwitterAPI {
     params.set('include_can_dm', '1')
   }
 
-  async function requestAPI(
-    method: HTTPMethods,
-    path: string,
-    paramsObj: URLParamsObj = {}
-  ): Promise<Response> {
+  async function requestAPI(method: HTTPMethods, path: string, paramsObj: URLParamsObj = {}): Promise<Response> {
     const fetchOptions = await generateTwitterAPIOptions({
       method,
     })

@@ -67,20 +67,6 @@ function copyFrozenObject<T extends object>(obj: T): Readonly<T> {
   return Object.freeze(Object.assign({}, obj))
 }
 
-function isSafeToBlock(user: TwitterUser): boolean {
-  if (user.followed_by) {
-    return false
-  }
-  const userDep = user as TwitterUserWithDeprecatedProps
-  if (typeof userDep.following === 'boolean') {
-    const following = userDep.following || userDep.follow_request_sent
-    if (following) {
-      return false
-    }
-  }
-  return true
-}
-
 async function collectAsync<T>(generator: AsyncIterableIterator<T>): Promise<T[]> {
   const result: T[] = []
   for await (const val of generator) {

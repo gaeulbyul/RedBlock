@@ -24,38 +24,75 @@ hr {
 }
 
 .whole {
+  width: 480px;
   background-color: white;
 }
 
-.whole .title {
-  text-align: center;
-  font-size: 14px;
-  user-select: none;
+.chainblock-options {
+  padding: 0 15px;
 }
 
-.menu {
-  width: 250px;
+.user-name:not(:empty)::before {
+  content: '@';
+  font-size: smaller;
+  color: #999;
+}
+
+fieldset.chainblock-opt {
+  margin: 10px 0;
+  border: 2px solid #666;
+  border-radius: 5px;
+}
+
+fieldset.chainblock-subopt {
+  margin: 10px 0;
+  border: 1px dashed #999;
+  border-radius: 5px;
+}
+
+.chainblock-options label:hover {
+  text-decoration: underline;
+}
+
+.chainblock-options label span {
+  padding: 3px;
+  color: #333;
+}
+
+.chainblock-options label input:checked ~ span {
+  font-weight: bold;
+  color: #000;
 }
 
 .menu-item {
   width: 100%;
-  padding: 5px 10px;
+  padding: 15px;
   margin: 3px 0;
-  border-radius: 3px;
+  border-radius: 30px;
   border: 1px solid gray;
-  font-size: var(--default-font-size);
+  font-size: larger;
   background-color: white;
   color: black;
   cursor: pointer;
 }
 
-.menu-item .big-button-img {
-  display: block;
-  margin: 0 auto;
-  width: 100%;
-  max-width: 100px;
-  filter: saturate(50%);
-  transition: filter 0.2s;
+.menu-item:disabled {
+  opacity: 0.3;
+  cursor: not-allowed;
+}
+
+.menu-item.execute-chainblock {
+  border: 0;
+  background-color: crimson;
+  color: white;
+  font-weight: bold;
+  transition: background-color 0.3s;
+  box-shadow: 0 0 10px 5px #f063;
+}
+
+.menu-item.execute-chainblock:hover {
+  background-color: crimson;
+  color: white;
 }
 
 .menu-item:hover {
@@ -67,23 +104,11 @@ hr {
   filter: none;
 }
 
-.option-item {
-  margin: 5px 0;
-  font-size: 0.8rem;
-  color: #666;
+footer.info {
+  padding: 5px 15px;
+  text-align: right;
 }
 
-.option-item.on {
-  font-weight: bold;
-  color: green;
-}
-
-.option-item.currentVersion {
+.current-version {
   color: #333;
-}
-
-.warning {
-  padding: 0.25em 1em;
-
-  font-size: 14px;
 }

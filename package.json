@@ -1,7 +1,7 @@
 {
   "name": "red-block",
   "version": "0.0.0-see-manifest-json",
-  "description": "더욱 강력한 차단 확장기능",
+  "description": "Red Block",
   "main": "RedBlock/manifest.json",
   "repository": "https://github.com/gaeulbyul/RedBlock",
   "author": "Gaeulbyul <aeiou256@gmail.com>",
@@ -12,6 +12,7 @@
     }
   },
   "devDependencies": {
+    "@types/angular": "^1.6.54",
     "@types/lodash": "^4.14.117",
     "@types/react": "^16.8.20",
     "@types/react-dom": "^16.8.4",

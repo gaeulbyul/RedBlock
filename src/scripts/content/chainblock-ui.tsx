@@ -3,8 +3,12 @@ interface RedBlockUIState {
 }
 interface RedBlockSessionUIProps {
   sessionId: string
-  targetUser: TwitterUser
+  target: {
+    user: TwitterUser
+    totalCount: number | null
+  }
   status: ChainBlockSessionStatus
+  options: ChainBlockSessionOptions
   progress: ChainBlockSessionProgress
 }
 namespace RedBlock.Content.UI {
@@ -18,12 +22,12 @@ namespace RedBlock.Content.UI {
   }
   const UI_UPDATE_DELAY = 1000
   class RedBlockSessionUI extends React.Component<RedBlockSessionUIProps, {}> {
-    requestStopChainBlock(event: React.MouseEvent<HTMLButtonElement>) {
+    private requestStopChainBlock(event: React.MouseEvent<HTMLButtonElement>) {
       event.preventDefault()
       const { status } = this.props
       const shouldConfirm = isRunningStatus(status)
       if (shouldConfirm) {
-        const { screen_name: userName } = this.props.targetUser
+        const { screen_name: userName } = this.props.target.user
         const confirmMessage = `@${userName}에게 실행한 체인블락을 중단하시겠습니까?`
         if (!window.confirm(confirmMessage)) {
           return
@@ -35,10 +39,35 @@ namespace RedBlock.Content.UI {
         sessionId,
       })
     }
-    render() {
-      const { targetUser, status, progress } = this.props
+    private renderProgressBar(): JSX.Element {
+      const {
+        target: { totalCount },
+        status,
+        progress,
+      } = this.props
       const isInitial = status === ChainBlockSessionStatus.Initial
       const isCompleted = status === ChainBlockSessionStatus.Completed
+      const value = isInitial ? undefined : progress.totalScraped
+      const max = (isCompleted ? progress.totalScraped : totalCount) || undefined
+      let percentage = '0'
+      if (isCompleted) {
+        percentage = '100'
+      } else if (typeof max === 'number') {
+        percentage = String(Math.round((progress.totalScraped / max) * 1000) / 10)
+      } else {
+        percentage = '??'
+      }
+      const pprops = { value, max, title: `진행율: ${percentage}%` }
+      const elem = <progress className="redblock-progress" {...pprops} />
+      return elem
+    }
+    private renderStatus(): JSX.Element {
+      const {
+        target: { user },
+        status,
+        options,
+        progress,
+      } = this.props
       const statusMessageObj: { [key: number]: string } = {
         [ChainBlockSessionStatus.Initial]: '대기 중',
         [ChainBlockSessionStatus.Completed]: '완료',
@@ -47,30 +76,44 @@ namespace RedBlock.Content.UI {
         [ChainBlockSessionStatus.Stopped]: '정지',
         [ChainBlockSessionStatus.Error]: '오류 발생!',
       }
-      const statusMessage = statusMessageObj[status]
-      const progressBarVal = isInitial ? undefined : progress.totalScraped
-      const progressBarMax = isCompleted ? progress.totalScraped : targetUser.followers_count
-      const percentage = isCompleted ? 100 : Math.round((progress.totalScraped / progressBarMax) * 1000) / 10
+      const statusMessage = `[${statusMessageObj[status]}]`
+      const targetListMessage = options.targetList === 'followers' ? '팔로워' : '팔로잉'
+      const progressMessage = `@${user.screen_name}의 ${targetListMessage} 중 ${progress.blockSuccess}명 차단`
+      return (
+        <div>
+          <span>{statusMessage}</span>
+          <span>{progressMessage}</span>
+        </div>
+      )
+    }
+    private renderLimited(): JSX.Element | null {
+      // TODO: 리셋시각 제공
+      return <div>리밋입니다. 잠시만 기다려주세요.</div>
+    }
+    private renderControls(): JSX.Element {
+      return (
+        <div className="redblock-controls">
+          <button className="redblock-close" onClick={this.requestStopChainBlock.bind(this)}>
+            닫기
+          </button>
+        </div>
+      )
+    }
+    public render() {
+      const { status, progress } = this.props
+      const isLimited = status === ChainBlockSessionStatus.RateLimited
+      const miniProgress = `이미 차단: ${progress.alreadyBlocked}, 스킵: ${progress.skipped}, 실패: ${
+        progress.blockFail
+      }`
       return (
         <div className="redblock-dialog">
-          <progress className="redblock-progress" value={progressBarVal} max={progressBarMax} />
+          {this.renderProgressBar()}
           <div>
-            (<span className="redblock-state">{statusMessage}</span>): @{targetUser.screen_name}의 팔로워{' '}
-            {progress.blockSuccess}명 차단
-            <br />
-            <small>
-              진행율: {percentage}%, 이미 차단: {progress.alreadyBlocked}, 스킵: {progress.skipped}, 실패:{' '}
-              {progress.blockFail}
-            </small>
-            <div hidden className="redblock-ratelimit">
-              리밋입니다. 잠시만 기다려주세요. (예상리셋시각: <span className="redblock-ratelimit-reset" />)
-            </div>
+            {this.renderStatus()}
+            <small>{miniProgress}</small>
+            {isLimited && this.renderLimited()}
           </div>
-          <div className="redblock-controls">
-            <button className="redblock-close" onClick={this.requestStopChainBlock.bind(this)}>
-              닫기
-            </button>
-          </div>
+          {this.renderControls()}
         </div>
       )
     }
@@ -78,20 +121,13 @@ namespace RedBlock.Content.UI {
   class RedBlockUI extends React.Component<{}, RedBlockUIState> {
     private intervals: number[] = []
     public state: RedBlockUIState = { sessions: {} }
-    registerIntervalFunc(func: () => void, delay: number) {
+    private registerIntervalFunc(func: () => void, delay: number) {
       this.intervals.push(window.setInterval(func, delay))
     }
-    clearAllIntervalFuncs() {
+    private clearAllIntervalFuncs() {
       this.intervals.forEach(n => window.clearInterval(n))
     }
-    hasRunningSession(): boolean {
-      const { sessions } = this.state
-      const runningSessions = Object.values(sessions).filter(ses => {
-        return isRunningStatus(ses.status)
-      })
-      return runningSessions.length >= 0
-    }
-    componentWillMount() {
+    public componentWillMount() {
       this.registerIntervalFunc(async () => {
         const cbSessionsInfoObj: ChainBlockSessionInfo = await browser.runtime
           .sendMessage({
@@ -106,23 +142,16 @@ namespace RedBlock.Content.UI {
         })
       }, UI_UPDATE_DELAY)
     }
-    componentWillUnmount() {
+    public componentWillUnmount() {
       this.clearAllIntervalFuncs()
     }
-    render() {
+    public render() {
+      const sessions = Array.from(Object.entries(this.state.sessions))
       return (
         <div className="redblock-ui">
-          {Array.from(Object.entries(this.state.sessions)).map(
-            ([sessionId, { status, progress, targetUser }], index) => (
-              <RedBlockSessionUI
-                sessionId={sessionId}
-                key={index}
-                status={status}
-                progress={progress}
-                targetUser={targetUser}
-              />
-            )
-          )}
+          {sessions.map(([sessionId, state], index) => (
+            <RedBlockSessionUI key={index} sessionId={sessionId} {...state} />
+          ))}
         </div>
       )
     }

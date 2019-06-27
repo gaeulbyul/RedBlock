@@ -1,35 +1,94 @@
 <!DOCTYPE html>
-<html lang="ko">
+<html lang="ko" ng-csp ng-app="RedBlockPopup">
   <head>
     <meta charset="utf-8" />
-    <meta
-      name="viewport"
-      content="width=device-width, initial-scale=1.0, minimum-scale=1.0"
-    />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0" />
+    <link rel="stylesheet" href="../vendor/AngularJS/angular-csp.css" />
     <link rel="stylesheet" href="popup.css" />
     <title>Red Block</title>
   </head>
   <body>
-    <div class="whole">
-      <div class="title">Red Block</div>
-      <hr />
-      <div class="menu">
-        <button
-          class="menu-item chain-block-followers"
-          title="팔로워를 수집한 후 일괄적으로 차단합니다"
-        >
-          <img
-            class="big-button-img"
-            src="/icons/icon-original.png"
-            alt="Red Block"
-          />
-          <span>체인블락 (팔로워)</span>
-        </button>
+    <div class="whole" ng-controller="RedBlockPopupController">
+      <div class="chainblock-options">
+        <fieldset class="chainblock-opt" ng-disabled="!userName">
+          <legend>차단 대상 <span class="user-name">{{ userName }}</span></legend>
+          <label>
+            <input type="radio" ng-model="options.targetList" name="chainblock-target" value="followers" />
+            <span>팔로워</span>
+          </label>
+          <label>
+            <input type="radio" ng-model="options.targetList" name="chainblock-target" value="friends" />
+            <span>팔로잉</span>
+          </label>
+          <!--
+          <label>
+            <input
+              type="radio"
+              ng-model="options.targetList"
+              name="chainblock-target"
+              value="mutual-followers"
+            /><span>맞팔로우(미구현)</span>
+          </label>
+          -->
+        </fieldset>
+        <fieldset class="chainblock-opt" ng-disabled="!userName">
+          <legend>필터 (미구현)</legend>
+          <fieldset class="chainblock-subopt">
+            <legend>내 팔로워</legend>
+            <label>
+              <input type="radio" ng-model="options.myFollowers" name="chainblock-my-followers" value="skip" /><span
+                >냅두기</span
+              >
+            </label>
+            <label>
+              <input type="radio" ng-model="options.myFollowers" name="chainblock-my-followers" value="block" /><span
+                >차단하기</span
+              >
+            </label>
+            <label>
+              <input type="radio" ng-model="options.myFollowers" name="chainblock-my-followers" value="mute" /><span
+                >뮤트하기</span
+              >
+            </label>
+          </fieldset>
+          <fieldset class="chainblock-subopt">
+            <legend>내 팔로잉</legend>
+            <label>
+              <input type="radio" ng-model="options.myFollowings" name="chainblock-my-followings" value="skip" /><span
+                >냅두기</span
+              >
+            </label>
+            <label>
+              <input type="radio" ng-model="options.myFollowings" name="chainblock-my-followings" value="block" /><span
+                >차단하기</span
+              >
+            </label>
+            <label>
+              <input type="radio" ng-model="options.myFollowings" name="chainblock-my-followings" value="mute" /><span
+                >뮤트하기</span
+              >
+            </label>
+          </fieldset>
+          <!-- 블언블?
+            주의: 일단 블언블을 하고나면 내 팔로잉이나 팔로워가 아니게 되므로, 다음 체인블락 사용시 차단 대상이 될 수 있습니다.
+          -->
+        </fieldset>
+        <div class="warnings"></div>
+        <div class="menu">
+          <button class="menu-item execute-chainblock" ng-click="executeChainBlock($event)" ng-disabled="!userName">
+            <span>체인블락 실행</span>
+          </button>
+        </div>
       </div>
-      <hr />
-      <div class="current-options"><div class="currentVersion"></div></div>
     </div>
+    <hr />
+    <footer class="info">Red Block <span class="current-version"></span></footer>
     <script src="../vendor/browser-polyfill.min.js"></script>
+    <script src="../vendor/AngularJS/angular.js"></script>
+    <!--
+    <script src="../vendor/react.development.js"></script>
+    <script src="../vendor/react-dom.development.js"></script>
+    -->
     <script src="popup.js"></script>
   </body>
 </html>
