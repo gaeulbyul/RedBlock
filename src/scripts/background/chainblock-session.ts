@@ -189,11 +189,13 @@ namespace RedBlock.Background.ChainBlock {
         const followTarget = this._options.targetList
         const followersIterator = TwitterAPI.getAllFollowsUserList(followTarget, this.targetUser)
         for await (const maybeFollower of followersIterator) {
-          const shouldStop = this.status === ChainBlockSessionStatus.Stopped
-          if (shouldStop) {
+          await sleep(500) //XXX 임시. 나중에 지울 것
+          if (this.status === ChainBlockSessionStatus.Stopped) {
             stopped = true
             blockPromises.length = 0
             break
+          } else if (this.status === ChainBlockSessionStatus.RateLimited) {
+            this.rateLimitResetted()
           }
           if (!maybeFollower.ok) {
             if (maybeFollower.error instanceof TwitterAPI.RateLimitError) {
@@ -207,10 +209,6 @@ namespace RedBlock.Background.ChainBlock {
             }
           }
           const follower = maybeFollower.value
-          if (this.status === ChainBlockSessionStatus.RateLimited) {
-            this.rateLimitResetted()
-          }
-          await sleep(500) //XXX 임시. 나중에 지울 것
           this.updateStatus(ChainBlockSessionStatus.Running)
           const whatToDo = this.whatToDoGivenUser(follower)
           if (whatToDo === 'skip') {
