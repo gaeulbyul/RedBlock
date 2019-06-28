@@ -19,10 +19,14 @@ interface ChainBlockSessionEvents {
   complete: null
 }
 
+type Should = 'skip' | 'block' | 'already-blocked'
+
 namespace RedBlock.Background.ChainBlock {
   export class ChainBlockSession extends EventEmitter<ChainBlockSessionEvents> {
     public readonly id: string
-    private readonly _whitelist = new Set<string>()
+    private _prepared = false
+    private readonly _myFollowingsIds = new Set<string>()
+    private readonly _myFollowersIds = new Set<string>()
     private readonly _targetUser: Readonly<TwitterUser>
     private _totalCount: number | null
     private readonly _options: Readonly<ChainBlockSessionOptions>
@@ -99,32 +103,52 @@ namespace RedBlock.Background.ChainBlock {
       this.updateStatus(ChainBlockSessionStatus.Running)
       this.emit('rate-limit-reset', null)
     }
-    private checkUserSkip(follower: TwitterUser): 'alreadyBlocked' | 'skipped' | null {
+    public async prepare() {
+      try {
+        const myFollowersUpdateList = await this.updateMyFollowersList()
+        if (!myFollowersUpdateList) {
+          throw new Error('자신의 팔로워 목록을 가져오는 데 실패했습니다.')
+        }
+        this._prepared = true
+      } catch (err) {
+        console.error(err)
+        this._prepared = false
+      }
+    }
+    private whatToDoGivenUser(follower: TwitterUser): Should {
       // TODO: should also use friendships/outgoing api
       // for replace follow_request_sent prop
       if (follower.blocking) {
-        return 'alreadyBlocked'
+        return 'already-blocked'
       }
-      if (this._whitelist.has(follower.id_str)) {
-        return 'skipped'
+      const options = this._options
+      const isMyFollowing = this._myFollowingsIds.has(follower.id_str)
+      const isMyFollower = this._myFollowersIds.has(follower.id_str)
+      const isMyMutualFollower = isMyFollower && isMyFollowing
+      if (isMyMutualFollower) {
+        // 내 맞팔로우는 스킵한다.
+        return 'skip'
       }
-      return null
+      if (isMyFollower) {
+        const whatToDo = options.myFollowers
+        console.debug('내 팔로워: %s', whatToDo)
+        return whatToDo
+      }
+      if (isMyFollowing) {
+        const whatToDo = options.myFollowings
+        console.debug('내 팔로잉: %s', whatToDo)
+        return whatToDo
+      }
+      return 'block'
     }
     // .following 속성 제거에 따른 대응
     // BlockThemAll 처럼 미리 내 팔로잉/팔로워를 수집하는 방식을 이용함
-    private async updateWhitelistFromMyFollows(): Promise<boolean> {
-      // XXX too naive -_-
-      const { myFollowers, myFollowings } = this._options
-      if (myFollowers + myFollowings === 'blockblock') {
-        return true
-      }
-      const myself = await TwitterAPI.getMyself()
-      this._whitelist.clear()
+    private async updateMyFollowersList(): Promise<boolean> {
       let isOkay = true
-      const addIdsToWhitelist = (ids: Either<Error, string>[]): void => {
+      const addIdsToSet = (set: Set<string>, ids: Either<Error, string>[]): void => {
         for (const maybeId of ids) {
           if (maybeId.ok) {
-            this._whitelist.add(maybeId.value)
+            set.add(maybeId.value)
           } else {
             console.error(maybeId.error)
             isOkay = false
@@ -132,18 +156,27 @@ namespace RedBlock.Background.ChainBlock {
           }
         }
       }
-      const myFollowingsList = collectAsync(TwitterAPI.getAllFollowsIds('friends', myself)).then(
-        addIdsToWhitelist.bind(this)
-      )
-      const myFollowersList = collectAsync(TwitterAPI.getAllFollowsIds('followers', myself)).then(
-        addIdsToWhitelist.bind(this)
-      )
-      await Promise.all([myFollowingsList, myFollowersList])
+      this._myFollowersIds.clear()
+      this._myFollowingsIds.clear()
+      const myselfP = TwitterAPI.getMyself()
+      myselfP.then(async myself => {
+        const allIds = await collectAsync(TwitterAPI.getAllFollowsIds('followers', myself))
+        addIdsToSet(this._myFollowersIds, allIds)
+      })
+      myselfP.then(async myself => {
+        const allIds = await collectAsync(TwitterAPI.getAllFollowsIds('friends', myself))
+        addIdsToSet(this._myFollowingsIds, allIds)
+      })
+      await myselfP
+      console.debug('내 팔로잉/팔로워 목록: %o', [this._myFollowersIds, this._myFollowingsIds])
       return isOkay
     }
     public async start() {
+      if (!this._prepared) {
+        throw new Error('아직 준비(prepare)되지 않았습니다.')
+      }
       type FoundReason = keyof ChainBlockSessionProgress
-      const afterFoundUser = (reason: FoundReason) => {
+      const incrementProgress = (reason: FoundReason) => {
         const newProgPart: Partial<ChainBlockSessionProgress> = {
           [reason]: this.progress[reason] + 1,
         }
@@ -151,11 +184,6 @@ namespace RedBlock.Background.ChainBlock {
         this.updateProgress(newProgress)
       }
       try {
-        const whitelistUpdateResult = await this.updateWhitelistFromMyFollows()
-        if (!whitelistUpdateResult) {
-          debugger
-          throw new Error('자신의 팔로워 목록을 가져오는 데 실패했습니다.')
-        }
         const blockPromises: Promise<void>[] = []
         let stopped = false
         const followTarget = this._options.targetList
@@ -164,6 +192,7 @@ namespace RedBlock.Background.ChainBlock {
           const shouldStop = this.status === ChainBlockSessionStatus.Stopped
           if (shouldStop) {
             stopped = true
+            blockPromises.length = 0
             break
           }
           if (!maybeFollower.ok) {
@@ -183,19 +212,19 @@ namespace RedBlock.Background.ChainBlock {
           }
           await sleep(500) //XXX 임시. 나중에 지울 것
           this.updateStatus(ChainBlockSessionStatus.Running)
-          const shouldSkip = this.checkUserSkip(follower)
-          if (shouldSkip) {
-            afterFoundUser(shouldSkip)
+          const whatToDo = this.whatToDoGivenUser(follower)
+          if (whatToDo === 'skip') {
+            incrementProgress('skipped')
             continue
           }
           blockPromises.push(
             TwitterAPI.blockUser(follower)
               .then((blocked: boolean) => {
                 const blockResult = blocked ? 'blockSuccess' : 'blockFail'
-                afterFoundUser(blockResult)
+                incrementProgress(blockResult)
               })
               .catch(() => {
-                afterFoundUser('blockFail')
+                incrementProgress('blockFail')
               })
           )
           if (blockPromises.length >= 60) {

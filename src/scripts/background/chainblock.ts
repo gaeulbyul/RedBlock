@@ -33,15 +33,30 @@ namespace RedBlock.Background.ChainBlock {
       this.sessions.set(sessionId, session)
       return sessionId
     }
-    public stop(sessionId: string) {
-      const sessionWillStop = this.sessions.get(sessionId)
-      if (!sessionWillStop) {
-        return
+    public async prepare(sessionId: string): Promise<void> {
+      const session = this.sessions.get(sessionId)
+      if (!session) {
+        throw new Error(`id ${sessionId}인 세션을 찾을 수 없습니다`)
       }
-      sessionWillStop.stop()
+      return session.prepare()
+    }
+    public stop(sessionId: string) {
+      const session = this.sessions.get(sessionId)
+      if (!session) {
+        throw new Error(`id ${sessionId}인 세션을 찾을 수 없습니다`)
+      }
+      session.stop()
       this.sessions.delete(sessionId)
     }
-    public async start() {
+    public async start(sessionId: string) {
+      const session = this.sessions.get(sessionId)
+      if (!session) {
+        throw new Error(`id ${sessionId}인 세션을 찾을 수 없습니다`)
+      }
+      return session.start()
+      //
+    }
+    public async startAll() {
       const sessions = this.sessions.values()
       const sessionPromises: Promise<void>[] = []
       for (const session of sessions) {

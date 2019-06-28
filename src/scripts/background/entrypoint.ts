@@ -21,9 +21,12 @@ namespace RedBlock.Background.Entrypoint {
       }
       const confirmMessage = `정말로 ${targetUserName}에게 체인블락을 실행하시겠습니까?`
       if (window.confirm(confirmMessage)) {
-        chainblocker.add(targetUser, options)
-        await sleep(3000)
-        chainblocker.start()
+        const sessionId = chainblocker.add(targetUser, options)
+        if (sessionId) {
+          await sleep(3000)
+          await chainblocker.prepare(sessionId)
+          chainblocker.start(sessionId)
+        }
       }
     } catch (err) {
       if (err instanceof TwitterAPI.RateLimitError) {
@@ -62,7 +65,6 @@ namespace RedBlock.Background.Entrypoint {
               return Promise.resolve(info)
               // sendResponse(Promise.resolve(info))
             }
-            break
           }
           case Action.StopChainBlock:
             {
