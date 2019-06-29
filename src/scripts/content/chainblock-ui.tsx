@@ -1,17 +1,20 @@
-interface RedBlockUIState {
-  sessions: ChainBlockSessionInfo
-}
-interface RedBlockSessionUIProps {
-  sessionId: string
-  target: {
-    user: TwitterUser
-    totalCount: number | null
-  }
-  status: ChainBlockSessionStatus
-  options: ChainBlockSessionOptions
-  progress: ChainBlockSessionProgress
-}
 namespace RedBlock.Content.UI {
+  interface RedBlockUIState {
+    sessions: ChainBlockSessionInfo
+  }
+  interface RedBlockSessionUIProps {
+    sessionId: string
+    target: {
+      user: TwitterUser
+      totalCount: number | null
+    }
+    status: ChainBlockSessionStatus
+    options: ChainBlockSessionOptions
+    progress: ChainBlockSessionProgress
+  }
+  interface RedBlockSessionUIState {
+    hidden: boolean
+  }
   function isRunningStatus(status: ChainBlockSessionStatus): boolean {
     const runningStatuses = [
       ChainBlockSessionStatus.Initial,
@@ -21,7 +24,10 @@ namespace RedBlock.Content.UI {
     return runningStatuses.includes(status)
   }
   const UI_UPDATE_DELAY = 1000
-  class RedBlockSessionUI extends React.Component<RedBlockSessionUIProps, {}> {
+  class RedBlockSessionUI extends React.Component<RedBlockSessionUIProps, RedBlockSessionUIState> {
+    public state: RedBlockSessionUIState = {
+      hidden: false,
+    }
     private requestStopChainBlock(event: React.MouseEvent<HTMLButtonElement>) {
       event.preventDefault()
       const { status } = this.props
@@ -37,6 +43,9 @@ namespace RedBlock.Content.UI {
       browser.runtime.sendMessage<RBStopMessage>({
         action: Action.StopChainBlock,
         sessionId,
+      })
+      this.setState({
+        hidden: true,
       })
     }
     private renderProgressBar(): JSX.Element {
@@ -101,12 +110,13 @@ namespace RedBlock.Content.UI {
     }
     public render() {
       const { status, progress } = this.props
+      const { hidden } = this.state
       const isLimited = status === ChainBlockSessionStatus.RateLimited
       const miniProgress = `이미 차단: ${progress.alreadyBlocked}, 스킵: ${progress.skipped}, 실패: ${
         progress.blockFail
       }`
       return (
-        <div className="redblock-dialog">
+        <div className="redblock-dialog" hidden={hidden}>
           {this.renderProgressBar()}
           <div>
             {this.renderStatus()}
