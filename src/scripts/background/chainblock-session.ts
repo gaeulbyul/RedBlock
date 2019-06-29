@@ -25,6 +25,7 @@ namespace RedBlock.Background.ChainBlock {
   export class ChainBlockSession extends EventEmitter<ChainBlockSessionEvents> {
     public readonly id: string
     private _prepared = false
+    private _shouldStop = false
     private readonly _myFollowingsIds = new Set<string>()
     private readonly _myFollowersIds = new Set<string>()
     private readonly _targetUser: Readonly<TwitterUser>
@@ -85,6 +86,7 @@ namespace RedBlock.Background.ChainBlock {
       this.emit('update-progress', copyFrozenObject(this.progress))
     }
     public stop() {
+      this._shouldStop = true
       this.updateStatus(ChainBlockSessionStatus.Stopped)
       this.emit('stop', null)
     }
@@ -94,10 +96,17 @@ namespace RedBlock.Background.ChainBlock {
     }
     private async rateLimited() {
       this.updateStatus(ChainBlockSessionStatus.RateLimited)
+      const { targetList } = this._options
       const limits = await TwitterAPI.getRateLimitStatus()
-      // FIXME
-      const followerLimit = limits.followers['/followers/list']
-      this.emit('rate-limit', followerLimit)
+      if (targetList === 'friends') {
+        const followerLimit = limits.friends[`/friends/list`]
+        this.emit('rate-limit', followerLimit)
+      } else if (targetList === 'followers') {
+        const followerLimit = limits.followers[`/followers/list`]
+        this.emit('rate-limit', followerLimit)
+      } else {
+        throw new Error('unreachable')
+      }
     }
     private rateLimitResetted() {
       this.updateStatus(ChainBlockSessionStatus.Running)
@@ -189,8 +198,7 @@ namespace RedBlock.Background.ChainBlock {
         const followTarget = this._options.targetList
         const followersIterator = TwitterAPI.getAllFollowsUserList(followTarget, this.targetUser)
         for await (const maybeFollower of followersIterator) {
-          await sleep(500) //XXX 임시. 나중에 지울 것
-          if (this.status === ChainBlockSessionStatus.Stopped) {
+          if (this._shouldStop) {
             stopped = true
             blockPromises.length = 0
             break
