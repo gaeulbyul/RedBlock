@@ -222,6 +222,9 @@ namespace RedBlock.Background.ChainBlock {
           if (whatToDo === 'skip') {
             incrementProgress('skipped')
             continue
+          } else if (whatToDo === 'already-blocked') {
+            incrementProgress('alreadyBlocked')
+            continue
           }
           blockPromises.push(
             TwitterAPI.blockUser(follower)
