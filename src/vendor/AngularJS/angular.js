@@ -11423,7 +11423,6 @@
                   // scope initialization, otherwise the value would not be available from isolate
                   // directive's linking fn during linking phase
                   attr[name] = interpolateFn(scope)
-
                   ;($$observers[name] || ($$observers[name] = [])).$$inter = true
                   ;((attr.$$observers && attr.$$observers[name].$$scope) || scope).$watch(
                     interpolateFn,
@@ -13678,7 +13677,6 @@
           function resolvePromise(response, status, headers, statusText, xhrStatus) {
             //status: HTTP response status code, 0, -1 (aborted by timeout / promise)
             status = status >= -1 ? status : 0
-
             ;(isSuccess(status) ? deferred.resolve : deferred.reject)({
               data: response,
               status: status,
@@ -14954,7 +14952,8 @@
           withoutHashUrl = ''
           if (isUndefined(withoutBaseUrl)) {
             appBase = url
-            /** @type {?} */ ;(this).replace()
+            /** @type {?} */
+            this.replace()
           }
         }
       }

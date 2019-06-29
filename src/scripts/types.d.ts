@@ -15,6 +15,7 @@ interface TwitterUser {
   verified: boolean
   created_at: string // datetime example: 'Sun Jun 29 05:52:09 +0000 2014'
   description: string
+  profile_image_url_https: string
 }
 
 interface TwitterUserWithDeprecatedProps extends TwitterUser {

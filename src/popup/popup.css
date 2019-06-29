@@ -8,7 +8,14 @@
   --default-font-size: 16px;
 }
 
+[hidden] {
+  display: none;
+  visibility: hidden;
+}
+
 body {
+  margin: 0;
+  padding: 0;
   font-size: var(--default-font-size);
   font-family: 'NanumGothic', 'Malgun Gothic', sans-serif;
 }
@@ -24,29 +31,82 @@ hr {
 }
 
 .whole {
-  width: 480px;
+  width: 400px;
+  padding: 10px;
+  margin: 0 auto;
   background-color: white;
+}
+
+.whole input[type='radio'] {
+  margin: 0 0.2rem 0 0;
+}
+
+.non-twitter {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background-color: black;
+}
+
+.non-twitter .text {
+  padding: 10px;
+  word-break: keep-all;
+  font-size: 16px;
+  color: white;
+  text-shadow: 0 0 10px white;
+}
+
+.target-user-info {
+  display: flex;
+  flex-direction: row;
+  margin-top: 5px;
+}
+
+.profile-image-area {
+  margin-right: 10px;
+}
+
+.profile-right-area {
+  line-height: 150%;
+}
+
+.profile-right-info .nickname {
+  font-size: larger;
+  font-weight: bold;
+  color: #333;
+}
+
+.profile-right-info .username {
+  color: #666;
+}
+
+.profile-right-targetlist {
+  margin-top: 10px;
+}
+
+.profile-image {
+  width: 60px;
+  border-radius: 50%;
 }
 
 .chainblock-options {
   padding: 0 15px;
 }
 
-.user-name:not(:empty)::before {
-  content: '@';
-  font-size: smaller;
-  color: #999;
-}
-
 fieldset.chainblock-opt {
   margin: 10px 0;
-  border: 2px solid #666;
+  border: 2px solid #999;
   border-radius: 5px;
 }
 
 fieldset.chainblock-subopt {
-  margin: 10px 0;
-  border: 1px solid #999;
+  margin-bottom: 10px;
+  border: 1px solid #ccc;
   border-radius: 5px;
 }
 
@@ -67,9 +127,9 @@ fieldset.chainblock-subopt {
 .description {
   padding: 10px 15px;
   word-break: keep-all;
-  border: 1px dotted royalblue;
   border-radius: 5px;
   background-color: aliceblue;
+  color: navy;
 }
 
 .menu-item {
@@ -113,6 +173,7 @@ fieldset.chainblock-subopt {
 }
 
 footer.info {
+  margin-bottom: 10px;
   padding: 5px 15px;
   text-align: right;
 }
