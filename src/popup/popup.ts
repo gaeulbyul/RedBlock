@@ -101,12 +101,10 @@ namespace RedBlock.Popup.UI {
         $q.when(getTabAndUser()).then(({ tab, user }) => {
           $scope.currentTab = tab
           $scope.currentUser = user
-          if (user) {
-            $scope.isOnTwitter = true
-          }
+          $scope.isOnTwitter = !!user
         })
         $scope.currentVersion = manifest.version
-        $scope.isOnTwitter = false
+        $scope.isOnTwitter = true
         $scope.options = {
           targetList: 'followers',
           myFollowers: 'skip',

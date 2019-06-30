@@ -8,6 +8,7 @@ namespace RedBlock.Background.Entrypoint {
     const myself = await TwitterAPI.getMyself().catch(() => null)
     if (!myself) {
       window.alert('로그인 여부를 확인해주세요.')
+      return
     }
     try {
       const targetUser = await TwitterAPI.getSingleUserByName(targetUserName)
@@ -15,8 +16,14 @@ namespace RedBlock.Background.Entrypoint {
       // if (targetUser.protected && !following) {
       //   window.alert(i18n`script_alert_unable_to_protected_user`)
       // }
-      if (targetUser.followers_count <= 0) {
-        window.alert('차단할 팔로워가 없습니다.')
+      let isZero = false
+      if (options.targetList === 'followers' && targetUser.followers_count <= 0) {
+        isZero = true
+      } else if (options.targetList === 'friends' && targetUser.friends_count <= 0) {
+        isZero = true
+      }
+      if (isZero) {
+        window.alert('차단할 팔로잉/팔로워가 없습니다.')
         return
       }
       const confirmMessage = `정말로 ${targetUserName}에게 체인블락을 실행하시겠습니까?`
