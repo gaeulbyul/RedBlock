@@ -11,6 +11,7 @@ namespace RedBlock.Content.UI {
     status: ChainBlockSessionStatus
     options: ChainBlockSessionOptions
     progress: ChainBlockSessionProgress
+    limit: Limit | null
   }
   interface RedBlockSessionUIState {
     hidden: boolean
@@ -75,7 +76,6 @@ namespace RedBlock.Content.UI {
         target: { user },
         status,
         options,
-        progress,
       } = this.props
       const statusMessageObj: { [key: number]: string } = {
         [ChainBlockSessionStatus.Initial]: '대기 중',
@@ -87,17 +87,27 @@ namespace RedBlock.Content.UI {
       }
       const statusMessage = `[${statusMessageObj[status]}]`
       const targetListMessage = options.targetList === 'followers' ? '팔로워' : '팔로잉'
-      const progressMessage = `@${user.screen_name}의 ${targetListMessage} 중 ${progress.blockSuccess}명 차단`
+      const progressMessage = `@${user.screen_name}의 ${targetListMessage}`
       return (
         <div>
-          <span>{statusMessage}</span>
+          <span style={{ marginRight: '.1rem' }}>{statusMessage}</span>
           <span>{progressMessage}</span>
         </div>
       )
     }
     private renderLimited(): JSX.Element | null {
-      // TODO: 리셋시각 제공
-      return <div>리밋입니다. 잠시만 기다려주세요.</div>
+      const { limit } = this.props
+      if (!limit) {
+        return null
+      }
+      const { timeZone, locale } = Intl.DateTimeFormat().resolvedOptions()
+      const formatter = new Intl.DateTimeFormat(locale, {
+        timeZone,
+        hour: '2-digit',
+        minute: '2-digit',
+      })
+      const resetDateTime = formatter.format(limit.reset * 1000 + 120000)
+      return <div>리밋입니다. 잠시만 기다려주세요. (예상 해제시각: {resetDateTime})</div>
     }
     private renderControls(): JSX.Element {
       return (
@@ -112,9 +122,12 @@ namespace RedBlock.Content.UI {
       const { status, progress } = this.props
       const { hidden } = this.state
       const isLimited = status === ChainBlockSessionStatus.RateLimited
-      const miniProgress = `이미 차단: ${progress.alreadyBlocked}, 스킵: ${progress.skipped}, 실패: ${
-        progress.blockFail
-      }`
+      const miniProgress = [
+        `차단: ${progress.blockSuccess}`,
+        `이미 차단함: ${progress.alreadyBlocked}`,
+        `스킵: ${progress.skipped}`,
+        `실패: ${progress.blockFail}`,
+      ].join(', ')
       return (
         <div className="redblock-dialog" hidden={hidden}>
           {this.renderProgressBar()}
@@ -159,9 +172,11 @@ namespace RedBlock.Content.UI {
       const sessions = Array.from(Object.entries(this.state.sessions))
       return (
         <div className="redblock-ui">
-          {sessions.map(([sessionId, state], index) => (
-            <RedBlockSessionUI key={index} sessionId={sessionId} {...state} />
-          ))}
+          <div className="redblock-sessions">
+            {sessions.map(([sessionId, state], index) => (
+              <RedBlockSessionUI key={index} sessionId={sessionId} {...state} />
+            ))}
+          </div>
         </div>
       )
     }

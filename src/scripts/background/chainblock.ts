@@ -54,7 +54,6 @@ namespace RedBlock.Background.ChainBlock {
         throw new Error(`id ${sessionId}인 세션을 찾을 수 없습니다`)
       }
       return session.start()
-      //
     }
     public async startAll() {
       const sessions = this.sessions.values()
@@ -69,12 +68,12 @@ namespace RedBlock.Background.ChainBlock {
     public getAllSessionsProgress(): ChainBlockSessionInfo {
       const result: ChainBlockSessionInfo = {}
       for (const [sessionId, session] of this.sessions.entries()) {
-        const { status, options, progress, targetUser, totalCount } = session
+        const { status, options, progress, targetUser, totalCount, limit } = session
         const target = {
           user: targetUser,
           totalCount,
         }
-        result[sessionId] = { status, options, progress, target }
+        result[sessionId] = { status, options, progress, target, limit }
       }
       return result
     }

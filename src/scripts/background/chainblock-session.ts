@@ -24,13 +24,14 @@ type Should = 'skip' | 'block' | 'already-blocked'
 namespace RedBlock.Background.ChainBlock {
   export class ChainBlockSession extends EventEmitter<ChainBlockSessionEvents> {
     public readonly id: string
-    private _prepared = false
-    private _shouldStop = false
     private readonly _myFollowingsIds = new Set<string>()
     private readonly _myFollowersIds = new Set<string>()
     private readonly _targetUser: Readonly<TwitterUser>
-    private _totalCount: number | null
     private readonly _options: Readonly<ChainBlockSessionOptions>
+    private _prepared = false
+    private _shouldStop = false
+    private _totalCount: number | null = 0
+    private _limit: Limit | null = null
     private _status: ChainBlockSessionStatus = ChainBlockSessionStatus.Initial
     private _progress: ChainBlockSessionProgress = {
       alreadyBlocked: 0,
@@ -70,10 +71,21 @@ namespace RedBlock.Background.ChainBlock {
     get options(): ChainBlockSessionOptions {
       return this._options
     }
+    get limit(): Limit | null {
+      return this._limit
+    }
     // private updateTotalCount(count: number): void {
     //   this._totalCount = count
     //   this.emit('update-count', count)
     // }
+    private updateLimit(limit: Limit | null): void {
+      this._limit = limit
+      if (limit) {
+        this.emit('rate-limit', limit)
+      } else {
+        this.emit('rate-limit-reset', null)
+      }
+    }
     private updateStatus(status: ChainBlockSessionStatus): void {
       this._status = status
       this.emit('update-state', status)
@@ -96,21 +108,21 @@ namespace RedBlock.Background.ChainBlock {
     }
     private async rateLimited() {
       this.updateStatus(ChainBlockSessionStatus.RateLimited)
-      const { targetList } = this._options
-      const limits = await TwitterAPI.getRateLimitStatus()
+      const { targetList } = this.options
+      const limitStatuses = await TwitterAPI.getRateLimitStatus()
+      let limit: Limit
       if (targetList === 'friends') {
-        const followerLimit = limits.friends[`/friends/list`]
-        this.emit('rate-limit', followerLimit)
+        limit = limitStatuses.friends[`/friends/list`]
       } else if (targetList === 'followers') {
-        const followerLimit = limits.followers[`/followers/list`]
-        this.emit('rate-limit', followerLimit)
+        limit = limitStatuses.followers[`/followers/list`]
       } else {
         throw new Error('unreachable')
       }
+      this.updateLimit(limit)
     }
     private rateLimitResetted() {
       this.updateStatus(ChainBlockSessionStatus.Running)
-      this.emit('rate-limit-reset', null)
+      this.updateLimit(null)
     }
     public async prepare() {
       try {

@@ -158,6 +158,8 @@ interface ChainBlockSessionState {
     totalCount: number | null
   }
   options: ChainBlockSessionOptions
+  // limits?: Limit
+  limit: Limit | null
 }
 interface ChainBlockSessionInfo {
   [sessionId: string]: ChainBlockSessionState
