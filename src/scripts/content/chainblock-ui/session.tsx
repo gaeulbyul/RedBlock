@@ -82,8 +82,9 @@ namespace RedBlock.Content.UI.Session {
       const progressMessage = `@${user.screen_name}의 ${targetListMessage}`
       return (
         <div>
-          <span style={{ marginRight: '.1rem' }}>{statusMessage}</span>
-          <span>{progressMessage}</span>
+          <span>
+            {statusMessage} {progressMessage}
+          </span>
         </div>
       )
     }
@@ -103,36 +104,43 @@ namespace RedBlock.Content.UI.Session {
       const resetDateTime = formatter.format(limit.reset * 1000 + 120000)
       return <div>리밋입니다. 잠시만 기다려주세요. (예상 해제시각: {resetDateTime})</div>
     }
-    private renderControls(): JSX.Element {
+    private renderTitle(): JSX.Element {
+      const x = '\u00d7'
+      const clickCloseEvent = this.requestStopChainBlock.bind(this)
       return (
-        <div className="redblock-controls">
-          <button className="redblock-close" onClick={this.requestStopChainBlock.bind(this)}>
-            닫기
+        <div>
+          <button className="redblock-close" onClick={clickCloseEvent}>
+            {x}
           </button>
+          {this.renderStatus()}
+        </div>
+      )
+    }
+    private renderText(): JSX.Element {
+      const {
+        session: { status, progress },
+      } = this.props
+      const isLimited = status === ChainBlockSessionStatus.RateLimited
+      const sep = ' / '
+      return (
+        <div>
+          <small>
+            <b>차단: {progress.blockSuccess}</b> {sep}
+            이미 차단함: {progress.alreadyBlocked} {sep}
+            스킵: {progress.skipped} {sep}
+            실패: {progress.blockFail}
+          </small>
+          {isLimited && this.renderLimited()}
         </div>
       )
     }
     public render() {
-      const {
-        session: { status, progress },
-      } = this.props
       const { hidden } = this.state
-      const isLimited = status === ChainBlockSessionStatus.RateLimited
-      const miniProgress = [
-        `차단: ${progress.blockSuccess}`,
-        `이미 차단함: ${progress.alreadyBlocked}`,
-        `스킵: ${progress.skipped}`,
-        `실패: ${progress.blockFail}`,
-      ].join(', ')
       return (
         <div className="redblock-dialog" hidden={hidden}>
+          {this.renderTitle()}
           {this.renderProgressBar()}
-          <div>
-            {this.renderStatus()}
-            <small>{miniProgress}</small>
-            {isLimited && this.renderLimited()}
-          </div>
-          {this.renderControls()}
+          {this.renderText()}
         </div>
       )
     }
