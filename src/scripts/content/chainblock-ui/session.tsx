@@ -1,14 +1,6 @@
 namespace RedBlock.Content.UI.Session {
   interface RedBlockSessionUIProps {
-    sessionId: string
-    target: {
-      user: TwitterUser
-      totalCount: number | null
-    }
-    status: ChainBlockSessionStatus
-    options: ChainBlockSessionOptions
-    progress: ChainBlockSessionProgress
-    limit: Limit | null
+    session: ChainBlockSessionInfo
   }
   interface RedBlockSessionUIState {
     hidden: boolean
@@ -27,16 +19,16 @@ namespace RedBlock.Content.UI.Session {
     }
     private requestStopChainBlock(event: React.MouseEvent<HTMLButtonElement>) {
       event.preventDefault()
-      const { status } = this.props
-      const shouldConfirm = isRunningStatus(status)
+      const { session } = this.props
+      const shouldConfirm = isRunningStatus(session.status)
       if (shouldConfirm) {
-        const { screen_name: userName } = this.props.target.user
+        const { screen_name: userName } = session.target.user
         const confirmMessage = `@${userName}에게 실행한 체인블락을 중단하시겠습니까?`
         if (!window.confirm(confirmMessage)) {
           return
         }
       }
-      const sessionId = this.props.sessionId
+      const sessionId = session.sessionId
       browser.runtime.sendMessage<RBStopMessage>({
         action: Action.StopChainBlock,
         sessionId,
@@ -47,9 +39,11 @@ namespace RedBlock.Content.UI.Session {
     }
     private renderProgressBar(): JSX.Element {
       const {
-        target: { totalCount },
-        status,
-        progress,
+        session: {
+          status,
+          progress,
+          target: { totalCount },
+        },
       } = this.props
       const isInitial = status === ChainBlockSessionStatus.Initial
       const isCompleted = status === ChainBlockSessionStatus.Completed
@@ -69,9 +63,11 @@ namespace RedBlock.Content.UI.Session {
     }
     private renderStatus(): JSX.Element {
       const {
-        target: { user },
-        status,
-        options,
+        session: {
+          target: { user },
+          status,
+          options,
+        },
       } = this.props
       const statusMessageObj: { [key: number]: string } = {
         [ChainBlockSessionStatus.Initial]: '대기 중',
@@ -92,7 +88,9 @@ namespace RedBlock.Content.UI.Session {
       )
     }
     private renderLimited(): JSX.Element | null {
-      const { limit } = this.props
+      const {
+        session: { limit },
+      } = this.props
       if (!limit) {
         return null
       }
@@ -115,7 +113,9 @@ namespace RedBlock.Content.UI.Session {
       )
     }
     public render() {
-      const { status, progress } = this.props
+      const {
+        session: { status, progress },
+      } = this.props
       const { hidden } = this.state
       const isLimited = status === ChainBlockSessionStatus.RateLimited
       const miniProgress = [

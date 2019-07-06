@@ -46,7 +46,7 @@ namespace RedBlock.Background.Entrypoint {
   async function stopChainBlock(sessionId: string) {
     chainblocker.stop(sessionId)
   }
-  function requestChainBlockerInfo(): ChainBlockSessionInfo {
+  function requestChainBlockerInfo(): ChainBlockSessionInfo[] {
     return chainblocker.getAllSessionsProgress()
     //
   }

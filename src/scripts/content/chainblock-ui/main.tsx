@@ -3,13 +3,13 @@ namespace RedBlock.Content.UI {
     Session: { RedBlockSessionUI },
   } = RedBlock.Content.UI
   interface RedBlockUIState {
-    sessions: ChainBlockSessionInfo
+    sessions: ChainBlockSessionInfo[]
   }
   const UI_UPDATE_DELAY = 1000
 
   class RedBlockUI extends React.Component<{}, RedBlockUIState> {
     private intervals: number[] = []
-    public state: RedBlockUIState = { sessions: {} }
+    public state: RedBlockUIState = { sessions: [] }
     private registerIntervalFunc(func: () => void, delay: number) {
       this.intervals.push(window.setInterval(func, delay))
     }
@@ -18,29 +18,32 @@ namespace RedBlock.Content.UI {
     }
     public componentWillMount() {
       this.registerIntervalFunc(async () => {
-        const cbSessionsInfoObj: ChainBlockSessionInfo = await browser.runtime
+        const sessions: ChainBlockSessionInfo[] = await browser.runtime
           .sendMessage({
             action: Action.RequestProgress,
           })
           .catch(err => {
             console.error(err)
             this.clearAllIntervalFuncs()
+            return null
           })
-        this.setState({
-          sessions: cbSessionsInfoObj,
-        })
+        if (sessions) {
+          this.setState({
+            sessions,
+          })
+        }
       }, UI_UPDATE_DELAY)
     }
     public componentWillUnmount() {
       this.clearAllIntervalFuncs()
     }
     public render() {
-      const sessions = Array.from(Object.entries(this.state.sessions))
+      const { sessions } = this.state
       return (
         <div className="redblock-ui">
           <div className="redblock-sessions">
-            {sessions.map(([sessionId, state], index) => (
-              <RedBlockSessionUI key={index} sessionId={sessionId} {...state} />
+            {sessions.map((session, index) => (
+              <RedBlockSessionUI key={index} session={session} />
             ))}
           </div>
         </div>

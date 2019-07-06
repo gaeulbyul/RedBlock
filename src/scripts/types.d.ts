@@ -148,7 +148,8 @@ declare namespace uuid {
   function v1(): string
 }
 
-interface ChainBlockSessionState {
+interface ChainBlockSessionInfo {
+  sessionId: string
   progress: ChainBlockSessionProgress
   status: ChainBlockSessionStatus
   target: {
@@ -160,9 +161,6 @@ interface ChainBlockSessionState {
   options: ChainBlockSessionOptions
   // limits?: Limit
   limit: Limit | null
-}
-interface ChainBlockSessionInfo {
-  [sessionId: string]: ChainBlockSessionState
 }
 
 interface ChainBlockSessionProgress {
