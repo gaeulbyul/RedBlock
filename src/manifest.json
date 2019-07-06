@@ -44,7 +44,9 @@
         "vendor/react.development.js",
         "vendor/react-dom.development.js",
         "scripts/common.js",
-        "scripts/content/chainblock-ui.js"
+        "scripts/content/chainblock-ui/session.js",
+        "scripts/content/chainblock-ui/mini-ui.js",
+        "scripts/content/chainblock-ui/main.js"
       ]
     }
   ],
