@@ -1,26 +1,5 @@
 namespace RedBlock.Popup {
   type Tab = browser.tabs.Tab
-  const userNameBlacklist = [
-    '1',
-    'about',
-    'account',
-    'blog',
-    'followers',
-    'followings',
-    'hashtag',
-    'i',
-    'lists',
-    'login',
-    'logout',
-    'oauth',
-    'privacy',
-    'search',
-    'tos',
-    'notifications',
-    'messages',
-    'explore',
-    'home',
-  ]
   export async function requestChainBlock(userName: string, options: ChainBlockSessionOptions) {
     browser.runtime.sendMessage<RBStartMessage, void>({
       action: Action.StartChainBlock,
@@ -45,24 +24,7 @@ namespace RedBlock.Popup {
       return null
     }
     const url = new URL(tab.url)
-    const supportingHostname = ['twitter.com', 'mobile.twitter.com']
-    if (!supportingHostname.includes(url.hostname)) {
-      return null
-    }
-    const notUserPagePattern01 = /^\/\w\w\/(?:tos|privacy)/
-    if (notUserPagePattern01.test(url.pathname)) {
-      return null
-    }
-    const pattern = /^\/([0-9A-Za-z_]+)/
-    const match = pattern.exec(url.pathname)
-    if (!match) {
-      return null
-    }
-    const userName = match[1]
-    if (userNameBlacklist.includes(userName.toLowerCase())) {
-      return null
-    }
-    return userName
+    return getUserNameFromURL(url)
   }
 }
 namespace RedBlock.Popup.UI {

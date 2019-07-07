@@ -210,3 +210,9 @@ interface BrowserNotification {
 }
 
 type BNotificationOptions = browser.notifications.NotificationOptions
+
+// ---- context menu ----
+
+declare namespace browser {
+  export import contextMenus = browser.menus
+}
