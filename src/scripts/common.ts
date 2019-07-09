@@ -59,6 +59,48 @@ class TwitterUserMap extends Map<string, TwitterUser> {
   }
 }
 
+function getUserNameFromURL(url: URL | Location | HTMLAnchorElement): string | null {
+  const userNameBlacklist = [
+    '1',
+    'about',
+    'account',
+    'blog',
+    'explore',
+    'followers',
+    'followings',
+    'hashtag',
+    'home',
+    'i',
+    'lists',
+    'login',
+    'logout',
+    'messages',
+    'notifications',
+    'oauth',
+    'privacy',
+    'search',
+    'tos',
+  ]
+  const supportingHostname = ['twitter.com', 'mobile.twitter.com']
+  if (!supportingHostname.includes(url.hostname)) {
+    return null
+  }
+  const nonUserPagePattern01 = /^\/\w\w\/(?:tos|privacy)/
+  if (nonUserPagePattern01.test(url.pathname)) {
+    return null
+  }
+  const pattern = /^\/([0-9A-Za-z_]{1,15})/i
+  const match = pattern.exec(url.pathname)
+  if (!match) {
+    return null
+  }
+  const userName = match[1]
+  if (userNameBlacklist.includes(userName.toLowerCase())) {
+    return null
+  }
+  return userName
+}
+
 function sleep(time: number): Promise<void> {
   return new Promise(resolve => window.setTimeout(resolve, time))
 }

@@ -4,6 +4,13 @@ namespace RedBlock.Background.Entrypoint {
     ChainBlock: { ChainBlocker },
   } = RedBlock.Background
   const chainblocker = new ChainBlocker()
+  export async function doChainBlockWithDefaultSkip(targetUserName: string, targetList: FollowKind) {
+    return doChainBlock(targetUserName, {
+      myFollowers: 'skip',
+      myFollowings: 'skip',
+      targetList,
+    })
+  }
   async function doChainBlock(targetUserName: string, options: ChainBlockSessionOptions) {
     const myself = await TwitterAPI.getMyself().catch(() => null)
     if (!myself) {
