@@ -5,10 +5,11 @@ namespace RedBlock.Content.UI {
   interface RedBlockUIState {
     sessions: ChainBlockSessionInfo[]
   }
-  const UI_UPDATE_DELAY = 1000
+  const UI_UPDATE_DELAY = 500
 
   class RedBlockUI extends React.Component<{}, RedBlockUIState> {
     private intervals: number[] = []
+    // private _port = browser.runtime.connect()
     public state: RedBlockUIState = { sessions: [] }
     private registerIntervalFunc(func: () => void, delay: number) {
       this.intervals.push(window.setInterval(func, delay))

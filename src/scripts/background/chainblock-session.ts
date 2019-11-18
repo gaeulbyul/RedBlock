@@ -21,14 +21,13 @@ interface ChainBlockSessionEvents {
 
 type Should = 'skip' | 'block' | 'already-blocked'
 
+const BLOCK_PROMISES_BUFFER_SIZE = 150
+
 namespace RedBlock.Background.ChainBlock {
   export class ChainBlockSession extends EventEmitter<ChainBlockSessionEvents> {
     public readonly id: string
-    private readonly _myFollowingsIds = new Set<string>()
-    private readonly _myFollowersIds = new Set<string>()
     private readonly _targetUser: Readonly<TwitterUser>
     private readonly _options: Readonly<ChainBlockSessionOptions>
-    private _prepared = false
     private _shouldStop = false
     private _totalCount: number | null = 0
     private _limit: Limit | null = null
@@ -124,18 +123,6 @@ namespace RedBlock.Background.ChainBlock {
       this.updateStatus(ChainBlockSessionStatus.Running)
       this.updateLimit(null)
     }
-    public async prepare() {
-      try {
-        const myFollowersUpdateList = await this.updateMyFollowersList()
-        if (!myFollowersUpdateList) {
-          throw new Error('자신의 팔로워 목록을 가져오는 데 실패했습니다.')
-        }
-        this._prepared = true
-      } catch (err) {
-        console.error(err)
-        this._prepared = false
-      }
-    }
     private whatToDoGivenUser(follower: TwitterUser): Should {
       // TODO: should also use friendships/outgoing api
       // for replace follow_request_sent prop
@@ -143,8 +130,8 @@ namespace RedBlock.Background.ChainBlock {
         return 'already-blocked'
       }
       const options = this._options
-      const isMyFollowing = this._myFollowingsIds.has(follower.id_str)
-      const isMyFollower = this._myFollowersIds.has(follower.id_str)
+      const isMyFollowing = follower.following
+      const isMyFollower = follower.followed_by
       const isMyMutualFollower = isMyFollower && isMyFollowing
       if (isMyMutualFollower) {
         // 내 맞팔로우는 스킵한다.
@@ -162,40 +149,7 @@ namespace RedBlock.Background.ChainBlock {
       }
       return 'block'
     }
-    // .following 속성 제거에 따른 대응
-    // BlockThemAll 처럼 미리 내 팔로잉/팔로워를 수집하는 방식을 이용함
-    private async updateMyFollowersList(): Promise<boolean> {
-      let isOkay = true
-      const addIdsToSet = (set: Set<string>, ids: Either<Error, string>[]): void => {
-        for (const maybeId of ids) {
-          if (maybeId.ok) {
-            set.add(maybeId.value)
-          } else {
-            console.error(maybeId.error)
-            isOkay = false
-            break
-          }
-        }
-      }
-      this._myFollowersIds.clear()
-      this._myFollowingsIds.clear()
-      const myselfP = TwitterAPI.getMyself()
-      myselfP.then(async myself => {
-        const allIds = await collectAsync(TwitterAPI.getAllFollowsIds('followers', myself))
-        addIdsToSet(this._myFollowersIds, allIds)
-      })
-      myselfP.then(async myself => {
-        const allIds = await collectAsync(TwitterAPI.getAllFollowsIds('friends', myself))
-        addIdsToSet(this._myFollowingsIds, allIds)
-      })
-      await myselfP
-      console.debug('내 팔로잉/팔로워 목록: %o', [this._myFollowersIds, this._myFollowingsIds])
-      return isOkay
-    }
     public async start() {
-      if (!this._prepared) {
-        throw new Error('아직 준비(prepare)되지 않았습니다.')
-      }
       type FoundReason = keyof ChainBlockSessionProgress
       const incrementProgress = (reason: FoundReason) => {
         const newProgPart: Partial<ChainBlockSessionProgress> = {
@@ -248,7 +202,7 @@ namespace RedBlock.Background.ChainBlock {
                 incrementProgress('blockFail')
               })
           )
-          if (blockPromises.length >= 60) {
+          if (blockPromises.length >= BLOCK_PROMISES_BUFFER_SIZE) {
             await Promise.all(blockPromises)
             blockPromises.length = 0
           }

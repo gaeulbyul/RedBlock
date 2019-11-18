@@ -22,7 +22,7 @@ namespace RedBlock.Background.ChainBlock {
     public add(targetUser: TwitterUser, options: ChainBlockSessionOptions): string | null {
       const sessionId = this.generateSessionId(targetUser)
       if (this.sessions.has(sessionId)) {
-        window.alert(`이미 ${targetUser.screen_name}에게 체인블락이 실행중입니다.`)
+        window.alert(`이미 @${targetUser.screen_name}에게 체인블락이 실행중입니다.`)
         return null
       }
       const session = new ChainBlockSession({
@@ -33,27 +33,19 @@ namespace RedBlock.Background.ChainBlock {
       this.sessions.set(sessionId, session)
       return sessionId
     }
-    public async prepare(sessionId: string): Promise<void> {
-      const session = this.sessions.get(sessionId)
-      if (!session) {
-        throw new Error(`id ${sessionId}인 세션을 찾을 수 없습니다`)
-      }
-      return session.prepare()
-    }
     public stop(sessionId: string) {
-      const session = this.sessions.get(sessionId)
-      if (!session) {
-        throw new Error(`id ${sessionId}인 세션을 찾을 수 없습니다`)
-      }
+      const session = this.sessions.get(sessionId)!
       session.stop()
       this.sessions.delete(sessionId)
     }
-    public async start(sessionId: string) {
+    public async start(sessionId: string, delay: number) {
+      await sleep(delay)
       const session = this.sessions.get(sessionId)
-      if (!session) {
-        throw new Error(`id ${sessionId}인 세션을 찾을 수 없습니다`)
+      // sleep(delay) 동안 정지를 할 경우 세션이 사라졌으므로
+      // throw 없이 조용히 아무동작하지 않음
+      if (session) {
+        return session.start()
       }
-      return session.start()
     }
     public async startAll() {
       const sessions = this.sessions.values()

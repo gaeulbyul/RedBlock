@@ -8,6 +8,8 @@ interface TwitterUser {
   blocked_by: boolean
   blocking: boolean
   muting: boolean
+  // 1st-party API에선 이 속성이 안 지워진듯. 따라서 그냥 사용한다.
+  following: boolean
   followed_by: boolean
   friends_count: number
   followers_count: number

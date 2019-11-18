@@ -36,11 +36,11 @@ namespace RedBlock.Background.Entrypoint {
       const confirmMessage = `정말로 ${targetUserName}에게 체인블락을 실행하시겠습니까?`
       if (window.confirm(confirmMessage)) {
         const sessionId = chainblocker.add(targetUser, options)
-        if (sessionId) {
-          await sleep(3000)
-          await chainblocker.prepare(sessionId)
-          chainblocker.start(sessionId)
+        if (!sessionId) {
+          console.info('not added. skip')
+          return
         }
+        chainblocker.start(sessionId, 3000)
       }
     } catch (err) {
       if (err instanceof TwitterAPI.RateLimitError) {
@@ -61,10 +61,10 @@ namespace RedBlock.Background.Entrypoint {
     browser.runtime.onMessage.addListener(
       (
         msgobj: object,
-        sender: browser.runtime.MessageSender,
+        _sender: browser.runtime.MessageSender,
         _sendResponse: (response: any) => Promise<void>
       ): Promise<any> | void => {
-        console.debug('got message: %o from %o', msgobj, sender)
+        // console.debug('got message: %o from %o', msgobj, sender)
         const message = msgobj as RBMessage
         switch (message.action) {
           case Action.StartChainBlock:
@@ -75,7 +75,7 @@ namespace RedBlock.Background.Entrypoint {
           case Action.RequestProgress: {
             {
               const info = requestChainBlockerInfo()
-              console.debug('response c.b.i with %o', info)
+              // console.debug('response c.b.i with %o', info)
               return Promise.resolve(info)
               // sendResponse(Promise.resolve(info))
             }

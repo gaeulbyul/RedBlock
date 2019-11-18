@@ -19,7 +19,7 @@
     "cookies",
     "bookmarks",
     "contextMenus",
-    "activeTab"
+    "tabs"
   ],
 
   "background": {
@@ -53,7 +53,7 @@
     }
   ],
 
-  "web_accessible_resources": ["styles/dialog.css"],
+  "web_accessible_resources": [],
 
   "browser_action": {
     "default_icon": "icons/icon-48.png",

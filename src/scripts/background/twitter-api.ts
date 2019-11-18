@@ -299,6 +299,7 @@ namespace RedBlock.Background.TwitterAPI {
       blocked_by: false,
       blocking: true,
       muting: false,
+      following: false,
       followed_by: false,
       followers_count: 2438,
       friends_count: 32553,

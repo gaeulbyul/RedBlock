@@ -2,7 +2,9 @@ namespace RedBlock.Content.UI.Session {
   interface RedBlockSessionUIProps {
     session: ChainBlockSessionInfo
   }
-  interface RedBlockSessionUIState {}
+  interface RedBlockSessionUIState {
+    hidden: boolean
+  }
   function isRunningStatus(status: ChainBlockSessionStatus): boolean {
     const runningStatuses = [
       ChainBlockSessionStatus.Initial,
@@ -12,7 +14,9 @@ namespace RedBlock.Content.UI.Session {
     return runningStatuses.includes(status)
   }
   export class RedBlockSessionUI extends React.Component<RedBlockSessionUIProps, RedBlockSessionUIState> {
-    public state: RedBlockSessionUIState = {}
+    public state: RedBlockSessionUIState = {
+      hidden: false,
+    }
     private requestStopChainBlock(event: React.MouseEvent<HTMLButtonElement>) {
       event.preventDefault()
       const { session } = this.props
@@ -28,6 +32,9 @@ namespace RedBlock.Content.UI.Session {
       browser.runtime.sendMessage<RBStopMessage>({
         action: Action.StopChainBlock,
         sessionId,
+      })
+      this.setState({
+        hidden: true,
       })
     }
     private renderProgressBar(): JSX.Element {
