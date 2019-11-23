@@ -2,6 +2,8 @@ const enum Action {
   StartChainBlock = 'RedBlock/Start',
   StopChainBlock = 'RedBlock/Stop',
   RequestProgress = 'RedBlock/RequestProgress',
+  ConnectToBackground = 'RedBlock/ConnectToBackground',
+  DisconnectToBackground = 'RedBlock/DisconnectToBackground',
 }
 
 interface allHandlerParam<T, K extends keyof T> {

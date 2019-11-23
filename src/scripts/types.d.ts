@@ -129,22 +129,31 @@ interface EitherLeft<E> {
 
 type Either<E, T> = EitherLeft<E> | EitherRight<T>
 
-interface RBStartMessage {
+interface RBStartAction {
   action: Action.StartChainBlock
   userName: string
   options: ChainBlockSessionOptions
 }
 
-interface RBStopMessage {
+interface RBStopAction {
   action: Action.StopChainBlock
   sessionId: string
 }
 
-interface RBRequestProgressMessage {
-  action: Action.RequestProgress
+interface RBConnectToBackgroundAction {
+  action: Action.ConnectToBackground
 }
 
-type RBMessage = RBStartMessage | RBStopMessage | RBRequestProgressMessage
+interface RBDisconnectToBackgroundAction {
+  action: Action.DisconnectToBackground
+}
+
+type RBAction = RBStartAction | RBStopAction | RBConnectToBackgroundAction | RBDisconnectToBackgroundAction
+
+interface RBChainBlockInfoMessage {
+  messageType: 'ChainBlockInfoMessage'
+  infos: ChainBlockSessionInfo[]
+}
 
 declare namespace uuid {
   function v1(): string

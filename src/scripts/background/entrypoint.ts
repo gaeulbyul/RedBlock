@@ -1,9 +1,11 @@
 namespace RedBlock.Background.Entrypoint {
+  const UI_UPDATE_DELAY = 250
   const {
     TwitterAPI,
     ChainBlock: { ChainBlocker },
   } = RedBlock.Background
   const chainblocker = new ChainBlocker()
+  const tabConnections = new Set<number>()
   export async function doChainBlockWithDefaultSkip(targetUserName: string, targetList: FollowKind) {
     return doChainBlock(targetUserName, {
       myFollowers: 'skip',
@@ -19,10 +21,9 @@ namespace RedBlock.Background.Entrypoint {
     }
     try {
       const targetUser = await TwitterAPI.getSingleUserByName(targetUserName)
-      // TODO: check protect&non-following
-      // if (targetUser.protected && !following) {
-      //   window.alert(i18n`script_alert_unable_to_protected_user`)
-      // }
+      if (targetUser.protected && !targetUser.following) {
+        window.alert('프로텍트 계정을 대상으로 체인블락을 실행할 수 없습니다.')
+      }
       let isZero = false
       if (options.targetList === 'followers' && targetUser.followers_count <= 0) {
         isZero = true
@@ -53,37 +54,55 @@ namespace RedBlock.Background.Entrypoint {
   async function stopChainBlock(sessionId: string) {
     chainblocker.stop(sessionId)
   }
-  function requestChainBlockerInfo(): ChainBlockSessionInfo[] {
-    return chainblocker.getAllSessionsProgress()
-    //
+  async function sendChainBlockerInfo() {
+    const infos = chainblocker.getAllSessionsProgress()
+    for (const tabId of tabConnections) {
+      browser.tabs
+        .sendMessage<RBChainBlockInfoMessage>(tabId, {
+          messageType: 'ChainBlockInfoMessage',
+          infos,
+        })
+        .catch(() => {
+          tabConnections.delete(tabId)
+        })
+    }
   }
   export function initialize() {
+    window.setInterval(sendChainBlockerInfo, UI_UPDATE_DELAY)
     browser.runtime.onMessage.addListener(
       (
         msgobj: object,
-        _sender: browser.runtime.MessageSender,
+        sender: browser.runtime.MessageSender,
         _sendResponse: (response: any) => Promise<void>
       ): Promise<any> | void => {
         // console.debug('got message: %o from %o', msgobj, sender)
-        const message = msgobj as RBMessage
+        const message = msgobj as RBAction
         switch (message.action) {
           case Action.StartChainBlock:
             {
-              void doChainBlock(message.userName, message.options)
+              doChainBlock(message.userName, message.options).then(sendChainBlockerInfo)
             }
             break
-          case Action.RequestProgress: {
-            {
-              const info = requestChainBlockerInfo()
-              // console.debug('response c.b.i with %o', info)
-              return Promise.resolve(info)
-              // sendResponse(Promise.resolve(info))
-            }
-          }
           case Action.StopChainBlock:
             {
               const { sessionId } = message
-              stopChainBlock(sessionId)
+              stopChainBlock(sessionId).then(sendChainBlockerInfo)
+            }
+            break
+          case Action.ConnectToBackground:
+            {
+              const { tab } = sender
+              if (tab) {
+                tabConnections.add(tab.id!)
+              }
+            }
+            break
+          case Action.DisconnectToBackground:
+            {
+              const { tab } = sender
+              if (tab) {
+                tabConnections.delete(tab.id!)
+              }
             }
             break
         }

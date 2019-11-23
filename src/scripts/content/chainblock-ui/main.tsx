@@ -5,38 +5,27 @@ namespace RedBlock.Content.UI {
   interface RedBlockUIState {
     sessions: ChainBlockSessionInfo[]
   }
-  const UI_UPDATE_DELAY = 500
-
   class RedBlockUI extends React.Component<{}, RedBlockUIState> {
-    private intervals: number[] = []
-    // private _port = browser.runtime.connect()
     public state: RedBlockUIState = { sessions: [] }
-    private registerIntervalFunc(func: () => void, delay: number) {
-      this.intervals.push(window.setInterval(func, delay))
-    }
-    private clearAllIntervalFuncs() {
-      this.intervals.forEach(n => window.clearInterval(n))
-    }
     public componentWillMount() {
-      this.registerIntervalFunc(async () => {
-        const sessions: ChainBlockSessionInfo[] = await browser.runtime
-          .sendMessage({
-            action: Action.RequestProgress,
-          })
-          .catch(err => {
-            console.error(err)
-            this.clearAllIntervalFuncs()
-            return null
-          })
-        if (sessions) {
+      browser.runtime.sendMessage<RBConnectToBackgroundAction>({
+        action: Action.ConnectToBackground,
+      })
+      browser.runtime.onMessage.addListener((msg: any) => {
+        if (!(typeof msg === 'object' && 'messageType' in msg)) {
+          return
+        }
+        if (msg.messageType === 'ChainBlockInfoMessage') {
           this.setState({
-            sessions,
+            sessions: msg.infos,
           })
         }
-      }, UI_UPDATE_DELAY)
+      })
     }
     public componentWillUnmount() {
-      this.clearAllIntervalFuncs()
+      browser.runtime.sendMessage<RBDisconnectToBackgroundAction>({
+        action: Action.DisconnectToBackground,
+      })
     }
     public render() {
       const { sessions } = this.state

@@ -1,7 +1,7 @@
 namespace RedBlock.Popup {
   type Tab = browser.tabs.Tab
   export async function requestChainBlock(userName: string, options: ChainBlockSessionOptions) {
-    browser.runtime.sendMessage<RBStartMessage, void>({
+    browser.runtime.sendMessage<RBStartAction, void>({
       action: Action.StartChainBlock,
       userName,
       options,
