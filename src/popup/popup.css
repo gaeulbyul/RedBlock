@@ -94,7 +94,7 @@ hr {
   border-radius: 50%;
 }
 
-.chainblock-options {
+.chainblock-filters {
   padding: 0 15px;
 }
 
@@ -110,16 +110,20 @@ fieldset.chainblock-subopt {
   border-radius: 5px;
 }
 
-.chainblock-options label:hover {
+.chainblock-subopt label {
+  margin: 0 5px;
+}
+
+.chainblock-filters label:hover {
   text-decoration: underline;
 }
 
-.chainblock-options label span {
+.chainblock-filters label span {
   padding: 3px;
   color: #333;
 }
 
-.chainblock-options label input:checked ~ span {
+.chainblock-filters label input:checked ~ span {
   font-weight: bold;
   color: #000;
 }
@@ -176,6 +180,7 @@ footer.info {
   margin-bottom: 10px;
   padding: 5px 15px;
   text-align: right;
+  font-size: small;
 }
 
 .current-version {

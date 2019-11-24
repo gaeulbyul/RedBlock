@@ -3,94 +3,27 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0" />
-    <link rel="stylesheet" href="../vendor/AngularJS/angular-csp.css" />
     <link rel="stylesheet" href="popup.css" />
     <title>Red Block</title>
+    <!--
+    <link rel="stylesheet" href="../vendor/AngularJS/angular-csp.css" />
     <script src="../vendor/AngularJS/angular.js"></script>
+    -->
   </head>
   <body>
-    <div class="whole">
-      <ng-controller ng-controller="RedBlockPopupController">
-        <div class="non-twitter" ng-hide="isOnTwitter">
-          <div class="text">
-            Red Block의 체인블락은 트위터의 사용자 프로필페이지에서 사용할 수 있습니다. <br />
-            (예: https://twitter.com/<i style="background-color:brown">사용자이름</i>)
-          </div>
-        </div>
-        <div class="chainblock-options">
-          <fieldset class="chainblock-opt" ng-disabled="!isOnTwitter">
-            <legend>차단 대상</legend>
-            <div class="target-user-info">
-              <div class="profile-image-area">
-                <img alt="프로필이미지" class="profile-image" ng-src="{{ currentUser.profile_image_url_https }}" />
-              </div>
-              <div class="profile-right-area">
-                <div class="profile-right-info">
-                  <div class="nickname">{{ currentUser.name }}</div>
-                  <div class="username">@{{ currentUser.screen_name }}</div>
-                </div>
-                <div class="profile-right-targetlist">
-                  <label>
-                    <input type="radio" ng-model="options.targetList" name="chainblock-target" value="followers" />
-                    <span>팔로워 {{ currentUser.followers_count | formatNumber }}</span>
-                  </label>
-                  <br />
-                  <label>
-                    <input type="radio" ng-model="options.targetList" name="chainblock-target" value="friends" />
-                    <span>팔로잉 {{ currentUser.friends_count | formatNumber }}</span>
-                  </label>
-                </div>
-              </div>
-            </div>
-          </fieldset>
-          <fieldset class="chainblock-opt" ng-disabled="!isOnTwitter">
-            <legend>필터</legend>
-            <fieldset class="chainblock-subopt">
-              <legend>내 팔로워</legend>
-              <label>
-                <input type="radio" ng-model="options.myFollowers" name="chainblock-my-followers" value="skip" /><span
-                  >냅두기</span
-                >
-              </label>
-              <label>
-                <input type="radio" ng-model="options.myFollowers" name="chainblock-my-followers" value="block" /><span
-                  >차단하기</span
-                >
-              </label>
-            </fieldset>
-            <fieldset class="chainblock-subopt">
-              <legend>내 팔로잉</legend>
-              <label>
-                <input type="radio" ng-model="options.myFollowings" name="chainblock-my-followings" value="skip" /><span
-                  >냅두기</span
-                >
-              </label>
-              <label>
-                <input
-                  type="radio"
-                  ng-model="options.myFollowings"
-                  name="chainblock-my-followings"
-                  value="block"
-                /><span>차단하기</span>
-              </label>
-            </fieldset>
-            <div class="description">단, 나와 맞팔로우중인 사용자는 위 옵션과 무관하게 <b>차단하지 않습니다</b>.</div>
-          </fieldset>
-          <div class="warnings"></div>
-          <div class="menu">
-            <button
-              class="menu-item execute-chainblock"
-              ng-click="executeChainBlock($event)"
-              ng-disabled="!isOnTwitter"
-            >
-              <span>체인블락 실행</span>
-            </button>
-          </div>
-        </div>
-      </ng-controller>
+    <!--
+    <div class="non-twitter" ng-hide="isOnTwitter">
+      <div class="text">
+        Red Block의 체인블락은 트위터의 사용자 프로필페이지에서 사용할 수 있습니다. <br />
+        (예: https://twitter.com/<i style="background-color:brown">사용자이름</i>)
+      </div>
     </div>
+    -->
+    <div id="app" class="whole"></div>
     <hr />
-    <footer class="info" ng-controller="FooterController">{{ manifest.name }} v{{ manifest.version }}</footer>
+    <footer class="info"></footer>
+    <script src="../vendor/react.development.js"></script>
+    <script src="../vendor/react-dom.development.js"></script>
     <script src="../vendor/browser-polyfill.min.js"></script>
     <script src="../scripts/background/twitter-api.js"></script>
     <script src="../scripts/common.js"></script>
