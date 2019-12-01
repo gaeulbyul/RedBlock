@@ -1,5 +1,4 @@
 namespace RedBlock.Background.Entrypoint {
-  const UI_UPDATE_DELAY = 250
   const {
     TwitterAPI,
     ChainBlock: { ChainBlocker },
@@ -58,7 +57,7 @@ namespace RedBlock.Background.Entrypoint {
         isZero = true
       }
       if (isZero) {
-        window.alert('차단할 팔로잉/팔로워가 없습니다.')
+        window.alert('차단할 팔로잉/팔로워가 없습니다. (총 0명)')
         return
       }
       const confirmMessage = generateConfirmMessage(targetUser, options)
@@ -68,7 +67,7 @@ namespace RedBlock.Background.Entrypoint {
           console.info('not added. skip')
           return
         }
-        chainblocker.start(sessionId, 3000)
+        chainblocker.start(sessionId)
       }
     } catch (err) {
       if (err instanceof TwitterAPI.RateLimitError) {
@@ -81,7 +80,7 @@ namespace RedBlock.Background.Entrypoint {
   async function stopChainBlock(sessionId: string) {
     chainblocker.stop(sessionId)
   }
-  async function sendChainBlockerInfo() {
+  async function sendChainBlockerInfoToTabs() {
     const infos = chainblocker.getAllSessionsProgress()
     for (const tabId of tabConnections) {
       browser.tabs
@@ -95,25 +94,32 @@ namespace RedBlock.Background.Entrypoint {
     }
   }
   export function initialize() {
-    window.setInterval(sendChainBlockerInfo, UI_UPDATE_DELAY)
+    window.setInterval(sendChainBlockerInfoToTabs, UI_UPDATE_DELAY)
     browser.runtime.onMessage.addListener(
-      (
-        msgobj: object,
-        sender: browser.runtime.MessageSender,
-        _sendResponse: (response: any) => Promise<void>
-      ): Promise<any> | void => {
-        // console.debug('got message: %o from %o', msgobj, sender)
-        const message = msgobj as RBAction
+      (msg: object, sender: browser.runtime.MessageSender, _sendResponse: (response: any) => Promise<void>): true => {
+        if (!(typeof msg === 'object' && 'action' in msg)) {
+          return true
+        }
+        const message = msg as RBAction
         switch (message.action) {
           case Action.StartChainBlock:
             {
-              doChainBlock(message.userName, message.options).then(sendChainBlockerInfo)
+              doChainBlock(message.userName, message.options).then(sendChainBlockerInfoToTabs)
             }
             break
           case Action.StopChainBlock:
             {
               const { sessionId } = message
-              stopChainBlock(sessionId).then(sendChainBlockerInfo)
+              stopChainBlock(sessionId).then(sendChainBlockerInfoToTabs)
+            }
+            break
+          case Action.RequestProgress:
+            {
+              const infos = chainblocker.getAllSessionsProgress()
+              browser.runtime.sendMessage<RBChainBlockInfoMessage>({
+                messageType: 'ChainBlockInfoMessage',
+                infos,
+              })
             }
             break
           case Action.ConnectToBackground:
@@ -133,6 +139,7 @@ namespace RedBlock.Background.Entrypoint {
             }
             break
         }
+        return true
       }
     )
   }

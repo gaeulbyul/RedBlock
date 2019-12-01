@@ -148,7 +148,16 @@ interface RBDisconnectToBackgroundAction {
   action: Action.DisconnectToBackground
 }
 
-type RBAction = RBStartAction | RBStopAction | RBConnectToBackgroundAction | RBDisconnectToBackgroundAction
+interface RBRequestProgress {
+  action: Action.RequestProgress
+}
+
+type RBAction =
+  | RBStartAction
+  | RBStopAction
+  | RBConnectToBackgroundAction
+  | RBDisconnectToBackgroundAction
+  | RBRequestProgress
 
 interface RBChainBlockInfoMessage {
   messageType: 'ChainBlockInfoMessage'
@@ -221,6 +230,10 @@ interface BrowserNotification {
 }
 
 type BNotificationOptions = browser.notifications.NotificationOptions
+
+// ---- react-tabs ----
+
+declare var ReactTabs: typeof import('react-tabs')
 
 // ---- context menu ----
 

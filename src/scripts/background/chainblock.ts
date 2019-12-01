@@ -1,9 +1,10 @@
 namespace RedBlock.Background.ChainBlock {
+  const { notify } = RedBlock.Background
   export class ChainBlocker {
     private readonly sessions: Map<string, ChainBlockSession> = new Map()
     constructor() {}
-    private generateSessionId(targetUser: TwitterUser): string {
-      return targetUser.screen_name
+    private generateSessionId(user: TwitterUser, options: ChainBlockSessionOptions): string {
+      return `session/${user.screen_name}/${options.targetList}/${Date.now()}`
     }
     public isRunning(): boolean {
       if (this.sessions.size <= 0) {
@@ -19,17 +20,58 @@ namespace RedBlock.Background.ChainBlock {
       )
       return currentRunningSessions.length > 0
     }
+    public isAlreadyRunningForUser(givenUser: TwitterUser, givenOptions: ChainBlockSessionOptions): boolean {
+      for (const session of this.sessions.values()) {
+        const { targetUser } = session
+        const isSameUser = targetUser.id_str === givenUser.id_str
+        const isSameList = session.options.targetList === givenOptions.targetList
+        if (isSameUser && isSameList) {
+          return true
+        }
+      }
+      return false
+      //
+    }
+    private handleEvents(session: ChainBlockSession) {
+      const { targetUser, options } = session
+      const { screen_name } = targetUser
+      let targetListKor: string
+      switch (options.targetList) {
+        case 'followers':
+          targetListKor = '팔로워'
+          break
+        case 'friends':
+          targetListKor = '팔로잉'
+          break
+      }
+      session.on('start', () => {
+        const message = `지금부터 @${screen_name}에게 체인블락을 실행합니다. 진행상황은 확장기능 버튼을 눌러 확인해주세요.`
+        notify(message)
+      })
+      session.on('complete', () => {
+        const { blockSuccess, alreadyBlocked, skipped, blockFail } = session.progress
+        let message = `체인블락 완료! @${screen_name}의 ${targetListKor} 중 ${blockSuccess}명을 차단했습니다.\n`
+        message += `(이미 차단함: ${alreadyBlocked}, 스킵: ${skipped}, 실패: ${blockFail})`
+        notify(message)
+      })
+      session.on('error', err => {
+        let message = `체인블락 오류! 메시지:\n`
+        message += err
+        notify(message)
+      })
+    }
     public add(targetUser: TwitterUser, options: ChainBlockSessionOptions): string | null {
-      const sessionId = this.generateSessionId(targetUser)
-      if (this.sessions.has(sessionId)) {
+      if (this.isAlreadyRunningForUser(targetUser, options)) {
         window.alert(`이미 @${targetUser.screen_name}에게 체인블락이 실행중입니다.`)
         return null
       }
+      const sessionId = this.generateSessionId(targetUser, options)
       const session = new ChainBlockSession({
         sessionId,
         targetUser,
         options,
       })
+      this.handleEvents(session)
       this.sessions.set(sessionId, session)
       return sessionId
     }
@@ -38,11 +80,8 @@ namespace RedBlock.Background.ChainBlock {
       session.stop()
       this.sessions.delete(sessionId)
     }
-    public async start(sessionId: string, delay: number) {
-      await sleep(delay)
+    public async start(sessionId: string) {
       const session = this.sessions.get(sessionId)
-      // sleep(delay) 동안 정지를 할 경우 세션이 사라졌으므로
-      // throw 없이 조용히 아무동작하지 않음
       if (session) {
         return session.start()
       }

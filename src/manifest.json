@@ -27,7 +27,7 @@
       "vendor/browser-polyfill.min.js",
       "vendor/lodash.js",
       "scripts/common.js",
-      "scripts/background/notify.js",
+      "scripts/background/background.js",
       "scripts/background/twitter-api.js",
       "scripts/background/chainblock.js",
       "scripts/background/chainblock-session.js",
@@ -35,23 +35,6 @@
       "scripts/background/context-menu.js"
     ]
   },
-
-  "content_scripts": [
-    {
-      "matches": ["*://twitter.com/*", "*://mobile.twitter.com/*"],
-      "css": ["styles/style.css"],
-      "js": [
-        "vendor/browser-polyfill.min.js",
-        "vendor/lodash.js",
-        "vendor/react.development.js",
-        "vendor/react-dom.development.js",
-        "scripts/common.js",
-        "scripts/content/chainblock-ui/session.js",
-        "scripts/content/chainblock-ui/mini-ui.js",
-        "scripts/content/chainblock-ui/main.js"
-      ]
-    }
-  ],
 
   "web_accessible_resources": [],
 

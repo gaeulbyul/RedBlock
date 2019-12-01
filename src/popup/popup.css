@@ -30,9 +30,15 @@ hr {
   border-bottom: 0;
 }
 
+.ellipsis {
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
 .whole {
-  width: 400px;
-  padding: 10px;
+  width: 500px;
+  padding: 0;
   margin: 0 auto;
   background-color: white;
 }
@@ -41,11 +47,11 @@ hr {
   margin: 0 0.2rem 0 0;
 }
 
+.react-tabs {
+  padding: 10px;
+}
+
 .non-twitter {
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -72,6 +78,7 @@ hr {
 }
 
 .profile-right-area {
+  overflow: hidden;
   line-height: 150%;
 }
 
@@ -89,13 +96,13 @@ hr {
   margin-top: 10px;
 }
 
+.profile-right-targetlist > label:not(:first-of-type) {
+  margin-left: 10px;
+}
+
 .profile-image {
   width: 60px;
   border-radius: 50%;
-}
-
-.chainblock-filters {
-  padding: 0 15px;
 }
 
 fieldset.chainblock-opt {
@@ -114,16 +121,16 @@ fieldset.chainblock-subopt {
   margin: 0 5px;
 }
 
-.chainblock-filters label:hover {
+.chainblock-target label:hover {
   text-decoration: underline;
 }
 
-.chainblock-filters label span {
+.chainblock-target label span {
   padding: 3px;
   color: #333;
 }
 
-.chainblock-filters label input:checked ~ span {
+.chainblock-target label input:checked ~ span {
   font-weight: bold;
   color: #000;
 }
@@ -174,6 +181,32 @@ fieldset.chainblock-subopt {
 
 .menu-item:hover .big-button-img {
   filter: none;
+}
+
+.chainblock-sessions .session {
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  margin: 10px 0;
+  padding: 5px;
+}
+
+.chainblock-sessions .controls {
+  padding: 5px;
+  text-align: right;
+}
+
+.chainblock-sessions .controls button {
+  padding: 5px;
+  width: 80px;
+  border: 2px solid #333;
+  border-radius: 100px;
+  background-color: transparent;
+  cursor: pointer;
+}
+
+.chainblock-sessions .controls button:hover {
+  background-color: #333;
+  color: white;
 }
 
 footer.info {

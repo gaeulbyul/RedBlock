@@ -40,6 +40,68 @@ function formatNumber(input: unknown): string {
 }
 
 namespace RedBlock.Popup.UI {
+  function calculatePercentage(session: ChainBlockSessionInfo): number {
+    const { target, progress, status } = session
+    // const isInitial = status === ChainBlockSessionStatus.Initial
+    const isCompleted = status === ChainBlockSessionStatus.Completed
+    const max = (isCompleted ? progress.totalScraped : target.totalCount) || undefined
+    if (isCompleted) {
+      return 100
+    } else if (typeof max === 'number') {
+      return Math.round((progress.totalScraped / max) * 1000) / 10
+    } else {
+      return 0
+    }
+  }
+  function renderProfileImageWithProgress(session: ChainBlockSessionInfo) {
+    const {
+      target: { user },
+    } = session
+    const width = 72
+    const strokeWidth = 4
+    const radius = width / 2 - strokeWidth * 2
+    const circumference = radius * 2 * Math.PI
+    const percent = calculatePercentage(session)
+    const strokeDasharray = `${circumference} ${circumference}`
+    const strokeDashoffset = circumference - (percent / 100) * circumference
+    // if omit _${size}, will get original-size image
+    const biggerProfileImageUrl = user.profile_image_url_https.replace('_normal', '_bigger')
+    return (
+      <svg width={width} height={width}>
+        <defs>
+          <circle id="profile-circle" cx={width / 2} cy={width / 2} r={radius}></circle>
+          <clipPath id="profile-circle-clip">
+            <use href="#profile-circle" />
+          </clipPath>
+        </defs>
+        <g clipPath="url(#profile-circle-clip)">
+          <image
+            clipPath="url(#profile-circle-clip)"
+            width={width}
+            height={width}
+            href={biggerProfileImageUrl}
+            transform="scale(0.9)"
+            style={{
+              transformOrigin: '50% 50%',
+            }}
+          />
+          <use
+            href="#profile-circle"
+            stroke="crimson"
+            strokeWidth={strokeWidth}
+            fill="transparent"
+            style={{
+              strokeDasharray,
+              strokeDashoffset,
+              transform: 'rotate(-90deg)',
+              transformOrigin: '50% 50%',
+              transition: 'stroke-dashoffset 400ms ease-in-out',
+            }}
+          ></use>
+        </g>
+      </svg>
+    )
+  }
   function TargetUserProfile(props: {
     user: TwitterUser
     options: ChainBlockSessionOptions
@@ -47,10 +109,11 @@ namespace RedBlock.Popup.UI {
   }) {
     const { user, options, mutateOptions } = props
     const { targetList } = options
+    const biggerProfileImageUrl = user.profile_image_url_https.replace('_normal', '_bigger')
     return (
       <div className="target-user-info">
         <div className="profile-image-area">
-          <img alt="프로필이미지" className="profile-image" src={user.profile_image_url_https} />
+          <img alt="프로필이미지" className="profile-image" src={biggerProfileImageUrl} />
         </div>
         <div className="profile-right-area">
           <div className="profile-right-info">
@@ -68,7 +131,6 @@ namespace RedBlock.Popup.UI {
               />
               <span>팔로워 {formatNumber(user.followers_count)}명</span>
             </label>
-            <br />
             <label>
               <input
                 type="radio"
@@ -143,11 +205,11 @@ namespace RedBlock.Popup.UI {
     )
   }
 
-  interface PopupAppProps {
+  interface NewChainBlockPageProps {
     user: TwitterUser
   }
 
-  function PopupApp(props: PopupAppProps) {
+  function NewChainBlockPage(props: NewChainBlockPageProps) {
     const [options, setOptions] = React.useState<ChainBlockSessionOptions>({
       targetList: 'followers',
       myFollowers: 'skip',
@@ -163,7 +225,7 @@ namespace RedBlock.Popup.UI {
     }
     return (
       <div>
-        <div className="chainblock-filters">
+        <div className="chainblock-target">
           <fieldset className="chainblock-opt">
             <legend>차단 대상</legend>
             <TargetUserProfile options={options} mutateOptions={mutateOptions} user={props.user} />
@@ -185,13 +247,167 @@ namespace RedBlock.Popup.UI {
     )
   }
 
-  function PopupAppWithoutUser() {
-    return (
-      <div className="non-twitter">
-        <div className="text">
-          Red Block의 체인블락은 트위터의 사용자 프로필페이지에서 사용할 수 있습니다. <br />
-          (예: https://twitter.com/<i style={{ backgroundColor: 'brown' }}>사용자이름</i>)
+  interface ChainBlockSessionsPageState {
+    sessions: ChainBlockSessionInfo[]
+  }
+
+  class ChainBlockSessionsPage extends React.Component<{}, ChainBlockSessionsPageState> {
+    public state: ChainBlockSessionsPageState = { sessions: [] }
+    private _interval = -1
+    private __msgListener_real(msgobj: any) {
+      if (!(typeof msgobj === 'object' && 'messageType' in msgobj)) {
+        return
+      }
+      if (msgobj.messageType === 'ChainBlockInfoMessage') {
+        const msg = msgobj as RBChainBlockInfoMessage
+        this.setState({
+          sessions: msg.infos,
+        })
+      }
+    }
+    private _msgListener = this.__msgListener_real.bind(this)
+    public componentDidMount() {
+      browser.runtime.onMessage.addListener(this._msgListener)
+      this._interval = window.setInterval(() => {
+        browser.runtime
+          .sendMessage<RBRequestProgress>({
+            action: Action.RequestProgress,
+          })
+          .catch(() => {})
+      }, UI_UPDATE_DELAY)
+    }
+    public componentWillUnmount() {
+      browser.runtime.onMessage.removeListener(this._msgListener)
+      window.clearInterval(this._interval)
+    }
+    private statusToString(status: ChainBlockSessionStatus): string {
+      const statusMessageObj: { [key: number]: string } = {
+        [ChainBlockSessionStatus.Initial]: '대기 중',
+        [ChainBlockSessionStatus.Completed]: '완료',
+        [ChainBlockSessionStatus.Running]: '실행 중…',
+        [ChainBlockSessionStatus.RateLimited]: '리밋',
+        [ChainBlockSessionStatus.Stopped]: '정지',
+        [ChainBlockSessionStatus.Error]: '오류 발생!',
+      }
+      const statusMessage = `[${statusMessageObj[status]}]`
+      return statusMessage
+    }
+    private renderText({ progress, status }: ChainBlockSessionInfo) {
+      const sep = ' / '
+      const statusMessage = this.statusToString(status)
+      return (
+        <div>
+          <small>
+            {statusMessage} {sep}
+            <b>차단: {progress.blockSuccess.toLocaleString()}</b> {sep}
+            이미 차단함: {progress.alreadyBlocked.toLocaleString()} {sep}
+            스킵: {progress.skipped.toLocaleString()} {sep}
+            실패: {progress.blockFail.toLocaleString()}
+          </small>
         </div>
+      )
+    }
+    private isRunning(status: ChainBlockSessionStatus): boolean {
+      const runningStatuses = [
+        ChainBlockSessionStatus.Initial,
+        ChainBlockSessionStatus.Running,
+        ChainBlockSessionStatus.RateLimited,
+      ]
+      return runningStatuses.includes(status)
+    }
+    private renderControls({ sessionId, status, target }: ChainBlockSessionInfo) {
+      const isRunning = this.isRunning(status)
+      const userName = target.user.screen_name
+      function requestStopChainBlock() {
+        if (isRunning) {
+          const confirmMessage = `@${userName}에게 실행중인 체인블락을 중단하시겠습니까?`
+          if (!window.confirm(confirmMessage)) {
+            return
+          }
+        }
+        browser.runtime.sendMessage<RBStopAction>({
+          action: Action.StopChainBlock,
+          sessionId,
+        })
+      }
+      let closeButtonText = '닫기'
+      let closeButtonTitleText = ''
+      if (isRunning) {
+        closeButtonText = '중지'
+        closeButtonTitleText = `@${userName}에게 실행중인 체인블락을 중지합니다.`
+      }
+      return (
+        <div className="controls">
+          <button type="button" title={closeButtonTitleText} onClick={requestStopChainBlock}>
+            {closeButtonText}
+          </button>
+        </div>
+      )
+    }
+    render() {
+      // const emptySessions = this.state.sessions.length <= 0
+      // if (emptySessions) {
+      //   return (
+      //     <div className="chainblock-suggest-start">
+      //       체인블락을 실행하려면 "세 세션" 탭을 눌러주세요.
+      //     </div>
+      //   )
+      // }
+      return (
+        <div className="chainblock-sessions">
+          {this.state.sessions.map(session => {
+            const { target } = session
+            const { user } = target
+            return (
+              <div className="session" key={session.sessionId}>
+                <div className="target-user-info">
+                  <div className="profile-image-area">{renderProfileImageWithProgress(session)}</div>
+                  <div className="profile-right-area">
+                    <div className="profile-right-info">
+                      <div className="ellipsis nickname" title={user.name}>
+                        {user.name}
+                      </div>
+                      <div className="username" title={'@' + user.screen_name}>
+                        @{user.screen_name}
+                      </div>
+                      {this.renderText(session)}
+                    </div>
+                  </div>
+                </div>
+                {this.renderControls(session)}
+              </div>
+            )
+          })}
+        </div>
+      )
+    }
+  }
+
+  interface PopupAppProps {
+    user: TwitterUser | null
+  }
+
+  function PopupApp(props: PopupAppProps) {
+    const { Tabs, TabList, Tab, TabPanel } = ReactTabs
+    const { user } = props
+    return (
+      <div>
+        <React.StrictMode>
+          <Tabs>
+            <TabList>
+              <Tab>&#9939; 실행중</Tab>
+              {user && <Tab>&#10133; 새 세션</Tab>}
+            </TabList>
+            <TabPanel>
+              <ChainBlockSessionsPage />
+            </TabPanel>
+            {user && (
+              <TabPanel>
+                <NewChainBlockPage user={user} />
+              </TabPanel>
+            )}
+          </Tabs>
+        </React.StrictMode>
       </div>
     )
   }
@@ -206,9 +422,9 @@ namespace RedBlock.Popup.UI {
     const { TwitterAPI } = RedBlock.Background
     const tab = await getCurrentTab()
     const userName = tab ? getUserNameFromTab(tab) : null
-    const targetUser = await (userName ? TwitterAPI.getSingleUserByName(userName) : null)
     const appRoot = document.getElementById('app')!
-    const app = targetUser ? <PopupApp user={targetUser} /> : <PopupAppWithoutUser />
+    const targetUser = await (userName ? TwitterAPI.getSingleUserByName(userName) : null)
+    const app = <PopupApp user={targetUser} />
     ReactDOM.render(app, appRoot)
     showVersionOnFooter()
   }

@@ -14,6 +14,7 @@ interface ChainBlockSessionEvents {
   'rate-limit': Limit
   'rate-limit-reset': null
   error: string
+  start: null
   stop: null
   close: null
   complete: null
@@ -29,10 +30,10 @@ namespace RedBlock.Background.ChainBlock {
     private readonly _targetUser: Readonly<TwitterUser>
     private readonly _options: Readonly<ChainBlockSessionOptions>
     private _shouldStop = false
-    private _totalCount: number | null = 0
+    private _totalCount = 0
     private _limit: Limit | null = null
     private _status: ChainBlockSessionStatus = ChainBlockSessionStatus.Initial
-    private _progress: ChainBlockSessionProgress = {
+    private readonly _progress: ChainBlockSessionProgress = {
       alreadyBlocked: 0,
       skipped: 0,
       blockSuccess: 0,
@@ -41,6 +42,7 @@ namespace RedBlock.Background.ChainBlock {
         return _.sum([this.alreadyBlocked, this.skipped, this.blockSuccess, this.blockFail])
       },
       set totalScraped(ignore) {
+        // updateProgress 에서 Object.assign 해도 오류 안 뜨게
         ignore
       },
     }
@@ -61,22 +63,15 @@ namespace RedBlock.Background.ChainBlock {
     get totalCount(): number | null {
       return this._totalCount
     }
-    get targetUser(): TwitterUser {
-      return this._targetUser
+    get targetUser(): Readonly<TwitterUser> {
+      return copyFrozenObject(this._targetUser)
     }
-    get status(): ChainBlockSessionStatus {
-      return this._status
-    }
-    get options(): ChainBlockSessionOptions {
-      return this._options
+    get options(): Readonly<ChainBlockSessionOptions> {
+      return copyFrozenObject(this._options)
     }
     get limit(): Limit | null {
       return this._limit
     }
-    // private updateTotalCount(count: number): void {
-    //   this._totalCount = count
-    //   this.emit('update-count', count)
-    // }
     private updateLimit(limit: Limit | null): void {
       this._limit = limit
       if (limit) {
@@ -85,15 +80,18 @@ namespace RedBlock.Background.ChainBlock {
         this.emit('rate-limit-reset', null)
       }
     }
+    get status(): ChainBlockSessionStatus {
+      return this._status
+    }
     private updateStatus(status: ChainBlockSessionStatus): void {
       this._status = status
       this.emit('update-state', status)
     }
     get progress(): ChainBlockSessionProgress {
-      return this._progress
+      return copyFrozenObject(this._progress)
     }
     private updateProgress(progress: ChainBlockSessionProgress) {
-      Object.assign(this.progress, progress)
+      Object.assign(this._progress, progress)
       this.emit('update-progress', copyFrozenObject(this.progress))
     }
     public stop() {
@@ -158,6 +156,7 @@ namespace RedBlock.Background.ChainBlock {
         const newProgress: ChainBlockSessionProgress = Object.assign({}, this.progress, newProgPart)
         this.updateProgress(newProgress)
       }
+      this.emit('start', null)
       try {
         const blockPromises: Promise<void>[] = []
         let stopped = false
