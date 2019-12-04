@@ -1,7 +1,8 @@
 namespace RedBlock.Background.ChainBlock {
-  const { notify } = RedBlock.Background
+  const { Storage, notify } = RedBlock.Background
   export class ChainBlocker {
     private readonly sessions: Map<string, ChainBlockSession> = new Map()
+    private readonly storageQueue = Promise.resolve()
     constructor() {}
     private generateSessionId(user: TwitterUser, options: ChainBlockSessionOptions): string {
       return `session/${user.screen_name}/${options.targetList}/${Date.now()}`
@@ -73,6 +74,11 @@ namespace RedBlock.Background.ChainBlock {
       })
       this.handleEvents(session)
       this.sessions.set(sessionId, session)
+      if (options.saveTargetUser) {
+        this.storageQueue.then(() => Storage.insertSingleUserAndSave(targetUser))
+      } else {
+        this.storageQueue.then(() => Storage.removeSingleUserAndSave(targetUser))
+      }
       return sessionId
     }
     public stop(sessionId: string) {

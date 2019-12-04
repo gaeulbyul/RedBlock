@@ -137,10 +137,11 @@ fieldset.chainblock-subopt {
 
 .chainblock-saved-select {
   padding: 5px 10px;
+  width: 100%;
 }
 
-.chainblock-saved-select > option {
-  padding: 5px;
+.chainblock-saved-select option {
+  padding: 10px 0;
 }
 
 .description {

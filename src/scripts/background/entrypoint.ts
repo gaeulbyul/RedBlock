@@ -9,6 +9,7 @@ namespace RedBlock.Background.Entrypoint {
     return doChainBlock(targetUserName, {
       myFollowers: 'skip',
       myFollowings: 'skip',
+      saveTargetUser: false,
       targetList,
     })
   }

@@ -201,6 +201,7 @@ interface ChainBlockSessionOptions {
   targetList: 'followers' | 'friends' // | 'mutual-followers'
   myFollowers: 'skip' | 'block'
   myFollowings: 'skip' | 'block'
+  saveTargetUser: boolean
 }
 
 interface RedBlockStorage {

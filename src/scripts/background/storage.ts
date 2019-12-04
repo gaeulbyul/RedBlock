@@ -15,4 +15,14 @@ namespace RedBlock.Background.Storage {
     // @ts-ignore
     return browser.storage.local.set(storeObject)
   }
+  export async function insertSingleUserAndSave(user: TwitterUser): Promise<void> {
+    const users = await loadUsers()
+    users.addUser(user)
+    return saveUsers(users)
+  }
+  export async function removeSingleUserAndSave(user: TwitterUser): Promise<void> {
+    const users = await loadUsers()
+    users.delete(user.id_str)
+    return saveUsers(users)
+  }
 }

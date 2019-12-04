@@ -115,7 +115,12 @@ namespace RedBlock.Popup.UI {
               {user.name}
             </div>
             <div className="username">
-              <a target="_blank" rel="noopener noreferer" href={`https://twitter.com/${user.screen_name}`}>
+              <a
+                target="_blank"
+                rel="noopener noreferer"
+                href={`https://twitter.com/${user.screen_name}`}
+                title={`https://twitter.com/${user.screen_name} 로 이동`}
+              >
                 @{user.screen_name}
               </a>
             </div>
@@ -188,8 +193,6 @@ namespace RedBlock.Popup.UI {
           <label>
             <input
               type="radio"
-              name="chainblock-my-followers"
-              value="skip"
               checked={myFollowers === 'skip'}
               onChange={() => mutateOptions({ myFollowers: 'skip' })}
             />
@@ -198,8 +201,6 @@ namespace RedBlock.Popup.UI {
           <label>
             <input
               type="radio"
-              name="chainblock-my-followers"
-              value="block"
               checked={myFollowers === 'block'}
               onChange={() => mutateOptions({ myFollowers: 'block' })}
             />
@@ -211,8 +212,6 @@ namespace RedBlock.Popup.UI {
           <label>
             <input
               type="radio"
-              name="chainblock-my-followings"
-              value="skip"
               checked={myFollowings === 'skip'}
               onChange={() => mutateOptions({ myFollowings: 'skip' })}
             />
@@ -221,8 +220,6 @@ namespace RedBlock.Popup.UI {
           <label>
             <input
               type="radio"
-              name="chainblock-my-followings"
-              value="block"
               checked={myFollowings === 'block'}
               onChange={() => mutateOptions({ myFollowings: 'block' })}
             />
@@ -243,15 +240,34 @@ namespace RedBlock.Popup.UI {
       targetList: 'followers',
       myFollowers: 'skip',
       myFollowings: 'skip',
+      saveTargetUser: false,
     })
     const [selectedUser, selectUser] = React.useState<TwitterUser | null>(currentUser)
     const [savedUsers, setSavedUsers] = React.useState(new TwitterUserMap())
-    React.useEffect(() => void Storage.loadUsers().then(setSavedUsers))
-
+    React.useEffect(() => {
+      async function loadUsers() {
+        const users = await Storage.loadUsers()
+        setSavedUsers(users)
+      }
+      loadUsers()
+    }, [])
+    React.useEffect(() => {
+      if (selectedUser) {
+        setOptions({
+          ...options,
+          saveTargetUser: savedUsers.has(selectedUser.id_str),
+        })
+      }
+    }, [savedUsers, selectedUser])
     function mutateOptions(newOptionsPart: Partial<ChainBlockSessionOptions>) {
       const newOptions = { ...options, ...newOptionsPart }
       // console.dir({ options, newOptions })
       setOptions(newOptions)
+    }
+    function toggleSaveState() {
+      mutateOptions({
+        saveTargetUser: !options.saveTargetUser,
+      })
     }
     function onExecuteChainBlockButtonClicked() {
       if (selectedUser) {
@@ -273,29 +289,34 @@ namespace RedBlock.Popup.UI {
       }
     }
     // <input type="text" onChange={event => {setUserName(event.target.value)}} value={userName} />
-    const currentUserOption = (user: TwitterUser) => (
+    const currentUserOption = ({ screen_name, name }: TwitterUser) => (
       <optgroup label="현재 유저">
-        <option value={user.screen_name}>@{user.screen_name}</option>
+        <option value={screen_name}>
+          @{screen_name} &lt;{name}&gt;
+        </option>
       </optgroup>
     )
     const noUserOption = <option value="???">체인블락을 실행할 사용자를 선택해주세요.</option>
+    const sortedByName = (usersMap: TwitterUserMap): TwitterUser[] =>
+      _.sortBy(usersMap.toUserArray(), user => user.screen_name.toLowerCase())
     return (
       <div>
-        <div className="chainblock-saved-target">
-          <select className="chainblock-saved-select" onChange={event => changeUser(event.target.value)}>
-            {currentUser ? currentUserOption(currentUser) : noUserOption}
-            <optgroup label="저장한 유저">
-              {savedUsers.map(({ screen_name }, index) => (
-                <option key={index} value={screen_name}>
-                  @{screen_name}
-                </option>
-              ))}
-            </optgroup>
-          </select>
-        </div>
         <div className="chainblock-target">
           <fieldset className="chainblock-opt" disabled={selectedUser == null}>
             <legend>차단 대상</legend>
+            <div className="chainblock-saved-target">
+              <select className="chainblock-saved-select" onChange={event => changeUser(event.target.value)}>
+                {currentUser ? currentUserOption(currentUser) : noUserOption}
+                <optgroup label="저장한 유저">
+                  {sortedByName(savedUsers).map(({ screen_name, name }, index) => (
+                    <option key={index} value={screen_name}>
+                      @{screen_name} &lt;{name}&gt;
+                    </option>
+                  ))}
+                </optgroup>
+              </select>
+            </div>
+            <hr />
             {selectedUser ? (
               <TargetUserProfile options={options} mutateOptions={mutateOptions} user={selectedUser} />
             ) : (
@@ -312,11 +333,11 @@ namespace RedBlock.Popup.UI {
           <fieldset className="chainblock-opt" disabled={selectedUser == null}>
             <legend>부가기능</legend>
             <label>
-              <input type="checkbox" name="" /> 이 사용자를 저장하기
+              <input type="checkbox" checked={options.saveTargetUser} onChange={toggleSaveState} />이 사용자를 저장하기
             </label>
             <div className="description">
               사용자를 저장하면 "저장한 유저" 목록에 추가됩니다. 이렇게 하면 상대방의 프로필페이지를 방문하지 않고
-              체인블락을 실행할 수 있게 됩니다.
+              체인블락을 실행할 수 있게 됩니다. 목록에서 사용자를 삭제하려면 체크를 해제해주세요.
             </div>
           </fieldset>
           <div className="menu">

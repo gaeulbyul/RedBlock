@@ -32,7 +32,7 @@ abstract class EventEmitter<T> {
   }
   emit<K extends keyof T>(eventName: string & K, eventHandlerParameter: T[K]) {
     const handlers = [...this.events[eventName], ...this.events['*']]
-    console.debug('EventEmitter: emit "%s" with %o', eventName, eventHandlerParameter)
+    // console.debug('EventEmitter: emit "%s" with %o', eventName, eventHandlerParameter)
     handlers.forEach(handler => handler(eventHandlerParameter))
     return this
   }
