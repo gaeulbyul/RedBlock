@@ -30,16 +30,10 @@ namespace RedBlock.Popup {
   }
 }
 
-function formatNumber(input: unknown): string {
-  if (typeof input === 'number') {
-    const formatted = input.toLocaleString()
-    return `${formatted}`
-  } else {
-    return '??'
-  }
-}
-
 namespace RedBlock.Popup.UI {
+  const { getUserNameFromTab, getCurrentTab, requestChainBlock } = RedBlock.Popup
+  const { TwitterAPI, Storage } = RedBlock.Background
+
   function calculatePercentage(session: ChainBlockSessionInfo): number {
     const { target, progress, status } = session
     // const isInitial = status === ChainBlockSessionStatus.Initial
@@ -117,8 +111,14 @@ namespace RedBlock.Popup.UI {
         </div>
         <div className="profile-right-area">
           <div className="profile-right-info">
-            <div className="nickname">{user.name}</div>
-            <div className="username">@{user.screen_name}</div>
+            <div className="nickname" title={user.name}>
+              {user.name}
+            </div>
+            <div className="username">
+              <a target="_blank" rel="noopener noreferer" href={`https://twitter.com/${user.screen_name}`}>
+                @{user.screen_name}
+              </a>
+            </div>
           </div>
           <div className="profile-right-targetlist">
             <label>
@@ -140,6 +140,34 @@ namespace RedBlock.Popup.UI {
                 onChange={() => mutateOptions({ targetList: 'friends' })}
               />
               <span>팔로잉 {formatNumber(user.friends_count)}명</span>
+            </label>
+          </div>
+        </div>
+      </div>
+    )
+  }
+
+  function TargetUserProfileEmpty() {
+    return (
+      <div className="target-user-info">
+        <div className="profile-image-area">
+          <img alt="프로필이미지" className="profile-image" />
+        </div>
+        <div className="profile-right-area">
+          <div className="profile-right-info">
+            <div className="nickname">???</div>
+            <div className="username">
+              <a target="_blank">@???</a>
+            </div>
+          </div>
+          <div className="profile-right-targetlist">
+            <label>
+              <input disabled type="radio" />
+              <span>팔로워 ?명</span>
+            </label>
+            <label>
+              <input disabled type="radio" />
+              <span>팔로잉 ?명</span>
             </label>
           </div>
         </div>
@@ -206,39 +234,97 @@ namespace RedBlock.Popup.UI {
   }
 
   interface NewChainBlockPageProps {
-    user: TwitterUser
+    currentUser: TwitterUser | null
   }
 
   function NewChainBlockPage(props: NewChainBlockPageProps) {
+    const { currentUser } = props
     const [options, setOptions] = React.useState<ChainBlockSessionOptions>({
       targetList: 'followers',
       myFollowers: 'skip',
       myFollowings: 'skip',
     })
+    const [selectedUser, selectUser] = React.useState<TwitterUser | null>(currentUser)
+    const [savedUsers, setSavedUsers] = React.useState(new TwitterUserMap())
+    React.useEffect(() => void Storage.loadUsers().then(setSavedUsers))
+
     function mutateOptions(newOptionsPart: Partial<ChainBlockSessionOptions>) {
       const newOptions = { ...options, ...newOptionsPart }
       // console.dir({ options, newOptions })
       setOptions(newOptions)
     }
     function onExecuteChainBlockButtonClicked() {
-      RedBlock.Popup.requestChainBlock(props.user.screen_name, options)
+      if (selectedUser) {
+        requestChainBlock(selectedUser.screen_name, options)
+      }
     }
+    async function changeUser(userName: string) {
+      const validUserNamePattern = /^[0-9a-z_]{1,15}$/i
+      if (!validUserNamePattern.test(userName)) {
+        selectUser(null)
+        return
+      }
+      const newUser = await TwitterAPI.getSingleUserByName(userName.replace(/^@/, '')).catch(() => null)
+      if (newUser) {
+        selectUser(newUser)
+      } else {
+        window.alert(`사용자 @${userName}을 찾을 수 없습니다.`)
+        selectUser(null)
+      }
+    }
+    // <input type="text" onChange={event => {setUserName(event.target.value)}} value={userName} />
+    const currentUserOption = (user: TwitterUser) => (
+      <optgroup label="현재 유저">
+        <option value={user.screen_name}>@{user.screen_name}</option>
+      </optgroup>
+    )
+    const noUserOption = <option value="???">체인블락을 실행할 사용자를 선택해주세요.</option>
     return (
       <div>
+        <div className="chainblock-saved-target">
+          <select className="chainblock-saved-select" onChange={event => changeUser(event.target.value)}>
+            {currentUser ? currentUserOption(currentUser) : noUserOption}
+            <optgroup label="저장한 유저">
+              {savedUsers.map(({ screen_name }, index) => (
+                <option key={index} value={screen_name}>
+                  @{screen_name}
+                </option>
+              ))}
+            </optgroup>
+          </select>
+        </div>
         <div className="chainblock-target">
-          <fieldset className="chainblock-opt">
+          <fieldset className="chainblock-opt" disabled={selectedUser == null}>
             <legend>차단 대상</legend>
-            <TargetUserProfile options={options} mutateOptions={mutateOptions} user={props.user} />
+            {selectedUser ? (
+              <TargetUserProfile options={options} mutateOptions={mutateOptions} user={selectedUser} />
+            ) : (
+              <TargetUserProfileEmpty />
+            )}
           </fieldset>
-          <fieldset className="chainblock-opt">
+          <fieldset className="chainblock-opt" disabled={selectedUser == null}>
             <legend>필터</legend>
             <TargetListOptions options={options} mutateOptions={mutateOptions} />
             <div className="description">
               단, <b>나와 맞팔로우</b>인 사용자는 위 옵션과 무관하게 <b>차단하지 않습니다</b>.
             </div>
           </fieldset>
+          <fieldset className="chainblock-opt" disabled={selectedUser == null}>
+            <legend>부가기능</legend>
+            <label>
+              <input type="checkbox" name="" /> 이 사용자를 저장하기
+            </label>
+            <div className="description">
+              사용자를 저장하면 "저장한 유저" 목록에 추가됩니다. 이렇게 하면 상대방의 프로필페이지를 방문하지 않고
+              체인블락을 실행할 수 있게 됩니다.
+            </div>
+          </fieldset>
           <div className="menu">
-            <button className="menu-item execute-chainblock" onClick={onExecuteChainBlockButtonClicked}>
+            <button
+              disabled={selectedUser == null}
+              className="menu-item execute-chainblock"
+              onClick={onExecuteChainBlockButtonClicked}
+            >
               <span>체인블락 실행</span>
             </button>
           </div>
@@ -384,28 +470,26 @@ namespace RedBlock.Popup.UI {
   }
 
   interface PopupAppProps {
-    user: TwitterUser | null
+    currentUser: TwitterUser | null
   }
 
   function PopupApp(props: PopupAppProps) {
     const { Tabs, TabList, Tab, TabPanel } = ReactTabs
-    const { user } = props
+    const { currentUser } = props
     return (
       <div>
         <React.StrictMode>
           <Tabs>
             <TabList>
               <Tab>&#9939; 실행중</Tab>
-              {user && <Tab>&#10133; 새 세션</Tab>}
+              <Tab>&#10133; 새 세션</Tab>
             </TabList>
             <TabPanel>
               <ChainBlockSessionsPage />
             </TabPanel>
-            {user && (
-              <TabPanel>
-                <NewChainBlockPage user={user} />
-              </TabPanel>
-            )}
+            <TabPanel>
+              <NewChainBlockPage currentUser={currentUser} />
+            </TabPanel>
           </Tabs>
         </React.StrictMode>
       </div>
@@ -418,13 +502,11 @@ namespace RedBlock.Popup.UI {
   }
 
   export async function initializeUI() {
-    const { getUserNameFromTab, getCurrentTab } = RedBlock.Popup
-    const { TwitterAPI } = RedBlock.Background
     const tab = await getCurrentTab()
     const userName = tab ? getUserNameFromTab(tab) : null
     const appRoot = document.getElementById('app')!
     const targetUser = await (userName ? TwitterAPI.getSingleUserByName(userName) : null)
-    const app = <PopupApp user={targetUser} />
+    const app = <PopupApp currentUser={targetUser} />
     ReactDOM.render(app, appRoot)
     showVersionOnFooter()
   }

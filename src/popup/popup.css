@@ -88,7 +88,7 @@ hr {
   color: #333;
 }
 
-.profile-right-info .username {
+.profile-right-info .username a {
   color: #666;
 }
 
@@ -135,7 +135,16 @@ fieldset.chainblock-subopt {
   color: #000;
 }
 
+.chainblock-saved-select {
+  padding: 5px 10px;
+}
+
+.chainblock-saved-select > option {
+  padding: 5px;
+}
+
 .description {
+  margin: 5px 0;
   padding: 10px 15px;
   word-break: keep-all;
   border-radius: 5px;
@@ -165,13 +174,17 @@ fieldset.chainblock-subopt {
   background-color: crimson;
   color: white;
   font-weight: bold;
-  transition: background-color 0.3s;
+  transition: background-color 0.3s, filter 0.5s;
   box-shadow: 0 0 10px 5px #f063;
 }
 
 .menu-item.execute-chainblock:hover {
   background-color: crimson;
   color: white;
+}
+
+.menu-item.execute-chainblock:disabled {
+  filter: saturate(0%);
 }
 
 .menu-item:hover {

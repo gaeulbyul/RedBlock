@@ -203,6 +203,10 @@ interface ChainBlockSessionOptions {
   myFollowings: 'skip' | 'block'
 }
 
+interface RedBlockStorage {
+  savedUsers: TwitterUser[]
+}
+
 // ---- browser notification types ----
 
 interface BrowserNotificationButton {

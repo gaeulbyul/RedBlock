@@ -173,6 +173,24 @@ namespace RedBlock.Background.TwitterAPI {
     }
   }
 
+  export async function getMultipleUsersByName(userNames: string[]): Promise<TwitterUser[]> {
+    if (userNames.length === 0) {
+      return []
+    }
+    if (userNames.length > 100) {
+      throw new Error('too many users! (> 100)')
+    }
+    const joinedNames = Array.from(new Set(userNames)).join(',')
+    const response = await requestAPI('get', '/users/lookup.json', {
+      screen_name: joinedNames,
+    })
+    if (response.ok) {
+      return response.json() as Promise<TwitterUser[]>
+    } else {
+      throw new Error('response is not ok')
+    }
+  }
+
   export async function getSingleUserByName(userName: string): Promise<TwitterUser> {
     const response = await requestAPI('get', '/users/show.json', {
       // user_id: user.id_str,

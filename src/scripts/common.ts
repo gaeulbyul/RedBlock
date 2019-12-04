@@ -58,7 +58,10 @@ class TwitterUserMap extends Map<string, TwitterUser> {
   public static fromUsersArray(users: TwitterUser[]): TwitterUserMap {
     return new TwitterUserMap(users.map((user): [string, TwitterUser] => [user.id_str, user]))
   }
-  public filter(fn: (user: TwitterUser) => boolean): TwitterUserMap {
+  public map<T>(fn: (user: TwitterUser, index: number, array: TwitterUser[]) => T): T[] {
+    return this.toUserArray().map(fn)
+  }
+  public filter(fn: (user: TwitterUser, index: number, array: TwitterUser[]) => boolean): TwitterUserMap {
     return TwitterUserMap.fromUsersArray(this.toUserArray().filter(fn))
   }
 }
@@ -119,6 +122,15 @@ async function collectAsync<T>(generator: AsyncIterableIterator<T>): Promise<T[]
     result.push(val)
   }
   return result
+}
+
+function formatNumber(input: unknown): string {
+  if (typeof input === 'number') {
+    const formatted = input.toLocaleString()
+    return `${formatted}`
+  } else {
+    return '??'
+  }
 }
 
 // namespace RedBlock.Content.Utils { }
