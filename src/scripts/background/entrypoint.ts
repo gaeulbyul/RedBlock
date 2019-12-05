@@ -24,6 +24,9 @@ namespace RedBlock.Background.Entrypoint {
       case 'friends':
         confirmMessage += `대상: @${targetUserName}의 팔로잉 ${targetUser.friends_count.toLocaleString()}명\n`
         break
+      case 'mutual-followers':
+        confirmMessage += `대상: @${targetUserName}의 맞팔로우 유저\n`
+        break
       default:
         throw new Error('unreachable')
     }

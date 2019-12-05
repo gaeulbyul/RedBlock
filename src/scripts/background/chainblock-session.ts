@@ -25,12 +25,13 @@ type Should = 'skip' | 'block' | 'already-blocked'
 const BLOCK_PROMISES_BUFFER_SIZE = 150
 
 namespace RedBlock.Background.ChainBlock {
+  const { SimpleScraper, MutualFollowerScraper } = RedBlock.Background.ChainBlock.Scraper
   export class ChainBlockSession extends EventEmitter<ChainBlockSessionEvents> {
     public readonly id: string
     private readonly _targetUser: Readonly<TwitterUser>
     private readonly _options: Readonly<ChainBlockSessionOptions>
     private _shouldStop = false
-    private _totalCount = 0
+    private _totalCount: number | null = 0
     private _limit: Limit | null = null
     private _status: ChainBlockSessionStatus = ChainBlockSessionStatus.Initial
     private readonly _progress: ChainBlockSessionProgress = {
@@ -56,6 +57,9 @@ namespace RedBlock.Background.ChainBlock {
         this._totalCount = init.targetUser.followers_count
       } else if (targetList === 'friends') {
         this._totalCount = init.targetUser.friends_count
+      } else if (targetList === 'mutual-followers') {
+        // 스크래핑 전 시점에선 정확히 몇 명인지 파악할 수 없음
+        this._totalCount = null
       } else {
         throw new Error('unreachable')
       }
@@ -121,6 +125,21 @@ namespace RedBlock.Background.ChainBlock {
       this.updateStatus(ChainBlockSessionStatus.Running)
       this.updateLimit(null)
     }
+    private initScraper(options: ChainBlockSessionOptions) {
+      switch (options.targetList) {
+        case 'friends':
+          return new SimpleScraper('friends')
+          break
+        case 'followers':
+          return new SimpleScraper('followers')
+          break
+        case 'mutual-followers':
+          return new MutualFollowerScraper()
+          break
+        default:
+          throw new Error('unreachable')
+      }
+    }
     private whatToDoGivenUser(follower: TwitterUser): Should {
       // TODO: should also use friendships/outgoing api
       // for replace follow_request_sent prop
@@ -160,9 +179,10 @@ namespace RedBlock.Background.ChainBlock {
       try {
         const blockPromises: Promise<void>[] = []
         let stopped = false
-        const followTarget = this._options.targetList
-        const followersIterator = TwitterAPI.getAllFollowsUserList(followTarget, this.targetUser)
-        for await (const maybeFollower of followersIterator) {
+        const scraper = this.initScraper(this.options)
+        // const followersIterator = TwitterAPI.getAllFollowsUserList(followTarget, this.targetUser)
+        const userScraper = scraper.scrape(this.targetUser)
+        for await (const maybeFollower of userScraper) {
           if (this._shouldStop) {
             stopped = true
             blockPromises.length = 0

@@ -198,7 +198,8 @@ interface ChainBlockSessionInit {
 }
 
 interface ChainBlockSessionOptions {
-  targetList: 'followers' | 'friends' // | 'mutual-followers'
+  targetList: FollowKind | 'mutual-followers'
+  // quickMode: boolean
   myFollowers: 'skip' | 'block'
   myFollowings: 'skip' | 'block'
   saveTargetUser: boolean

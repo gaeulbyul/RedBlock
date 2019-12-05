@@ -176,6 +176,16 @@ namespace RedBlock.Popup.UI {
               />
               <span>팔로잉 {formatNumber(user.friends_count)}명</span>
             </label>
+            <label>
+              <input
+                type="radio"
+                checked={targetList === 'mutual-followers'}
+                onChange={() => mutateOptions({ targetList: 'mutual-followers' })}
+              />
+              <span>
+                맞팔로우만<sup>&beta;</sup>
+              </span>
+            </label>
           </div>
         </div>
       </div>
@@ -214,6 +224,12 @@ namespace RedBlock.Popup.UI {
             <label>
               <input disabled type="radio" />
               <span>팔로잉 ?명</span>
+            </label>
+            <label>
+              <input disabled type="radio" />
+              <span>
+                맞팔로우만<sup>&beta;</sup>
+              </span>
             </label>
           </div>
         </div>
@@ -422,16 +438,15 @@ namespace RedBlock.Popup.UI {
       return statusMessage
     }
     private renderText({ progress, status }: ChainBlockSessionInfo) {
-      const sep = ' / '
       const statusMessage = this.statusToString(status)
       return (
         <div>
           <small>
-            {statusMessage} {sep}
-            <b>차단: {progress.blockSuccess.toLocaleString()}</b> {sep}
-            이미 차단함: {progress.alreadyBlocked.toLocaleString()} {sep}
-            스킵: {progress.skipped.toLocaleString()} {sep}
-            실패: {progress.blockFail.toLocaleString()}
+            {statusMessage} {' / '}
+            <b>차단: {progress.blockSuccess.toLocaleString()}</b>
+            {progress.alreadyBlocked > 0 && ` / 이미 차단함: ${progress.alreadyBlocked.toLocaleString()}`}
+            {progress.skipped > 0 && ` / 스킵: ${progress.skipped.toLocaleString()}`}
+            {progress.blockFail > 0 && ` / 실패: ${progress.blockFail.toLocaleString()}`}
           </small>
         </div>
       )
@@ -497,7 +512,14 @@ namespace RedBlock.Popup.UI {
                         {user.name}
                       </div>
                       <div className="username" title={'@' + user.screen_name}>
-                        @{user.screen_name}
+                        <a
+                          target="_blank"
+                          rel="noopener noreferer"
+                          href={`https://twitter.com/${user.screen_name}`}
+                          title={`https://twitter.com/${user.screen_name} 로 이동`}
+                        >
+                          @{user.screen_name}
+                        </a>
                       </div>
                       {this.renderText(session)}
                     </div>
