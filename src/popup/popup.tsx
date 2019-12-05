@@ -47,6 +47,7 @@ namespace RedBlock.Popup.UI {
       return 0
     }
   }
+
   function renderProfileImageWithProgress(session: ChainBlockSessionInfo) {
     const {
       target: { user },
@@ -96,6 +97,39 @@ namespace RedBlock.Popup.UI {
       </svg>
     )
   }
+
+  function TargetSavedUsers(props: {
+    currentUser: TwitterUser | null
+    savedUsers: TwitterUserMap
+    changeUser: (userName: string) => Promise<void>
+  }) {
+    const { currentUser, savedUsers, changeUser } = props
+    const currentUserOption = ({ screen_name, name }: TwitterUser) => (
+      <optgroup label="현재 유저">
+        <option value={screen_name}>
+          @{screen_name} &lt;{name}&gt;
+        </option>
+      </optgroup>
+    )
+    const noUserOption = <option value="???">체인블락을 실행할 사용자를 선택해주세요.</option>
+    const sortedByName = (usersMap: TwitterUserMap): TwitterUser[] =>
+      _.sortBy(usersMap.toUserArray(), user => user.screen_name.toLowerCase())
+    return (
+      <div className="chainblock-saved-target">
+        <select className="chainblock-saved-select" onChange={event => changeUser(event.target.value)}>
+          {currentUser ? currentUserOption(currentUser) : noUserOption}
+          <optgroup label="저장한 유저">
+            {sortedByName(savedUsers).map(({ screen_name, name }, index) => (
+              <option key={index} value={screen_name}>
+                @{screen_name} &lt;{name}&gt;
+              </option>
+            ))}
+          </optgroup>
+        </select>
+      </div>
+    )
+  }
+
   function TargetUserProfile(props: {
     user: TwitterUser
     options: ChainBlockSessionOptions
@@ -129,8 +163,6 @@ namespace RedBlock.Popup.UI {
             <label>
               <input
                 type="radio"
-                name="chainblock-target"
-                value="followers"
                 checked={targetList === 'followers'}
                 onChange={() => mutateOptions({ targetList: 'followers' })}
               />
@@ -139,8 +171,6 @@ namespace RedBlock.Popup.UI {
             <label>
               <input
                 type="radio"
-                name="chainblock-target"
-                value="friends"
                 checked={targetList === 'friends'}
                 onChange={() => mutateOptions({ targetList: 'friends' })}
               />
@@ -152,7 +182,18 @@ namespace RedBlock.Popup.UI {
     )
   }
 
-  function TargetUserProfileEmpty() {
+  function TargetUserProfileEmpty(props: { reason: 'invalid-user' | 'loading' }) {
+    const strs: { [key: string]: string } = {}
+    switch (props.reason) {
+      case 'invalid-user':
+        strs.nickname = '???'
+        strs.username = '???'
+        break
+      case 'loading':
+        strs.nickname = '로딩중'
+        strs.username = 'loading...'
+        break
+    }
     return (
       <div className="target-user-info">
         <div className="profile-image-area">
@@ -160,9 +201,9 @@ namespace RedBlock.Popup.UI {
         </div>
         <div className="profile-right-area">
           <div className="profile-right-info">
-            <div className="nickname">???</div>
+            <div className="nickname">{strs.nickname}</div>
             <div className="username">
-              <a target="_blank">@???</a>
+              <a target="_blank">@{strs.username}</a>
             </div>
           </div>
           <div className="profile-right-targetlist">
@@ -230,11 +271,7 @@ namespace RedBlock.Popup.UI {
     )
   }
 
-  interface NewChainBlockPageProps {
-    currentUser: TwitterUser | null
-  }
-
-  function NewChainBlockPage(props: NewChainBlockPageProps) {
+  function NewChainBlockPage(props: { currentUser: TwitterUser | null }) {
     const { currentUser } = props
     const [options, setOptions] = React.useState<ChainBlockSessionOptions>({
       targetList: 'followers',
@@ -244,6 +281,7 @@ namespace RedBlock.Popup.UI {
     })
     const [selectedUser, selectUser] = React.useState<TwitterUser | null>(currentUser)
     const [savedUsers, setSavedUsers] = React.useState(new TwitterUserMap())
+    const [isLoading, setLoadingState] = React.useState(false)
     React.useEffect(() => {
       async function loadUsers() {
         const users = await Storage.loadUsers()
@@ -261,7 +299,6 @@ namespace RedBlock.Popup.UI {
     }, [savedUsers, selectedUser])
     function mutateOptions(newOptionsPart: Partial<ChainBlockSessionOptions>) {
       const newOptions = { ...options, ...newOptionsPart }
-      // console.dir({ options, newOptions })
       setOptions(newOptions)
     }
     function toggleSaveState() {
@@ -280,47 +317,32 @@ namespace RedBlock.Popup.UI {
         selectUser(null)
         return
       }
-      const newUser = await TwitterAPI.getSingleUserByName(userName.replace(/^@/, '')).catch(() => null)
-      if (newUser) {
-        selectUser(newUser)
-      } else {
-        window.alert(`사용자 @${userName}을 찾을 수 없습니다.`)
-        selectUser(null)
+      try {
+        setLoadingState(true)
+        const newUser = await TwitterAPI.getSingleUserByName(userName.replace(/^@/, '')).catch(() => null)
+        if (newUser) {
+          selectUser(newUser)
+        } else {
+          window.alert(`사용자 @${userName}을 찾을 수 없습니다.`)
+          selectUser(null)
+        }
+      } finally {
+        setLoadingState(false)
       }
     }
-    // <input type="text" onChange={event => {setUserName(event.target.value)}} value={userName} />
-    const currentUserOption = ({ screen_name, name }: TwitterUser) => (
-      <optgroup label="현재 유저">
-        <option value={screen_name}>
-          @{screen_name} &lt;{name}&gt;
-        </option>
-      </optgroup>
-    )
-    const noUserOption = <option value="???">체인블락을 실행할 사용자를 선택해주세요.</option>
-    const sortedByName = (usersMap: TwitterUserMap): TwitterUser[] =>
-      _.sortBy(usersMap.toUserArray(), user => user.screen_name.toLowerCase())
     return (
       <div>
         <div className="chainblock-target">
-          <fieldset className="chainblock-opt" disabled={selectedUser == null}>
+          <fieldset className="chainblock-opt">
             <legend>차단 대상</legend>
-            <div className="chainblock-saved-target">
-              <select className="chainblock-saved-select" onChange={event => changeUser(event.target.value)}>
-                {currentUser ? currentUserOption(currentUser) : noUserOption}
-                <optgroup label="저장한 유저">
-                  {sortedByName(savedUsers).map(({ screen_name, name }, index) => (
-                    <option key={index} value={screen_name}>
-                      @{screen_name} &lt;{name}&gt;
-                    </option>
-                  ))}
-                </optgroup>
-              </select>
-            </div>
+            <TargetSavedUsers currentUser={currentUser} savedUsers={savedUsers} changeUser={changeUser} />
             <hr />
-            {selectedUser ? (
+            {isLoading ? (
+              <TargetUserProfileEmpty reason="loading" />
+            ) : selectedUser ? (
               <TargetUserProfile options={options} mutateOptions={mutateOptions} user={selectedUser} />
             ) : (
-              <TargetUserProfileEmpty />
+              <TargetUserProfileEmpty reason="invalid-user" />
             )}
           </fieldset>
           <fieldset className="chainblock-opt" disabled={selectedUser == null}>
@@ -490,11 +512,7 @@ namespace RedBlock.Popup.UI {
     }
   }
 
-  interface PopupAppProps {
-    currentUser: TwitterUser | null
-  }
-
-  function PopupApp(props: PopupAppProps) {
+  function PopupApp(props: { currentUser: TwitterUser | null }) {
     const { Tabs, TabList, Tab, TabPanel } = ReactTabs
     const { currentUser } = props
     return (
