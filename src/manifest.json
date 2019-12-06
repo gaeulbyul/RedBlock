@@ -2,7 +2,7 @@
   "manifest_version": 2,
   "name": "Red Block",
   "author": "Gaeulbyul <aeiou256@gmail.com>",
-  "version": "0.2.2",
+  "version": "0.3.0",
   "homepage_url": "https://github.com/gaeulbyul/RedBlock",
   "description": "해로운 사용자를 대응하기 위한 새로운 차단 확장기능",
   "icons": {
