@@ -125,16 +125,16 @@ namespace RedBlock.Background.ChainBlock {
       this.updateStatus(ChainBlockSessionStatus.Running)
       this.updateLimit(null)
     }
-    private initScraper(options: ChainBlockSessionOptions) {
+    private initScraper(user: TwitterUser, options: ChainBlockSessionOptions) {
       switch (options.targetList) {
         case 'friends':
-          return new SimpleScraper('friends')
+          return new SimpleScraper(user, 'friends')
           break
         case 'followers':
-          return new SimpleScraper('followers')
+          return new SimpleScraper(user, 'followers')
           break
         case 'mutual-followers':
-          return new MutualFollowerScraper()
+          return new MutualFollowerScraper(user)
           break
         default:
           throw new Error('unreachable')
@@ -179,10 +179,12 @@ namespace RedBlock.Background.ChainBlock {
       try {
         const blockPromises: Promise<void>[] = []
         let stopped = false
-        const scraper = this.initScraper(this.options)
-        // const followersIterator = TwitterAPI.getAllFollowsUserList(followTarget, this.targetUser)
-        const userScraper = scraper.scrape(this.targetUser)
+        const scraper = this.initScraper(this.targetUser, this.options)
+        const userScraper = scraper.scrape()
         for await (const maybeFollower of userScraper) {
+          if (this.totalCount === null) {
+            this._totalCount = scraper.totalCount
+          }
           if (this._shouldStop) {
             stopped = true
             blockPromises.length = 0

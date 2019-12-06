@@ -141,11 +141,8 @@ namespace RedBlock.Background.TwitterAPI {
     return mutualIds
   }
 
-  export async function* getAllMutualFollowersUsersList(
-    user: TwitterUser
-  ): AsyncIterableIterator<Either<Error, TwitterUser>> {
-    const mutualIds = await getAllMutualFollowersIds(user)
-    const chunks = _.chunk(mutualIds, 100)
+  export async function* lookupUsersByIds(userIds: string[]): AsyncIterableIterator<Either<Error, TwitterUser>> {
+    const chunks = _.chunk(userIds, 100)
     for (const chunk of chunks) {
       const mutualUsers = await getMultipleUsersById(chunk)
       yield* mutualUsers.map(user => ({
