@@ -124,9 +124,10 @@ async function collectAsync<T>(generator: AsyncIterableIterator<T>): Promise<T[]
   return result
 }
 
-function formatNumber(input: unknown): string {
+function formatNumber(input: unknown, quick = false): string {
   if (typeof input === 'number') {
-    const formatted = input.toLocaleString()
+    const count = quick ? Math.min(input, 200) : input
+    const formatted = count.toLocaleString()
     return `${formatted}`
   } else {
     return '??'

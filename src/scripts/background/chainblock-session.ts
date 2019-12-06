@@ -25,7 +25,7 @@ type Should = 'skip' | 'block' | 'already-blocked'
 const BLOCK_PROMISES_BUFFER_SIZE = 150
 
 namespace RedBlock.Background.ChainBlock {
-  const { SimpleScraper, MutualFollowerScraper } = RedBlock.Background.ChainBlock.Scraper
+  const { SimpleScraper, QuickScraper, MutualFollowerScraper } = RedBlock.Background.ChainBlock.Scraper
   export class ChainBlockSession extends EventEmitter<ChainBlockSessionEvents> {
     public readonly id: string
     private readonly _targetUser: Readonly<TwitterUser>
@@ -126,12 +126,13 @@ namespace RedBlock.Background.ChainBlock {
       this.updateLimit(null)
     }
     private initScraper(user: TwitterUser, options: ChainBlockSessionOptions) {
+      const scraper = options.quickMode ? QuickScraper : SimpleScraper
       switch (options.targetList) {
         case 'friends':
-          return new SimpleScraper(user, 'friends')
+          return new scraper(user, 'friends')
           break
         case 'followers':
-          return new SimpleScraper(user, 'followers')
+          return new scraper(user, 'followers')
           break
         case 'mutual-followers':
           return new MutualFollowerScraper(user)

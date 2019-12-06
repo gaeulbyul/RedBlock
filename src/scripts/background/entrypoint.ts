@@ -10,6 +10,7 @@ namespace RedBlock.Background.Entrypoint {
       myFollowers: 'skip',
       myFollowings: 'skip',
       saveTargetUser: false,
+      quickMode: false,
       targetList,
     })
   }
@@ -19,10 +20,16 @@ namespace RedBlock.Background.Entrypoint {
     confirmMessage += '--------------------\n'
     switch (options.targetList) {
       case 'followers':
-        confirmMessage += `대상: @${targetUserName}의 팔로워 ${targetUser.followers_count.toLocaleString()}명\n`
+        confirmMessage += `대상: @${targetUserName}의 팔로워 ${formatNumber(
+          targetUser.followers_count,
+          options.quickMode
+        )}명\n`
         break
       case 'friends':
-        confirmMessage += `대상: @${targetUserName}의 팔로잉 ${targetUser.friends_count.toLocaleString()}명\n`
+        confirmMessage += `대상: @${targetUserName}의 팔로잉 ${formatNumber(
+          targetUser.friends_count,
+          options.quickMode
+        )}명\n`
         break
       case 'mutual-followers':
         confirmMessage += `대상: @${targetUserName}의 맞팔로우 유저\n`

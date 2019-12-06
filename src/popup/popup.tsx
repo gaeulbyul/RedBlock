@@ -6,7 +6,6 @@ namespace RedBlock.Popup {
       userName,
       options,
     })
-    window.close()
   }
 
   export async function getCurrentTab(): Promise<Tab | null> {
@@ -36,7 +35,6 @@ namespace RedBlock.Popup.UI {
 
   function calculatePercentage(session: ChainBlockSessionInfo): number {
     const { target, progress, status } = session
-    // const isInitial = status === ChainBlockSessionStatus.Initial
     const isCompleted = status === ChainBlockSessionStatus.Completed
     const max = (isCompleted ? progress.totalScraped : target.totalCount) || undefined
     if (isCompleted) {
@@ -136,7 +134,7 @@ namespace RedBlock.Popup.UI {
     mutateOptions: (part: Partial<ChainBlockSessionOptions>) => void
   }) {
     const { user, options, mutateOptions } = props
-    const { targetList } = options
+    const { targetList, quickMode } = options
     const biggerProfileImageUrl = user.profile_image_url_https.replace('_normal', '_bigger')
     return (
       <div className="target-user-info">
@@ -166,7 +164,9 @@ namespace RedBlock.Popup.UI {
                 checked={targetList === 'followers'}
                 onChange={() => mutateOptions({ targetList: 'followers' })}
               />
-              <span>팔로워 {formatNumber(user.followers_count)}명</span>
+              <span title="상대방을 팔로우하는 사용자를 차단합니다.">
+                팔로워 {formatNumber(user.followers_count, quickMode)}명
+              </span>
             </label>
             <label>
               <input
@@ -174,16 +174,31 @@ namespace RedBlock.Popup.UI {
                 checked={targetList === 'friends'}
                 onChange={() => mutateOptions({ targetList: 'friends' })}
               />
-              <span>팔로잉 {formatNumber(user.friends_count)}명</span>
+              <span title="상대방이 팔로우하는 사용자를 차단합니다.">
+                팔로잉 {formatNumber(user.friends_count, quickMode)}명
+              </span>
             </label>
+            <br />
             <label>
               <input
                 type="radio"
                 checked={targetList === 'mutual-followers'}
                 onChange={() => mutateOptions({ targetList: 'mutual-followers' })}
               />
-              <span>
+              <span title="상대방과 맞팔로우한 사용자만 추려서 차단합니다.">
                 맞팔로우만<sup>&beta;</sup>
+              </span>
+            </label>
+            <hr />
+            <label>
+              <input
+                type="checkbox"
+                checked={quickMode}
+                disabled={targetList === 'mutual-followers'}
+                onChange={() => mutateOptions({ quickMode: !quickMode })}
+              />
+              <span title="퀵 모드: 최대 200명 이하의 사용자를 대상으로 합니다. 최근에 해당 사용자에게 체인블락을 실행하였으나 이후에 새로 생긴 팔로워를 더 빠르게 차단하기 위해 고안한 기능입니다.">
+                퀵 모드<sup>&beta;</sup>
               </span>
             </label>
           </div>
@@ -193,48 +208,16 @@ namespace RedBlock.Popup.UI {
   }
 
   function TargetUserProfileEmpty(props: { reason: 'invalid-user' | 'loading' }) {
-    const strs: { [key: string]: string } = {}
+    let message = ''
     switch (props.reason) {
       case 'invalid-user':
-        strs.nickname = '???'
-        strs.username = '???'
+        message = '사용자를 선택해주세요.'
         break
       case 'loading':
-        strs.nickname = '로딩중'
-        strs.username = 'loading...'
+        message = '로딩 중...'
         break
     }
-    return (
-      <div className="target-user-info">
-        <div className="profile-image-area">
-          <img alt="프로필이미지" className="profile-image" />
-        </div>
-        <div className="profile-right-area">
-          <div className="profile-right-info">
-            <div className="nickname">{strs.nickname}</div>
-            <div className="username">
-              <a target="_blank">@{strs.username}</a>
-            </div>
-          </div>
-          <div className="profile-right-targetlist">
-            <label>
-              <input disabled type="radio" />
-              <span>팔로워 ?명</span>
-            </label>
-            <label>
-              <input disabled type="radio" />
-              <span>팔로잉 ?명</span>
-            </label>
-            <label>
-              <input disabled type="radio" />
-              <span>
-                맞팔로우만<sup>&beta;</sup>
-              </span>
-            </label>
-          </div>
-        </div>
-      </div>
-    )
+    return <div>{message}</div>
   }
 
   function TargetListOptions(props: {
@@ -294,6 +277,7 @@ namespace RedBlock.Popup.UI {
       myFollowers: 'skip',
       myFollowings: 'skip',
       saveTargetUser: false,
+      quickMode: false,
     })
     const [selectedUser, selectUser] = React.useState<TwitterUser | null>(currentUser)
     const [savedUsers, setSavedUsers] = React.useState(new TwitterUserMap())

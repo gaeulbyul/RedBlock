@@ -30,6 +30,11 @@ hr {
   border-bottom: 0;
 }
 
+input[type='checkbox'],
+input[type='radio'] {
+  margin: 0 0.2rem 0 0;
+}
+
 .ellipsis {
   overflow: hidden;
   white-space: nowrap;
@@ -37,14 +42,10 @@ hr {
 }
 
 .whole {
-  width: 500px;
+  width: 450px;
   padding: 0;
   margin: 0 auto;
   background-color: white;
-}
-
-.whole input[type='radio'] {
-  margin: 0 0.2rem 0 0;
 }
 
 .react-tabs {
@@ -79,6 +80,7 @@ hr {
 
 .profile-right-area {
   overflow: hidden;
+  width: 100%;
   line-height: 150%;
 }
 
@@ -96,12 +98,14 @@ hr {
   margin-top: 10px;
 }
 
-.profile-right-targetlist > label:not(:first-of-type) {
-  margin-left: 10px;
+.profile-right-targetlist > label {
+  display: inline-block;
+  margin-right: 10px;
 }
 
 .profile-image {
   width: 60px;
+  max-width: 60px;
   border-radius: 50%;
 }
 
@@ -130,7 +134,7 @@ fieldset.chainblock-subopt {
   color: #333;
 }
 
-.chainblock-target label input:checked ~ span {
+.chainblock-target label input:checked:not(:disabled) ~ span {
   font-weight: bold;
   color: #000;
 }
