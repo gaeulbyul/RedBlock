@@ -296,28 +296,4 @@ namespace RedBlock.Background.TwitterAPI {
     }
     return response
   }
-  export function dummyUser(): TwitterUser {
-    const rand = () =>
-      Math.random()
-        .toString(10)
-        .slice(2)
-    const id_str = rand()
-    return {
-      id_str,
-      screen_name: 'dummyUser',
-      created_at: 'Invalid Date?',
-      name: `(DUMMY) ID:${id_str}`,
-      description: `(DUMMY USER) ID:${id_str}`,
-      profile_image_url_https: 'https://abs.twimg.com/sticky/default_profile_images/default_profile_bigger.png',
-      verified: false,
-      protected: false,
-      blocked_by: false,
-      blocking: true,
-      muting: false,
-      following: false,
-      followed_by: false,
-      followers_count: 2438,
-      friends_count: 32553,
-    }
-  }
 }

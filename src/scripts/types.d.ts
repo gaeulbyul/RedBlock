@@ -11,6 +11,7 @@ interface TwitterUser {
   // 1st-party API에선 이 속성이 안 지워진듯. 따라서 그냥 사용한다.
   following: boolean
   followed_by: boolean
+  follow_request_sent: boolean
   friends_count: number
   followers_count: number
   protected: boolean
@@ -18,11 +19,6 @@ interface TwitterUser {
   created_at: string // datetime example: 'Sun Jun 29 05:52:09 +0000 2014'
   description: string
   profile_image_url_https: string
-}
-
-interface TwitterUserWithDeprecatedProps extends TwitterUser {
-  following: boolean
-  follow_request_sent: boolean
 }
 
 interface TwitterUserEntities {

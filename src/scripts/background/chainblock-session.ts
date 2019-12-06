@@ -141,13 +141,11 @@ namespace RedBlock.Background.ChainBlock {
       }
     }
     private whatToDoGivenUser(follower: TwitterUser): Should {
-      // TODO: should also use friendships/outgoing api
-      // for replace follow_request_sent prop
       if (follower.blocking) {
         return 'already-blocked'
       }
       const options = this._options
-      const isMyFollowing = follower.following
+      const isMyFollowing = follower.following || follower.follow_request_sent
       const isMyFollower = follower.followed_by
       const isMyMutualFollower = isMyFollower && isMyFollowing
       if (isMyMutualFollower) {
