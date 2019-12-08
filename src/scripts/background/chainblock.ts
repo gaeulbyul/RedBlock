@@ -86,6 +86,15 @@ namespace RedBlock.Background.ChainBlock {
       session.stop()
       this.sessions.delete(sessionId)
     }
+    public stopAll() {
+      const sessions = this.sessions.values()
+      for (const session of sessions) {
+        if (session.status === ChainBlockSessionStatus.Stopped) {
+          continue
+        }
+        session.stop()
+      }
+    }
     public async start(sessionId: string) {
       const session = this.sessions.get(sessionId)
       if (session) {

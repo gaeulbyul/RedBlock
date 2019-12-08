@@ -136,6 +136,10 @@ interface RBStopAction {
   sessionId: string
 }
 
+interface RBStopAllAction {
+  action: Action.StopAllChainBlock
+}
+
 interface RBConnectToBackgroundAction {
   action: Action.ConnectToBackground
 }
@@ -151,6 +155,7 @@ interface RBRequestProgress {
 type RBAction =
   | RBStartAction
   | RBStopAction
+  | RBStopAllAction
   | RBConnectToBackgroundAction
   | RBDisconnectToBackgroundAction
   | RBRequestProgress

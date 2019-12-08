@@ -201,6 +201,24 @@ fieldset.chainblock-subopt {
   filter: none;
 }
 
+.chainblock-globalcontrols {
+  display: flex;
+}
+
+.chainblock-globalcontrols button {
+  margin-right: 5px;
+  padding: 5px;
+  width: 80px;
+  border: 2px solid #333;
+  background-color: transparent;
+  cursor: pointer;
+}
+
+.chainblock-globalcontrols button:hover {
+  background-color: #333;
+  color: white;
+}
+
 .chainblock-sessions .session {
   border: 1px solid #ccc;
   border-radius: 5px;

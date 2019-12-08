@@ -472,6 +472,20 @@ namespace RedBlock.Popup.UI {
         </div>
       )
     }
+    private renderGlobalControls() {
+      function requestStopAllChainBlock() {
+        browser.runtime.sendMessage<RBStopAllAction>({
+          action: Action.StopAllChainBlock,
+        })
+      }
+      return (
+        <div className="chainblock-globalcontrols">
+          <button type="button" onClick={requestStopAllChainBlock}>
+            모두 정지
+          </button>
+        </div>
+      )
+    }
     render() {
       // const emptySessions = this.state.sessions.length <= 0
       // if (emptySessions) {
@@ -482,37 +496,41 @@ namespace RedBlock.Popup.UI {
       //   )
       // }
       return (
-        <div className="chainblock-sessions">
-          {this.state.sessions.map(session => {
-            const { target } = session
-            const { user } = target
-            return (
-              <div className="session" key={session.sessionId}>
-                <div className="target-user-info">
-                  <div className="profile-image-area">{renderProfileImageWithProgress(session)}</div>
-                  <div className="profile-right-area">
-                    <div className="profile-right-info">
-                      <div className="ellipsis nickname" title={user.name}>
-                        {user.name}
+        <div>
+          {this.renderGlobalControls()}
+          <hr />
+          <div className="chainblock-sessions">
+            {this.state.sessions.map(session => {
+              const { target } = session
+              const { user } = target
+              return (
+                <div className="session" key={session.sessionId}>
+                  <div className="target-user-info">
+                    <div className="profile-image-area">{renderProfileImageWithProgress(session)}</div>
+                    <div className="profile-right-area">
+                      <div className="profile-right-info">
+                        <div className="ellipsis nickname" title={user.name}>
+                          {user.name}
+                        </div>
+                        <div className="username" title={'@' + user.screen_name}>
+                          <a
+                            target="_blank"
+                            rel="noopener noreferer"
+                            href={`https://twitter.com/${user.screen_name}`}
+                            title={`https://twitter.com/${user.screen_name} 로 이동`}
+                          >
+                            @{user.screen_name}
+                          </a>
+                        </div>
+                        {this.renderText(session)}
                       </div>
-                      <div className="username" title={'@' + user.screen_name}>
-                        <a
-                          target="_blank"
-                          rel="noopener noreferer"
-                          href={`https://twitter.com/${user.screen_name}`}
-                          title={`https://twitter.com/${user.screen_name} 로 이동`}
-                        >
-                          @{user.screen_name}
-                        </a>
-                      </div>
-                      {this.renderText(session)}
                     </div>
                   </div>
+                  {this.renderControls(session)}
                 </div>
-                {this.renderControls(session)}
-              </div>
-            )
-          })}
+              )
+            })}
+          </div>
         </div>
       )
     }

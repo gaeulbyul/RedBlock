@@ -91,6 +91,9 @@ namespace RedBlock.Background.Entrypoint {
   async function stopChainBlock(sessionId: string) {
     chainblocker.stop(sessionId)
   }
+  async function stopAllChainBlock() {
+    chainblocker.stopAll()
+  }
   async function sendChainBlockerInfoToTabs() {
     const infos = chainblocker.getAllSessionsProgress()
     for (const tabId of tabConnections) {
@@ -122,6 +125,11 @@ namespace RedBlock.Background.Entrypoint {
             {
               const { sessionId } = message
               stopChainBlock(sessionId).then(sendChainBlockerInfoToTabs)
+            }
+            break
+          case Action.StopAllChainBlock:
+            {
+              stopAllChainBlock()
             }
             break
           case Action.RequestProgress:

@@ -1,6 +1,7 @@
 const enum Action {
   StartChainBlock = 'RedBlock/Start',
   StopChainBlock = 'RedBlock/Stop',
+  StopAllChainBlock = 'RedBlock/StopAll',
   RequestProgress = 'RedBlock/RequestProgress',
   ConnectToBackground = 'RedBlock/ConnectToBackground',
   DisconnectToBackground = 'RedBlock/DisconnectToBackground',
