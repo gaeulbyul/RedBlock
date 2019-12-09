@@ -1,0 +1,318 @@
+namespace RedBlock.Popup.UI.Pages.NewChainBlock {
+  const { TwitterAPI, Storage } = RedBlock.Background
+  function TargetSavedUsers(props: {
+    currentUser: TwitterUser | null
+    selectedUser: TwitterUser | null
+    savedUsers: TwitterUserMap
+    changeUser: (userName: string) => Promise<void>
+  }) {
+    const { currentUser, selectedUser, savedUsers, changeUser } = props
+    async function saveUser() {
+      if (selectedUser) {
+        return saveUserToStorage(selectedUser)
+      }
+    }
+    async function removeUser() {
+      if (selectedUser) {
+        return removeUserFromStorage(selectedUser)
+      }
+    }
+    const currentUserOption = ({ screen_name, name }: TwitterUser) => (
+      <optgroup label="현재 유저">
+        <option value={screen_name}>
+          @{screen_name} &lt;{name}&gt;
+        </option>
+      </optgroup>
+    )
+    const sortedByName = (usersMap: TwitterUserMap): TwitterUser[] =>
+      _.sortBy(usersMap.toUserArray(), user => user.screen_name.toLowerCase())
+    return (
+      <div className="chainblock-saved-target">
+        <select
+          className="chainblock-saved-select"
+          value={selectedUser ? selectedUser.screen_name : '???'}
+          onChange={event => changeUser(event.target.value)}
+        >
+          <option value="???">체인블락을 실행할 사용자를 선택해주세요.</option>
+          {currentUser && currentUserOption(currentUser)}
+          <optgroup label="저장한 유저">
+            {sortedByName(savedUsers).map(({ screen_name, name }, index) => (
+              <option key={index} value={screen_name}>
+                @{screen_name} &lt;{name}&gt;
+              </option>
+            ))}
+          </optgroup>
+        </select>
+        {selectedUser && (
+          <div className="controls">
+            <button type="button" onClick={saveUser}>
+              저장하기
+            </button>
+            <button type="button" onClick={removeUser}>
+              제거하기
+            </button>
+          </div>
+        )}
+      </div>
+    )
+  }
+
+  function TargetUserProfile(props: {
+    user: TwitterUser
+    isAvailable: boolean
+    options: ChainBlockSessionOptions
+    mutateOptions: (part: Partial<ChainBlockSessionOptions>) => void
+  }) {
+    const { user, isAvailable, options, mutateOptions } = props
+    const { targetList, quickMode } = options
+    const biggerProfileImageUrl = user.profile_image_url_https.replace('_normal', '_bigger')
+    return (
+      <div className="target-user-info">
+        <div className="profile-image-area">
+          <img alt="프로필이미지" className="profile-image" src={biggerProfileImageUrl} />
+        </div>
+        <div className="profile-right-area">
+          <div className="profile-right-info">
+            <div className="nickname" title={user.name}>
+              {user.name}
+            </div>
+            <div className="username">
+              <a
+                target="_blank"
+                rel="noopener noreferer"
+                href={`https://twitter.com/${user.screen_name}`}
+                title={`https://twitter.com/${user.screen_name} 로 이동`}
+              >
+                @{user.screen_name}
+              </a>
+            </div>
+          </div>
+          {isAvailable || (
+            <div className="profile-blocked">
+              {user.protected && '\u{1f512} 프로텍트가 걸려있어 체인블락을 할 수 없습니다.'}
+              {user.blocked_by && '\u26d4 해당 사용자에게 차단당하여 체인블락을 할 수 없습니다.'}
+            </div>
+          )}
+          <div className="profile-right-targetlist">
+            <label>
+              <input
+                type="radio"
+                disabled={!isAvailable}
+                checked={targetList === 'followers'}
+                onChange={() => mutateOptions({ targetList: 'followers' })}
+              />
+              <span title="상대방을 팔로우하는 사용자를 차단합니다.">
+                팔로워 {formatNumber(user.followers_count, quickMode)}명
+              </span>
+            </label>
+            <label>
+              <input
+                type="radio"
+                disabled={!isAvailable}
+                checked={targetList === 'friends'}
+                onChange={() => mutateOptions({ targetList: 'friends' })}
+              />
+              <span title="상대방이 팔로우하는 사용자를 차단합니다.">
+                팔로잉 {formatNumber(user.friends_count, quickMode)}명
+              </span>
+            </label>
+            <br />
+            <label>
+              <input
+                type="radio"
+                disabled={!isAvailable}
+                checked={targetList === 'mutual-followers'}
+                onChange={() => mutateOptions({ targetList: 'mutual-followers' })}
+              />
+              <span title="상대방과 맞팔로우한 사용자만 추려서 차단합니다.">
+                맞팔로우만<sup>&beta;</sup>
+              </span>
+            </label>
+            <hr />
+            <label>
+              <input
+                type="checkbox"
+                disabled={!isAvailable || targetList === 'mutual-followers'}
+                checked={quickMode}
+                onChange={() => mutateOptions({ quickMode: !quickMode })}
+              />
+              <span title="퀵 모드: 최대 200명 이하의 사용자를 대상으로 합니다. 최근에 해당 사용자에게 체인블락을 실행하였으나 이후에 새로 생긴 팔로워를 더 빠르게 차단하기 위해 고안한 기능입니다.">
+                퀵 모드<sup>&beta;</sup>
+              </span>
+            </label>
+          </div>
+        </div>
+      </div>
+    )
+  }
+
+  function TargetUserProfileEmpty(props: { reason: 'invalid-user' | 'loading' }) {
+    let message = ''
+    switch (props.reason) {
+      case 'invalid-user':
+        message = '사용자를 선택해주세요.'
+        break
+      case 'loading':
+        message = '로딩 중...'
+        break
+    }
+    return <div>{message}</div>
+  }
+
+  function TargetListOptions(props: {
+    options: ChainBlockSessionOptions
+    mutateOptions: (part: Partial<ChainBlockSessionOptions>) => void
+  }) {
+    const { options, mutateOptions } = props
+    const { myFollowers, myFollowings } = options
+    return (
+      <React.Fragment>
+        <fieldset className="chainblock-subopt">
+          <legend>내 팔로워</legend>
+          <label>
+            <input
+              type="radio"
+              checked={myFollowers === 'skip'}
+              onChange={() => mutateOptions({ myFollowers: 'skip' })}
+            />
+            <span>냅두기</span>
+          </label>
+          <label>
+            <input
+              type="radio"
+              checked={myFollowers === 'block'}
+              onChange={() => mutateOptions({ myFollowers: 'block' })}
+            />
+            <span>차단하기</span>
+          </label>
+        </fieldset>
+        <fieldset className="chainblock-subopt">
+          <legend>내 팔로잉</legend>
+          <label>
+            <input
+              type="radio"
+              checked={myFollowings === 'skip'}
+              onChange={() => mutateOptions({ myFollowings: 'skip' })}
+            />
+            <span>냅두기</span>
+          </label>
+          <label>
+            <input
+              type="radio"
+              checked={myFollowings === 'block'}
+              onChange={() => mutateOptions({ myFollowings: 'block' })}
+            />
+            <span>차단하기</span>
+          </label>
+        </fieldset>
+      </React.Fragment>
+    )
+  }
+
+  export function NewChainBlockPage(props: { currentUser: TwitterUser | null }) {
+    const { currentUser } = props
+    const [options, setOptions] = React.useState<ChainBlockSessionOptions>({
+      targetList: 'followers',
+      myFollowers: 'skip',
+      myFollowings: 'skip',
+      quickMode: false,
+    })
+    const [selectedUser, selectUser] = React.useState<TwitterUser | null>(currentUser)
+    const [savedUsers, setSavedUsers] = React.useState(new TwitterUserMap())
+    const [isLoading, setLoadingState] = React.useState(false)
+    const isAvailable = React.useMemo((): boolean => {
+      if (!selectedUser) {
+        return false
+      }
+      if (selectedUser.following) {
+        return true
+      }
+      if (selectedUser.protected || selectedUser.blocked_by) {
+        return false
+      }
+      return true
+    }, [selectedUser])
+    React.useEffect(() => {
+      async function loadUsers() {
+        const users = await Storage.loadUsers()
+        setSavedUsers(users)
+      }
+      loadUsers()
+      browser.storage.onChanged.addListener(async () => {
+        await loadUsers()
+        selectUser(null)
+      })
+      return () => browser.storage.onChanged.removeListener(loadUsers)
+    }, [])
+    function mutateOptions(newOptionsPart: Partial<ChainBlockSessionOptions>) {
+      const newOptions = { ...options, ...newOptionsPart }
+      setOptions(newOptions)
+    }
+    function onExecuteChainBlockButtonClicked() {
+      startChainBlock(selectedUser!.screen_name, options)
+    }
+    async function changeUser(userName: string) {
+      const validUserNamePattern = /^[0-9a-z_]{1,15}$/i
+      if (!validUserNamePattern.test(userName)) {
+        selectUser(null)
+        return
+      }
+      try {
+        setLoadingState(true)
+        const newUser = await TwitterAPI.getSingleUserByName(userName.replace(/^@/, '')).catch(() => null)
+        if (newUser) {
+          selectUser(newUser)
+        } else {
+          window.alert(`사용자 @${userName}을 찾을 수 없습니다.`)
+          selectUser(null)
+        }
+      } finally {
+        setLoadingState(false)
+      }
+    }
+    return (
+      <div>
+        <div className="chainblock-target">
+          <fieldset className="chainblock-opt">
+            <legend>차단 대상</legend>
+            <TargetSavedUsers
+              currentUser={currentUser}
+              selectedUser={selectedUser}
+              savedUsers={savedUsers}
+              changeUser={changeUser}
+            />
+            <hr />
+            {isLoading ? (
+              <TargetUserProfileEmpty reason="loading" />
+            ) : selectedUser ? (
+              <TargetUserProfile
+                options={options}
+                mutateOptions={mutateOptions}
+                user={selectedUser}
+                isAvailable={isAvailable}
+              />
+            ) : (
+              <TargetUserProfileEmpty reason="invalid-user" />
+            )}
+          </fieldset>
+          <fieldset className="chainblock-opt" disabled={!isAvailable}>
+            <legend>필터</legend>
+            <TargetListOptions options={options} mutateOptions={mutateOptions} />
+            <div className="description">
+              단, <b>나와 맞팔로우</b>인 사용자는 위 옵션과 무관하게 <b>차단하지 않습니다</b>.
+            </div>
+          </fieldset>
+          <div className="menu">
+            <button
+              disabled={!isAvailable}
+              className="menu-item execute-chainblock"
+              onClick={onExecuteChainBlockButtonClicked}
+            >
+              <span>체인블락 실행</span>
+            </button>
+          </div>
+        </div>
+      </div>
+    )
+  }
+}
