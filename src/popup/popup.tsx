@@ -27,6 +27,20 @@ namespace RedBlock.Popup {
     })
   }
 
+  export async function saveUserToStorage(user: TwitterUser) {
+    return browser.runtime.sendMessage<RBInsertUserToStorage>({
+      action: Action.InsertUserToStorage,
+      user,
+    })
+  }
+
+  export async function removeUserFromStorage(user: TwitterUser) {
+    return browser.runtime.sendMessage<RBRemoveUserFromStorage>({
+      action: Action.RemoveUserFromStorage,
+      user,
+    })
+  }
+
   export async function getCurrentTab(): Promise<Tab | null> {
     const tabs = await browser.tabs.query({
       active: true,

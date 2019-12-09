@@ -1,15 +1,14 @@
 namespace RedBlock.Background.Entrypoint {
   const {
-    TwitterAPI,
     ChainBlock: { ChainBlocker },
   } = RedBlock.Background
+  let storageQueue = Promise.resolve()
   const chainblocker = new ChainBlocker()
   const tabConnections = new Set<number>()
   export async function doChainBlockWithDefaultSkip(targetUserName: string, targetList: FollowKind) {
     return doChainBlock(targetUserName, {
       myFollowers: 'skip',
       myFollowings: 'skip',
-      saveTargetUser: false,
       quickMode: false,
       targetList,
     })
@@ -107,6 +106,23 @@ namespace RedBlock.Background.Entrypoint {
         })
     }
   }
+  async function sendProgress() {
+    const infos = chainblocker.getAllSessionsProgress()
+    return browser.runtime.sendMessage<RBChainBlockInfoMessage>({
+      messageType: 'ChainBlockInfoMessage',
+      infos,
+    })
+  }
+  async function saveUserToStorage(user: TwitterUser) {
+    console.info('saving user', user)
+    storageQueue = storageQueue.then(() => Storage.insertSingleUserAndSave(user))
+    return storageQueue
+  }
+  async function removeUserFromStorage(user: TwitterUser) {
+    console.info('removing user', user)
+    storageQueue = storageQueue.then(() => Storage.removeSingleUserAndSave(user))
+    return storageQueue
+  }
   export function initialize() {
     window.setInterval(sendChainBlockerInfoToTabs, UI_UPDATE_DELAY)
     browser.runtime.onMessage.addListener(
@@ -117,45 +133,28 @@ namespace RedBlock.Background.Entrypoint {
         const message = msg as RBAction
         switch (message.action) {
           case Action.StartChainBlock:
-            {
-              doChainBlock(message.userName, message.options).then(sendChainBlockerInfoToTabs)
-            }
+            doChainBlock(message.userName, message.options).then(sendChainBlockerInfoToTabs)
             break
           case Action.StopChainBlock:
-            {
-              const { sessionId } = message
-              stopChainBlock(sessionId).then(sendChainBlockerInfoToTabs)
-            }
+            stopChainBlock(message.sessionId).then(sendChainBlockerInfoToTabs)
             break
           case Action.StopAllChainBlock:
-            {
-              stopAllChainBlock()
-            }
+            stopAllChainBlock()
             break
           case Action.RequestProgress:
-            {
-              const infos = chainblocker.getAllSessionsProgress()
-              browser.runtime.sendMessage<RBChainBlockInfoMessage>({
-                messageType: 'ChainBlockInfoMessage',
-                infos,
-              })
-            }
+            sendProgress()
+            break
+          case Action.InsertUserToStorage:
+            saveUserToStorage(message.user)
+            break
+          case Action.RemoveUserFromStorage:
+            removeUserFromStorage(message.user)
             break
           case Action.ConnectToBackground:
-            {
-              const { tab } = sender
-              if (tab) {
-                tabConnections.add(tab.id!)
-              }
-            }
+            sender.tab && tabConnections.add(sender.tab.id!)
             break
           case Action.DisconnectToBackground:
-            {
-              const { tab } = sender
-              if (tab) {
-                tabConnections.delete(tab.id!)
-              }
-            }
+            sender.tab && tabConnections.delete(sender.tab.id!)
             break
         }
         return true

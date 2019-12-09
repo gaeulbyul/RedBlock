@@ -52,20 +52,25 @@ input[type='radio'] {
   padding: 10px;
 }
 
-.non-twitter {
+.controls {
   display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  background-color: black;
+  margin: 10px 0;
 }
 
-.non-twitter .text {
-  padding: 10px;
-  word-break: keep-all;
-  font-size: 16px;
+.controls button {
+  padding: 5px;
+  margin-right: 5px;
+  width: 80px;
+  border: 2px solid #333;
+  border-radius: 100px;
+  background-color: transparent;
+  font-size: 12px;
+  cursor: pointer;
+}
+
+.controls button:hover {
+  background-color: #333;
   color: white;
-  text-shadow: 0 0 10px white;
 }
 
 .target-user-info {
@@ -201,19 +206,6 @@ fieldset.chainblock-subopt {
   filter: none;
 }
 
-.chainblock-globalcontrols {
-  display: flex;
-}
-
-.chainblock-globalcontrols button {
-  margin-right: 5px;
-  padding: 5px;
-  width: 80px;
-  border: 2px solid #333;
-  background-color: transparent;
-  cursor: pointer;
-}
-
 .chainblock-globalcontrols button:hover {
   background-color: #333;
   color: white;
@@ -227,22 +219,7 @@ fieldset.chainblock-subopt {
 }
 
 .chainblock-sessions .controls {
-  padding: 5px;
   text-align: right;
-}
-
-.chainblock-sessions .controls button {
-  padding: 5px;
-  width: 80px;
-  border: 2px solid #333;
-  border-radius: 100px;
-  background-color: transparent;
-  cursor: pointer;
-}
-
-.chainblock-sessions .controls button:hover {
-  background-color: #333;
-  color: white;
 }
 
 .chainblock-suggest-start {

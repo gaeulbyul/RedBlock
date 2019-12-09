@@ -148,6 +148,16 @@ interface RBDisconnectToBackgroundAction {
   action: Action.DisconnectToBackground
 }
 
+interface RBInsertUserToStorage {
+  action: Action.InsertUserToStorage
+  user: TwitterUser
+}
+
+interface RBRemoveUserFromStorage {
+  action: Action.RemoveUserFromStorage
+  user: TwitterUser
+}
+
 interface RBRequestProgress {
   action: Action.RequestProgress
 }
@@ -158,6 +168,8 @@ type RBAction =
   | RBStopAllAction
   | RBConnectToBackgroundAction
   | RBDisconnectToBackgroundAction
+  | RBInsertUserToStorage
+  | RBRemoveUserFromStorage
   | RBRequestProgress
 
 interface RBChainBlockInfoMessage {
@@ -203,7 +215,6 @@ interface ChainBlockSessionOptions {
   quickMode: boolean
   myFollowers: 'skip' | 'block'
   myFollowings: 'skip' | 'block'
-  saveTargetUser: boolean
 }
 
 interface RedBlockStorage {
