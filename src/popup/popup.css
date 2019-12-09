@@ -245,6 +245,10 @@ fieldset.chainblock-subopt {
   color: white;
 }
 
+.chainblock-suggest-start {
+  text-align: center;
+}
+
 footer.info {
   margin-bottom: 10px;
   padding: 5px 15px;
