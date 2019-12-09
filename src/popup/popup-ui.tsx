@@ -98,10 +98,11 @@ namespace RedBlock.Popup.UI {
 
   function TargetUserProfile(props: {
     user: TwitterUser
+    isAvailable: boolean
     options: ChainBlockSessionOptions
     mutateOptions: (part: Partial<ChainBlockSessionOptions>) => void
   }) {
-    const { user, options, mutateOptions } = props
+    const { user, isAvailable, options, mutateOptions } = props
     const { targetList, quickMode } = options
     const biggerProfileImageUrl = user.profile_image_url_https.replace('_normal', '_bigger')
     return (
@@ -125,10 +126,17 @@ namespace RedBlock.Popup.UI {
               </a>
             </div>
           </div>
+          {isAvailable || (
+            <div className="profile-blocked">
+              {user.protected && '\u{1f512} 프로텍트가 걸려있어 체인블락을 할 수 없습니다.'}
+              {user.blocked_by && '\u26d4 해당 사용자에게 차단당하여 체인블락을 할 수 없습니다.'}
+            </div>
+          )}
           <div className="profile-right-targetlist">
             <label>
               <input
                 type="radio"
+                disabled={!isAvailable}
                 checked={targetList === 'followers'}
                 onChange={() => mutateOptions({ targetList: 'followers' })}
               />
@@ -139,6 +147,7 @@ namespace RedBlock.Popup.UI {
             <label>
               <input
                 type="radio"
+                disabled={!isAvailable}
                 checked={targetList === 'friends'}
                 onChange={() => mutateOptions({ targetList: 'friends' })}
               />
@@ -150,6 +159,7 @@ namespace RedBlock.Popup.UI {
             <label>
               <input
                 type="radio"
+                disabled={!isAvailable}
                 checked={targetList === 'mutual-followers'}
                 onChange={() => mutateOptions({ targetList: 'mutual-followers' })}
               />
@@ -161,8 +171,8 @@ namespace RedBlock.Popup.UI {
             <label>
               <input
                 type="checkbox"
+                disabled={!isAvailable || targetList === 'mutual-followers'}
                 checked={quickMode}
-                disabled={targetList === 'mutual-followers'}
                 onChange={() => mutateOptions({ quickMode: !quickMode })}
               />
               <span title="퀵 모드: 최대 200명 이하의 사용자를 대상으로 합니다. 최근에 해당 사용자에게 체인블락을 실행하였으나 이후에 새로 생긴 팔로워를 더 빠르게 차단하기 위해 고안한 기능입니다.">
@@ -250,6 +260,18 @@ namespace RedBlock.Popup.UI {
     const [selectedUser, selectUser] = React.useState<TwitterUser | null>(currentUser)
     const [savedUsers, setSavedUsers] = React.useState(new TwitterUserMap())
     const [isLoading, setLoadingState] = React.useState(false)
+    const isAvailable = React.useMemo((): boolean => {
+      if (!selectedUser) {
+        return false
+      }
+      if (selectedUser.following) {
+        return true
+      }
+      if (selectedUser.protected || selectedUser.blocked_by) {
+        return false
+      }
+      return true
+    }, [selectedUser])
     React.useEffect(() => {
       async function loadUsers() {
         const users = await Storage.loadUsers()
@@ -306,19 +328,24 @@ namespace RedBlock.Popup.UI {
             {isLoading ? (
               <TargetUserProfileEmpty reason="loading" />
             ) : selectedUser ? (
-              <TargetUserProfile options={options} mutateOptions={mutateOptions} user={selectedUser} />
+              <TargetUserProfile
+                options={options}
+                mutateOptions={mutateOptions}
+                user={selectedUser}
+                isAvailable={isAvailable}
+              />
             ) : (
               <TargetUserProfileEmpty reason="invalid-user" />
             )}
           </fieldset>
-          <fieldset className="chainblock-opt" disabled={selectedUser == null}>
+          <fieldset className="chainblock-opt" disabled={!isAvailable}>
             <legend>필터</legend>
             <TargetListOptions options={options} mutateOptions={mutateOptions} />
             <div className="description">
               단, <b>나와 맞팔로우</b>인 사용자는 위 옵션과 무관하게 <b>차단하지 않습니다</b>.
             </div>
           </fieldset>
-          <fieldset className="chainblock-opt" disabled={selectedUser == null}>
+          <fieldset className="chainblock-opt" disabled={!isAvailable}>
             <legend>부가기능</legend>
             <label>
               <input type="checkbox" checked={options.saveTargetUser} onChange={toggleSaveState} />이 사용자를 저장하기
