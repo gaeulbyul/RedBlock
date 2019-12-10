@@ -1,12 +1,14 @@
 namespace RedBlock.Popup.UI.Pages.NewChainBlock {
+  type SelectUserGroup = 'invalid' | 'current' | 'saved'
   const { TwitterAPI, Storage } = RedBlock.Background
   function TargetSavedUsers(props: {
     currentUser: TwitterUser | null
     selectedUser: TwitterUser | null
+    selectedUserGroup: SelectUserGroup
     savedUsers: TwitterUserMap
-    changeUser: (userName: string) => Promise<void>
+    changeUser: (userName: string, group: SelectUserGroup) => Promise<void>
   }) {
-    const { currentUser, selectedUser, savedUsers, changeUser } = props
+    const { currentUser, selectedUser, selectedUserGroup, savedUsers, changeUser } = props
     async function saveUser() {
       if (selectedUser) {
         return saveUserToStorage(selectedUser)
@@ -19,25 +21,33 @@ namespace RedBlock.Popup.UI.Pages.NewChainBlock {
     }
     const currentUserOption = ({ screen_name, name }: TwitterUser) => (
       <optgroup label="현재 유저">
-        <option value={screen_name}>
+        <option value={`current/${screen_name}`} data-group="current" data-username={screen_name}>
           @{screen_name} &lt;{name}&gt;
         </option>
       </optgroup>
     )
     const sortedByName = (usersMap: TwitterUserMap): TwitterUser[] =>
       _.sortBy(usersMap.toUserArray(), user => user.screen_name.toLowerCase())
+    const selectUserFromOption = (elem: EventTarget & HTMLSelectElement) => {
+      const selectedOption = elem.selectedOptions[0]
+      const group = selectedOption.getAttribute('data-group') as SelectUserGroup
+      const userName = selectedOption.getAttribute('data-username')!
+      changeUser(userName, group)
+    }
     return (
       <div className="chainblock-saved-target">
         <select
           className="chainblock-saved-select"
-          value={selectedUser ? selectedUser.screen_name : '???'}
-          onChange={event => changeUser(event.target.value)}
+          value={selectedUser ? `${selectedUserGroup}/${selectedUser.screen_name}` : 'invalid/???'}
+          onChange={({ target }) => selectUserFromOption(target)}
         >
-          <option value="???">체인블락을 실행할 사용자를 선택해주세요.</option>
+          <option value="invalid/???" data-group="invalid" data-username="???">
+            체인블락을 실행할 사용자를 선택해주세요.
+          </option>
           {currentUser && currentUserOption(currentUser)}
           <optgroup label="저장한 유저">
             {sortedByName(savedUsers).map(({ screen_name, name }, index) => (
-              <option key={index} value={screen_name}>
+              <option key={index} value={'saved/' + screen_name} data-group="saved" data-username={screen_name}>
                 @{screen_name} &lt;{name}&gt;
               </option>
             ))}
@@ -219,6 +229,7 @@ namespace RedBlock.Popup.UI.Pages.NewChainBlock {
     })
     const [selectedUser, selectUser] = React.useState<TwitterUser | null>(currentUser)
     const [savedUsers, setSavedUsers] = React.useState(new TwitterUserMap())
+    const [selectedUserGroup, selectUserGroup] = React.useState<SelectUserGroup>('current')
     const [isLoading, setLoadingState] = React.useState(false)
     const isAvailable = React.useMemo((): boolean => {
       if (!selectedUser) {
@@ -236,11 +247,14 @@ namespace RedBlock.Popup.UI.Pages.NewChainBlock {
       async function loadUsers() {
         const users = await Storage.loadUsers()
         setSavedUsers(users)
+        return users
       }
       loadUsers()
       browser.storage.onChanged.addListener(async () => {
-        await loadUsers()
-        selectUser(null)
+        const users = await loadUsers()
+        if (!(selectedUser && users.has(selectedUser.id_str))) {
+          selectUser(null)
+        }
       })
       return () => browser.storage.onChanged.removeListener(loadUsers)
     }, [])
@@ -251,10 +265,11 @@ namespace RedBlock.Popup.UI.Pages.NewChainBlock {
     function onExecuteChainBlockButtonClicked() {
       startChainBlock(selectedUser!.screen_name, options)
     }
-    async function changeUser(userName: string) {
+    async function changeUser(userName: string, group: SelectUserGroup) {
       const validUserNamePattern = /^[0-9a-z_]{1,15}$/i
       if (!validUserNamePattern.test(userName)) {
         selectUser(null)
+        selectUserGroup('invalid')
         return
       }
       try {
@@ -262,9 +277,11 @@ namespace RedBlock.Popup.UI.Pages.NewChainBlock {
         const newUser = await TwitterAPI.getSingleUserByName(userName.replace(/^@/, '')).catch(() => null)
         if (newUser) {
           selectUser(newUser)
+          selectUserGroup(group)
         } else {
           window.alert(`사용자 @${userName}을 찾을 수 없습니다.`)
           selectUser(null)
+          selectUserGroup('invalid')
         }
       } finally {
         setLoadingState(false)
@@ -278,6 +295,7 @@ namespace RedBlock.Popup.UI.Pages.NewChainBlock {
             <TargetSavedUsers
               currentUser={currentUser}
               selectedUser={selectedUser}
+              selectedUserGroup={selectedUserGroup}
               savedUsers={savedUsers}
               changeUser={changeUser}
             />
