@@ -219,6 +219,17 @@ namespace RedBlock.Popup.UI.Pages.NewChainBlock {
     )
   }
 
+  const userCache = new Map<string, TwitterUser>()
+  async function getUserByNameWithCache(userName_: string): Promise<TwitterUser> {
+    const userName = userName_.replace(/^@/, '')
+    if (userCache.has(userName)) {
+      return userCache.get(userName)!
+    }
+    const user = await TwitterAPI.getSingleUserByName(userName)
+    userCache.set(user.screen_name, user)
+    return user
+  }
+
   export function NewChainBlockPage(props: { currentUser: TwitterUser | null }) {
     const { currentUser } = props
     const [options, setOptions] = React.useState<ChainBlockSessionOptions>({
@@ -274,7 +285,7 @@ namespace RedBlock.Popup.UI.Pages.NewChainBlock {
       }
       try {
         setLoadingState(true)
-        const newUser = await TwitterAPI.getSingleUserByName(userName.replace(/^@/, '')).catch(() => null)
+        const newUser = await getUserByNameWithCache(userName).catch(() => null)
         if (newUser) {
           selectUser(newUser)
           selectUserGroup(group)
