@@ -27,7 +27,7 @@ namespace RedBlock.Popup {
     })
   }
 
-  export async function saveUserToStorage(user: TwitterUser) {
+  export async function insertUserToStorage(user: TwitterUser) {
     return browser.runtime.sendMessage<RBInsertUserToStorage>({
       action: Action.InsertUserToStorage,
       user,

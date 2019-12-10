@@ -16,6 +16,7 @@
 body {
   margin: 0;
   padding: 0;
+  word-break: keep-all;
   font-size: var(--default-font-size);
   font-family: 'NanumGothic', 'Malgun Gothic', sans-serif;
 }
@@ -42,7 +43,7 @@ input[type='radio'] {
 }
 
 .whole {
-  width: 450px;
+  width: 500px;
   padding: 0;
   margin: 0 auto;
   background-color: white;
@@ -55,6 +56,10 @@ input[type='radio'] {
 .controls {
   display: flex;
   margin: 10px 0;
+}
+
+.controls.align-to-end {
+  justify-content: flex-end;
 }
 
 .controls button {

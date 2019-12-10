@@ -9,9 +9,9 @@ namespace RedBlock.Popup.UI.Pages.NewChainBlock {
     changeUser: (userName: string, group: SelectUserGroup) => Promise<void>
   }) {
     const { currentUser, selectedUser, selectedUserGroup, savedUsers, changeUser } = props
-    async function saveUser() {
+    async function insertUser() {
       if (selectedUser) {
-        return saveUserToStorage(selectedUser)
+        return insertUserToStorage(selectedUser)
       }
     }
     async function removeUser() {
@@ -55,11 +55,11 @@ namespace RedBlock.Popup.UI.Pages.NewChainBlock {
         </select>
         {selectedUser && (
           <div className="controls">
-            <button type="button" onClick={saveUser}>
-              저장하기
+            <button type="button" onClick={insertUser}>
+              추가
             </button>
             <button type="button" onClick={removeUser}>
-              제거하기
+              제거
             </button>
           </div>
         )}

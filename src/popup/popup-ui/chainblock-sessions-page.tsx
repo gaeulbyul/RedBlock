@@ -144,7 +144,7 @@ namespace RedBlock.Popup.UI.Pages.ChainBlockSessions {
         closeButtonTitleText = `@${userName}에게 실행중인 체인블락을 중지합니다.`
       }
       return (
-        <div className="controls">
+        <div className="controls align-to-end">
           <button type="button" title={closeButtonTitleText} onClick={requestStopChainBlock}>
             {closeButtonText}
           </button>
@@ -160,7 +160,7 @@ namespace RedBlock.Popup.UI.Pages.ChainBlockSessions {
         stopAllChainBlock()
       }
       return (
-        <div className="controls">
+        <div className="controls align-to-end">
           <button type="button" onClick={requestStopAllChainBlock}>
             모두 정지
           </button>
