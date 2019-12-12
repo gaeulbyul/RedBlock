@@ -70,8 +70,8 @@ namespace RedBlock.Popup.UI.Pages.NewChainBlock {
   function TargetUserProfile(props: {
     user: TwitterUser
     isAvailable: boolean
-    options: ChainBlockSessionOptions
-    mutateOptions: (part: Partial<ChainBlockSessionOptions>) => void
+    options: SessionInfo['options']
+    mutateOptions: (part: Partial<SessionInfo['options']>) => void
   }) {
     const { user, isAvailable, options, mutateOptions } = props
     const { targetList, quickMode } = options
@@ -170,8 +170,8 @@ namespace RedBlock.Popup.UI.Pages.NewChainBlock {
   }
 
   function TargetListOptions(props: {
-    options: ChainBlockSessionOptions
-    mutateOptions: (part: Partial<ChainBlockSessionOptions>) => void
+    options: SessionInfo['options']
+    mutateOptions: (part: Partial<SessionInfo['options']>) => void
   }) {
     const { options, mutateOptions } = props
     const { myFollowers, myFollowings } = options
@@ -232,7 +232,7 @@ namespace RedBlock.Popup.UI.Pages.NewChainBlock {
 
   export function NewChainBlockPage(props: { currentUser: TwitterUser | null }) {
     const { currentUser } = props
-    const [options, setOptions] = React.useState<ChainBlockSessionOptions>({
+    const [options, setOptions] = React.useState<SessionInfo['options']>({
       targetList: 'followers',
       myFollowers: 'skip',
       myFollowings: 'skip',
@@ -269,7 +269,7 @@ namespace RedBlock.Popup.UI.Pages.NewChainBlock {
       })
       return () => browser.storage.onChanged.removeListener(loadUsers)
     }, [])
-    function mutateOptions(newOptionsPart: Partial<ChainBlockSessionOptions>) {
+    function mutateOptions(newOptionsPart: Partial<SessionInfo['options']>) {
       const newOptions = { ...options, ...newOptionsPart }
       setOptions(newOptions)
     }

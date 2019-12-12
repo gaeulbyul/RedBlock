@@ -1,4 +1,4 @@
-const enum ChainBlockSessionStatus {
+const enum SessionStatus {
   Initial,
   Running,
   RateLimited,
@@ -7,34 +7,32 @@ const enum ChainBlockSessionStatus {
   Error,
 }
 
-interface ChainBlockSessionEvents {
-  'update-progress': ChainBlockSessionProgress
-  'update-state': ChainBlockSessionStatus
-  'update-count': number
-  'rate-limit': Limit
-  'rate-limit-reset': null
-  error: string
-  start: null
-  stop: null
-  close: null
-  complete: null
-}
-
 type Should = 'skip' | 'block' | 'already-blocked'
 
 const BLOCK_PROMISES_BUFFER_SIZE = 150
 
 namespace RedBlock.Background.ChainBlock {
   const { SimpleScraper, QuickScraper, MutualFollowerScraper } = RedBlock.Background.ChainBlock.Scraper
-  export class ChainBlockSession extends EventEmitter<ChainBlockSessionEvents> {
+  export class ChainBlockSession extends EventEmitter<{
+    'update-progress': SessionInfo['progress']
+    'update-state': SessionStatus
+    'update-count': number
+    'rate-limit': Limit
+    'rate-limit-reset': null
+    error: string
+    start: null
+    stop: null
+    close: null
+    complete: null
+  }> {
     public readonly id: string
     private readonly _targetUser: Readonly<TwitterUser>
-    private readonly _options: Readonly<ChainBlockSessionOptions>
+    private readonly _options: Readonly<SessionInfo['options']>
     private _shouldStop = false
     private _totalCount: number | null = 0
     private _limit: Limit | null = null
-    private _status: ChainBlockSessionStatus = ChainBlockSessionStatus.Initial
-    private readonly _progress: ChainBlockSessionProgress = {
+    private _status: SessionStatus = SessionStatus.Initial
+    private readonly _progress: SessionInfo['progress'] = {
       alreadyBlocked: 0,
       skipped: 0,
       blockSuccess: 0,
@@ -47,7 +45,7 @@ namespace RedBlock.Background.ChainBlock {
         ignore
       },
     }
-    constructor(init: ChainBlockSessionInit) {
+    constructor(init: SessionInit) {
       super()
       this.id = init.sessionId
       this._targetUser = Object.freeze(init.targetUser)
@@ -70,7 +68,7 @@ namespace RedBlock.Background.ChainBlock {
     get targetUser(): Readonly<TwitterUser> {
       return copyFrozenObject(this._targetUser)
     }
-    get options(): Readonly<ChainBlockSessionOptions> {
+    get options(): Readonly<SessionInfo['options']> {
       return copyFrozenObject(this._options)
     }
     get limit(): Limit | null {
@@ -84,31 +82,31 @@ namespace RedBlock.Background.ChainBlock {
         this.emit('rate-limit-reset', null)
       }
     }
-    get status(): ChainBlockSessionStatus {
+    get status(): SessionStatus {
       return this._status
     }
-    private updateStatus(status: ChainBlockSessionStatus): void {
+    private updateStatus(status: SessionStatus): void {
       this._status = status
       this.emit('update-state', status)
     }
-    get progress(): ChainBlockSessionProgress {
+    get progress(): SessionInfo['progress'] {
       return copyFrozenObject(this._progress)
     }
-    private updateProgress(progress: ChainBlockSessionProgress) {
+    private updateProgress(progress: SessionInfo['progress']) {
       Object.assign(this._progress, progress)
       this.emit('update-progress', copyFrozenObject(this.progress))
     }
     public stop() {
       this._shouldStop = true
-      this.updateStatus(ChainBlockSessionStatus.Stopped)
+      this.updateStatus(SessionStatus.Stopped)
       this.emit('stop', null)
     }
     public complete() {
-      this.updateStatus(ChainBlockSessionStatus.Completed)
+      this.updateStatus(SessionStatus.Completed)
       this.emit('complete', null)
     }
     private async rateLimited() {
-      this.updateStatus(ChainBlockSessionStatus.RateLimited)
+      this.updateStatus(SessionStatus.RateLimited)
       const { targetList } = this.options
       const limitStatuses = await TwitterAPI.getRateLimitStatus()
       let limit: Limit
@@ -122,10 +120,10 @@ namespace RedBlock.Background.ChainBlock {
       this.updateLimit(limit)
     }
     private rateLimitResetted() {
-      this.updateStatus(ChainBlockSessionStatus.Running)
+      this.updateStatus(SessionStatus.Running)
       this.updateLimit(null)
     }
-    private initScraper(user: TwitterUser, options: ChainBlockSessionOptions) {
+    private initScraper(user: TwitterUser, options: SessionInfo['options']) {
       const scraper = options.quickMode ? QuickScraper : SimpleScraper
       switch (options.targetList) {
         case 'friends':
@@ -166,12 +164,12 @@ namespace RedBlock.Background.ChainBlock {
       return 'block'
     }
     public async start() {
-      type FoundReason = keyof ChainBlockSessionProgress
+      type FoundReason = keyof SessionInfo['progress']
       const incrementProgress = (reason: FoundReason) => {
-        const newProgPart: Partial<ChainBlockSessionProgress> = {
+        const newProgPart: Partial<SessionInfo['progress']> = {
           [reason]: this.progress[reason] + 1,
         }
-        const newProgress: ChainBlockSessionProgress = Object.assign({}, this.progress, newProgPart)
+        const newProgress: SessionInfo['progress'] = Object.assign({}, this.progress, newProgPart)
         this.updateProgress(newProgress)
       }
       this.emit('start', null)
@@ -188,7 +186,7 @@ namespace RedBlock.Background.ChainBlock {
             stopped = true
             blockPromises.length = 0
             break
-          } else if (this.status === ChainBlockSessionStatus.RateLimited) {
+          } else if (this.status === SessionStatus.RateLimited) {
             this.rateLimitResetted()
           }
           if (!maybeFollower.ok) {
@@ -203,7 +201,7 @@ namespace RedBlock.Background.ChainBlock {
             }
           }
           const follower = maybeFollower.value
-          this.updateStatus(ChainBlockSessionStatus.Running)
+          this.updateStatus(SessionStatus.Running)
           const whatToDo = this.whatToDoGivenUser(follower)
           if (whatToDo === 'skip') {
             incrementProgress('skipped')
@@ -234,7 +232,7 @@ namespace RedBlock.Background.ChainBlock {
         }
       } catch (err) {
         const error = err as Error
-        this.updateStatus(ChainBlockSessionStatus.Error)
+        this.updateStatus(SessionStatus.Error)
         this.emit('error', error.message)
         throw err
       }

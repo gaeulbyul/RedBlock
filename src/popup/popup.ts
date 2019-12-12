@@ -1,7 +1,7 @@
 namespace RedBlock.Popup {
   type Tab = browser.tabs.Tab
-  export async function startChainBlock(userName: string, options: ChainBlockSessionOptions) {
-    return browser.runtime.sendMessage<RBStartAction, void>({
+  export async function startChainBlock(userName: string, options: SessionInfo['options']) {
+    return browser.runtime.sendMessage<RBActions.Start, void>({
       action: Action.StartChainBlock,
       userName,
       options,
@@ -9,33 +9,33 @@ namespace RedBlock.Popup {
   }
 
   export async function stopChainBlock(sessionId: string) {
-    return browser.runtime.sendMessage<RBStopAction>({
+    return browser.runtime.sendMessage<RBActions.Stop>({
       action: Action.StopChainBlock,
       sessionId,
     })
   }
 
   export async function stopAllChainBlock() {
-    return browser.runtime.sendMessage<RBStopAllAction>({
+    return browser.runtime.sendMessage<RBActions.StopAll>({
       action: Action.StopAllChainBlock,
     })
   }
 
   export async function requestProgress() {
-    return browser.runtime.sendMessage<RBRequestProgress>({
+    return browser.runtime.sendMessage<RBActions.RequestProgress>({
       action: Action.RequestProgress,
     })
   }
 
   export async function insertUserToStorage(user: TwitterUser) {
-    return browser.runtime.sendMessage<RBInsertUserToStorage>({
+    return browser.runtime.sendMessage<RBActions.InsertUserToStorage>({
       action: Action.InsertUserToStorage,
       user,
     })
   }
 
   export async function removeUserFromStorage(user: TwitterUser) {
-    return browser.runtime.sendMessage<RBRemoveUserFromStorage>({
+    return browser.runtime.sendMessage<RBActions.RemoveUserFromStorage>({
       action: Action.RemoveUserFromStorage,
       user,
     })

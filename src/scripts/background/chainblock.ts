@@ -3,24 +3,20 @@ namespace RedBlock.Background.ChainBlock {
   export class ChainBlocker {
     private readonly sessions: Map<string, ChainBlockSession> = new Map()
     constructor() {}
-    private generateSessionId(user: TwitterUser, options: ChainBlockSessionOptions): string {
+    private generateSessionId(user: TwitterUser, options: SessionInfo['options']): string {
       return `session/${user.screen_name}/${options.targetList}/${Date.now()}`
     }
     public isRunning(): boolean {
       if (this.sessions.size <= 0) {
         return false
       }
-      const runningStates = [
-        ChainBlockSessionStatus.Initial,
-        ChainBlockSessionStatus.Running,
-        ChainBlockSessionStatus.RateLimited,
-      ]
+      const runningStates = [SessionStatus.Initial, SessionStatus.Running, SessionStatus.RateLimited]
       const currentRunningSessions = Array.from(this.sessions.values()).filter(session =>
         runningStates.includes(session.status)
       )
       return currentRunningSessions.length > 0
     }
-    public isAlreadyRunningForUser(givenUser: TwitterUser, givenOptions: ChainBlockSessionOptions): boolean {
+    public isAlreadyRunningForUser(givenUser: TwitterUser, givenOptions: SessionInfo['options']): boolean {
       for (const session of this.sessions.values()) {
         const { targetUser } = session
         const isSameUser = targetUser.id_str === givenUser.id_str
@@ -60,7 +56,7 @@ namespace RedBlock.Background.ChainBlock {
         notify(message)
       })
     }
-    public add(targetUser: TwitterUser, options: ChainBlockSessionOptions): string | null {
+    public add(targetUser: TwitterUser, options: SessionInfo['options']): string | null {
       if (this.isAlreadyRunningForUser(targetUser, options)) {
         window.alert(`이미 @${targetUser.screen_name}에게 체인블락이 실행중입니다.`)
         return null
@@ -83,7 +79,7 @@ namespace RedBlock.Background.ChainBlock {
     public stopAll() {
       const sessions = this.sessions.values()
       for (const session of sessions) {
-        if (session.status === ChainBlockSessionStatus.Stopped) {
+        if (session.status === SessionStatus.Stopped) {
           continue
         }
         session.stop()
@@ -99,14 +95,14 @@ namespace RedBlock.Background.ChainBlock {
       const sessions = this.sessions.values()
       const sessionPromises: Promise<void>[] = []
       for (const session of sessions) {
-        if (session.status === ChainBlockSessionStatus.Initial) {
+        if (session.status === SessionStatus.Initial) {
           sessionPromises.push(session.start().catch(() => {}))
         }
       }
       return Promise.all(sessionPromises)
     }
-    public getAllSessionsProgress(): ChainBlockSessionInfo[] {
-      const result: ChainBlockSessionInfo[] = []
+    public getAllSessionsProgress(): SessionInfo[] {
+      const result: SessionInfo[] = []
       for (const [sessionId, session] of this.sessions.entries()) {
         const { status, options, progress, targetUser, totalCount, limit } = session
         const target = {

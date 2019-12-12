@@ -125,96 +125,94 @@ interface EitherLeft<E> {
 
 type Either<E, T> = EitherLeft<E> | EitherRight<T>
 
-interface RBStartAction {
-  action: Action.StartChainBlock
-  userName: string
-  options: ChainBlockSessionOptions
-}
+declare namespace RBActions {
+  export interface Start {
+    action: Action.StartChainBlock
+    userName: string
+    options: SessionInfo['options']
+  }
 
-interface RBStopAction {
-  action: Action.StopChainBlock
-  sessionId: string
-}
+  export interface Stop {
+    action: Action.StopChainBlock
+    sessionId: string
+  }
 
-interface RBStopAllAction {
-  action: Action.StopAllChainBlock
-}
+  export interface StopAll {
+    action: Action.StopAllChainBlock
+  }
 
-interface RBConnectToBackgroundAction {
-  action: Action.ConnectToBackground
-}
+  export interface ConnectToBackground {
+    action: Action.ConnectToBackground
+  }
 
-interface RBDisconnectToBackgroundAction {
-  action: Action.DisconnectToBackground
-}
+  export interface DisconnectToBackground {
+    action: Action.DisconnectToBackground
+  }
 
-interface RBInsertUserToStorage {
-  action: Action.InsertUserToStorage
-  user: TwitterUser
-}
+  export interface InsertUserToStorage {
+    action: Action.InsertUserToStorage
+    user: TwitterUser
+  }
 
-interface RBRemoveUserFromStorage {
-  action: Action.RemoveUserFromStorage
-  user: TwitterUser
-}
+  export interface RemoveUserFromStorage {
+    action: Action.RemoveUserFromStorage
+    user: TwitterUser
+  }
 
-interface RBRequestProgress {
-  action: Action.RequestProgress
+  export interface RequestProgress {
+    action: Action.RequestProgress
+  }
 }
 
 type RBAction =
-  | RBStartAction
-  | RBStopAction
-  | RBStopAllAction
-  | RBConnectToBackgroundAction
-  | RBDisconnectToBackgroundAction
-  | RBInsertUserToStorage
-  | RBRemoveUserFromStorage
-  | RBRequestProgress
+  | RBActions.Start
+  | RBActions.Stop
+  | RBActions.StopAll
+  | RBActions.ConnectToBackground
+  | RBActions.DisconnectToBackground
+  | RBActions.InsertUserToStorage
+  | RBActions.RemoveUserFromStorage
+  | RBActions.RequestProgress
 
 interface RBChainBlockInfoMessage {
   messageType: 'ChainBlockInfoMessage'
-  infos: ChainBlockSessionInfo[]
+  infos: SessionInfo[]
 }
 
 declare namespace uuid {
   function v1(): string
 }
 
-interface ChainBlockSessionInfo {
+interface SessionInfo {
   sessionId: string
-  progress: ChainBlockSessionProgress
-  status: ChainBlockSessionStatus
+  progress: {
+    alreadyBlocked: number
+    skipped: number
+    blockSuccess: number
+    blockFail: number
+    totalScraped: number
+  }
+  status: SessionStatus
   target: {
     user: TwitterUser
     // totalCount: 맞팔로우 체인의 경우, 실행시작 시점에선 정확한 사용자 수를 알 수 없다.
     // 따라서, null을 통해 '아직 알 수 없음'을 표현한다.
     totalCount: number | null
   }
-  options: ChainBlockSessionOptions
+  options: {
+    targetList: FollowKind | 'mutual-followers'
+    quickMode: boolean
+    myFollowers: 'skip' | 'block'
+    myFollowings: 'skip' | 'block'
+  }
   // limits?: Limit
   limit: Limit | null
 }
 
-interface ChainBlockSessionProgress {
-  alreadyBlocked: number
-  skipped: number
-  blockSuccess: number
-  blockFail: number
-  totalScraped: number
-}
-
-interface ChainBlockSessionInit {
+interface SessionInit {
   sessionId: string
   targetUser: TwitterUser
-  options: ChainBlockSessionOptions
-}
-
-interface ChainBlockSessionOptions {
-  targetList: FollowKind | 'mutual-followers'
-  quickMode: boolean
-  myFollowers: 'skip' | 'block'
-  myFollowings: 'skip' | 'block'
+  options: SessionInfo['options']
 }
 
 interface RedBlockStorage {

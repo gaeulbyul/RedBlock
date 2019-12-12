@@ -1,7 +1,7 @@
 namespace RedBlock.Popup.UI.Pages.ChainBlockSessions {
-  function calculatePercentage(session: ChainBlockSessionInfo): number {
+  function calculatePercentage(session: SessionInfo): number {
     const { target, progress, status } = session
-    const isCompleted = status === ChainBlockSessionStatus.Completed
+    const isCompleted = status === SessionStatus.Completed
     const max = (isCompleted ? progress.totalScraped : target.totalCount) || undefined
     if (isCompleted) {
       return 100
@@ -12,7 +12,7 @@ namespace RedBlock.Popup.UI.Pages.ChainBlockSessions {
     }
   }
 
-  function renderProfileImageWithProgress(session: ChainBlockSessionInfo) {
+  function renderProfileImageWithProgress(session: SessionInfo) {
     const {
       target: { user },
     } = session
@@ -62,22 +62,22 @@ namespace RedBlock.Popup.UI.Pages.ChainBlockSessions {
     )
   }
 
-  function ChainBlockSessionItem(props: { session: ChainBlockSessionInfo }) {
+  function ChainBlockSessionItem(props: { session: SessionInfo }) {
     const { session } = props
     const { user } = session.target
-    function statusToString(status: ChainBlockSessionStatus): string {
+    function statusToString(status: SessionStatus): string {
       const statusMessageObj: { [key: number]: string } = {
-        [ChainBlockSessionStatus.Initial]: '대기 중',
-        [ChainBlockSessionStatus.Completed]: '완료',
-        [ChainBlockSessionStatus.Running]: '실행 중…',
-        [ChainBlockSessionStatus.RateLimited]: '리밋',
-        [ChainBlockSessionStatus.Stopped]: '정지',
-        [ChainBlockSessionStatus.Error]: '오류 발생!',
+        [SessionStatus.Initial]: '대기 중',
+        [SessionStatus.Completed]: '완료',
+        [SessionStatus.Running]: '실행 중…',
+        [SessionStatus.RateLimited]: '리밋',
+        [SessionStatus.Stopped]: '정지',
+        [SessionStatus.Error]: '오류 발생!',
       }
       const statusMessage = `[${statusMessageObj[status]}]`
       return statusMessage
     }
-    function renderText({ progress, status }: ChainBlockSessionInfo) {
+    function renderText({ progress, status }: SessionInfo) {
       const statusMessage = statusToString(status)
       return (
         <div>
@@ -91,15 +91,11 @@ namespace RedBlock.Popup.UI.Pages.ChainBlockSessions {
         </div>
       )
     }
-    function isRunning(status: ChainBlockSessionStatus): boolean {
-      const runningStatuses = [
-        ChainBlockSessionStatus.Initial,
-        ChainBlockSessionStatus.Running,
-        ChainBlockSessionStatus.RateLimited,
-      ]
+    function isRunning(status: SessionStatus): boolean {
+      const runningStatuses = [SessionStatus.Initial, SessionStatus.Running, SessionStatus.RateLimited]
       return runningStatuses.includes(status)
     }
-    function renderControls({ sessionId, status, target }: ChainBlockSessionInfo) {
+    function renderControls({ sessionId, status, target }: SessionInfo) {
       const userName = target.user.screen_name
       function requestStopChainBlock() {
         if (isRunning(status)) {
@@ -153,7 +149,7 @@ namespace RedBlock.Popup.UI.Pages.ChainBlockSessions {
   }
 
   interface ChainBlockSessionsPageState {
-    sessions: ChainBlockSessionInfo[]
+    sessions: SessionInfo[]
   }
 
   export class ChainBlockSessionsPage extends React.Component<{}, ChainBlockSessionsPageState> {

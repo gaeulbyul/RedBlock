@@ -13,7 +13,7 @@ namespace RedBlock.Background.Entrypoint {
       targetList,
     })
   }
-  function generateConfirmMessage(targetUser: TwitterUser, options: ChainBlockSessionOptions): string {
+  function generateConfirmMessage(targetUser: TwitterUser, options: SessionInfo['options']): string {
     const targetUserName = targetUser.screen_name
     let confirmMessage = `정말로 @${targetUserName}에게 체인블락을 실행하시겠습니까?\n`
     confirmMessage += '--------------------\n'
@@ -44,7 +44,7 @@ namespace RedBlock.Background.Entrypoint {
     }
     return confirmMessage
   }
-  async function doChainBlock(targetUserName: string, options: ChainBlockSessionOptions) {
+  async function doChainBlock(targetUserName: string, options: SessionInfo['options']) {
     const myself = await TwitterAPI.getMyself().catch(() => null)
     if (!myself) {
       window.alert('로그인 여부를 확인해주세요.')
