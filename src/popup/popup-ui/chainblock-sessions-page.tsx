@@ -62,6 +62,96 @@ namespace RedBlock.Popup.UI.Pages.ChainBlockSessions {
     )
   }
 
+  function ChainBlockSessionItem(props: { session: ChainBlockSessionInfo }) {
+    const { session } = props
+    const { user } = session.target
+    function statusToString(status: ChainBlockSessionStatus): string {
+      const statusMessageObj: { [key: number]: string } = {
+        [ChainBlockSessionStatus.Initial]: '대기 중',
+        [ChainBlockSessionStatus.Completed]: '완료',
+        [ChainBlockSessionStatus.Running]: '실행 중…',
+        [ChainBlockSessionStatus.RateLimited]: '리밋',
+        [ChainBlockSessionStatus.Stopped]: '정지',
+        [ChainBlockSessionStatus.Error]: '오류 발생!',
+      }
+      const statusMessage = `[${statusMessageObj[status]}]`
+      return statusMessage
+    }
+    function renderText({ progress, status }: ChainBlockSessionInfo) {
+      const statusMessage = statusToString(status)
+      return (
+        <div>
+          <small>
+            {statusMessage} {' / '}
+            <b>차단: {progress.blockSuccess.toLocaleString()}</b>
+            {progress.alreadyBlocked > 0 && ` / 이미 차단함: ${progress.alreadyBlocked.toLocaleString()}`}
+            {progress.skipped > 0 && ` / 스킵: ${progress.skipped.toLocaleString()}`}
+            {progress.blockFail > 0 && ` / 실패: ${progress.blockFail.toLocaleString()}`}
+          </small>
+        </div>
+      )
+    }
+    function isRunning(status: ChainBlockSessionStatus): boolean {
+      const runningStatuses = [
+        ChainBlockSessionStatus.Initial,
+        ChainBlockSessionStatus.Running,
+        ChainBlockSessionStatus.RateLimited,
+      ]
+      return runningStatuses.includes(status)
+    }
+    function renderControls({ sessionId, status, target }: ChainBlockSessionInfo) {
+      const userName = target.user.screen_name
+      function requestStopChainBlock() {
+        if (isRunning(status)) {
+          const confirmMessage = `@${userName}에게 실행중인 체인블락을 중단하시겠습니까?`
+          if (!window.confirm(confirmMessage)) {
+            return
+          }
+        }
+        stopChainBlock(sessionId)
+      }
+      let closeButtonText = '닫기'
+      let closeButtonTitleText = ''
+      if (isRunning(status)) {
+        closeButtonText = '중지'
+        closeButtonTitleText = `@${userName}에게 실행중인 체인블락을 중지합니다.`
+      }
+      return (
+        <div className="controls align-to-end">
+          <button type="button" title={closeButtonTitleText} onClick={requestStopChainBlock}>
+            {closeButtonText}
+          </button>
+        </div>
+      )
+    }
+    return (
+      <div className="session" key={session.sessionId}>
+        <div className="target-user-info">
+          <div className="profile-image-area">{renderProfileImageWithProgress(session)}</div>
+          <div className="profile-right-area">
+            <div className="profile-right-info">
+              <div className="ellipsis nickname" title={user.name}>
+                {user.name}
+              </div>
+              <div className="username" title={'@' + user.screen_name}>
+                <a
+                  target="_blank"
+                  rel="noopener noreferer"
+                  href={`https://twitter.com/${user.screen_name}`}
+                  title={`https://twitter.com/${user.screen_name} 로 이동`}
+                >
+                  @{user.screen_name}
+                </a>
+              </div>
+              {renderText(session)}
+            </div>
+          </div>
+        </div>
+        {renderControls(session)}
+      </div>
+    )
+  }
+
   interface ChainBlockSessionsPageState {
     sessions: ChainBlockSessionInfo[]
   }
@@ -91,66 +181,6 @@ namespace RedBlock.Popup.UI.Pages.ChainBlockSessions {
       browser.runtime.onMessage.removeListener(this._msgListener)
       window.clearInterval(this._interval)
     }
-    private statusToString(status: ChainBlockSessionStatus): string {
-      const statusMessageObj: { [key: number]: string } = {
-        [ChainBlockSessionStatus.Initial]: '대기 중',
-        [ChainBlockSessionStatus.Completed]: '완료',
-        [ChainBlockSessionStatus.Running]: '실행 중…',
-        [ChainBlockSessionStatus.RateLimited]: '리밋',
-        [ChainBlockSessionStatus.Stopped]: '정지',
-        [ChainBlockSessionStatus.Error]: '오류 발생!',
-      }
-      const statusMessage = `[${statusMessageObj[status]}]`
-      return statusMessage
-    }
-    private renderText({ progress, status }: ChainBlockSessionInfo) {
-      const statusMessage = this.statusToString(status)
-      return (
-        <div>
-          <small>
-            {statusMessage} {' / '}
-            <b>차단: {progress.blockSuccess.toLocaleString()}</b>
-            {progress.alreadyBlocked > 0 && ` / 이미 차단함: ${progress.alreadyBlocked.toLocaleString()}`}
-            {progress.skipped > 0 && ` / 스킵: ${progress.skipped.toLocaleString()}`}
-            {progress.blockFail > 0 && ` / 실패: ${progress.blockFail.toLocaleString()}`}
-          </small>
-        </div>
-      )
-    }
-    private isRunning(status: ChainBlockSessionStatus): boolean {
-      const runningStatuses = [
-        ChainBlockSessionStatus.Initial,
-        ChainBlockSessionStatus.Running,
-        ChainBlockSessionStatus.RateLimited,
-      ]
-      return runningStatuses.includes(status)
-    }
-    private renderControls({ sessionId, status, target }: ChainBlockSessionInfo) {
-      const isRunning = this.isRunning(status)
-      const userName = target.user.screen_name
-      function requestStopChainBlock() {
-        if (isRunning) {
-          const confirmMessage = `@${userName}에게 실행중인 체인블락을 중단하시겠습니까?`
-          if (!window.confirm(confirmMessage)) {
-            return
-          }
-        }
-        stopChainBlock(sessionId)
-      }
-      let closeButtonText = '닫기'
-      let closeButtonTitleText = ''
-      if (isRunning) {
-        closeButtonText = '중지'
-        closeButtonTitleText = `@${userName}에게 실행중인 체인블락을 중지합니다.`
-      }
-      return (
-        <div className="controls align-to-end">
-          <button type="button" title={closeButtonTitleText} onClick={requestStopChainBlock}>
-            {closeButtonText}
-          </button>
-        </div>
-      )
-    }
     private renderGlobalControls() {
       function requestStopAllChainBlock() {
         const confirmMessage = `실행중인 체인블락을 모두 중단하시겠습니까?`
@@ -170,36 +200,9 @@ namespace RedBlock.Popup.UI.Pages.ChainBlockSessions {
     renderSessions() {
       return (
         <div className="chainblock-sessions">
-          {this.state.sessions.map(session => {
-            const { target } = session
-            const { user } = target
-            return (
-              <div className="session" key={session.sessionId}>
-                <div className="target-user-info">
-                  <div className="profile-image-area">{renderProfileImageWithProgress(session)}</div>
-                  <div className="profile-right-area">
-                    <div className="profile-right-info">
-                      <div className="ellipsis nickname" title={user.name}>
-                        {user.name}
-                      </div>
-                      <div className="username" title={'@' + user.screen_name}>
-                        <a
-                          target="_blank"
-                          rel="noopener noreferer"
-                          href={`https://twitter.com/${user.screen_name}`}
-                          title={`https://twitter.com/${user.screen_name} 로 이동`}
-                        >
-                          @{user.screen_name}
-                        </a>
-                      </div>
-                      {this.renderText(session)}
-                    </div>
-                  </div>
-                </div>
-                {this.renderControls(session)}
-              </div>
-            )
-          })}
+          {this.state.sessions.map(session => (
+            <ChainBlockSessionItem session={session} />
+          ))}
         </div>
       )
     }
