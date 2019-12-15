@@ -3,7 +3,7 @@
   "exclude": ["src/vendor/*", "*/**/flycheck_*"],
   "compilerOptions": {
     "target": "esnext",
-    "module": "none",
+    "module": "esnext",
     "moduleResolution": "node",
     "allowJs": true,
     "checkJs": false,
@@ -19,6 +19,6 @@
     "noFallthroughCasesInSwitch": true,
     "experimentalDecorators": true,
     "emitDecoratorMetadata": true,
-    "typeRoots": ["node_modules/@types", "node_modules/web-ext-types"]
+    "typeRoots": ["node_modules/@types", "node_modules/web-ext-types", "src/scripts/types"]
   }
 }

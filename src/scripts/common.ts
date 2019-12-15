@@ -1,4 +1,6 @@
-const enum Action {
+import { TwitterUser, TwitterUserEntities } from './background/twitter-api.js'
+
+export const enum Action {
   StartChainBlock = 'RedBlock/Start',
   StopChainBlock = 'RedBlock/Stop',
   StopAllChainBlock = 'RedBlock/StopAll',
@@ -9,7 +11,7 @@ const enum Action {
   DisconnectToBackground = 'RedBlock/DisconnectToBackground',
 }
 
-const enum SessionStatus {
+export const enum SessionStatus {
   Initial,
   Running,
   RateLimited,
@@ -18,13 +20,9 @@ const enum SessionStatus {
   Error,
 }
 
-const UI_UPDATE_DELAY = 250
+export const UI_UPDATE_DELAY = 250
 
-interface allHandlerParam<T, K extends keyof T> {
-  name: keyof T
-  params: T[K]
-}
-class EventEmitter<T> {
+export class EventEmitter<T> {
   protected events: EventStore = new Proxy(
     {},
     {
@@ -50,7 +48,7 @@ class EventEmitter<T> {
   }
 }
 
-class TwitterUserMap extends Map<string, TwitterUser> {
+export class TwitterUserMap extends Map<string, TwitterUser> {
   public addUser(user: TwitterUser, forceUpdate = false) {
     const shouldUpdate = forceUpdate || !this.has(user.id_str)
     if (shouldUpdate) {
@@ -78,7 +76,7 @@ class TwitterUserMap extends Map<string, TwitterUser> {
   }
 }
 
-function getUserNameFromURL(url: URL | Location | HTMLAnchorElement): string | null {
+export function getUserNameFromURL(url: URL | Location | HTMLAnchorElement): string | null {
   const userNameBlacklist = [
     '1',
     'about',
@@ -120,15 +118,15 @@ function getUserNameFromURL(url: URL | Location | HTMLAnchorElement): string | n
   return userName
 }
 
-function sleep(time: number): Promise<void> {
+export function sleep(time: number): Promise<void> {
   return new Promise(resolve => window.setTimeout(resolve, time))
 }
 
-function copyFrozenObject<T extends object>(obj: T): Readonly<T> {
+export function copyFrozenObject<T extends object>(obj: T): Readonly<T> {
   return Object.freeze(Object.assign({}, obj))
 }
 
-async function collectAsync<T>(generator: AsyncIterableIterator<T>): Promise<T[]> {
+export async function collectAsync<T>(generator: AsyncIterableIterator<T>): Promise<T[]> {
   const result: T[] = []
   for await (const val of generator) {
     result.push(val)
@@ -136,7 +134,7 @@ async function collectAsync<T>(generator: AsyncIterableIterator<T>): Promise<T[]
   return result
 }
 
-function formatNumber(input: unknown, quick = false): string {
+export function formatNumber(input: unknown, quick = false): string {
   if (typeof input === 'number') {
     const count = quick ? Math.min(input, 200) : input
     const formatted = count.toLocaleString()
@@ -145,5 +143,3 @@ function formatNumber(input: unknown, quick = false): string {
     return '??'
   }
 }
-
-// namespace RedBlock.Content.Utils { }
