@@ -30,9 +30,9 @@
       "scripts/background/background.js",
       "scripts/background/storage.js",
       "scripts/background/twitter-api.js",
-      "scripts/background/chainblock.js",
       "scripts/background/chainblock-scraper.js",
       "scripts/background/chainblock-session.js",
+      "scripts/background/chainblock.js",
       "scripts/background/entrypoint.js",
       "scripts/background/context-menu.js"
     ]

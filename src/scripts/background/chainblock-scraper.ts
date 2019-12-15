@@ -13,6 +13,8 @@ namespace RedBlock.Background.ChainBlock.Scraper {
       case 'friends':
         return user.friends_count
         break
+      case 'mutual-followers':
+        throw new Error('unreachable')
     }
   }
 

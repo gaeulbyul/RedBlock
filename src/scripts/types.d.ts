@@ -35,7 +35,7 @@ interface UserIdsResponse {
   ids: string[]
 }
 
-type FollowKind = 'followers' | 'friends'
+type FollowKind = 'followers' | 'friends' | 'mutual-followers'
 
 type ConnectionType =
   | 'following'
@@ -129,7 +129,8 @@ declare namespace RBActions {
   export interface Start {
     action: Action.StartChainBlock
     userName: string
-    options: SessionInfo['options']
+    targetList: FollowKind
+    options: RedBlock.Background.ChainBlockSession.SessionRequest['options']
   }
 
   export interface Stop {
@@ -176,13 +177,14 @@ type RBAction =
 
 interface RBChainBlockInfoMessage {
   messageType: 'ChainBlockInfoMessage'
-  infos: SessionInfo[]
+  infos: RedBlock.Background.ChainBlockSession.SessionInfo[]
 }
 
 declare namespace uuid {
   function v1(): string
 }
 
+/*
 interface SessionInfo {
   sessionId: string
   progress: {
@@ -214,6 +216,7 @@ interface SessionInit {
   targetUser: TwitterUser
   options: SessionInfo['options']
 }
+*/
 
 interface RedBlockStorage {
   savedUsers: TwitterUser[]

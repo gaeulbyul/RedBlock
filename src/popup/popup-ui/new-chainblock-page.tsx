@@ -1,4 +1,6 @@
 namespace RedBlock.Popup.UI.Pages.NewChainBlock {
+  type SessionRequest = RedBlock.Background.ChainBlockSession.SessionRequest
+  type SessionOptions = SessionRequest['options']
   type SelectUserGroup = 'invalid' | 'current' | 'saved'
   const { TwitterAPI, Storage } = RedBlock.Background
   function TargetSavedUsers(props: {
@@ -70,11 +72,13 @@ namespace RedBlock.Popup.UI.Pages.NewChainBlock {
   function TargetUserProfile(props: {
     user: TwitterUser
     isAvailable: boolean
-    options: SessionInfo['options']
-    mutateOptions: (part: Partial<SessionInfo['options']>) => void
+    targetList: FollowKind
+    options: SessionRequest['options']
+    setTargetList: (fk: FollowKind) => void
+    mutateOptions: (part: Partial<SessionOptions>) => void
   }) {
-    const { user, isAvailable, options, mutateOptions } = props
-    const { targetList, quickMode } = options
+    const { user, isAvailable, targetList, options, setTargetList, mutateOptions } = props
+    const { quickMode } = options
     const biggerProfileImageUrl = user.profile_image_url_https.replace('_normal', '_bigger')
     return (
       <div className="target-user-info">
@@ -109,7 +113,7 @@ namespace RedBlock.Popup.UI.Pages.NewChainBlock {
                 type="radio"
                 disabled={!isAvailable}
                 checked={targetList === 'followers'}
-                onChange={() => mutateOptions({ targetList: 'followers' })}
+                onChange={() => setTargetList('followers')}
               />
               <span title="상대방을 팔로우하는 사용자를 차단합니다.">
                 팔로워 {formatNumber(user.followers_count, quickMode)}명
@@ -120,7 +124,7 @@ namespace RedBlock.Popup.UI.Pages.NewChainBlock {
                 type="radio"
                 disabled={!isAvailable}
                 checked={targetList === 'friends'}
-                onChange={() => mutateOptions({ targetList: 'friends' })}
+                onChange={() => setTargetList('friends')}
               />
               <span title="상대방이 팔로우하는 사용자를 차단합니다.">
                 팔로잉 {formatNumber(user.friends_count, quickMode)}명
@@ -132,7 +136,7 @@ namespace RedBlock.Popup.UI.Pages.NewChainBlock {
                 type="radio"
                 disabled={!isAvailable}
                 checked={targetList === 'mutual-followers'}
-                onChange={() => mutateOptions({ targetList: 'mutual-followers' })}
+                onChange={() => setTargetList('mutual-followers')}
               />
               <span title="상대방과 맞팔로우한 사용자만 추려서 차단합니다.">
                 맞팔로우만<sup>&beta;</sup>
@@ -170,11 +174,11 @@ namespace RedBlock.Popup.UI.Pages.NewChainBlock {
   }
 
   function TargetListOptions(props: {
-    options: SessionInfo['options']
-    mutateOptions: (part: Partial<SessionInfo['options']>) => void
+    options: SessionOptions
+    mutateOptions: (part: Partial<SessionOptions>) => void
   }) {
     const { options, mutateOptions } = props
-    const { myFollowers, myFollowings } = options
+    const { myFollowers, myFollowings, verified } = options
     return (
       <React.Fragment>
         <fieldset className="chainblock-subopt">
@@ -182,16 +186,16 @@ namespace RedBlock.Popup.UI.Pages.NewChainBlock {
           <label>
             <input
               type="radio"
-              checked={myFollowers === 'skip'}
-              onChange={() => mutateOptions({ myFollowers: 'skip' })}
+              checked={myFollowers === 'Skip'}
+              onChange={() => mutateOptions({ myFollowers: 'Skip' })}
             />
             <span>냅두기</span>
           </label>
           <label>
             <input
               type="radio"
-              checked={myFollowers === 'block'}
-              onChange={() => mutateOptions({ myFollowers: 'block' })}
+              checked={myFollowers === 'Block'}
+              onChange={() => mutateOptions({ myFollowers: 'Block' })}
             />
             <span>차단하기</span>
           </label>
@@ -201,17 +205,28 @@ namespace RedBlock.Popup.UI.Pages.NewChainBlock {
           <label>
             <input
               type="radio"
-              checked={myFollowings === 'skip'}
-              onChange={() => mutateOptions({ myFollowings: 'skip' })}
+              checked={myFollowings === 'Skip'}
+              onChange={() => mutateOptions({ myFollowings: 'Skip' })}
             />
             <span>냅두기</span>
           </label>
           <label>
             <input
               type="radio"
-              checked={myFollowings === 'block'}
-              onChange={() => mutateOptions({ myFollowings: 'block' })}
+              checked={myFollowings === 'Block'}
+              onChange={() => mutateOptions({ myFollowings: 'Block' })}
             />
+            <span>차단하기</span>
+          </label>
+        </fieldset>
+        <fieldset className="chainblock-subopt">
+          <legend>인증된 계정 (파란 체크마크가 붙은 계정)</legend>
+          <label>
+            <input type="radio" checked={verified === 'Skip'} onChange={() => mutateOptions({ verified: 'Skip' })} />
+            <span>냅두기</span>
+          </label>
+          <label>
+            <input type="radio" checked={verified === 'Block'} onChange={() => mutateOptions({ verified: 'Block' })} />
             <span>차단하기</span>
           </label>
         </fieldset>
@@ -232,16 +247,18 @@ namespace RedBlock.Popup.UI.Pages.NewChainBlock {
 
   export function NewChainBlockPage(props: { currentUser: TwitterUser | null }) {
     const { currentUser } = props
-    const [options, setOptions] = React.useState<SessionInfo['options']>({
-      targetList: 'followers',
-      myFollowers: 'skip',
-      myFollowings: 'skip',
+    const [options, setOptions] = React.useState<SessionOptions>({
       quickMode: false,
+      myFollowers: 'Skip',
+      myFollowings: 'Skip',
+      verified: 'Skip',
+      mutualBlocked: 'Skip',
     })
     const [selectedUser, selectUser] = React.useState<TwitterUser | null>(currentUser)
     const [savedUsers, setSavedUsers] = React.useState(new TwitterUserMap())
     const [selectedUserGroup, selectUserGroup] = React.useState<SelectUserGroup>('current')
     const [isLoading, setLoadingState] = React.useState(false)
+    const [targetList, setTargetList] = React.useState<FollowKind>('followers')
     const isAvailable = React.useMemo((): boolean => {
       if (!selectedUser) {
         return false
@@ -269,12 +286,12 @@ namespace RedBlock.Popup.UI.Pages.NewChainBlock {
       })
       return () => browser.storage.onChanged.removeListener(loadUsers)
     }, [])
-    function mutateOptions(newOptionsPart: Partial<SessionInfo['options']>) {
+    function mutateOptions(newOptionsPart: Partial<SessionOptions>) {
       const newOptions = { ...options, ...newOptionsPart }
       setOptions(newOptions)
     }
     function onExecuteChainBlockButtonClicked() {
-      startChainBlock(selectedUser!.screen_name, options)
+      startChainBlock(selectedUser!.screen_name, targetList, options)
     }
     async function changeUser(userName: string, group: SelectUserGroup) {
       const validUserNamePattern = /^[0-9a-z_]{1,15}$/i
@@ -317,6 +334,8 @@ namespace RedBlock.Popup.UI.Pages.NewChainBlock {
               <TargetUserProfile
                 options={options}
                 mutateOptions={mutateOptions}
+                targetList={targetList}
+                setTargetList={setTargetList}
                 user={selectedUser}
                 isAvailable={isAvailable}
               />

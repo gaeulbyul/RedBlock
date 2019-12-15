@@ -1,12 +1,13 @@
 namespace RedBlock.Popup.UI.Pages.ChainBlockSessions {
+  type SessionInfo = RedBlock.Background.ChainBlockSession.SessionInfo
   function calculatePercentage(session: SessionInfo): number {
-    const { target, progress, status } = session
+    const { status, count } = session
     const isCompleted = status === SessionStatus.Completed
-    const max = (isCompleted ? progress.totalScraped : target.totalCount) || undefined
+    const max = (isCompleted ? count.scraped : count.total) || undefined
     if (isCompleted) {
       return 100
     } else if (typeof max === 'number') {
-      return Math.round((progress.totalScraped / max) * 1000) / 10
+      return Math.round((count.scraped / max) * 1000) / 10
     } else {
       return 0
     }
@@ -14,7 +15,9 @@ namespace RedBlock.Popup.UI.Pages.ChainBlockSessions {
 
   function renderProfileImageWithProgress(session: SessionInfo) {
     const {
-      target: { user },
+      request: {
+        target: { user },
+      },
     } = session
     const width = 72
     const strokeWidth = 4
@@ -64,7 +67,7 @@ namespace RedBlock.Popup.UI.Pages.ChainBlockSessions {
 
   function ChainBlockSessionItem(props: { session: SessionInfo }) {
     const { session } = props
-    const { user } = session.target
+    const { user } = session.request.target
     function statusToString(status: SessionStatus): string {
       const statusMessageObj: { [key: number]: string } = {
         [SessionStatus.Initial]: '대기 중',
@@ -83,10 +86,10 @@ namespace RedBlock.Popup.UI.Pages.ChainBlockSessions {
         <div>
           <small>
             {statusMessage} {' / '}
-            <b>차단: {progress.blockSuccess.toLocaleString()}</b>
-            {progress.alreadyBlocked > 0 && ` / 이미 차단함: ${progress.alreadyBlocked.toLocaleString()}`}
+            <b>차단: {progress.success.toLocaleString()}</b>
+            {progress.already > 0 && ` / 이미 차단함: ${progress.already.toLocaleString()}`}
             {progress.skipped > 0 && ` / 스킵: ${progress.skipped.toLocaleString()}`}
-            {progress.blockFail > 0 && ` / 실패: ${progress.blockFail.toLocaleString()}`}
+            {progress.failure > 0 && ` / 실패: ${progress.failure.toLocaleString()}`}
           </small>
         </div>
       )
@@ -95,7 +98,7 @@ namespace RedBlock.Popup.UI.Pages.ChainBlockSessions {
       const runningStatuses = [SessionStatus.Initial, SessionStatus.Running, SessionStatus.RateLimited]
       return runningStatuses.includes(status)
     }
-    function renderControls({ sessionId, status, target }: SessionInfo) {
+    function renderControls({ sessionId, status, request: { target } }: SessionInfo) {
       const userName = target.user.screen_name
       function requestStopChainBlock() {
         if (isRunning(status)) {
@@ -121,7 +124,7 @@ namespace RedBlock.Popup.UI.Pages.ChainBlockSessions {
       )
     }
     return (
-      <div className="session" key={session.sessionId}>
+      <div className="session">
         <div className="target-user-info">
           <div className="profile-image-area">{renderProfileImageWithProgress(session)}</div>
           <div className="profile-right-area">
@@ -197,7 +200,7 @@ namespace RedBlock.Popup.UI.Pages.ChainBlockSessions {
       return (
         <div className="chainblock-sessions">
           {this.state.sessions.map(session => (
-            <ChainBlockSessionItem session={session} />
+            <ChainBlockSessionItem session={session} key={session.sessionId} />
           ))}
         </div>
       )

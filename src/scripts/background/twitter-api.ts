@@ -1,7 +1,19 @@
 namespace RedBlock.Background.TwitterAPI {
   const DELAY = 200
   const BEARER_TOKEN = `AAAAAAAAAAAAAAAAAAAAANRILgAAAAAAnNwIzUejRCOuH5E6I8xnZz4puTs%3D1Zv7ttfk8LF81IUq16cHjhLTvJu4FA33AGWWjCpTnA`
-  export class RateLimitError extends Error {}
+
+  export class RateLimitError extends Error {
+    public constructor(message: string, public readonly response?: Response) {
+      super(message)
+    }
+  }
+
+  export class APIFailError extends Error {
+    public constructor(message: string, public readonly response?: Response) {
+      super(message)
+    }
+  }
+
   export async function getMyself(): Promise<TwitterUser> {
     const response = await requestAPI('get', '/account/verify_credentials.json')
     if (response.ok) {
@@ -21,13 +33,55 @@ namespace RedBlock.Background.TwitterAPI {
     if (user.blocking) {
       return true
     }
-    const response = await requestAPI('post', '/blocks/create.json', {
+    const result = await requestAPI('post', '/blocks/create.json', {
       user_id: user.id_str,
       include_entities: false,
       skip_status: true,
-    })
-    const result = response.ok
-    void response.text()
+    }).then(
+      () => true,
+      () => false
+    )
+    return result
+  }
+
+  export async function unblockUser(user: TwitterUser): Promise<boolean> {
+    if (!user.blocking) {
+      return true
+    }
+    const result = await requestAPI('post', '/blocks/destroy.json', {
+      user_id: user.id_str,
+      include_entities: false,
+      skip_status: true,
+    }).then(
+      () => true,
+      () => false
+    )
+    return result
+  }
+
+  export async function muteUser(user: TwitterUser): Promise<boolean> {
+    if (user.muting) {
+      return true
+    }
+    const result = await requestAPI('post', '/mutes/users/create.json', {
+      user_id: user.id_str,
+    }).then(
+      () => true,
+      () => false
+    )
+    return result
+  }
+
+  export async function unmuteUser(user: TwitterUser): Promise<boolean> {
+    if (!user.muting) {
+      return true
+    }
+    const result = await requestAPI('post', '/mutes/users/destroy.json', {
+      user_id: user.id_str,
+    }).then(
+      () => true,
+      () => false
+    )
     return result
   }
 
@@ -42,11 +96,7 @@ namespace RedBlock.Background.TwitterAPI {
       count: 5000,
       cursor,
     })
-    if (response.ok) {
-      return response.json() as Promise<UserIdsResponse>
-    } else {
-      throw new Error('response is not ok')
-    }
+    return response.json() as Promise<UserIdsResponse>
   }
 
   export async function* getAllFollowsIds(
@@ -90,11 +140,7 @@ namespace RedBlock.Background.TwitterAPI {
       include_user_entities: false,
       cursor,
     })
-    if (response.ok) {
-      return response.json() as Promise<FollowsListResponse>
-    } else {
-      throw new Error('response is not ok')
-    }
+    return response.json() as Promise<FollowsListResponse>
   }
 
   export async function* getAllFollowsUserList(
@@ -163,11 +209,7 @@ namespace RedBlock.Background.TwitterAPI {
     const response = await requestAPI('get', '/users/lookup.json', {
       user_id: joinedIds,
     })
-    if (response.ok) {
-      return response.json() as Promise<TwitterUser[]>
-    } else {
-      throw new Error('response is not ok')
-    }
+    return response.json() as Promise<TwitterUser[]>
   }
 
   export async function getMultipleUsersByName(userNames: string[]): Promise<TwitterUser[]> {
@@ -181,11 +223,7 @@ namespace RedBlock.Background.TwitterAPI {
     const response = await requestAPI('get', '/users/lookup.json', {
       screen_name: joinedNames,
     })
-    if (response.ok) {
-      return response.json() as Promise<TwitterUser[]>
-    } else {
-      throw new Error('response is not ok')
-    }
+    return response.json() as Promise<TwitterUser[]>
   }
 
   export async function getSingleUserByName(userName: string): Promise<TwitterUser> {
@@ -195,11 +233,7 @@ namespace RedBlock.Background.TwitterAPI {
       skip_status: true,
       include_entities: false,
     })
-    if (response.ok) {
-      return response.json() as Promise<TwitterUser>
-    } else {
-      throw new Error('response is not ok')
-    }
+    return response.json() as Promise<TwitterUser>
   }
 
   export async function getFriendships(users: TwitterUser[]): Promise<FriendshipResponse> {
@@ -214,11 +248,7 @@ namespace RedBlock.Background.TwitterAPI {
     const response = await requestAPI('get', '/friendships/lookup.json', {
       user_id: joinedIds,
     })
-    if (response.ok) {
-      return response.json() as Promise<FriendshipResponse>
-    } else {
-      throw new Error('response is not ok')
-    }
+    return response.json() as Promise<FriendshipResponse>
   }
 
   export async function getRelationship(sourceUser: TwitterUser, targetUser: TwitterUser): Promise<Relationship> {
@@ -228,11 +258,7 @@ namespace RedBlock.Background.TwitterAPI {
       source_id,
       target_id,
     })
-    if (response.ok) {
-      return (await response.json()).relationship as Promise<Relationship>
-    } else {
-      throw new Error('response is not ok')
-    }
+    return (await response.json()).relationship as Promise<Relationship>
   }
 
   async function getCsrfTokenFromCookies(): Promise<string> {
@@ -293,6 +319,8 @@ namespace RedBlock.Background.TwitterAPI {
     const response = await fetch(url.toString(), fetchOptions)
     if (response.status === 429) {
       throw new RateLimitError('rate limited')
+    } else if (!response.ok) {
+      throw new APIFailError('api response is not ok', response)
     }
     return response
   }

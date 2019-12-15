@@ -9,13 +9,22 @@ const enum Action {
   DisconnectToBackground = 'RedBlock/DisconnectToBackground',
 }
 
+const enum SessionStatus {
+  Initial,
+  Running,
+  RateLimited,
+  Completed,
+  Stopped,
+  Error,
+}
+
 const UI_UPDATE_DELAY = 250
 
 interface allHandlerParam<T, K extends keyof T> {
   name: keyof T
   params: T[K]
 }
-abstract class EventEmitter<T> {
+class EventEmitter<T> {
   protected events: EventStore = new Proxy(
     {},
     {

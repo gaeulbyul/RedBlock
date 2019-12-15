@@ -1,5 +1,5 @@
 namespace RedBlock.Background.Menu {
-  const { doChainBlockWithDefaultSkip } = RedBlock.Background.Entrypoint
+  const { doChainBlockWithDefaultOptions } = RedBlock.Background.Entrypoint
   const urlPatterns = ['https://twitter.com/*', 'https://mobile.twitter.com/*']
   browser.contextMenus.create({
     contexts: ['link'],
@@ -12,7 +12,7 @@ namespace RedBlock.Background.Menu {
       if (!userName) {
         return
       }
-      doChainBlockWithDefaultSkip(userName, 'followers')
+      doChainBlockWithDefaultOptions(userName, 'followers')
     },
   })
   browser.contextMenus.create({
@@ -26,7 +26,7 @@ namespace RedBlock.Background.Menu {
       if (!userName) {
         return
       }
-      doChainBlockWithDefaultSkip(userName, 'friends')
+      doChainBlockWithDefaultOptions(userName, 'friends')
     },
   })
 }
