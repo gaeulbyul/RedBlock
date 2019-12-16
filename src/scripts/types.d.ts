@@ -10,6 +10,7 @@ declare var ReactDOM: typeof import('react-dom')
 declare var ReactTabs: typeof import('react-tabs')
 
 type FollowKind = 'followers' | 'friends' | 'mutual-followers'
+type ChainKind = 'chainblock' | 'unchainblock'
 
 type EventStore = Record<string, Function[]>
 
@@ -25,12 +26,17 @@ interface EitherLeft<E> {
 
 type Either<E, T> = EitherLeft<E> | EitherRight<T>
 
+interface ChainParams {
+  userName: string
+  purpose: ChainKind
+  targetList: FollowKind
+  options: SessionRequest['options']
+}
+
 declare namespace RBActions {
   interface Start {
     action: Action['StartChainBlock']
-    userName: string
-    targetList: FollowKind
-    options: SessionRequest['options']
+    params: ChainParams
   }
 
   interface Stop {

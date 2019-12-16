@@ -18,6 +18,7 @@ function calculatePercentage(session: SessionInfo): number {
 function renderProfileImageWithProgress(session: SessionInfo) {
   const {
     request: {
+      purpose,
       target: { user },
     },
   } = session
@@ -29,6 +30,7 @@ function renderProfileImageWithProgress(session: SessionInfo) {
   const strokeDasharray = `${circumference} ${circumference}`
   const strokeDashoffset = circumference - (percent / 100) * circumference
   // if omit _${size}, will get original-size image
+  const strokeColor = purpose === 'chainblock' ? 'crimson' : 'seagreen'
   const biggerProfileImageUrl = user.profile_image_url_https.replace('_normal', '_bigger')
   return (
     <svg width={width} height={width}>
@@ -51,7 +53,7 @@ function renderProfileImageWithProgress(session: SessionInfo) {
         />
         <use
           href="#profile-circle"
-          stroke="crimson"
+          stroke={strokeColor}
           strokeWidth={strokeWidth}
           fill="transparent"
           style={{
@@ -69,7 +71,11 @@ function renderProfileImageWithProgress(session: SessionInfo) {
 
 function ChainBlockSessionItem(props: { session: SessionInfo }) {
   const { session } = props
+  const { purpose } = session.request
   const { user } = session.request.target
+  const isChainBlock = purpose === 'chainblock'
+  const isUnChainBlock = purpose === 'unchainblock'
+  const purposeKor = isChainBlock ? '체인블락' : '언체인블락'
   function statusToString(status: SessionStatus): string {
     const statusMessageObj: { [key: number]: string } = {
       [SessionStatus.Initial]: '대기 중',
@@ -88,8 +94,12 @@ function ChainBlockSessionItem(props: { session: SessionInfo }) {
       <div>
         <small>
           {statusMessage} {' / '}
-          <b>차단: {progress.success.toLocaleString()}</b>
-          {progress.already > 0 && ` / 이미 차단함: ${progress.already.toLocaleString()}`}
+          <b>
+            {isChainBlock && `차단: ${progress.success.toLocaleString()}`}
+            {isUnChainBlock && `차단해제: ${progress.success.toLocaleString()}`}
+          </b>
+          {isChainBlock && progress.already > 0 && ` / 이미 차단함: ${progress.already.toLocaleString()}`}
+          {isUnChainBlock && progress.already > 0 && ` / 이미 차단해제함: ${progress.already.toLocaleString()}`}
           {progress.skipped > 0 && ` / 스킵: ${progress.skipped.toLocaleString()}`}
           {progress.failure > 0 && ` / 실패: ${progress.failure.toLocaleString()}`}
         </small>
@@ -104,7 +114,7 @@ function ChainBlockSessionItem(props: { session: SessionInfo }) {
     const userName = target.user.screen_name
     function requestStopChainBlock() {
       if (isRunning(status)) {
-        const confirmMessage = `@${userName}에게 실행중인 체인블락을 중단하시겠습니까?`
+        const confirmMessage = `@${userName}에게 실행중인 ${purposeKor}을 중단하시겠습니까?`
         if (!window.confirm(confirmMessage)) {
           return
         }
@@ -115,7 +125,7 @@ function ChainBlockSessionItem(props: { session: SessionInfo }) {
     let closeButtonTitleText = ''
     if (isRunning(status)) {
       closeButtonText = '중지'
-      closeButtonTitleText = `@${userName}에게 실행중인 체인블락을 중지합니다.`
+      closeButtonTitleText = `@${userName}에게 실행중인 ${purposeKor}을 중지합니다.`
     }
     return (
       <div className="controls align-to-end">
@@ -184,7 +194,7 @@ export default class ChainBlockSessionsPage extends React.Component<{}, ChainBlo
   }
   private renderGlobalControls() {
     function requestStopAllChainBlock() {
-      const confirmMessage = `실행중인 체인블락을 모두 중단하시겠습니까?`
+      const confirmMessage = `실행중인 체인블락 및 언체인블락을 모두 중단하시겠습니까?`
       if (!window.confirm(confirmMessage)) {
         return
       }

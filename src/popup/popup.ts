@@ -1,15 +1,13 @@
-import { SessionRequest } from '../scripts/background/chainblock-session.js'
+// import { SessionRequest } from '../scripts/background/chainblock-session.js'
 import { Action, getUserNameFromURL } from '../scripts/common.js'
 import { TwitterUser } from '../scripts/background/twitter-api.js'
 
 type Tab = browser.tabs.Tab
 
-export async function startChainBlock(userName: string, targetList: FollowKind, options: SessionRequest['options']) {
+export async function startChainBlock(params: ChainParams) {
   return browser.runtime.sendMessage<RBActions.Start, void>({
     action: Action.StartChainBlock,
-    userName,
-    targetList,
-    options,
+    params,
   })
 }
 

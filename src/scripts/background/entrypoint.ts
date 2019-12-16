@@ -10,15 +10,22 @@ let storageQueue = Promise.resolve()
 const chainblocker = new ChainBlocker()
 const tabConnections = new Set<number>()
 
-export async function doChainBlockWithDefaultOptions(targetUserName: string, targetList: FollowKind) {
-  return doChainBlock(targetUserName, targetList, defaultOption)
+export async function doChainBlockWithDefaultOptions(userName: string, targetList: FollowKind) {
+  return doChainBlock({
+    userName,
+    targetList,
+    purpose: 'chainblock',
+    options: defaultOption,
+  })
 }
 
 function generateConfirmMessage(request: SessionRequest): string {
+  const { purpose } = request
   const { user: targetUser, list: targetList } = request.target
   const { myFollowers, myFollowings, quickMode } = request.options
   const targetUserName = targetUser.screen_name
-  let confirmMessage = `정말로 @${targetUserName}에게 체인블락을 실행하시겠습니까?\n`
+  const purposeKor = purpose === 'chainblock' ? '체인블락' : '언체인블락'
+  let confirmMessage = `정말로 @${targetUserName}에게 ${purposeKor}을 실행하시겠습니까?\n`
   confirmMessage += '--------------------\n'
   switch (targetList) {
     case 'followers':
@@ -41,13 +48,15 @@ function generateConfirmMessage(request: SessionRequest): string {
   }
   return confirmMessage
 }
+
 function generateRequest(
   targetUser: TwitterUser,
+  purpose: ChainKind,
   followKind: FollowKind,
   options: SessionRequest['options']
 ): SessionRequest {
   return {
-    purpose: 'chainblock',
+    purpose,
     target: {
       user: targetUser,
       list: followKind,
@@ -55,33 +64,36 @@ function generateRequest(
     options,
   }
 }
-async function doChainBlock(targetUserName: string, followKind: FollowKind, options: SessionRequest['options']) {
+
+async function doChainBlock(params: ChainParams) {
+  const { targetList, userName, purpose, options } = params
   const myself = await TwitterAPI.getMyself().catch(() => null)
   if (!myself) {
     window.alert('로그인 여부를 확인해주세요.')
     return
   }
   try {
-    const targetUser = await TwitterAPI.getSingleUserByName(targetUserName)
+    const targetUser = await TwitterAPI.getSingleUserByName(userName)
     if (targetUser.blocked_by) {
-      window.alert('\u26d4 상대방이 나를 차단하여 체인블락을 실행할 수 없습니다.')
+      window.alert('\u26d4 상대방이 나를 차단하여 (언)체인블락을 실행할 수 없습니다.')
       return
     }
     if (targetUser.protected && !targetUser.following) {
-      window.alert('\u{1f512} 프로텍트 계정을 대상으로 체인블락을 실행할 수 없습니다.')
+      window.alert('\u{1f512} 프로텍트 계정을 대상으로 (언)체인블락을 실행할 수 없습니다.')
       return
     }
     let isZero = false
-    if (followKind === 'followers' && targetUser.followers_count <= 0) {
+    if (targetList === 'followers' && targetUser.followers_count <= 0) {
       isZero = true
-    } else if (followKind === 'friends' && targetUser.friends_count <= 0) {
+    } else if (targetList === 'friends' && targetUser.friends_count <= 0) {
       isZero = true
     }
+    // TODO: 맞팔로우 체인시 팔로워 OR 팔로잉이 0인지 체크
     if (isZero) {
-      window.alert('차단할 팔로잉/팔로워가 없습니다. (총 0명)')
+      window.alert('차단/차단해제할 팔로잉/팔로워가 없습니다. (총 0명)')
       return
     }
-    const request = generateRequest(targetUser, followKind, options)
+    const request = generateRequest(targetUser, purpose, targetList, options)
     const confirmMessage = generateConfirmMessage(request)
     if (window.confirm(confirmMessage)) {
       const sessionId = chainblocker.add(request)
@@ -145,7 +157,7 @@ export function initialize() {
       const message = msg as RBAction
       switch (message.action) {
         case Action.StartChainBlock:
-          doChainBlock(message.userName, message.targetList, message.options).then(sendChainBlockerInfoToTabs)
+          doChainBlock(message.params).then(sendChainBlockerInfoToTabs)
           break
         case Action.StopChainBlock:
           stopChainBlock(message.sessionId).then(sendChainBlockerInfoToTabs)

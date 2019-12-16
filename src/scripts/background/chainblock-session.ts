@@ -12,7 +12,7 @@ type Verb = VerbSomething | VerbNothing
 const PROMISE_BUFFER_SIZE = 150
 
 export interface SessionRequest {
-  purpose: 'chainblock' | 'unchainblock'
+  purpose: ChainKind
   target: {
     user: TwitterUser
     list: FollowKind

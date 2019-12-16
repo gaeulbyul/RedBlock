@@ -178,7 +178,10 @@ function TargetUserProfileEmpty(props: { reason: 'invalid-user' | 'loading' }) {
   return <div>{message}</div>
 }
 
-function TargetListOptions(props: { options: SessionOptions; mutateOptions: (part: Partial<SessionOptions>) => void }) {
+function TargetChainBlockOptions(props: {
+  options: SessionOptions
+  mutateOptions: (part: Partial<SessionOptions>) => void
+}) {
   const { options, mutateOptions } = props
   const { myFollowers, myFollowings, verified } = options
   return (
@@ -230,6 +233,37 @@ function TargetListOptions(props: { options: SessionOptions; mutateOptions: (par
         <label>
           <input type="radio" checked={verified === 'Block'} onChange={() => mutateOptions({ verified: 'Block' })} />
           <span>차단하기</span>
+        </label>
+      </fieldset>
+    </React.Fragment>
+  )
+}
+
+function TargetUnChainBlockOptions(props: {
+  options: SessionOptions
+  mutateOptions: (part: Partial<SessionOptions>) => void
+}) {
+  const { options, mutateOptions } = props
+  const { mutualBlocked } = options
+  return (
+    <React.Fragment>
+      <fieldset className="chainblock-subopt">
+        <legend>서로 맞차단</legend>
+        <label>
+          <input
+            type="radio"
+            checked={mutualBlocked === 'Skip'}
+            onChange={() => mutateOptions({ mutualBlocked: 'Skip' })}
+          />
+          <span>(맞차단인 상태로) 냅두기</span>
+        </label>
+        <label>
+          <input
+            type="radio"
+            checked={mutualBlocked === 'UnBlock'}
+            onChange={() => mutateOptions({ mutualBlocked: 'UnBlock' })}
+          />
+          <span>차단 해제하기</span>
         </label>
       </fieldset>
     </React.Fragment>
@@ -293,7 +327,20 @@ export default function NewChainBlockPage(props: { currentUser: TwitterUser | nu
     setOptions(newOptions)
   }
   function onExecuteChainBlockButtonClicked() {
-    startChainBlock(selectedUser!.screen_name, targetList, options)
+    startChainBlock({
+      purpose: 'chainblock',
+      userName: selectedUser!.screen_name,
+      targetList,
+      options,
+    })
+  }
+  function onExecuteUnChainBlockButtonClicked() {
+    startChainBlock({
+      purpose: 'unchainblock',
+      userName: selectedUser!.screen_name,
+      targetList,
+      options,
+    })
   }
   async function changeUser(userName: string, group: SelectUserGroup) {
     const validUserNamePattern = /^[0-9a-z_]{1,15}$/i
@@ -317,6 +364,7 @@ export default function NewChainBlockPage(props: { currentUser: TwitterUser | nu
       setLoadingState(false)
     }
   }
+  const { Tabs, TabList, Tab, TabPanel } = ReactTabs
   return (
     <div>
       <div className="chainblock-target">
@@ -345,22 +393,49 @@ export default function NewChainBlockPage(props: { currentUser: TwitterUser | nu
             <TargetUserProfileEmpty reason="invalid-user" />
           )}
         </fieldset>
-        <fieldset className="chainblock-opt" disabled={!isAvailable}>
-          <legend>필터</legend>
-          <TargetListOptions options={options} mutateOptions={mutateOptions} />
-          <div className="description">
-            단, <b>나와 맞팔로우</b>인 사용자는 위 옵션과 무관하게 <b>차단하지 않습니다</b>.
-          </div>
-        </fieldset>
-        <div className="menu">
-          <button
-            disabled={!isAvailable}
-            className="menu-item execute-chainblock"
-            onClick={onExecuteChainBlockButtonClicked}
-          >
-            <span>체인블락 실행</span>
-          </button>
-        </div>
+        <Tabs>
+          <TabList>
+            <Tab>체인블락</Tab>
+            <Tab>언체인블락</Tab>
+          </TabList>
+          <TabPanel>
+            <fieldset className="chainblock-opt" disabled={!isAvailable}>
+              <legend>체인블락 필터</legend>
+              <TargetChainBlockOptions options={options} mutateOptions={mutateOptions} />
+              <div className="description">
+                위 필터에 해당하지 않는 나머지 사용자를 모두 <mark>차단</mark>합니다. (단, <b>나와 맞팔로우</b>인
+                사용자는 위 옵션과 무관하게 <b>차단하지 않습니다</b>.)
+              </div>
+              <div className="menu">
+                <button
+                  disabled={!isAvailable}
+                  className="menu-item huge-button execute-chainblock"
+                  onClick={onExecuteChainBlockButtonClicked}
+                >
+                  <span>체인블락 실행</span>
+                </button>
+              </div>
+            </fieldset>
+          </TabPanel>
+          <TabPanel>
+            <fieldset className="chainblock-opt" disabled={!isAvailable}>
+              <legend>언체인블락 필터</legend>
+              <TargetUnChainBlockOptions options={options} mutateOptions={mutateOptions} />
+              <div className="description">
+                위 필터에 해당하지 않는 나머지 사용자를 모두 <mark>차단 해제</mark>합니다.
+              </div>
+              <div className="menu">
+                <button
+                  disabled={!isAvailable}
+                  className="menu-item huge-button execute-unchainblock"
+                  onClick={onExecuteUnChainBlockButtonClicked}
+                >
+                  <span>언체인블락 실행</span>
+                </button>
+              </div>
+            </fieldset>
+          </TabPanel>
+        </Tabs>
       </div>
     </div>
   )

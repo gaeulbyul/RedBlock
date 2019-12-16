@@ -184,12 +184,25 @@ fieldset.chainblock-subopt {
   cursor: not-allowed;
 }
 
-.menu-item.execute-chainblock {
+.menu-item.huge-button {
   border: 0;
-  background-color: crimson;
   color: white;
   font-weight: bold;
+  opacity: 0.8;
   transition: background-color 0.3s, filter 0.5s;
+}
+
+.menu-item.huge-button:hover {
+  opacity: 1;
+}
+
+.menu-item.huge-button:disabled {
+  filter: saturate(0%);
+}
+
+.menu-item.execute-chainblock {
+  background-color: crimson;
+  color: white;
   box-shadow: 0 0 10px 5px #f063;
 }
 
@@ -198,17 +211,15 @@ fieldset.chainblock-subopt {
   color: white;
 }
 
-.menu-item.execute-chainblock:disabled {
-  filter: saturate(0%);
+.menu-item.execute-unchainblock {
+  background-color: seagreen;
+  color: white;
+  box-shadow: 0 0 10px 5px #0903;
 }
 
-.menu-item:hover {
-  text-decoration: underline;
-  color: crimson;
-}
-
-.menu-item:hover .big-button-img {
-  filter: none;
+.menu-item.execute-unchainblock:hover {
+  background-color: seagreen;
+  color: white;
 }
 
 .chainblock-globalcontrols button:hover {
