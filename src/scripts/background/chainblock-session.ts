@@ -70,7 +70,6 @@ export default class Session {
     return copyFrozenObject(this.sessionInfo)
   }
   public async start() {
-    const $$DBG$$_plan: Array<[TwitterUser, Verb]> = []
     const promiseBuffer: Promise<void>[] = []
     let stopped = false
     try {
@@ -97,12 +96,6 @@ export default class Session {
         this.handleRunning()
         const follower = maybeFollower.value
         const whatToDo = this.whatToDoGivenUser(follower)
-        promiseBuffer.push(
-          (async () => {
-            $$DBG$$_plan.push([follower, whatToDo])
-            this.sessionInfo.progress.success++
-          })()
-        )
         if (whatToDo === 'Skip') {
           this.sessionInfo.progress.skipped++
           continue
@@ -110,8 +103,7 @@ export default class Session {
           this.sessionInfo.progress.already++
           continue
         }
-        // promiseBuffer.push(this.doVerb(follower, whatToDo))
-        this.doVerb
+        promiseBuffer.push(this.doVerb(follower, whatToDo))
 
         if (promiseBuffer.length >= PROMISE_BUFFER_SIZE) {
           await Promise.all(promiseBuffer)
@@ -123,13 +115,6 @@ export default class Session {
       if (!stopped) {
         this.sessionInfo.status = SessionStatus.Completed
         this.statusEventEmitter.emit('complete', this.sessionInfo.progress)
-      }
-      {
-        const cols: Array<keyof TwitterUser> = ['screen_name', 'blocking', 'muting', 'followed_by', 'following', 'name']
-        console.table(
-          $$DBG$$_plan.map(([u, whatToDo]) => Object.assign(u, { whatToDo })),
-          [...cols, 'whatToDo']
-        )
       }
     } catch (error) {
       this.sessionInfo.status = SessionStatus.Error
