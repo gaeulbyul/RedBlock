@@ -22,7 +22,6 @@ export interface SessionRequest {
     myFollowers: Verb
     myFollowings: Verb
     verified: Verb
-    // TODO 미구현, 언체인블락 전용, 맞차단한 경우는 차단을 풀어주지 않는 옵션
     mutualBlocked: Verb
   }
 }
@@ -31,7 +30,9 @@ export interface SessionInfo {
   sessionId: string
   request: SessionRequest
   progress: {
-    success: number
+    success: {
+      [verb in VerbSomething]: number
+    }
     failure: number
     already: number
     skipped: number
@@ -155,7 +156,12 @@ export default class Session {
       request: this.request,
       progress: {
         already: 0,
-        success: 0,
+        success: {
+          Block: 0,
+          UnBlock: 0,
+          Mute: 0,
+          UnMute: 0,
+        },
         failure: 0,
         skipped: 0,
         error: 0,
@@ -235,7 +241,7 @@ export default class Session {
   }
   private async doVerb(follower: TwitterUser, verb: VerbSomething): Promise<void> {
     let promise = Promise.resolve(false)
-    const incrementSuccess = () => this.sessionInfo.progress.success++
+    const incrementSuccess = (v: VerbSomething) => this.sessionInfo.progress.success[v]++
     const incrementFailure = () => this.sessionInfo.progress.failure++
     switch (verb) {
       case 'Block':
@@ -254,7 +260,7 @@ export default class Session {
     return promise
       .then(result => {
         if (result) {
-          incrementSuccess()
+          incrementSuccess(verb)
         } else {
           incrementFailure()
         }

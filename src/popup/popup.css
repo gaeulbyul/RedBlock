@@ -167,6 +167,10 @@ fieldset.chainblock-subopt {
   color: navy;
 }
 
+.small-tab {
+  padding: 3px 10px;
+}
+
 .menu-item {
   width: 100%;
   padding: 15px;
@@ -236,6 +240,17 @@ fieldset.chainblock-subopt {
 
 .chainblock-sessions .controls {
   text-align: right;
+}
+
+.session-status {
+  font-size: smaller;
+}
+
+.detail-progress {
+  padding-left: 20px;
+  margin: 0;
+  line-height: 150%;
+  list-style-type: square;
 }
 
 .chainblock-suggest-start {

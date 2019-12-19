@@ -4,11 +4,11 @@ import { requestProgress, stopAllChainBlock, stopChainBlock } from '../popup.js'
 
 function calculatePercentage(session: SessionInfo): number {
   const { status, count } = session
-  const isCompleted = status === SessionStatus.Completed
-  const max = (isCompleted ? count.scraped : count.total) || undefined
-  if (isCompleted) {
+  if (status === SessionStatus.Completed) {
     return 100
-  } else if (typeof max === 'number') {
+  }
+  const max = count.total
+  if (typeof max === 'number') {
     return Math.round((count.scraped / max) * 1000) / 10
   } else {
     return 0
@@ -85,24 +85,31 @@ function ChainBlockSessionItem(props: { session: SessionInfo }) {
       [SessionStatus.Stopped]: '정지',
       [SessionStatus.Error]: '오류 발생!',
     }
-    const statusMessage = `[${statusMessageObj[status]}]`
+    const statusMessage = statusMessageObj[status]
     return statusMessage
   }
   function renderText({ progress, status }: SessionInfo) {
     const statusMessage = statusToString(status)
     return (
-      <div>
-        <small>
-          {statusMessage} {' / '}
-          <b>
-            {isChainBlock && `차단: ${progress.success.toLocaleString()}`}
-            {isUnChainBlock && `차단해제: ${progress.success.toLocaleString()}`}
-          </b>
-          {isChainBlock && progress.already > 0 && ` / 이미 차단함: ${progress.already.toLocaleString()}`}
-          {isUnChainBlock && progress.already > 0 && ` / 이미 차단해제함: ${progress.already.toLocaleString()}`}
-          {progress.skipped > 0 && ` / 스킵: ${progress.skipped.toLocaleString()}`}
-          {progress.failure > 0 && ` / 실패: ${progress.failure.toLocaleString()}`}
-        </small>
+      <div className="session-status">
+        상태: {purposeKor} {statusMessage}
+        <ul className="detail-progress">
+          {isChainBlock && (
+            <li>
+              <b>차단: {progress.success.Block.toLocaleString()}</b>
+            </li>
+          )}
+          {isUnChainBlock && (
+            <li>
+              <b>차단해제: {progress.success.UnBlock.toLocaleString()}</b>
+            </li>
+          )}
+          {progress.success.Mute > 0 && <li>뮤트함: {progress.success.Mute.toLocaleString}</li>}
+          {isChainBlock && progress.already > 0 && <li>이미 차단/뮤트함: {progress.already.toLocaleString()}</li>}
+          {isUnChainBlock && progress.already > 0 && <li>이미 차단해제함: {progress.already.toLocaleString()}</li>}
+          {progress.skipped > 0 && <li>스킵: {progress.skipped.toLocaleString()}</li>}
+          {progress.failure > 0 && <li>실패: {progress.failure.toLocaleString()}</li>}
+        </ul>
       </div>
     )
   }

@@ -4,6 +4,7 @@ import * as TwitterAPI from '../../scripts/background/twitter-api.js'
 import { TwitterUser } from '../../scripts/background/twitter-api.js'
 import { formatNumber, TwitterUserMap } from '../../scripts/common.js'
 import { insertUserToStorage, removeUserFromStorage, startChainBlock } from '../popup.js'
+import { CSSProperties } from 'react'
 
 type SessionOptions = SessionRequest['options']
 type SelectUserGroup = 'invalid' | 'current' | 'saved'
@@ -143,9 +144,7 @@ function TargetUserProfile(props: {
               checked={targetList === 'mutual-followers'}
               onChange={() => setTargetList('mutual-followers')}
             />
-            <span title="상대방과 맞팔로우한 사용자만 추려서 차단합니다.">
-              맞팔로우만<sup>&beta;</sup>
-            </span>
+            <span title="상대방과 맞팔로우한 사용자만 추려서 차단합니다.">맞팔로우만</span>
           </label>
           <hr />
           <label>
@@ -156,7 +155,7 @@ function TargetUserProfile(props: {
               onChange={() => mutateOptions({ quickMode: !quickMode })}
             />
             <span title="퀵 모드: 최대 200명 이하의 사용자를 대상으로 합니다. 최근에 해당 사용자에게 체인블락을 실행하였으나 이후에 새로 생긴 팔로워를 더 빠르게 차단하기 위해 고안한 기능입니다.">
-              퀵 모드<sup>&beta;</sup>
+              퀵 모드
             </span>
           </label>
         </div>
@@ -365,6 +364,9 @@ export default function NewChainBlockPage(props: { currentUser: TwitterUser | nu
     }
   }
   const { Tabs, TabList, Tab, TabPanel } = ReactTabs
+  const miniTab: CSSProperties = {
+    padding: '3px 10px',
+  }
   return (
     <div>
       <div className="chainblock-target">
@@ -395,8 +397,10 @@ export default function NewChainBlockPage(props: { currentUser: TwitterUser | nu
         </fieldset>
         <Tabs>
           <TabList>
-            <Tab>체인블락</Tab>
-            <Tab>언체인블락</Tab>
+            <Tab style={miniTab}>{'\u{1f6d1}'} 체인블락</Tab>
+            <Tab style={miniTab}>
+              {'\u{1f49a}'} 언체인블락<sup>&beta;</sup>
+            </Tab>
           </TabList>
           <TabPanel>
             <fieldset className="chainblock-opt" disabled={!isAvailable}>

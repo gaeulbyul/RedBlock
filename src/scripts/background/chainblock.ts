@@ -26,9 +26,10 @@ export default class ChainBlocker {
     return false
   }
   private handleEvents(session: Session) {
-    const { target } = session.getSessionInfo().request
+    const sessionInfo = session.getSessionInfo()
+    const { target, purpose } = sessionInfo.request
     const { screen_name } = target.user
-    let targetListKor: string
+    let targetListKor = ''
     switch (target.list) {
       case 'followers':
         targetListKor = '팔로워'
@@ -37,17 +38,36 @@ export default class ChainBlocker {
         targetListKor = '팔로잉'
         break
     }
+    let whatIDid = ''
+    switch (purpose) {
+      case 'chainblock':
+        whatIDid = '체인블락'
+        break
+      case 'unchainblock':
+        whatIDid = '언체인블락'
+        break
+    }
     session.statusEventEmitter.on('complete', () => {
-      const sessionInfo = session.getSessionInfo()
-      // const { purpose } = sessionInfo.request
       const { success, already, skipped, failure } = sessionInfo.progress
-      // const whatIDid = purpose === 'chainblock' ? '차단' : '차단해제'
-      let message = `체인블락 완료! @${screen_name}의 ${targetListKor} 중 ${success}명을 차단했습니다.\n`
-      message += `(이미 차단함: ${already}, 스킵: ${skipped}, 실패: ${failure})`
+      let howMany = ''
+      let howManyAlready = ''
+      switch (purpose) {
+        case 'chainblock':
+          howMany = `${success.Block}명을 차단했습니다.`
+          howManyAlready = `이미 차단함: ${already}`
+          break
+        case 'unchainblock':
+          whatIDid = '언체인블락'
+          howMany = `${success.UnBlock}명을 차단해제했습니다.`
+          howManyAlready = `이미 차단해제함: ${already}`
+          break
+      }
+      let message = `${whatIDid} 완료! @${screen_name}의 ${targetListKor} 중 ${howMany}\n`
+      message += `(${howManyAlready}, 스킵: ${skipped}, 실패: ${failure})`
       notify(message)
     })
     session.statusEventEmitter.on('error', err => {
-      let message = `체인블락 오류! 메시지:\n`
+      let message = `${whatIDid} 오류! 메시지:\n`
       message += err
       notify(message)
     })
@@ -55,7 +75,7 @@ export default class ChainBlocker {
   public add(request: SessionRequest) {
     const targetUser = request.target.user
     if (this.isAlreadyRunningForUser(targetUser)) {
-      window.alert(`이미 @${targetUser.screen_name}에게 체인블락이 실행중입니다.`)
+      window.alert(`이미 @${targetUser.screen_name}에게 체인블락이나 언체인블락이 실행중입니다.`)
       return null
     }
     const session = new Session(request)
