@@ -47,7 +47,7 @@ export default class ChainBlocker {
         whatIDid = '언체인블락'
         break
     }
-    session.statusEventEmitter.on('complete', () => {
+    session.eventEmitter.on('complete', () => {
       const { success, already, skipped, failure } = sessionInfo.progress
       let howMany = ''
       let howManyAlready = ''
@@ -66,10 +66,29 @@ export default class ChainBlocker {
       message += `(${howManyAlready}, 스킵: ${skipped}, 실패: ${failure})`
       notify(message)
     })
-    session.statusEventEmitter.on('error', err => {
+    session.eventEmitter.on('error', err => {
       let message = `${whatIDid} 오류! 메시지:\n`
       message += err
       notify(message)
+    })
+    session.eventEmitter.on('mark-user', params => {
+      browser.tabs
+        .query({
+          discarded: false,
+          url: ['https://twitter.com/*', 'https://mobile.twitter.com/*'],
+        })
+        .then(tabs => {
+          tabs.forEach(tab => {
+            const id = tab.id
+            if (typeof id !== 'number') {
+              return
+            }
+            browser.tabs.sendMessage<RBMarkUserMessage>(id, {
+              messageType: 'MarkUserMessage',
+              ...params,
+            })
+          })
+        })
     })
   }
   public add(request: SessionRequest) {

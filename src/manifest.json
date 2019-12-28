@@ -26,7 +26,14 @@
     "page": "scripts/background.html"
   },
 
-  "web_accessible_resources": [],
+  "content_scripts": [
+    {
+      "matches": ["https://twitter.com/*", "https://mobile.twitter.com/*"],
+      "js": ["vendor/browser-polyfill.min.js", "scripts/content/content-entrypoint.js"]
+    }
+  ],
+
+  "web_accessible_resources": ["vendor/uuid.js", "scripts/content/inject.js"],
 
   "browser_action": {
     "default_icon": "icons/icon-48.png",

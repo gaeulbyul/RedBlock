@@ -5,10 +5,6 @@ import * as TwitterAPI from './twitter-api.js'
 type Limit = TwitterAPI.Limit
 type TwitterUser = TwitterAPI.TwitterUser
 
-type VerbSomething = 'Block' | 'UnBlock' | 'Mute' | 'UnMute'
-type VerbNothing = 'Skip' | 'AlreadyDone'
-type Verb = VerbSomething | VerbNothing
-
 const PROMISE_BUFFER_SIZE = 150
 
 export interface SessionRequest {
@@ -58,7 +54,8 @@ export const defaultOption: Readonly<SessionRequest['options']> = Object.freeze(
 
 export default class Session {
   private readonly sessionInfo = this.initSessionInfo()
-  public readonly statusEventEmitter = new EventEmitter<{
+  public readonly eventEmitter = new EventEmitter<{
+    'mark-user': MarkUserParams
     'rate-limit': Limit
     'rate-limit-reset': null
     complete: SessionInfo['progress']
@@ -115,11 +112,11 @@ export default class Session {
       promiseBuffer.length = 0
       if (!stopped) {
         this.sessionInfo.status = SessionStatus.Completed
-        this.statusEventEmitter.emit('complete', this.sessionInfo.progress)
+        this.eventEmitter.emit('complete', this.sessionInfo.progress)
       }
     } catch (error) {
       this.sessionInfo.status = SessionStatus.Error
-      this.statusEventEmitter.emit('error', error.toString())
+      this.eventEmitter.emit('error', error.toString())
       throw error
     }
   }
@@ -261,6 +258,10 @@ export default class Session {
       .then(result => {
         if (result) {
           incrementSuccess(verb)
+          this.eventEmitter.emit('mark-user', {
+            userId: follower.id_str,
+            verb,
+          })
         } else {
           incrementFailure()
         }
@@ -289,11 +290,11 @@ export default class Session {
         break
     }
     this.sessionInfo.limit = limit
-    this.statusEventEmitter.emit('rate-limit', limit)
+    this.eventEmitter.emit('rate-limit', limit)
   }
   private async handleRunning() {
     if (this.sessionInfo.status === SessionStatus.RateLimited) {
-      this.statusEventEmitter.emit('rate-limit-reset', null)
+      this.eventEmitter.emit('rate-limit-reset', null)
     }
     this.sessionInfo.status = SessionStatus.Running
     this.sessionInfo.limit = null

@@ -9,8 +9,16 @@ declare var React: typeof import('react')
 declare var ReactDOM: typeof import('react-dom')
 declare var ReactTabs: typeof import('react-tabs')
 
+declare namespace uuid {
+  function v1(): string
+}
+
 type FollowKind = 'followers' | 'friends' | 'mutual-followers'
 type ChainKind = 'chainblock' | 'unchainblock'
+
+type VerbSomething = 'Block' | 'UnBlock' | 'Mute' | 'UnMute'
+type VerbNothing = 'Skip' | 'AlreadyDone'
+type Verb = VerbSomething | VerbNothing
 
 type EventStore = Record<string, Function[]>
 
@@ -86,6 +94,17 @@ interface RBChainBlockInfoMessage {
   infos: SessionInfo[]
 }
 
+interface RBMarkUserMessage {
+  messageType: 'MarkUserMessage'
+  userId: string
+  verb: VerbSomething
+}
+
+interface MarkUserParams {
+  userId: string
+  verb: VerbSomething
+}
+
 // ---- browser notification types ----
 
 interface BrowserNotificationButton {
@@ -111,3 +130,20 @@ interface BrowserNotification {
   imageUrl?: string
   progress?: number
 }
+
+// copied from https://github.com/Microsoft/TypeScript/issues/21309#issuecomment-376338415
+type RequestIdleCallbackHandle = any
+type RequestIdleCallbackOptions = {
+  timeout: number
+}
+type RequestIdleCallbackDeadline = {
+  readonly didTimeout: boolean
+  timeRemaining: () => number
+}
+
+declare function requestIdleCallback(
+  callback: (deadline: RequestIdleCallbackDeadline) => void,
+  opts?: RequestIdleCallbackOptions
+): RequestIdleCallbackHandle
+declare function cancelIdleCallback(handle: RequestIdleCallbackHandle): void
+// .end
