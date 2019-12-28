@@ -78,6 +78,7 @@ export default class Session {
       const userScraper = scraper.scrape()
       for await (const maybeFollower of userScraper) {
         this.updateTotalCount(scraper)
+        this.updateScrapedCount()
         if (this.shouldStop) {
           stopped = true
           promiseBuffer.length = 0
@@ -105,7 +106,6 @@ export default class Session {
           continue
         }
         promiseBuffer.push(this.doVerb(follower, whatToDo))
-
         if (promiseBuffer.length >= PROMISE_BUFFER_SIZE) {
           await Promise.all(promiseBuffer)
           promiseBuffer.length = 0
@@ -266,6 +266,11 @@ export default class Session {
         }
       })
       .catch(() => void incrementFailure())
+  }
+  private updateScrapedCount() {
+    const { success, already, failure, error, skipped } = this.sessionInfo.progress
+    const scraped = _.sum([...Object.values(success), already, failure, error, skipped])
+    this.sessionInfo.count.scraped = scraped
   }
   private async handleRateLimit() {
     this.sessionInfo.status = SessionStatus.RateLimited
