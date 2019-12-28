@@ -20,7 +20,7 @@ export async function getMyself(): Promise<TwitterUser> {
   if (response.ok) {
     return response.json() as Promise<TwitterUser>
   } else {
-    throw new Error('response is not ok')
+    throw new APIFailError('error', response)
   }
 }
 
@@ -30,60 +30,64 @@ export async function getRateLimitStatus(): Promise<LimitStatus> {
   return resources
 }
 
-export async function blockUser(user: TwitterUser): Promise<boolean> {
+export async function blockUser(user: TwitterUser): Promise<TwitterUser> {
   if (user.blocking) {
-    return true
+    return user
   }
-  const result = await requestAPI('post', '/blocks/create.json', {
+  const response = await requestAPI('post', '/blocks/create.json', {
     user_id: user.id_str,
     include_entities: false,
     skip_status: true,
-  }).then(
-    () => true,
-    () => false
-  )
-  return result
+  })
+  if (response.ok) {
+    return response.json() as Promise<TwitterUser>
+  } else {
+    throw new APIFailError('error', response)
+  }
 }
 
-export async function unblockUser(user: TwitterUser): Promise<boolean> {
+export async function unblockUser(user: TwitterUser): Promise<TwitterUser> {
   if (!user.blocking) {
-    return true
+    return user
   }
-  const result = await requestAPI('post', '/blocks/destroy.json', {
+  const response = await requestAPI('post', '/blocks/destroy.json', {
     user_id: user.id_str,
     include_entities: false,
     skip_status: true,
-  }).then(
-    () => true,
-    () => false
-  )
-  return result
+  })
+  if (response.ok) {
+    return response.json() as Promise<TwitterUser>
+  } else {
+    throw new APIFailError('error', response)
+  }
 }
 
-export async function muteUser(user: TwitterUser): Promise<boolean> {
+export async function muteUser(user: TwitterUser): Promise<TwitterUser> {
   if (user.muting) {
-    return true
+    return user
   }
-  const result = await requestAPI('post', '/mutes/users/create.json', {
+  const response = await requestAPI('post', '/mutes/users/create.json', {
     user_id: user.id_str,
-  }).then(
-    () => true,
-    () => false
-  )
-  return result
+  })
+  if (response.ok) {
+    return response.json() as Promise<TwitterUser>
+  } else {
+    throw new APIFailError('error', response)
+  }
 }
 
-export async function unmuteUser(user: TwitterUser): Promise<boolean> {
+export async function unmuteUser(user: TwitterUser): Promise<TwitterUser> {
   if (!user.muting) {
-    return true
+    return user
   }
-  const result = await requestAPI('post', '/mutes/users/destroy.json', {
+  const response = await requestAPI('post', '/mutes/users/destroy.json', {
     user_id: user.id_str,
-  }).then(
-    () => true,
-    () => false
-  )
-  return result
+  })
+  if (response.ok) {
+    return response.json() as Promise<TwitterUser>
+  } else {
+    throw new APIFailError('error', response)
+  }
 }
 
 async function getFollowsIds(

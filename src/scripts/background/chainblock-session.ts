@@ -124,9 +124,7 @@ export default class Session {
     this.shouldStop = true
   }
   private generateSessionId(): string {
-    const { purpose } = this.request
-    const { user, list } = this.request.target
-    return `session/${purpose}/${user.screen_name}/${list}/${Date.now()}`
+    return `session/${Date.now()}`
   }
   private initCount(): SessionInfo['count'] {
     const { user, list } = this.request.target
@@ -237,7 +235,7 @@ export default class Session {
     }
   }
   private async doVerb(follower: TwitterUser, verb: VerbSomething): Promise<void> {
-    let promise = Promise.resolve(false)
+    let promise: Promise<TwitterUser>
     const incrementSuccess = (v: VerbSomething) => this.sessionInfo.progress.success[v]++
     const incrementFailure = () => this.sessionInfo.progress.failure++
     switch (verb) {
