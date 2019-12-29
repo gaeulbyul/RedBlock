@@ -150,7 +150,7 @@ async function getFollowsUserList(
   followKind: FollowKind,
   user: TwitterUser,
   cursor: string = '-1'
-): Promise<FollowsListResponse> {
+): Promise<UserListResponse> {
   const response = await requestAPI('get', `/${followKind}/list.json`, {
     user_id: user.id_str,
     // screen_name: userName,
@@ -159,7 +159,7 @@ async function getFollowsUserList(
     include_user_entities: false,
     cursor,
   })
-  return response.json() as Promise<FollowsListResponse>
+  return response.json() as Promise<UserListResponse>
 }
 
 export async function* getAllFollowsUserList(
@@ -278,6 +278,56 @@ export async function getRelationship(sourceUser: TwitterUser, targetUser: Twitt
     target_id,
   })
   return (await response.json()).relationship as Promise<Relationship>
+}
+
+async function getReactedUserList(reaction: ReactionKind, tweet: Tweet, cursor = '-1'): Promise<UserListResponse> {
+  let reactionPath = ''
+  switch (reaction) {
+    case 'retweeted':
+      reactionPath = '/statuses/retweeted_by.json'
+      break
+    case 'liked':
+      reactionPath = '/statuses/favorited_by.json'
+      break
+  }
+  const response = await requestAPI('get', reactionPath, {
+    id: tweet.id_str,
+    count: 200, // ???
+    cursor,
+  })
+  if (response.ok) {
+    return response.json() as Promise<UserListResponse>
+  } else {
+    throw new APIFailError('error', response)
+  }
+}
+
+export async function* getAllReactedUserList(
+  reaction: ReactionKind,
+  tweet: Tweet
+): AsyncIterableIterator<Either<Error, TwitterUser>> {
+  let cursor: string = '-1'
+  while (true) {
+    try {
+      const json = await getReactedUserList(reaction, tweet, cursor)
+      cursor = json.next_cursor_str
+      yield* json.users.map(user => ({
+        ok: true as const,
+        value: user,
+      }))
+      if (cursor === '0') {
+        break
+      } else {
+        await sleep(DELAY)
+        continue
+      }
+    } catch (error) {
+      yield {
+        ok: false,
+        error,
+      }
+    }
+  }
 }
 
 async function getCsrfTokenFromCookies(): Promise<string> {
@@ -416,7 +466,7 @@ interface Relationship {
   }
 }
 
-interface FollowsListResponse {
+interface UserListResponse {
   next_cursor_str: string
   users: TwitterUser[]
 }

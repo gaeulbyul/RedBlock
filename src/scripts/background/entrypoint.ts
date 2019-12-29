@@ -1,5 +1,6 @@
 import { Action, UI_UPDATE_DELAY } from '../common.js'
-import { defaultOption, FollowerBlockSessionRequest } from './chainblock-session.js'
+import { defaultOption } from './chainblock-session/follower.js'
+import { FollowerBlockSessionRequest } from './chainblock-session/session-common.js'
 import ChainBlocker from './chainblock.js'
 import * as TextGenerate from '../text-generate.js'
 import * as Storage from './storage.js'

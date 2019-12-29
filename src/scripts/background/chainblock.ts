@@ -1,19 +1,12 @@
 import { SessionStatus } from '../common.js'
-import {
-  FollowerBlockSession,
-  SessionInfo,
-  FollowerBlockSessionRequest,
-  SessionTypes,
-  TweetReactionBlockSessionRequest,
-  TweetReactionBlockSession,
-  ISession,
-} from './chainblock-session.js'
+import { SessionInfo, SessionType, ISession } from './chainblock-session/session-common.js'
+import FollowerBlockSession, { FollowerBlockSessionRequest } from './chainblock-session/follower.js'
+import TweetReactionBlockSession, { TweetReactionBlockSessionRequest } from './chainblock-session/tweet-reaction.js'
 import * as TextGenerate from '../text-generate.js'
 import { notify } from './background.js'
-// import { TwitterUser } from './twitter-api.js'
 
 export default class ChainBlocker {
-  private readonly sessions = new Map<string, SessionTypes>()
+  private readonly sessions = new Map<string, SessionType>()
   constructor() {}
   public isRunning(): boolean {
     if (this.sessions.size <= 0) {

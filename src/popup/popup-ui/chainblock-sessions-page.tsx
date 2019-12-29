@@ -1,4 +1,4 @@
-import { SessionInfo, FollowerBlockSessionRequest } from '../../scripts/background/chainblock-session.js'
+import { SessionInfo, FollowerBlockSessionRequest } from '../../scripts/background/chainblock-session/session-common.js'
 import { SessionStatus, UI_UPDATE_DELAY } from '../../scripts/common.js'
 import { requestProgress, stopAllChainBlock, stopChainBlock } from '../popup.js'
 import * as TextGenerate from '../../scripts/text-generate.js'

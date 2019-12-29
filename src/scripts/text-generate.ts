@@ -1,4 +1,5 @@
-import { SessionInfo, FollowerBlockSessionRequest } from './background/chainblock-session.js'
+import { SessionInfo } from './background/chainblock-session/session-common.js'
+import { FollowerBlockSessionRequest } from './background/chainblock-session/follower.js'
 import { formatNumber } from './common.js'
 
 export function generateFollowerBlockConfirmMessage(request: FollowerBlockSessionRequest): string {

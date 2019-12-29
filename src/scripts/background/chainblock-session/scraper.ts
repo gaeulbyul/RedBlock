@@ -1,6 +1,7 @@
-import * as TwitterAPI from './twitter-api.js'
+import * as TwitterAPI from '../twitter-api.js'
 
 type TwitterUser = TwitterAPI.TwitterUser
+type Tweet = TwitterAPI.Tweet
 
 type ScrapeResult = AsyncIterableIterator<Either<Error, TwitterUser>>
 export interface UserScraper {
@@ -12,10 +13,8 @@ function simpleGetTotalCount(user: TwitterUser, followKind: FollowKind): number 
   switch (followKind) {
     case 'followers':
       return user.followers_count
-      break
     case 'friends':
       return user.friends_count
-      break
     case 'mutual-followers':
       throw new Error('unreachable')
   }
@@ -59,5 +58,25 @@ export class MutualFollowerScraper implements UserScraper {
     const mutualFollowersIds = await TwitterAPI.getAllMutualFollowersIds(this.user)
     this.totalCount = mutualFollowersIds.length
     yield* TwitterAPI.lookupUsersByIds(mutualFollowersIds)
+  }
+}
+
+function simpleGetTotalReact(tweet: Tweet, reaction: ReactionKind): number {
+  switch (reaction) {
+    case 'retweeted':
+      return tweet.retweet_count
+    case 'liked':
+      return tweet.favorite_count
+  }
+}
+
+// 트윗반응 유저 스크래퍼
+export class TweetReactedUserScraper implements UserScraper {
+  public totalCount: number
+  constructor(private tweet: Tweet, private reaction: ReactionKind) {
+    this.totalCount = simpleGetTotalReact(tweet, reaction)
+  }
+  public async *scrape() {
+    return TwitterAPI.getAllReactedUserList(this.reaction, this.tweet)
   }
 }
