@@ -1,6 +1,8 @@
 type Action = typeof import('./common').Action
 type SessionInfo = import('./background/chainblock-session').SessionInfo
-type SessionRequest = import('./background/chainblock-session').SessionRequest
+type FollowerBlockSessionRequest = import('./background/chainblock-session').FollowerBlockSessionRequest
+type TweetReactionBlockSessionRequest = import('./background/chainblock-session').TweetReactionBlockSessionRequest
+type SessionRequests = import('./background/chainblock-session').SessionRequests
 type TwitterUser = import('./background/twitter-api').TwitterUser
 
 // ---- vendor modules ----
@@ -15,6 +17,7 @@ declare namespace uuid {
 
 type FollowKind = 'followers' | 'friends' | 'mutual-followers'
 type ChainKind = 'chainblock' | 'unchainblock'
+type ReactionKind = 'retweeted' | 'liked'
 
 type VerbSomething = 'Block' | 'UnBlock' | 'Mute' | 'UnMute'
 type VerbNothing = 'Skip' | 'AlreadyDone'
@@ -34,17 +37,28 @@ interface EitherLeft<E> {
 
 type Either<E, T> = EitherLeft<E> | EitherRight<T>
 
-interface ChainParams {
+interface FollowerChainParams {
   userName: string
   purpose: ChainKind
   targetList: FollowKind
-  options: SessionRequest['options']
+  options: FollowerBlockSessionRequest['options']
+}
+
+interface TweetReactionChainParams {
+  tweetId: string
+  reaction: ReactionKind
+  options: TweetReactionBlockSessionRequest['options']
 }
 
 declare namespace RBActions {
-  interface Start {
-    action: Action['StartChainBlock']
-    params: ChainParams
+  interface StartFollowerChainBlock {
+    action: Action['StartFollowerChainBlock']
+    params: FollowerChainParams
+  }
+
+  interface StartTweetReactionChainBlock {
+    action: Action['StartTweetReactionChainBlock']
+    params: TweetReactionChainParams
   }
 
   interface Stop {
@@ -80,7 +94,8 @@ declare namespace RBActions {
 }
 
 type RBAction =
-  | RBActions.Start
+  | RBActions.StartFollowerChainBlock
+  | RBActions.StartTweetReactionChainBlock
   | RBActions.Stop
   | RBActions.StopAll
   | RBActions.ConnectToBackground

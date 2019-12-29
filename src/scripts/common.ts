@@ -1,7 +1,8 @@
 import { TwitterUser, TwitterUserEntities } from './background/twitter-api.js'
 
 export const enum Action {
-  StartChainBlock = 'RedBlock/Start',
+  StartFollowerChainBlock = 'RedBlock/StartFollowerBlock',
+  StartTweetReactionChainBlock = 'RedBlock/StartTweetReactionBlock',
   StopChainBlock = 'RedBlock/Stop',
   StopAllChainBlock = 'RedBlock/StopAll',
   InsertUserToStorage = 'RedBlock/InsertUserToStorage',

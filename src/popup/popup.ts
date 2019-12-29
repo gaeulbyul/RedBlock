@@ -4,9 +4,16 @@ import { TwitterUser } from '../scripts/background/twitter-api.js'
 
 type Tab = browser.tabs.Tab
 
-export async function startChainBlock(params: ChainParams) {
-  return browser.runtime.sendMessage<RBActions.Start, void>({
-    action: Action.StartChainBlock,
+export async function startFollowerChainBlock(params: FollowerChainParams) {
+  return browser.runtime.sendMessage<RBActions.StartFollowerChainBlock, void>({
+    action: Action.StartFollowerChainBlock,
+    params,
+  })
+}
+
+export async function startTweetReactionChainBlock(params: TweetReactionChainParams) {
+  return browser.runtime.sendMessage<RBActions.StartTweetReactionChainBlock, void>({
+    action: Action.StartTweetReactionChainBlock,
     params,
   })
 }

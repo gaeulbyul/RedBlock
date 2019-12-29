@@ -4,12 +4,17 @@ import * as TwitterAPI from './twitter-api.js'
 
 type Limit = TwitterAPI.Limit
 type TwitterUser = TwitterAPI.TwitterUser
+type Tweet = TwitterAPI.Tweet
 
 const PROMISE_BUFFER_SIZE = 150
 
-export interface SessionRequest {
+export type SessionRequests = FollowerBlockSessionRequest | TweetReactionBlockSessionRequest
+export type SessionTypes = FollowerBlockSession | TweetReactionBlockSession
+
+export interface FollowerBlockSessionRequest {
   purpose: ChainKind
   target: {
+    type: 'follower'
     user: TwitterUser
     list: FollowKind
   }
@@ -22,9 +27,27 @@ export interface SessionRequest {
   }
 }
 
-export interface SessionInfo {
+export interface TweetReactionBlockSessionRequest {
+  // 이미 차단한 사용자의 RT/마음은 확인할 수 없다.
+  // 따라서, 언체인블락은 구현할 수 없다.
+  purpose: 'chainblock'
+  target: {
+    type: 'tweetReaction'
+    // author of tweet
+    // user: TwitterUser
+    tweet: Tweet
+    reaction: ReactionKind
+  }
+  options: {
+    myFollowers: Verb
+    myFollowings: Verb
+    verified: Verb
+  }
+}
+
+export interface SessionInfo<ReqT = SessionRequests> {
   sessionId: string
-  request: SessionRequest
+  request: ReqT
   progress: {
     success: {
       [verb in VerbSomething]: number
@@ -44,28 +67,38 @@ export interface SessionInfo {
   limit: Limit | null
 }
 
-export const defaultOption: Readonly<SessionRequest['options']> = Object.freeze({
-  quickMode: false,
-  myFollowers: 'Skip',
-  myFollowings: 'Skip',
-  verified: 'Skip',
-  mutualBlocked: 'Skip',
-})
+interface SessionEventEmitter {
+  'mark-user': MarkUserParams
+  'rate-limit': Limit
+  'rate-limit-reset': null
+  complete: SessionInfo['progress']
+  error: string
+}
 
-export default class Session {
+export interface ISession<ReqT = SessionRequests> {
+  readonly eventEmitter: EventEmitter<SessionEventEmitter>
+  start(): Promise<void>
+  stop(): void
+  getSessionInfo(): SessionInfo<ReqT>
+  isSameTarget(givenTarget: SessionRequests['target']): boolean
+}
+
+export class FollowerBlockSession implements ISession<FollowerBlockSessionRequest> {
   private readonly sessionInfo = this.initSessionInfo()
-  public readonly eventEmitter = new EventEmitter<{
-    'mark-user': MarkUserParams
-    'rate-limit': Limit
-    'rate-limit-reset': null
-    complete: SessionInfo['progress']
-    error: string
-  }>()
-  public shouldStop = false
-  public constructor(private request: SessionRequest) {}
+  private shouldStop = false
+  public readonly eventEmitter = new EventEmitter<SessionEventEmitter>()
+  public constructor(private request: FollowerBlockSessionRequest) {}
   public getSessionInfo() {
     // deep-freeze 하는 게 좋을까?
     return copyFrozenObject(this.sessionInfo)
+  }
+  public isSameTarget(givenTarget: SessionRequests['target']) {
+    if (givenTarget.type !== 'follower') {
+      return false
+    }
+    const givenTargetUser = givenTarget.user
+    const thisTargetUser = this.sessionInfo.request.target.user
+    return thisTargetUser.id_str === givenTargetUser.id_str
   }
   public async start() {
     const promiseBuffer: Promise<void>[] = []
@@ -123,9 +156,6 @@ export default class Session {
   public stop() {
     this.shouldStop = true
   }
-  private generateSessionId(): string {
-    return `session/${Date.now()}`
-  }
   private initCount(): SessionInfo['count'] {
     const { user, list } = this.request.target
     let total: number | null
@@ -145,9 +175,9 @@ export default class Session {
       total,
     }
   }
-  private initSessionInfo(): SessionInfo {
+  private initSessionInfo(): SessionInfo<FollowerBlockSessionRequest> {
     return {
-      sessionId: this.generateSessionId(),
+      sessionId: generateSessionId(),
       request: this.request,
       progress: {
         already: 0,
@@ -297,4 +327,69 @@ export default class Session {
     this.sessionInfo.status = SessionStatus.Running
     this.sessionInfo.limit = null
   }
+}
+
+export class TweetReactionBlockSession implements ISession<TweetReactionBlockSessionRequest> {
+  private readonly sessionInfo = this.initSessionInfo()
+  private shouldStop = false
+  public readonly eventEmitter = new EventEmitter<SessionEventEmitter>()
+  public constructor(private request: TweetReactionBlockSessionRequest) {}
+  public isSameTarget(givenTarget: SessionRequests['target']) {
+    if (givenTarget.type !== 'tweetReaction') {
+      return false
+    }
+    const thisTargetTweetId = this.sessionInfo.request.target.tweet.id_str
+    const givenTweetId = givenTarget.tweet.id_str
+    return thisTargetTweetId === givenTweetId
+  }
+  public async start() {
+    this.shouldStop
+    throw new Error('not implemented')
+  }
+  public stop() {
+    this.shouldStop = false
+  }
+  public getSessionInfo() {
+    return copyFrozenObject(this.sessionInfo)
+  }
+  private initCount(): SessionInfo<TweetReactionBlockSessionRequest>['count'] {
+    return {
+      scraped: 0,
+      total: 0,
+    }
+  }
+  private initSessionInfo(): SessionInfo<TweetReactionBlockSessionRequest> {
+    return {
+      sessionId: generateSessionId(),
+      request: this.request,
+      progress: {
+        already: 0,
+        success: {
+          Block: 0,
+          UnBlock: 0,
+          Mute: 0,
+          UnMute: 0,
+        },
+        failure: 0,
+        skipped: 0,
+        error: 0,
+      },
+      count: this.initCount(),
+      status: SessionStatus.Initial,
+      limit: null,
+    }
+  }
+}
+
+// TODO: rename or create for t.r. session
+export const defaultOption: Readonly<FollowerBlockSessionRequest['options']> = Object.freeze({
+  quickMode: false,
+  myFollowers: 'Skip',
+  myFollowings: 'Skip',
+  verified: 'Skip',
+  mutualBlocked: 'Skip',
+})
+
+function generateSessionId(): string {
+  return `session/${Date.now()}`
 }

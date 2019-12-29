@@ -90,6 +90,20 @@ export async function unmuteUser(user: TwitterUser): Promise<TwitterUser> {
   }
 }
 
+export async function getTweetById(tweetId: string): Promise<Tweet> {
+  const response = await requestAPI('get', '/statuses/show.json', {
+    id: tweetId,
+    include_entities: false,
+    include_ext_alt_text: false,
+    include_card_uri: false,
+  })
+  if (response.ok) {
+    return response.json() as Promise<Tweet>
+  } else {
+    throw new APIFailError('error', response)
+  }
+}
+
 async function getFollowsIds(
   followKind: FollowKind,
   user: TwitterUser,
@@ -410,6 +424,30 @@ interface FollowsListResponse {
 interface UserIdsResponse {
   next_cursor_str: string
   ids: string[]
+}
+
+export interface Tweet {
+  id_str: string
+  // conversation_id_str: string
+  user: TwitterUser
+  text: string
+  full_text: string
+  lang: string
+  source: string
+  source_name: string
+  source_url: string
+  // possibly_sensitive_editable: boolean
+  // user_id_str: string
+  created_at: string
+  reply_count: number
+  retweet_count: number
+  favorite_count: number
+  favorited: boolean
+  retweeted: boolean
+  is_quote_status: boolean
+  in_reply_to_status_id_str?: string
+  in_reply_to_user_id_str?: string
+  in_reply_to_screen_name?: string
 }
 
 export interface Limit {

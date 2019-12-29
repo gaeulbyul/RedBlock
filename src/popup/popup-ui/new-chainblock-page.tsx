@@ -1,12 +1,12 @@
-import { SessionRequest } from '../../scripts/background/chainblock-session.js'
+import { FollowerBlockSessionRequest } from '../../scripts/background/chainblock-session.js'
 import * as Storage from '../../scripts/background/storage.js'
 import * as TwitterAPI from '../../scripts/background/twitter-api.js'
 import { TwitterUser } from '../../scripts/background/twitter-api.js'
 import { formatNumber, TwitterUserMap } from '../../scripts/common.js'
-import { insertUserToStorage, removeUserFromStorage, startChainBlock } from '../popup.js'
+import { insertUserToStorage, removeUserFromStorage, startFollowerChainBlock } from '../popup.js'
 import { CSSProperties } from 'react'
 
-type SessionOptions = SessionRequest['options']
+type SessionOptions = FollowerBlockSessionRequest['options']
 type SelectUserGroup = 'invalid' | 'current' | 'saved'
 
 function TargetSavedUsers(props: {
@@ -79,7 +79,7 @@ function TargetUserProfile(props: {
   user: TwitterUser
   isAvailable: boolean
   targetList: FollowKind
-  options: SessionRequest['options']
+  options: FollowerBlockSessionRequest['options']
   setTargetList: (fk: FollowKind) => void
   mutateOptions: (part: Partial<SessionOptions>) => void
 }) {
@@ -326,7 +326,7 @@ export default function NewChainBlockPage(props: { currentUser: TwitterUser | nu
     setOptions(newOptions)
   }
   function onExecuteChainBlockButtonClicked() {
-    startChainBlock({
+    startFollowerChainBlock({
       purpose: 'chainblock',
       userName: selectedUser!.screen_name,
       targetList,
@@ -334,7 +334,7 @@ export default function NewChainBlockPage(props: { currentUser: TwitterUser | nu
     })
   }
   function onExecuteUnChainBlockButtonClicked() {
-    startChainBlock({
+    startFollowerChainBlock({
       purpose: 'unchainblock',
       userName: selectedUser!.screen_name,
       targetList,

@@ -1,6 +1,7 @@
-import { SessionInfo } from '../../scripts/background/chainblock-session.js'
+import { SessionInfo, FollowerBlockSessionRequest } from '../../scripts/background/chainblock-session.js'
 import { SessionStatus, UI_UPDATE_DELAY } from '../../scripts/common.js'
 import { requestProgress, stopAllChainBlock, stopChainBlock } from '../popup.js'
+import * as TextGenerate from '../../scripts/text-generate.js'
 
 function calculatePercentage(session: SessionInfo): number {
   const { status, count } = session
@@ -17,11 +18,17 @@ function calculatePercentage(session: SessionInfo): number {
 
 function renderProfileImageWithProgress(session: SessionInfo) {
   const {
-    request: {
-      purpose,
-      target: { user },
-    },
+    request: { purpose, target },
   } = session
+  let user: TwitterUser
+  switch (target.type) {
+    case 'follower':
+      user = target.user
+      break
+    case 'tweetReaction':
+      user = target.tweet.user
+      break
+  }
   const width = 72
   const strokeWidth = 4
   const radius = width / 2 - strokeWidth * 2
@@ -69,7 +76,7 @@ function renderProfileImageWithProgress(session: SessionInfo) {
   )
 }
 
-function ChainBlockSessionItem(props: { session: SessionInfo }) {
+function FollowerBlockSessionItem(props: { session: SessionInfo<FollowerBlockSessionRequest> }) {
   const { session } = props
   const { purpose } = session.request
   const { user } = session.request.target
@@ -117,11 +124,10 @@ function ChainBlockSessionItem(props: { session: SessionInfo }) {
     const runningStatuses = [SessionStatus.Initial, SessionStatus.Running, SessionStatus.RateLimited]
     return runningStatuses.includes(status)
   }
-  function renderControls({ sessionId, status, request: { target } }: SessionInfo) {
-    const userName = target.user.screen_name
+  function renderControls({ sessionId, status, request }: SessionInfo) {
     function requestStopChainBlock() {
       if (isRunning(status)) {
-        const confirmMessage = `@${userName}에게 실행중인 ${purposeKor}을 중단하시겠습니까?`
+        const confirmMessage = TextGenerate.confirmStopMessage(request)
         if (!window.confirm(confirmMessage)) {
           return
         }
@@ -132,7 +138,7 @@ function ChainBlockSessionItem(props: { session: SessionInfo }) {
     let closeButtonTitleText = ''
     if (isRunning(status)) {
       closeButtonText = '중지'
-      closeButtonTitleText = `@${userName}에게 실행중인 ${purposeKor}을 중지합니다.`
+      closeButtonTitleText = TextGenerate.stopButtonTitleMessage(request)
     }
     return (
       <div className="controls align-to-end">
@@ -143,7 +149,7 @@ function ChainBlockSessionItem(props: { session: SessionInfo }) {
     )
   }
   return (
-    <div className="session">
+    <div className="session session-follower">
       <div className="target-user-info">
         <div className="profile-image-area">{renderProfileImageWithProgress(session)}</div>
         <div className="profile-right-area">
@@ -218,9 +224,21 @@ export default class ChainBlockSessionsPage extends React.Component<{}, ChainBlo
   renderSessions() {
     return (
       <div className="chainblock-sessions">
-        {this.state.sessions.map(session => (
-          <ChainBlockSessionItem session={session} key={session.sessionId} />
-        ))}
+        {this.state.sessions.map(session => {
+          const { target } = session.request
+          switch (target.type) {
+            case 'follower':
+              return (
+                <FollowerBlockSessionItem
+                  session={session as SessionInfo<FollowerBlockSessionRequest>}
+                  key={session.sessionId}
+                />
+              )
+            case 'tweetReaction':
+              // TODO
+              throw new Error('not implemented')
+          }
+        })}
       </div>
     )
   }

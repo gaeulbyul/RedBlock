@@ -1,103 +1,92 @@
 import { SessionStatus } from '../common.js'
-import Session, { SessionInfo, SessionRequest } from './chainblock-session.js'
+import {
+  FollowerBlockSession,
+  SessionInfo,
+  FollowerBlockSessionRequest,
+  SessionTypes,
+  TweetReactionBlockSessionRequest,
+  TweetReactionBlockSession,
+  ISession,
+} from './chainblock-session.js'
+import * as TextGenerate from '../text-generate.js'
 import { notify } from './background.js'
-import { TwitterUser } from './twitter-api.js'
+// import { TwitterUser } from './twitter-api.js'
 
 export default class ChainBlocker {
-  private readonly sessions = new Map<string, Session>()
+  private readonly sessions = new Map<string, SessionTypes>()
   constructor() {}
   public isRunning(): boolean {
     if (this.sessions.size <= 0) {
       return false
     }
+    const currentRunningSessions = this.getCurrentRunningSessions()
+    return currentRunningSessions.length > 0
+  }
+  private getCurrentRunningSessions() {
     const runningStates = [SessionStatus.Initial, SessionStatus.Running, SessionStatus.RateLimited]
     const currentRunningSessions = Array.from(this.sessions.values()).filter(session =>
       runningStates.includes(session.getSessionInfo().status)
     )
-    return currentRunningSessions.length > 0
+    return currentRunningSessions
   }
-  public isAlreadyRunningForUser(givenUser: TwitterUser): boolean {
-    for (const session of this.sessions.values()) {
-      const { target } = session.getSessionInfo().request
-      if (target.user.id_str === givenUser.id_str) {
+  public isAlreadyRunning(target: SessionInfo['request']['target']): boolean {
+    for (const session of this.getCurrentRunningSessions()) {
+      if (session.isSameTarget(target)) {
         return true
       }
     }
     return false
   }
-  private handleEvents(session: Session) {
-    const sessionInfo = session.getSessionInfo()
-    const { target, purpose } = sessionInfo.request
-    const { screen_name } = target.user
-    let targetListKor = ''
-    switch (target.list) {
-      case 'followers':
-        targetListKor = '팔로워'
-        break
-      case 'friends':
-        targetListKor = '팔로잉'
-        break
-    }
-    let whatIDid = ''
-    switch (purpose) {
-      case 'chainblock':
-        whatIDid = '체인블락'
-        break
-      case 'unchainblock':
-        whatIDid = '언체인블락'
-        break
-    }
-    session.eventEmitter.on('complete', () => {
-      const { success, already, skipped, failure } = sessionInfo.progress
-      let howMany = ''
-      let howManyAlready = ''
-      switch (purpose) {
-        case 'chainblock':
-          howMany = `${success.Block}명을 차단했습니다.`
-          howManyAlready = `이미 차단함: ${already}`
-          break
-        case 'unchainblock':
-          whatIDid = '언체인블락'
-          howMany = `${success.UnBlock}명을 차단해제했습니다.`
-          howManyAlready = `이미 차단해제함: ${already}`
-          break
+  private async markUser(params: MarkUserParams) {
+    const tabs = await browser.tabs.query({
+      discarded: false,
+      url: ['https://twitter.com/*', 'https://mobile.twitter.com/*'],
+    })
+    tabs.forEach(tab => {
+      const id = tab.id
+      if (typeof id !== 'number') {
+        return
       }
-      let message = `${whatIDid} 완료! @${screen_name}의 ${targetListKor} 중 ${howMany}\n`
-      message += `(${howManyAlready}, 스킵: ${skipped}, 실패: ${failure})`
+      browser.tabs.sendMessage<RBMarkUserMessage>(id, {
+        messageType: 'MarkUserMessage',
+        ...params,
+      })
+    })
+  }
+  private handleEvents(session: ISession) {
+    const sessionInfo = session.getSessionInfo()
+    session.eventEmitter.on('complete', () => {
+      const message = TextGenerate.chainBlockResultNotification(sessionInfo)
       notify(message)
     })
     session.eventEmitter.on('error', err => {
-      let message = `${whatIDid} 오류! 메시지:\n`
+      let message = `오류발생! 메시지:\n`
       message += err
       notify(message)
     })
     session.eventEmitter.on('mark-user', params => {
-      browser.tabs
-        .query({
-          discarded: false,
-          url: ['https://twitter.com/*', 'https://mobile.twitter.com/*'],
-        })
-        .then(tabs => {
-          tabs.forEach(tab => {
-            const id = tab.id
-            if (typeof id !== 'number') {
-              return
-            }
-            browser.tabs.sendMessage<RBMarkUserMessage>(id, {
-              messageType: 'MarkUserMessage',
-              ...params,
-            })
-          })
-        })
+      this.markUser(params)
     })
   }
-  public add(request: SessionRequest) {
-    const targetUser = request.target.user
-    if (this.isAlreadyRunningForUser(targetUser)) {
-      window.alert(`이미 @${targetUser.screen_name}에게 체인블락이나 언체인블락이 실행중입니다.`)
+  public addFollowerBlockSession(request: FollowerBlockSessionRequest) {
+    const { target } = request
+    if (this.isAlreadyRunning(target)) {
+      window.alert('이미 같은 대상에게 체인블락이나 언체인블락이 실행중입니다.')
       return null
     }
-    const session = new Session(request)
+    const session = new FollowerBlockSession(request)
+    const sessionId = session.getSessionInfo().sessionId
+    this.handleEvents(session)
+    this.sessions.set(sessionId, session)
+    return sessionId
+  }
+  public addTweetReactionBlockSession(request: TweetReactionBlockSessionRequest) {
+    const { target } = request
+    if (this.isAlreadyRunning(target)) {
+      window.alert('이미 같은 대상에게 체인블락이나 언체인블락이 실행중입니다.')
+      return null
+    }
+    const session = new TweetReactionBlockSession(request)
     const sessionId = session.getSessionInfo().sessionId
     this.handleEvents(session)
     this.sessions.set(sessionId, session)
