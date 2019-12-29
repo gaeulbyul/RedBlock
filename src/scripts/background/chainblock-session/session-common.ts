@@ -52,19 +52,18 @@ export interface ISession<ReqT = SessionRequest> {
   isSameTarget(givenTarget: SessionRequest['target']): boolean
 }
 
-function isAlreadyDone(follower: TwitterUser, verb: Verb): boolean {
+function isAlreadyDone(follower: TwitterUser, verb: VerbSomething): boolean {
   const { blocking, muting } = follower
-  let already = false
   if (blocking && verb === 'Block') {
-    already = true
+    return true
   } else if (!blocking && verb === 'UnBlock') {
-    already = true
+    return true
   } else if (muting && verb === 'Mute') {
-    already = true
+    return true
   } else if (!muting && verb === 'UnMute') {
-    already = true
+    return true
   }
-  return already
+  return false
 }
 
 export function whatToDoGivenUser(request: SessionRequest, follower: TwitterUser): Verb {

@@ -121,8 +121,6 @@ export default class FollowerBlockSession implements ISession<FollowerBlockSessi
         return new scraper(target.user, 'followers')
       case 'mutual-followers':
         return new MutualFollowerScraper(target.user)
-      default:
-        throw new Error('unreachable')
     }
   }
   private updateTotalCount(scraper: UserScraper) {

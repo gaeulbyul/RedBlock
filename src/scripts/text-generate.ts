@@ -23,8 +23,6 @@ export function generateFollowerBlockConfirmMessage(request: FollowerBlockSessio
     case 'mutual-followers':
       confirmMessage += `대상: @${targetUserName}의 맞팔로우 유저\n`
       break
-    default:
-      throw new Error('unreachable')
   }
   if (myFollowers === 'Block') {
     confirmMessage += '\u26a0 주의! 내 팔로워가 있어도 차단할 수 있습니다.\n'
@@ -66,28 +64,25 @@ export function generateTweetReactionBlockMessage(request: TweetReactionBlockSes
 
 export function confirmStopMessage(request: SessionInfo['request']) {
   const { target } = request
-  if (target.type === 'follower') {
-    const isChainBlock = request.purpose === 'chainblock'
-    // const isUnChainBlock = purpose === 'unchainblock'
-    const purposeKor = isChainBlock ? '체인블락' : '언체인블락'
-    return `@${target.user.screen_name}에게 실행중인 ${purposeKor}을 중단하시겠습니까?`
-  } else if (target.type === 'tweetReaction') {
-    return '트윗반응 체인블락을 중단하시겠습니까?'
-  } else {
-    throw new Error('unreachable')
+  const isChainBlock = request.purpose === 'chainblock'
+  const purposeKor = isChainBlock ? '체인블락' : '언체인블락'
+  switch (target.type) {
+    case 'follower':
+      return `@${target.user.screen_name}에게 실행중인 ${purposeKor}을 중단하시겠습니까?`
+    case 'tweetReaction':
+      return '트윗반응 체인블락을 중단하시겠습니까?'
   }
 }
 
 export function stopButtonTitleMessage(request: SessionInfo['request']) {
   const { target } = request
-  if (target.type === 'follower') {
-    const isChainBlock = request.purpose === 'chainblock'
-    const purposeKor = isChainBlock ? '체인블락' : '언체인블락'
-    return `@${target.user.screen_name}에게 실행중인 ${purposeKor}을 중지합니다.`
-  } else if (target.type === 'tweetReaction') {
-    return '트윗반응 체인블락을 중지합니다.'
-  } else {
-    throw new Error('unreachable')
+  const isChainBlock = request.purpose === 'chainblock'
+  const purposeKor = isChainBlock ? '체인블락' : '언체인블락'
+  switch (target.type) {
+    case 'follower':
+      return `@${target.user.screen_name}에게 실행중인 ${purposeKor}을 중지합니다.`
+    case 'tweetReaction':
+      return '트윗반응 체인블락을 중지합니다.'
   }
 }
 
