@@ -40,10 +40,12 @@ export default class ChainBlocker {
       if (typeof id !== 'number') {
         return
       }
-      browser.tabs.sendMessage<RBMarkUserMessage>(id, {
-        messageType: 'MarkUserMessage',
-        ...params,
-      })
+      browser.tabs
+        .sendMessage<RBMarkUserMessage>(id, {
+          messageType: 'MarkUserMessage',
+          ...params,
+        })
+        .catch(() => {})
     })
   }
   private handleEvents(session: ISession) {

@@ -1,4 +1,6 @@
 import * as TwitterAPI from '../twitter-api.js'
+import { getFollowersCount, getReactionsCount } from '../../common.js'
+export { getFollowersCount, getReactionsCount }
 
 type TwitterUser = TwitterAPI.TwitterUser
 type Tweet = TwitterAPI.Tweet
@@ -8,23 +10,11 @@ export interface UserScraper {
   scrape(): ScrapeResult
   totalCount: number | null
 }
-
-function simpleGetTotalCount(user: TwitterUser, followKind: FollowKind): number {
-  switch (followKind) {
-    case 'followers':
-      return user.followers_count
-    case 'friends':
-      return user.friends_count
-    case 'mutual-followers':
-      throw new Error('unreachable')
-  }
-}
-
 // 단순 스크래퍼. 기존 체인블락 방식
 export class SimpleScraper implements UserScraper {
   public totalCount: number
   constructor(private user: TwitterUser, private followKind: FollowKind) {
-    this.totalCount = simpleGetTotalCount(user, followKind)
+    this.totalCount = getFollowersCount(user, followKind)!
   }
   public scrape() {
     return TwitterAPI.getAllFollowsUserList(this.followKind, this.user)
@@ -35,8 +25,8 @@ export class SimpleScraper implements UserScraper {
 export class QuickScraper implements UserScraper {
   private readonly limitCount = 200
   public totalCount: number
-  constructor(private user: TwitterUser, private followKind: FollowKind) {
-    this.totalCount = Math.min(this.limitCount, simpleGetTotalCount(user, followKind))
+  constructor(private user: TwitterUser, private followKind: Exclude<FollowKind, 'mutual-followers'>) {
+    this.totalCount = Math.min(this.limitCount, getFollowersCount(user, followKind)!)
   }
   public async *scrape() {
     let count = 0
@@ -61,22 +51,13 @@ export class MutualFollowerScraper implements UserScraper {
   }
 }
 
-function simpleGetTotalReact(tweet: Tweet, reaction: ReactionKind): number {
-  switch (reaction) {
-    case 'retweeted':
-      return tweet.retweet_count
-    case 'liked':
-      return tweet.favorite_count
-  }
-}
-
 // 트윗반응 유저 스크래퍼
 export class TweetReactedUserScraper implements UserScraper {
   public totalCount: number
   constructor(private tweet: Tweet, private reaction: ReactionKind) {
-    this.totalCount = simpleGetTotalReact(tweet, reaction)
+    this.totalCount = getReactionsCount(tweet, reaction)
   }
-  public async *scrape() {
+  public scrape() {
     return TwitterAPI.getAllReactedUserList(this.reaction, this.tweet)
   }
 }

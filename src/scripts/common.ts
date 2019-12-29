@@ -1,4 +1,4 @@
-import { TwitterUser, TwitterUserEntities } from './background/twitter-api.js'
+import { Tweet, TwitterUser, TwitterUserEntities } from './background/twitter-api.js'
 
 export const enum Action {
   StartFollowerChainBlock = 'RedBlock/StartFollowerBlock',
@@ -133,6 +133,26 @@ export async function collectAsync<T>(generator: AsyncIterableIterator<T>): Prom
     result.push(val)
   }
   return result
+}
+
+export function getFollowersCount(user: TwitterUser, followKind: FollowKind): number | null {
+  switch (followKind) {
+    case 'followers':
+      return user.followers_count
+    case 'friends':
+      return user.friends_count
+    case 'mutual-followers':
+      return null
+  }
+}
+
+export function getReactionsCount(tweet: Tweet, reaction: ReactionKind): number {
+  switch (reaction) {
+    case 'retweeted':
+      return tweet.retweet_count
+    case 'liked':
+      return tweet.favorite_count
+  }
 }
 
 export function formatNumber(input: unknown, quick = false): string {

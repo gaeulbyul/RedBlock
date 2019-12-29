@@ -2,7 +2,7 @@ type Action = typeof import('./common').Action
 type SessionInfo = import('./background/chainblock-session/session-common').SessionInfo
 type FollowerBlockSessionRequest = import('./background/chainblock-session/follower').FollowerBlockSessionRequest
 type TweetReactionBlockSessionRequest = import('./background/chainblock-session/tweet-reaction').TweetReactionBlockSessionRequest
-type SessionRequests = import('./background/chainblock-session/session-common').SessionRequest
+type SessionRequest = import('./background/chainblock-session/session-common').SessionRequest
 type TwitterUser = import('./background/twitter-api').TwitterUser
 
 // ---- vendor modules ----

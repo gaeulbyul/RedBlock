@@ -1,5 +1,6 @@
 import { Action, UI_UPDATE_DELAY } from '../common.js'
-import { defaultOption } from './chainblock-session/follower.js'
+import { defaultOption as fcbDefaultOption } from './chainblock-session/follower.js'
+import { defaultOption as trcbDefaultOption } from './chainblock-session/tweet-reaction.js'
 import { FollowerBlockSessionRequest } from './chainblock-session/session-common.js'
 import ChainBlocker from './chainblock.js'
 import * as TextGenerate from '../text-generate.js'
@@ -13,12 +14,20 @@ let storageQueue = Promise.resolve()
 const chainblocker = new ChainBlocker()
 const tabConnections = new Set<number>()
 
-export async function doChainBlockWithDefaultOptions(userName: string, targetList: FollowKind) {
+export async function doFollowerChainBlockWithDefaultOptions(userName: string, targetList: FollowKind) {
   return executeFollowerChainBlock({
     userName,
     targetList,
     purpose: 'chainblock',
-    options: defaultOption,
+    options: fcbDefaultOption,
+  })
+}
+
+export async function doTweetReactionChainBlockWithDefaultOptions(tweetId: string, reaction: ReactionKind) {
+  return executeTweetReactionChainBlock({
+    tweetId,
+    reaction,
+    options: trcbDefaultOption,
   })
 }
 
@@ -161,22 +170,27 @@ async function sendChainBlockerInfoToTabs() {
 }
 async function sendProgress() {
   const infos = chainblocker.getAllSessionsProgress()
-  return browser.runtime.sendMessage<RBChainBlockInfoMessage>({
-    messageType: 'ChainBlockInfoMessage',
-    infos,
-  })
+  return browser.runtime
+    .sendMessage<RBChainBlockInfoMessage>({
+      messageType: 'ChainBlockInfoMessage',
+      infos,
+    })
+    .catch(() => {})
 }
+
 async function saveUserToStorage(user: TwitterUser) {
   console.info('saving user', user)
   storageQueue = storageQueue.then(() => Storage.insertSingleUserAndSave(user))
   return storageQueue
 }
+
 async function removeUserFromStorage(user: TwitterUser) {
   console.info('removing user', user)
   storageQueue = storageQueue.then(() => Storage.removeSingleUserAndSave(user))
   return storageQueue
 }
-export function initialize() {
+
+function initialize() {
   window.setInterval(sendChainBlockerInfoToTabs, UI_UPDATE_DELAY)
   browser.runtime.onMessage.addListener(
     (msg: object, sender: browser.runtime.MessageSender, _sendResponse: (response: any) => Promise<void>): true => {

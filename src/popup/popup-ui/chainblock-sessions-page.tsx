@@ -1,4 +1,4 @@
-import { SessionInfo, FollowerBlockSessionRequest } from '../../scripts/background/chainblock-session/session-common.js'
+import { SessionInfo } from '../../scripts/background/chainblock-session/session-common.js'
 import { SessionStatus, UI_UPDATE_DELAY } from '../../scripts/common.js'
 import { requestProgress, stopAllChainBlock, stopChainBlock } from '../popup.js'
 import * as TextGenerate from '../../scripts/text-generate.js'
@@ -76,10 +76,18 @@ function renderProfileImageWithProgress(session: SessionInfo) {
   )
 }
 
-function FollowerBlockSessionItem(props: { session: SessionInfo<FollowerBlockSessionRequest> }) {
+function ChainBlockSessionItem(props: { session: SessionInfo }) {
   const { session } = props
-  const { purpose } = session.request
-  const { user } = session.request.target
+  const { purpose, target } = session.request
+  let user: TwitterUser
+  switch (target.type) {
+    case 'follower':
+      user = target.user
+      break
+    case 'tweetReaction':
+      user = target.tweet.user
+      break
+  }
   const isChainBlock = purpose === 'chainblock'
   const isUnChainBlock = purpose === 'unchainblock'
   const purposeKor = isChainBlock ? '체인블락' : '언체인블락'
@@ -224,21 +232,9 @@ export default class ChainBlockSessionsPage extends React.Component<{}, ChainBlo
   renderSessions() {
     return (
       <div className="chainblock-sessions">
-        {this.state.sessions.map(session => {
-          const { target } = session.request
-          switch (target.type) {
-            case 'follower':
-              return (
-                <FollowerBlockSessionItem
-                  session={session as SessionInfo<FollowerBlockSessionRequest>}
-                  key={session.sessionId}
-                />
-              )
-            case 'tweetReaction':
-              // TODO
-              throw new Error('not implemented')
-          }
-        })}
+        {this.state.sessions.map(session => (
+          <ChainBlockSessionItem session={session as SessionInfo} key={session.sessionId} />
+        ))}
       </div>
     )
   }

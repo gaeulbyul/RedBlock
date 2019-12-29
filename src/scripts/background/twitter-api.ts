@@ -506,7 +506,7 @@ export interface Limit {
   reset: number
 }
 
-interface LimitStatus {
+export interface LimitStatus {
   application: {
     '/application/rate_limit_status': Limit
   }
@@ -522,5 +522,11 @@ interface LimitStatus {
   friends: {
     '/friends/list': Limit
     '/friends/ids': Limit
+  }
+  statuses: {
+    '/statuses/retweeted_by': Limit
+    '/statuses/retweeters/ids': Limit
+    '/statuses/retweets/:id': Limit
+    '/statuses/favorited_by': Limit
   }
 }

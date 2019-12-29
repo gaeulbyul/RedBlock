@@ -103,6 +103,60 @@ export function whatToDoGivenUser(request: SessionRequest, follower: TwitterUser
   return defaultVerb
 }
 
-export function generateSessionId(): string {
+function generateSessionId(): string {
   return `session/${Date.now()}`
+}
+
+export function initSessionInfo<ReqT>(request: ReqT, count: SessionInfo['count']): SessionInfo<ReqT> {
+  return {
+    sessionId: generateSessionId(),
+    request: request,
+    progress: {
+      already: 0,
+      success: {
+        Block: 0,
+        UnBlock: 0,
+        Mute: 0,
+        UnMute: 0,
+      },
+      failure: 0,
+      skipped: 0,
+      error: 0,
+    },
+    count,
+    status: SessionStatus.Initial,
+    limit: null,
+  }
+}
+
+export function extractRateLimit(limitStatuses: TwitterAPI.LimitStatus, apiKind: FollowKind | ReactionKind): Limit {
+  switch (apiKind) {
+    case 'followers':
+      return limitStatuses.followers['/followers/list']
+    case 'friends':
+      return limitStatuses.friends['/friends/list']
+    case 'mutual-followers':
+      return limitStatuses.followers['/followers/list']
+    case 'retweeted':
+      return limitStatuses.statuses['/statuses/retweeted_by']
+    case 'liked':
+      return limitStatuses.statuses['/statuses/favorited_by']
+  }
+}
+
+export function calculateScrapedCount({ success, already, failure, error, skipped }: SessionInfo['progress']) {
+  return _.sum([...Object.values(success), already, failure, error, skipped])
+}
+
+export async function callAPIFromVerb(follower: TwitterUser, verb: VerbSomething): Promise<TwitterUser> {
+  switch (verb) {
+    case 'Block':
+      return TwitterAPI.blockUser(follower)
+    case 'UnBlock':
+      return TwitterAPI.unblockUser(follower)
+    case 'Mute':
+      return TwitterAPI.muteUser(follower)
+    case 'UnMute':
+      return TwitterAPI.unmuteUser(follower)
+  }
 }

@@ -1,8 +1,11 @@
 import { copyFrozenObject, EventEmitter, SessionStatus, sleep } from '../../common.js'
 import * as TwitterAPI from '../twitter-api.js'
-import { MutualFollowerScraper, QuickScraper, SimpleScraper, UserScraper } from './scraper.js'
+import { MutualFollowerScraper, QuickScraper, SimpleScraper, UserScraper, getFollowersCount } from './scraper.js'
 import {
-  generateSessionId,
+  calculateScrapedCount,
+  callAPIFromVerb,
+  extractRateLimit,
+  initSessionInfo,
   ISession,
   PROMISE_BUFFER_SIZE,
   SessionEventEmitter,
@@ -28,7 +31,7 @@ export interface FollowerBlockSessionRequest {
 }
 
 export default class FollowerBlockSession implements ISession<FollowerBlockSessionRequest> {
-  private readonly sessionInfo = this.initSessionInfo()
+  private readonly sessionInfo = initSessionInfo(this.request, this.initCount())
   private shouldStop = false
   public readonly eventEmitter = new EventEmitter<SessionEventEmitter>()
   public constructor(private request: FollowerBlockSessionRequest) {}
@@ -41,7 +44,7 @@ export default class FollowerBlockSession implements ISession<FollowerBlockSessi
       return false
     }
     const givenTargetUser = givenTarget.user
-    const thisTargetUser = this.sessionInfo.request.target.user
+    const thisTargetUser = this.request.target.user
     return thisTargetUser.id_str === givenTargetUser.id_str
   }
   public async start() {
@@ -52,7 +55,7 @@ export default class FollowerBlockSession implements ISession<FollowerBlockSessi
       const userScraper = scraper.scrape()
       for await (const maybeFollower of userScraper) {
         this.updateTotalCount(scraper)
-        this.updateScrapedCount()
+        this.sessionInfo.count.scraped = calculateScrapedCount(this.sessionInfo.progress)
         if (this.shouldStop) {
           stopped = true
           promiseBuffer.length = 0
@@ -71,7 +74,7 @@ export default class FollowerBlockSession implements ISession<FollowerBlockSessi
         }
         this.handleRunning()
         const follower = maybeFollower.value
-        const whatToDo = whatToDoGivenUser(this.sessionInfo.request, follower)
+        const whatToDo = whatToDoGivenUser(this.request, follower)
         if (whatToDo === 'Skip') {
           this.sessionInfo.progress.skipped++
           continue
@@ -102,46 +105,14 @@ export default class FollowerBlockSession implements ISession<FollowerBlockSessi
   }
   private initCount(): SessionInfo['count'] {
     const { user, list } = this.request.target
-    let total: number | null
-    switch (list) {
-      case 'followers':
-        total = user.followers_count
-        break
-      case 'friends':
-        total = user.friends_count
-        break
-      case 'mutual-followers':
-        total = null
-        break
-    }
+    const total = getFollowersCount(user, list)
     return {
       scraped: 0,
       total,
     }
   }
-  private initSessionInfo(): SessionInfo<FollowerBlockSessionRequest> {
-    return {
-      sessionId: generateSessionId(),
-      request: this.request,
-      progress: {
-        already: 0,
-        success: {
-          Block: 0,
-          UnBlock: 0,
-          Mute: 0,
-          UnMute: 0,
-        },
-        failure: 0,
-        skipped: 0,
-        error: 0,
-      },
-      count: this.initCount(),
-      status: SessionStatus.Initial,
-      limit: null,
-    }
-  }
   private initScraper() {
-    const { options, target } = this.sessionInfo.request
+    const { options, target } = this.request
     const scraper = options.quickMode ? QuickScraper : SimpleScraper
     switch (target.list) {
       case 'friends':
@@ -159,59 +130,23 @@ export default class FollowerBlockSession implements ISession<FollowerBlockSessi
       this.sessionInfo.count.total = scraper.totalCount
     }
   }
-  private async doVerb(follower: TwitterUser, verb: VerbSomething): Promise<void> {
-    let promise: Promise<TwitterUser>
+  private async doVerb(user: TwitterUser, verb: VerbSomething): Promise<void> {
     const incrementSuccess = (v: VerbSomething) => this.sessionInfo.progress.success[v]++
     const incrementFailure = () => this.sessionInfo.progress.failure++
-    switch (verb) {
-      case 'Block':
-        promise = TwitterAPI.blockUser(follower)
-        break
-      case 'UnBlock':
-        promise = TwitterAPI.unblockUser(follower)
-        break
-      case 'Mute':
-        promise = TwitterAPI.muteUser(follower)
-        break
-      case 'UnMute':
-        promise = TwitterAPI.unmuteUser(follower)
-        break
-    }
-    return promise
-      .then(result => {
-        if (result) {
-          incrementSuccess(verb)
-          this.eventEmitter.emit('mark-user', {
-            userId: follower.id_str,
-            verb,
-          })
-        } else {
-          incrementFailure()
-        }
+    const verbResult = await callAPIFromVerb(user, verb).catch(() => void incrementFailure())
+    if (verbResult) {
+      incrementSuccess(verb)
+      this.eventEmitter.emit('mark-user', {
+        userId: user.id_str,
+        verb,
       })
-      .catch(() => void incrementFailure())
-  }
-  private updateScrapedCount() {
-    const { success, already, failure, error, skipped } = this.sessionInfo.progress
-    const scraped = _.sum([...Object.values(success), already, failure, error, skipped])
-    this.sessionInfo.count.scraped = scraped
+    }
   }
   private async handleRateLimit() {
     this.sessionInfo.status = SessionStatus.RateLimited
     const limitStatuses = await TwitterAPI.getRateLimitStatus()
-    const { target } = this.sessionInfo.request
-    let limit: TwitterAPI.Limit
-    switch (target.list) {
-      case 'followers':
-        limit = limitStatuses.followers['/followers/list']
-        break
-      case 'friends':
-        limit = limitStatuses.friends['/friends/list']
-        break
-      case 'mutual-followers':
-        limit = limitStatuses.followers['/followers/list']
-        break
-    }
+    const { target } = this.request
+    const limit = extractRateLimit(limitStatuses, target.list)
     this.sessionInfo.limit = limit
     this.eventEmitter.emit('rate-limit', limit)
   }
@@ -224,7 +159,6 @@ export default class FollowerBlockSession implements ISession<FollowerBlockSessi
   }
 }
 
-// TODO: rename or create for t.r. session
 export const defaultOption: Readonly<FollowerBlockSessionRequest['options']> = Object.freeze({
   quickMode: false,
   myFollowers: 'Skip',
