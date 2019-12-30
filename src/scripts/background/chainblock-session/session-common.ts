@@ -203,7 +203,7 @@ export async function mainLoop(this: SessionType, scraper: UserScraper) {
   }
   let stopped = false
   try {
-    for await (const maybeUser of scraper.scrape()) {
+    for await (const maybeUser of scraper) {
       self.updateTotalCount(scraper)
       self.sessionInfo.count.scraped = calculateScrapedCount(self.sessionInfo.progress)
       if (self.shouldStop) {

@@ -7,8 +7,8 @@ type Tweet = TwitterAPI.Tweet
 
 type ScrapeResult = AsyncIterableIterator<Either<Error, TwitterUser>>
 export interface UserScraper {
-  scrape(): ScrapeResult
   totalCount: number | null
+  [Symbol.asyncIterator](): ScrapeResult
 }
 // 단순 스크래퍼. 기존 체인블락 방식
 export class SimpleScraper implements UserScraper {
@@ -16,7 +16,7 @@ export class SimpleScraper implements UserScraper {
   constructor(private user: TwitterUser, private followKind: FollowKind) {
     this.totalCount = getFollowersCount(user, followKind)!
   }
-  public scrape() {
+  public [Symbol.asyncIterator]() {
     return TwitterAPI.getAllFollowsUserList(this.followKind, this.user)
   }
 }
@@ -28,7 +28,7 @@ export class QuickScraper implements UserScraper {
   constructor(private user: TwitterUser, private followKind: Exclude<FollowKind, 'mutual-followers'>) {
     this.totalCount = Math.min(this.limitCount, getFollowersCount(user, followKind)!)
   }
-  public async *scrape() {
+  public async *[Symbol.asyncIterator]() {
     let count = 0
     for await (const item of TwitterAPI.getAllFollowsUserList(this.followKind, this.user)) {
       count++
@@ -44,7 +44,7 @@ export class QuickScraper implements UserScraper {
 export class MutualFollowerScraper implements UserScraper {
   public totalCount: number | null = null
   constructor(private user: TwitterUser) {}
-  public async *scrape() {
+  public async *[Symbol.asyncIterator]() {
     const mutualFollowersIds = await TwitterAPI.getAllMutualFollowersIds(this.user)
     this.totalCount = mutualFollowersIds.length
     yield* TwitterAPI.lookupUsersByIds(mutualFollowersIds)
@@ -57,7 +57,7 @@ export class TweetReactedUserScraper implements UserScraper {
   constructor(private tweet: Tweet, private reaction: ReactionKind) {
     this.totalCount = getReactionsCount(tweet, reaction)
   }
-  public scrape() {
+  public [Symbol.asyncIterator]() {
     return TwitterAPI.getAllReactedUserList(this.reaction, this.tweet)
   }
 }
