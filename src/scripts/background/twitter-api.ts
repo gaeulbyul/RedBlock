@@ -30,7 +30,7 @@ export async function getRateLimitStatus(): Promise<LimitStatus> {
   return resources
 }
 
-export async function blockUser(user: TwitterUser): Promise<TwitterUser> {
+export async function blockUser(user: TwitterUser, parseUser = false): Promise<TwitterUser> {
   if (user.blocking) {
     return user
   }
@@ -40,13 +40,17 @@ export async function blockUser(user: TwitterUser): Promise<TwitterUser> {
     skip_status: true,
   })
   if (response.ok) {
-    return response.json() as Promise<TwitterUser>
+    if (parseUser) {
+      return response.json() as Promise<TwitterUser>
+    } else {
+      return user
+    }
   } else {
     throw new APIFailError('error', response)
   }
 }
 
-export async function unblockUser(user: TwitterUser): Promise<TwitterUser> {
+export async function unblockUser(user: TwitterUser, parseUser = false): Promise<TwitterUser> {
   if (!user.blocking) {
     return user
   }
@@ -56,13 +60,17 @@ export async function unblockUser(user: TwitterUser): Promise<TwitterUser> {
     skip_status: true,
   })
   if (response.ok) {
-    return response.json() as Promise<TwitterUser>
+    if (parseUser) {
+      return response.json() as Promise<TwitterUser>
+    } else {
+      return user
+    }
   } else {
     throw new APIFailError('error', response)
   }
 }
 
-export async function muteUser(user: TwitterUser): Promise<TwitterUser> {
+export async function muteUser(user: TwitterUser, parseUser = false): Promise<TwitterUser> {
   if (user.muting) {
     return user
   }
@@ -70,13 +78,17 @@ export async function muteUser(user: TwitterUser): Promise<TwitterUser> {
     user_id: user.id_str,
   })
   if (response.ok) {
-    return response.json() as Promise<TwitterUser>
+    if (parseUser) {
+      return response.json() as Promise<TwitterUser>
+    } else {
+      return user
+    }
   } else {
     throw new APIFailError('error', response)
   }
 }
 
-export async function unmuteUser(user: TwitterUser): Promise<TwitterUser> {
+export async function unmuteUser(user: TwitterUser, parseUser = false): Promise<TwitterUser> {
   if (!user.muting) {
     return user
   }
@@ -84,7 +96,11 @@ export async function unmuteUser(user: TwitterUser): Promise<TwitterUser> {
     user_id: user.id_str,
   })
   if (response.ok) {
-    return response.json() as Promise<TwitterUser>
+    if (parseUser) {
+      return response.json() as Promise<TwitterUser>
+    } else {
+      return user
+    }
   } else {
     throw new APIFailError('error', response)
   }
@@ -292,7 +308,7 @@ async function getReactedUserList(reaction: ReactionKind, tweet: Tweet, cursor =
   }
   const response = await requestAPI('get', reactionPath, {
     id: tweet.id_str,
-    count: 200, // ???
+    count: 200,
     cursor,
   })
   if (response.ok) {
