@@ -1,6 +1,7 @@
 import FollowerBlockSession from './follower.js'
 import TweetReactionBlockSession from './tweet-reaction.js'
-import { SessionStatus, EventEmitter } from '../../common.js'
+import { sleep, SessionStatus, EventEmitter } from '../../common.js'
+import { UserScraper } from './scraper.js'
 import * as TwitterAPI from '../twitter-api.js'
 
 export { FollowerBlockSessionRequest } from './follower.js'
@@ -12,7 +13,7 @@ export type SessionType = FollowerBlockSession | TweetReactionBlockSession
 type Limit = TwitterAPI.Limit
 type TwitterUser = TwitterAPI.TwitterUser
 
-export const PROMISE_BUFFER_SIZE = 150
+const PROMISE_BUFFER_SIZE = 150
 
 export interface SessionInfo<ReqT = SessionRequest> {
   sessionId: string
@@ -52,6 +53,13 @@ export interface ISession<ReqT = SessionRequest> {
   isSameTarget(givenTarget: SessionRequest['target']): boolean
 }
 
+interface ISessionInternal extends ISession {
+  shouldStop: boolean
+  request: SessionRequest
+  sessionInfo: SessionInfo
+  updateTotalCount(scraper: UserScraper): void
+}
+
 function isAlreadyDone(follower: TwitterUser, verb: VerbSomething): boolean {
   const { blocking, muting } = follower
   if (blocking && verb === 'Block') {
@@ -66,7 +74,7 @@ function isAlreadyDone(follower: TwitterUser, verb: VerbSomething): boolean {
   return false
 }
 
-export function whatToDoGivenUser(request: SessionRequest, follower: TwitterUser): Verb {
+function whatToDoGivenUser(request: SessionRequest, follower: TwitterUser): Verb {
   const { purpose, options } = request
   const { following, followed_by, follow_request_sent } = follower
   const isMyFollowing = following || follow_request_sent
@@ -143,11 +151,11 @@ export function extractRateLimit(limitStatuses: TwitterAPI.LimitStatus, apiKind:
   }
 }
 
-export function calculateScrapedCount({ success, already, failure, error, skipped }: SessionInfo['progress']) {
+function calculateScrapedCount({ success, already, failure, error, skipped }: SessionInfo['progress']) {
   return _.sum([...Object.values(success), already, failure, error, skipped])
 }
 
-export async function callAPIFromVerb(follower: TwitterUser, verb: VerbSomething): Promise<TwitterUser> {
+async function callAPIFromVerb(follower: TwitterUser, verb: VerbSomething): Promise<TwitterUser> {
   switch (verb) {
     case 'Block':
       return TwitterAPI.blockUser(follower)
@@ -157,5 +165,101 @@ export async function callAPIFromVerb(follower: TwitterUser, verb: VerbSomething
       return TwitterAPI.muteUser(follower)
     case 'UnMute':
       return TwitterAPI.unmuteUser(follower)
+  }
+}
+
+async function handleRateLimit(
+  sessionInfo: SessionInfo,
+  eventEmitter: EventEmitter<SessionEventEmitter>,
+  apiKind: FollowKind | ReactionKind
+) {
+  sessionInfo.status = SessionStatus.RateLimited
+  const limitStatuses = await TwitterAPI.getRateLimitStatus()
+  const limit = extractRateLimit(limitStatuses, apiKind)
+  sessionInfo.limit = limit
+  eventEmitter.emit('rate-limit', limit)
+}
+
+async function handleRunning(sessionInfo: SessionInfo, eventEmitter: EventEmitter<SessionEventEmitter>) {
+  if (sessionInfo.status === SessionStatus.RateLimited) {
+    eventEmitter.emit('rate-limit-reset', null)
+  }
+  sessionInfo.status = SessionStatus.Running
+  sessionInfo.limit = null
+}
+
+export async function mainLoop(this: SessionType, scraper: UserScraper) {
+  const self = (this as unknown) as ISessionInternal
+  const promiseBuffer: Promise<void>[] = []
+  const { target } = self.request
+  let apiKind: FollowKind | ReactionKind
+  switch (target.type) {
+    case 'follower':
+      apiKind = target.list
+      break
+    case 'tweetReaction':
+      apiKind = target.reaction
+      break
+  }
+  let stopped = false
+  try {
+    for await (const maybeUser of scraper.scrape()) {
+      self.updateTotalCount(scraper)
+      self.sessionInfo.count.scraped = calculateScrapedCount(self.sessionInfo.progress)
+      if (self.shouldStop) {
+        stopped = true
+        promiseBuffer.length = 0
+        break
+      }
+      if (!maybeUser.ok) {
+        if (maybeUser.error instanceof TwitterAPI.RateLimitError) {
+          handleRateLimit(self.sessionInfo, self.eventEmitter, apiKind)
+          const second = 1000
+          const minute = second * 60
+          await sleep(1 * minute)
+          continue
+        } else {
+          throw maybeUser.error
+        }
+      }
+      handleRunning(self.sessionInfo, self.eventEmitter)
+      const user = maybeUser.value
+      const whatToDo = whatToDoGivenUser(self.request, user)
+      if (whatToDo === 'Skip') {
+        self.sessionInfo.progress.skipped++
+        continue
+      } else if (whatToDo === 'AlreadyDone') {
+        self.sessionInfo.progress.already++
+        continue
+      }
+      promiseBuffer.push(
+        (async () => {
+          const incrementSuccess = (v: VerbSomething) => self.sessionInfo.progress.success[v]++
+          const incrementFailure = () => self.sessionInfo.progress.failure++
+          const verbResult = await callAPIFromVerb(user, whatToDo).catch(() => void incrementFailure())
+          if (verbResult) {
+            incrementSuccess(whatToDo)
+            this.eventEmitter.emit('mark-user', {
+              userId: user.id_str,
+              verb: whatToDo,
+            })
+          }
+        })()
+      )
+      if (promiseBuffer.length >= PROMISE_BUFFER_SIZE) {
+        await Promise.all(promiseBuffer)
+        promiseBuffer.length = 0
+      }
+    }
+    await Promise.all(promiseBuffer)
+    promiseBuffer.length = 0
+    if (!stopped) {
+      self.sessionInfo.status = SessionStatus.Completed
+      this.eventEmitter.emit('complete', self.sessionInfo.progress)
+    }
+  } catch (error) {
+    self.sessionInfo.status = SessionStatus.Error
+    this.eventEmitter.emit('error', error.toString())
+    throw error
   }
 }

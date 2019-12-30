@@ -1,17 +1,13 @@
-import { copyFrozenObject, EventEmitter, SessionStatus, sleep } from '../../common.js'
+import { copyFrozenObject, EventEmitter } from '../../common.js'
 import * as TwitterAPI from '../twitter-api.js'
 import { TweetReactedUserScraper, getReactionsCount } from './scraper.js'
 import {
-  calculateScrapedCount,
-  callAPIFromVerb,
-  extractRateLimit,
   initSessionInfo,
+  mainLoop,
   ISession,
-  PROMISE_BUFFER_SIZE,
   SessionEventEmitter,
   SessionInfo,
   SessionRequest,
-  whatToDoGivenUser,
 } from './session-common.js'
 
 type Tweet = TwitterAPI.Tweet
@@ -36,7 +32,7 @@ export interface TweetReactionBlockSessionRequest {
 
 export default class TweetReactionBlockSession implements ISession<TweetReactionBlockSessionRequest> {
   private readonly sessionInfo = initSessionInfo(this.request, this.initCount())
-  private shouldStop = false
+  protected shouldStop = false
   public readonly eventEmitter = new EventEmitter<SessionEventEmitter>()
   public constructor(private request: TweetReactionBlockSessionRequest) {}
   public getSessionInfo() {
@@ -52,55 +48,8 @@ export default class TweetReactionBlockSession implements ISession<TweetReaction
   }
   public async start() {
     const { target } = this.request
-    const promiseBuffer: Promise<void>[] = []
-    let stopped = false
-    try {
-      const scraper = new TweetReactedUserScraper(target.tweet, target.reaction)
-      for await (const maybeUser of scraper.scrape()) {
-        this.sessionInfo.count.scraped = calculateScrapedCount(this.sessionInfo.progress)
-        if (this.shouldStop) {
-          stopped = true
-          promiseBuffer.length = 0
-          break
-        }
-        if (!maybeUser.ok) {
-          if (maybeUser.error instanceof TwitterAPI.RateLimitError) {
-            this.handleRateLimit()
-            const second = 1000
-            const minute = second * 60
-            await sleep(1 * minute)
-            continue
-          } else {
-            throw maybeUser.error
-          }
-        }
-        this.handleRunning()
-        const reactedUser = maybeUser.value
-        const whatToDo = whatToDoGivenUser(this.request, reactedUser)
-        if (whatToDo === 'Skip') {
-          this.sessionInfo.progress.skipped++
-          continue
-        } else if (whatToDo === 'AlreadyDone') {
-          this.sessionInfo.progress.already++
-          continue
-        }
-        promiseBuffer.push(this.doVerb(reactedUser, whatToDo))
-        if (promiseBuffer.length >= PROMISE_BUFFER_SIZE) {
-          await Promise.all(promiseBuffer)
-          promiseBuffer.length = 0
-        }
-      }
-      await Promise.all(promiseBuffer)
-      promiseBuffer.length = 0
-      if (!stopped) {
-        this.sessionInfo.status = SessionStatus.Completed
-        this.eventEmitter.emit('complete', this.sessionInfo.progress)
-      }
-    } catch (error) {
-      this.sessionInfo.status = SessionStatus.Error
-      this.eventEmitter.emit('error', error.toString())
-      throw error
-    }
+    const scraper = new TweetReactedUserScraper(target.tweet, target.reaction)
+    return mainLoop.call(this, scraper)
   }
   public stop() {
     this.shouldStop = false
@@ -112,32 +61,8 @@ export default class TweetReactionBlockSession implements ISession<TweetReaction
       total: getReactionsCount(tweet, reaction),
     }
   }
-  private async handleRateLimit() {
-    this.sessionInfo.status = SessionStatus.RateLimited
-    const limitStatuses = await TwitterAPI.getRateLimitStatus()
-    const { target } = this.request
-    const limit = extractRateLimit(limitStatuses, target.reaction)
-    this.sessionInfo.limit = limit
-    this.eventEmitter.emit('rate-limit', limit)
-  }
-  private async handleRunning() {
-    if (this.sessionInfo.status === SessionStatus.RateLimited) {
-      this.eventEmitter.emit('rate-limit-reset', null)
-    }
-    this.sessionInfo.status = SessionStatus.Running
-    this.sessionInfo.limit = null
-  }
-  private async doVerb(user: TwitterUser, verb: VerbSomething): Promise<void> {
-    const incrementSuccess = (v: VerbSomething) => this.sessionInfo.progress.success[v]++
-    const incrementFailure = () => this.sessionInfo.progress.failure++
-    const verbResult = await callAPIFromVerb(user, verb).catch(() => void incrementFailure())
-    if (verbResult) {
-      incrementSuccess(verb)
-      this.eventEmitter.emit('mark-user', {
-        userId: user.id_str,
-        verb,
-      })
-    }
+  protected updateTotalCount(_scraper: any) {
+    // does nothing
   }
 }
 
