@@ -9,14 +9,16 @@ import { CSSProperties } from 'react'
 type SessionOptions = FollowerBlockSessionRequest['options']
 type SelectUserGroup = 'invalid' | 'current' | 'saved'
 
+const SelectedUserContext = React.createContext<TwitterUser | null>(null)
+
 function TargetSavedUsers(props: {
   currentUser: TwitterUser | null
-  selectedUser: TwitterUser | null
   selectedUserGroup: SelectUserGroup
   savedUsers: TwitterUserMap
   changeUser: (userName: string, group: SelectUserGroup) => Promise<void>
 }) {
-  const { currentUser, selectedUser, selectedUserGroup, savedUsers, changeUser } = props
+  const { currentUser, selectedUserGroup, savedUsers, changeUser } = props
+  const selectedUser = React.useContext(SelectedUserContext)
   async function insertUser() {
     if (selectedUser) {
       return insertUserToStorage(selectedUser)
@@ -76,14 +78,14 @@ function TargetSavedUsers(props: {
 }
 
 function TargetUserProfile(props: {
-  user: TwitterUser
   isAvailable: boolean
   targetList: FollowKind
   options: FollowerBlockSessionRequest['options']
   setTargetList: (fk: FollowKind) => void
   mutateOptions: (part: Partial<SessionOptions>) => void
 }) {
-  const { user, isAvailable, targetList, options, setTargetList, mutateOptions } = props
+  const user = React.useContext(SelectedUserContext)!
+  const { isAvailable, targetList, options, setTargetList, mutateOptions } = props
   const { quickMode } = options
   const biggerProfileImageUrl = user.profile_image_url_https.replace('_normal', '_bigger')
   return (
@@ -289,7 +291,7 @@ export default function NewChainBlockPage(props: { currentUser: TwitterUser | nu
     verified: 'Skip',
     mutualBlocked: 'Skip',
   })
-  const [selectedUser, selectUser] = React.useState<TwitterUser | null>(currentUser)
+  const [selectedUser, setSelectedUser] = React.useState<TwitterUser | null>(currentUser)
   const [savedUsers, setSavedUsers] = React.useState(new TwitterUserMap())
   const [selectedUserGroup, selectUserGroup] = React.useState<SelectUserGroup>('current')
   const [isLoading, setLoadingState] = React.useState(false)
@@ -316,7 +318,7 @@ export default function NewChainBlockPage(props: { currentUser: TwitterUser | nu
     browser.storage.onChanged.addListener(async () => {
       const users = await loadUsers()
       if (!(selectedUser && users.has(selectedUser.id_str))) {
-        selectUser(null)
+        setSelectedUser(null)
       }
     })
     return () => browser.storage.onChanged.removeListener(loadUsers)
@@ -344,7 +346,7 @@ export default function NewChainBlockPage(props: { currentUser: TwitterUser | nu
   async function changeUser(userName: string, group: SelectUserGroup) {
     const validUserNamePattern = /^[0-9a-z_]{1,15}$/i
     if (!validUserNamePattern.test(userName)) {
-      selectUser(null)
+      setSelectedUser(null)
       selectUserGroup('invalid')
       return
     }
@@ -352,11 +354,11 @@ export default function NewChainBlockPage(props: { currentUser: TwitterUser | nu
       setLoadingState(true)
       const newUser = await getUserByNameWithCache(userName).catch(() => null)
       if (newUser) {
-        selectUser(newUser)
+        setSelectedUser(newUser)
         selectUserGroup(group)
       } else {
         window.alert(`사용자 @${userName}을 찾을 수 없습니다.`)
-        selectUser(null)
+        setSelectedUser(null)
         selectUserGroup('invalid')
       }
     } finally {
@@ -367,80 +369,81 @@ export default function NewChainBlockPage(props: { currentUser: TwitterUser | nu
   const miniTab: CSSProperties = {
     padding: '3px 10px',
   }
+  const firstTab = currentUser && currentUser.following ? 1 : 0
   return (
     <div>
-      <div className="chainblock-target">
-        <fieldset className="chainblock-opt">
-          <legend>차단 대상</legend>
-          <TargetSavedUsers
-            currentUser={currentUser}
-            selectedUser={selectedUser}
-            selectedUserGroup={selectedUserGroup}
-            savedUsers={savedUsers}
-            changeUser={changeUser}
-          />
-          <hr />
-          {isLoading ? (
-            <TargetUserProfileEmpty reason="loading" />
-          ) : selectedUser ? (
-            <TargetUserProfile
-              options={options}
-              mutateOptions={mutateOptions}
-              targetList={targetList}
-              setTargetList={setTargetList}
-              user={selectedUser}
-              isAvailable={isAvailable}
+      <SelectedUserContext.Provider value={selectedUser}>
+        <div className="chainblock-target">
+          <fieldset className="chainblock-opt">
+            <legend>차단 대상</legend>
+            <TargetSavedUsers
+              currentUser={currentUser}
+              selectedUserGroup={selectedUserGroup}
+              savedUsers={savedUsers}
+              changeUser={changeUser}
             />
-          ) : (
-            <TargetUserProfileEmpty reason="invalid-user" />
-          )}
-        </fieldset>
-        <Tabs>
-          <TabList>
-            <Tab style={miniTab}>{'\u{1f6d1}'} 체인블락</Tab>
-            <Tab style={miniTab}>
-              {'\u{1f49a}'} 언체인블락<sup>&beta;</sup>
-            </Tab>
-          </TabList>
-          <TabPanel>
-            <fieldset className="chainblock-opt" disabled={!isAvailable}>
-              <legend>체인블락 필터</legend>
-              <TargetChainBlockOptions options={options} mutateOptions={mutateOptions} />
-              <div className="description">
-                위 필터에 해당하지 않는 나머지 사용자를 모두 <mark>차단</mark>합니다. (단, <b>나와 맞팔로우</b>인
-                사용자는 위 옵션과 무관하게 <b>차단하지 않습니다</b>.)
-              </div>
-              <div className="menu">
-                <button
-                  disabled={!isAvailable}
-                  className="menu-item huge-button execute-chainblock"
-                  onClick={onExecuteChainBlockButtonClicked}
-                >
-                  <span>체인블락 실행</span>
-                </button>
-              </div>
-            </fieldset>
-          </TabPanel>
-          <TabPanel>
-            <fieldset className="chainblock-opt" disabled={!isAvailable}>
-              <legend>언체인블락 필터</legend>
-              <TargetUnChainBlockOptions options={options} mutateOptions={mutateOptions} />
-              <div className="description">
-                위 필터에 해당하지 않는 나머지 사용자를 모두 <mark>차단 해제</mark>합니다.
-              </div>
-              <div className="menu">
-                <button
-                  disabled={!isAvailable}
-                  className="menu-item huge-button execute-unchainblock"
-                  onClick={onExecuteUnChainBlockButtonClicked}
-                >
-                  <span>언체인블락 실행</span>
-                </button>
-              </div>
-            </fieldset>
-          </TabPanel>
-        </Tabs>
-      </div>
+            <hr />
+            {isLoading ? (
+              <TargetUserProfileEmpty reason="loading" />
+            ) : selectedUser ? (
+              <TargetUserProfile
+                options={options}
+                mutateOptions={mutateOptions}
+                targetList={targetList}
+                setTargetList={setTargetList}
+                isAvailable={isAvailable}
+              />
+            ) : (
+              <TargetUserProfileEmpty reason="invalid-user" />
+            )}
+          </fieldset>
+          <Tabs defaultIndex={firstTab}>
+            <TabList>
+              <Tab style={miniTab}>{'\u{1f6d1}'} 체인블락</Tab>
+              <Tab style={miniTab}>
+                {'\u{1f49a}'} 언체인블락<sup>&beta;</sup>
+              </Tab>
+            </TabList>
+            <TabPanel>
+              <fieldset className="chainblock-opt" disabled={!isAvailable}>
+                <legend>체인블락 필터</legend>
+                <TargetChainBlockOptions options={options} mutateOptions={mutateOptions} />
+                <div className="description">
+                  위 필터에 해당하지 않는 나머지 사용자를 모두 <mark>차단</mark>합니다. (단, <b>나와 맞팔로우</b>인
+                  사용자는 위 옵션과 무관하게 <b>차단하지 않습니다</b>.)
+                </div>
+                <div className="menu">
+                  <button
+                    disabled={!isAvailable}
+                    className="menu-item huge-button execute-chainblock"
+                    onClick={onExecuteChainBlockButtonClicked}
+                  >
+                    <span>{'\u{1f6d1}'} 체인블락 실행</span>
+                  </button>
+                </div>
+              </fieldset>
+            </TabPanel>
+            <TabPanel>
+              <fieldset className="chainblock-opt" disabled={!isAvailable}>
+                <legend>언체인블락 필터</legend>
+                <TargetUnChainBlockOptions options={options} mutateOptions={mutateOptions} />
+                <div className="description">
+                  위 필터에 해당하지 않는 나머지 사용자를 모두 <mark>차단 해제</mark>합니다.
+                </div>
+                <div className="menu">
+                  <button
+                    disabled={!isAvailable}
+                    className="menu-item huge-button execute-unchainblock"
+                    onClick={onExecuteUnChainBlockButtonClicked}
+                  >
+                    <span>{'\u{1f49a}'} 언체인블락 실행</span>
+                  </button>
+                </div>
+              </fieldset>
+            </TabPanel>
+          </Tabs>
+        </div>
+      </SelectedUserContext.Provider>
     </div>
   )
 }

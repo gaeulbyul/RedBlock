@@ -1,4 +1,4 @@
-import { Action, UI_UPDATE_DELAY } from '../common.js'
+import { Action, PageEnum, UI_UPDATE_DELAY } from '../common.js'
 import { defaultOption as fcbDefaultOption } from './chainblock-session/follower.js'
 import { defaultOption as trcbDefaultOption } from './chainblock-session/tweet-reaction.js'
 import { FollowerBlockSessionRequest } from './chainblock-session/session-common.js'
@@ -101,6 +101,10 @@ async function executeFollowerChainBlock(params: FollowerChainParams) {
         return
       }
       chainblocker.start(sessionId)
+      browser.runtime.sendMessage<RBPopupSwitchTabMessage>({
+        messageType: 'PopupSwitchTabMessage',
+        page: PageEnum.Sessions,
+      })
     }
   } catch (err) {
     if (err instanceof TwitterAPI.RateLimitError) {
@@ -139,6 +143,10 @@ async function executeTweetReactionChainBlock(params: TweetReactionChainParams) 
         return
       }
       chainblocker.start(sessionId)
+      browser.runtime.sendMessage<RBPopupSwitchTabMessage>({
+        messageType: 'PopupSwitchTabMessage',
+        page: PageEnum.Sessions,
+      })
     }
   } catch (err) {
     if (err instanceof TwitterAPI.RateLimitError) {

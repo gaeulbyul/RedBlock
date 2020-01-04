@@ -13,6 +13,11 @@
   visibility: hidden;
 }
 
+html,
+body {
+  min-height: 600px;
+}
+
 body {
   margin: 0;
   padding: 0;
@@ -43,10 +48,17 @@ input[type='radio'] {
 }
 
 .whole {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
   width: 500px;
   padding: 0;
   margin: 0 auto;
   background-color: white;
+}
+
+#app {
+  flex-grow: 1;
 }
 
 .react-tabs {
@@ -73,6 +85,7 @@ input[type='radio'] {
   cursor: pointer;
 }
 
+.controls button:focus,
 .controls button:hover {
   background-color: #333;
   color: white;
@@ -85,11 +98,12 @@ input[type='radio'] {
 }
 
 .profile-image-area {
-  margin-right: 10px;
+  margin-right: 5px;
 }
 
 .profile-right-area {
   overflow: hidden;
+  margin-top: 5px;
   width: 100%;
   line-height: 150%;
 }
@@ -135,6 +149,7 @@ fieldset.chainblock-subopt {
   margin: 0 5px;
 }
 
+.chainblock-target label:focus,
 .chainblock-target label:hover {
   text-decoration: underline;
 }
@@ -167,6 +182,14 @@ fieldset.chainblock-subopt {
   color: navy;
 }
 
+.description mark {
+  display: inline-block;
+  padding: 0 0.5rem;
+  background-color: gold;
+  color: black;
+  font-weight: bold;
+}
+
 .small-tab {
   padding: 3px 10px;
 }
@@ -192,10 +215,11 @@ fieldset.chainblock-subopt {
   border: 0;
   color: white;
   font-weight: bold;
-  opacity: 0.8;
-  transition: background-color 0.3s, filter 0.5s;
+  opacity: 0.7;
+  transition: opacity 300ms;
 }
 
+.menu-item.huge-button:focus,
 .menu-item.huge-button:hover {
   opacity: 1;
 }
@@ -210,22 +234,13 @@ fieldset.chainblock-subopt {
   box-shadow: 0 0 10px 5px #f063;
 }
 
-.menu-item.execute-chainblock:hover {
-  background-color: crimson;
-  color: white;
-}
-
 .menu-item.execute-unchainblock {
   background-color: seagreen;
   color: white;
   box-shadow: 0 0 10px 5px #0903;
 }
 
-.menu-item.execute-unchainblock:hover {
-  background-color: seagreen;
-  color: white;
-}
-
+.chainblock-globalcontrols button:focus,
 .chainblock-globalcontrols button:hover {
   background-color: #333;
   color: white;
@@ -258,8 +273,8 @@ fieldset.chainblock-subopt {
 }
 
 footer.info {
-  margin-bottom: 10px;
-  padding: 5px 15px;
+  padding: 10px 20px;
+  border-top: 1px solid #999;
   text-align: right;
   font-size: small;
 }

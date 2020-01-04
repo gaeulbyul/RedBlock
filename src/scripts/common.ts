@@ -12,6 +12,11 @@ export const enum Action {
   DisconnectToBackground = 'RedBlock/DisconnectToBackground',
 }
 
+export const enum PageEnum {
+  Sessions = 0,
+  NewSession = 1,
+}
+
 export const enum SessionStatus {
   Initial,
   Running,

@@ -1,4 +1,5 @@
 type Action = typeof import('./common').Action
+type PageEnum = typeof import('./common').PageEnum
 type SessionInfo = import('./background/chainblock-session/session-common').SessionInfo
 type FollowerBlockSessionRequest = import('./background/chainblock-session/follower').FollowerBlockSessionRequest
 type TweetReactionBlockSessionRequest = import('./background/chainblock-session/tweet-reaction').TweetReactionBlockSessionRequest
@@ -114,6 +115,13 @@ interface RBMarkUserMessage {
   userId: string
   verb: VerbSomething
 }
+
+interface RBPopupSwitchTabMessage {
+  messageType: 'PopupSwitchTabMessage'
+  page: PageEnum[keyof PageEnum]
+}
+
+type RBMessage = RBChainBlockInfoMessage | RBMarkUserMessage | RBPopupSwitchTabMessage
 
 interface MarkUserParams {
   userId: string
