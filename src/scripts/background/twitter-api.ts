@@ -3,6 +3,13 @@ import { sleep, collectAsync } from '../common.js'
 const DELAY = 200
 const BEARER_TOKEN = `AAAAAAAAAAAAAAAAAAAAANRILgAAAAAAnNwIzUejRCOuH5E6I8xnZz4puTs%3D1Zv7ttfk8LF81IUq16cHjhLTvJu4FA33AGWWjCpTnA`
 
+function wrapEither<T>(value: T): EitherRight<T> {
+  return {
+    ok: true,
+    value,
+  }
+}
+
 export class RateLimitError extends Error {
   public constructor(message: string, public readonly response?: Response) {
     super(message)
@@ -143,10 +150,7 @@ export async function* getAllFollowsIds(
     try {
       const json = await getFollowsIds(followKind, user, cursor)
       cursor = json.next_cursor_str
-      yield* json.ids.map(id => ({
-        ok: true as const,
-        value: id,
-      }))
+      yield* json.ids.map(wrapEither)
       if (cursor === '0') {
         break
       } else {
@@ -187,10 +191,7 @@ export async function* getAllFollowsUserList(
     try {
       const json = await getFollowsUserList(followKind, user, cursor)
       cursor = json.next_cursor_str
-      yield* json.users.map(user => ({
-        ok: true as const,
-        value: user,
-      }))
+      yield* json.users.map(wrapEither)
       if (cursor === '0') {
         break
       } else {
@@ -327,10 +328,7 @@ export async function* getAllReactedUserList(
     try {
       const json = await getReactedUserList(reaction, tweet, cursor)
       cursor = json.next_cursor_str
-      yield* json.users.map(user => ({
-        ok: true as const,
-        value: user,
-      }))
+      yield* json.users.map(wrapEither)
       if (cursor === '0') {
         break
       } else {
