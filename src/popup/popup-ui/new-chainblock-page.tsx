@@ -200,6 +200,14 @@ function TargetChainBlockOptions(props: {
         <label>
           <input
             type="radio"
+            checked={myFollowers === 'Mute'}
+            onChange={() => mutateOptions({ myFollowers: 'Mute' })}
+          />
+          <span>뮤트하기</span>
+        </label>
+        <label>
+          <input
+            type="radio"
             checked={myFollowers === 'Block'}
             onChange={() => mutateOptions({ myFollowers: 'Block' })}
           />
@@ -219,6 +227,14 @@ function TargetChainBlockOptions(props: {
         <label>
           <input
             type="radio"
+            checked={myFollowings === 'Mute'}
+            onChange={() => mutateOptions({ myFollowings: 'Mute' })}
+          />
+          <span>뮤트하기</span>
+        </label>
+        <label>
+          <input
+            type="radio"
             checked={myFollowings === 'Block'}
             onChange={() => mutateOptions({ myFollowings: 'Block' })}
           />
@@ -230,6 +246,10 @@ function TargetChainBlockOptions(props: {
         <label>
           <input type="radio" checked={verified === 'Skip'} onChange={() => mutateOptions({ verified: 'Skip' })} />
           <span>냅두기</span>
+        </label>
+        <label>
+          <input type="radio" checked={verified === 'Mute'} onChange={() => mutateOptions({ verified: 'Mute' })} />
+          <span>뮤트하기</span>
         </label>
         <label>
           <input type="radio" checked={verified === 'Block'} onChange={() => mutateOptions({ verified: 'Block' })} />
@@ -272,12 +292,12 @@ function TargetUnChainBlockOptions(props: {
 }
 
 const userCache = new Map<string, TwitterUser>()
-async function getUserByNameWithCache(userName_: string): Promise<TwitterUser> {
-  const userName = userName_.replace(/^@/, '')
-  if (userCache.has(userName)) {
-    return userCache.get(userName)!
+async function getUserByNameWithCache(userName: string): Promise<TwitterUser> {
+  const key = userName.replace(/^@/, '').toLowerCase()
+  if (userCache.has(key)) {
+    return userCache.get(key)!
   }
-  const user = await TwitterAPI.getSingleUserByName(userName)
+  const user = await TwitterAPI.getSingleUserByName(key)
   userCache.set(user.screen_name, user)
   return user
 }
