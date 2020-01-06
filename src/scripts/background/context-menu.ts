@@ -17,12 +17,6 @@ function getTweetIdFromUrl(url: URL) {
   return match && match[1]
 }
 
-// 크롬에선 browser.menus 대신 비표준 이름(browser.contextMenus)을 쓴다.
-// 이를 파이어폭스와 맞추기 위해 이걸 함
-if (!('menus' in browser) && 'contextMenus' in browser) {
-  browser.menus = (browser as any).contextMenus
-}
-
 async function sendFollowerChainBlockConfirm(tab: browser.tabs.Tab, userName: string, followKind: FollowKind) {
   const user = await getSingleUserByName(userName)
   const request: FollowerBlockSessionRequest = {
@@ -78,9 +72,13 @@ async function sendTweetReactionChainBlockConfirm(tab: browser.tabs.Tab, tweetId
 }
 
 async function createContextMenu(options: RedBlockStorage['options']) {
-  await browser.menus.removeAll()
+  // 크롬에선 browser.menus 대신 비표준 이름(browser.contextMenus)을 쓴다.
+  // 이를 파이어폭스와 맞추기 위해 이걸 함
+  const menus = Object.assign({}, browser.menus || (browser as any).contextMenus)
 
-  browser.menus.create({
+  await menus.removeAll()
+
+  menus.create({
     contexts: ['link'],
     documentUrlPatterns: urlPatterns,
     targetUrlPatterns: urlPatterns,
@@ -91,7 +89,7 @@ async function createContextMenu(options: RedBlockStorage['options']) {
       sendFollowerChainBlockConfirm(tab, userName, 'followers')
     },
   })
-  browser.menus.create({
+  menus.create({
     contexts: ['link'],
     documentUrlPatterns: urlPatterns,
     targetUrlPatterns: urlPatterns,
@@ -102,7 +100,7 @@ async function createContextMenu(options: RedBlockStorage['options']) {
       sendFollowerChainBlockConfirm(tab, userName, 'friends')
     },
   })
-  browser.menus.create({
+  menus.create({
     contexts: ['link'],
     documentUrlPatterns: urlPatterns,
     targetUrlPatterns: urlPatterns,
@@ -113,12 +111,13 @@ async function createContextMenu(options: RedBlockStorage['options']) {
       sendFollowerChainBlockConfirm(tab, userName, 'mutual-followers')
     },
   })
-  browser.menus.create({
-    type: 'separator',
-  })
 
   if (options.experimental_tweetReactionBasedChainBlock) {
-    browser.menus.create({
+    menus.create({
+      type: 'separator',
+    })
+
+    menus.create({
       contexts: ['link'],
       documentUrlPatterns: urlPatterns,
       targetUrlPatterns: tweetUrlPatterns,
@@ -129,7 +128,7 @@ async function createContextMenu(options: RedBlockStorage['options']) {
         sendTweetReactionChainBlockConfirm(tab, tweetId, 'retweeted')
       },
     })
-    browser.menus.create({
+    menus.create({
       contexts: ['link'],
       documentUrlPatterns: urlPatterns,
       targetUrlPatterns: tweetUrlPatterns,
