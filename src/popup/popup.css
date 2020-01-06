@@ -6,6 +6,25 @@
 
 :root {
   --default-font-size: 16px;
+  --rb-background-color: white;
+  --rb-text-color: black;
+  --rb-alt1-color: #333;
+  --rb-alt2-color: #666;
+  --rb-alt3-color: #999;
+  --rb-alt4-color: #ccc;
+  --rb-alt5-color: #fff;
+}
+
+@media screen and (prefer-color-scheme: dark) {
+  :root {
+    --rb-background-color: #10171e;
+    --rb-text-color: white;
+    --rb-alt1-color: #ccc;
+    --rb-alt2-color: #999;
+    --rb-alt3-color: #666;
+    --rb-alt4-color: #333;
+    --rb-alt5-color: #000;
+  }
 }
 
 [hidden] {
@@ -26,14 +45,24 @@ body {
   font-family: 'NanumGothic', 'Malgun Gothic', sans-serif;
 }
 
+body,
+.whole {
+  background-color: var(--rb-background-color);
+  color: var(--rb-text-color);
+}
+
 a,
 a:visited {
   color: crimson;
 }
 
 hr {
-  border-top: 1px solid #ccc;
+  border-top: 1px solid var(--rb-alt4-color);
   border-bottom: 0;
+}
+
+legend {
+  color: var(--rb-text-color);
 }
 
 input[type='checkbox'],
@@ -54,15 +83,30 @@ input[type='radio'] {
   width: 500px;
   padding: 0;
   margin: 0 auto;
-  background-color: white;
 }
 
 #app {
   flex-grow: 1;
 }
 
-.react-tabs {
+.top-tabs {
   padding: 10px;
+}
+
+.redblock-app .react-tabs__tab:not(.react-tabs__tab--selected) {
+  opacity: 0.8;
+}
+.redblock-app .react-tabs__tab--selected {
+  background: var(--rb-alt4-color);
+  border-color: var(--rb-alt3-color);
+  color: var(--rb-text-color);
+  opacity: 1;
+  font-weight: bold;
+}
+
+select {
+  background-color: var(--rb-background-color);
+  color: var(--rb-text-color);
 }
 
 .controls {
@@ -78,17 +122,18 @@ input[type='radio'] {
   padding: 5px;
   margin-right: 5px;
   width: 80px;
-  border: 2px solid #333;
+  border: 2px solid var(--rb-alt1-color);
   border-radius: 100px;
   background-color: transparent;
   font-size: 12px;
+  color: var(--rb-text-color);
   cursor: pointer;
 }
 
 .controls button:focus,
 .controls button:hover {
-  background-color: #333;
-  color: white;
+  background-color: var(--rb-alt1-color);
+  color: var(--rb-alt5-color);
 }
 
 .target-user-info {
@@ -111,11 +156,11 @@ input[type='radio'] {
 .profile-right-info .nickname {
   font-size: larger;
   font-weight: bold;
-  color: #333;
+  color: var(--rb-alt1-color);
 }
 
 .profile-right-info .username a {
-  color: #666;
+  color: var(--rb-alt2-color);
 }
 
 .profile-right-targetlist {
@@ -135,13 +180,13 @@ input[type='radio'] {
 
 fieldset.chainblock-opt {
   margin: 10px 0;
-  border: 2px solid #999;
+  border: 2px solid var(--rb-alt3-color);
   border-radius: 5px;
 }
 
 fieldset.chainblock-subopt {
   margin-bottom: 10px;
-  border: 1px solid #ccc;
+  border: 1px solid var(--rb-alt4-color);
   border-radius: 5px;
 }
 
@@ -156,12 +201,12 @@ fieldset.chainblock-subopt {
 
 .chainblock-target label span {
   padding: 3px;
-  color: #333;
+  color: var(--rb-alt1-color);
 }
 
 .chainblock-target label input:checked:not(:disabled) ~ span {
   font-weight: bold;
-  color: #000;
+  color: var(--rb-text-color);
 }
 
 .chainblock-saved-select {
@@ -178,6 +223,7 @@ fieldset.chainblock-subopt {
   padding: 10px 15px;
   word-break: keep-all;
   border-radius: 5px;
+  line-height: 150%;
   background-color: aliceblue;
   color: navy;
 }
@@ -188,6 +234,13 @@ fieldset.chainblock-subopt {
   background-color: gold;
   color: black;
   font-weight: bold;
+}
+
+@media screen and (prefer-color-scheme: dark) {
+  .description {
+    background-color: black;
+    color: white;
+  }
 }
 
 .small-tab {
@@ -201,7 +254,7 @@ fieldset.chainblock-subopt {
   border-radius: 30px;
   border: 1px solid gray;
   font-size: larger;
-  background-color: white;
+  background-color: var(--rb-background-color);
   color: black;
   cursor: pointer;
 }
@@ -247,7 +300,7 @@ fieldset.chainblock-subopt {
 }
 
 .chainblock-sessions .session {
-  border: 1px solid #ccc;
+  border: 1px solid var(--rb-alt4-color);
   border-radius: 5px;
   margin: 10px 0;
   padding: 5px;
@@ -274,11 +327,11 @@ fieldset.chainblock-subopt {
 
 footer.info {
   padding: 10px 20px;
-  border-top: 1px solid #999;
+  border-top: 1px solid var(--rb-alt3-color);
   text-align: right;
   font-size: small;
 }
 
 .current-version {
-  color: #333;
+  color: var(--rb-alt1-color);
 }
