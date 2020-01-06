@@ -1,17 +1,5 @@
 import { Tweet, TwitterUser, TwitterUserEntities } from './background/twitter-api.js'
 
-export const enum Action {
-  StartFollowerChainBlock = 'RedBlock/StartFollowerBlock',
-  StartTweetReactionChainBlock = 'RedBlock/StartTweetReactionBlock',
-  StopChainBlock = 'RedBlock/Stop',
-  StopAllChainBlock = 'RedBlock/StopAll',
-  InsertUserToStorage = 'RedBlock/InsertUserToStorage',
-  RemoveUserFromStorage = 'RedBlock/RemoveUserFromStorage',
-  RequestProgress = 'RedBlock/RequestProgress',
-  ConnectToBackground = 'RedBlock/ConnectToBackground',
-  DisconnectToBackground = 'RedBlock/DisconnectToBackground',
-}
-
 export const enum PageEnum {
   Sessions = 0,
   NewSession = 1,

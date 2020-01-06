@@ -82,3 +82,20 @@ export const defaultOption: Readonly<FollowerBlockSessionRequest['options']> = O
   verified: 'Skip',
   mutualBlocked: 'Skip',
 })
+
+export function checkFollowerBlockTarget(target: FollowerBlockSessionRequest['target']): [boolean, string] {
+  if (target.user.blocked_by) {
+    return [false, '\u26d4 상대방이 나를 차단하여 (언)체인블락을 실행할 수 없습니다.']
+  }
+  if (target.user.protected && !target.user.following) {
+    return [false, '\u{1f512} 프로텍트 계정을 대상으로 (언)체인블락을 실행할 수 없습니다.']
+  }
+  if (target.list === 'followers' && target.user.followers_count <= 0) {
+    return [false, '팔로워가 0명인 계정입니다.']
+  } else if (target.list === 'friends' && target.user.friends_count <= 0) {
+    return [false, '팔로잉이 0명인 계정입니다.']
+  } else if (target.list === 'mutual-followers' && target.user.followers_count <= 0 && target.user.friends_count <= 0) {
+    return [false, '팔로워나 팔로잉이 0명인 계정입니다.']
+  }
+  return [true, '']
+}

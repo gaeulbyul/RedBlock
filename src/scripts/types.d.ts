@@ -1,4 +1,3 @@
-type Action = typeof import('./common').Action
 type PageEnum = typeof import('./common').PageEnum
 type SessionInfo = import('./background/chainblock-session/session-common').SessionInfo
 type FollowerBlockSessionRequest = import('./background/chainblock-session/follower').FollowerBlockSessionRequest
@@ -38,59 +37,46 @@ interface EitherLeft<E> {
 
 type Either<E, T> = EitherLeft<E> | EitherRight<T>
 
-interface FollowerChainParams {
-  userName: string
-  purpose: ChainKind
-  targetList: FollowKind
-  options: FollowerBlockSessionRequest['options']
-}
-
-interface TweetReactionChainParams {
-  tweetId: string
-  reaction: ReactionKind
-  options: TweetReactionBlockSessionRequest['options']
-}
-
 declare namespace RBActions {
   interface StartFollowerChainBlock {
-    action: Action['StartFollowerChainBlock']
-    params: FollowerChainParams
+    actionType: 'StartFollowerChainBlock'
+    request: FollowerBlockSessionRequest
   }
 
   interface StartTweetReactionChainBlock {
-    action: Action['StartTweetReactionChainBlock']
-    params: TweetReactionChainParams
+    actionType: 'StartTweetReactionChainBlock'
+    request: TweetReactionBlockSessionRequest
   }
 
   interface Stop {
-    action: Action['StopChainBlock']
+    actionType: 'StopChainBlock'
     sessionId: string
   }
 
   interface StopAll {
-    action: Action['StopAllChainBlock']
+    actionType: 'StopAllChainBlock'
   }
 
   interface ConnectToBackground {
-    action: Action['ConnectToBackground']
+    actionType: 'ConnectToBackground'
   }
 
   interface DisconnectToBackground {
-    action: Action['DisconnectToBackground']
+    actionType: 'DisconnectToBackground'
   }
 
   interface InsertUserToStorage {
-    action: Action['InsertUserToStorage']
+    actionType: 'InsertUserToStorage'
     user: TwitterUser
   }
 
   interface RemoveUserFromStorage {
-    action: Action['RemoveUserFromStorage']
+    actionType: 'RemoveUserFromStorage'
     user: TwitterUser
   }
 
   interface RequestProgress {
-    action: Action['RequestProgress']
+    actionType: 'RequestProgress'
   }
 }
 
@@ -105,23 +91,41 @@ type RBAction =
   | RBActions.RemoveUserFromStorage
   | RBActions.RequestProgress
 
-interface RBChainBlockInfoMessage {
-  messageType: 'ChainBlockInfoMessage'
-  infos: SessionInfo[]
+declare namespace RBMessages {
+  interface ChainBlockInfo {
+    messageType: 'ChainBlockInfo'
+    infos: SessionInfo[]
+  }
+
+  interface MarkUser {
+    messageType: 'MarkUser'
+    userId: string
+    verb: VerbSomething
+  }
+
+  interface PopupSwitchTab {
+    messageType: 'PopupSwitchTab'
+    page: PageEnum[keyof PageEnum]
+  }
+
+  interface Alert {
+    messageType: 'Alert'
+    message: string
+  }
+
+  interface ConfirmChainBlock {
+    messageType: 'ConfirmChainBlock'
+    confirmMessage: string
+    action: RBActions.StartFollowerChainBlock | RBActions.StartTweetReactionChainBlock
+  }
 }
 
-interface RBMarkUserMessage {
-  messageType: 'MarkUserMessage'
-  userId: string
-  verb: VerbSomething
-}
-
-interface RBPopupSwitchTabMessage {
-  messageType: 'PopupSwitchTabMessage'
-  page: PageEnum[keyof PageEnum]
-}
-
-type RBMessage = RBChainBlockInfoMessage | RBMarkUserMessage | RBPopupSwitchTabMessage
+type RBMessage =
+  | RBMessages.ChainBlockInfo
+  | RBMessages.MarkUser
+  | RBMessages.PopupSwitchTab
+  | RBMessages.Alert
+  | RBMessages.ConfirmChainBlock
 
 interface MarkUserParams {
   userId: string

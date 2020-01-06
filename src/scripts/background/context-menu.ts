@@ -1,6 +1,13 @@
 import { getUserNameFromURL } from '../common.js'
-import { doFollowerChainBlockWithDefaultOptions, doTweetReactionChainBlockWithDefaultOptions } from './entrypoint.js'
-import { RedBlockStorage, loadOptions, onOptionsChanged } from './storage.js'
+import * as TextGenerate from '../text-generate.js'
+import { alert } from './background.js'
+import { checkFollowerBlockTarget, defaultOption as fcbDefaultOption } from './chainblock-session/follower.js'
+import {
+  checkTweetReactionBlockTarget,
+  defaultOption as trcbDefaultOption,
+} from './chainblock-session/tweet-reaction.js'
+import { loadOptions, onOptionsChanged, RedBlockStorage } from './storage.js'
+import { getSingleUserByName, getTweetById } from './twitter-api.js'
 
 const urlPatterns = ['https://twitter.com/*', 'https://mobile.twitter.com/*']
 const tweetUrlPatterns = ['https://twitter.com/*/status/*', 'https://mobile.twitter.com/*/status/*']
@@ -16,6 +23,60 @@ if (!('menus' in browser) && 'contextMenus' in browser) {
   browser.menus = (browser as any).contextMenus
 }
 
+async function sendFollowerChainBlockConfirm(tab: browser.tabs.Tab, userName: string, followKind: FollowKind) {
+  const user = await getSingleUserByName(userName)
+  const request: FollowerBlockSessionRequest = {
+    purpose: 'chainblock',
+    options: fcbDefaultOption,
+    target: {
+      type: 'follower',
+      list: followKind,
+      user,
+    },
+  }
+  const [isOk, alertMessage] = checkFollowerBlockTarget(request.target)
+  if (!isOk) {
+    alert(alertMessage)
+    return
+  }
+  const confirmMessage = TextGenerate.generateFollowerBlockConfirmMessage(request)
+  browser.tabs.sendMessage<RBMessages.ConfirmChainBlock>(tab.id!, {
+    messageType: 'ConfirmChainBlock',
+    confirmMessage,
+    action: {
+      actionType: 'StartFollowerChainBlock',
+      request,
+    },
+  })
+}
+
+async function sendTweetReactionChainBlockConfirm(tab: browser.tabs.Tab, tweetId: string, reaction: ReactionKind) {
+  const tweet = await getTweetById(tweetId)
+  const request: TweetReactionBlockSessionRequest = {
+    purpose: 'chainblock',
+    options: trcbDefaultOption,
+    target: {
+      type: 'tweetReaction',
+      reaction,
+      tweet,
+    },
+  }
+  const [isOk, alertMessage] = checkTweetReactionBlockTarget(request.target)
+  if (!isOk) {
+    alert(alertMessage)
+    return
+  }
+  const confirmMessage = TextGenerate.generateTweetReactionBlockMessage(request)
+  browser.tabs.sendMessage<RBMessages.ConfirmChainBlock>(tab.id!, {
+    messageType: 'ConfirmChainBlock',
+    confirmMessage,
+    action: {
+      actionType: 'StartTweetReactionChainBlock',
+      request,
+    },
+  })
+}
+
 async function createContextMenu(options: RedBlockStorage['options']) {
   await browser.menus.removeAll()
 
@@ -24,10 +85,10 @@ async function createContextMenu(options: RedBlockStorage['options']) {
     documentUrlPatterns: urlPatterns,
     targetUrlPatterns: urlPatterns,
     title: '이 사용자의 팔로워에게 체인블락 실행',
-    onclick(clickEvent, _tab) {
+    onclick(clickEvent, tab) {
       const url = new URL(clickEvent.linkUrl!)
       const userName = getUserNameFromURL(url)!
-      doFollowerChainBlockWithDefaultOptions(userName, 'followers')
+      sendFollowerChainBlockConfirm(tab, userName, 'followers')
     },
   })
   browser.menus.create({
@@ -35,10 +96,21 @@ async function createContextMenu(options: RedBlockStorage['options']) {
     documentUrlPatterns: urlPatterns,
     targetUrlPatterns: urlPatterns,
     title: '이 사용자의 팔로잉에게 체인블락 실행',
-    onclick(clickEvent, _tab) {
+    onclick(clickEvent, tab) {
       const url = new URL(clickEvent.linkUrl!)
       const userName = getUserNameFromURL(url)!
-      doFollowerChainBlockWithDefaultOptions(userName, 'friends')
+      sendFollowerChainBlockConfirm(tab, userName, 'friends')
+    },
+  })
+  browser.menus.create({
+    contexts: ['link'],
+    documentUrlPatterns: urlPatterns,
+    targetUrlPatterns: urlPatterns,
+    title: '이 사용자의 맞팔로워에게 체인블락 실행',
+    onclick(clickEvent, tab) {
+      const url = new URL(clickEvent.linkUrl!)
+      const userName = getUserNameFromURL(url)!
+      sendFollowerChainBlockConfirm(tab, userName, 'mutual-followers')
     },
   })
   browser.menus.create({
@@ -51,10 +123,10 @@ async function createContextMenu(options: RedBlockStorage['options']) {
       documentUrlPatterns: urlPatterns,
       targetUrlPatterns: tweetUrlPatterns,
       title: '이 트윗을 리트윗한 사용자에게 체인블락 실행(β)',
-      onclick(clickEvent, _tab) {
+      onclick(clickEvent, tab) {
         const url = new URL(clickEvent.linkUrl!)
         const tweetId = getTweetIdFromUrl(url)!
-        doTweetReactionChainBlockWithDefaultOptions(tweetId, 'retweeted')
+        sendTweetReactionChainBlockConfirm(tab, tweetId, 'retweeted')
       },
     })
     browser.menus.create({
@@ -62,10 +134,10 @@ async function createContextMenu(options: RedBlockStorage['options']) {
       documentUrlPatterns: urlPatterns,
       targetUrlPatterns: tweetUrlPatterns,
       title: '이 트윗을 마음에 들어한 사용자에게 체인블락 실행(β)',
-      onclick(clickEvent, _tab) {
+      onclick(clickEvent, tab) {
         const url = new URL(clickEvent.linkUrl!)
         const tweetId = getTweetIdFromUrl(url)!
-        doTweetReactionChainBlockWithDefaultOptions(tweetId, 'liked')
+        sendTweetReactionChainBlockConfirm(tab, tweetId, 'liked')
       },
     })
   }

@@ -16,16 +16,26 @@ function listenMarkUserEvents() {
     if (!(typeof msgobj === 'object' && 'messageType' in msgobj)) {
       return
     }
-    if (msgobj.messageType === 'MarkUserMessage') {
-      const { userId, verb } = msgobj as RBMarkUserMessage
-      document.dispatchEvent(
-        new CustomEvent<MarkUserParams>('RedBlock->MarkUser', {
-          detail: {
-            userId,
-            verb,
-          },
-        })
-      )
+    const msg = msgobj as RBMessage
+    switch (msg.messageType) {
+      case 'MarkUser':
+        document.dispatchEvent(
+          new CustomEvent<MarkUserParams>('RedBlock->MarkUser', {
+            detail: {
+              userId: msg.userId,
+              verb: msg.verb,
+            },
+          })
+        )
+        break
+      case 'Alert':
+        window.alert(msg.message)
+        break
+      case 'ConfirmChainBlock':
+        if (window.confirm(msg.confirmMessage)) {
+          browser.runtime.sendMessage(msg.action)
+        }
+        break
     }
   })
 }

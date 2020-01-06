@@ -17,10 +17,10 @@ function PopupApp(props: { currentUser: TwitterUser | null }) {
       }
       const msg = msgobj as RBMessage
       switch (msg.messageType) {
-        case 'ChainBlockInfoMessage':
+        case 'ChainBlockInfo':
           setSessions(msg.infos)
           break
-        case 'PopupSwitchTabMessage':
+        case 'PopupSwitchTab':
           setTabIndex(msg.page)
           break
       }
@@ -38,7 +38,7 @@ function PopupApp(props: { currentUser: TwitterUser | null }) {
   return (
     <div>
       <React.StrictMode>
-        <Tabs selectedIndex={tabIndex} onSelect={setTabIndex}>
+        <Tabs className="top-tabs" selectedIndex={tabIndex} onSelect={setTabIndex}>
           <TabList>
             <Tab>&#9939; 실행중인 세션({sessions.length})</Tab>
             <Tab>&#10133; 새 세션</Tab>

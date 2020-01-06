@@ -1,52 +1,73 @@
-// import { SessionRequest } from '../scripts/background/chainblock-session.js'
-import { Action, getUserNameFromURL } from '../scripts/common.js'
+import { alert } from '../scripts/background/background.js'
+import { checkFollowerBlockTarget } from '../scripts/background/chainblock-session/follower.js'
+import { checkTweetReactionBlockTarget } from '../scripts/background/chainblock-session/tweet-reaction.js'
 import { TwitterUser } from '../scripts/background/twitter-api.js'
+import { getUserNameFromURL } from '../scripts/common.js'
+import { generateFollowerBlockConfirmMessage, generateTweetReactionBlockMessage } from '../scripts/text-generate.js'
 
 type Tab = browser.tabs.Tab
 
-export async function startFollowerChainBlock(params: FollowerChainParams) {
+export async function startFollowerChainBlock(request: FollowerBlockSessionRequest) {
+  const [isOk, alertMessage] = checkFollowerBlockTarget(request.target)
+  if (!isOk) {
+    alert(alertMessage)
+    return
+  }
+  const confirmMessage = generateFollowerBlockConfirmMessage(request)
+  if (!window.confirm(confirmMessage)) {
+    return
+  }
   return browser.runtime.sendMessage<RBActions.StartFollowerChainBlock, void>({
-    action: Action.StartFollowerChainBlock,
-    params,
+    actionType: 'StartFollowerChainBlock',
+    request,
   })
 }
 
-export async function startTweetReactionChainBlock(params: TweetReactionChainParams) {
+export async function startTweetReactionChainBlock(request: TweetReactionBlockSessionRequest) {
+  const [isOk, alertMessage] = checkTweetReactionBlockTarget(request.target)
+  if (!isOk) {
+    alert(alertMessage)
+    return
+  }
+  const confirmMessage = generateTweetReactionBlockMessage(request)
+  if (!window.confirm(confirmMessage)) {
+    return
+  }
   return browser.runtime.sendMessage<RBActions.StartTweetReactionChainBlock, void>({
-    action: Action.StartTweetReactionChainBlock,
-    params,
+    actionType: 'StartTweetReactionChainBlock',
+    request,
   })
 }
 
 export async function stopChainBlock(sessionId: string) {
   return browser.runtime.sendMessage<RBActions.Stop>({
-    action: Action.StopChainBlock,
+    actionType: 'StopChainBlock',
     sessionId,
   })
 }
 
 export async function stopAllChainBlock() {
   return browser.runtime.sendMessage<RBActions.StopAll>({
-    action: Action.StopAllChainBlock,
+    actionType: 'StopAllChainBlock',
   })
 }
 
 export async function requestProgress() {
   return browser.runtime.sendMessage<RBActions.RequestProgress>({
-    action: Action.RequestProgress,
+    actionType: 'RequestProgress',
   })
 }
 
 export async function insertUserToStorage(user: TwitterUser) {
   return browser.runtime.sendMessage<RBActions.InsertUserToStorage>({
-    action: Action.InsertUserToStorage,
+    actionType: 'InsertUserToStorage',
     user,
   })
 }
 
 export async function removeUserFromStorage(user: TwitterUser) {
   return browser.runtime.sendMessage<RBActions.RemoveUserFromStorage>({
-    action: Action.RemoveUserFromStorage,
+    actionType: 'RemoveUserFromStorage',
     user,
   })
 }

@@ -7,3 +7,19 @@ export function notify(message: string): void {
   }
   browser.notifications.create(null, notif)
 }
+
+export async function alert(message: string) {
+  const currentTab = await browser.tabs
+    .query({
+      active: true,
+      currentWindow: true,
+    })
+    .then(tabs => tabs.pop())
+  if (!currentTab) {
+    return
+  }
+  browser.tabs.sendMessage<RBMessages.Alert>(currentTab.id!, {
+    messageType: 'Alert',
+    message,
+  })
+}

@@ -348,16 +348,22 @@ export default function NewChainBlockPage(props: { currentUser: TwitterUser | nu
   function onExecuteChainBlockButtonClicked() {
     startFollowerChainBlock({
       purpose: 'chainblock',
-      userName: selectedUser!.screen_name,
-      targetList,
+      target: {
+        type: 'follower',
+        user: selectedUser!,
+        list: targetList,
+      },
       options,
     })
   }
   function onExecuteUnChainBlockButtonClicked() {
     startFollowerChainBlock({
       purpose: 'unchainblock',
-      userName: selectedUser!.screen_name,
-      targetList,
+      target: {
+        type: 'follower',
+        user: selectedUser!,
+        list: targetList,
+      },
       options,
     })
   }

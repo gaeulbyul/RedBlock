@@ -1,9 +1,9 @@
 import { SessionStatus } from '../common.js'
-import { SessionInfo, SessionType, ISession } from './chainblock-session/session-common.js'
-import FollowerBlockSession, { FollowerBlockSessionRequest } from './chainblock-session/follower.js'
-import TweetReactionBlockSession, { TweetReactionBlockSessionRequest } from './chainblock-session/tweet-reaction.js'
 import * as TextGenerate from '../text-generate.js'
-import { notify } from './background.js'
+import { alert, notify } from './background.js'
+import FollowerBlockSession, { FollowerBlockSessionRequest } from './chainblock-session/follower.js'
+import { ISession, SessionInfo, SessionType } from './chainblock-session/session-common.js'
+import TweetReactionBlockSession, { TweetReactionBlockSessionRequest } from './chainblock-session/tweet-reaction.js'
 
 export default class ChainBlocker {
   private readonly sessions = new Map<string, SessionType>()
@@ -41,8 +41,8 @@ export default class ChainBlocker {
         return
       }
       browser.tabs
-        .sendMessage<RBMarkUserMessage>(id, {
-          messageType: 'MarkUserMessage',
+        .sendMessage<RBMessages.MarkUser>(id, {
+          messageType: 'MarkUser',
           ...params,
         })
         .catch(() => {})
@@ -66,7 +66,7 @@ export default class ChainBlocker {
   public addFollowerBlockSession(request: FollowerBlockSessionRequest) {
     const { target } = request
     if (this.isAlreadyRunning(target)) {
-      window.alert('이미 같은 대상에게 체인블락이나 언체인블락이 실행중입니다.')
+      alert('이미 같은 대상에게 체인블락이나 언체인블락이 실행중입니다.')
       return null
     }
     const session = new FollowerBlockSession(request)
@@ -78,7 +78,7 @@ export default class ChainBlocker {
   public addTweetReactionBlockSession(request: TweetReactionBlockSessionRequest) {
     const { target } = request
     if (this.isAlreadyRunning(target)) {
-      window.alert('이미 같은 대상에게 체인블락이나 언체인블락이 실행중입니다.')
+      alert('이미 같은 대상에게 체인블락이 실행중입니다.')
       return null
     }
     const session = new TweetReactionBlockSession(request)

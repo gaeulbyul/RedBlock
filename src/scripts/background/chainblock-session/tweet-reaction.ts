@@ -71,3 +71,12 @@ export const defaultOption: Readonly<TweetReactionBlockSessionRequest['options']
   myFollowings: 'Skip',
   verified: 'Skip',
 })
+
+export function checkTweetReactionBlockTarget(target: TweetReactionBlockSessionRequest['target']): [boolean, string] {
+  if (target.reaction === 'retweeted' && target.tweet.retweet_count <= 0) {
+    return [false, '아무도 리트윗하지 않은 트윗입니다.']
+  } else if (target.reaction === 'liked' && target.tweet.favorite_count <= 0) {
+    return [false, '아무도 마음에 들어하지 않은 트윗입니다.']
+  }
+  return [true, '']
+}
