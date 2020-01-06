@@ -335,13 +335,11 @@ export default function NewChainBlockPage(props: { currentUser: TwitterUser | nu
       return users
     }
     loadUsers()
-    browser.storage.onChanged.addListener(async () => {
-      const users = await loadUsers()
+    return Storage.onSavedUsersChanged(users => {
       if (!(selectedUser && users.has(selectedUser.id_str))) {
         setSelectedUser(null)
       }
     })
-    return () => browser.storage.onChanged.removeListener(loadUsers)
   }, [])
   function mutateOptions(newOptionsPart: Partial<SessionOptions>) {
     const newOptions = { ...options, ...newOptionsPart }
@@ -420,9 +418,7 @@ export default function NewChainBlockPage(props: { currentUser: TwitterUser | nu
           <Tabs defaultIndex={firstTab}>
             <TabList>
               <Tab style={miniTab}>{'\u{1f6d1}'} 체인블락</Tab>
-              <Tab style={miniTab}>
-                {'\u{1f49a}'} 언체인블락<sup>&beta;</sup>
-              </Tab>
+              <Tab style={miniTab}>{'\u{1f49a}'} 언체인블락</Tab>
             </TabList>
             <TabPanel>
               <fieldset className="chainblock-opt" disabled={!isAvailable}>

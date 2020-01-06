@@ -1,0 +1,16 @@
+*,
+*:before,
+*:after {
+  box-sizing: border-box;
+}
+
+#app {
+  padding: 5px;
+}
+
+.description {
+  padding: 5px;
+  background-color: #eee;
+  color: #000;
+  font-size: 14px;
+}
