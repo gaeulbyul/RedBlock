@@ -111,7 +111,8 @@ function initialize() {
   window.setInterval(sendChainBlockerInfoToTabs, UI_UPDATE_DELAY)
   browser.runtime.onMessage.addListener(
     (msg: object, sender: browser.runtime.MessageSender, _sendResponse: (response: any) => Promise<void>): true => {
-      if (!(typeof msg === 'object' && 'action' in msg)) {
+      if (!(typeof msg === 'object' && 'actionType' in msg)) {
+        console.debug('unknown msg?', msg)
         return true
       }
       const message = msg as RBAction

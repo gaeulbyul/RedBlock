@@ -14,6 +14,7 @@ function injectPageScripts() {
 function listenMarkUserEvents() {
   browser.runtime.onMessage.addListener((msgobj: any) => {
     if (!(typeof msgobj === 'object' && 'messageType' in msgobj)) {
+      console.debug('unknown msg?', msgobj)
       return
     }
     const msg = msgobj as RBMessage

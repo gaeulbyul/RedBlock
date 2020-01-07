@@ -13,6 +13,7 @@ function PopupApp(props: { currentUser: TwitterUser | null }) {
   React.useEffect(() => {
     const messageListener = (msgobj: any) => {
       if (!(typeof msgobj === 'object' && 'messageType' in msgobj)) {
+        console.debug('unknown msg?', msgobj)
         return
       }
       const msg = msgobj as RBMessage
