@@ -58,6 +58,12 @@ export async function requestProgress() {
   })
 }
 
+export async function cleanupSessions() {
+  return browser.runtime.sendMessage<RBActions.RequestCleanup>({
+    actionType: 'RequestCleanup',
+  })
+}
+
 export async function insertUserToStorage(user: TwitterUser) {
   return browser.runtime.sendMessage<RBActions.InsertUserToStorage>({
     actionType: 'InsertUserToStorage',

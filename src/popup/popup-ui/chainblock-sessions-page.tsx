@@ -1,6 +1,6 @@
 import { SessionInfo } from '../../scripts/background/chainblock-session/session-common.js'
-import { SessionStatus } from '../../scripts/common.js'
-import { stopAllChainBlock, stopChainBlock } from '../popup.js'
+import { SessionStatus, isRunningStatus } from '../../scripts/common.js'
+import { stopAllChainBlock, stopChainBlock, cleanupSessions } from '../popup.js'
 import * as TextGenerate from '../../scripts/text-generate.js'
 
 function calculatePercentage(session: SessionInfo): number {
@@ -128,13 +128,10 @@ function ChainBlockSessionItem(props: { session: SessionInfo }) {
       </div>
     )
   }
-  function isRunning(status: SessionStatus): boolean {
-    const runningStatuses = [SessionStatus.Initial, SessionStatus.Running, SessionStatus.RateLimited]
-    return runningStatuses.includes(status)
-  }
+
   function renderControls({ sessionId, status, request }: SessionInfo) {
     function requestStopChainBlock() {
-      if (isRunning(status)) {
+      if (isRunningStatus(status)) {
         const confirmMessage = TextGenerate.confirmStopMessage(request)
         if (!window.confirm(confirmMessage)) {
           return
@@ -144,7 +141,7 @@ function ChainBlockSessionItem(props: { session: SessionInfo }) {
     }
     let closeButtonText = '닫기'
     let closeButtonTitleText = ''
-    if (isRunning(status)) {
+    if (isRunningStatus(status)) {
       closeButtonText = '중지'
       closeButtonTitleText = TextGenerate.stopButtonTitleMessage(request)
     }
@@ -199,6 +196,9 @@ export default function ChainBlockSessionsPage(props: { sessions: SessionInfo[] 
         <button type="button" onClick={requestStopAllChainBlock}>
           모두 정지
         </button>
+        <button type="button" onClick={cleanupSessions}>
+          완료작업 지우기
+        </button>
       </div>
     )
   }
@@ -214,7 +214,7 @@ export default function ChainBlockSessionsPage(props: { sessions: SessionInfo[] 
   function renderEmptySessions() {
     return (
       <div className="chainblock-suggest-start">
-        현재 진행중인 세션이 없습니다. 체인블락을 실행하려면 "세 세션" 탭을 눌러주세요.
+        현재 진행중인 세션이 없습니다. 체인블락을 실행하려면 "새 세션" 탭을 눌러주세요.
       </div>
     )
   }

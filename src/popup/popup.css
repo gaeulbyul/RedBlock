@@ -119,9 +119,10 @@ select {
 }
 
 .controls button {
-  padding: 5px;
+  display: inline-block;
+  padding: 5px 10px;
   margin-right: 5px;
-  width: 80px;
+  min-width: 80px;
   border: 2px solid var(--rb-alt1-color);
   border-radius: 100px;
   background-color: transparent;

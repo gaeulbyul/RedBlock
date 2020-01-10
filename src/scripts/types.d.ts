@@ -78,6 +78,10 @@ declare namespace RBActions {
   interface RequestProgress {
     actionType: 'RequestProgress'
   }
+
+  interface RequestCleanup {
+    actionType: 'RequestCleanup'
+  }
 }
 
 type RBAction =
@@ -90,6 +94,7 @@ type RBAction =
   | RBActions.InsertUserToStorage
   | RBActions.RemoveUserFromStorage
   | RBActions.RequestProgress
+  | RBActions.RequestCleanup
 
 declare namespace RBMessages {
   interface ChainBlockInfo {

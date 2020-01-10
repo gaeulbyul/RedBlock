@@ -3,7 +3,7 @@ import { TwitterUser } from '../scripts/background/twitter-api.js'
 import { getCurrentTab, getUserNameFromTab, requestProgress } from './popup.js'
 import ChainBlockSessionsPage from './popup-ui/chainblock-sessions-page.js'
 import NewChainBlockPage from './popup-ui/new-chainblock-page.js'
-import { PageEnum, UI_UPDATE_DELAY } from '../scripts/common.js'
+import { PageEnum, UI_UPDATE_DELAY, isRunningStatus } from '../scripts/common.js'
 
 function PopupApp(props: { currentUser: TwitterUser | null }) {
   const { Tabs, TabList, Tab, TabPanel } = ReactTabs
@@ -36,12 +36,13 @@ function PopupApp(props: { currentUser: TwitterUser | null }) {
       window.clearInterval(interval)
     }
   }, [])
+  const runningSessions = React.useMemo(() => sessions.filter(session => isRunningStatus(session.status)), [sessions])
   return (
     <div>
       <React.StrictMode>
         <Tabs className="top-tabs" selectedIndex={tabIndex} onSelect={setTabIndex}>
           <TabList>
-            <Tab>&#9939; 실행중인 세션({sessions.length})</Tab>
+            <Tab>&#9939; 실행중인 세션({runningSessions.length})</Tab>
             <Tab>&#10133; 새 세션</Tab>
           </TabList>
           <TabPanel>

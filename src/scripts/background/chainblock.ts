@@ -1,4 +1,4 @@
-import { SessionStatus } from '../common.js'
+import { SessionStatus, isRunningStatus } from '../common.js'
 import * as TextGenerate from '../text-generate.js'
 import { alert, notify } from './background.js'
 import FollowerBlockSession, { FollowerBlockSessionRequest } from './chainblock-session/follower.js'
@@ -8,7 +8,7 @@ import TweetReactionBlockSession, { TweetReactionBlockSessionRequest } from './c
 export default class ChainBlocker {
   private readonly sessions = new Map<string, SessionType>()
   constructor() {}
-  public isRunning(): boolean {
+  public hasRunningSession(): boolean {
     if (this.sessions.size <= 0) {
       return false
     }
@@ -16,9 +16,8 @@ export default class ChainBlocker {
     return currentRunningSessions.length > 0
   }
   private getCurrentRunningSessions() {
-    const runningStates = [SessionStatus.Initial, SessionStatus.Running, SessionStatus.RateLimited]
     const currentRunningSessions = Array.from(this.sessions.values()).filter(session =>
-      runningStates.includes(session.getSessionInfo().status)
+      isRunningStatus(session.getSessionInfo().status)
     )
     return currentRunningSessions
   }
@@ -121,5 +120,15 @@ export default class ChainBlocker {
   }
   public getAllSessionsProgress(): SessionInfo[] {
     return Array.from(this.sessions.values()).map(ses => ses.getSessionInfo())
+  }
+  public cleanupSessions() {
+    const sessions = this.sessions.values()
+    for (const session of sessions) {
+      const sessionInfo = session.getSessionInfo()
+      if (isRunningStatus(sessionInfo.status)) {
+        continue
+      }
+      this.sessions.delete(sessionInfo.sessionId)
+    }
   }
 }

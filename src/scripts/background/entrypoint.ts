@@ -72,7 +72,7 @@ async function stopAllChainBlock() {
 }
 
 async function sendChainBlockerInfoToTabs() {
-  const infos = chainblocker.getAllSessionsProgress()
+  const infos = chainblocker.getAllSessionsProgress().reverse()
   for (const tabId of tabConnections) {
     browser.tabs
       .sendMessage<RBMessages.ChainBlockInfo>(tabId, {
@@ -93,6 +93,10 @@ async function sendProgress() {
       infos,
     })
     .catch(() => {})
+}
+
+async function cleanupSessions() {
+  chainblocker.cleanupSessions()
 }
 
 async function saveUserToStorage(user: TwitterUser) {
@@ -131,6 +135,9 @@ function initialize() {
           break
         case 'RequestProgress':
           sendProgress()
+          break
+        case 'RequestCleanup':
+          cleanupSessions()
           break
         case 'InsertUserToStorage':
           saveUserToStorage(message.user)

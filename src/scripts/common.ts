@@ -157,3 +157,8 @@ export function formatNumber(input: unknown, quick = false): string {
     return '??'
   }
 }
+
+export function isRunningStatus(status: SessionStatus): boolean {
+  const runningStatuses = [SessionStatus.Initial, SessionStatus.Running, SessionStatus.RateLimited]
+  return runningStatuses.includes(status)
+}
