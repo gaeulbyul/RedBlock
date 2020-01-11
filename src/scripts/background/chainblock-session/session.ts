@@ -365,14 +365,22 @@ class FriendsFilter {
       return
     }
     const myself = await TwitterAPI.getMyself()
-    return Promise.all([
-      collectAsync(TwitterAPI.getAllFollowsIds('followers', myself))
-        .then(eithers => eithers.map(unwrap))
-        .then(userIds => this.followerIds.push(...userIds)),
-      collectAsync(TwitterAPI.getAllFollowsIds('friends', myself))
-        .then(eithers => eithers.map(unwrap))
-        .then(userIds => this.followingIds.push(...userIds)),
-    ]).then(() => {
+    const promises = []
+    if (myself.followers_count > 0) {
+      promises.push(
+        collectAsync(TwitterAPI.getAllFollowsIds('followers', myself))
+          .then(eithers => eithers.map(unwrap))
+          .then(userIds => this.followerIds.push(...userIds))
+      )
+    }
+    if (myself.friends_count > 0) {
+      promises.push(
+        collectAsync(TwitterAPI.getAllFollowsIds('friends', myself))
+          .then(eithers => eithers.map(unwrap))
+          .then(userIds => this.followingIds.push(...userIds))
+      )
+    }
+    return Promise.all(promises).then(() => {
       this.collected = true
     })
   }
