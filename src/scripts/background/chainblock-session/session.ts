@@ -16,8 +16,6 @@ type Limit = TwitterAPI.Limit
 type TwitterUser = TwitterAPI.TwitterUser
 type Tweet = TwitterAPI.Tweet
 
-const PROMISE_BUFFER_SIZE = 150
-
 interface SessionEventEmitter {
   'mark-user': MarkUserParams
   'rate-limit': Limit
@@ -144,7 +142,7 @@ export default class ChainBlockSession {
   }
   public async start() {
     const scraper = Scraper.initScraper(this.request)
-    const promiseBuffer: Promise<void>[] = []
+    const blocker = new Blocker()
     const { target } = this.request
     let apiKind: FollowKind | ReactionKind
     switch (target.type) {
@@ -155,6 +153,8 @@ export default class ChainBlockSession {
         apiKind = target.reaction
         break
     }
+    const incrementSuccess = (v: VerbSomething) => this.sessionInfo.progress.success[v]++
+    const incrementFailure = () => this.sessionInfo.progress.failure++
     let stopped = false
     try {
       for await (const maybeUser of scraper) {
@@ -162,7 +162,7 @@ export default class ChainBlockSession {
         this.sessionInfo.count.scraped = this.calculateScrapedCount()
         if (this.shouldStop) {
           stopped = true
-          promiseBuffer.length = 0
+          await blocker.flush()
           break
         }
         if (!maybeUser.ok) {
@@ -186,27 +186,21 @@ export default class ChainBlockSession {
           this.sessionInfo.progress.already++
           continue
         }
-        promiseBuffer.push(
-          (async () => {
-            const incrementSuccess = (v: VerbSomething) => this.sessionInfo.progress.success[v]++
-            const incrementFailure = () => this.sessionInfo.progress.failure++
-            const verbResult = await this.callAPIFromVerb(user, whatToDo).catch(() => void incrementFailure())
-            if (verbResult) {
+        blocker.add(whatToDo, user).then(
+          resultUser => {
+            if (resultUser) {
               incrementSuccess(whatToDo)
               this.eventEmitter.emit('mark-user', {
-                userId: user.id_str,
+                userId: resultUser.id_str,
                 verb: whatToDo,
               })
             }
-          })()
+          },
+          () => incrementFailure
         )
-        if (promiseBuffer.length >= PROMISE_BUFFER_SIZE) {
-          await Promise.all(promiseBuffer)
-          promiseBuffer.length = 0
-        }
+        blocker.flushIfNeed()
       }
-      await Promise.all(promiseBuffer)
-      promiseBuffer.length = 0
+      blocker.flush()
       if (!stopped) {
         this.sessionInfo.status = SessionStatus.Completed
         this.eventEmitter.emit('complete', this.sessionInfo.progress)
@@ -308,16 +302,38 @@ export default class ChainBlockSession {
     }
     return defaultVerb
   }
-  private async callAPIFromVerb(follower: TwitterUser, verb: VerbSomething): Promise<TwitterUser> {
+}
+
+class Blocker {
+  private readonly BUFFER_SIZE = 150
+  private readonly buffer: Promise<any>[] = []
+  public get currentSize() {
+    return this.buffer.length
+  }
+  public add(verb: VerbSomething, user: TwitterUser) {
+    const promise = this.callAPIFromVerb(verb, user)
+    this.buffer.push(promise)
+    return promise
+  }
+  public async flush() {
+    await Promise.all(this.buffer)
+    this.buffer.length = 0
+  }
+  public async flushIfNeed() {
+    if (this.currentSize >= this.BUFFER_SIZE) {
+      return this.flush()
+    }
+  }
+  private async callAPIFromVerb(verb: VerbSomething, user: TwitterUser): Promise<TwitterUser> {
     switch (verb) {
       case 'Block':
-        return TwitterAPI.blockUser(follower)
+        return TwitterAPI.blockUser(user)
       case 'UnBlock':
-        return TwitterAPI.unblockUser(follower)
+        return TwitterAPI.unblockUser(user)
       case 'Mute':
-        return TwitterAPI.muteUser(follower)
+        return TwitterAPI.muteUser(user)
       case 'UnMute':
-        return TwitterAPI.unmuteUser(follower)
+        return TwitterAPI.unmuteUser(user)
     }
   }
 }
