@@ -203,9 +203,9 @@ export default class ChainBlockSession {
           },
           () => incrementFailure
         )
-        blocker.flushIfNeed()
+        await blocker.flushIfNeed()
       }
-      blocker.flush()
+      await blocker.flush()
       if (!stopped) {
         this.sessionInfo.status = SessionStatus.Completed
         this.eventEmitter.emit('complete', this.sessionInfo.progress)
