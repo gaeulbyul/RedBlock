@@ -183,7 +183,7 @@ function TargetChainBlockOptions(props: {
   mutateOptions: (part: Partial<SessionOptions>) => void
 }) {
   const { options, mutateOptions } = props
-  const { myFollowers, myFollowings, verified } = options
+  const { myFollowers, myFollowings } = options
   return (
     <React.Fragment>
       <fieldset className="chainblock-subopt">
@@ -240,21 +240,6 @@ function TargetChainBlockOptions(props: {
           <span>차단하기</span>
         </label>
       </fieldset>
-      <fieldset className="chainblock-subopt">
-        <legend>인증된 계정 (파란 체크마크가 붙은 계정)</legend>
-        <label>
-          <input type="radio" checked={verified === 'Skip'} onChange={() => mutateOptions({ verified: 'Skip' })} />
-          <span>냅두기</span>
-        </label>
-        <label>
-          <input type="radio" checked={verified === 'Mute'} onChange={() => mutateOptions({ verified: 'Mute' })} />
-          <span>뮤트하기</span>
-        </label>
-        <label>
-          <input type="radio" checked={verified === 'Block'} onChange={() => mutateOptions({ verified: 'Block' })} />
-          <span>차단하기</span>
-        </label>
-      </fieldset>
     </React.Fragment>
   )
 }
@@ -307,7 +292,6 @@ export default function NewChainBlockPage(props: { currentUser: TwitterUser | nu
     quickMode: false,
     myFollowers: 'Skip',
     myFollowings: 'Skip',
-    verified: 'Skip',
     mutualBlocked: 'Skip',
   })
   const [selectedUser, setSelectedUser] = React.useState<TwitterUser | null>(currentUser)
