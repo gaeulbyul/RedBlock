@@ -1,11 +1,12 @@
 import { getUserNameFromURL } from '../common.js'
 import * as TextGenerate from '../text-generate.js'
 import { alert } from './background.js'
-import { checkFollowerBlockTarget, defaultOption as fcbDefaultOption } from './chainblock-session/follower.js'
 import {
+  checkFollowerBlockTarget,
   checkTweetReactionBlockTarget,
-  defaultOption as trcbDefaultOption,
-} from './chainblock-session/tweet-reaction.js'
+  followerBlockDefaultOption,
+  tweetReactionBlockDefaultOption,
+} from './chainblock-session/session.js'
 import { loadOptions, onOptionsChanged, RedBlockStorage } from './storage.js'
 import { getSingleUserByName, getTweetById } from './twitter-api.js'
 
@@ -21,7 +22,7 @@ async function sendFollowerChainBlockConfirm(tab: browser.tabs.Tab, userName: st
   const user = await getSingleUserByName(userName)
   const request: FollowerBlockSessionRequest = {
     purpose: 'chainblock',
-    options: fcbDefaultOption,
+    options: followerBlockDefaultOption,
     target: {
       type: 'follower',
       list: followKind,
@@ -48,7 +49,7 @@ async function sendTweetReactionChainBlockConfirm(tab: browser.tabs.Tab, tweetId
   const tweet = await getTweetById(tweetId)
   const request: TweetReactionBlockSessionRequest = {
     purpose: 'chainblock',
-    options: trcbDefaultOption,
+    options: tweetReactionBlockDefaultOption,
     target: {
       type: 'tweetReaction',
       reaction,

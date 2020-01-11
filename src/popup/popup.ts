@@ -1,6 +1,8 @@
 import { alert } from '../scripts/background/background.js'
-import { checkFollowerBlockTarget } from '../scripts/background/chainblock-session/follower.js'
-import { checkTweetReactionBlockTarget } from '../scripts/background/chainblock-session/tweet-reaction.js'
+import {
+  checkFollowerBlockTarget,
+  checkTweetReactionBlockTarget,
+} from '../scripts/background/chainblock-session/session.js'
 import { TwitterUser } from '../scripts/background/twitter-api.js'
 import { getUserNameFromURL } from '../scripts/common.js'
 import { generateFollowerBlockConfirmMessage, generateTweetReactionBlockMessage } from '../scripts/text-generate.js'

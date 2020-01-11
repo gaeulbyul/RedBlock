@@ -1,8 +1,8 @@
 type PageEnum = typeof import('./common').PageEnum
-type SessionInfo = import('./background/chainblock-session/session-common').SessionInfo
-type FollowerBlockSessionRequest = import('./background/chainblock-session/follower').FollowerBlockSessionRequest
-type TweetReactionBlockSessionRequest = import('./background/chainblock-session/tweet-reaction').TweetReactionBlockSessionRequest
-type SessionRequest = import('./background/chainblock-session/session-common').SessionRequest
+type SessionInfo = import('./background/chainblock-session/session').SessionInfo
+type SessionRequest = import('./background/chainblock-session/session').SessionRequest
+type FollowerBlockSessionRequest = import('./background/chainblock-session/session').FollowerBlockSessionRequest
+type TweetReactionBlockSessionRequest = import('./background/chainblock-session/session').TweetReactionBlockSessionRequest
 type TwitterUser = import('./background/twitter-api').TwitterUser
 
 // ---- vendor modules ----

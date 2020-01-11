@@ -1,12 +1,10 @@
 import { SessionStatus, isRunningStatus } from '../common.js'
 import * as TextGenerate from '../text-generate.js'
 import { alert, notify } from './background.js'
-import FollowerBlockSession, { FollowerBlockSessionRequest } from './chainblock-session/follower.js'
-import { ISession, SessionInfo, SessionType } from './chainblock-session/session-common.js'
-import TweetReactionBlockSession, { TweetReactionBlockSessionRequest } from './chainblock-session/tweet-reaction.js'
+import ChainBlockSession from './chainblock-session/session.js'
 
 export default class ChainBlocker {
-  private readonly sessions = new Map<string, SessionType>()
+  private readonly sessions = new Map<string, ChainBlockSession>()
   constructor() {}
   public hasRunningSession(): boolean {
     if (this.sessions.size <= 0) {
@@ -47,7 +45,7 @@ export default class ChainBlocker {
         .catch(() => {})
     })
   }
-  private handleEvents(session: ISession) {
+  private handleEvents(session: ChainBlockSession) {
     const sessionInfo = session.getSessionInfo()
     session.eventEmitter.on('complete', () => {
       const message = TextGenerate.chainBlockResultNotification(sessionInfo)
@@ -62,25 +60,13 @@ export default class ChainBlocker {
       this.markUser(params)
     })
   }
-  public addFollowerBlockSession(request: FollowerBlockSessionRequest) {
+  public add(request: SessionRequest) {
     const { target } = request
     if (this.isAlreadyRunning(target)) {
       alert('이미 같은 대상에게 체인블락이나 언체인블락이 실행중입니다.')
       return null
     }
-    const session = new FollowerBlockSession(request)
-    const sessionId = session.getSessionInfo().sessionId
-    this.handleEvents(session)
-    this.sessions.set(sessionId, session)
-    return sessionId
-  }
-  public addTweetReactionBlockSession(request: TweetReactionBlockSessionRequest) {
-    const { target } = request
-    if (this.isAlreadyRunning(target)) {
-      alert('이미 같은 대상에게 체인블락이 실행중입니다.')
-      return null
-    }
-    const session = new TweetReactionBlockSession(request)
+    const session = new ChainBlockSession(request)
     const sessionId = session.getSessionInfo().sessionId
     this.handleEvents(session)
     this.sessions.set(sessionId, session)

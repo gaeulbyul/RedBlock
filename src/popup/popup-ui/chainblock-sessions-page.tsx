@@ -1,4 +1,3 @@
-import { SessionInfo } from '../../scripts/background/chainblock-session/session-common.js'
 import { SessionStatus, isRunningStatus } from '../../scripts/common.js'
 import { stopAllChainBlock, stopChainBlock, cleanupSessions } from '../popup.js'
 import * as TextGenerate from '../../scripts/text-generate.js'

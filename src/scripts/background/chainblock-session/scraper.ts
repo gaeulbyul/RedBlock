@@ -1,6 +1,6 @@
 import * as TwitterAPI from '../twitter-api.js'
 import { getFollowersCount, getReactionsCount } from '../../common.js'
-export { getFollowersCount, getReactionsCount }
+import { SessionRequest } from './session.js'
 
 type TwitterUser = TwitterAPI.TwitterUser
 type Tweet = TwitterAPI.Tweet
@@ -59,5 +59,22 @@ export class TweetReactedUserScraper implements UserScraper {
   }
   public [Symbol.asyncIterator]() {
     return TwitterAPI.getAllReactedUserList(this.reaction, this.tweet)
+  }
+}
+
+export function initScraper(request: SessionRequest) {
+  const { options, target } = request
+  const simpleScraper = 'quickMode' in options && options.quickMode ? QuickScraper : SimpleScraper
+  switch (target.type) {
+    case 'follower':
+      switch (target.list) {
+        case 'followers':
+        case 'friends':
+          return new simpleScraper(target.user, target.list)
+        case 'mutual-followers':
+          return new MutualFollowerScraper(target.user)
+      }
+    case 'tweetReaction':
+      return new TweetReactedUserScraper(target.tweet, target.reaction)
   }
 }

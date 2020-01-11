@@ -2,7 +2,7 @@ import {
   SessionInfo,
   FollowerBlockSessionRequest,
   TweetReactionBlockSessionRequest,
-} from './background/chainblock-session/session-common.js'
+} from './background/chainblock-session/session.js'
 import { formatNumber, getReactionsCount } from './common.js'
 
 export function generateFollowerBlockConfirmMessage(request: FollowerBlockSessionRequest): string {

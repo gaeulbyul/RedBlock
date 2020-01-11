@@ -1,4 +1,3 @@
-import { FollowerBlockSessionRequest } from '../../scripts/background/chainblock-session/session-common.js'
 import * as Storage from '../../scripts/background/storage.js'
 import * as TwitterAPI from '../../scripts/background/twitter-api.js'
 import { TwitterUser } from '../../scripts/background/twitter-api.js'

@@ -1,6 +1,5 @@
 import { PageEnum, UI_UPDATE_DELAY } from '../common.js'
 import { alert } from './background.js'
-import { FollowerBlockSessionRequest } from './chainblock-session/session-common.js'
 import ChainBlocker from './chainblock.js'
 import * as Storage from './storage.js'
 import * as TwitterAPI from './twitter-api.js'
@@ -18,7 +17,7 @@ export async function executeFollowerChainBlock(request: FollowerBlockSessionReq
     return
   }
   try {
-    const sessionId = chainblocker.addFollowerBlockSession(request)
+    const sessionId = chainblocker.add(request)
     if (!sessionId) {
       console.info('not added. skip')
       return
@@ -44,7 +43,7 @@ export async function executeTweetReactionChainBlock(request: TweetReactionBlock
     return
   }
   try {
-    const sessionId = chainblocker.addTweetReactionBlockSession(request)
+    const sessionId = chainblocker.add(request)
     if (!sessionId) {
       console.info('not added. skip')
       return
