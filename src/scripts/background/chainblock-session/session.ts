@@ -6,7 +6,9 @@ import {
   copyFrozenObject,
   getFollowersCount,
   getReactionsCount,
+  collectAsync,
   sleep,
+  unwrap,
 } from '../../common.js'
 
 export type SessionRequest = FollowerBlockSessionRequest | TweetReactionBlockSessionRequest
@@ -78,8 +80,8 @@ export interface SessionInfo<ReqT = SessionRequest> {
   limit: Limit | null
 }
 
-function isAlreadyDone(follower: TwitterUser, verb: VerbSomething): boolean {
-  const { blocking, muting } = follower
+function isAlreadyDone(user: TwitterUser, verb: VerbSomething): boolean {
+  const { blocking, muting } = user
   if (blocking && verb === 'Block') {
     return true
   } else if (!blocking && verb === 'UnBlock') {
@@ -120,6 +122,7 @@ export default class ChainBlockSession {
   private readonly sessionInfo = this.initSessionInfo()
   private shouldStop = false
   public readonly eventEmitter = new EventEmitter<SessionEventEmitter>()
+  private readonly friendsFilter = new FriendsFilter()
   public constructor(private request: SessionRequest) {}
   public getSessionInfo() {
     return copyFrozenObject(this.sessionInfo)
@@ -141,6 +144,9 @@ export default class ChainBlockSession {
   public async start() {
     const scraper = Scraper.initScraper(this.request)
     const blocker = new Blocker()
+    if (scraper.resultType === 'user-id') {
+      await this.friendsFilter.collect()
+    }
     const { target } = this.request
     let apiKind: FollowKind | ReactionKind
     switch (target.type) {
@@ -176,6 +182,7 @@ export default class ChainBlockSession {
         }
         this.handleRunning(this.sessionInfo, this.eventEmitter)
         const user = maybeUser.value
+        const userId = typeof user === 'string' ? user : user.id_str
         const whatToDo = this.whatToDoGivenUser(this.request, user)
         if (whatToDo === 'Skip') {
           this.sessionInfo.progress.skipped++
@@ -189,7 +196,7 @@ export default class ChainBlockSession {
             if (resultUser) {
               incrementSuccess(whatToDo)
               this.eventEmitter.emit('mark-user', {
-                userId: resultUser.id_str,
+                userId,
                 verb: whatToDo,
               })
             }
@@ -239,7 +246,7 @@ export default class ChainBlockSession {
   private generateSessionId(): string {
     return `session/${Date.now()}`
   }
-  private updateTotalCount(scraper: Scraper.UserScraper) {
+  private updateTotalCount(scraper: Scraper.UserScraper | Scraper.UserIdScraper) {
     if (this.sessionInfo.count.total === null) {
       this.sessionInfo.count.total = scraper.totalCount
     }
@@ -266,14 +273,10 @@ export default class ChainBlockSession {
     const { success, already, failure, error, skipped } = this.sessionInfo.progress
     return _.sum([...Object.values(success), already, failure, error, skipped])
   }
-  private whatToDoGivenUser(request: SessionRequest, follower: TwitterUser): Verb {
+  private whatToDoGivenUser(request: SessionRequest, user: string | TwitterUser): Verb {
     const { purpose, options } = request
-    const { following, followed_by, follow_request_sent } = follower
-    const isMyFollowing = following || follow_request_sent
-    const isMyFollower = followed_by
+    const { isMyFollower, isMyFollowing } = this.friendsFilter.checkUser(user)
     const isMyMutualFollower = isMyFollower && isMyFollowing
-    // 주의!
-    // 팝업 UI에 나타난 순서를 고려할 것.
     if (isMyMutualFollower) {
       return 'Skip'
     }
@@ -292,7 +295,10 @@ export default class ChainBlockSession {
         defaultVerb = 'UnBlock'
         break
     }
-    if (isAlreadyDone(follower, defaultVerb)) {
+    if (typeof user === 'string') {
+      return defaultVerb
+    }
+    if (isAlreadyDone(user, defaultVerb)) {
       return 'AlreadyDone'
     }
     return defaultVerb
@@ -305,8 +311,13 @@ class Blocker {
   public get currentSize() {
     return this.buffer.length
   }
-  public add(verb: VerbSomething, user: TwitterUser) {
-    const promise = this.callAPIFromVerb(verb, user)
+  public add(verb: VerbSomething, user: string | TwitterUser) {
+    let promise: Promise<any>
+    if (typeof user === 'string') {
+      promise = this.callAPIFromVerbById(verb, user)
+    } else {
+      promise = this.callAPIFromVerb(verb, user)
+    }
     this.buffer.push(promise)
     return promise
   }
@@ -329,6 +340,60 @@ class Blocker {
         return TwitterAPI.muteUser(user)
       case 'UnMute':
         return TwitterAPI.unmuteUser(user)
+    }
+  }
+  private async callAPIFromVerbById(verb: VerbSomething, userId: string): Promise<Response> {
+    switch (verb) {
+      case 'Block':
+        return TwitterAPI.blockUserById(userId)
+      case 'UnBlock':
+        return TwitterAPI.unblockUserById(userId)
+      case 'Mute':
+        return TwitterAPI.muteUserById(userId)
+      case 'UnMute':
+        return TwitterAPI.unmuteUserById(userId)
+    }
+  }
+}
+
+class FriendsFilter {
+  private readonly followerIds: string[] = []
+  private readonly followingIds: string[] = []
+  private collected = false
+  public async collect() {
+    if (this.collected) {
+      return
+    }
+    const myself = await TwitterAPI.getMyself()
+    return Promise.all([
+      collectAsync(TwitterAPI.getAllFollowsIds('followers', myself))
+        .then(eithers => eithers.map(unwrap))
+        .then(userIds => this.followerIds.push(...userIds)),
+      collectAsync(TwitterAPI.getAllFollowsIds('friends', myself))
+        .then(eithers => eithers.map(unwrap))
+        .then(userIds => this.followingIds.push(...userIds)),
+    ]).then(() => {
+      this.collected = true
+    })
+  }
+  public checkUser(user: string | TwitterUser) {
+    if (typeof user === 'string') {
+      return this.checkUserId(user)
+    }
+    return {
+      isMyFollower: user.followed_by,
+      isMyFollowing: user.following || user.follow_request_sent,
+    }
+  }
+  private checkUserId(userId: string) {
+    if (!this.collected) {
+      throw new Error('not collected yet.')
+    }
+    const isMyFollower = this.followerIds.includes(userId)
+    const isMyFollowing = this.followingIds.includes(userId)
+    return {
+      isMyFollower,
+      isMyFollowing,
     }
   }
 }

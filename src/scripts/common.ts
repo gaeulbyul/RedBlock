@@ -162,3 +162,18 @@ export function isRunningStatus(status: SessionStatus): boolean {
   const runningStatuses = [SessionStatus.Initial, SessionStatus.Running, SessionStatus.RateLimited]
   return runningStatuses.includes(status)
 }
+
+export function wrapEither<T>(value: T): EitherRight<T> {
+  return {
+    ok: true,
+    value,
+  }
+}
+
+export function unwrap<T>(maybeValue: Either<Error, T>) {
+  if (maybeValue.ok) {
+    return maybeValue.value
+  } else {
+    throw maybeValue.error
+  }
+}

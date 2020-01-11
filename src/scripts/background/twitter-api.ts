@@ -1,14 +1,7 @@
-import { sleep, collectAsync } from '../common.js'
+import { sleep, collectAsync, unwrap, wrapEither } from '../common.js'
 
 const DELAY = 200
 const BEARER_TOKEN = `AAAAAAAAAAAAAAAAAAAAANRILgAAAAAAnNwIzUejRCOuH5E6I8xnZz4puTs%3D1Zv7ttfk8LF81IUq16cHjhLTvJu4FA33AGWWjCpTnA`
-
-function wrapEither<T>(value: T): EitherRight<T> {
-  return {
-    ok: true,
-    value,
-  }
-}
 
 export class RateLimitError extends Error {
   public constructor(message: string, public readonly response?: Response) {
@@ -41,11 +34,7 @@ export async function blockUser(user: TwitterUser, parseUser = false): Promise<T
   if (user.blocking) {
     return user
   }
-  const response = await requestAPI('post', '/blocks/create.json', {
-    user_id: user.id_str,
-    include_entities: false,
-    skip_status: true,
-  })
+  const response = await blockUserById(user.id_str)
   if (response.ok) {
     if (parseUser) {
       return response.json() as Promise<TwitterUser>
@@ -55,17 +44,21 @@ export async function blockUser(user: TwitterUser, parseUser = false): Promise<T
   } else {
     throw new APIFailError('error', response)
   }
+}
+
+export async function blockUserById(userId: string): Promise<Response> {
+  return requestAPI('post', '/blocks/create.json', {
+    user_id: userId,
+    include_entities: false,
+    skip_status: true,
+  })
 }
 
 export async function unblockUser(user: TwitterUser, parseUser = false): Promise<TwitterUser> {
   if (!user.blocking) {
     return user
   }
-  const response = await requestAPI('post', '/blocks/destroy.json', {
-    user_id: user.id_str,
-    include_entities: false,
-    skip_status: true,
-  })
+  const response = await unblockUserById(user.id_str)
   if (response.ok) {
     if (parseUser) {
       return response.json() as Promise<TwitterUser>
@@ -75,15 +68,21 @@ export async function unblockUser(user: TwitterUser, parseUser = false): Promise
   } else {
     throw new APIFailError('error', response)
   }
+}
+
+export async function unblockUserById(userId: string): Promise<Response> {
+  return requestAPI('post', '/blocks/destroy.json', {
+    user_id: userId,
+    include_entities: false,
+    skip_status: true,
+  })
 }
 
 export async function muteUser(user: TwitterUser, parseUser = false): Promise<TwitterUser> {
   if (user.muting) {
     return user
   }
-  const response = await requestAPI('post', '/mutes/users/create.json', {
-    user_id: user.id_str,
-  })
+  const response = await muteUserById(user.id_str)
   if (response.ok) {
     if (parseUser) {
       return response.json() as Promise<TwitterUser>
@@ -95,13 +94,17 @@ export async function muteUser(user: TwitterUser, parseUser = false): Promise<Tw
   }
 }
 
+export async function muteUserById(userId: string): Promise<Response> {
+  return requestAPI('post', '/mutes/users/create.json', {
+    user_id: userId,
+  })
+}
+
 export async function unmuteUser(user: TwitterUser, parseUser = false): Promise<TwitterUser> {
   if (!user.muting) {
     return user
   }
-  const response = await requestAPI('post', '/mutes/users/destroy.json', {
-    user_id: user.id_str,
-  })
+  const response = await unmuteUserById(user.id_str)
   if (response.ok) {
     if (parseUser) {
       return response.json() as Promise<TwitterUser>
@@ -111,6 +114,12 @@ export async function unmuteUser(user: TwitterUser, parseUser = false): Promise<
   } else {
     throw new APIFailError('error', response)
   }
+}
+
+export async function unmuteUserById(userId: string): Promise<Response> {
+  return requestAPI('post', '/mutes/users/destroy.json', {
+    user_id: userId,
+  })
 }
 
 export async function getTweetById(tweetId: string): Promise<Tweet> {
@@ -208,15 +217,6 @@ export async function* getAllFollowsUserList(
 }
 
 export async function getAllMutualFollowersIds(user: TwitterUser): Promise<string[]> {
-  function unwrap<T>(maybeValue: Either<Error, T>) {
-    if (maybeValue.ok) {
-      return maybeValue.value
-    } else {
-      const { error } = maybeValue
-      console.error(error)
-      throw error
-    }
-  }
   const followingsIds = (await collectAsync(getAllFollowsIds('friends', user))).map(unwrap)
   const followersIds = (await collectAsync(getAllFollowsIds('followers', user))).map(unwrap)
   const mutualIds = _.intersection(followingsIds, followersIds)
