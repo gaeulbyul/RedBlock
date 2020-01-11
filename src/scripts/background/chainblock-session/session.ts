@@ -35,7 +35,6 @@ export interface FollowerBlockSessionRequest {
     quickMode: boolean
     myFollowers: Verb
     myFollowings: Verb
-    verified: Verb
     mutualBlocked: Verb
   }
 }
@@ -54,7 +53,6 @@ export interface TweetReactionBlockSessionRequest {
   options: {
     myFollowers: Verb
     myFollowings: Verb
-    verified: Verb
   }
 }
 
@@ -285,9 +283,6 @@ export default class ChainBlockSession {
     if (isMyFollowing) {
       return options.myFollowings
     }
-    if (follower.verified) {
-      return options.verified
-    }
     let defaultVerb: Verb
     switch (purpose) {
       case 'chainblock':
@@ -342,14 +337,12 @@ export const followerBlockDefaultOption: Readonly<FollowerBlockSessionRequest['o
   quickMode: false,
   myFollowers: 'Skip',
   myFollowings: 'Skip',
-  verified: 'Skip',
   mutualBlocked: 'Skip',
 })
 
 export const tweetReactionBlockDefaultOption: Readonly<TweetReactionBlockSessionRequest['options']> = Object.freeze({
   myFollowers: 'Skip',
   myFollowings: 'Skip',
-  verified: 'Skip',
 })
 
 export function checkFollowerBlockTarget(target: FollowerBlockSessionRequest['target']): [boolean, string] {
