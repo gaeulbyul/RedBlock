@@ -152,14 +152,18 @@ function ChainBlockSessionItem(props: { session: SessionInfo }) {
       </div>
     )
   }
+  let name = user.name
+  if (target.type === 'tweetReaction') {
+    name = `<트윗> ${name}`
+  }
   return (
     <div className="session session-follower">
       <div className="target-user-info">
         <div className="profile-image-area">{renderProfileImageWithProgress(session)}</div>
         <div className="profile-right-area">
           <div className="profile-right-info">
-            <div className="ellipsis nickname" title={user.name}>
-              {user.name}
+            <div className="ellipsis nickname" title={name}>
+              {name}
             </div>
             <div className="username" title={'@' + user.screen_name}>
               <a
