@@ -75,7 +75,13 @@ async function sendTweetReactionChainBlockConfirm(tab: browser.tabs.Tab, tweetId
 async function createContextMenu(options: RedBlockStorage['options']) {
   // 크롬에선 browser.menus 대신 비표준 이름(browser.contextMenus)을 쓴다.
   // 이를 파이어폭스와 맞추기 위해 이걸 함
-  const menus = Object.assign({}, browser.menus || (browser as any).contextMenus)
+  const menus = new Proxy<typeof browser.menus>({} as any, {
+    get(_target, name, receiver) {
+      const menu = Reflect.get(browser.menus || {}, name, receiver)
+      const ctxMenu = Reflect.get((browser as any).contextMenus || {}, name, receiver)
+      return menu || ctxMenu
+    },
+  })
 
   await menus.removeAll()
 
