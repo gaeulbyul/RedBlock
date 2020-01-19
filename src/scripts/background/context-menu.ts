@@ -149,5 +149,7 @@ async function createContextMenu(options: RedBlockStorage['options']) {
   }
 }
 
-loadOptions().then(createContextMenu)
-onOptionsChanged(createContextMenu)
+export function initializeContextMenu() {
+  loadOptions().then(createContextMenu)
+  onOptionsChanged(createContextMenu)
+}

@@ -15,13 +15,20 @@ export async function startFollowerChainBlock(request: FollowerBlockSessionReque
     alert(alertMessage)
     return
   }
+  const tab = await browser.tabs
+    .query({
+      active: true,
+      currentWindow: true,
+    })
+    .then(tabs => tabs[0])
   const confirmMessage = generateFollowerBlockConfirmMessage(request)
-  if (!window.confirm(confirmMessage)) {
-    return
-  }
-  return browser.runtime.sendMessage<RBActions.StartFollowerChainBlock, void>({
-    actionType: 'StartFollowerChainBlock',
-    request,
+  browser.tabs.sendMessage<RBMessages.ConfirmChainBlock>(tab.id!, {
+    messageType: 'ConfirmChainBlock',
+    confirmMessage,
+    action: {
+      actionType: 'StartFollowerChainBlock',
+      request,
+    },
   })
 }
 
@@ -31,13 +38,20 @@ export async function startTweetReactionChainBlock(request: TweetReactionBlockSe
     alert(alertMessage)
     return
   }
+  const tab = await browser.tabs
+    .query({
+      active: true,
+      currentWindow: true,
+    })
+    .then(tabs => tabs[0])
   const confirmMessage = generateTweetReactionBlockMessage(request)
-  if (!window.confirm(confirmMessage)) {
-    return
-  }
-  return browser.runtime.sendMessage<RBActions.StartTweetReactionChainBlock, void>({
-    actionType: 'StartTweetReactionChainBlock',
-    request,
+  browser.tabs.sendMessage<RBMessages.ConfirmChainBlock>(tab.id!, {
+    messageType: 'ConfirmChainBlock',
+    confirmMessage,
+    action: {
+      actionType: 'StartTweetReactionChainBlock',
+      request,
+    },
   })
 }
 

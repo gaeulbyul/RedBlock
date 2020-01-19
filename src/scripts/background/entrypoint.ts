@@ -3,6 +3,7 @@ import { alert } from './background.js'
 import ChainBlocker from './chainblock.js'
 import * as Storage from './storage.js'
 import * as TwitterAPI from './twitter-api.js'
+import { initializeContextMenu } from './context-menu.js'
 
 type TwitterUser = TwitterAPI.TwitterUser
 
@@ -23,10 +24,12 @@ export async function executeFollowerChainBlock(request: FollowerBlockSessionReq
       return
     }
     chainblocker.start(sessionId)
-    browser.runtime.sendMessage<RBMessages.PopupSwitchTab>({
-      messageType: 'PopupSwitchTab',
-      page: PageEnum.Sessions,
-    })
+    browser.runtime
+      .sendMessage<RBMessages.PopupSwitchTab>({
+        messageType: 'PopupSwitchTab',
+        page: PageEnum.Sessions,
+      })
+      .catch(() => {}) // 우클릭 체인블락의 경우 팝업이 없음
   } catch (err) {
     if (err instanceof TwitterAPI.RateLimitError) {
       alert('현재 리밋에 걸린 상태입니다. 나중에 다시 시도해주세요.')
@@ -110,6 +113,41 @@ async function removeUserFromStorage(user: TwitterUser) {
   return storageQueue
 }
 
+function handleExtensionMessage(message: RBAction, sender: browser.runtime.MessageSender) {
+  switch (message.actionType) {
+    case 'StartFollowerChainBlock':
+      executeFollowerChainBlock(message.request).then(sendChainBlockerInfoToTabs)
+      break
+    case 'StartTweetReactionChainBlock':
+      executeTweetReactionChainBlock(message.request).then(sendChainBlockerInfoToTabs)
+      break
+    case 'StopChainBlock':
+      stopChainBlock(message.sessionId).then(sendChainBlockerInfoToTabs)
+      break
+    case 'StopAllChainBlock':
+      stopAllChainBlock()
+      break
+    case 'RequestProgress':
+      sendProgress()
+      break
+    case 'RequestCleanup':
+      cleanupSessions()
+      break
+    case 'InsertUserToStorage':
+      saveUserToStorage(message.user)
+      break
+    case 'RemoveUserFromStorage':
+      removeUserFromStorage(message.user)
+      break
+    case 'ConnectToBackground':
+      sender.tab && tabConnections.add(sender.tab.id!)
+      break
+    case 'DisconnectToBackground':
+      sender.tab && tabConnections.delete(sender.tab.id!)
+      break
+  }
+}
+
 function initialize() {
   window.setInterval(sendChainBlockerInfoToTabs, UI_UPDATE_DELAY)
   browser.runtime.onMessage.addListener(
@@ -118,42 +156,11 @@ function initialize() {
         console.debug('unknown msg?', msg)
         return true
       }
-      const message = msg as RBAction
-      switch (message.actionType) {
-        case 'StartFollowerChainBlock':
-          executeFollowerChainBlock(message.request).then(sendChainBlockerInfoToTabs)
-          break
-        case 'StartTweetReactionChainBlock':
-          executeTweetReactionChainBlock(message.request).then(sendChainBlockerInfoToTabs)
-          break
-        case 'StopChainBlock':
-          stopChainBlock(message.sessionId).then(sendChainBlockerInfoToTabs)
-          break
-        case 'StopAllChainBlock':
-          stopAllChainBlock()
-          break
-        case 'RequestProgress':
-          sendProgress()
-          break
-        case 'RequestCleanup':
-          cleanupSessions()
-          break
-        case 'InsertUserToStorage':
-          saveUserToStorage(message.user)
-          break
-        case 'RemoveUserFromStorage':
-          removeUserFromStorage(message.user)
-          break
-        case 'ConnectToBackground':
-          sender.tab && tabConnections.add(sender.tab.id!)
-          break
-        case 'DisconnectToBackground':
-          sender.tab && tabConnections.delete(sender.tab.id!)
-          break
-      }
+      handleExtensionMessage(msg as RBAction, sender)
       return true
     }
   )
+  initializeContextMenu()
 }
 
 initialize()
