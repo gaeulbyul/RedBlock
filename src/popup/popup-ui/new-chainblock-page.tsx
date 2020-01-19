@@ -321,9 +321,11 @@ export default function NewChainBlockPage(props: { currentUser: TwitterUser | nu
       return users
     }
     loadUsers()
-    return Storage.onSavedUsersChanged(users => {
+    return Storage.onSavedUsersChanged(async users => {
+      await loadUsers()
       if (!(selectedUser && users.has(selectedUser.id_str))) {
-        setSelectedUser(null)
+        setSelectedUser(currentUser)
+        selectUserGroup('current')
       }
     })
   }, [])
@@ -342,7 +344,8 @@ export default function NewChainBlockPage(props: { currentUser: TwitterUser | nu
       options,
     }
     modalContext.openModal({
-      confirmMessage: TextGenerate.generateFollowerBlockConfirmMessageElement(request),
+      modalType: 'confirm',
+      message: TextGenerate.generateFollowerBlockConfirmMessageElement(request),
       callback() {
         startFollowerChainBlock(request)
       },
@@ -359,7 +362,8 @@ export default function NewChainBlockPage(props: { currentUser: TwitterUser | nu
       options,
     }
     modalContext.openModal({
-      confirmMessage: TextGenerate.generateFollowerBlockConfirmMessageElement(request),
+      modalType: 'confirm',
+      message: TextGenerate.generateFollowerBlockConfirmMessageElement(request),
       callback() {
         startFollowerChainBlock(request)
       },
@@ -379,7 +383,10 @@ export default function NewChainBlockPage(props: { currentUser: TwitterUser | nu
         setSelectedUser(newUser)
         selectUserGroup(group)
       } else {
-        window.alert(`사용자 @${userName}을 찾을 수 없습니다.`)
+        modalContext.openModal({
+          modalType: 'alert',
+          message: `사용자 @${userName}을(를) 찾을 수 없습니다.`,
+        })
         setSelectedUser(null)
         selectUserGroup('invalid')
       }

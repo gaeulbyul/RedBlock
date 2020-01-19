@@ -133,9 +133,10 @@ function ChainBlockSessionItem(props: { session: SessionInfo }) {
   function renderControls({ sessionId, status, request }: SessionInfo) {
     function requestStopChainBlock() {
       if (isRunningStatus(status)) {
-        const confirmMessage = TextGenerate.confirmStopMessage(request)
+        const message = TextGenerate.confirmStopMessage(request)
         modalContext.openModal({
-          confirmMessage,
+          modalType: 'confirm',
+          message,
           callback() {
             stopChainBlock(sessionId)
           },
@@ -195,9 +196,10 @@ export default function ChainBlockSessionsPage(props: { sessions: SessionInfo[] 
   const modalContext = React.useContext(ModalContext)
   function renderGlobalControls() {
     function requestStopAllChainBlock() {
-      const confirmMessage = `실행중인 체인블락 및 언체인블락을 모두 중단하시겠습니까?`
+      const message = `실행중인 체인블락 및 언체인블락을 모두 중단하시겠습니까?`
       modalContext.openModal({
-        confirmMessage,
+        modalType: 'confirm',
+        message,
         callback: stopAllChainBlock,
       })
     }

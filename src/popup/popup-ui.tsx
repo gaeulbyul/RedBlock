@@ -14,19 +14,33 @@ function RBModal(props: { isOpen: boolean; content: ModalContent | null; closeMo
   if (!content) {
     return <div></div>
   }
-  const { confirmMessage, callback } = content
+  const { message, callback, modalType } = content
   function confirmOk() {
-    callback()
+    callback!()
     closeModal()
+  }
+  function renderControls() {
+    switch (modalType) {
+      case 'confirm':
+        return (
+          <React.Fragment>
+            <button onClick={confirmOk}>네</button>
+            <button onClick={closeModal}>아니오</button>
+          </React.Fragment>
+        )
+      case 'alert':
+        return (
+          <React.Fragment>
+            <button onClick={closeModal}>닫기</button>
+          </React.Fragment>
+        )
+    }
   }
   return (
     <ReactModal isOpen={isOpen} style={modalStyle}>
       <div className="modal-content">
-        <div className="confirm-message">{confirmMessage}</div>
-        <div className="controls modal-controls">
-          <button onClick={confirmOk}>네</button>
-          <button onClick={closeModal}>아니오</button>
-        </div>
+        <div className="confirm-message">{message}</div>
+        <div className="controls modal-controls">{renderControls()}</div>
       </div>
     </ReactModal>
   )

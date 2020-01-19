@@ -1,6 +1,7 @@
 export interface ModalContent {
-  confirmMessage: string | JSX.Element
-  callback: () => void
+  message: string | JSX.Element
+  modalType: 'confirm' | 'alert'
+  callback?: () => void
 }
 
 const modalContextValue = {
