@@ -4,12 +4,49 @@ import { getCurrentTab, getUserNameFromTab, requestProgress } from './popup.js'
 import ChainBlockSessionsPage from './popup-ui/chainblock-sessions-page.js'
 import NewChainBlockPage from './popup-ui/new-chainblock-page.js'
 import { PageEnum, UI_UPDATE_DELAY, isRunningStatus } from '../scripts/common.js'
+import { ModalContext, ModalContent } from './popup-ui/modal-context.js'
+
+const modalStyle = Object.assign({}, ReactModal.defaultStyles)
+modalStyle.overlay!.backgroundColor = 'rgba(33, 33, 33, .50)'
+
+function RBModal(props: { isOpen: boolean; content: ModalContent | null; closeModal: () => void }) {
+  const { isOpen, content, closeModal } = props
+  if (!content) {
+    return <div></div>
+  }
+  const { confirmMessage, callback } = content
+  function confirmOk() {
+    callback()
+    closeModal()
+  }
+  return (
+    <ReactModal isOpen={isOpen} style={modalStyle}>
+      <div className="modal-content">
+        <div className="confirm-message">{confirmMessage}</div>
+        <div className="controls modal-controls">
+          <button onClick={confirmOk}>네</button>
+          <button onClick={closeModal}>아니오</button>
+        </div>
+      </div>
+    </ReactModal>
+  )
+}
 
 function PopupApp(props: { currentUser: TwitterUser | null }) {
   const { Tabs, TabList, Tab, TabPanel } = ReactTabs
   const { currentUser } = props
   const [tabIndex, setTabIndex] = React.useState<PageEnum>(PageEnum.Sessions)
   const [sessions, setSessions] = React.useState<SessionInfo[]>([])
+  const [modalOpened, setModalOpened] = React.useState(false)
+  const [modalContent, setModalContent] = React.useState<ModalContent | null>(null)
+  function openModal(content: ModalContent) {
+    console.debug(content)
+    setModalOpened(true)
+    setModalContent(content)
+  }
+  function closeModal() {
+    setModalOpened(false)
+  }
   React.useEffect(() => {
     const messageListener = (msgobj: any) => {
       if (!(typeof msgobj === 'object' && 'messageType' in msgobj)) {
@@ -40,18 +77,21 @@ function PopupApp(props: { currentUser: TwitterUser | null }) {
   return (
     <div>
       <React.StrictMode>
-        <Tabs className="top-tabs" selectedIndex={tabIndex} onSelect={setTabIndex}>
-          <TabList>
-            <Tab>&#9939; 실행중인 세션({runningSessions.length})</Tab>
-            <Tab>&#10133; 새 세션</Tab>
-          </TabList>
-          <TabPanel>
-            <ChainBlockSessionsPage sessions={sessions} />
-          </TabPanel>
-          <TabPanel>
-            <NewChainBlockPage currentUser={currentUser} />
-          </TabPanel>
-        </Tabs>
+        <ModalContext.Provider value={{ openModal }}>
+          <Tabs className="top-tabs" selectedIndex={tabIndex} onSelect={setTabIndex}>
+            <TabList>
+              <Tab>&#9939; 실행중인 세션({runningSessions.length})</Tab>
+              <Tab>&#10133; 새 세션</Tab>
+            </TabList>
+            <TabPanel>
+              <ChainBlockSessionsPage sessions={sessions} />
+            </TabPanel>
+            <TabPanel>
+              <NewChainBlockPage currentUser={currentUser} />
+            </TabPanel>
+          </Tabs>
+        </ModalContext.Provider>
+        <RBModal isOpen={modalOpened} closeModal={closeModal} content={modalContent} />
       </React.StrictMode>
     </div>
   )
@@ -69,6 +109,7 @@ export async function initializeUI() {
   const targetUser = await (userName ? TwitterAPI.getSingleUserByName(userName) : null)
   const app = <PopupApp currentUser={targetUser} />
   ReactDOM.render(app, appRoot)
+  ReactModal.setAppElement(appRoot)
   showVersionOnFooter()
 }
 

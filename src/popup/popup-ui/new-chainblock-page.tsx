@@ -1,9 +1,11 @@
+import { CSSProperties } from 'react'
 import * as Storage from '../../scripts/background/storage.js'
 import * as TwitterAPI from '../../scripts/background/twitter-api.js'
 import { TwitterUser } from '../../scripts/background/twitter-api.js'
 import { formatNumber, TwitterUserMap } from '../../scripts/common.js'
+import * as TextGenerate from '../../scripts/text-generate.js'
 import { insertUserToStorage, removeUserFromStorage, startFollowerChainBlock } from '../popup.js'
-import { CSSProperties } from 'react'
+import { ModalContext } from './modal-context.js'
 
 type SessionOptions = FollowerBlockSessionRequest['options']
 type SelectUserGroup = 'invalid' | 'current' | 'saved'
@@ -288,6 +290,7 @@ async function getUserByNameWithCache(userName: string): Promise<TwitterUser> {
 
 export default function NewChainBlockPage(props: { currentUser: TwitterUser | null }) {
   const { currentUser } = props
+  const modalContext = React.useContext(ModalContext)
   const [options, setOptions] = React.useState<SessionOptions>({
     quickMode: false,
     myFollowers: 'Skip',
@@ -329,7 +332,7 @@ export default function NewChainBlockPage(props: { currentUser: TwitterUser | nu
     setOptions(newOptions)
   }
   function onExecuteChainBlockButtonClicked() {
-    startFollowerChainBlock({
+    const request: FollowerBlockSessionRequest = {
       purpose: 'chainblock',
       target: {
         type: 'follower',
@@ -337,10 +340,16 @@ export default function NewChainBlockPage(props: { currentUser: TwitterUser | nu
         list: targetList,
       },
       options,
+    }
+    modalContext.openModal({
+      confirmMessage: TextGenerate.generateFollowerBlockConfirmMessageElement(request),
+      callback() {
+        startFollowerChainBlock(request)
+      },
     })
   }
   function onExecuteUnChainBlockButtonClicked() {
-    startFollowerChainBlock({
+    const request: FollowerBlockSessionRequest = {
       purpose: 'unchainblock',
       target: {
         type: 'follower',
@@ -348,6 +357,12 @@ export default function NewChainBlockPage(props: { currentUser: TwitterUser | nu
         list: targetList,
       },
       options,
+    }
+    modalContext.openModal({
+      confirmMessage: TextGenerate.generateFollowerBlockConfirmMessageElement(request),
+      callback() {
+        startFollowerChainBlock(request)
+      },
     })
   }
   async function changeUser(userName: string, group: SelectUserGroup) {

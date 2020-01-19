@@ -5,6 +5,63 @@ import {
 } from './background/chainblock-session/session.js'
 import { formatNumber, getReactionsCount } from './common.js'
 
+export function generateFollowerBlockConfirmMessageElement(request: FollowerBlockSessionRequest) {
+  const { purpose } = request
+  const { user: targetUser, list: targetList } = request.target
+  const { myFollowers, myFollowings, quickMode } = request.options
+  const targetUserName = targetUser.screen_name
+  const purposeKor = purpose === 'chainblock' ? '체인블락' : '언체인블락'
+  let targetStr = ''
+  switch (targetList) {
+    case 'followers':
+      targetStr = `@${targetUserName}의 팔로워 ${formatNumber(targetUser.followers_count, quickMode)}명\n`
+      break
+    case 'friends':
+      targetStr = `@${targetUserName}의 팔로잉 ${formatNumber(targetUser.friends_count, quickMode)}명\n`
+      break
+    case 'mutual-followers':
+      targetStr = `@${targetUserName}의 맞팔로우 유저\n`
+      break
+  }
+  return (
+    <React.Fragment>
+      <p>
+        정말로 @{targetUserName}에게 {purposeKor}을 실행하시겠습니까?
+      </p>
+      <hr />
+      <div>대상: {targetStr}</div>
+      {myFollowers === 'Block' && <div className="warning">{'\u26a0'} 주의! 내 팔로워를 차단할 수 있습니다.</div>}
+      {myFollowings === 'Block' && (
+        <div className="warning">{'\u26a0'} 주의! 내가 팔로우하고있는 사용자를 차단할 수 있습니다.</div>
+      )}
+    </React.Fragment>
+  )
+}
+
+export function generateTweetReactionBlockMessageElement(request: TweetReactionBlockSessionRequest) {
+  const { tweet, reaction } = request.target
+  const { myFollowers, myFollowings } = request.options
+  const reactionKor = reaction === 'retweeted' ? '리트윗' : '마음'
+  const reactionCount = formatNumber(getReactionsCount(tweet, reaction))
+  return (
+    <React.Fragment>
+      정말로 선택한 트윗에 {reactionKor}을 한 사용자에게 체인블락을 실행하시겠습니까?
+      <hr />
+      <div>
+        대상: 아래 트윗에 {reactionKor}을 한 사용자 최대 {reactionCount}명
+      </div>
+      <div>
+        트윗 작성자: @{tweet.user.screen_name} ({tweet.user.name})
+      </div>
+      <div>내용: {tweet.text}</div>
+      {myFollowers === 'Block' && <div className="warning">{'\u26a0'} 주의! 내 팔로워를 차단할 수 있습니다.</div>}
+      {myFollowings === 'Block' && (
+        <div className="warning">{'\u26a0'} 주의! 내가 팔로우하는 사용자를 차단할 수 있습니다.</div>
+      )}
+    </React.Fragment>
+  )
+}
+
 export function generateFollowerBlockConfirmMessage(request: FollowerBlockSessionRequest): string {
   const { purpose } = request
   const { user: targetUser, list: targetList } = request.target

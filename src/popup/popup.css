@@ -326,6 +326,29 @@ fieldset.chainblock-subopt {
   text-align: center;
 }
 
+.modal-content {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+.modal-content .confirm-message {
+  flex-grow: 1;
+}
+
+.modal-controls {
+  justify-content: center;
+}
+
+.warning {
+  margin: 0.3rem 0;
+  padding: 0.3rem;
+  border: 1px solid orange;
+  border-radius: 5px;
+  background-color: yellow;
+  font-weight: bold;
+}
+
 footer.info {
   padding: 10px 20px;
   border-top: 1px solid var(--rb-alt3-color);

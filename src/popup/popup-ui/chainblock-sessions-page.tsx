@@ -1,6 +1,7 @@
-import { SessionStatus, isRunningStatus } from '../../scripts/common.js'
-import { stopAllChainBlock, stopChainBlock, cleanupSessions } from '../popup.js'
+import { isRunningStatus, SessionStatus } from '../../scripts/common.js'
 import * as TextGenerate from '../../scripts/text-generate.js'
+import { cleanupSessions, stopAllChainBlock, stopChainBlock } from '../popup.js'
+import { ModalContext } from './modal-context.js'
 
 function calculatePercentage(session: SessionInfo): number {
   const { status, count } = session
@@ -78,6 +79,7 @@ function renderProfileImageWithProgress(session: SessionInfo) {
 function ChainBlockSessionItem(props: { session: SessionInfo }) {
   const { session } = props
   const { purpose, target } = session.request
+  const modalContext = React.useContext(ModalContext)
   let user: TwitterUser
   switch (target.type) {
     case 'follower':
@@ -132,9 +134,13 @@ function ChainBlockSessionItem(props: { session: SessionInfo }) {
     function requestStopChainBlock() {
       if (isRunningStatus(status)) {
         const confirmMessage = TextGenerate.confirmStopMessage(request)
-        if (!window.confirm(confirmMessage)) {
-          return
-        }
+        modalContext.openModal({
+          confirmMessage,
+          callback() {
+            stopChainBlock(sessionId)
+          },
+        })
+        return
       }
       stopChainBlock(sessionId)
     }
@@ -186,13 +192,14 @@ function ChainBlockSessionItem(props: { session: SessionInfo }) {
 
 export default function ChainBlockSessionsPage(props: { sessions: SessionInfo[] }) {
   const { sessions } = props
+  const modalContext = React.useContext(ModalContext)
   function renderGlobalControls() {
     function requestStopAllChainBlock() {
       const confirmMessage = `실행중인 체인블락 및 언체인블락을 모두 중단하시겠습니까?`
-      if (!window.confirm(confirmMessage)) {
-        return
-      }
-      stopAllChainBlock()
+      modalContext.openModal({
+        confirmMessage,
+        callback: stopAllChainBlock,
+      })
     }
     return (
       <div className="controls align-to-end">

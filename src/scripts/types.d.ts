@@ -10,6 +10,7 @@ declare var _: typeof import('lodash')
 declare var React: typeof import('react')
 declare var ReactDOM: typeof import('react-dom')
 declare var ReactTabs: typeof import('react-tabs')
+declare var ReactModal: typeof import('react-modal')
 
 declare namespace uuid {
   function v1(): string
