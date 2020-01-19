@@ -113,7 +113,7 @@ function TargetUserProfile(props: {
         {isAvailable || (
           <div className="profile-blocked">
             {user.protected && '\u{1f512} 프로텍트가 걸려있어 체인블락을 할 수 없습니다.'}
-            {user.blocked_by && '\u26d4 해당 사용자에게 차단당하여 체인블락을 할 수 없습니다.'}
+            {user.blocked_by && '\u26d4 이 사용자에게 차단당하여 체인블락을 할 수 없습니다.'}
           </div>
         )}
         <div className="profile-right-targetlist">
@@ -124,7 +124,7 @@ function TargetUserProfile(props: {
               checked={targetList === 'followers'}
               onChange={() => setTargetList('followers')}
             />
-            <span title="상대방을 팔로우하는 사용자를 차단합니다.">
+            <span title={`@${user.screen_name}의 팔로워를 차단합니다.`}>
               팔로워 {formatNumber(user.followers_count, quickMode)}명
             </span>
           </label>
@@ -135,7 +135,7 @@ function TargetUserProfile(props: {
               checked={targetList === 'friends'}
               onChange={() => setTargetList('friends')}
             />
-            <span title="상대방이 팔로우하는 사용자를 차단합니다.">
+            <span title={`@${user.screen_name}이(가) 팔로우하는 사용자를 차단합니다.`}>
               팔로잉 {formatNumber(user.friends_count, quickMode)}명
             </span>
           </label>
@@ -147,7 +147,7 @@ function TargetUserProfile(props: {
               checked={targetList === 'mutual-followers'}
               onChange={() => setTargetList('mutual-followers')}
             />
-            <span title="상대방과 맞팔로우한 사용자만 추려서 차단합니다.">맞팔로우만</span>
+            <span title={`@${user.screen_name}이(가) 맞팔로우한 사용자만 골라서 차단합니다.`}>맞팔로우만</span>
           </label>
           <hr />
           <label>
@@ -157,8 +157,8 @@ function TargetUserProfile(props: {
               checked={quickMode}
               onChange={() => mutateOptions({ quickMode: !quickMode })}
             />
-            <span title="퀵 모드: 최대 200명 이하의 사용자를 대상으로 합니다. 최근에 해당 사용자에게 체인블락을 실행하였으나 이후에 새로 생긴 팔로워를 더 빠르게 차단하기 위해 고안한 기능입니다.">
-              퀵 모드
+            <span title="퀵 모드: 최근에 해당 사용자에게 체인블락을 실행하였으나 이후에 새로 생긴 팔로워만 더 빠르게 차단하기 위해 고안한 기능입니다.">
+              퀵 모드 (200명 이하만 차단)
             </span>
           </label>
         </div>
