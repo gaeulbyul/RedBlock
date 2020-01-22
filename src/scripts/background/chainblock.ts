@@ -46,9 +46,8 @@ export default class ChainBlocker {
     })
   }
   private handleEvents(session: ChainBlockSession) {
-    const sessionInfo = session.getSessionInfo()
-    session.eventEmitter.on('complete', () => {
-      const message = TextGenerate.chainBlockResultNotification(sessionInfo)
+    session.eventEmitter.on('complete', info => {
+      const message = TextGenerate.chainBlockResultNotification(info)
       notify(message)
     })
     session.eventEmitter.on('error', err => {

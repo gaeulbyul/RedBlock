@@ -20,7 +20,7 @@ interface SessionEventEmitter {
   'mark-user': MarkUserParams
   'rate-limit': Limit
   'rate-limit-reset': null
-  complete: SessionInfo['progress']
+  complete: SessionInfo
   error: string
 }
 
@@ -201,7 +201,7 @@ export default class ChainBlockSession {
       await blocker.flush()
       if (!stopped) {
         this.sessionInfo.status = SessionStatus.Completed
-        this.eventEmitter.emit('complete', this.sessionInfo.progress)
+        this.eventEmitter.emit('complete', this.getSessionInfo())
       }
     } catch (error) {
       this.sessionInfo.status = SessionStatus.Error
