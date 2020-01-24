@@ -9,3 +9,9 @@ const modalContextValue = {
 }
 
 export const ModalContext = React.createContext(modalContextValue)
+
+const snackBarContextValue = {
+  snack(_message: string) {},
+}
+
+export const SnackBarContext = React.createContext(snackBarContextValue)

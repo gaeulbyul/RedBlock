@@ -4,55 +4,17 @@ import { getCurrentTab, getUserNameFromTab, requestProgress } from './popup.js'
 import ChainBlockSessionsPage from './popup-ui/chainblock-sessions-page.js'
 import NewChainBlockPage from './popup-ui/new-chainblock-page.js'
 import { PageEnum, UI_UPDATE_DELAY, isRunningStatus } from '../scripts/common.js'
-import { ModalContext, ModalContent } from './popup-ui/modal-context.js'
-
-const modalStyle = Object.assign({}, ReactModal.defaultStyles)
-modalStyle.overlay!.backgroundColor = 'rgba(33, 33, 33, .50)'
-
-function RBModal(props: { isOpen: boolean; content: ModalContent | null; closeModal: () => void }) {
-  const { isOpen, content, closeModal } = props
-  if (!content) {
-    return <div></div>
-  }
-  const { message, callback, modalType } = content
-  function confirmOk() {
-    callback!()
-    closeModal()
-  }
-  function renderControls() {
-    switch (modalType) {
-      case 'confirm':
-        return (
-          <React.Fragment>
-            <button onClick={confirmOk}>네</button>
-            <button onClick={closeModal}>아니오</button>
-          </React.Fragment>
-        )
-      case 'alert':
-        return (
-          <React.Fragment>
-            <button onClick={closeModal}>닫기</button>
-          </React.Fragment>
-        )
-    }
-  }
-  return (
-    <ReactModal isOpen={isOpen} style={modalStyle}>
-      <div className="modal-content">
-        <div className="confirm-message">{message}</div>
-        <div className="controls modal-controls">{renderControls()}</div>
-      </div>
-    </ReactModal>
-  )
-}
+import { ModalContext, ModalContent, SnackBarContext } from './popup-ui/contexts.js'
+import { RBModal, TabPanel } from './popup-ui/ui-common.js'
 
 function PopupApp(props: { currentUser: TwitterUser | null }) {
-  const { Tabs, TabList, Tab, TabPanel } = ReactTabs
   const { currentUser } = props
   const [tabIndex, setTabIndex] = React.useState<PageEnum>(PageEnum.Sessions)
   const [sessions, setSessions] = React.useState<SessionInfo[]>([])
   const [modalOpened, setModalOpened] = React.useState(false)
   const [modalContent, setModalContent] = React.useState<ModalContent | null>(null)
+  const [snackBarMessage, setSnackBarMessage] = React.useState('')
+  const [snackBarOpen, setSnackBarOpen] = React.useState(false)
   function openModal(content: ModalContent) {
     console.debug(content)
     setModalOpened(true)
@@ -60,6 +22,16 @@ function PopupApp(props: { currentUser: TwitterUser | null }) {
   }
   function closeModal() {
     setModalOpened(false)
+  }
+  function snack(message: string) {
+    setSnackBarMessage(message)
+    setSnackBarOpen(true)
+  }
+  function handleSnackBarClose(_event: React.SyntheticEvent | React.MouseEvent, reason?: string) {
+    if (reason === 'clickaway') {
+      return
+    }
+    setSnackBarOpen(false)
   }
   React.useEffect(() => {
     const messageListener = (msgobj: any) => {
@@ -88,23 +60,43 @@ function PopupApp(props: { currentUser: TwitterUser | null }) {
     }
   }, [])
   const runningSessions = React.useMemo(() => sessions.filter(session => isRunningStatus(session.status)), [sessions])
+  const M = MaterialUI
   return (
     <div>
       <React.StrictMode>
-        <ModalContext.Provider value={{ openModal }}>
-          <Tabs className="top-tabs" selectedIndex={tabIndex} onSelect={setTabIndex}>
-            <TabList>
-              <Tab>&#9939; 실행중인 세션({runningSessions.length})</Tab>
-              <Tab>&#10133; 새 세션</Tab>
-            </TabList>
-            <TabPanel>
-              <ChainBlockSessionsPage sessions={sessions} />
-            </TabPanel>
-            <TabPanel>
-              <NewChainBlockPage currentUser={currentUser} />
-            </TabPanel>
-          </Tabs>
-        </ModalContext.Provider>
+        <SnackBarContext.Provider value={{ snack }}>
+          <ModalContext.Provider value={{ openModal }}>
+            <M.AppBar position="fixed">
+              <M.Tabs value={tabIndex} onChange={(_ev, val) => setTabIndex(val)}>
+                <M.Tab label={`실행중인 세션 (${runningSessions.length})`} />
+                <M.Tab label={'새 세션'} />
+              </M.Tabs>
+            </M.AppBar>
+            <div className="page">
+              <TabPanel value={tabIndex} index={PageEnum.Sessions}>
+                <ChainBlockSessionsPage sessions={sessions} />
+              </TabPanel>
+              <TabPanel value={tabIndex} index={PageEnum.NewSession}>
+                <NewChainBlockPage currentUser={currentUser} />
+              </TabPanel>
+            </div>
+          </ModalContext.Provider>
+        </SnackBarContext.Provider>
+        <M.Snackbar
+          anchorOrigin={{
+            horizontal: 'center',
+            vertical: 'bottom',
+          }}
+          open={snackBarOpen}
+          onClose={handleSnackBarClose}
+          autoHideDuration={5000}
+          message={snackBarMessage}
+          action={
+            <M.IconButton size="small" aria-label="close" color="inherit" onClick={handleSnackBarClose}>
+              <M.Icon fontSize="small">close</M.Icon>
+            </M.IconButton>
+          }
+        />
         <RBModal isOpen={modalOpened} closeModal={closeModal} content={modalContent} />
       </React.StrictMode>
     </div>

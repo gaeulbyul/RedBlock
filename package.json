@@ -12,12 +12,12 @@
     }
   },
   "devDependencies": {
+    "@material-ui/core": "^4.9.0",
     "@types/lodash": "^4.14.117",
     "@types/prop-types": "^15.7.3",
     "@types/react": "^16.8.20",
     "@types/react-dom": "^16.8.4",
     "@types/react-modal": "^3.10.4",
-    "@types/react-tabs": "^2.3.1",
     "husky": "^1.2.1",
     "prettier": "^1.19.1",
     "pretty-quick": "^1.8.0",

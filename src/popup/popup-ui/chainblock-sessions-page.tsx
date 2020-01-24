@@ -1,7 +1,7 @@
 import { isRunningStatus, SessionStatus } from '../../scripts/common.js'
 import * as TextGenerate from '../../scripts/text-generate.js'
 import { cleanupSessions, stopAllChainBlock, stopChainBlock } from '../popup.js'
-import { ModalContext } from './modal-context.js'
+import { ModalContext } from './contexts.js'
 
 function calculatePercentage(session: SessionInfo): number {
   const { status, count } = session

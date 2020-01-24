@@ -1,11 +1,11 @@
-import { CSSProperties } from 'react'
 import * as Storage from '../../scripts/background/storage.js'
 import * as TwitterAPI from '../../scripts/background/twitter-api.js'
 import { TwitterUser } from '../../scripts/background/twitter-api.js'
 import { formatNumber, TwitterUserMap } from '../../scripts/common.js'
 import * as TextGenerate from '../../scripts/text-generate.js'
 import { insertUserToStorage, removeUserFromStorage, startFollowerChainBlock } from '../popup.js'
-import { ModalContext } from './modal-context.js'
+import { ModalContext, SnackBarContext } from './contexts.js'
+import { TabPanel } from './ui-common.js'
 
 type SessionOptions = FollowerBlockSessionRequest['options']
 type SelectUserGroup = 'invalid' | 'current' | 'saved'
@@ -19,17 +19,32 @@ function TargetSavedUsers(props: {
   changeUser: (userName: string, group: SelectUserGroup) => Promise<void>
 }) {
   const { currentUser, selectedUserGroup, savedUsers, changeUser } = props
+  const snackBarCtx = React.useContext(SnackBarContext)
   const selectedUser = React.useContext(SelectedUserContext)
   async function insertUser() {
     if (selectedUser) {
-      return insertUserToStorage(selectedUser)
+      insertUserToStorage(selectedUser)
+      snackBarCtx.snack(`@${selectedUser.screen_name}을(를) 저장했습니다.`)
     }
   }
   async function removeUser() {
     if (selectedUser) {
-      return removeUserFromStorage(selectedUser)
+      removeUserFromStorage(selectedUser)
+      snackBarCtx.snack(`@${selectedUser.screen_name}을(를) 제거했습니다.`)
     }
   }
+  const sortedByName = (usersMap: TwitterUserMap): TwitterUser[] =>
+    _.sortBy(usersMap.toUserArray(), user => user.screen_name.toLowerCase())
+  const selectUserFromOption = (elem: EventTarget) => {
+    if (!(elem instanceof HTMLSelectElement)) {
+      throw new Error('unreachable')
+    }
+    const selectedOption = elem.selectedOptions[0]
+    const group = selectedOption.getAttribute('data-group') as SelectUserGroup
+    const userName = selectedOption.getAttribute('data-username')!
+    changeUser(userName, group)
+  }
+  const M = MaterialUI
   const currentUserOption = ({ screen_name, name }: TwitterUser) => (
     <optgroup label="현재 유저">
       <option value={`current/${screen_name}`} data-group="current" data-username={screen_name}>
@@ -37,18 +52,11 @@ function TargetSavedUsers(props: {
       </option>
     </optgroup>
   )
-  const sortedByName = (usersMap: TwitterUserMap): TwitterUser[] =>
-    _.sortBy(usersMap.toUserArray(), user => user.screen_name.toLowerCase())
-  const selectUserFromOption = (elem: EventTarget & HTMLSelectElement) => {
-    const selectedOption = elem.selectedOptions[0]
-    const group = selectedOption.getAttribute('data-group') as SelectUserGroup
-    const userName = selectedOption.getAttribute('data-username')!
-    changeUser(userName, group)
-  }
   return (
-    <div className="chainblock-saved-target">
-      <select
-        className="chainblock-saved-select"
+    <div>
+      <M.Select
+        native
+        fullWidth={true}
         value={selectedUser ? `${selectedUserGroup}/${selectedUser.screen_name}` : 'invalid/???'}
         onChange={({ target }) => selectUserFromOption(target)}
       >
@@ -63,16 +71,22 @@ function TargetSavedUsers(props: {
             </option>
           ))}
         </optgroup>
-      </select>
+      </M.Select>
       {selectedUser && (
-        <div className="controls">
-          <button type="button" onClick={insertUser}>
-            추가
-          </button>
-          <button type="button" onClick={removeUser}>
-            제거
-          </button>
-        </div>
+        <M.Box margin="10px 0" display="flex" flexDirection="row-reverse">
+          <M.ButtonGroup>
+            <M.Button
+              disabled={selectedUserGroup !== 'current'}
+              onClick={insertUser}
+              startIcon={<M.Icon>add_circle</M.Icon>}
+            >
+              저장
+            </M.Button>
+            <M.Button disabled={selectedUserGroup !== 'saved'} onClick={removeUser} startIcon={<M.Icon>delete</M.Icon>}>
+              제거
+            </M.Button>
+          </M.ButtonGroup>
+        </M.Box>
       )}
     </div>
   )
@@ -89,10 +103,11 @@ function TargetUserProfile(props: {
   const { isAvailable, targetList, options, setTargetList, mutateOptions } = props
   const { quickMode } = options
   const biggerProfileImageUrl = user.profile_image_url_https.replace('_normal', '_bigger')
+  const M = MaterialUI
   return (
     <div className="target-user-info">
       <div className="profile-image-area">
-        <img alt="프로필이미지" className="profile-image" src={biggerProfileImageUrl} />
+        <img alt="프로필 이미지" className="profile-image" src={biggerProfileImageUrl} />
       </div>
       <div className="profile-right-area">
         <div className="profile-right-info">
@@ -117,50 +132,41 @@ function TargetUserProfile(props: {
           </div>
         )}
         <div className="profile-right-targetlist">
-          <label>
-            <input
-              type="radio"
+          <M.RadioGroup row={true}>
+            <M.FormControlLabel
+              control={<M.Radio />}
+              onChange={() => setTargetList('followers')}
               disabled={!isAvailable}
               checked={targetList === 'followers'}
-              onChange={() => setTargetList('followers')}
+              label={`팔로워 ${formatNumber(user.followers_count, quickMode)}명`}
+              title={`@${user.screen_name}의 팔로워를 차단합니다.`}
             />
-            <span title={`@${user.screen_name}의 팔로워를 차단합니다.`}>
-              팔로워 {formatNumber(user.followers_count, quickMode)}명
-            </span>
-          </label>
-          <label>
-            <input
-              type="radio"
+            <M.FormControlLabel
+              control={<M.Radio />}
+              onChange={() => setTargetList('friends')}
               disabled={!isAvailable}
               checked={targetList === 'friends'}
-              onChange={() => setTargetList('friends')}
+              label={`팔로잉 ${formatNumber(user.friends_count, quickMode)}명`}
+              title={`@${user.screen_name}이(가) 팔로우하는 사용자를 차단합니다.`}
             />
-            <span title={`@${user.screen_name}이(가) 팔로우하는 사용자를 차단합니다.`}>
-              팔로잉 {formatNumber(user.friends_count, quickMode)}명
-            </span>
-          </label>
-          <br />
-          <label>
-            <input
-              type="radio"
+            <M.FormControlLabel
+              control={<M.Radio />}
+              onChange={() => setTargetList('mutual-followers')}
               disabled={!isAvailable}
               checked={targetList === 'mutual-followers'}
-              onChange={() => setTargetList('mutual-followers')}
+              label="맞팔로우만"
+              title={`@${user.screen_name}이(가) 맞팔로우한 사용자만 골라서 차단합니다.`}
             />
-            <span title={`@${user.screen_name}이(가) 맞팔로우한 사용자만 골라서 차단합니다.`}>맞팔로우만</span>
-          </label>
+          </M.RadioGroup>
           <hr />
-          <label>
-            <input
-              type="checkbox"
-              disabled={!isAvailable || targetList === 'mutual-followers'}
-              checked={quickMode}
-              onChange={() => mutateOptions({ quickMode: !quickMode })}
-            />
-            <span title="퀵 모드: 최근에 해당 사용자에게 체인블락을 실행하였으나 이후에 새로 생긴 팔로워만 더 빠르게 차단하기 위해 고안한 기능입니다.">
-              퀵 모드 (200명 이하만 차단)
-            </span>
-          </label>
+          <M.FormControlLabel
+            control={<M.Checkbox />}
+            disabled={!isAvailable || targetList === 'mutual-followers'}
+            checked={quickMode}
+            onChange={() => mutateOptions({ quickMode: !quickMode })}
+            label="퀵 모드 (200명 이하만 차단)"
+            title="퀵 모드: 최근에 해당 사용자에게 체인블락을 실행하였으나 이후에 새로 생긴 팔로워만 더 빠르게 차단하기 위해 고안한 기능입니다."
+          />
         </div>
       </div>
     </div>
@@ -186,62 +192,42 @@ function TargetChainBlockOptions(props: {
 }) {
   const { options, mutateOptions } = props
   const { myFollowers, myFollowings } = options
+  const verbs: Array<[Verb, string]> = [
+    ['Skip', '냅두기'],
+    ['Mute', '뮤트하기'],
+    ['Block', '차단하기'],
+  ]
+  const M = MaterialUI
   return (
     <React.Fragment>
-      <fieldset className="chainblock-subopt">
-        <legend>내 팔로워</legend>
-        <label>
-          <input
-            type="radio"
-            checked={myFollowers === 'Skip'}
-            onChange={() => mutateOptions({ myFollowers: 'Skip' })}
-          />
-          <span>냅두기</span>
-        </label>
-        <label>
-          <input
-            type="radio"
-            checked={myFollowers === 'Mute'}
-            onChange={() => mutateOptions({ myFollowers: 'Mute' })}
-          />
-          <span>뮤트하기</span>
-        </label>
-        <label>
-          <input
-            type="radio"
-            checked={myFollowers === 'Block'}
-            onChange={() => mutateOptions({ myFollowers: 'Block' })}
-          />
-          <span>차단하기</span>
-        </label>
-      </fieldset>
-      <fieldset className="chainblock-subopt">
-        <legend>내 팔로잉</legend>
-        <label>
-          <input
-            type="radio"
-            checked={myFollowings === 'Skip'}
-            onChange={() => mutateOptions({ myFollowings: 'Skip' })}
-          />
-          <span>냅두기</span>
-        </label>
-        <label>
-          <input
-            type="radio"
-            checked={myFollowings === 'Mute'}
-            onChange={() => mutateOptions({ myFollowings: 'Mute' })}
-          />
-          <span>뮤트하기</span>
-        </label>
-        <label>
-          <input
-            type="radio"
-            checked={myFollowings === 'Block'}
-            onChange={() => mutateOptions({ myFollowings: 'Block' })}
-          />
-          <span>차단하기</span>
-        </label>
-      </fieldset>
+      <M.FormControl component="fieldset">
+        <M.FormLabel component="legend">내 팔로워</M.FormLabel>
+        <M.RadioGroup row={true}>
+          {verbs.map(([verb, vKor], index) => (
+            <M.FormControlLabel
+              key={index}
+              control={<M.Radio size="small" />}
+              checked={myFollowers === verb}
+              onChange={() => mutateOptions({ myFollowers: verb })}
+              label={vKor}
+            />
+          ))}
+        </M.RadioGroup>
+      </M.FormControl>
+      <M.FormControl component="fieldset">
+        <M.FormLabel component="legend">내 팔로잉</M.FormLabel>
+        <M.RadioGroup row={true}>
+          {verbs.map(([verb, vKor], index) => (
+            <M.FormControlLabel
+              key={index}
+              control={<M.Radio size="small" />}
+              checked={myFollowings === verb}
+              onChange={() => mutateOptions({ myFollowings: verb })}
+              label={vKor}
+            />
+          ))}
+        </M.RadioGroup>
+      </M.FormControl>
     </React.Fragment>
   )
 }
@@ -252,27 +238,27 @@ function TargetUnChainBlockOptions(props: {
 }) {
   const { options, mutateOptions } = props
   const { mutualBlocked } = options
+  const verbs: Array<[Verb, string]> = [
+    ['Skip', '(맞차단인 상태로) 냅두기'],
+    ['UnBlock', '차단 해제하기'],
+  ]
+  const M = MaterialUI
   return (
     <React.Fragment>
-      <fieldset className="chainblock-subopt">
-        <legend>서로 맞차단</legend>
-        <label>
-          <input
-            type="radio"
-            checked={mutualBlocked === 'Skip'}
-            onChange={() => mutateOptions({ mutualBlocked: 'Skip' })}
-          />
-          <span>(맞차단인 상태로) 냅두기</span>
-        </label>
-        <label>
-          <input
-            type="radio"
-            checked={mutualBlocked === 'UnBlock'}
-            onChange={() => mutateOptions({ mutualBlocked: 'UnBlock' })}
-          />
-          <span>차단 해제하기</span>
-        </label>
-      </fieldset>
+      <M.FormControl component="fieldset">
+        <M.FormLabel component="legend">서로 맞차단</M.FormLabel>
+        <M.RadioGroup row={true}>
+          {verbs.map(([verb, vKor], index) => (
+            <M.FormControlLabel
+              key={index}
+              control={<M.Radio size="small" />}
+              checked={mutualBlocked === verb}
+              onChange={() => mutateOptions({ mutualBlocked: verb })}
+              label={vKor}
+            />
+          ))}
+        </M.RadioGroup>
+      </M.FormControl>
     </React.Fragment>
   )
 }
@@ -394,81 +380,80 @@ export default function NewChainBlockPage(props: { currentUser: TwitterUser | nu
       setLoadingState(false)
     }
   }
-  const { Tabs, TabList, Tab, TabPanel } = ReactTabs
-  const miniTab: CSSProperties = {
-    padding: '3px 10px',
-  }
   const firstTab = currentUser && currentUser.following ? 1 : 0
+  const [selectedTab, setSelectedTab] = React.useState(firstTab)
+  const M = MaterialUI
   return (
     <div>
       <SelectedUserContext.Provider value={selectedUser}>
         <div className="chainblock-target">
-          <fieldset className="chainblock-opt">
-            <legend>차단 대상</legend>
-            <TargetSavedUsers
-              currentUser={currentUser}
-              selectedUserGroup={selectedUserGroup}
-              savedUsers={savedUsers}
-              changeUser={changeUser}
-            />
-            <hr />
-            {isLoading ? (
-              <TargetUserProfileEmpty reason="loading" />
-            ) : selectedUser ? (
-              <TargetUserProfile
-                options={options}
-                mutateOptions={mutateOptions}
-                targetList={targetList}
-                setTargetList={setTargetList}
-                isAvailable={isAvailable}
-              />
-            ) : (
-              <TargetUserProfileEmpty reason="invalid-user" />
-            )}
-          </fieldset>
-          <Tabs defaultIndex={firstTab}>
-            <TabList>
-              <Tab style={miniTab}>{'\u{1f6d1}'} 체인블락</Tab>
-              <Tab style={miniTab}>{'\u{1f49a}'} 언체인블락</Tab>
-            </TabList>
-            <TabPanel>
-              <fieldset className="chainblock-opt" disabled={!isAvailable}>
-                <legend>체인블락 필터</legend>
-                <TargetChainBlockOptions options={options} mutateOptions={mutateOptions} />
-                <div className="description">
-                  위 필터에 해당하지 않는 나머지 사용자를 모두 <mark>차단</mark>합니다. (단, <b>나와 맞팔로우</b>인
-                  사용자는 위 옵션과 무관하게 <b>차단하지 않습니다</b>.)
-                </div>
-                <div className="menu">
-                  <button
-                    disabled={!isAvailable}
-                    className="menu-item huge-button execute-chainblock"
-                    onClick={onExecuteChainBlockButtonClicked}
-                  >
-                    <span>{'\u{1f6d1}'} 체인블락 실행</span>
-                  </button>
-                </div>
-              </fieldset>
+          <M.Paper>
+            <M.Box padding="10px">
+              <M.FormControl component="fieldset" fullWidth={true}>
+                <M.FormLabel component="legend">차단 대상</M.FormLabel>
+                <TargetSavedUsers
+                  currentUser={currentUser}
+                  selectedUserGroup={selectedUserGroup}
+                  savedUsers={savedUsers}
+                  changeUser={changeUser}
+                />
+              </M.FormControl>
+              <hr />
+              {isLoading ? (
+                <TargetUserProfileEmpty reason="loading" />
+              ) : selectedUser ? (
+                <TargetUserProfile
+                  options={options}
+                  mutateOptions={mutateOptions}
+                  targetList={targetList}
+                  setTargetList={setTargetList}
+                  isAvailable={isAvailable}
+                />
+              ) : (
+                <TargetUserProfileEmpty reason="invalid-user" />
+              )}
+            </M.Box>
+          </M.Paper>
+          <br />
+          <M.Paper>
+            <M.Paper variant="outlined">
+              <M.Tabs value={selectedTab} onChange={(_ev, val) => setSelectedTab(val)}>
+                <M.Tab value={0} label={`\u{1f6d1} 체인블락`} />
+                <M.Tab value={1} label={`\u{1f49a} 언체인블락`} />
+              </M.Tabs>
+            </M.Paper>
+            <TabPanel value={selectedTab} index={0}>
+              <TargetChainBlockOptions options={options} mutateOptions={mutateOptions} />
+              <div className="description">
+                위 필터에 해당하지 않는 나머지 사용자를 모두 <mark>차단</mark>합니다. (단, <b>나와 맞팔로우</b>인
+                사용자는 위 옵션과 무관하게 <b>차단하지 않습니다</b>.)
+              </div>
+              <div className="menu">
+                <button
+                  disabled={!isAvailable}
+                  className="menu-item huge-button execute-chainblock"
+                  onClick={onExecuteChainBlockButtonClicked}
+                >
+                  <span>{'\u{1f6d1}'} 체인블락 실행</span>
+                </button>
+              </div>
             </TabPanel>
-            <TabPanel>
-              <fieldset className="chainblock-opt" disabled={!isAvailable}>
-                <legend>언체인블락 필터</legend>
-                <TargetUnChainBlockOptions options={options} mutateOptions={mutateOptions} />
-                <div className="description">
-                  위 필터에 해당하지 않는 나머지 사용자를 모두 <mark>차단 해제</mark>합니다.
-                </div>
-                <div className="menu">
-                  <button
-                    disabled={!isAvailable}
-                    className="menu-item huge-button execute-unchainblock"
-                    onClick={onExecuteUnChainBlockButtonClicked}
-                  >
-                    <span>{'\u{1f49a}'} 언체인블락 실행</span>
-                  </button>
-                </div>
-              </fieldset>
+            <TabPanel value={selectedTab} index={1}>
+              <TargetUnChainBlockOptions options={options} mutateOptions={mutateOptions} />
+              <div className="description">
+                위 필터에 해당하지 않는 나머지 사용자를 모두 <mark>차단 해제</mark>합니다.
+              </div>
+              <div className="menu">
+                <button
+                  disabled={!isAvailable}
+                  className="menu-item huge-button execute-unchainblock"
+                  onClick={onExecuteUnChainBlockButtonClicked}
+                >
+                  <span>{'\u{1f49a}'} 언체인블락 실행</span>
+                </button>
+              </div>
             </TabPanel>
-          </Tabs>
+          </M.Paper>
         </div>
       </SelectedUserContext.Provider>
     </div>
