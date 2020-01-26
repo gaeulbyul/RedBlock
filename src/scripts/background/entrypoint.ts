@@ -52,10 +52,12 @@ export async function executeTweetReactionChainBlock(request: TweetReactionBlock
       return
     }
     chainblocker.start(sessionId)
-    browser.runtime.sendMessage<RBMessages.PopupSwitchTab>({
-      messageType: 'PopupSwitchTab',
-      page: PageEnum.Sessions,
-    })
+    browser.runtime
+      .sendMessage<RBMessages.PopupSwitchTab>({
+        messageType: 'PopupSwitchTab',
+        page: PageEnum.Sessions,
+      })
+      .catch(() => {}) // 우클릭 체인블락의 경우 팝업이 없음
   } catch (err) {
     if (err instanceof TwitterAPI.RateLimitError) {
       alert('현재 리밋에 걸린 상태입니다. 나중에 다시 시도해주세요.')
