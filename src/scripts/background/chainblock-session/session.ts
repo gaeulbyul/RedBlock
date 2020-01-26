@@ -10,16 +10,18 @@ import {
 } from '../../common.js'
 
 export type SessionRequest = FollowerBlockSessionRequest | TweetReactionBlockSessionRequest
-// export type SessionType = FollowerBlockSession | TweetReactionBlockSession
 
 type Limit = TwitterAPI.Limit
 type TwitterUser = TwitterAPI.TwitterUser
 type Tweet = TwitterAPI.Tweet
 
+const MAX_USER_LIMIT = 10_0000
+
 interface SessionEventEmitter {
   'mark-user': MarkUserParams
   'rate-limit': Limit
   'rate-limit-reset': null
+  stopped: SessionInfo
   complete: SessionInfo
   error: string
 }
@@ -199,7 +201,10 @@ export default class ChainBlockSession {
         await blocker.flushIfNeed()
       }
       await blocker.flush()
-      if (!stopped) {
+      if (stopped) {
+        this.sessionInfo.status = SessionStatus.Stopped
+        this.eventEmitter.emit('stopped', this.getSessionInfo())
+      } else {
         this.sessionInfo.status = SessionStatus.Completed
         this.eventEmitter.emit('complete', this.getSessionInfo())
       }
@@ -359,6 +364,10 @@ export function checkFollowerBlockTarget(target: FollowerBlockSessionRequest['ta
     return [false, '팔로잉이 0명인 계정입니다.']
   } else if (target.list === 'mutual-followers' && followers_count <= 0 && friends_count <= 0) {
     return [false, '팔로워나 팔로잉이 0명인 계정입니다.']
+  }
+  const userCount = getFollowersCount(target.user, target.list) ?? 0
+  if (userCount > MAX_USER_LIMIT) {
+    return [false, '오·남용을 막기 위해 10만명이 넘는 사용자를 대상으로 하는 체인블락은 제한합니다.']
   }
   return [true, '']
 }

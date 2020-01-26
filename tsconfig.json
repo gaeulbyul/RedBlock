@@ -2,8 +2,8 @@
   "include": ["src/**/*"],
   "exclude": ["src/vendor/*", "*/**/flycheck_*"],
   "compilerOptions": {
-    "target": "esnext",
-    "module": "esnext",
+    "target": "es2019",
+    "module": "es6",
     "moduleResolution": "node",
     "allowJs": true,
     "checkJs": false,

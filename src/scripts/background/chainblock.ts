@@ -4,6 +4,7 @@ import { alert, notify } from './background.js'
 import ChainBlockSession from './chainblock-session/session.js'
 
 export default class ChainBlocker {
+  private readonly MAX_RUNNING_SESSIONS = 5
   private readonly sessions = new Map<string, ChainBlockSession>()
   constructor() {}
   public hasRunningSession(): boolean {
@@ -50,6 +51,12 @@ export default class ChainBlocker {
       const message = TextGenerate.chainBlockResultNotification(info)
       notify(message)
     })
+    session.eventEmitter.on('complete', () => {
+      this.startRemainingSessions()
+    })
+    session.eventEmitter.on('stopped', () => {
+      this.startRemainingSessions()
+    })
     session.eventEmitter.on('error', err => {
       let message = `오류발생! 메시지:\n`
       message += err
@@ -58,6 +65,22 @@ export default class ChainBlocker {
     session.eventEmitter.on('mark-user', params => {
       this.markUser(params)
     })
+  }
+  private checkAvailableSessionsCount() {
+    const runningSessions = this.getCurrentRunningSessions()
+    return this.MAX_RUNNING_SESSIONS - runningSessions.length
+  }
+  private async startRemainingSessions() {
+    for (const session of this.sessions.values()) {
+      const count = this.checkAvailableSessionsCount()
+      if (count <= 0) {
+        break
+      }
+      const sessionInfo = session.getSessionInfo()
+      if (sessionInfo.status === SessionStatus.Initial) {
+        await session.start()
+      }
+    }
   }
   public add(request: SessionRequest) {
     const { target } = request
@@ -87,6 +110,10 @@ export default class ChainBlocker {
     }
   }
   public async start(sessionId: string) {
+    const count = this.checkAvailableSessionsCount()
+    if (count <= 0) {
+      return
+    }
     const session = this.sessions.get(sessionId)
     if (session) {
       return session.start()
@@ -96,6 +123,10 @@ export default class ChainBlocker {
     const sessions = this.sessions.values()
     const sessionPromises: Promise<void>[] = []
     for (const session of sessions) {
+      const count = this.checkAvailableSessionsCount()
+      if (count <= 0) {
+        break
+      }
       const sessionInfo = session.getSessionInfo()
       if (sessionInfo.status === SessionStatus.Initial) {
         sessionPromises.push(session.start().catch(() => {}))
