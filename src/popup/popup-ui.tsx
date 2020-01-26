@@ -115,7 +115,27 @@ function PopupApp(props: { currentUser: TwitterUser | null }) {
 
 function showVersionOnFooter() {
   const manifest = browser.runtime.getManifest()
-  document.querySelector('footer.info')!.textContent = `${manifest.name} v${manifest.version}`
+  const footer = document.querySelector('footer.info')!
+  footer.textContent = `${manifest.name} v${manifest.version} /`
+  const gotoOptionsButton = document.createElement('button')
+  gotoOptionsButton.onclick = event => {
+    event.preventDefault()
+    browser.runtime.openOptionsPage()
+  }
+  Object.assign(gotoOptionsButton, {
+    type: 'button',
+    textContent: '설정...',
+  })
+  Object.assign(gotoOptionsButton.style, {
+    cursor: 'pointer',
+    margin: '0 5px',
+    border: '0',
+    backgroundColor: 'inherit',
+    color: 'red',
+    fontSize: '12px',
+    textDecoration: 'underline',
+  })
+  footer.appendChild(gotoOptionsButton)
 }
 
 export async function initializeUI() {

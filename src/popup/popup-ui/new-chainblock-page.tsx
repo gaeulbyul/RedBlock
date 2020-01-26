@@ -103,6 +103,12 @@ function TargetUserProfile(props: {
   const user = React.useContext(SelectedUserContext)!
   const { isAvailable, targetList, options, setTargetList, mutateOptions } = props
   const { quickMode } = options
+  const quickModeToFollowingsIsAvailable = targetList === 'friends' && user.friends_count > 200
+  const quickModeToFollowersIsAvailable = targetList === 'followers' && user.followers_count > 200
+  const quickModeIsAvailable =
+    isAvailable &&
+    targetList !== 'mutual-followers' &&
+    (quickModeToFollowingsIsAvailable || quickModeToFollowersIsAvailable)
   const biggerProfileImageUrl = user.profile_image_url_https.replace('_normal', '_bigger')
   return (
     <div className="target-user-info">
@@ -161,11 +167,11 @@ function TargetUserProfile(props: {
           <hr />
           <M.FormControlLabel
             control={<M.Checkbox />}
-            disabled={!isAvailable || targetList === 'mutual-followers'}
+            disabled={!quickModeIsAvailable}
             checked={quickMode}
             onChange={() => mutateOptions({ quickMode: !quickMode })}
             label="퀵 모드 (200명 이하만 차단)"
-            title="퀵 모드: 최근에 해당 사용자에게 체인블락을 실행하였으나 이후에 새로 생긴 팔로워만 더 빠르게 차단하기 위해 고안한 기능입니다."
+            title="퀵 모드: 최근에 해당 사용자에게 체인블락을 실행하였으나 이후에 새로 생긴 팔로워만 더 빠르게 차단하기 위해 고안한 기능입니다. (단, 팔로잉이나 팔로워가 이미 200명 이하인 경우 아무련 효과가 없습니다.)"
           />
         </div>
       </div>
@@ -271,6 +277,33 @@ async function getUserByNameWithCache(userName: string): Promise<TwitterUser> {
   userCache.set(user.screen_name, user)
   return user
 }
+
+const BigExecuteChainBlockButton = MaterialUI.withStyles(theme => ({
+  root: {
+    width: '100%',
+    padding: '10px',
+    fontSize: 'larger',
+    backgroundColor: MaterialUI.colors.red[700],
+    color: theme.palette.getContrastText(MaterialUI.colors.red[700]),
+    '&:hover': {
+      backgroundColor: MaterialUI.colors.red[500],
+      color: theme.palette.getContrastText(MaterialUI.colors.red[500]),
+    },
+  },
+}))(MaterialUI.Button)
+const BigExecuteUnChainBlockButton = MaterialUI.withStyles(theme => ({
+  root: {
+    width: '100%',
+    padding: '10px',
+    fontSize: 'larger',
+    backgroundColor: MaterialUI.colors.green[700],
+    color: theme.palette.getContrastText(MaterialUI.colors.green[700]),
+    '&:hover': {
+      backgroundColor: MaterialUI.colors.green[500],
+      color: theme.palette.getContrastText(MaterialUI.colors.green[500]),
+    },
+  },
+}))(MaterialUI.Button)
 
 export default function NewChainBlockPage(props: { currentUser: TwitterUser | null }) {
   const { currentUser } = props
@@ -397,7 +430,7 @@ export default function NewChainBlockPage(props: { currentUser: TwitterUser | nu
                   changeUser={changeUser}
                 />
               </M.FormControl>
-              <hr />
+              <M.Divider />
               {isLoading ? (
                 <TargetUserProfileEmpty reason="loading" />
               ) : selectedUser ? (
@@ -423,32 +456,24 @@ export default function NewChainBlockPage(props: { currentUser: TwitterUser | nu
             <TabPanel value={selectedTab} index={0}>
               <TargetChainBlockOptions options={options} mutateOptions={mutateOptions} />
               <div className="description">
-                위 필터에 해당하지 않는 나머지 사용자를 모두 <mark>차단</mark>합니다. (단, <b>나와 맞팔로우</b>인
-                사용자는 위 옵션과 무관하게 <b>차단하지 않습니다</b>.)
+                위 조건에 해당하지 않는 나머지 사용자를 모두 <mark>차단</mark>합니다. (단, <b>나와 맞팔로우</b>인
+                사용자는 위 옵션과 무관하게 <b>뮤트나 차단하지 않습니다</b>.)
               </div>
               <div className="menu">
-                <button
-                  disabled={!isAvailable}
-                  className="menu-item huge-button execute-chainblock"
-                  onClick={onExecuteChainBlockButtonClicked}
-                >
+                <BigExecuteChainBlockButton disabled={!isAvailable} onClick={onExecuteChainBlockButtonClicked}>
                   <span>{'\u{1f6d1}'} 체인블락 실행</span>
-                </button>
+                </BigExecuteChainBlockButton>
               </div>
             </TabPanel>
             <TabPanel value={selectedTab} index={1}>
               <TargetUnChainBlockOptions options={options} mutateOptions={mutateOptions} />
               <div className="description">
-                위 필터에 해당하지 않는 나머지 사용자를 모두 <mark>차단 해제</mark>합니다.
+                위 조건에 해당하지 않는 나머지 사용자를 모두 <mark>차단 해제</mark>합니다.
               </div>
               <div className="menu">
-                <button
-                  disabled={!isAvailable}
-                  className="menu-item huge-button execute-unchainblock"
-                  onClick={onExecuteUnChainBlockButtonClicked}
-                >
+                <BigExecuteUnChainBlockButton disabled={!isAvailable} onClick={onExecuteUnChainBlockButtonClicked}>
                   <span>{'\u{1f49a}'} 언체인블락 실행</span>
-                </button>
+                </BigExecuteUnChainBlockButton>
               </div>
             </TabPanel>
           </M.Paper>

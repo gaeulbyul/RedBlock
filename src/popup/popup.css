@@ -36,6 +36,7 @@
 html,
 body {
   min-height: 600px;
+  width: var(--popup-width);
 }
 
 body {
