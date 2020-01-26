@@ -19,8 +19,11 @@ function calculatePercentage(session: SessionInfo): number | null {
   }
 }
 
-const useStylesForExpandButton = MaterialUI.makeStyles(() =>
+const useStylesForSessionItem = MaterialUI.makeStyles(() =>
   MaterialUI.createStyles({
+    card: {
+      margin: '15px 0',
+    },
     expand: {
       marginLeft: 'auto',
     },
@@ -31,12 +34,13 @@ function ChainBlockSessionItem(props: { session: SessionInfo }) {
   const { session } = props
   const { purpose, target } = session.request
   const modalContext = React.useContext(DialogContext)
-  const classes = useStylesForExpandButton()
+  const classes = useStylesForSessionItem()
   const [expanded, setExpanded] = React.useState(false)
   function toggleExpand() {
     setExpanded(!expanded)
   }
   const isChainBlock = purpose === 'chainblock'
+  const isUnchainBlock = purpose === 'unchainblock'
   const isFollowerChainBlock = target.type === 'follower'
   let user: TwitterUser
   let targetListKor = ''
@@ -68,11 +72,12 @@ function ChainBlockSessionItem(props: { session: SessionInfo }) {
       break
   }
   const purposeKor = isChainBlock ? '체인블락' : '언체인블락'
+  const cardTitle = `${purposeKor} ${statusToString(session.status)}`
   let subheader = ''
   if (isFollowerChainBlock) {
     subheader += `@${user.screen_name}의 ${targetListKor}`
   } else {
-    subheader += `@${user.screen_name}가 작성한 트윗을 ${targetListKor}한 사용자`
+    subheader += `@${user.screen_name}이(가) 작성한 트윗을 ${targetListKor}한 사용자`
   }
   function statusToString(status: SessionStatus): string {
     const statusMessageObj: { [key: number]: string } = {
@@ -113,7 +118,7 @@ function ChainBlockSessionItem(props: { session: SessionInfo }) {
           {closeButtonText}
         </M.Button>
         <M.IconButton className={classes.expand} onClick={toggleExpand}>
-          <M.Icon>{expanded ? 'expand_more' : 'expand_less'}</M.Icon>
+          <M.Icon>{expanded ? 'expand_less' : 'expand_more'}</M.Icon>
         </M.IconButton>
       </React.Fragment>
     )
@@ -166,12 +171,16 @@ function ChainBlockSessionItem(props: { session: SessionInfo }) {
     ) : (
       <M.LinearProgress variant="indeterminate" />
     )
+  const succProgress = session.progress.success
   return (
-    <M.Card>
-      <M.CardHeader avatar={<M.Avatar src={biggerProfileImageUrl} />} title={purposeKor} subheader={subheader} />
+    <M.Card className={classes.card}>
+      <M.CardHeader avatar={<M.Avatar src={biggerProfileImageUrl} />} title={cardTitle} subheader={subheader} />
       <M.CardContent>
         {progressBar}
-        <T>상태: {statusToString(session.status)}</T>
+        <T>
+          {isChainBlock && <span>차단: {succProgress.Block.toLocaleString()}</span>}
+          {isUnchainBlock && <span>차단해제: {succProgress.UnBlock.toLocaleString()}</span>}
+        </T>
       </M.CardContent>
       <M.Divider variant="middle" />
       <M.CardActions disableSpacing>{renderControls(session)}</M.CardActions>
