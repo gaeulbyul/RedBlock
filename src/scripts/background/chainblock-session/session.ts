@@ -186,17 +186,19 @@ export default class ChainBlockSession {
           this.sessionInfo.progress.already++
           continue
         }
-        blocker.add(whatToDo, user).then(
-          resultUser => {
-            if (resultUser) {
-              incrementSuccess(whatToDo)
-              this.eventEmitter.emit('mark-user', {
-                userId: resultUser.id_str,
-                verb: whatToDo,
-              })
-            }
-          },
-          () => incrementFailure
+        blocker.add(
+          blocker.create(whatToDo, user).then(
+            resultUser => {
+              if (resultUser) {
+                incrementSuccess(whatToDo)
+                this.eventEmitter.emit('mark-user', {
+                  userId: resultUser.id_str,
+                  verb: whatToDo,
+                })
+              }
+            },
+            () => incrementFailure()
+          )
         )
         await blocker.flushIfNeed()
       }
@@ -310,13 +312,15 @@ class Blocker {
   public get currentSize() {
     return this.buffer.length
   }
-  public add(verb: VerbSomething, user: TwitterUser) {
-    const promise = this.callAPIFromVerb(verb, user)
+  public create(verb: VerbSomething, user: TwitterUser) {
+    return this.callAPIFromVerb(verb, user)
+  }
+  public add(promise: Promise<any>) {
     this.buffer.push(promise)
     return promise
   }
   public async flush() {
-    await Promise.all(this.buffer)
+    await Promise.all(this.buffer).catch(() => {})
     this.buffer.length = 0
   }
   public async flushIfNeed() {
