@@ -4,7 +4,7 @@ import { getCurrentTab, getUserNameFromTab, requestProgress } from './popup.js'
 import ChainBlockSessionsPage from './popup-ui/chainblock-sessions-page.js'
 import NewChainBlockPage from './popup-ui/new-chainblock-page.js'
 import { PageEnum, UI_UPDATE_DELAY, isRunningStatus } from '../scripts/common.js'
-import { DialogContext, SnackBarContext } from './popup-ui/contexts.js'
+import { DialogContext, SnackBarContext, PageSwitchContext } from './popup-ui/contexts.js'
 import { RBDialog, TabPanel, DialogContent } from './popup-ui/ui-common.js'
 
 const popupMuiTheme = MaterialUI.createMuiTheme({
@@ -29,6 +29,9 @@ function PopupApp(props: { currentUser: TwitterUser | null }) {
   }
   function closeModal() {
     setModalOpened(false)
+  }
+  function switchPage(page: PageEnum) {
+    setTabIndex(page)
   }
   function snack(message: string) {
     setSnackBarMessage(message)
@@ -72,20 +75,22 @@ function PopupApp(props: { currentUser: TwitterUser | null }) {
     <M.ThemeProvider theme={popupMuiTheme}>
       <SnackBarContext.Provider value={{ snack }}>
         <DialogContext.Provider value={{ openModal }}>
-          <M.AppBar position="fixed">
-            <M.Tabs value={tabIndex} onChange={(_ev, val) => setTabIndex(val)}>
-              <M.Tab label={`실행중인 세션 (${runningSessions.length})`} />
-              <M.Tab label={'새 세션'} />
-            </M.Tabs>
-          </M.AppBar>
-          <div className="page">
-            <TabPanel value={tabIndex} index={PageEnum.Sessions}>
-              <ChainBlockSessionsPage sessions={sessions} />
-            </TabPanel>
-            <TabPanel value={tabIndex} index={PageEnum.NewSession}>
-              <NewChainBlockPage currentUser={currentUser} />
-            </TabPanel>
-          </div>
+          <PageSwitchContext.Provider value={{ switchPage }}>
+            <M.AppBar position="fixed">
+              <M.Tabs value={tabIndex} onChange={(_ev, val) => setTabIndex(val)}>
+                <M.Tab label={`실행중인 세션 (${runningSessions.length})`} />
+                <M.Tab label={'새 세션'} />
+              </M.Tabs>
+            </M.AppBar>
+            <div className="page">
+              <TabPanel value={tabIndex} index={PageEnum.Sessions}>
+                <ChainBlockSessionsPage sessions={sessions} />
+              </TabPanel>
+              <TabPanel value={tabIndex} index={PageEnum.NewSession}>
+                <NewChainBlockPage currentUser={currentUser} />
+              </TabPanel>
+            </div>
+          </PageSwitchContext.Provider>
         </DialogContext.Provider>
       </SnackBarContext.Provider>
       <M.Snackbar

@@ -1,7 +1,7 @@
-import { isRunningStatus, SessionStatus } from '../../scripts/common.js'
+import { PageEnum, isRunningStatus, SessionStatus } from '../../scripts/common.js'
 import * as TextGenerate from '../../scripts/text-generate.js'
 import { cleanupSessions, stopAllChainBlock, stopChainBlock } from '../popup.js'
-import { DialogContext } from './contexts.js'
+import { DialogContext, PageSwitchContext } from './contexts.js'
 
 const M = MaterialUI
 const T = MaterialUI.Typography
@@ -182,9 +182,24 @@ function ChainBlockSessionItem(props: { session: SessionInfo }) {
   )
 }
 
+const useStylesForFabButton = MaterialUI.makeStyles(theme =>
+  MaterialUI.createStyles({
+    fab: {
+      position: 'fixed',
+      bottom: theme.spacing(5),
+      right: theme.spacing(2),
+    },
+  })
+)
+
 export default function ChainBlockSessionsPage(props: { sessions: SessionInfo[] }) {
   const { sessions } = props
   const modalContext = React.useContext(DialogContext)
+  const pageSwitchCtx = React.useContext(PageSwitchContext)
+  const classes = useStylesForFabButton()
+  function handleFabButtonClicked() {
+    pageSwitchCtx.switchPage(PageEnum.NewSession)
+  }
   function renderGlobalControls() {
     function requestStopAllChainBlock() {
       modalContext.openModal({
@@ -196,14 +211,16 @@ export default function ChainBlockSessionsPage(props: { sessions: SessionInfo[] 
       })
     }
     return (
-      <div className="controls align-to-end">
-        <button type="button" onClick={requestStopAllChainBlock}>
+      <M.ButtonGroup>
+        <M.Button onClick={requestStopAllChainBlock}>
+          <M.Icon>highlight_off</M.Icon>
           모두 정지
-        </button>
-        <button type="button" onClick={cleanupSessions}>
+        </M.Button>
+        <M.Button onClick={cleanupSessions}>
+          <M.Icon>clear_all</M.Icon>
           완료작업 지우기
-        </button>
-      </div>
+        </M.Button>
+      </M.ButtonGroup>
     )
   }
   function renderSessions() {
@@ -218,7 +235,7 @@ export default function ChainBlockSessionsPage(props: { sessions: SessionInfo[] 
   function renderEmptySessions() {
     return (
       <div className="chainblock-suggest-start">
-        현재 진행중인 세션이 없습니다. 체인블락을 실행하려면 "새 세션" 탭을 눌러주세요.
+        현재 진행중인 세션이 없습니다. 체인블락을 시작하려면 아래의 + 버튼을 눌러주세요.
       </div>
     )
   }
@@ -228,6 +245,11 @@ export default function ChainBlockSessionsPage(props: { sessions: SessionInfo[] 
       {renderGlobalControls()}
       <hr />
       {isSessionExist ? renderSessions() : renderEmptySessions()}
+      <M.Tooltip placement="left" title="세션 추가">
+        <M.Fab className={classes.fab} color="primary" onClick={handleFabButtonClicked}>
+          <M.Icon>add</M.Icon>
+        </M.Fab>
+      </M.Tooltip>
     </div>
   )
 }

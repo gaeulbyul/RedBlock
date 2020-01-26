@@ -1,13 +1,14 @@
+import { PageEnum } from '../../scripts/common.js'
 import { DialogContent } from './ui-common.js'
 
-const dialogContextValue = {
+export const PageSwitchContext = React.createContext({
+  switchPage(_tabIndex: PageEnum) {},
+})
+
+export const DialogContext = React.createContext({
   openModal(_content: DialogContent) {},
-}
+})
 
-export const DialogContext = React.createContext(dialogContextValue)
-
-const snackBarContextValue = {
+export const SnackBarContext = React.createContext({
   snack(_message: string) {},
-}
-
-export const SnackBarContext = React.createContext(snackBarContextValue)
+})
