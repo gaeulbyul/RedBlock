@@ -4,8 +4,10 @@ import { TwitterUser } from '../../scripts/background/twitter-api.js'
 import { formatNumber, TwitterUserMap } from '../../scripts/common.js'
 import * as TextGenerate from '../../scripts/text-generate.js'
 import { insertUserToStorage, removeUserFromStorage, startFollowerChainBlock } from '../popup.js'
-import { ModalContext, SnackBarContext } from './contexts.js'
+import { DialogContext, SnackBarContext } from './contexts.js'
 import { TabPanel } from './ui-common.js'
+
+const M = MaterialUI
 
 type SessionOptions = FollowerBlockSessionRequest['options']
 type SelectUserGroup = 'invalid' | 'current' | 'saved'
@@ -44,7 +46,6 @@ function TargetSavedUsers(props: {
     const userName = selectedOption.getAttribute('data-username')!
     changeUser(userName, group)
   }
-  const M = MaterialUI
   const currentUserOption = ({ screen_name, name }: TwitterUser) => (
     <optgroup label="현재 유저">
       <option value={`current/${screen_name}`} data-group="current" data-username={screen_name}>
@@ -103,7 +104,6 @@ function TargetUserProfile(props: {
   const { isAvailable, targetList, options, setTargetList, mutateOptions } = props
   const { quickMode } = options
   const biggerProfileImageUrl = user.profile_image_url_https.replace('_normal', '_bigger')
-  const M = MaterialUI
   return (
     <div className="target-user-info">
       <div className="profile-image-area">
@@ -197,7 +197,6 @@ function TargetChainBlockOptions(props: {
     ['Mute', '뮤트하기'],
     ['Block', '차단하기'],
   ]
-  const M = MaterialUI
   return (
     <React.Fragment>
       <M.FormControl component="fieldset">
@@ -242,7 +241,6 @@ function TargetUnChainBlockOptions(props: {
     ['Skip', '(맞차단인 상태로) 냅두기'],
     ['UnBlock', '차단 해제하기'],
   ]
-  const M = MaterialUI
   return (
     <React.Fragment>
       <M.FormControl component="fieldset">
@@ -276,7 +274,7 @@ async function getUserByNameWithCache(userName: string): Promise<TwitterUser> {
 
 export default function NewChainBlockPage(props: { currentUser: TwitterUser | null }) {
   const { currentUser } = props
-  const modalContext = React.useContext(ModalContext)
+  const modalContext = React.useContext(DialogContext)
   const [options, setOptions] = React.useState<SessionOptions>({
     quickMode: false,
     myFollowers: 'Skip',
@@ -330,8 +328,8 @@ export default function NewChainBlockPage(props: { currentUser: TwitterUser | nu
       options,
     }
     modalContext.openModal({
-      modalType: 'confirm',
-      message: TextGenerate.generateFollowerBlockConfirmMessageElement(request),
+      dialogType: 'confirm',
+      message: TextGenerate.generateFollowerBlockConfirmMessage(request),
       callback() {
         startFollowerChainBlock(request)
       },
@@ -348,8 +346,8 @@ export default function NewChainBlockPage(props: { currentUser: TwitterUser | nu
       options,
     }
     modalContext.openModal({
-      modalType: 'confirm',
-      message: TextGenerate.generateFollowerBlockConfirmMessageElement(request),
+      dialogType: 'confirm',
+      message: TextGenerate.generateFollowerBlockConfirmMessage(request),
       callback() {
         startFollowerChainBlock(request)
       },
@@ -370,8 +368,10 @@ export default function NewChainBlockPage(props: { currentUser: TwitterUser | nu
         selectUserGroup(group)
       } else {
         modalContext.openModal({
-          modalType: 'alert',
-          message: `사용자 @${userName}을(를) 찾을 수 없습니다.`,
+          dialogType: 'alert',
+          message: {
+            title: `사용자 @${userName}을(를) 찾을 수 없습니다.`,
+          },
         })
         setSelectedUser(null)
         selectUserGroup('invalid')
@@ -382,7 +382,6 @@ export default function NewChainBlockPage(props: { currentUser: TwitterUser | nu
   }
   const firstTab = currentUser && currentUser.following ? 1 : 0
   const [selectedTab, setSelectedTab] = React.useState(firstTab)
-  const M = MaterialUI
   return (
     <div>
       <SelectedUserContext.Provider value={selectedUser}>
@@ -416,12 +415,11 @@ export default function NewChainBlockPage(props: { currentUser: TwitterUser | nu
           </M.Paper>
           <br />
           <M.Paper>
-            <M.Paper variant="outlined">
-              <M.Tabs value={selectedTab} onChange={(_ev, val) => setSelectedTab(val)}>
-                <M.Tab value={0} label={`\u{1f6d1} 체인블락`} />
-                <M.Tab value={1} label={`\u{1f49a} 언체인블락`} />
-              </M.Tabs>
-            </M.Paper>
+            <M.Tabs value={selectedTab} onChange={(_ev, val) => setSelectedTab(val)}>
+              <M.Tab value={0} label={`\u{1f6d1} 체인블락`} />
+              <M.Tab value={1} label={`\u{1f49a} 언체인블락`} />
+            </M.Tabs>
+            <M.Divider />
             <TabPanel value={selectedTab} index={0}>
               <TargetChainBlockOptions options={options} mutateOptions={mutateOptions} />
               <div className="description">

@@ -6,6 +6,7 @@
 
 :root {
   --default-font-size: 16px;
+  --popup-width: 500px;
   --rb-background-color: white;
   --rb-text-color: black;
   --rb-alt1-color: #333;
@@ -80,7 +81,7 @@ input[type='radio'] {
   display: flex;
   flex-direction: column;
   height: 100vh;
-  width: 500px;
+  width: var(--popup-width);
   padding: 0;
   margin: 0 auto;
 }

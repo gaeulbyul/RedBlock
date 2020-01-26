@@ -1,7 +1,7 @@
 import { isRunningStatus, SessionStatus } from '../../scripts/common.js'
 import * as TextGenerate from '../../scripts/text-generate.js'
 import { cleanupSessions, stopAllChainBlock, stopChainBlock } from '../popup.js'
-import { ModalContext } from './contexts.js'
+import { DialogContext } from './contexts.js'
 
 const M = MaterialUI
 const T = MaterialUI.Typography
@@ -30,7 +30,7 @@ const useStylesForExpandButton = MaterialUI.makeStyles(() =>
 function ChainBlockSessionItem(props: { session: SessionInfo }) {
   const { session } = props
   const { purpose, target } = session.request
-  const modalContext = React.useContext(ModalContext)
+  const modalContext = React.useContext(DialogContext)
   const classes = useStylesForExpandButton()
   const [expanded, setExpanded] = React.useState(false)
   function toggleExpand() {
@@ -91,7 +91,7 @@ function ChainBlockSessionItem(props: { session: SessionInfo }) {
       if (isRunningStatus(status)) {
         const message = TextGenerate.confirmStopMessage(request)
         modalContext.openModal({
-          modalType: 'confirm',
+          dialogType: 'confirm',
           message,
           callback() {
             stopChainBlock(sessionId)
@@ -105,7 +105,7 @@ function ChainBlockSessionItem(props: { session: SessionInfo }) {
     let closeButtonTitleText = ''
     if (isRunningStatus(status)) {
       closeButtonText = '중지'
-      closeButtonTitleText = TextGenerate.stopButtonTitleMessage(request)
+      closeButtonTitleText = TextGenerate.stopButtonTooltipMessage(request)
     }
     return (
       <React.Fragment>
@@ -184,13 +184,14 @@ function ChainBlockSessionItem(props: { session: SessionInfo }) {
 
 export default function ChainBlockSessionsPage(props: { sessions: SessionInfo[] }) {
   const { sessions } = props
-  const modalContext = React.useContext(ModalContext)
+  const modalContext = React.useContext(DialogContext)
   function renderGlobalControls() {
     function requestStopAllChainBlock() {
-      const message = `실행중인 체인블락 및 언체인블락을 모두 중단하시겠습니까?`
       modalContext.openModal({
-        modalType: 'confirm',
-        message,
+        dialogType: 'confirm',
+        message: {
+          title: `실행중인 체인블락 및 언체인블락을 모두 중단하시겠습니까?`,
+        },
         callback: stopAllChainBlock,
       })
     }

@@ -101,13 +101,6 @@
   dependencies:
     "@types/react" "*"
 
-"@types/react-modal@^3.10.4":
-  version "3.10.4"
-  resolved "https://registry.yarnpkg.com/@types/react-modal/-/react-modal-3.10.4.tgz#ab85b9e1e15c52364d4cbfc32d4d4500c84d88cf"
-  integrity sha512-Sd89N8z+UAzHtbPHW+zB97UgEhIVcYhQxscX21r3pxMLpZJwvjReGmH4omKxWYPv84vF8MQNZZEw+JkX91ZUzA==
-  dependencies:
-    "@types/react" "*"
-
 "@types/react-transition-group@^4.2.0":
   version "4.2.3"
   resolved "https://registry.yarnpkg.com/@types/react-transition-group/-/react-transition-group-4.2.3.tgz#4924133f7268694058e415bf7aea2d4c21131470"

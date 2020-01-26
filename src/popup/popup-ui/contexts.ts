@@ -1,14 +1,10 @@
-export interface ModalContent {
-  message: string | JSX.Element
-  modalType: 'confirm' | 'alert'
-  callback?: () => void
+import { DialogContent } from './ui-common.js'
+
+const dialogContextValue = {
+  openModal(_content: DialogContent) {},
 }
 
-const modalContextValue = {
-  openModal(_content: ModalContent) {},
-}
-
-export const ModalContext = React.createContext(modalContextValue)
+export const DialogContext = React.createContext(dialogContextValue)
 
 const snackBarContextValue = {
   snack(_message: string) {},

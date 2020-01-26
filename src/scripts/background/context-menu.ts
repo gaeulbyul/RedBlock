@@ -34,7 +34,8 @@ async function sendFollowerChainBlockConfirm(tab: browser.tabs.Tab, userName: st
     alert(alertMessage)
     return
   }
-  const confirmMessage = TextGenerate.generateFollowerBlockConfirmMessage(request)
+  const confirmMessageObj = TextGenerate.generateFollowerBlockConfirmMessage(request)
+  const confirmMessage = TextGenerate.objToString(confirmMessageObj)
   browser.tabs.sendMessage<RBMessages.ConfirmChainBlock>(tab.id!, {
     messageType: 'ConfirmChainBlock',
     confirmMessage,
@@ -61,7 +62,8 @@ async function sendTweetReactionChainBlockConfirm(tab: browser.tabs.Tab, tweetId
     alert(alertMessage)
     return
   }
-  const confirmMessage = TextGenerate.generateTweetReactionBlockMessage(request)
+  const confirmMessageObj = TextGenerate.generateTweetReactionBlockMessage(request)
+  const confirmMessage = TextGenerate.objToString(confirmMessageObj)
   browser.tabs.sendMessage<RBMessages.ConfirmChainBlock>(tab.id!, {
     messageType: 'ConfirmChainBlock',
     confirmMessage,

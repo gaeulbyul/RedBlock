@@ -9,7 +9,6 @@ type TwitterUser = import('./background/twitter-api').TwitterUser
 declare var _: typeof import('lodash')
 declare var React: typeof import('react')
 declare var ReactDOM: typeof import('react-dom')
-declare var ReactModal: typeof import('react-modal')
 declare var MaterialUI: typeof import('@material-ui/core')
 
 declare namespace uuid {

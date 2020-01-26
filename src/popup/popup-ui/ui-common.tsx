@@ -1,42 +1,60 @@
-import { ModalContent } from './contexts.js'
+import { DialogMessageObj } from '../../scripts/text-generate.js'
 
-const modalStyle = Object.assign({}, ReactModal.defaultStyles)
-modalStyle.overlay!.backgroundColor = 'rgba(33, 33, 33, .50)'
+const M = MaterialUI
 
-export function RBModal(props: { isOpen: boolean; content: ModalContent | null; closeModal: () => void }) {
+export interface DialogContent {
+  message: DialogMessageObj
+  dialogType: 'confirm' | 'alert'
+  callback?: () => void
+}
+
+export function RBDialog(props: { isOpen: boolean; content: DialogContent | null; closeModal: () => void }) {
   const { isOpen, content, closeModal } = props
   if (!content) {
     return <div></div>
   }
-  const { message, callback, modalType } = content
+  const { message, callback, dialogType } = content
+  const { title, contentLines, warningLines } = message
   function confirmOk() {
     callback!()
     closeModal()
   }
   function renderControls() {
-    switch (modalType) {
+    switch (dialogType) {
       case 'confirm':
         return (
           <React.Fragment>
-            <button onClick={confirmOk}>네</button>
-            <button onClick={closeModal}>아니오</button>
+            <M.Button onClick={confirmOk} color="primary">
+              네
+            </M.Button>
+            <M.Button onClick={closeModal}>아니요</M.Button>
           </React.Fragment>
         )
       case 'alert':
         return (
           <React.Fragment>
-            <button onClick={closeModal}>닫기</button>
+            <M.Button onClick={closeModal} color="primary">
+              닫기
+            </M.Button>
           </React.Fragment>
         )
     }
   }
+  const { Dialog, DialogTitle, DialogContent, DialogContentText, DialogActions } = MaterialUI
   return (
-    <ReactModal isOpen={isOpen} style={modalStyle}>
-      <div className="modal-content">
-        <div className="confirm-message">{message}</div>
-        <div className="controls modal-controls">{renderControls()}</div>
-      </div>
-    </ReactModal>
+    <Dialog open={isOpen}>
+      <DialogTitle>{title}</DialogTitle>
+      <DialogContent>
+        {contentLines && contentLines.map((line, index) => <DialogContentText key={index}>{line}</DialogContentText>)}
+        {warningLines &&
+          warningLines.map((line, index) => (
+            <DialogContentText key={index} color="error">
+              {line}
+            </DialogContentText>
+          ))}
+      </DialogContent>
+      <DialogActions>{renderControls()}</DialogActions>
+    </Dialog>
   )
 }
 
