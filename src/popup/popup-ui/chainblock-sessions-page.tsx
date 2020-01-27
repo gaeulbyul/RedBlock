@@ -1,4 +1,4 @@
-import { PageEnum, isRunningStatus, SessionStatus } from '../../scripts/common.js'
+import { PageEnum, isRunningStatus, SessionStatus, getLimitResetTime } from '../../scripts/common.js'
 import * as TextGenerate from '../../scripts/text-generate.js'
 import { cleanupSessions, stopAllChainBlock, stopChainBlock } from '../popup.js'
 import { DialogContext, PageSwitchContext } from './contexts.js'
@@ -178,9 +178,11 @@ function ChainBlockSessionItem(props: { session: SessionInfo }) {
       <M.CardContent>
         {progressBar}
         <T>
-          {isChainBlock && <span>차단: {succProgress.Block.toLocaleString()}</span>}
-          {isUnchainBlock && <span>차단해제: {succProgress.UnBlock.toLocaleString()}</span>}
+          <span>상태: {statusToString(session.status)}</span>
+          {isChainBlock && <span> / 차단: {succProgress.Block.toLocaleString()}</span>}
+          {isUnchainBlock && <span> / 차단해제: {succProgress.UnBlock.toLocaleString()}</span>}
         </T>
+        {session.limit && <T color="textSecondary">예상 제한해제 시간 (±5분): {getLimitResetTime(session.limit)}</T>}
       </M.CardContent>
       <M.Divider variant="middle" />
       <M.CardActions disableSpacing>{renderControls(session)}</M.CardActions>

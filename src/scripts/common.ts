@@ -1,4 +1,4 @@
-import { Tweet, TwitterUser, TwitterUserEntities } from './background/twitter-api.js'
+import { Tweet, TwitterUser, TwitterUserEntities, Limit } from './background/twitter-api.js'
 
 export const enum PageEnum {
   Sessions = 0,
@@ -161,4 +161,15 @@ export function formatNumber(input: unknown, quick = false): string {
 export function isRunningStatus(status: SessionStatus): boolean {
   const runningStatuses = [SessionStatus.Initial, SessionStatus.Running, SessionStatus.RateLimited]
   return runningStatuses.includes(status)
+}
+
+export function getLimitResetTime(limit: Limit): string {
+  const timeZone = Intl.DateTimeFormat().resolvedOptions().timeZone
+  const formatter = new Intl.DateTimeFormat('ko-KR', {
+    timeZone,
+    hour: '2-digit',
+    minute: '2-digit',
+  })
+  const datetime = new Date(limit.reset * 1000 + 120000)
+  return formatter.format(datetime)
 }
