@@ -103,12 +103,7 @@ function TargetUserProfile(props: {
   const user = React.useContext(SelectedUserContext)!
   const { isAvailable, targetList, options, setTargetList, mutateOptions } = props
   const { quickMode } = options
-  const quickModeToFollowingsIsAvailable = targetList === 'friends' && user.friends_count > 200
-  const quickModeToFollowersIsAvailable = targetList === 'followers' && user.followers_count > 200
-  const quickModeIsAvailable =
-    isAvailable &&
-    targetList !== 'mutual-followers' &&
-    (quickModeToFollowingsIsAvailable || quickModeToFollowersIsAvailable)
+  const quickModeIsAvailable = isAvailable && targetList !== 'mutual-followers'
   const biggerProfileImageUrl = user.profile_image_url_https.replace('_normal', '_bigger')
   return (
     <div className="target-user-info">
