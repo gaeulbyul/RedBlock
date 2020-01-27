@@ -17,7 +17,9 @@ export function objToString(msg: DialogMessageObj): string {
   if (!(contentLines && warningLines)) {
     return result
   }
+  result += '\n'
   result += '-'.repeat(10)
+  result += '\n'
   if (contentLines) {
     contentLines.forEach(line => (result += `${line}\n`))
   }
