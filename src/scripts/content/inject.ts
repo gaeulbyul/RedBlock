@@ -36,7 +36,11 @@ function initializeListener() {
   const reduxStore = findReduxStore()
   document.addEventListener('RedBlock->MarkUser', event => {
     const customEvent = event as CustomEvent<MarkUserParams>
-    markUser(reduxStore, customEvent.detail)
+    const rafTimeout = { timeout: 30000 }
+    window.requestAnimationFrame(() => {
+      markUser(reduxStore, customEvent.detail)
+      // @ts-ignore
+    }, rafTimeout)
   })
   console.debug('[RedBlock] page script: injected!')
 }
