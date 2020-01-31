@@ -8,11 +8,48 @@ import { DialogContext, SnackBarContext } from './contexts.js'
 import { TabPanel } from './ui-common.js'
 
 const M = MaterialUI
+const T = MaterialUI.Typography
 
 type SessionOptions = FollowerBlockSessionRequest['options']
 type SelectUserGroup = 'invalid' | 'current' | 'saved'
 
-const SelectedUserContext = React.createContext<TwitterUser | null>(null)
+const useStylesForExpansionPanels = MaterialUI.makeStyles(() =>
+  MaterialUI.createStyles({
+    details: {
+      padding: '8px 16px 16px',
+    },
+  })
+)
+
+// const SelectedUserContext = React.createContext<TwitterUser | null>(null)
+const TargetUserContext = React.createContext<{
+  currentUser: TwitterUser | null
+  selectedUser: TwitterUser | null
+  setSelectedUser: (maybeUser: TwitterUser | null) => void
+  targetList: FollowKind
+  setTargetList: (fk: FollowKind) => void
+  targetOptions: SessionOptions
+  setTargetOptions: (options: SessionOptions) => void
+  mutateOptions: (optionsPart: Partial<SessionOptions>) => void
+  selectedMode: ChainKind
+  setSelectedMode: (ck: ChainKind) => void
+}>({
+  currentUser: null,
+  selectedUser: null,
+  setSelectedUser: () => {},
+  targetList: 'followers',
+  setTargetList: () => {},
+  targetOptions: {
+    quickMode: false,
+    myFollowers: 'Skip',
+    myFollowings: 'Skip',
+    mutualBlocked: 'Skip',
+  },
+  setTargetOptions: () => {},
+  mutateOptions: () => {},
+  selectedMode: 'chainblock',
+  setSelectedMode: () => {},
+})
 
 function TargetSavedUsers(props: {
   currentUser: TwitterUser | null
@@ -22,7 +59,7 @@ function TargetSavedUsers(props: {
 }) {
   const { currentUser, selectedUserGroup, savedUsers, changeUser } = props
   const snackBarCtx = React.useContext(SnackBarContext)
-  const selectedUser = React.useContext(SelectedUserContext)
+  const { selectedUser } = React.useContext(TargetUserContext)
   async function insertUser() {
     if (selectedUser) {
       insertUserToStorage(selectedUser)
@@ -55,24 +92,30 @@ function TargetSavedUsers(props: {
   )
   return (
     <div>
-      <M.Select
-        native
-        fullWidth={true}
-        value={selectedUser ? `${selectedUserGroup}/${selectedUser.screen_name}` : 'invalid/???'}
-        onChange={({ target }) => selectUserFromOption(target)}
-      >
-        <option value="invalid/???" data-group="invalid" data-username="???">
-          체인블락을 실행할 사용자를 선택해주세요.
-        </option>
-        {currentUser && currentUserOption(currentUser)}
-        <optgroup label="저장한 유저">
-          {sortedByName(savedUsers).map(({ screen_name, name }, index) => (
-            <option key={index} value={'saved/' + screen_name} data-group="saved" data-username={screen_name}>
-              @{screen_name} &lt;{name}&gt;
-            </option>
-          ))}
-        </optgroup>
-      </M.Select>
+      <M.FormControl>
+        <M.InputLabel shrink htmlFor="target-user-select">
+          사용자 선택:
+        </M.InputLabel>
+        <M.Select
+          native
+          id="target-user-select"
+          fullWidth={true}
+          value={selectedUser ? `${selectedUserGroup}/${selectedUser.screen_name}` : 'invalid/???'}
+          onChange={({ target }) => selectUserFromOption(target)}
+        >
+          <option value="invalid/???" data-group="invalid" data-username="???">
+            체인블락을 실행할 사용자를 선택해주세요.
+          </option>
+          {currentUser && currentUserOption(currentUser)}
+          <optgroup label="저장한 유저">
+            {sortedByName(savedUsers).map(({ screen_name, name }, index) => (
+              <option key={index} value={'saved/' + screen_name} data-group="saved" data-username={screen_name}>
+                @{screen_name} &lt;{name}&gt;
+              </option>
+            ))}
+          </optgroup>
+        </M.Select>
+      </M.FormControl>
       {selectedUser && (
         <M.Box margin="10px 0" display="flex" flexDirection="row-reverse">
           <M.ButtonGroup>
@@ -93,16 +136,12 @@ function TargetSavedUsers(props: {
   )
 }
 
-function TargetUserProfile(props: {
-  isAvailable: boolean
-  targetList: FollowKind
-  options: FollowerBlockSessionRequest['options']
-  setTargetList: (fk: FollowKind) => void
-  mutateOptions: (part: Partial<SessionOptions>) => void
-}) {
-  const user = React.useContext(SelectedUserContext)!
-  const { isAvailable, targetList, options, setTargetList, mutateOptions } = props
-  const { quickMode } = options
+function TargetUserProfile(props: { isAvailable: boolean }) {
+  const { isAvailable } = props
+  const { selectedUser, targetList, setTargetList, targetOptions, mutateOptions } = React.useContext(TargetUserContext)
+  // selectedUser가 null일 땐 이 컴포넌트를 렌더링하지 않으므로
+  const user = selectedUser!
+  const { quickMode } = targetOptions
   const quickModeIsAvailable = isAvailable && targetList !== 'mutual-followers'
   const biggerProfileImageUrl = user.profile_image_url_https.replace('_normal', '_bigger')
   return (
@@ -155,7 +194,7 @@ function TargetUserProfile(props: {
               onChange={() => setTargetList('mutual-followers')}
               disabled={!isAvailable}
               checked={targetList === 'mutual-followers'}
-              label="맞팔로우만"
+              label="맞팔로워만"
               title={`@${user.screen_name}이(가) 맞팔로우한 사용자만 골라서 차단합니다.`}
             />
           </M.RadioGroup>
@@ -174,25 +213,25 @@ function TargetUserProfile(props: {
   )
 }
 
+const useStylesForCircularProgress = MaterialUI.makeStyles(() =>
+  MaterialUI.createStyles({
+    center: {
+      margin: '10px auto',
+    },
+  })
+)
 function TargetUserProfileEmpty(props: { reason: 'invalid-user' | 'loading' }) {
+  const classes = useStylesForCircularProgress()
   let message = ''
-  switch (props.reason) {
-    case 'invalid-user':
-      message = '사용자를 선택해주세요.'
-      break
-    case 'loading':
-      message = '로딩 중...'
-      break
+  if (props.reason === 'loading') {
+    return <M.CircularProgress className={classes.center} color="secondary" />
   }
   return <div>{message}</div>
 }
 
-function TargetChainBlockOptions(props: {
-  options: SessionOptions
-  mutateOptions: (part: Partial<SessionOptions>) => void
-}) {
-  const { options, mutateOptions } = props
-  const { myFollowers, myFollowings } = options
+function TargetChainBlockOptionsUI() {
+  const { targetOptions, mutateOptions } = React.useContext(TargetUserContext)
+  const { myFollowers, myFollowings } = targetOptions
   const verbs: Array<[Verb, string]> = [
     ['Skip', '냅두기'],
     ['Mute', '뮤트하기'],
@@ -232,12 +271,149 @@ function TargetChainBlockOptions(props: {
   )
 }
 
-function TargetUnChainBlockOptions(props: {
-  options: SessionOptions
-  mutateOptions: (part: Partial<SessionOptions>) => void
-}) {
-  const { options, mutateOptions } = props
-  const { mutualBlocked } = options
+function TargetUserSelectUI(props: { isAvailable: boolean }) {
+  const { isAvailable } = props
+  const { currentUser, targetList, selectedUser, setSelectedUser } = React.useContext(TargetUserContext)
+  const { openModal } = React.useContext(DialogContext)
+  const [savedUsers, setSavedUsers] = React.useState(new TwitterUserMap())
+  const [selectedUserGroup, selectUserGroup] = React.useState<SelectUserGroup>('current')
+  const [isLoading, setLoadingState] = React.useState(false)
+  async function changeUser(userName: string, group: SelectUserGroup) {
+    const validUserNamePattern = /^[0-9a-z_]{1,15}$/i
+    if (!validUserNamePattern.test(userName)) {
+      setSelectedUser(null)
+      selectUserGroup('invalid')
+      return
+    }
+    try {
+      setLoadingState(true)
+      const newUser = await getUserByNameWithCache(userName).catch(() => null)
+      if (newUser) {
+        setSelectedUser(newUser)
+        selectUserGroup(group)
+      } else {
+        openModal({
+          dialogType: 'alert',
+          message: {
+            title: `사용자 @${userName}을(를) 찾을 수 없습니다.`,
+          },
+        })
+        setSelectedUser(null)
+        selectUserGroup('invalid')
+      }
+    } finally {
+      setLoadingState(false)
+    }
+  }
+  React.useEffect(() => {
+    async function loadUsers() {
+      const users = await Storage.loadUsers()
+      setSavedUsers(users)
+      return users
+    }
+    loadUsers()
+    return Storage.onSavedUsersChanged(async users => {
+      await loadUsers()
+      if (!(selectedUser && users.has(selectedUser.id_str))) {
+        setSelectedUser(currentUser)
+        selectUserGroup('current')
+      }
+    })
+  }, [])
+  const classes = useStylesForExpansionPanels()
+  let targetSummary = ''
+  if (selectedUser) {
+    targetSummary += '('
+    targetSummary += `@${selectedUser.screen_name} `
+    switch (targetList) {
+      case 'followers':
+        targetSummary += '팔로워'
+        break
+      case 'friends':
+        targetSummary += '팔로잉'
+        break
+      case 'mutual-followers':
+        targetSummary += '맞팔로워'
+        break
+    }
+    targetSummary += ')'
+  }
+  return (
+    <M.ExpansionPanel defaultExpanded={true}>
+      <M.ExpansionPanelSummary expandIcon={<M.Icon>expand_more</M.Icon>}>
+        <T>차단 대상 {targetSummary}</T>
+      </M.ExpansionPanelSummary>
+      <M.ExpansionPanelDetails className={classes.details}>
+        <div>
+          <M.FormControl component="fieldset" fullWidth={true}>
+            <TargetSavedUsers
+              currentUser={currentUser}
+              selectedUserGroup={selectedUserGroup}
+              savedUsers={savedUsers}
+              changeUser={changeUser}
+            />
+            <M.Divider />
+            {isLoading ? (
+              <TargetUserProfileEmpty reason="loading" />
+            ) : selectedUser ? (
+              <TargetUserProfile isAvailable={isAvailable} />
+            ) : (
+              <TargetUserProfileEmpty reason="invalid-user" />
+            )}
+          </M.FormControl>
+        </div>
+      </M.ExpansionPanelDetails>
+    </M.ExpansionPanel>
+  )
+}
+
+function TargetOptionsUI() {
+  const { selectedMode, setSelectedMode } = React.useContext(TargetUserContext)
+  const classes = useStylesForExpansionPanels()
+  let modeKor = ''
+  switch (selectedMode) {
+    case 'chainblock':
+      modeKor = '체인블락'
+      break
+    case 'unchainblock':
+      modeKor = '언체인블락'
+      break
+  }
+  return (
+    <M.ExpansionPanel defaultExpanded={true}>
+      <M.ExpansionPanelSummary expandIcon={<M.Icon>expand_more</M.Icon>}>
+        <T>차단 옵션 ({modeKor})</T>
+      </M.ExpansionPanelSummary>
+      <M.ExpansionPanelDetails className={classes.details}>
+        <div>
+          <M.Tabs value={selectedMode} onChange={(_ev, val) => setSelectedMode(val)}>
+            <M.Tab value={'chainblock'} label={`\u{1f6d1} 체인블락`} />
+            <M.Tab value={'unchainblock'} label={`\u{1f49a} 언체인블락`} />
+          </M.Tabs>
+          <M.Divider />
+          <TabPanel value={selectedMode} index={'chainblock'}>
+            <TargetChainBlockOptionsUI />
+            <div className="description">
+              위 조건에 해당하지 않는 나머지 사용자를 모두 <mark>차단</mark>합니다. (단, <b>나와 맞팔로우</b>인 사용자는
+              위 옵션과 무관하게 <b>뮤트나 차단하지 않습니다</b>.)
+            </div>
+          </TabPanel>
+          <TabPanel value={selectedMode} index={'unchainblock'}>
+            <TargetUnChainBlockOptionsUI />
+            <div className="description">
+              위 조건에 해당하지 않는 나머지 사용자를 모두 <mark>차단 해제</mark>합니다.
+            </div>
+          </TabPanel>
+        </div>
+      </M.ExpansionPanelDetails>
+    </M.ExpansionPanel>
+  )
+}
+
+function TargetUnChainBlockOptionsUI() {
+  // const { options, mutateOptions } = props
+  const { targetOptions, mutateOptions } = React.useContext(TargetUserContext)
+  const { mutualBlocked } = targetOptions
   const verbs: Array<[Verb, string]> = [
     ['Skip', '(맞차단인 상태로) 냅두기'],
     ['UnBlock', '차단 해제하기'],
@@ -259,6 +435,62 @@ function TargetUnChainBlockOptions(props: {
         </M.RadioGroup>
       </M.FormControl>
     </React.Fragment>
+  )
+}
+
+function TargetExecutionButtonUI(props: { isAvailable: boolean }) {
+  const { isAvailable } = props
+  const { selectedMode, selectedUser, targetList, targetOptions } = React.useContext(TargetUserContext)
+  const { openModal } = React.useContext(DialogContext)
+  function onExecuteChainBlockButtonClicked() {
+    const request: FollowerBlockSessionRequest = {
+      purpose: 'chainblock',
+      target: {
+        type: 'follower',
+        user: selectedUser!,
+        list: targetList,
+      },
+      options: targetOptions,
+    }
+    openModal({
+      dialogType: 'confirm',
+      message: TextGenerate.generateFollowerBlockConfirmMessage(request),
+      callback() {
+        startFollowerChainBlock(request)
+      },
+    })
+  }
+  function onExecuteUnChainBlockButtonClicked() {
+    const request: FollowerBlockSessionRequest = {
+      purpose: 'unchainblock',
+      target: {
+        type: 'follower',
+        user: selectedUser!,
+        list: targetList,
+      },
+      options: targetOptions,
+    }
+    openModal({
+      dialogType: 'confirm',
+      message: TextGenerate.generateFollowerBlockConfirmMessage(request),
+      callback() {
+        startFollowerChainBlock(request)
+      },
+    })
+  }
+  return (
+    <M.Box padding="10px">
+      {selectedMode === 'chainblock' && (
+        <BigExecuteChainBlockButton disabled={!isAvailable} onClick={onExecuteChainBlockButtonClicked}>
+          <span>{'\u{1f6d1}'} 체인블락 실행</span>
+        </BigExecuteChainBlockButton>
+      )}
+      {selectedMode === 'unchainblock' && (
+        <BigExecuteUnChainBlockButton disabled={!isAvailable} onClick={onExecuteUnChainBlockButtonClicked}>
+          <span>{'\u{1f49a}'} 언체인블락 실행</span>
+        </BigExecuteUnChainBlockButton>
+      )}
+    </M.Box>
   )
 }
 
@@ -302,18 +534,20 @@ const BigExecuteUnChainBlockButton = MaterialUI.withStyles(theme => ({
 
 export default function NewChainBlockPage(props: { currentUser: TwitterUser | null }) {
   const { currentUser } = props
-  const modalContext = React.useContext(DialogContext)
-  const [options, setOptions] = React.useState<SessionOptions>({
+  const [targetOptions, setTargetOptions] = React.useState<SessionOptions>({
     quickMode: false,
     myFollowers: 'Skip',
     myFollowings: 'Skip',
     mutualBlocked: 'Skip',
   })
   const [selectedUser, setSelectedUser] = React.useState<TwitterUser | null>(currentUser)
-  const [savedUsers, setSavedUsers] = React.useState(new TwitterUserMap())
-  const [selectedUserGroup, selectUserGroup] = React.useState<SelectUserGroup>('current')
-  const [isLoading, setLoadingState] = React.useState(false)
   const [targetList, setTargetList] = React.useState<FollowKind>('followers')
+  const firstMode = selectedUser && selectedUser.following ? 'unchainblock' : 'chainblock'
+  const [selectedMode, setSelectedMode] = React.useState<ChainKind>(firstMode)
+  function mutateOptions(newOptionsPart: Partial<SessionOptions>) {
+    const newOptions = { ...targetOptions, ...newOptionsPart }
+    setTargetOptions(newOptions)
+  }
   const isAvailable = React.useMemo((): boolean => {
     if (!selectedUser) {
       return false
@@ -326,154 +560,28 @@ export default function NewChainBlockPage(props: { currentUser: TwitterUser | nu
     }
     return true
   }, [selectedUser])
-  React.useEffect(() => {
-    async function loadUsers() {
-      const users = await Storage.loadUsers()
-      setSavedUsers(users)
-      return users
-    }
-    loadUsers()
-    return Storage.onSavedUsersChanged(async users => {
-      await loadUsers()
-      if (!(selectedUser && users.has(selectedUser.id_str))) {
-        setSelectedUser(currentUser)
-        selectUserGroup('current')
-      }
-    })
-  }, [])
-  function mutateOptions(newOptionsPart: Partial<SessionOptions>) {
-    const newOptions = { ...options, ...newOptionsPart }
-    setOptions(newOptions)
-  }
-  function onExecuteChainBlockButtonClicked() {
-    const request: FollowerBlockSessionRequest = {
-      purpose: 'chainblock',
-      target: {
-        type: 'follower',
-        user: selectedUser!,
-        list: targetList,
-      },
-      options,
-    }
-    modalContext.openModal({
-      dialogType: 'confirm',
-      message: TextGenerate.generateFollowerBlockConfirmMessage(request),
-      callback() {
-        startFollowerChainBlock(request)
-      },
-    })
-  }
-  function onExecuteUnChainBlockButtonClicked() {
-    const request: FollowerBlockSessionRequest = {
-      purpose: 'unchainblock',
-      target: {
-        type: 'follower',
-        user: selectedUser!,
-        list: targetList,
-      },
-      options,
-    }
-    modalContext.openModal({
-      dialogType: 'confirm',
-      message: TextGenerate.generateFollowerBlockConfirmMessage(request),
-      callback() {
-        startFollowerChainBlock(request)
-      },
-    })
-  }
-  async function changeUser(userName: string, group: SelectUserGroup) {
-    const validUserNamePattern = /^[0-9a-z_]{1,15}$/i
-    if (!validUserNamePattern.test(userName)) {
-      setSelectedUser(null)
-      selectUserGroup('invalid')
-      return
-    }
-    try {
-      setLoadingState(true)
-      const newUser = await getUserByNameWithCache(userName).catch(() => null)
-      if (newUser) {
-        setSelectedUser(newUser)
-        selectUserGroup(group)
-      } else {
-        modalContext.openModal({
-          dialogType: 'alert',
-          message: {
-            title: `사용자 @${userName}을(를) 찾을 수 없습니다.`,
-          },
-        })
-        setSelectedUser(null)
-        selectUserGroup('invalid')
-      }
-    } finally {
-      setLoadingState(false)
-    }
-  }
-  const firstTab = currentUser && currentUser.following ? 1 : 0
-  const [selectedTab, setSelectedTab] = React.useState(firstTab)
   return (
     <div>
-      <SelectedUserContext.Provider value={selectedUser}>
+      <TargetUserContext.Provider
+        value={{
+          currentUser,
+          selectedUser,
+          setSelectedUser,
+          targetList,
+          setTargetList,
+          targetOptions,
+          setTargetOptions,
+          mutateOptions,
+          selectedMode,
+          setSelectedMode,
+        }}
+      >
         <div className="chainblock-target">
-          <M.Paper>
-            <M.Box padding="10px">
-              <M.FormControl component="fieldset" fullWidth={true}>
-                <M.FormLabel component="legend">차단 대상</M.FormLabel>
-                <TargetSavedUsers
-                  currentUser={currentUser}
-                  selectedUserGroup={selectedUserGroup}
-                  savedUsers={savedUsers}
-                  changeUser={changeUser}
-                />
-              </M.FormControl>
-              <M.Divider />
-              {isLoading ? (
-                <TargetUserProfileEmpty reason="loading" />
-              ) : selectedUser ? (
-                <TargetUserProfile
-                  options={options}
-                  mutateOptions={mutateOptions}
-                  targetList={targetList}
-                  setTargetList={setTargetList}
-                  isAvailable={isAvailable}
-                />
-              ) : (
-                <TargetUserProfileEmpty reason="invalid-user" />
-              )}
-            </M.Box>
-          </M.Paper>
-          <br />
-          <M.Paper>
-            <M.Tabs value={selectedTab} onChange={(_ev, val) => setSelectedTab(val)}>
-              <M.Tab value={0} label={`\u{1f6d1} 체인블락`} />
-              <M.Tab value={1} label={`\u{1f49a} 언체인블락`} />
-            </M.Tabs>
-            <M.Divider />
-            <TabPanel value={selectedTab} index={0}>
-              <TargetChainBlockOptions options={options} mutateOptions={mutateOptions} />
-              <div className="description">
-                위 조건에 해당하지 않는 나머지 사용자를 모두 <mark>차단</mark>합니다. (단, <b>나와 맞팔로우</b>인
-                사용자는 위 옵션과 무관하게 <b>뮤트나 차단하지 않습니다</b>.)
-              </div>
-              <div className="menu">
-                <BigExecuteChainBlockButton disabled={!isAvailable} onClick={onExecuteChainBlockButtonClicked}>
-                  <span>{'\u{1f6d1}'} 체인블락 실행</span>
-                </BigExecuteChainBlockButton>
-              </div>
-            </TabPanel>
-            <TabPanel value={selectedTab} index={1}>
-              <TargetUnChainBlockOptions options={options} mutateOptions={mutateOptions} />
-              <div className="description">
-                위 조건에 해당하지 않는 나머지 사용자를 모두 <mark>차단 해제</mark>합니다.
-              </div>
-              <div className="menu">
-                <BigExecuteUnChainBlockButton disabled={!isAvailable} onClick={onExecuteUnChainBlockButtonClicked}>
-                  <span>{'\u{1f49a}'} 언체인블락 실행</span>
-                </BigExecuteUnChainBlockButton>
-              </div>
-            </TabPanel>
-          </M.Paper>
+          <TargetUserSelectUI isAvailable={isAvailable} />
+          <TargetOptionsUI />
+          <TargetExecutionButtonUI isAvailable={isAvailable} />
         </div>
-      </SelectedUserContext.Provider>
+      </TargetUserContext.Provider>
     </div>
   )
 }
