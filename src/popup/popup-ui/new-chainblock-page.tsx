@@ -3,9 +3,9 @@ import * as TwitterAPI from '../../scripts/background/twitter-api.js'
 import { TwitterUser } from '../../scripts/background/twitter-api.js'
 import { formatNumber, TwitterUserMap } from '../../scripts/common.js'
 import * as TextGenerate from '../../scripts/text-generate.js'
-import { insertUserToStorage, removeUserFromStorage, startFollowerChainBlock } from '../popup.js'
-import { DialogContext, SnackBarContext } from './contexts.js'
-import { TabPanel } from './ui-common.js'
+import { insertUserToStorage, removeUserFromStorage, startFollowerChainBlock } from '../../ui-common/message-sender.js'
+import { DialogContext, SnackBarContext } from '../../ui-common/contexts.js'
+import { TabPanel } from '../../ui-common/ui-common.js'
 
 const M = MaterialUI
 const T = MaterialUI.Typography
@@ -91,15 +91,15 @@ function TargetSavedUsers(props: {
     </optgroup>
   )
   return (
-    <div>
-      <M.FormControl>
+    <div style={{ width: '100%' }}>
+      <M.FormControl fullWidth>
         <M.InputLabel shrink htmlFor="target-user-select">
           사용자 선택:
         </M.InputLabel>
         <M.Select
           native
+          fullWidth
           id="target-user-select"
-          fullWidth={true}
           value={selectedUser ? `${selectedUserGroup}/${selectedUser.screen_name}` : 'invalid/???'}
           onChange={({ target }) => selectUserFromOption(target)}
         >
@@ -229,48 +229,6 @@ function TargetUserProfileEmpty(props: { reason: 'invalid-user' | 'loading' }) {
   return <div>{message}</div>
 }
 
-function TargetChainBlockOptionsUI() {
-  const { targetOptions, mutateOptions } = React.useContext(TargetUserContext)
-  const { myFollowers, myFollowings } = targetOptions
-  const verbs: Array<[Verb, string]> = [
-    ['Skip', '냅두기'],
-    ['Mute', '뮤트하기'],
-    ['Block', '차단하기'],
-  ]
-  return (
-    <React.Fragment>
-      <M.FormControl component="fieldset">
-        <M.FormLabel component="legend">내 팔로워</M.FormLabel>
-        <M.RadioGroup row={true}>
-          {verbs.map(([verb, vKor], index) => (
-            <M.FormControlLabel
-              key={index}
-              control={<M.Radio size="small" />}
-              checked={myFollowers === verb}
-              onChange={() => mutateOptions({ myFollowers: verb })}
-              label={vKor}
-            />
-          ))}
-        </M.RadioGroup>
-      </M.FormControl>
-      <M.FormControl component="fieldset">
-        <M.FormLabel component="legend">내 팔로잉</M.FormLabel>
-        <M.RadioGroup row={true}>
-          {verbs.map(([verb, vKor], index) => (
-            <M.FormControlLabel
-              key={index}
-              control={<M.Radio size="small" />}
-              checked={myFollowings === verb}
-              onChange={() => mutateOptions({ myFollowings: verb })}
-              label={vKor}
-            />
-          ))}
-        </M.RadioGroup>
-      </M.FormControl>
-    </React.Fragment>
-  )
-}
-
 function TargetUserSelectUI(props: { isAvailable: boolean }) {
   const { isAvailable } = props
   const { currentUser, targetList, selectedUser, setSelectedUser } = React.useContext(TargetUserContext)
@@ -344,7 +302,7 @@ function TargetUserSelectUI(props: { isAvailable: boolean }) {
         <T>차단 대상 {targetSummary}</T>
       </M.ExpansionPanelSummary>
       <M.ExpansionPanelDetails className={classes.details}>
-        <div>
+        <div style={{ width: '100%' }}>
           <M.FormControl component="fieldset" fullWidth={true}>
             <TargetSavedUsers
               currentUser={currentUser}
@@ -385,7 +343,7 @@ function TargetOptionsUI() {
         <T>차단 옵션 ({modeKor})</T>
       </M.ExpansionPanelSummary>
       <M.ExpansionPanelDetails className={classes.details}>
-        <div>
+        <div style={{ width: '100%' }}>
           <M.Tabs value={selectedMode} onChange={(_ev, val) => setSelectedMode(val)}>
             <M.Tab value={'chainblock'} label={`\u{1f6d1} 체인블락`} />
             <M.Tab value={'unchainblock'} label={`\u{1f49a} 언체인블락`} />
@@ -407,6 +365,47 @@ function TargetOptionsUI() {
         </div>
       </M.ExpansionPanelDetails>
     </M.ExpansionPanel>
+  )
+}
+function TargetChainBlockOptionsUI() {
+  const { targetOptions, mutateOptions } = React.useContext(TargetUserContext)
+  const { myFollowers, myFollowings } = targetOptions
+  const verbs: Array<[Verb, string]> = [
+    ['Skip', '냅두기'],
+    ['Mute', '뮤트하기'],
+    ['Block', '차단하기'],
+  ]
+  return (
+    <React.Fragment>
+      <M.FormControl component="fieldset">
+        <M.FormLabel component="legend">내 팔로워</M.FormLabel>
+        <M.RadioGroup row={true}>
+          {verbs.map(([verb, vKor], index) => (
+            <M.FormControlLabel
+              key={index}
+              control={<M.Radio size="small" />}
+              checked={myFollowers === verb}
+              onChange={() => mutateOptions({ myFollowers: verb })}
+              label={vKor}
+            />
+          ))}
+        </M.RadioGroup>
+      </M.FormControl>
+      <M.FormControl component="fieldset">
+        <M.FormLabel component="legend">내 팔로잉</M.FormLabel>
+        <M.RadioGroup row={true}>
+          {verbs.map(([verb, vKor], index) => (
+            <M.FormControlLabel
+              key={index}
+              control={<M.Radio size="small" />}
+              checked={myFollowings === verb}
+              onChange={() => mutateOptions({ myFollowings: verb })}
+              label={vKor}
+            />
+          ))}
+        </M.RadioGroup>
+      </M.FormControl>
+    </React.Fragment>
   )
 }
 
@@ -532,7 +531,7 @@ const BigExecuteUnChainBlockButton = MaterialUI.withStyles(theme => ({
   },
 }))(MaterialUI.Button)
 
-export default function NewChainBlockPage(props: { currentUser: TwitterUser | null }) {
+export default function NewChainBlockPopupPage(props: { currentUser: TwitterUser | null }) {
   const { currentUser } = props
   const [targetOptions, setTargetOptions] = React.useState<SessionOptions>({
     quickMode: false,

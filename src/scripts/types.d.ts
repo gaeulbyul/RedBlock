@@ -1,4 +1,4 @@
-type PageEnum = typeof import('./common').PageEnum
+type PageEnum = typeof import('../popup/popup-ui/popup-ui-common').PageEnum
 type SessionInfo = import('./background/chainblock-session/session').SessionInfo
 type SessionRequest = import('./background/chainblock-session/session').SessionRequest
 type FollowerBlockSessionRequest = import('./background/chainblock-session/session').FollowerBlockSessionRequest

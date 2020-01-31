@@ -1,4 +1,4 @@
-import { PageEnum } from '../../scripts/common.js'
+import { PageEnum } from '../popup/popup-ui/popup-ui-common.js'
 import { DialogContent } from './ui-common.js'
 
 export const PageSwitchContext = React.createContext({
