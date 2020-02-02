@@ -22,8 +22,8 @@ const useStylesForAppBar = MaterialUI.makeStyles(() =>
   })
 )
 
-function PopupApp(props: { currentUser: TwitterUser | null }) {
-  const { currentUser } = props
+function PopupApp(props: { currentUser: TwitterUser | null; popupAsTab: boolean }) {
+  const { currentUser, popupAsTab } = props
   const [tabIndex, setTabIndex] = React.useState<PageEnum>(PageEnum.Sessions)
   const [sessions, setSessions] = React.useState<SessionInfo[]>([])
   const [modalOpened, setModalOpened] = React.useState(false)
@@ -72,18 +72,30 @@ function PopupApp(props: { currentUser: TwitterUser | null }) {
   }
   React.useEffect(() => {
     const messageListener = (msgobj: any) => {
-      if (!(typeof msgobj === 'object' && 'messageType' in msgobj)) {
-        console.debug('unknown msg?', msgobj)
+      if (typeof msgobj !== 'object') {
         return
       }
-      const msg = msgobj as RBMessage
-      switch (msg.messageType) {
-        case 'ChainBlockInfo':
-          setSessions(msg.infos)
-          break
-        case 'PopupSwitchTab':
-          setTabIndex(msg.page)
-          break
+      if ('messageType' in msgobj) {
+        const msg = msgobj as RBMessage
+        switch (msg.messageType) {
+          case 'ChainBlockInfo':
+            setSessions(msg.infos)
+            break
+          case 'PopupSwitchTab':
+            setTabIndex(msg.page)
+            break
+          default:
+            console.debug('unknown message', msgobj)
+            break
+        }
+        return
+      } else if ('actionType' in msgobj) {
+        // reach here if popup opened as tab
+        // silently ignore
+        return
+      } else {
+        console.debug('unknown message', msgobj)
+        return
       }
     }
     browser.runtime.onMessage.addListener(messageListener)
@@ -115,9 +127,11 @@ function PopupApp(props: { currentUser: TwitterUser | null }) {
               </M.Toolbar>
             </M.AppBar>
             <M.Menu keepMounted anchorEl={menuAnchorEl} open={Boolean(menuAnchorEl)} onClose={closeMenu}>
-              <M.MenuItem onClick={handleOpenInTabClick}>
-                <M.Icon>open_in_new</M.Icon> 새 탭에서 열기
-              </M.MenuItem>
+              {!popupAsTab && (
+                <M.MenuItem onClick={handleOpenInTabClick}>
+                  <M.Icon>open_in_new</M.Icon> 새 탭에서 열기
+                </M.MenuItem>
+              )}
               <M.MenuItem onClick={handleSettingsClick}>
                 <M.Icon>settings</M.Icon> 옵션
               </M.MenuItem>
@@ -158,34 +172,16 @@ function PopupApp(props: { currentUser: TwitterUser | null }) {
 function showVersionOnFooter() {
   const manifest = browser.runtime.getManifest()
   const footer = document.querySelector('footer.info')!
-  footer.textContent = `${manifest.name} v${manifest.version} /`
-  const gotoOptionsButton = document.createElement('button')
-  gotoOptionsButton.onclick = event => {
-    event.preventDefault()
-    browser.runtime.openOptionsPage()
-  }
-  Object.assign(gotoOptionsButton, {
-    type: 'button',
-    textContent: '설정...',
-  })
-  Object.assign(gotoOptionsButton.style, {
-    cursor: 'pointer',
-    margin: '0 5px',
-    border: '0',
-    backgroundColor: 'inherit',
-    color: 'red',
-    fontSize: '12px',
-    textDecoration: 'underline',
-  })
-  footer.appendChild(gotoOptionsButton)
+  footer.textContent = `${manifest.name} v${manifest.version}`
 }
 
 export async function initializeUI() {
   const tab = await getCurrentTab()
+  const isPopupOpenedAsTab = /\bistab=1\b/.test(location.search)
   const userName = tab ? getUserNameFromTab(tab) : null
   const appRoot = document.getElementById('app')!
   const targetUser = await (userName ? TwitterAPI.getSingleUserByName(userName) : null)
-  const app = <PopupApp currentUser={targetUser} />
+  const app = <PopupApp currentUser={targetUser} popupAsTab={isPopupOpenedAsTab} />
   ReactDOM.render(app, appRoot)
   showVersionOnFooter()
 }

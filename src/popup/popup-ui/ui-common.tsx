@@ -71,7 +71,7 @@ export function TabPanel(props: { children?: React.ReactNode; index: any; value:
       aria-labelledby={`simple-tab-${index}`}
       {...other}
     >
-      {value === index && <M.Box p={3}>{children}</M.Box>}
+      {value === index && <M.Box p={1}>{children}</M.Box>}
     </M.Typography>
   )
 }

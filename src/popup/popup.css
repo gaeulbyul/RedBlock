@@ -138,12 +138,13 @@ input[type='radio'] {
 
 .description {
   margin: 5px 0;
-  padding: 10px 15px;
+  padding: 5px 10px;
   word-break: keep-all;
   border-radius: 5px;
   line-height: 150%;
   background-color: aliceblue;
   color: navy;
+  font-size: 14px;
 }
 
 .description mark {

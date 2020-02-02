@@ -16,10 +16,25 @@ type SelectUserGroup = 'invalid' | 'current' | 'saved'
 const useStylesForExpansionPanels = MaterialUI.makeStyles(() =>
   MaterialUI.createStyles({
     details: {
-      padding: '8px 16px 16px',
+      padding: '8px 16px',
     },
   })
 )
+
+const DenseExpansionPanelSummary = MaterialUI.withStyles({
+  root: {
+    minHeight: 16,
+    '&$expanded': {
+      minHeight: 16,
+    },
+  },
+  content: {
+    '&$expanded': {
+      margin: 0,
+    },
+  },
+  expanded: {},
+})(MaterialUI.ExpansionPanelSummary)
 
 // const SelectedUserContext = React.createContext<TwitterUser | null>(null)
 const TargetUserContext = React.createContext<{
@@ -92,14 +107,14 @@ function TargetSavedUsers(props: {
   )
   return (
     <div style={{ width: '100%' }}>
-      <M.FormControl>
+      <M.FormControl fullWidth>
         <M.InputLabel shrink htmlFor="target-user-select">
           사용자 선택:
         </M.InputLabel>
         <M.Select
           native
           id="target-user-select"
-          fullWidth={true}
+          fullWidth
           value={selectedUser ? `${selectedUserGroup}/${selectedUser.screen_name}` : 'invalid/???'}
           onChange={({ target }) => selectUserFromOption(target)}
         >
@@ -172,9 +187,9 @@ function TargetUserProfile(props: { isAvailable: boolean }) {
           </div>
         )}
         <div className="profile-right-targetlist">
-          <M.RadioGroup row={true}>
+          <M.RadioGroup row>
             <M.FormControlLabel
-              control={<M.Radio />}
+              control={<M.Radio size="small" />}
               onChange={() => setTargetList('followers')}
               disabled={!isAvailable}
               checked={targetList === 'followers'}
@@ -182,7 +197,7 @@ function TargetUserProfile(props: { isAvailable: boolean }) {
               title={`@${user.screen_name}의 팔로워를 차단합니다.`}
             />
             <M.FormControlLabel
-              control={<M.Radio />}
+              control={<M.Radio size="small" />}
               onChange={() => setTargetList('friends')}
               disabled={!isAvailable}
               checked={targetList === 'friends'}
@@ -190,7 +205,7 @@ function TargetUserProfile(props: { isAvailable: boolean }) {
               title={`@${user.screen_name}이(가) 팔로우하는 사용자를 차단합니다.`}
             />
             <M.FormControlLabel
-              control={<M.Radio />}
+              control={<M.Radio size="small" />}
               onChange={() => setTargetList('mutual-followers')}
               disabled={!isAvailable}
               checked={targetList === 'mutual-followers'}
@@ -241,7 +256,7 @@ function TargetChainBlockOptionsUI() {
     <React.Fragment>
       <M.FormControl component="fieldset">
         <M.FormLabel component="legend">내 팔로워</M.FormLabel>
-        <M.RadioGroup row={true}>
+        <M.RadioGroup row>
           {verbs.map(([verb, vKor], index) => (
             <M.FormControlLabel
               key={index}
@@ -256,7 +271,7 @@ function TargetChainBlockOptionsUI() {
       <br />
       <M.FormControl component="fieldset">
         <M.FormLabel component="legend">내 팔로잉</M.FormLabel>
-        <M.RadioGroup row={true}>
+        <M.RadioGroup row>
           {verbs.map(([verb, vKor], index) => (
             <M.FormControlLabel
               key={index}
@@ -274,11 +289,12 @@ function TargetChainBlockOptionsUI() {
 
 function TargetUserSelectUI(props: { isAvailable: boolean }) {
   const { isAvailable } = props
-  const { currentUser, targetList, selectedUser, setSelectedUser } = React.useContext(TargetUserContext)
+  const { currentUser, targetList, selectedUser, setSelectedUser, selectedMode } = React.useContext(TargetUserContext)
   const { openModal } = React.useContext(DialogContext)
   const [savedUsers, setSavedUsers] = React.useState(new TwitterUserMap())
   const [selectedUserGroup, selectUserGroup] = React.useState<SelectUserGroup>('current')
   const [isLoading, setLoadingState] = React.useState(false)
+  const modeKor = selectedMode === 'chainblock' ? '체인블락' : '언체인블락'
   async function changeUser(userName: string, group: SelectUserGroup) {
     const validUserNamePattern = /^[0-9a-z_]{1,15}$/i
     if (!validUserNamePattern.test(userName)) {
@@ -340,13 +356,15 @@ function TargetUserSelectUI(props: { isAvailable: boolean }) {
     targetSummary += ')'
   }
   return (
-    <M.ExpansionPanel defaultExpanded={true}>
-      <M.ExpansionPanelSummary expandIcon={<M.Icon>expand_more</M.Icon>}>
-        <T>차단 대상 {targetSummary}</T>
-      </M.ExpansionPanelSummary>
+    <M.ExpansionPanel defaultExpanded>
+      <DenseExpansionPanelSummary expandIcon={<M.Icon>expand_more</M.Icon>}>
+        <T>
+          {modeKor} 대상 {targetSummary}
+        </T>
+      </DenseExpansionPanelSummary>
       <M.ExpansionPanelDetails className={classes.details}>
         <div style={{ width: '100%' }}>
-          <M.FormControl component="fieldset" fullWidth={true}>
+          <M.FormControl component="fieldset" fullWidth>
             <TargetSavedUsers
               currentUser={currentUser}
               selectedUserGroup={selectedUserGroup}
@@ -371,20 +389,12 @@ function TargetUserSelectUI(props: { isAvailable: boolean }) {
 function TargetOptionsUI() {
   const { selectedMode, setSelectedMode } = React.useContext(TargetUserContext)
   const classes = useStylesForExpansionPanels()
-  let modeKor = ''
-  switch (selectedMode) {
-    case 'chainblock':
-      modeKor = '체인블락'
-      break
-    case 'unchainblock':
-      modeKor = '언체인블락'
-      break
-  }
+  const modeKor = selectedMode === 'chainblock' ? '체인블락' : '언체인블락'
   return (
-    <M.ExpansionPanel defaultExpanded={true}>
-      <M.ExpansionPanelSummary expandIcon={<M.Icon>expand_more</M.Icon>}>
-        <T>차단 옵션 ({modeKor})</T>
-      </M.ExpansionPanelSummary>
+    <M.ExpansionPanel defaultExpanded>
+      <DenseExpansionPanelSummary expandIcon={<M.Icon>expand_more</M.Icon>}>
+        <T>{modeKor} 옵션</T>
+      </DenseExpansionPanelSummary>
       <M.ExpansionPanelDetails className={classes.details}>
         <div>
           <M.Tabs value={selectedMode} onChange={(_ev, val) => setSelectedMode(val)}>
@@ -423,7 +433,7 @@ function TargetUnChainBlockOptionsUI() {
     <React.Fragment>
       <M.FormControl component="fieldset">
         <M.FormLabel component="legend">서로 맞차단</M.FormLabel>
-        <M.RadioGroup row={true}>
+        <M.RadioGroup row>
           {verbs.map(([verb, vKor], index) => (
             <M.FormControlLabel
               key={index}
