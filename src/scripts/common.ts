@@ -72,10 +72,10 @@ export class TwitterUserMap extends Map<string, TwitterUser> {
 
 export function getUserNameFromURL(url: URL | Location | HTMLAnchorElement): string | null {
   const userNameBlacklist = [
-    '1',
     'about',
     'account',
     'blog',
+    'download',
     'explore',
     'followers',
     'followings',
@@ -90,9 +90,17 @@ export function getUserNameFromURL(url: URL | Location | HTMLAnchorElement): str
     'oauth',
     'privacy',
     'search',
+    'session',
+    'settings',
+    'share',
+    'signup',
     'tos',
+    'welcome',
   ]
   const supportingHostname = ['twitter.com', 'mobile.twitter.com']
+  if (!/^https?/.test(url.protocol)) {
+    return null
+  }
   if (!supportingHostname.includes(url.hostname)) {
     return null
   }
