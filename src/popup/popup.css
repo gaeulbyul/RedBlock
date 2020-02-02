@@ -36,7 +36,7 @@
 html,
 body {
   min-height: 600px;
-  width: var(--popup-width);
+  min-width: var(--popup-width);
 }
 
 body {
@@ -82,7 +82,7 @@ input[type='radio'] {
   display: flex;
   flex-direction: column;
   height: 100vh;
-  width: var(--popup-width);
+  min-width: var(--popup-width);
   padding: 0;
   margin: 0 auto;
 }

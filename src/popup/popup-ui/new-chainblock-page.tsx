@@ -91,7 +91,7 @@ function TargetSavedUsers(props: {
     </optgroup>
   )
   return (
-    <div>
+    <div style={{ width: '100%' }}>
       <M.FormControl>
         <M.InputLabel shrink htmlFor="target-user-select">
           사용자 선택:
@@ -253,6 +253,7 @@ function TargetChainBlockOptionsUI() {
           ))}
         </M.RadioGroup>
       </M.FormControl>
+      <br />
       <M.FormControl component="fieldset">
         <M.FormLabel component="legend">내 팔로잉</M.FormLabel>
         <M.RadioGroup row={true}>
@@ -344,7 +345,7 @@ function TargetUserSelectUI(props: { isAvailable: boolean }) {
         <T>차단 대상 {targetSummary}</T>
       </M.ExpansionPanelSummary>
       <M.ExpansionPanelDetails className={classes.details}>
-        <div>
+        <div style={{ width: '100%' }}>
           <M.FormControl component="fieldset" fullWidth={true}>
             <TargetSavedUsers
               currentUser={currentUser}

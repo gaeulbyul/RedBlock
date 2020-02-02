@@ -14,6 +14,14 @@ const popupMuiTheme = MaterialUI.createMuiTheme({
   },
 })
 
+const useStylesForAppBar = MaterialUI.makeStyles(() =>
+  MaterialUI.createStyles({
+    toolbar: {
+      padding: 0,
+    },
+  })
+)
+
 function PopupApp(props: { currentUser: TwitterUser | null }) {
   const { currentUser } = props
   const [tabIndex, setTabIndex] = React.useState<PageEnum>(PageEnum.Sessions)
@@ -22,6 +30,8 @@ function PopupApp(props: { currentUser: TwitterUser | null }) {
   const [modalContent, setModalContent] = React.useState<DialogContent | null>(null)
   const [snackBarMessage, setSnackBarMessage] = React.useState('')
   const [snackBarOpen, setSnackBarOpen] = React.useState(false)
+  const [menuAnchorEl, setMenuAnchorEl] = React.useState<HTMLElement | null>(null)
+  const classes = useStylesForAppBar()
   function openModal(content: DialogContent) {
     console.debug(content)
     setModalOpened(true)
@@ -42,6 +52,23 @@ function PopupApp(props: { currentUser: TwitterUser | null }) {
       return
     }
     setSnackBarOpen(false)
+  }
+  function handleMenuButtonClick(event: React.MouseEvent<HTMLButtonElement>) {
+    setMenuAnchorEl(event.currentTarget)
+  }
+  function handleOpenInTabClick() {
+    browser.tabs.create({
+      active: true,
+      url: '/popup/popup.html?istab=1',
+    })
+    closeMenu()
+  }
+  function handleSettingsClick() {
+    browser.runtime.openOptionsPage()
+    closeMenu()
+  }
+  function closeMenu() {
+    setMenuAnchorEl(null)
   }
   React.useEffect(() => {
     const messageListener = (msgobj: any) => {
@@ -77,18 +104,33 @@ function PopupApp(props: { currentUser: TwitterUser | null }) {
         <DialogContext.Provider value={{ openModal }}>
           <PageSwitchContext.Provider value={{ switchPage }}>
             <M.AppBar position="fixed">
-              <M.Tabs value={tabIndex} onChange={(_ev, val) => setTabIndex(val)}>
-                <M.Tab label={`실행중인 세션 (${runningSessions.length})`} />
-                <M.Tab label={'새 세션'} />
-              </M.Tabs>
+              <M.Toolbar variant="dense" className={classes.toolbar}>
+                <M.IconButton color="inherit" onClick={handleMenuButtonClick}>
+                  <M.Icon>menu</M.Icon>
+                </M.IconButton>
+                <M.Tabs value={tabIndex} onChange={(_ev, val) => setTabIndex(val)}>
+                  <M.Tab label={`실행중인 세션 (${runningSessions.length})`} />
+                  <M.Tab label={'새 세션'} />
+                </M.Tabs>
+              </M.Toolbar>
             </M.AppBar>
+            <M.Menu keepMounted anchorEl={menuAnchorEl} open={Boolean(menuAnchorEl)} onClose={closeMenu}>
+              <M.MenuItem onClick={handleOpenInTabClick}>
+                <M.Icon>open_in_new</M.Icon> 새 탭에서 열기
+              </M.MenuItem>
+              <M.MenuItem onClick={handleSettingsClick}>
+                <M.Icon>settings</M.Icon> 옵션
+              </M.MenuItem>
+            </M.Menu>
             <div className="page">
-              <TabPanel value={tabIndex} index={PageEnum.Sessions}>
-                <ChainBlockSessionsPage sessions={sessions} />
-              </TabPanel>
-              <TabPanel value={tabIndex} index={PageEnum.NewSession}>
-                <NewChainBlockPage currentUser={currentUser} />
-              </TabPanel>
+              <M.Container maxWidth="sm">
+                <TabPanel value={tabIndex} index={PageEnum.Sessions}>
+                  <ChainBlockSessionsPage sessions={sessions} />
+                </TabPanel>
+                <TabPanel value={tabIndex} index={PageEnum.NewSession}>
+                  <NewChainBlockPage currentUser={currentUser} />
+                </TabPanel>
+              </M.Container>
             </div>
           </PageSwitchContext.Provider>
         </DialogContext.Provider>
