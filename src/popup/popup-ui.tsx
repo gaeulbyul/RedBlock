@@ -1,12 +1,18 @@
 import * as TwitterAPI from '../scripts/background/twitter-api.js'
 import { TwitterUser } from '../scripts/background/twitter-api.js'
 import { getCurrentTab, getUserNameFromTab, requestProgress } from './popup.js'
-import ChainBlockSessionsPopupPage from './popup-ui/chainblock-sessions-page.js'
-import NewChainBlockPopupPage from './popup-ui/new-chainblock-page.js'
-import { PageEnum } from './popup-ui/popup-ui-common.js'
-import { UI_UPDATE_DELAY, isRunningStatus } from '../scripts/common.js'
-import { DialogContext, SnackBarContext, PageSwitchContext } from '../ui-common/contexts.js'
-import { RBDialog, TabPanel, DialogContent, redBlockMaterialTheme } from '../ui-common/ui-common.js'
+import ChainBlockSessionsPage from './popup-ui/chainblock-sessions-page.js'
+import NewChainBlockPage from './popup-ui/new-chainblock-page.js'
+import { PageEnum, UI_UPDATE_DELAY, isRunningStatus } from '../scripts/common.js'
+import { DialogContext, SnackBarContext, PageSwitchContext } from './popup-ui/contexts.js'
+import { RBDialog, TabPanel, DialogContent } from './popup-ui/ui-common.js'
+
+const popupMuiTheme = MaterialUI.createMuiTheme({
+  palette: {
+    primary: MaterialUI.colors.pink,
+    secondary: MaterialUI.colors.indigo,
+  },
+})
 
 function PopupApp(props: { currentUser: TwitterUser | null }) {
   const { currentUser } = props
@@ -66,7 +72,7 @@ function PopupApp(props: { currentUser: TwitterUser | null }) {
   const runningSessions = React.useMemo(() => sessions.filter(session => isRunningStatus(session.status)), [sessions])
   const M = MaterialUI
   return (
-    <M.ThemeProvider theme={redBlockMaterialTheme}>
+    <M.ThemeProvider theme={popupMuiTheme}>
       <SnackBarContext.Provider value={{ snack }}>
         <DialogContext.Provider value={{ openModal }}>
           <PageSwitchContext.Provider value={{ switchPage }}>
@@ -78,10 +84,10 @@ function PopupApp(props: { currentUser: TwitterUser | null }) {
             </M.AppBar>
             <div className="page">
               <TabPanel value={tabIndex} index={PageEnum.Sessions}>
-                <ChainBlockSessionsPopupPage sessions={sessions} />
+                <ChainBlockSessionsPage sessions={sessions} />
               </TabPanel>
               <TabPanel value={tabIndex} index={PageEnum.NewSession}>
-                <NewChainBlockPopupPage currentUser={currentUser} />
+                <NewChainBlockPage currentUser={currentUser} />
               </TabPanel>
             </div>
           </PageSwitchContext.Provider>
@@ -132,7 +138,7 @@ function showVersionOnFooter() {
   footer.appendChild(gotoOptionsButton)
 }
 
-async function initializeUI() {
+export async function initializeUI() {
   const tab = await getCurrentTab()
   const userName = tab ? getUserNameFromTab(tab) : null
   const appRoot = document.getElementById('app')!

@@ -1,5 +1,10 @@
 import { Tweet, TwitterUser, TwitterUserEntities, Limit } from './background/twitter-api.js'
 
+export const enum PageEnum {
+  Sessions = 0,
+  NewSession = 1,
+}
+
 export const enum SessionStatus {
   Initial,
   Running,

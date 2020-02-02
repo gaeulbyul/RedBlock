@@ -1,4 +1,4 @@
-import { DialogMessageObj } from '../scripts/text-generate.js'
+import { DialogMessageObj } from '../../scripts/text-generate.js'
 
 const M = MaterialUI
 
@@ -7,13 +7,6 @@ export interface DialogContent {
   dialogType: 'confirm' | 'alert'
   callback?: () => void
 }
-
-export const redBlockMaterialTheme = MaterialUI.createMuiTheme({
-  palette: {
-    primary: MaterialUI.colors.pink,
-    secondary: MaterialUI.colors.indigo,
-  },
-})
 
 export function RBDialog(props: { isOpen: boolean; content: DialogContent | null; closeModal: () => void }) {
   const { isOpen, content, closeModal } = props
@@ -78,7 +71,7 @@ export function TabPanel(props: { children?: React.ReactNode; index: any; value:
       aria-labelledby={`simple-tab-${index}`}
       {...other}
     >
-      {value === index && <M.Box p={2}>{children}</M.Box>}
+      {value === index && <M.Box p={3}>{children}</M.Box>}
     </M.Typography>
   )
 }

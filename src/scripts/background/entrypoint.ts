@@ -1,5 +1,4 @@
-import { UI_UPDATE_DELAY } from '../common.js'
-import { PageEnum } from '../../popup/popup-ui/popup-ui-common.js'
+import { PageEnum, UI_UPDATE_DELAY } from '../common.js'
 import { alert } from './background.js'
 import ChainBlocker from './chainblock.js'
 import * as Storage from './storage.js'
@@ -77,7 +76,7 @@ async function stopAllChainBlock() {
 }
 
 async function sendChainBlockerInfoToTabs() {
-  const infos = _.orderBy(chainblocker.getAllSessionsProgress(), ['sessionId'], ['desc'])
+  const infos = chainblocker.getAllSessionsProgress().reverse()
   for (const tabId of tabConnections) {
     browser.tabs
       .sendMessage<RBMessages.ChainBlockInfo>(tabId, {
