@@ -75,6 +75,7 @@ export function getUserNameFromURL(url: URL | Location | HTMLAnchorElement): str
     'about',
     'account',
     'blog',
+    'compose',
     'download',
     'explore',
     'followers',
