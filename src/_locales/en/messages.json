@@ -1,0 +1,14 @@
+{
+  "new_session": {
+    "message": "New session"
+  },
+  "running_sessions": {
+    "message": "Running sessions"
+  },
+  "open_in_new_tab": {
+    "message": "Open in new tab"
+  },
+  "open_settings_ui": {
+    "message": "Settings"
+  }
+}

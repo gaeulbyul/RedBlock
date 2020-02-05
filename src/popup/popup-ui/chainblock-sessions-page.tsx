@@ -2,6 +2,7 @@ import { PageEnum, isRunningStatus, SessionStatus, getLimitResetTime } from '../
 import * as TextGenerate from '../../scripts/text-generate.js'
 import { cleanupSessions, stopAllChainBlock, stopChainBlock } from '../popup.js'
 import { DialogContext, PageSwitchContext } from './contexts.js'
+import * as i18n from '../../scripts/i18n.js'
 
 const M = MaterialUI
 const T = MaterialUI.Typography
@@ -41,21 +42,20 @@ function ChainBlockSessionItem(props: { session: SessionInfo }) {
   }
   const isChainBlock = purpose === 'chainblock'
   const isUnchainBlock = purpose === 'unchainblock'
-  const isFollowerChainBlock = target.type === 'follower'
   let user: TwitterUser
-  let targetListKor = ''
+  let localizedTarget = ''
   switch (target.type) {
     case 'follower':
       user = target.user
       switch (target.list) {
         case 'followers':
-          targetListKor = '팔로워'
+          localizedTarget = i18n.getMessage('followers_of_xxx', user.screen_name)
           break
         case 'friends':
-          targetListKor = '팔로잉'
+          localizedTarget = i18n.getMessage('followings_of_xxx', user.screen_name)
           break
         case 'mutual-followers':
-          targetListKor = '맞팔로워'
+          localizedTarget = i18n.getMessage('mutual_followers_of_xxx', user.screen_name)
           break
       }
       break
@@ -63,30 +63,24 @@ function ChainBlockSessionItem(props: { session: SessionInfo }) {
       user = target.tweet.user
       switch (target.reaction) {
         case 'retweeted':
-          targetListKor = '리트윗'
+          localizedTarget = i18n.getMessage('retweeted_xxxs_tweet', user.screen_name)
           break
         case 'liked':
-          targetListKor = '마음에 들어'
+          localizedTarget = i18n.getMessage('liked_xxxs_tweet', user.screen_name)
           break
       }
       break
   }
-  const purposeKor = isChainBlock ? '체인블락' : '언체인블락'
-  const cardTitle = `${purposeKor} ${statusToString(session.status)}`
-  let subheader = ''
-  if (isFollowerChainBlock) {
-    subheader += `@${user.screen_name}의 ${targetListKor}`
-  } else {
-    subheader += `@${user.screen_name}이(가) 작성한 트윗을 ${targetListKor}한 사용자`
-  }
+  const localizedPurpose = i18n.getMessage(purpose)
+  const cardTitle = `${localizedPurpose} ${statusToString(session.status)}`
   function statusToString(status: SessionStatus): string {
     const statusMessageObj: { [key: number]: string } = {
-      [SessionStatus.Initial]: '대기 중',
-      [SessionStatus.Completed]: '완료',
-      [SessionStatus.Running]: '실행 중…',
-      [SessionStatus.RateLimited]: '리밋',
-      [SessionStatus.Stopped]: '정지',
-      [SessionStatus.Error]: '오류 발생!',
+      [SessionStatus.Initial]: i18n.getMessage('session_status_initial'),
+      [SessionStatus.Completed]: i18n.getMessage('session_status_completed'),
+      [SessionStatus.Running]: i18n.getMessage('session_status_running'),
+      [SessionStatus.RateLimited]: i18n.getMessage('session_status_rate_limited'),
+      [SessionStatus.Stopped]: i18n.getMessage('session_status_stopped'),
+      [SessionStatus.Error]: i18n.getMessage('session_status_error'),
     }
     const statusMessage = statusMessageObj[status]
     return statusMessage
@@ -106,10 +100,10 @@ function ChainBlockSessionItem(props: { session: SessionInfo }) {
       }
       stopChainBlock(sessionId)
     }
-    let closeButtonText = '닫기'
+    let closeButtonText = i18n.getMessage('close')
     let closeButtonTitleText = ''
     if (isRunningStatus(status)) {
-      closeButtonText = '중지'
+      closeButtonText = i18n.getMessage('stop')
       closeButtonTitleText = TextGenerate.stopButtonTooltipMessage(request)
     }
     return (
@@ -131,27 +125,27 @@ function ChainBlockSessionItem(props: { session: SessionInfo }) {
         <Table>
           <TableBody>
             <Row>
-              <Cell>차단</Cell>
+              <Cell>{i18n.getMessage('block')}</Cell>
               <Cell align="right">{s.Block.toLocaleString()}</Cell>
             </Row>
             <Row>
-              <Cell>차단해제</Cell>
+              <Cell>{i18n.getMessage('unblock')}</Cell>
               <Cell align="right">{s.UnBlock.toLocaleString()}</Cell>
             </Row>
             <Row>
-              <Cell>뮤트</Cell>
+              <Cell>{i18n.getMessage('mute')}</Cell>
               <Cell align="right">{s.Mute.toLocaleString()}</Cell>
             </Row>
             <Row>
-              <Cell>이미 처리함</Cell>
+              <Cell>{i18n.getMessage('already_done')}</Cell>
               <Cell align="right">{p.already.toLocaleString()}</Cell>
             </Row>
             <Row>
-              <Cell>스킵</Cell>
+              <Cell>{i18n.getMessage('skipped')}</Cell>
               <Cell align="right">{p.skipped.toLocaleString()}</Cell>
             </Row>
             <Row>
-              <Cell>실패</Cell>
+              <Cell>{i18n.getMessage('failed')}</Cell>
               <Cell align="right">{p.failure.toLocaleString()}</Cell>
             </Row>
           </TableBody>
@@ -161,7 +155,7 @@ function ChainBlockSessionItem(props: { session: SessionInfo }) {
   }
   let name = user.name
   if (target.type === 'tweetReaction') {
-    name = `<트윗> ${name}`
+    name = `<${i18n.getMessage('tweet')}> ${name}`
   }
   const biggerProfileImageUrl = user.profile_image_url_https.replace('_normal', '_bigger')
   const percentage = calculatePercentage(session)
@@ -174,15 +168,31 @@ function ChainBlockSessionItem(props: { session: SessionInfo }) {
   const succProgress = session.progress.success
   return (
     <M.Card className={classes.card}>
-      <M.CardHeader avatar={<M.Avatar src={biggerProfileImageUrl} />} title={cardTitle} subheader={subheader} />
+      <M.CardHeader avatar={<M.Avatar src={biggerProfileImageUrl} />} title={cardTitle} subheader={localizedTarget} />
       <M.CardContent>
         {progressBar}
         <T>
-          <span>상태: {statusToString(session.status)}</span>
-          {isChainBlock && <span> / 차단: {succProgress.Block.toLocaleString()}</span>}
-          {isUnchainBlock && <span> / 차단해제: {succProgress.UnBlock.toLocaleString()}</span>}
+          <span>
+            {i18n.getMessage('status')}: {statusToString(session.status)}
+          </span>
+          {isChainBlock && (
+            <span>
+              {' '}
+              / {i18n.getMessage('block')}: {succProgress.Block.toLocaleString()}
+            </span>
+          )}
+          {isUnchainBlock && (
+            <span>
+              {' '}
+              / {i18n.getMessage('unblock')}: {succProgress.UnBlock.toLocaleString()}
+            </span>
+          )}
         </T>
-        {session.limit && <T color="textSecondary">예상 제한해제 시간 (±5분): {getLimitResetTime(session.limit)}</T>}
+        {session.limit && (
+          <T color="textSecondary">
+            {i18n.getMessage('rate_limit_reset_time')} (±5m): {getLimitResetTime(session.limit)}
+          </T>
+        )}
       </M.CardContent>
       <M.Divider variant="middle" />
       <M.CardActions disableSpacing>{renderControls(session)}</M.CardActions>
@@ -216,7 +226,7 @@ export default function ChainBlockSessionsPage(props: { sessions: SessionInfo[] 
       modalContext.openModal({
         dialogType: 'confirm',
         message: {
-          title: `실행중인 체인블락 및 언체인블락을 모두 중단하시겠습니까?`,
+          title: i18n.getMessage('confirm_all_stop'),
         },
         callback: stopAllChainBlock,
       })
@@ -225,11 +235,11 @@ export default function ChainBlockSessionsPage(props: { sessions: SessionInfo[] 
       <M.ButtonGroup>
         <M.Button onClick={requestStopAllChainBlock}>
           <M.Icon>highlight_off</M.Icon>
-          모두 정지
+          {i18n.getMessage('stop_all')}
         </M.Button>
         <M.Button onClick={cleanupSessions}>
           <M.Icon>clear_all</M.Icon>
-          완료작업 지우기
+          {i18n.getMessage('cleanup_sessions')}
         </M.Button>
       </M.ButtonGroup>
     )
@@ -246,7 +256,8 @@ export default function ChainBlockSessionsPage(props: { sessions: SessionInfo[] 
   function renderEmptySessions() {
     return (
       <div className="chainblock-suggest-start">
-        현재 진행중인 세션이 없습니다. 체인블락을 시작하려면 아래의 + 버튼을 눌러주세요.
+        {i18n.getMessage('session_is_empty')}
+        {i18n.getMessage('press_plus_to_start_new_session')}
       </div>
     )
   }
@@ -256,7 +267,7 @@ export default function ChainBlockSessionsPage(props: { sessions: SessionInfo[] 
       {renderGlobalControls()}
       <hr />
       {isSessionExist ? renderSessions() : renderEmptySessions()}
-      <M.Tooltip placement="left" title="세션 추가">
+      <M.Tooltip placement="left" title={i18n.getMessage('new_session')}>
         <M.Fab className={classes.fab} color="primary" onClick={handleFabButtonClicked}>
           <M.Icon>add</M.Icon>
         </M.Fab>

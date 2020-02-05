@@ -19,6 +19,7 @@
     "noFallthroughCasesInSwitch": true,
     "experimentalDecorators": true,
     "emitDecoratorMetadata": true,
+    "resolveJsonModule": true,
     "typeRoots": ["node_modules/@types", "node_modules/web-ext-types", "src/scripts/types"]
   }
 }

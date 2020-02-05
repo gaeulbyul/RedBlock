@@ -1,0 +1,178 @@
+{
+  "new_session": {
+    "message": "새 세션"
+  },
+  "running_sessions": {
+    "message": "실행중인 세션"
+  },
+  "open_in_new_tab": {
+    "message": "새 탭에서 열기"
+  },
+  "open_settings_ui": {
+    "message": "설정"
+  },
+  "follower": {
+    "message": "팔로워"
+  },
+  "following": {
+    "message": "팔로잉"
+  },
+  "mutual_follower": {
+    "message": "맞팔로워"
+  },
+  "retweet": {
+    "message": "리트윗"
+  },
+  "like": {
+    "message": "마음에 들어요"
+  },
+  "chainblock": {
+    "message": "체인블락"
+  },
+  "unchainblock": {
+    "message": "언체인블락"
+  },
+  "followers_of_xxx": {
+    "message": "@$username$의 팔로워",
+    "placeholders": {
+      "username": {
+        "content": "$1"
+      }
+    }
+  },
+  "followings_of_xxx": {
+    "message": "@$username$가 팔로우하는 유저",
+    "placeholders": {
+      "username": {
+        "content": "$1"
+      }
+    }
+  },
+  "mutual_followers_of_xxx": {
+    "message": "@$username$와 맞팔로우한 유저",
+    "placeholders": {
+      "username": {
+        "content": "$1"
+      }
+    }
+  },
+  "retweeted_xxxs_tweet": {
+    "message": "@$username$의 트윗을 리트윗한 유저",
+    "placeholders": {
+      "username": {
+        "content": "$1"
+      }
+    }
+  },
+  "liked_xxxs_tweet": {
+    "message": "@$username$의 트윗을 마음에 들어한 유저",
+    "placeholders": {
+      "username": {
+        "content": "$1"
+      }
+    }
+  },
+  "session_status_initial": {
+    "message": "대기 중"
+  },
+  "session_status_completed": {
+    "message": "완료"
+  },
+  "session_status_running": {
+    "message": "실행 중…"
+  },
+  "session_status_rate_limited": {
+    "message": "리밋"
+  },
+  "session_status_stopped": {
+    "message": "정지"
+  },
+  "session_status_error": {
+    "message": "오류"
+  },
+  "close": {
+    "message": "닫기"
+  },
+  "stop": {
+    "message": "중지"
+  },
+  "block": {
+    "message": "차단"
+  },
+  "unblock": {
+    "message": "차단해제"
+  },
+  "mute": {
+    "message": "뮤트"
+  },
+  "unmute": {
+    "message": "언뮤트"
+  },
+  "skipped": {
+    "message": "건너뜀"
+  },
+  "failed": {
+    "message": "실패함"
+  },
+  "already_done": {
+    "message": "이미 처리함"
+  },
+  "tweet": {
+    "message": "트윗"
+  },
+  "status": {
+    "message": "상태"
+  },
+  "rate_limit_reset_time": {
+    "message": "예상 리밋해제 시각"
+  },
+  "confirm_all_stop": {
+    "message": "실행중인 세션을 모두 중지하겠습니까?"
+  },
+  "stop_all": {
+    "message": "모두 중지"
+  },
+  "cleanup_sessions": {
+    "message": "완료작업 지우기"
+  },
+  "session_is_empty": {
+    "message": "현재 진행중인 세션이 없습니다."
+  },
+  "press_plus_to_start_new_session": {
+    "message": "체인블락을 시작하려면 아래의 + 버튼을 눌러주세요."
+  },
+  "user_xxx_added": {
+    "message": "@$username$을(를) 추가했습니다.",
+    "placeholders": {
+      "username": {
+        "content": "$1"
+      }
+    }
+  },
+  "user_xxx_removed": {
+    "message": "@$username$을(를) 제거했습니다.",
+    "placeholders": {
+      "username": {
+        "content": "$1"
+      }
+    }
+  },
+  "current_user": {
+    "message": "현재 유저"
+  },
+  "select_user": {
+    "message": "사용자 선택"
+  },
+  "saved_user": {
+    "message": "저장한 유저"
+  },
+  "add": {
+    "message": "추가"
+  },
+  "remove": {
+    "message": "제거"
+  },
+  "user_not_selected": {
+    "message": "체인블락을 실행할 사용자를 선택해주세요"
+  }
+}

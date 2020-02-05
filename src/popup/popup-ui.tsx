@@ -1,11 +1,13 @@
 import * as TwitterAPI from '../scripts/background/twitter-api.js'
-import { TwitterUser } from '../scripts/background/twitter-api.js'
 import { getCurrentTab, getUserNameFromTab, requestProgress } from './popup.js'
 import ChainBlockSessionsPage from './popup-ui/chainblock-sessions-page.js'
 import NewChainBlockPage from './popup-ui/new-chainblock-page.js'
 import { PageEnum, UI_UPDATE_DELAY, isRunningStatus } from '../scripts/common.js'
+import * as i18n from '../scripts/i18n.js'
 import { DialogContext, SnackBarContext, PageSwitchContext } from './popup-ui/contexts.js'
 import { RBDialog, TabPanel, DialogContent } from './popup-ui/ui-common.js'
+
+type TwitterUser = TwitterAPI.TwitterUser
 
 const popupMuiTheme = MaterialUI.createMuiTheme({
   palette: {
@@ -121,19 +123,19 @@ function PopupApp(props: { currentUser: TwitterUser | null; popupAsTab: boolean 
                   <M.Icon>menu</M.Icon>
                 </M.IconButton>
                 <M.Tabs value={tabIndex} onChange={(_ev, val) => setTabIndex(val)}>
-                  <M.Tab label={`실행중인 세션 (${runningSessions.length})`} />
-                  <M.Tab label={'새 세션'} />
+                  <M.Tab label={`${i18n.getMessage('running_sessions')} (${runningSessions.length})`} />
+                  <M.Tab label={i18n.getMessage('new_session')} />
                 </M.Tabs>
               </M.Toolbar>
             </M.AppBar>
             <M.Menu keepMounted anchorEl={menuAnchorEl} open={Boolean(menuAnchorEl)} onClose={closeMenu}>
               {!popupAsTab && (
                 <M.MenuItem onClick={handleOpenInTabClick}>
-                  <M.Icon>open_in_new</M.Icon> 새 탭에서 열기
+                  <M.Icon>open_in_new</M.Icon> {i18n.getMessage('open_in_new_tab')}
                 </M.MenuItem>
               )}
               <M.MenuItem onClick={handleSettingsClick}>
-                <M.Icon>settings</M.Icon> 옵션
+                <M.Icon>settings</M.Icon> {i18n.getMessage('open_settings_ui')}
               </M.MenuItem>
             </M.Menu>
             <div className="page">

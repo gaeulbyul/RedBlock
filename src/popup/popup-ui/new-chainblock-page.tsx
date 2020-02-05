@@ -2,6 +2,7 @@ import * as Storage from '../../scripts/background/storage.js'
 import * as TwitterAPI from '../../scripts/background/twitter-api.js'
 import { TwitterUser } from '../../scripts/background/twitter-api.js'
 import { formatNumber, TwitterUserMap } from '../../scripts/common.js'
+import * as i18n from '../../scripts/i18n.js'
 import * as TextGenerate from '../../scripts/text-generate.js'
 import { insertUserToStorage, removeUserFromStorage, startFollowerChainBlock } from '../popup.js'
 import { DialogContext, SnackBarContext } from './contexts.js'
@@ -78,13 +79,13 @@ function TargetSavedUsers(props: {
   async function insertUser() {
     if (selectedUser) {
       insertUserToStorage(selectedUser)
-      snackBarCtx.snack(`@${selectedUser.screen_name}을(를) 저장했습니다.`)
+      snackBarCtx.snack(i18n.getMessage('user_xxx_added', selectedUser.screen_name))
     }
   }
   async function removeUser() {
     if (selectedUser) {
       removeUserFromStorage(selectedUser)
-      snackBarCtx.snack(`@${selectedUser.screen_name}을(를) 제거했습니다.`)
+      snackBarCtx.snack(i18n.getMessage('user_xxx_removed', selectedUser.screen_name))
     }
   }
   const sortedByName = (usersMap: TwitterUserMap): TwitterUser[] =>
@@ -99,7 +100,7 @@ function TargetSavedUsers(props: {
     changeUser(userName, group)
   }
   const currentUserOption = ({ screen_name, name }: TwitterUser) => (
-    <optgroup label="현재 유저">
+    <optgroup label={i18n.getMessage('current_user')}>
       <option value={`current/${screen_name}`} data-group="current" data-username={screen_name}>
         @{screen_name} &lt;{name}&gt;
       </option>
@@ -109,7 +110,7 @@ function TargetSavedUsers(props: {
     <div style={{ width: '100%' }}>
       <M.FormControl fullWidth>
         <M.InputLabel shrink htmlFor="target-user-select">
-          사용자 선택:
+          {i18n.getMessage('select_user')}:
         </M.InputLabel>
         <M.Select
           native
@@ -119,10 +120,10 @@ function TargetSavedUsers(props: {
           onChange={({ target }) => selectUserFromOption(target)}
         >
           <option value="invalid/???" data-group="invalid" data-username="???">
-            체인블락을 실행할 사용자를 선택해주세요.
+            {i18n.getMessage('user_not_selected')}
           </option>
           {currentUser && currentUserOption(currentUser)}
-          <optgroup label="저장한 유저">
+          <optgroup label={i18n.getMessage('saved_user')}>
             {sortedByName(savedUsers).map(({ screen_name, name }, index) => (
               <option key={index} value={'saved/' + screen_name} data-group="saved" data-username={screen_name}>
                 @{screen_name} &lt;{name}&gt;
@@ -139,10 +140,10 @@ function TargetSavedUsers(props: {
               onClick={insertUser}
               startIcon={<M.Icon>add_circle</M.Icon>}
             >
-              저장
+              {i18n.getMessage('add')}
             </M.Button>
             <M.Button disabled={selectedUserGroup !== 'saved'} onClick={removeUser} startIcon={<M.Icon>delete</M.Icon>}>
-              제거
+              {i18n.getMessage('remove')}
             </M.Button>
           </M.ButtonGroup>
         </M.Box>
