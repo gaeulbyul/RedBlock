@@ -1,7 +1,7 @@
 import * as Storage from '../../scripts/background/storage.js'
 import * as TwitterAPI from '../../scripts/background/twitter-api.js'
 import { TwitterUser } from '../../scripts/background/twitter-api.js'
-import { formatNumber, TwitterUserMap } from '../../scripts/common.js'
+import { TwitterUserMap, getFollowersCount } from '../../scripts/common.js'
 import * as i18n from '../../scripts/i18n.js'
 import * as TextGenerate from '../../scripts/text-generate.js'
 import { insertUserToStorage, removeUserFromStorage, startFollowerChainBlock } from '../popup.js'
@@ -160,10 +160,24 @@ function TargetUserProfile(props: { isAvailable: boolean }) {
   const { quickMode } = targetOptions
   const quickModeIsAvailable = isAvailable && targetList !== 'mutual-followers'
   const biggerProfileImageUrl = user.profile_image_url_https.replace('_normal', '_bigger')
+  function radio(fk: FollowKind, label: string) {
+    return (
+      <M.FormControlLabel
+        control={<M.Radio size="small" />}
+        onChange={() => setTargetList(fk)}
+        disabled={!isAvailable}
+        checked={targetList === fk}
+        label={label}
+      />
+    )
+  }
+  function quickModeAwareCount(count: number) {
+    return quickMode ? Math.min(count, 200) : count
+  }
   return (
     <div className="target-user-info">
       <div className="profile-image-area">
-        <img alt="프로필 이미지" className="profile-image" src={biggerProfileImageUrl} />
+        <img alt={i18n.getMessage('profile_image')} className="profile-image" src={biggerProfileImageUrl} />
       </div>
       <div className="profile-right-area">
         <div className="profile-right-info">
@@ -183,36 +197,15 @@ function TargetUserProfile(props: { isAvailable: boolean }) {
         </div>
         {isAvailable || (
           <div className="profile-blocked">
-            {user.protected && '\u{1f512} 프로텍트가 걸려있어 체인블락을 할 수 없습니다.'}
-            {user.blocked_by && '\u26d4 이 사용자에게 차단당하여 체인블락을 할 수 없습니다.'}
+            {user.protected && `\u{1f512} ${i18n.getMessage('cant_chainblock_to_protected')}`}
+            {user.blocked_by && `\u26d4 ${i18n.getMessage('cant_chainblock_to_blocked')}`}
           </div>
         )}
         <div className="profile-right-targetlist">
           <M.RadioGroup row>
-            <M.FormControlLabel
-              control={<M.Radio size="small" />}
-              onChange={() => setTargetList('followers')}
-              disabled={!isAvailable}
-              checked={targetList === 'followers'}
-              label={`팔로워 ${formatNumber(user.followers_count, quickMode)}명`}
-              title={`@${user.screen_name}의 팔로워를 차단합니다.`}
-            />
-            <M.FormControlLabel
-              control={<M.Radio size="small" />}
-              onChange={() => setTargetList('friends')}
-              disabled={!isAvailable}
-              checked={targetList === 'friends'}
-              label={`팔로잉 ${formatNumber(user.friends_count, quickMode)}명`}
-              title={`@${user.screen_name}이(가) 팔로우하는 사용자를 차단합니다.`}
-            />
-            <M.FormControlLabel
-              control={<M.Radio size="small" />}
-              onChange={() => setTargetList('mutual-followers')}
-              disabled={!isAvailable}
-              checked={targetList === 'mutual-followers'}
-              label="맞팔로워만"
-              title={`@${user.screen_name}이(가) 맞팔로우한 사용자만 골라서 차단합니다.`}
-            />
+            {radio('followers', i18n.formatFollowsCount('followers', quickModeAwareCount(user.followers_count)))}
+            {radio('friends', i18n.formatFollowsCount('friends', quickModeAwareCount(user.friends_count)))}
+            {radio('mutual-followers', i18n.getMessage('mutual_followers'))}
           </M.RadioGroup>
           <hr />
           <M.FormControlLabel
@@ -220,8 +213,8 @@ function TargetUserProfile(props: { isAvailable: boolean }) {
             disabled={!quickModeIsAvailable}
             checked={quickMode}
             onChange={() => mutateOptions({ quickMode: !quickMode })}
-            label="퀵 모드 (200명 이하만 차단)"
-            title="퀵 모드: 최근에 해당 사용자에게 체인블락을 실행하였으나 이후에 새로 생긴 팔로워만 더 빠르게 차단하기 위해 고안한 기능입니다. (단, 팔로잉이나 팔로워가 이미 200명 이하인 경우 아무련 효과가 없습니다.)"
+            label={i18n.getMessage('quick_mode_label')}
+            title={i18n.getMessage('quick_mode_description')}
           />
         </div>
       </div>
@@ -249,9 +242,9 @@ function TargetChainBlockOptionsUI() {
   const { targetOptions, mutateOptions } = React.useContext(TargetUserContext)
   const { myFollowers, myFollowings } = targetOptions
   const verbs: Array<[Verb, string]> = [
-    ['Skip', '냅두기'],
-    ['Mute', '뮤트하기'],
-    ['Block', '차단하기'],
+    ['Skip', i18n.getMessage('skip')],
+    ['Mute', i18n.getMessage('mute')],
+    ['Block', i18n.getMessage('block')],
   ]
   return (
     <React.Fragment>
@@ -295,7 +288,7 @@ function TargetUserSelectUI(props: { isAvailable: boolean }) {
   const [savedUsers, setSavedUsers] = React.useState(new TwitterUserMap())
   const [selectedUserGroup, selectUserGroup] = React.useState<SelectUserGroup>('current')
   const [isLoading, setLoadingState] = React.useState(false)
-  const modeKor = selectedMode === 'chainblock' ? '체인블락' : '언체인블락'
+  const localizedMode = i18n.getMessage(selectedMode)
   async function changeUser(userName: string, group: SelectUserGroup) {
     const validUserNamePattern = /^[0-9a-z_]{1,15}$/i
     if (!validUserNamePattern.test(userName)) {
@@ -360,7 +353,7 @@ function TargetUserSelectUI(props: { isAvailable: boolean }) {
     <M.ExpansionPanel defaultExpanded>
       <DenseExpansionPanelSummary expandIcon={<M.Icon>expand_more</M.Icon>}>
         <T>
-          {modeKor} 대상 {targetSummary}
+          {localizedMode} 대상 {targetSummary}
         </T>
       </DenseExpansionPanelSummary>
       <M.ExpansionPanelDetails className={classes.details}>
@@ -461,6 +454,7 @@ function TargetExecutionButtonUI(props: { isAvailable: boolean }) {
         type: 'follower',
         user: selectedUser!,
         list: targetList,
+        count: getFollowersCount(selectedUser!, targetList),
       },
       options: targetOptions,
     }
@@ -479,6 +473,7 @@ function TargetExecutionButtonUI(props: { isAvailable: boolean }) {
         type: 'follower',
         user: selectedUser!,
         list: targetList,
+        count: getFollowersCount(selectedUser!, targetList),
       },
       options: targetOptions,
     }

@@ -1,5 +1,4 @@
 import { PageEnum, isRunningStatus, SessionStatus, getLimitResetTime } from '../../scripts/common.js'
-import * as TextGenerate from '../../scripts/text-generate.js'
 import { cleanupSessions, stopAllChainBlock, stopChainBlock } from '../popup.js'
 import { DialogContext, PageSwitchContext } from './contexts.js'
 import * as i18n from '../../scripts/i18n.js'
@@ -85,13 +84,14 @@ function ChainBlockSessionItem(props: { session: SessionInfo }) {
     const statusMessage = statusMessageObj[status]
     return statusMessage
   }
-  function renderControls({ sessionId, status, request }: SessionInfo) {
+  function renderControls({ sessionId, status }: SessionInfo) {
     function requestStopChainBlock() {
       if (isRunningStatus(status)) {
-        const message = TextGenerate.confirmStopMessage(request)
         modalContext.openModal({
           dialogType: 'confirm',
-          message,
+          message: {
+            title: i18n.getMessage('confirm_session_stop_message'),
+          },
           callback() {
             stopChainBlock(sessionId)
           },
@@ -101,10 +101,10 @@ function ChainBlockSessionItem(props: { session: SessionInfo }) {
       stopChainBlock(sessionId)
     }
     let closeButtonText = i18n.getMessage('close')
-    let closeButtonTitleText = ''
+    let closeButtonTitleText = i18n.getMessage('tooltip_close_session')
     if (isRunningStatus(status)) {
       closeButtonText = i18n.getMessage('stop')
-      closeButtonTitleText = TextGenerate.stopButtonTooltipMessage(request)
+      closeButtonTitleText = i18n.getMessage('tooltip_stop_session')
     }
     return (
       <React.Fragment>

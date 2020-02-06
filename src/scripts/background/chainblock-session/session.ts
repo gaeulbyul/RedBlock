@@ -32,6 +32,7 @@ export interface FollowerBlockSessionRequest {
     type: 'follower'
     user: TwitterUser
     list: FollowKind
+    count: number | null
   }
   options: {
     quickMode: boolean
@@ -51,6 +52,7 @@ export interface TweetReactionBlockSessionRequest {
     // user: TwitterUser
     tweet: Tweet
     reaction: ReactionKind
+    count: number
   }
   options: {
     myFollowers: Verb

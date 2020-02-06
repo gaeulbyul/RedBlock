@@ -1,4 +1,4 @@
-import { getUserNameFromURL } from '../common.js'
+import { getUserNameFromURL, getFollowersCount, getReactionsCount } from '../common.js'
 import * as TextGenerate from '../text-generate.js'
 import { alert } from './background.js'
 import {
@@ -27,6 +27,7 @@ async function sendFollowerChainBlockConfirm(tab: browser.tabs.Tab, userName: st
       type: 'follower',
       list: followKind,
       user,
+      count: getFollowersCount(user, followKind),
     },
   }
   const [isOk, alertMessage] = checkFollowerBlockTarget(request.target)
@@ -55,6 +56,7 @@ async function sendTweetReactionChainBlockConfirm(tab: browser.tabs.Tab, tweetId
       type: 'tweetReaction',
       reaction,
       tweet,
+      count: getReactionsCount(tweet, reaction),
     },
   }
   const [isOk, alertMessage] = checkTweetReactionBlockTarget(request.target)

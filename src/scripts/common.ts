@@ -157,16 +157,6 @@ export function getReactionsCount(tweet: Tweet, reaction: ReactionKind): number 
   }
 }
 
-export function formatNumber(input: unknown, quick = false): string {
-  if (typeof input === 'number') {
-    const count = quick ? Math.min(input, 200) : input
-    const formatted = count.toLocaleString()
-    return `${formatted}`
-  } else {
-    return '??'
-  }
-}
-
 export function isRunningStatus(status: SessionStatus): boolean {
   const runningStatuses = [SessionStatus.Initial, SessionStatus.Running, SessionStatus.RateLimited]
   return runningStatuses.includes(status)
