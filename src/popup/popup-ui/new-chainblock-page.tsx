@@ -214,7 +214,6 @@ function TargetUserProfile(props: { isAvailable: boolean }) {
             checked={quickMode}
             onChange={() => mutateOptions({ quickMode: !quickMode })}
             label={i18n.getMessage('quick_mode_label')}
-            title={i18n.getMessage('quick_mode_description')}
           />
         </div>
       </div>

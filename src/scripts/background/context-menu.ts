@@ -1,5 +1,6 @@
 import { getUserNameFromURL, getFollowersCount, getReactionsCount } from '../common.js'
 import * as TextGenerate from '../text-generate.js'
+import * as i18n from '../i18n.js'
 import { alert } from './background.js'
 import {
   checkFollowerBlockTarget,
@@ -93,7 +94,7 @@ async function createContextMenu(options: RedBlockStorage['options']) {
     contexts: ['link'],
     documentUrlPatterns: urlPatterns,
     targetUrlPatterns: urlPatterns,
-    title: '이 사용자의 팔로워에게 체인블락 실행',
+    title: i18n.getMessage('run_followers_chainblock_to_this_user'),
     onclick(clickEvent, tab) {
       const url = new URL(clickEvent.linkUrl!)
       const userName = getUserNameFromURL(url)!
@@ -104,7 +105,7 @@ async function createContextMenu(options: RedBlockStorage['options']) {
     contexts: ['link'],
     documentUrlPatterns: urlPatterns,
     targetUrlPatterns: urlPatterns,
-    title: '이 사용자의 팔로잉에게 체인블락 실행',
+    title: i18n.getMessage('run_followings_chainblock_to_this_user'),
     onclick(clickEvent, tab) {
       const url = new URL(clickEvent.linkUrl!)
       const userName = getUserNameFromURL(url)!
@@ -115,7 +116,7 @@ async function createContextMenu(options: RedBlockStorage['options']) {
     contexts: ['link'],
     documentUrlPatterns: urlPatterns,
     targetUrlPatterns: urlPatterns,
-    title: '이 사용자의 맞팔로워에게 체인블락 실행',
+    title: i18n.getMessage('run_mutual_followers_chainblock_to_this_user'),
     onclick(clickEvent, tab) {
       const url = new URL(clickEvent.linkUrl!)
       const userName = getUserNameFromURL(url)!
@@ -132,7 +133,7 @@ async function createContextMenu(options: RedBlockStorage['options']) {
       contexts: ['link'],
       documentUrlPatterns: urlPatterns,
       targetUrlPatterns: tweetUrlPatterns,
-      title: '이 트윗을 리트윗한 사용자에게 체인블락 실행(β)',
+      title: i18n.getMessage('run_retweeters_chainblock_to_this_tweet'),
       onclick(clickEvent, tab) {
         const url = new URL(clickEvent.linkUrl!)
         const tweetId = getTweetIdFromUrl(url)!
@@ -143,7 +144,7 @@ async function createContextMenu(options: RedBlockStorage['options']) {
       contexts: ['link'],
       documentUrlPatterns: urlPatterns,
       targetUrlPatterns: tweetUrlPatterns,
-      title: '이 트윗을 마음에 들어한 사용자에게 체인블락 실행(β)',
+      title: i18n.getMessage('run_likers_chainblock_to_this_tweet'),
       onclick(clickEvent, tab) {
         const url = new URL(clickEvent.linkUrl!)
         const tweetId = getTweetIdFromUrl(url)!

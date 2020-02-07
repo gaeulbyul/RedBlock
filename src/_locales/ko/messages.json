@@ -161,7 +161,7 @@
     "message": "현재 유저"
   },
   "select_user": {
-    "message": "사용자 선택"
+    "message": "유저 선택"
   },
   "saved_user": {
     "message": "저장한 유저"
@@ -173,16 +173,16 @@
     "message": "제거"
   },
   "user_not_selected": {
-    "message": "체인블락을 실행할 사용자를 선택해주세요"
+    "message": "체인블락을 실행할 대상 유저를 선택해주세요"
   },
   "profile_image": {
     "message": "프로필 이미지"
   },
   "cant_chainblock_to_protected": {
-    "message": "프로텍트가 걸린 사용자에게 체인블락을 실행할 수 없습니다."
+    "message": "프로텍트가 걸린 유저에게 체인블락을 실행할 수 없습니다."
   },
   "cant_chainblock_to_blocked": {
-    "message": "이 사용자가 나를 차단하여 체인블락을 실행할 수 없습니다."
+    "message": "이 유저가 나를 차단하여 체인블락을 실행할 수 없습니다."
   },
   "target": {
     "message": "대상"
@@ -202,7 +202,7 @@
     "message": "내 팔로잉"
   },
   "failed_to_get_user_info": {
-    "message": "사용자 @$username$의 정보를 가져올 수 없습니다.",
+    "message": "유저 @$username$의 정보를 가져올 수 없습니다.",
     "placeholders": {
       "username": {
         "content": "$1"
@@ -274,9 +274,6 @@
   "quick_mode_label": {
     "message": "퀵 모드 (200명 이하만 차단)"
   },
-  "quick_mode_description": {
-    "message": "퀵 모드: 최근에 해당 사용자에게 체인블락을 실행하였으나 이후에 새로 생긴 팔로워만 더 빠르게 차단하기 위해 고안한 기능입니다. (단, 팔로잉이나 팔로워가 이미 200명 이하인 경우 아무련 효과가 없습니다.)"
-  },
   "skip": {
     "message": "냅두기"
   },
@@ -321,7 +318,7 @@
     }
   },
   "confirm_retweeted_chainblock_title": {
-    "message": "정말로 @$username$이 쓴 트윗을 리트윗한 사용자에게 체인블락을 실행하시겠습니까?",
+    "message": "정말로 @$username$이 쓴 트윗을 리트윗한 유저에게 체인블락을 실행하시겠습니까?",
     "placeholders": {
       "username": {
         "content": "$1"
@@ -329,7 +326,7 @@
     }
   },
   "confirm_liked_chainblock_title": {
-    "message": "정말로 @$username$이 쓴 트윗을 마음에 들어한 사용자에게 체인블락을 실행하시겠습니까?",
+    "message": "정말로 @$username$이 쓴 트윗을 마음에 들어한 유저에게 체인블락을 실행하시겠습니까?",
     "placeholders": {
       "username": {
         "content": "$1"
@@ -340,7 +337,7 @@
     "message": "주의! 내 팔로워를 차단할 수도 있습니다."
   },
   "warning_maybe_you_block_your_followings": {
-    "message": "주의! 내가 팔로우하는 사용자를 차단할 수도 있습니다."
+    "message": "주의! 내가 팔로우하는 유저를 차단할 수도 있습니다."
   },
   "tweet_contents": {
     "message": "트윗 내용"
@@ -393,5 +390,50 @@
   },
   "no": {
     "message": "아니요"
+  },
+  "error_occured_check_login": {
+    "message": "오류가 발생했습니다. 로그인을 했는지 확인해주세요."
+  },
+  "error_occured": {
+    "message": "오류가 발생했습니다."
+  },
+  "error_rate_limited": {
+    "message": "현재 리밋이 걸린 상태입니다. 나중에 다시 시도해주세요."
+  },
+  "run_followers_chainblock_to_this_user": {
+    "message": "이 유저의 팔로워에게 체인블락 실행"
+  },
+  "run_followings_chainblock_to_this_user": {
+    "message": "이 유저의 팔로잉에게 체인블락 실행"
+  },
+  "run_mutual_followers_chainblock_to_this_user": {
+    "message": "이 유저의 맞팔로워에게 체인블락 실행"
+  },
+  "run_retweeters_chainblock_to_this_tweet": {
+    "message": "이 트윗을 리트윗한 유저에게 체인블락 실행"
+  },
+  "run_likers_chainblock_to_this_tweet": {
+    "message": "이 트윗을 마음에 들어한 유저에게 체인블락 실행"
+  },
+  "already_running_to_same_target": {
+    "message": "이미 같은 대상에게 (언)체인블락이 실행중입니다."
+  },
+  "cant_chainblock_follower_is_zero": {
+    "message": "팔로워가 0명입니다."
+  },
+  "cant_chainblock_following_is_zero": {
+    "message": "팔로잉이 0명입니다."
+  },
+  "cant_chainblock_mutual_follower_is_zero": {
+    "message": "맞팔로워가 0명입니다."
+  },
+  "cant_chainblock_too_many_block": {
+    "message": "오·남용을 막기 위해 10만명이 넘는 사용자를 대상으로 하는 체인블락은 제한합니다."
+  },
+  "cant_chainblock_nobody_retweeted": {
+    "message": "아무도 리트윗하지 않은 트윗입니다."
+  },
+  "cant_chainblock_nobody_liked": {
+    "message": "아무도 마음에 들어하지 않은 트윗입니다."
   }
 }

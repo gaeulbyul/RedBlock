@@ -3,6 +3,7 @@ import { alert } from './background.js'
 import ChainBlocker from './chainblock.js'
 import * as Storage from './storage.js'
 import * as TwitterAPI from './twitter-api.js'
+import * as i18n from '../i18n.js'
 import { initializeContextMenu } from './context-menu.js'
 
 type TwitterUser = TwitterAPI.TwitterUser
@@ -14,7 +15,7 @@ const tabConnections = new Set<number>()
 export async function executeFollowerChainBlock(request: FollowerBlockSessionRequest) {
   const myself = await TwitterAPI.getMyself().catch(() => null)
   if (!myself) {
-    alert('로그인 여부를 확인해주세요.')
+    alert(i18n.getMessage('error_occured_check_login'))
     return
   }
   try {
@@ -32,7 +33,7 @@ export async function executeFollowerChainBlock(request: FollowerBlockSessionReq
       .catch(() => {}) // 우클릭 체인블락의 경우 팝업이 없음
   } catch (err) {
     if (err instanceof TwitterAPI.RateLimitError) {
-      alert('현재 리밋에 걸린 상태입니다. 나중에 다시 시도해주세요.')
+      alert(i18n.getMessage('error_rate_limited'))
     } else {
       throw err
     }
@@ -42,7 +43,7 @@ export async function executeFollowerChainBlock(request: FollowerBlockSessionReq
 export async function executeTweetReactionChainBlock(request: TweetReactionBlockSessionRequest) {
   const myself = await TwitterAPI.getMyself().catch(() => null)
   if (!myself) {
-    alert('로그인 여부를 확인해주세요.')
+    alert(i18n.getMessage('error_occured_check_login'))
     return
   }
   try {
@@ -60,7 +61,7 @@ export async function executeTweetReactionChainBlock(request: TweetReactionBlock
       .catch(() => {}) // 우클릭 체인블락의 경우 팝업이 없음
   } catch (err) {
     if (err instanceof TwitterAPI.RateLimitError) {
-      alert('현재 리밋에 걸린 상태입니다. 나중에 다시 시도해주세요.')
+      alert(i18n.getMessage('error_rate_limited'))
     } else {
       throw err
     }

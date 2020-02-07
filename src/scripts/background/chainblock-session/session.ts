@@ -1,5 +1,6 @@
 import * as Scraper from './scraper.js'
 import * as TwitterAPI from '../twitter-api.js'
+import * as i18n from '../../i18n.js'
 import {
   EventEmitter,
   SessionStatus,
@@ -359,30 +360,30 @@ export const tweetReactionBlockDefaultOption: Readonly<TweetReactionBlockSession
 export function checkFollowerBlockTarget(target: FollowerBlockSessionRequest['target']): [boolean, string] {
   const { blocked_by, protected: isProtected, following, followers_count, friends_count } = target.user
   if (blocked_by) {
-    return [false, `\u26d4 @${target.user.screen_name}이(가) 나를 차단하여 (언)체인블락을 실행할 수 없습니다.`]
+    return [false, `\u26d4 ${i18n.getMessage('cant_chainblock_to_blocked')}`]
   }
   if (isProtected && !following) {
-    return [false, '\u{1f512} 프로텍트 계정을 대상으로 (언)체인블락을 실행할 수 없습니다.']
+    return [false, `\u{1f512} ${i18n.getMessage('cant_chainblock_to_protected')}`]
   }
   if (target.list === 'followers' && followers_count <= 0) {
-    return [false, '팔로워가 0명인 계정입니다.']
+    return [false, i18n.getMessage('cant_chainblock_follower_is_zero')]
   } else if (target.list === 'friends' && friends_count <= 0) {
-    return [false, '팔로잉이 0명인 계정입니다.']
+    return [false, i18n.getMessage('cant_chainblock_following_is_zero')]
   } else if (target.list === 'mutual-followers' && followers_count <= 0 && friends_count <= 0) {
-    return [false, '팔로워나 팔로잉이 0명인 계정입니다.']
+    return [false, i18n.getMessage('cant_chainblock_mutual_follower_is_zero')]
   }
   const userCount = getFollowersCount(target.user, target.list) ?? 0
   if (userCount > MAX_USER_LIMIT) {
-    return [false, '오·남용을 막기 위해 10만명이 넘는 사용자를 대상으로 하는 체인블락은 제한합니다.']
+    return [false, i18n.getMessage('cant_chainblock_too_many_block')]
   }
   return [true, '']
 }
 
 export function checkTweetReactionBlockTarget(target: TweetReactionBlockSessionRequest['target']): [boolean, string] {
   if (target.reaction === 'retweeted' && target.tweet.retweet_count <= 0) {
-    return [false, '아무도 리트윗하지 않은 트윗입니다.']
+    return [false, i18n.getMessage('cant_chainblock_nobody_retweeted')]
   } else if (target.reaction === 'liked' && target.tweet.favorite_count <= 0) {
-    return [false, '아무도 마음에 들어하지 않은 트윗입니다.']
+    return [false, i18n.getMessage('cant_chainblock_nobody_liked')]
   }
   return [true, '']
 }

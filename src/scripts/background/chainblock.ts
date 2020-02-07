@@ -1,5 +1,6 @@
 import { SessionStatus, isRunningStatus } from '../common.js'
 import * as TextGenerate from '../text-generate.js'
+import * as i18n from '../i18n.js'
 import { alert, notify } from './background.js'
 import ChainBlockSession from './chainblock-session/session.js'
 
@@ -57,10 +58,8 @@ export default class ChainBlocker {
     session.eventEmitter.on('stopped', () => {
       this.startRemainingSessions()
     })
-    session.eventEmitter.on('error', err => {
-      let message = `오류발생! 메시지:\n`
-      message += err
-      notify(message)
+    session.eventEmitter.on('error', error => {
+      notify(`${i18n.getMessage('error_occured')}:\n${error}`)
     })
     session.eventEmitter.on('mark-user', params => {
       this.markUser(params)
@@ -85,7 +84,7 @@ export default class ChainBlocker {
   public add(request: SessionRequest) {
     const { target } = request
     if (this.isAlreadyRunning(target)) {
-      alert('이미 같은 대상에게 체인블락이나 언체인블락이 실행중입니다.')
+      alert(i18n.getMessage('already_running_to_same_target'))
       return null
     }
     const session = new ChainBlockSession(request)
