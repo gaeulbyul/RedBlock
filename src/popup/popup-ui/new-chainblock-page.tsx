@@ -189,7 +189,7 @@ function TargetUserProfile(props: { isAvailable: boolean }) {
               target="_blank"
               rel="noopener noreferer"
               href={`https://twitter.com/${user.screen_name}`}
-              title={`https://twitter.com/${user.screen_name} 로 이동`}
+              title={i18n.getMessage('go_to_url', `https://twitter.com/${user.screen_name}`)}
             >
               @{user.screen_name}
             </a>
@@ -243,13 +243,13 @@ function TargetChainBlockOptionsUI() {
   const { myFollowers, myFollowings } = targetOptions
   const verbs: Array<[Verb, string]> = [
     ['Skip', i18n.getMessage('skip')],
-    ['Mute', i18n.getMessage('mute')],
-    ['Block', i18n.getMessage('block')],
+    ['Mute', i18n.getMessage('do_mute')],
+    ['Block', i18n.getMessage('do_block')],
   ]
   return (
     <React.Fragment>
       <M.FormControl component="fieldset">
-        <M.FormLabel component="legend">내 팔로워</M.FormLabel>
+        <M.FormLabel component="legend">{i18n.getMessage('my_followers')}</M.FormLabel>
         <M.RadioGroup row>
           {verbs.map(([verb, vKor], index) => (
             <M.FormControlLabel
@@ -264,7 +264,7 @@ function TargetChainBlockOptionsUI() {
       </M.FormControl>
       <br />
       <M.FormControl component="fieldset">
-        <M.FormLabel component="legend">내 팔로잉</M.FormLabel>
+        <M.FormLabel component="legend">{i18n.getMessage('my_followings')}</M.FormLabel>
         <M.RadioGroup row>
           {verbs.map(([verb, vKor], index) => (
             <M.FormControlLabel
@@ -306,7 +306,7 @@ function TargetUserSelectUI(props: { isAvailable: boolean }) {
         openModal({
           dialogType: 'alert',
           message: {
-            title: `사용자 @${userName}을(를) 찾을 수 없습니다.`,
+            title: i18n.getMessage('failed_to_get_user_info', userName),
           },
         })
         setSelectedUser(null)
@@ -334,26 +334,24 @@ function TargetUserSelectUI(props: { isAvailable: boolean }) {
   const classes = useStylesForExpansionPanels()
   let targetSummary = ''
   if (selectedUser) {
-    targetSummary += '('
-    targetSummary += `@${selectedUser.screen_name} `
+    const userName = selectedUser.screen_name
     switch (targetList) {
       case 'followers':
-        targetSummary += '팔로워'
+        targetSummary = i18n.getMessage('followers_with_targets_name', userName)
         break
       case 'friends':
-        targetSummary += '팔로잉'
+        targetSummary = i18n.getMessage('followings_with_targets_name', userName)
         break
       case 'mutual-followers':
-        targetSummary += '맞팔로워'
+        targetSummary = i18n.getMessage('mutual_followers_with_targets_name', userName)
         break
     }
-    targetSummary += ')'
   }
   return (
     <M.ExpansionPanel defaultExpanded>
       <DenseExpansionPanelSummary expandIcon={<M.Icon>expand_more</M.Icon>}>
         <T>
-          {localizedMode} 대상 {targetSummary}
+          {i18n.getMessage('target')} ({localizedMode} / {targetSummary})
         </T>
       </DenseExpansionPanelSummary>
       <M.ExpansionPanelDetails className={classes.details}>
@@ -383,31 +381,31 @@ function TargetUserSelectUI(props: { isAvailable: boolean }) {
 function TargetOptionsUI() {
   const { selectedMode, setSelectedMode } = React.useContext(TargetUserContext)
   const classes = useStylesForExpansionPanels()
-  const modeKor = selectedMode === 'chainblock' ? '체인블락' : '언체인블락'
+  const localizedMode = i18n.getMessage(selectedMode)
   return (
     <M.ExpansionPanel defaultExpanded>
       <DenseExpansionPanelSummary expandIcon={<M.Icon>expand_more</M.Icon>}>
-        <T>{modeKor} 옵션</T>
+        <T>
+          {i18n.getMessage('options')} ({localizedMode})
+        </T>
       </DenseExpansionPanelSummary>
       <M.ExpansionPanelDetails className={classes.details}>
         <div>
           <M.Tabs value={selectedMode} onChange={(_ev, val) => setSelectedMode(val)}>
-            <M.Tab value={'chainblock'} label={`\u{1f6d1} 체인블락`} />
-            <M.Tab value={'unchainblock'} label={`\u{1f49a} 언체인블락`} />
+            <M.Tab value={'chainblock'} label={`\u{1f6d1} ${i18n.getMessage('chainblock')}`} />
+            <M.Tab value={'unchainblock'} label={`\u{1f49a} ${i18n.getMessage('unchainblock')}`} />
           </M.Tabs>
           <M.Divider />
           <TabPanel value={selectedMode} index={'chainblock'}>
             <TargetChainBlockOptionsUI />
             <div className="description">
-              위 조건에 해당하지 않는 나머지 사용자를 모두 <mark>차단</mark>합니다. (단, <b>나와 맞팔로우</b>인 사용자는
-              위 옵션과 무관하게 <b>뮤트나 차단하지 않습니다</b>.)
+              {i18n.getMessage('chainblock_description')}
+              {i18n.getMessage('my_mutual_followers_wont_block')}
             </div>
           </TabPanel>
           <TabPanel value={selectedMode} index={'unchainblock'}>
             <TargetUnChainBlockOptionsUI />
-            <div className="description">
-              위 조건에 해당하지 않는 나머지 사용자를 모두 <mark>차단 해제</mark>합니다.
-            </div>
+            <div className="description">{i18n.getMessage('unchainblock_description')}</div>
           </TabPanel>
         </div>
       </M.ExpansionPanelDetails>
@@ -420,13 +418,13 @@ function TargetUnChainBlockOptionsUI() {
   const { targetOptions, mutateOptions } = React.useContext(TargetUserContext)
   const { mutualBlocked } = targetOptions
   const verbs: Array<[Verb, string]> = [
-    ['Skip', '(맞차단인 상태로) 냅두기'],
-    ['UnBlock', '차단 해제하기'],
+    ['Skip', i18n.getMessage('skip')],
+    ['UnBlock', i18n.getMessage('do_unblock')],
   ]
   return (
     <React.Fragment>
       <M.FormControl component="fieldset">
-        <M.FormLabel component="legend">서로 맞차단</M.FormLabel>
+        <M.FormLabel component="legend">{i18n.getMessage('mutually_blocked')}</M.FormLabel>
         <M.RadioGroup row>
           {verbs.map(([verb, vKor], index) => (
             <M.FormControlLabel
@@ -489,12 +487,16 @@ function TargetExecutionButtonUI(props: { isAvailable: boolean }) {
     <M.Box padding="10px">
       {selectedMode === 'chainblock' && (
         <BigExecuteChainBlockButton disabled={!isAvailable} onClick={onExecuteChainBlockButtonClicked}>
-          <span>{'\u{1f6d1}'} 체인블락 실행</span>
+          <span>
+            {'\u{1f6d1}'} {i18n.getMessage('execute_chainblock')}
+          </span>
         </BigExecuteChainBlockButton>
       )}
       {selectedMode === 'unchainblock' && (
         <BigExecuteUnChainBlockButton disabled={!isAvailable} onClick={onExecuteUnChainBlockButtonClicked}>
-          <span>{'\u{1f49a}'} 언체인블락 실행</span>
+          <span>
+            {'\u{1f49a}'} {i18n.getMessage('execute_unchainblock')}
+          </span>
         </BigExecuteUnChainBlockButton>
       )}
     </M.Box>

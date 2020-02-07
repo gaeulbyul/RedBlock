@@ -1,4 +1,5 @@
 import { DialogMessageObj } from '../../scripts/text-generate.js'
+import * as i18n from '../../scripts/i18n.js'
 
 const M = MaterialUI
 
@@ -25,16 +26,16 @@ export function RBDialog(props: { isOpen: boolean; content: DialogContent | null
         return (
           <React.Fragment>
             <M.Button onClick={confirmOk} color="primary">
-              네
+              {i18n.getMessage('yes')}
             </M.Button>
-            <M.Button onClick={closeModal}>아니요</M.Button>
+            <M.Button onClick={closeModal}>{i18n.getMessage('no')}</M.Button>
           </React.Fragment>
         )
       case 'alert':
         return (
           <React.Fragment>
             <M.Button onClick={closeModal} color="primary">
-              닫기
+              {i18n.getMessage('close')}
             </M.Button>
           </React.Fragment>
         )

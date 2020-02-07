@@ -92,7 +92,6 @@ export function generateTweetReactionBlockMessage(request: TweetReactionBlockSes
   const { tweet, reaction } = request.target
   const { myFollowers, myFollowings } = request.options
   const authorName = tweet.user.name
-  // const title = `정말로 선택한 트윗에 ${reactionKor}한 사용자에게 체인블락을 실행하시겠습니까?`
   let title = ''
   const contents = []
   const warnings = []

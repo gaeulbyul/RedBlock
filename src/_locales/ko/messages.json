@@ -187,6 +187,28 @@
   "target": {
     "message": "대상"
   },
+  "go_to_url": {
+    "message": "$url$로 이동",
+    "placeholders": {
+      "url": {
+        "content": "$1"
+      }
+    }
+  },
+  "my_followers": {
+    "message": "내 팔로워"
+  },
+  "my_followings": {
+    "message": "내 팔로잉"
+  },
+  "failed_to_get_user_info": {
+    "message": "사용자 @$username$의 정보를 가져올 수 없습니다.",
+    "placeholders": {
+      "username": {
+        "content": "$1"
+      }
+    }
+  },
   "followers_with_count": {
     "message": "팔로워 $count$명",
     "placeholders": {
@@ -199,6 +221,30 @@
     "message": "팔로잉 $count$명",
     "placeholders": {
       "count": {
+        "content": "$1"
+      }
+    }
+  },
+  "followers_with_targets_name": {
+    "message": "@$username$의 팔로워",
+    "placeholders": {
+      "username": {
+        "content": "$1"
+      }
+    }
+  },
+  "followings_with_targets_name": {
+    "message": "@$username$의 팔로잉",
+    "placeholders": {
+      "username": {
+        "content": "$1"
+      }
+    }
+  },
+  "mutual_followers_with_targets_name": {
+    "message": "@$username$의 맞팔로워",
+    "placeholders": {
+      "username": {
         "content": "$1"
       }
     }
@@ -233,6 +279,30 @@
   },
   "skip": {
     "message": "냅두기"
+  },
+  "do_block": {
+    "message": "차단하기"
+  },
+  "do_mute": {
+    "message": "뮤트하기"
+  },
+  "do_unblock": {
+    "message": "차단 해제하기"
+  },
+  "mutually_blocked": {
+    "message": "서로 맞차단"
+  },
+  "options": {
+    "message": "옵션"
+  },
+  "chainblock_description": {
+    "message": "설정한 옵션에 따라 유저를 모두 차단합니다."
+  },
+  "unchainblock_description": {
+    "message": "설정한 옵션에 따라 유저를 모두 차단해제합니다."
+  },
+  "my_mutual_followers_wont_block": {
+    "message": "단, 내 맞팔로워는 위 옵션과 무관하게 차단이나 뮤트를 하지 않습니다."
   },
   "confirm_follower_chainblock_title": {
     "message": "정말로 @$username$에게 체인블락을 실행하시겠습니까?",
@@ -275,6 +345,12 @@
   "tweet_contents": {
     "message": "트윗 내용"
   },
+  "execute_chainblock": {
+    "message": "체인블락 실행"
+  },
+  "execute_unchainblock": {
+    "message": "언체인블락 실행"
+  },
   "confirm_session_stop_message": {
     "message": "이 세션을 중단하시겠습니까?"
   },
@@ -311,5 +387,11 @@
   },
   "unchainblock_completed": {
     "message": "언체인블락 완료!"
+  },
+  "yes": {
+    "message": "네"
+  },
+  "no": {
+    "message": "아니요"
   }
 }
