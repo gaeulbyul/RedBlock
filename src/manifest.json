@@ -20,7 +20,9 @@
     "cookies",
     "bookmarks",
     "contextMenus",
-    "tabs"
+    "tabs",
+    "webRequest",
+    "webRequestBlocking"
   ],
 
   "options_ui": {

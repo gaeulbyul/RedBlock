@@ -1,6 +1,9 @@
 import * as Scraper from './scraper.js'
 import * as TwitterAPI from '../twitter-api.js'
 import * as i18n from '../../i18n.js'
+import { blockMultipleUsers, BlockAllResult } from '../block-all.js'
+import { TwitterUserMap } from '../../common.js'
+
 import {
   EventEmitter,
   SessionStatus,
@@ -146,6 +149,7 @@ export default class ChainBlockSession {
   public async start() {
     const scraper = Scraper.initScraper(this.request)
     const blocker = new Blocker()
+    const multiBlocker = new BlockAllAPIBlocker()
     const { target } = this.request
     let apiKind: FollowKind | ReactionKind
     switch (target.type) {
@@ -158,6 +162,19 @@ export default class ChainBlockSession {
     }
     const incrementSuccess = (v: VerbSomething) => this.sessionInfo.progress.success[v]++
     const incrementFailure = () => this.sessionInfo.progress.failure++
+    const handleAfterMultiBlock = (result: void | BlockAllResult) => {
+      if (!result) {
+        return
+      }
+      result.blocked.forEach(userId => {
+        incrementSuccess('Block')
+        this.eventEmitter.emit('mark-user', {
+          userId,
+          verb: 'Block',
+        })
+      })
+      result.failed.forEach(() => incrementFailure())
+    }
     let stopped = false
     try {
       for await (const maybeUser of scraper) {
@@ -189,23 +206,29 @@ export default class ChainBlockSession {
           this.sessionInfo.progress.already++
           continue
         }
-        blocker.add(
-          blocker.create(whatToDo, user).then(
-            resultUser => {
-              if (resultUser) {
-                incrementSuccess(whatToDo)
-                this.eventEmitter.emit('mark-user', {
-                  userId: resultUser.id_str,
-                  verb: whatToDo,
-                })
-              }
-            },
-            () => incrementFailure()
+        if (whatToDo === 'Block') {
+          multiBlocker.add(user)
+        } else {
+          blocker.add(
+            blocker.create(whatToDo, user).then(
+              resultUser => {
+                if (resultUser) {
+                  incrementSuccess(whatToDo)
+                  this.eventEmitter.emit('mark-user', {
+                    userId: resultUser.id_str,
+                    verb: whatToDo,
+                  })
+                }
+              },
+              () => incrementFailure()
+            )
           )
-        )
+        }
         await blocker.flushIfNeed()
+        await multiBlocker.flushIfNeeded().then(handleAfterMultiBlock)
       }
       await blocker.flush()
+      await multiBlocker.flush().then(handleAfterMultiBlock)
       if (stopped) {
         this.sessionInfo.status = SessionStatus.Stopped
         this.eventEmitter.emit('stopped', this.getSessionInfo())
@@ -306,6 +329,27 @@ export default class ChainBlockSession {
       return 'AlreadyDone'
     }
     return defaultVerb
+  }
+}
+
+class BlockAllAPIBlocker {
+  private readonly buffer = new TwitterUserMap()
+  public add(user: TwitterUser) {
+    console.debug('bmb[b=%d]: insert user:', this.buffer.size, user)
+    this.buffer.addUser(user)
+  }
+  public async flush() {
+    console.info('flush start!')
+    const result = await blockMultipleUsers(this.buffer) // .catch(() => { })
+    this.buffer.clear()
+    console.info('flush end!')
+    return result
+  }
+  public async flushIfNeeded() {
+    if (this.buffer.size >= 800) {
+      return this.flush()
+    }
+    return
   }
 }
 
