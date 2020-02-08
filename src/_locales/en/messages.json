@@ -299,7 +299,7 @@
     "message": "Unblocks all users according to the options you set."
   },
   "my_mutual_followers_wont_block": {
-    "message": "But, Your mutual-followers won't block regardless options above."
+    "message": "But, Your mutual-followers won't block for prevent mute/block your friends."
   },
   "confirm_follower_chainblock_title": {
     "message": "Do you want to run Chainblock to @$username$?",
