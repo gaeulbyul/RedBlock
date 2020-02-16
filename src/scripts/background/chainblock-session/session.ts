@@ -335,14 +335,14 @@ export default class ChainBlockSession {
 class BlockAllAPIBlocker {
   private readonly buffer = new TwitterUserMap()
   public add(user: TwitterUser) {
-    console.debug('bmb[b=%d]: insert user:', this.buffer.size, user)
+    // console.debug('bmb[b=%d]: insert user:', this.buffer.size, user)
     this.buffer.addUser(user)
   }
   public async flush() {
-    console.info('flush start!')
+    // console.info('flush start!')
     const result = await blockMultipleUsers(this.buffer) // .catch(() => { })
     this.buffer.clear()
-    console.info('flush end!')
+    // console.info('flush end!')
     return result
   }
   public async flushIfNeeded() {
