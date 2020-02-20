@@ -125,12 +125,12 @@ function ChainBlockSessionItem(props: { session: SessionInfo }) {
         <Table>
           <TableBody>
             <Row>
-              <Cell>{i18n.getMessage('block')}</Cell>
-              <Cell align="right">{s.Block.toLocaleString()}</Cell>
-            </Row>
-            <Row>
-              <Cell>{i18n.getMessage('unblock')}</Cell>
-              <Cell align="right">{s.UnBlock.toLocaleString()}</Cell>
+              <Cell>
+                {i18n.getMessage('block')} / {i18n.getMessage('unblock')}
+              </Cell>
+              <Cell align="right">
+                {s.Block.toLocaleString()} / {s.UnBlock.toLocaleString()}
+              </Cell>
             </Row>
             <Row>
               <Cell>{i18n.getMessage('mute')}</Cell>
