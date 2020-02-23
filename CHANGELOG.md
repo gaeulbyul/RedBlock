@@ -1,3 +1,8 @@
+## v0.7.0
+
+- Added English translation
+- 강제 로그아웃 현상을 막기 위해 유저를 차단할 때 block_all API를 활용하도록 함
+
 ## v0.6.0
 
 - 스크롤이 되지 않는 환경을 위한 UI 수정
