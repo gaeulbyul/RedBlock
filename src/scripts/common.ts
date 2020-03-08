@@ -172,3 +172,20 @@ export function getLimitResetTime(limit: Limit): string {
   const datetime = new Date(limit.reset * 1000 + 120000)
   return formatter.format(datetime)
 }
+
+export function unwrap<T>(maybeValue: Either<Error, T>) {
+  if (maybeValue.ok) {
+    return maybeValue.value
+  } else {
+    const { error } = maybeValue
+    console.error(error)
+    throw error
+  }
+}
+
+export function wrapEither<T>(value: T): EitherRight<T> {
+  return {
+    ok: true,
+    value,
+  }
+}

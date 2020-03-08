@@ -402,10 +402,7 @@ export const tweetReactionBlockDefaultOption: Readonly<TweetReactionBlockSession
 })
 
 export function checkFollowerBlockTarget(target: FollowerBlockSessionRequest['target']): [boolean, string] {
-  const { blocked_by, protected: isProtected, following, followers_count, friends_count } = target.user
-  if (blocked_by) {
-    return [false, `\u26d4 ${i18n.getMessage('cant_chainblock_to_blocked')}`]
-  }
+  const { protected: isProtected, following, followers_count, friends_count } = target.user
   if (isProtected && !following) {
     return [false, `\u{1f512} ${i18n.getMessage('cant_chainblock_to_protected')}`]
   }

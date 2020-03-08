@@ -4,8 +4,8 @@ import ChainBlocker from './chainblock.js'
 import * as Storage from './storage.js'
 import * as TwitterAPI from './twitter-api.js'
 import * as i18n from '../i18n.js'
-import * as BlockAllAPI from './block-all.js'
 import { initializeContextMenu } from './context-menu.js'
+import { initializeWebRequest } from './webrequest.js'
 
 type TwitterUser = TwitterAPI.TwitterUser
 
@@ -152,51 +152,6 @@ function handleExtensionMessage(message: RBAction, sender: browser.runtime.Messa
   }
 }
 
-const isFirefox = browser.runtime.getURL('/').startsWith('moz-extension://')
-function initializeHeaderModifier() {
-  const reqFilters = {
-    urls: ['https://twitter.com/i/user/block_all'],
-  }
-  const extraInfoSpec = ['requestHeaders', 'blocking']
-  if (!isFirefox) {
-    extraInfoSpec.push('extraHeaders')
-  }
-  browser.webRequest.onBeforeSendHeaders.addListener(
-    details => {
-      // console.debug('block_all api', details)
-      const headers = details.requestHeaders!
-      for (let i = 0; i < headers.length; i++) {
-        const name = headers[i].name.toLowerCase()
-        const value = headers[i].value!
-        switch (name) {
-          case 'user-agent':
-            headers[i].value = BlockAllAPI.userAgent
-            break
-          case 'cookie':
-            headers[i].value = value
-              .replace(/\brweb_optin=(?:\S+?)\b/i, 'rweb_optin=off')
-              .replace(/\bcsrf_same_site_set=1;/i, '')
-            break
-          case 'origin':
-            headers[i].value = 'https://twitter.com'
-            break
-        }
-      }
-      // in HTTP Headers, Referrer should be "Referer"
-      headers.push({
-        name: 'referer',
-        value: 'https://twitter.com/settings/imported_blocked',
-      })
-      return {
-        requestHeaders: headers,
-      }
-    },
-    reqFilters,
-    // @ts-ignore
-    extraInfoSpec
-  )
-}
-
 function initialize() {
   window.setInterval(sendChainBlockerInfoToTabs, UI_UPDATE_DELAY)
   browser.runtime.onMessage.addListener(
@@ -210,7 +165,7 @@ function initialize() {
     }
   )
   initializeContextMenu()
-  initializeHeaderModifier()
+  initializeWebRequest()
 }
 
 initialize()

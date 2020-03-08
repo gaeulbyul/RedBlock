@@ -3,7 +3,7 @@
   "exclude": ["src/vendor/*", "*/**/flycheck_*"],
   "compilerOptions": {
     "target": "es2019",
-    "module": "es6",
+    "module": "es2020",
     "moduleResolution": "node",
     "allowJs": true,
     "checkJs": false,

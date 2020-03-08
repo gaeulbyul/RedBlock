@@ -1,14 +1,7 @@
-import { sleep, collectAsync } from '../common.js'
+import { sleep, collectAsync, unwrap, wrapEither } from '../common.js'
 
 const DELAY = 200
 const BEARER_TOKEN = `AAAAAAAAAAAAAAAAAAAAANRILgAAAAAAnNwIzUejRCOuH5E6I8xnZz4puTs%3D1Zv7ttfk8LF81IUq16cHjhLTvJu4FA33AGWWjCpTnA`
-
-function wrapEither<T>(value: T): EitherRight<T> {
-  return {
-    ok: true,
-    value,
-  }
-}
 
 export class RateLimitError extends Error {
   public constructor(message: string, public readonly response?: Response) {
@@ -130,25 +123,32 @@ export async function getTweetById(tweetId: string): Promise<Tweet> {
 async function getFollowsIds(
   followKind: FollowKind,
   user: TwitterUser,
-  cursor: string = '-1'
+  cursor = '-1',
+  actAsUserId = ''
 ): Promise<UserIdsResponse> {
-  const response = await requestAPI('get', `/${followKind}/ids.json`, {
-    user_id: user.id_str,
-    stringify_ids: true,
-    count: 5000,
-    cursor,
-  })
+  const response = await requestAPI(
+    'get',
+    `/${followKind}/ids.json`,
+    {
+      user_id: user.id_str,
+      stringify_ids: true,
+      count: 5000,
+      cursor,
+    },
+    actAsUserId
+  )
   return response.json() as Promise<UserIdsResponse>
 }
 
 export async function* getAllFollowsIds(
   followKind: FollowKind,
-  user: TwitterUser
+  user: TwitterUser,
+  actAsUserId = ''
 ): AsyncIterableIterator<Either<Error, string>> {
-  let cursor: string = '-1'
+  let cursor = '-1'
   while (true) {
     try {
-      const json = await getFollowsIds(followKind, user, cursor)
+      const json = await getFollowsIds(followKind, user, cursor, actAsUserId)
       cursor = json.next_cursor_str
       yield* json.ids.map(wrapEither)
       if (cursor === '0') {
@@ -166,11 +166,7 @@ export async function* getAllFollowsIds(
   }
 }
 
-async function getFollowsUserList(
-  followKind: FollowKind,
-  user: TwitterUser,
-  cursor: string = '-1'
-): Promise<UserListResponse> {
+async function getFollowsUserList(followKind: FollowKind, user: TwitterUser, cursor = '-1'): Promise<UserListResponse> {
   const response = await requestAPI('get', `/${followKind}/list.json`, {
     user_id: user.id_str,
     // screen_name: userName,
@@ -186,7 +182,7 @@ export async function* getAllFollowsUserList(
   followKind: FollowKind,
   user: TwitterUser
 ): AsyncIterableIterator<Either<Error, TwitterUser>> {
-  let cursor: string = '-1'
+  let cursor = '-1'
   while (true) {
     try {
       const json = await getFollowsUserList(followKind, user, cursor)
@@ -208,15 +204,6 @@ export async function* getAllFollowsUserList(
 }
 
 export async function getAllMutualFollowersIds(user: TwitterUser): Promise<string[]> {
-  function unwrap<T>(maybeValue: Either<Error, T>) {
-    if (maybeValue.ok) {
-      return maybeValue.value
-    } else {
-      const { error } = maybeValue
-      console.error(error)
-      throw error
-    }
-  }
   const followingsIds = (await collectAsync(getAllFollowsIds('friends', user))).map(unwrap)
   const followersIds = (await collectAsync(getAllFollowsIds('followers', user))).map(unwrap)
   const mutualIds = _.intersection(followingsIds, followersIds)
@@ -272,6 +259,20 @@ export async function getSingleUserByName(userName: string): Promise<TwitterUser
   return response.json() as Promise<TwitterUser>
 }
 
+export async function getSingleUserById(userId: string, actAsUserId = ''): Promise<TwitterUser> {
+  const response = await requestAPI(
+    'get',
+    '/users/show.json',
+    {
+      user_id: userId,
+      skip_status: true,
+      include_entities: false,
+    },
+    actAsUserId
+  )
+  return response.json() as Promise<TwitterUser>
+}
+
 export async function getFriendships(users: TwitterUser[]): Promise<FriendshipResponse> {
   const userIds = users.map(user => user.id_str)
   if (userIds.length === 0) {
@@ -323,7 +324,7 @@ export async function* getAllReactedUserList(
   reaction: ReactionKind,
   tweet: Tweet
 ): AsyncIterableIterator<Either<Error, TwitterUser>> {
-  let cursor: string = '-1'
+  let cursor = '-1'
   while (true) {
     try {
       const json = await getReactedUserList(reaction, tweet, cursor)
@@ -355,13 +356,19 @@ async function getCsrfTokenFromCookies(): Promise<string> {
   return csrfTokenCookie.value
 }
 
-async function generateTwitterAPIOptions(obj?: RequestInit): Promise<RequestInit> {
+async function generateTwitterAPIOptions(obj: RequestInit, actAsUserId: string): Promise<RequestInit> {
   const csrfToken = await getCsrfTokenFromCookies()
   const headers = new Headers()
   headers.set('authorization', `Bearer ${BEARER_TOKEN}`)
   headers.set('x-csrf-token', csrfToken)
   headers.set('x-twitter-active-user', 'yes')
   headers.set('x-twitter-auth-type', 'OAuth2Session')
+  if (actAsUserId) {
+    const multiCookies = await getMultiAccountCookies()
+    const token = multiCookies[actAsUserId]
+    headers.set('x-act-as-user-id', actAsUserId)
+    headers.set('x-act-as-user-token', token)
+  }
   const result: RequestInit = {
     method: 'get',
     mode: 'cors',
@@ -383,10 +390,34 @@ function setDefaultParams(params: URLSearchParams): void {
   params.set('include_can_dm', '1')
 }
 
-async function requestAPI(method: HTTPMethods, path: string, paramsObj: URLParamsObj = {}): Promise<Response> {
-  const fetchOptions = await generateTwitterAPIOptions({
-    method,
+export async function getMultiAccountCookies(): Promise<MultiAccountCookies> {
+  const url = 'https://twitter.com'
+  const authMultiCookie = await browser.cookies.get({
+    url,
+    name: 'auth_multi',
   })
+  if (!authMultiCookie) {
+    return {}
+  }
+  return parseAuthMultiCookie(authMultiCookie.value)
+}
+
+export function parseAuthMultiCookie(authMulti: string): MultiAccountCookies {
+  // "{userid}:{token}|{userid}:{token}|..."
+  const userTokenPairs = authMulti
+    .replace(/^"|"$/g, '')
+    .split('|')
+    .map(pair => pair.split(':') as [string, string])
+  return Object.fromEntries(userTokenPairs)
+}
+
+async function requestAPI(
+  method: HTTPMethods,
+  path: string,
+  paramsObj: URLParamsObj = {},
+  actAsUserId = ''
+): Promise<Response> {
+  const fetchOptions = await generateTwitterAPIOptions({ method }, actAsUserId)
   const url = new URL('https://api.twitter.com/1.1' + path)
   let params: URLSearchParams
   if (method === 'get') {
@@ -543,4 +574,8 @@ export interface LimitStatus {
     '/statuses/retweets/:id': Limit
     '/statuses/favorited_by': Limit
   }
+}
+
+export interface MultiAccountCookies {
+  [userId: string]: string
 }

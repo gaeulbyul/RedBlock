@@ -1,5 +1,5 @@
 import * as TwitterAPI from '../twitter-api.js'
-import { getFollowersCount, getReactionsCount } from '../../common.js'
+import { getFollowersCount, getReactionsCount, collectAsync, unwrap } from '../../common.js'
 import { SessionRequest } from './session.js'
 
 type TwitterUser = TwitterAPI.TwitterUser
@@ -40,7 +40,7 @@ export class QuickScraper implements UserScraper {
   }
 }
 
-// 맞팔로우 스크래퍼.
+// 맞팔로우 스크래퍼
 export class MutualFollowerScraper implements UserScraper {
   public totalCount: number | null = null
   constructor(private user: TwitterUser) {}
@@ -48,6 +48,30 @@ export class MutualFollowerScraper implements UserScraper {
     const mutualFollowersIds = await TwitterAPI.getAllMutualFollowersIds(this.user)
     this.totalCount = mutualFollowersIds.length
     yield* TwitterAPI.lookupUsersByIds(mutualFollowersIds)
+  }
+}
+
+// 차단상대 대상 스크래퍼
+export class FollowerScraperFromBlockedUser implements UserScraper {
+  public totalCount: number | null = null
+  constructor(private user: TwitterUser, private followKind: FollowKind) {}
+  private async prepareActor() {
+    const multiCookies = await TwitterAPI.getMultiAccountCookies()
+    const actorUserIds = Object.keys(multiCookies)
+    for (const actorId of actorUserIds) {
+      const target = await TwitterAPI.getSingleUserById(this.user.id_str, actorId).catch(() => null)
+      if (target && !target.blocked_by) {
+        return actorId
+      }
+    }
+    const i18n = await import('../../i18n.js')
+    throw new Error(i18n.getMessage('cant_chainblock_to_blocked'))
+  }
+  public async *[Symbol.asyncIterator]() {
+    const actAsUserId = await this.prepareActor()
+    const followsUserIds = await collectAsync(TwitterAPI.getAllFollowsIds(this.followKind, this.user, actAsUserId))
+    this.totalCount = followsUserIds.length
+    yield* TwitterAPI.lookupUsersByIds(followsUserIds.map(unwrap))
   }
 }
 
@@ -62,8 +86,20 @@ export class TweetReactedUserScraper implements UserScraper {
   }
 }
 
+function getTargetUser(target: SessionRequest['target']): TwitterUser {
+  if ('user' in target) {
+    return target.user
+  } else {
+    return target.tweet.user
+  }
+}
+
 export function initScraper(request: SessionRequest) {
   const { options, target } = request
+  const targetUser = getTargetUser(target)
+  if (target.type === 'follower' && targetUser.blocked_by) {
+    return new FollowerScraperFromBlockedUser(targetUser, target.list)
+  }
   const simpleScraper = 'quickMode' in options && options.quickMode ? QuickScraper : SimpleScraper
   switch (target.type) {
     case 'follower':
