@@ -61,7 +61,7 @@ export function RBDialog(props: { isOpen: boolean; content: DialogContent | null
 
 // from https://material-ui.com/components/tabs/#SimpleTabs.tsx
 export function TabPanel(props: { children?: React.ReactNode; index: any; value: any }) {
-  const { children, value, index, ...other } = props
+  const { children, value, index } = props
   const M = MaterialUI
   return (
     <M.Typography
@@ -70,7 +70,6 @@ export function TabPanel(props: { children?: React.ReactNode; index: any; value:
       hidden={value !== index}
       id={`simple-tabpanel-${index}`}
       aria-labelledby={`simple-tab-${index}`}
-      {...other}
     >
       {value === index && <M.Box p={1}>{children}</M.Box>}
     </M.Typography>

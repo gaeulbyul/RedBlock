@@ -388,7 +388,7 @@ function TargetOptionsUI() {
         </T>
       </DenseExpansionPanelSummary>
       <M.ExpansionPanelDetails className={classes.details}>
-        <div>
+        <div style={{ width: '100%' }}>
           <M.Tabs value={selectedMode} onChange={(_ev, val) => setSelectedMode(val)}>
             <M.Tab value={'chainblock'} label={`\u{1f6d1} ${i18n.getMessage('chainblock')}`} />
             <M.Tab value={'unchainblock'} label={`\u{1f49a} ${i18n.getMessage('unchainblock')}`} />
