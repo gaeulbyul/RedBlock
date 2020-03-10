@@ -41,5 +41,7 @@ function listenMarkUserEvents() {
   })
 }
 
-injectPageScripts()
-listenMarkUserEvents()
+if (document.getElementById('react-root')) {
+  injectPageScripts()
+  listenMarkUserEvents()
+}
