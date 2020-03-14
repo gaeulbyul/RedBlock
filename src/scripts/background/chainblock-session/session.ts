@@ -142,8 +142,8 @@ export default class ChainBlockSession {
   private readonly sessionInfo = this.initSessionInfo()
   private shouldStop = false
   public readonly eventEmitter = new EventEmitter<SessionEventEmitter>()
-  private readonly friendsFilter = new FriendsFilter()
-  public constructor(private request: SessionRequest) {}
+  private readonly friendsFilter = new FriendsFilter(this.requestedUser)
+  public constructor(private requestedUser: TwitterUser, private request: SessionRequest) {}
   public getSessionInfo() {
     return copyFrozenObject(this.sessionInfo)
   }
@@ -410,11 +410,12 @@ class FriendsFilter {
   private readonly followerIds: string[] = []
   private readonly followingIds: string[] = []
   private collected = false
+  public constructor(private myself: TwitterUser) {}
   public async collect() {
     if (this.collected) {
       return
     }
-    const myself = await TwitterAPI.getMyself()
+    const myself = this.myself
     const promises = []
     if (myself.followers_count > 0) {
       promises.push(

@@ -20,7 +20,7 @@ export async function executeFollowerChainBlock(request: FollowerBlockSessionReq
     return
   }
   try {
-    const sessionId = chainblocker.add(request)
+    const sessionId = chainblocker.add(myself, request)
     if (!sessionId) {
       console.info('not added. skip')
       return
@@ -48,7 +48,7 @@ export async function executeTweetReactionChainBlock(request: TweetReactionBlock
     return
   }
   try {
-    const sessionId = chainblocker.add(request)
+    const sessionId = chainblocker.add(myself, request)
     if (!sessionId) {
       console.info('not added. skip')
       return

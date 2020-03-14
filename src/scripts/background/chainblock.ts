@@ -81,13 +81,13 @@ export default class ChainBlocker {
       }
     }
   }
-  public add(request: SessionRequest) {
+  public add(requestedUser: TwitterUser, request: SessionRequest) {
     const { target } = request
     if (this.isAlreadyRunning(target)) {
       alert(i18n.getMessage('already_running_to_same_target'))
       return null
     }
-    const session = new ChainBlockSession(request)
+    const session = new ChainBlockSession(requestedUser, request)
     const sessionId = session.getSessionInfo().sessionId
     this.handleEvents(session)
     this.sessions.set(sessionId, session)
