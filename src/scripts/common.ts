@@ -189,18 +189,3 @@ export function wrapEither<T>(value: T): EitherRight<T> {
     value,
   }
 }
-
-export function wrapEither<T>(value: T): EitherRight<T> {
-  return {
-    ok: true,
-    value,
-  }
-}
-
-export function unwrap<T>(maybeValue: Either<Error, T>) {
-  if (maybeValue.ok) {
-    return maybeValue.value
-  } else {
-    throw maybeValue.error
-  }
-}
