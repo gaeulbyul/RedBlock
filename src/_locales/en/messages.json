@@ -432,5 +432,8 @@
   },
   "cant_chainblock_nobody_liked": {
     "message": "Nobody liked to this tweet."
+  },
+  "wtf_twitter": {
+    "message": "Warning: When blocking user, Red Block use Twitter's advanced block options. it may takes several minutes to blocks user."
   }
 }

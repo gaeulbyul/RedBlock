@@ -366,6 +366,14 @@ function TargetOptionsUI() {
   const { selectedMode, setSelectedMode } = React.useContext(TargetUserContext)
   const classes = useStylesForExpansionPanels()
   const localizedMode = i18n.getMessage(selectedMode)
+  // const helpPageLanguage = i18n.getUILanguage() === 'ko' ? 'ko' : 'en'
+  // const twitterAdvancedBlockOptionsHelpPageUrl = `https://help.twitter.com/${helpPageLanguage}/using-twitter/advanced-twitter-block-options`
+  // const pleaseReturnOurChainBlock = (
+  //   <a
+  //     target="_blank"
+  //     rel="noopener noreferer"
+  //     href={twitterAdvancedBlockOptionsHelpPageUrl}>*</a>
+  // )
   return (
     <M.ExpansionPanel defaultExpanded>
       <DenseExpansionPanelSummary expandIcon={<M.Icon>expand_more</M.Icon>}>
@@ -385,6 +393,7 @@ function TargetOptionsUI() {
             <div className="description">
               {i18n.getMessage('chainblock_description')}
               {i18n.getMessage('my_mutual_followers_wont_block')}
+              <div className="wtf">{i18n.getMessage('wtf_twitter')}</div>
             </div>
           </TabPanel>
           <TabPanel value={selectedMode} index={'unchainblock'}>
