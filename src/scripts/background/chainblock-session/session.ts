@@ -39,7 +39,6 @@ export interface FollowerBlockSessionRequest {
     count: number | null
   }
   options: {
-    quickMode: boolean
     myFollowers: Verb
     myFollowings: Verb
     mutualBlocked: Verb
@@ -456,7 +455,6 @@ class FriendsFilter {
 }
 
 export const followerBlockDefaultOption: Readonly<FollowerBlockSessionRequest['options']> = Object.freeze({
-  quickMode: false,
   myFollowers: 'Skip',
   myFollowings: 'Skip',
   mutualBlocked: 'Skip',

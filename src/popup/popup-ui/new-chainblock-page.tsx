@@ -56,7 +56,6 @@ const TargetUserContext = React.createContext<{
   targetList: 'followers',
   setTargetList: () => {},
   targetOptions: {
-    quickMode: false,
     myFollowers: 'Skip',
     myFollowings: 'Skip',
     mutualBlocked: 'Skip',
@@ -154,11 +153,9 @@ function TargetSavedUsers(props: {
 
 function TargetUserProfile(props: { isAvailable: boolean }) {
   const { isAvailable } = props
-  const { selectedUser, targetList, setTargetList, targetOptions, mutateOptions } = React.useContext(TargetUserContext)
+  const { selectedUser, targetList, setTargetList } = React.useContext(TargetUserContext)
   // selectedUser가 null일 땐 이 컴포넌트를 렌더링하지 않으므로
   const user = selectedUser!
-  const { quickMode } = targetOptions
-  const quickModeIsAvailable = isAvailable && targetList !== 'mutual-followers'
   const biggerProfileImageUrl = user.profile_image_url_https.replace('_normal', '_bigger')
   function radio(fk: FollowKind, label: string) {
     return (
@@ -170,9 +167,6 @@ function TargetUserProfile(props: { isAvailable: boolean }) {
         label={label}
       />
     )
-  }
-  function quickModeAwareCount(count: number) {
-    return quickMode ? Math.min(count, 200) : count
   }
   return (
     <div className="target-user-info">
@@ -202,18 +196,10 @@ function TargetUserProfile(props: { isAvailable: boolean }) {
         )}
         <div className="profile-right-targetlist">
           <M.RadioGroup row>
-            {radio('followers', i18n.formatFollowsCount('followers', quickModeAwareCount(user.followers_count)))}
-            {radio('friends', i18n.formatFollowsCount('friends', quickModeAwareCount(user.friends_count)))}
+            {radio('followers', i18n.formatFollowsCount('followers', user.followers_count))}
+            {radio('friends', i18n.formatFollowsCount('friends', user.friends_count))}
             {radio('mutual-followers', i18n.getMessage('mutual_followers'))}
           </M.RadioGroup>
-          <hr />
-          <M.FormControlLabel
-            control={<M.Checkbox />}
-            disabled={!quickModeIsAvailable}
-            checked={quickMode}
-            onChange={() => mutateOptions({ quickMode: !quickMode })}
-            label={i18n.getMessage('quick_mode_label')}
-          />
         </div>
       </div>
     </div>
@@ -542,7 +528,6 @@ const BigExecuteUnChainBlockButton = MaterialUI.withStyles(theme => ({
 export default function NewChainBlockPage(props: { currentUser: TwitterUser | null }) {
   const { currentUser } = props
   const [targetOptions, setTargetOptions] = React.useState<SessionOptions>({
-    quickMode: false,
     myFollowers: 'Skip',
     myFollowings: 'Skip',
     mutualBlocked: 'Skip',

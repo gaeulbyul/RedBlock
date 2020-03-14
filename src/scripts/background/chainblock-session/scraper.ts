@@ -31,26 +31,6 @@ export class SimpleScraper implements UserScraper {
   }
 }
 
-// 고속 스크래퍼. 최대 200명 이하의 사용자만 가져온다.
-export class QuickScraper implements UserScraper {
-  private readonly limitCount = 200
-  public readonly requireFriendsFilter = false
-  public totalCount: number
-  constructor(private user: TwitterUser, private followKind: Exclude<FollowKind, 'mutual-followers'>) {
-    this.totalCount = Math.min(this.limitCount, getFollowersCount(user, followKind)!)
-  }
-  public async *[Symbol.asyncIterator]() {
-    let count = 0
-    for await (const item of TwitterAPI.getAllFollowsUserList(this.followKind, this.user)) {
-      count++
-      yield item
-      if (count >= this.limitCount) {
-        break
-      }
-    }
-  }
-}
-
 // 맞팔로우 스크래퍼
 export class MutualFollowerScraper implements UserScraper {
   public totalCount: number | null = null

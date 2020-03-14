@@ -271,9 +271,6 @@
       }
     }
   },
-  "quick_mode_label": {
-    "message": "Quick mode (Blocks up to 200 users)"
-  },
   "skip": {
     "message": "Skip"
   },

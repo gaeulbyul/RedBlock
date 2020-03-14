@@ -11,14 +11,6 @@ export interface DialogMessageObj {
   warningLines?: string[]
 }
 
-function quickModeAwareCount(count: number | null, quickMode: boolean) {
-  if (typeof count === 'number') {
-    return quickMode ? Math.min(count, 200) : count
-  } else {
-    return null
-  }
-}
-
 export function objToString(msg: DialogMessageObj): string {
   const { title, contentLines, warningLines } = msg
   let result = title
@@ -39,10 +31,9 @@ export function objToString(msg: DialogMessageObj): string {
 
 export function generateFollowerBlockConfirmMessage(request: FollowerBlockSessionRequest): DialogMessageObj {
   const { purpose } = request
-  const { user, list: targetList } = request.target
-  const { myFollowers, myFollowings, quickMode } = request.options
+  const { user, count, list: targetList } = request.target
+  const { myFollowers, myFollowings } = request.options
   const targetUserName = user.screen_name
-  const count = quickModeAwareCount(request.target.count, quickMode)
   let title = ''
   switch (purpose) {
     case 'chainblock':

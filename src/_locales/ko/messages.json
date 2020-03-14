@@ -271,9 +271,6 @@
       }
     }
   },
-  "quick_mode_label": {
-    "message": "퀵 모드 (200명 이하만 차단)"
-  },
   "skip": {
     "message": "냅두기"
   },
