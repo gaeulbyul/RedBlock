@@ -5,7 +5,6 @@ import {
 } from '../scripts/background/chainblock-session/session.js'
 import { TwitterUser } from '../scripts/background/twitter-api.js'
 import { getUserNameFromURL } from '../scripts/common.js'
-import { generateFollowerBlockConfirmMessage, generateTweetReactionBlockMessage } from '../scripts/text-generate.js'
 
 type Tab = browser.tabs.Tab
 
@@ -15,11 +14,7 @@ export async function startFollowerChainBlock(request: FollowerBlockSessionReque
     alert(alertMessage)
     return
   }
-  const confirmMessage = generateFollowerBlockConfirmMessage(request)
-  if (!window.confirm(confirmMessage)) {
-    return
-  }
-  return browser.runtime.sendMessage<RBActions.StartFollowerChainBlock, void>({
+  browser.runtime.sendMessage<RBActions.StartFollowerChainBlock>({
     actionType: 'StartFollowerChainBlock',
     request,
   })
@@ -31,11 +26,7 @@ export async function startTweetReactionChainBlock(request: TweetReactionBlockSe
     alert(alertMessage)
     return
   }
-  const confirmMessage = generateTweetReactionBlockMessage(request)
-  if (!window.confirm(confirmMessage)) {
-    return
-  }
-  return browser.runtime.sendMessage<RBActions.StartTweetReactionChainBlock, void>({
+  browser.runtime.sendMessage<RBActions.StartTweetReactionChainBlock>({
     actionType: 'StartTweetReactionChainBlock',
     request,
   })

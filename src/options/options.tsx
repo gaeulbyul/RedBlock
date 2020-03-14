@@ -17,8 +17,8 @@ function OptionsApp() {
     <div>
       <fieldset>
         <legend>실험적인 기능</legend>
-        <div className="field">
-          <label>
+        <div className="option-item">
+          <label className="field checkbox-field">
             <input
               type="checkbox"
               checked={options.experimental_tweetReactionBasedChainBlock}
@@ -28,20 +28,18 @@ function OptionsApp() {
                 })
               }
             />
-            <span className="checkable">트윗반응 기반 체인블락</span>
+            <span>트윗반응 체인블락</span>
           </label>
-          <div className="description">
-            사용법: 위 옵션이 켜져있을 때, 체인블락을 실행하고 싶은 트윗의 링크에 우클릭을 하면 Red Block 메뉴에 항목이
-            나타납니다.
+          <div className="info-option">
+            <p>지정한 트윗을 리트윗하거나 마음에 들어한 사용자의 일부를 차단합니다.</p>
+            <p>
+              사용법: 위 옵션이 켜져있을 때, 체인블락을 실행하고 싶은 트윗의 링크에 우클릭을 하면 Red Block 메뉴에
+              항목이 나타납니다.
+            </p>
             {'\u26a0'} 주의:
             <ol>
-              <li>
-                이미 차단하거나 프로텍트, 일시정지등의 이유로 실제로 차단할 수 있는 사용자는 적거나 아예 없을 수
-                있습니다.
-              </li>
-              <li>
-                비팔알림(내가 팔로우하지 않는 사용자의 알림)을 끌 경우 이 기능이 제대로 작동하지 않을 수 있습니다.
-              </li>
+              <li>이 기능으로 실제로 차단할 수 있는 사용자는 적거나 없을 수 있습니다.</li>
+              <li>이 기능은 이미 차단한 사용자를 집계하지 못 합니다.</li>
             </ol>
           </div>
         </div>

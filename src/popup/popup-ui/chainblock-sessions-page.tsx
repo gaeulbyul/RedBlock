@@ -1,8 +1,12 @@
-import { SessionStatus, isRunningStatus } from '../../scripts/common.js'
-import { stopAllChainBlock, stopChainBlock, cleanupSessions } from '../popup.js'
-import * as TextGenerate from '../../scripts/text-generate.js'
+import { PageEnum, isRunningStatus, SessionStatus, getLimitResetTime } from '../../scripts/common.js'
+import { cleanupSessions, stopAllChainBlock, stopChainBlock } from '../popup.js'
+import { DialogContext, PageSwitchContext } from './contexts.js'
+import * as i18n from '../../scripts/i18n.js'
 
-function calculatePercentage(session: SessionInfo): number {
+const M = MaterialUI
+const T = MaterialUI.Typography
+
+function calculatePercentage(session: SessionInfo): number | null {
   const { status, count } = session
   if (status === SessionStatus.Completed) {
     return 100
@@ -11,194 +15,233 @@ function calculatePercentage(session: SessionInfo): number {
   if (typeof max === 'number') {
     return Math.round((count.scraped / max) * 1000) / 10
   } else {
-    return 0
+    return null
   }
 }
 
-function renderProfileImageWithProgress(session: SessionInfo) {
-  const {
-    request: { purpose, target },
-  } = session
-  let user: TwitterUser
-  switch (target.type) {
-    case 'follower':
-      user = target.user
-      break
-    case 'tweetReaction':
-      user = target.tweet.user
-      break
-  }
-  const width = 72
-  const strokeWidth = 4
-  const radius = width / 2 - strokeWidth * 2
-  const circumference = radius * 2 * Math.PI
-  const percent = calculatePercentage(session)
-  const strokeDasharray = `${circumference} ${circumference}`
-  const strokeDashoffset = circumference - (percent / 100) * circumference
-  // if omit _${size}, will get original-size image
-  const strokeColor = purpose === 'chainblock' ? 'crimson' : 'seagreen'
-  const biggerProfileImageUrl = user.profile_image_url_https.replace('_normal', '_bigger')
-  return (
-    <svg width={width} height={width}>
-      <defs>
-        <circle id="profile-circle" cx={width / 2} cy={width / 2} r={radius}></circle>
-        <clipPath id="profile-circle-clip">
-          <use href="#profile-circle" />
-        </clipPath>
-      </defs>
-      <g clipPath="url(#profile-circle-clip)">
-        <image
-          clipPath="url(#profile-circle-clip)"
-          width={width}
-          height={width}
-          href={biggerProfileImageUrl}
-          transform="scale(0.9)"
-          style={{
-            transformOrigin: '50% 50%',
-          }}
-        />
-        <use
-          href="#profile-circle"
-          stroke={strokeColor}
-          strokeWidth={strokeWidth}
-          fill="transparent"
-          style={{
-            strokeDasharray,
-            strokeDashoffset,
-            transform: 'rotate(-90deg)',
-            transformOrigin: '50% 50%',
-            transition: 'stroke-dashoffset 400ms ease-in-out',
-          }}
-        ></use>
-      </g>
-    </svg>
-  )
-}
+const useStylesForSessionItem = MaterialUI.makeStyles(() =>
+  MaterialUI.createStyles({
+    card: {
+      margin: '15px 0',
+    },
+    expand: {
+      marginLeft: 'auto',
+    },
+  })
+)
 
 function ChainBlockSessionItem(props: { session: SessionInfo }) {
   const { session } = props
   const { purpose, target } = session.request
+  const modalContext = React.useContext(DialogContext)
+  const classes = useStylesForSessionItem()
+  const [expanded, setExpanded] = React.useState(false)
+  function toggleExpand() {
+    setExpanded(!expanded)
+  }
+  const isChainBlock = purpose === 'chainblock'
+  const isUnchainBlock = purpose === 'unchainblock'
   let user: TwitterUser
+  let localizedTarget = ''
   switch (target.type) {
     case 'follower':
       user = target.user
+      switch (target.list) {
+        case 'followers':
+          localizedTarget = i18n.getMessage('followers_of_xxx', user.screen_name)
+          break
+        case 'friends':
+          localizedTarget = i18n.getMessage('followings_of_xxx', user.screen_name)
+          break
+        case 'mutual-followers':
+          localizedTarget = i18n.getMessage('mutual_followers_of_xxx', user.screen_name)
+          break
+      }
       break
     case 'tweetReaction':
       user = target.tweet.user
+      switch (target.reaction) {
+        case 'retweeted':
+          localizedTarget = i18n.getMessage('retweeted_xxxs_tweet', user.screen_name)
+          break
+        case 'liked':
+          localizedTarget = i18n.getMessage('liked_xxxs_tweet', user.screen_name)
+          break
+      }
       break
   }
-  const isChainBlock = purpose === 'chainblock'
-  const isUnChainBlock = purpose === 'unchainblock'
-  const purposeKor = isChainBlock ? '체인블락' : '언체인블락'
+  const localizedPurpose = i18n.getMessage(purpose)
+  const cardTitle = `${localizedPurpose} ${statusToString(session.status)}`
   function statusToString(status: SessionStatus): string {
     const statusMessageObj: { [key: number]: string } = {
-      [SessionStatus.Initial]: '대기 중',
-      [SessionStatus.Completed]: '완료',
-      [SessionStatus.Running]: '실행 중…',
-      [SessionStatus.RateLimited]: '리밋',
-      [SessionStatus.Stopped]: '정지',
-      [SessionStatus.Error]: '오류 발생!',
+      [SessionStatus.Initial]: i18n.getMessage('session_status_initial'),
+      [SessionStatus.Completed]: i18n.getMessage('session_status_completed'),
+      [SessionStatus.Running]: i18n.getMessage('session_status_running'),
+      [SessionStatus.RateLimited]: i18n.getMessage('session_status_rate_limited'),
+      [SessionStatus.Stopped]: i18n.getMessage('session_status_stopped'),
+      [SessionStatus.Error]: i18n.getMessage('session_status_error'),
     }
     const statusMessage = statusMessageObj[status]
     return statusMessage
   }
-  function renderText({ progress, status }: SessionInfo) {
-    const statusMessage = statusToString(status)
-    return (
-      <div className="session-status">
-        상태: {purposeKor} {statusMessage}
-        <ul className="detail-progress">
-          {isChainBlock && (
-            <li>
-              <b>차단: {progress.success.Block.toLocaleString()}</b>
-            </li>
-          )}
-          {isUnChainBlock && (
-            <li>
-              <b>차단해제: {progress.success.UnBlock.toLocaleString()}</b>
-            </li>
-          )}
-          {progress.success.Mute > 0 && <li>뮤트함: {progress.success.Mute.toLocaleString}</li>}
-          {isChainBlock && progress.already > 0 && <li>이미 차단/뮤트함: {progress.already.toLocaleString()}</li>}
-          {isUnChainBlock && progress.already > 0 && <li>이미 차단해제함: {progress.already.toLocaleString()}</li>}
-          {progress.skipped > 0 && <li>스킵: {progress.skipped.toLocaleString()}</li>}
-          {progress.failure > 0 && <li>실패: {progress.failure.toLocaleString()}</li>}
-        </ul>
-      </div>
-    )
-  }
-
-  function renderControls({ sessionId, status, request }: SessionInfo) {
+  function renderControls({ sessionId, status }: SessionInfo) {
     function requestStopChainBlock() {
       if (isRunningStatus(status)) {
-        const confirmMessage = TextGenerate.confirmStopMessage(request)
-        if (!window.confirm(confirmMessage)) {
-          return
-        }
+        modalContext.openModal({
+          dialogType: 'confirm',
+          message: {
+            title: i18n.getMessage('confirm_session_stop_message'),
+          },
+          callback() {
+            stopChainBlock(sessionId)
+          },
+        })
+        return
       }
       stopChainBlock(sessionId)
     }
-    let closeButtonText = '닫기'
-    let closeButtonTitleText = ''
+    let closeButtonText = i18n.getMessage('close')
+    let closeButtonTitleText = i18n.getMessage('tooltip_close_session')
     if (isRunningStatus(status)) {
-      closeButtonText = '중지'
-      closeButtonTitleText = TextGenerate.stopButtonTitleMessage(request)
+      closeButtonText = i18n.getMessage('stop')
+      closeButtonTitleText = i18n.getMessage('tooltip_stop_session')
     }
     return (
-      <div className="controls align-to-end">
-        <button type="button" title={closeButtonTitleText} onClick={requestStopChainBlock}>
+      <React.Fragment>
+        <M.Button title={closeButtonTitleText} onClick={requestStopChainBlock}>
           {closeButtonText}
-        </button>
-      </div>
+        </M.Button>
+        <M.IconButton className={classes.expand} onClick={toggleExpand}>
+          <M.Icon>{expanded ? 'expand_less' : 'expand_more'}</M.Icon>
+        </M.IconButton>
+      </React.Fragment>
     )
   }
+  function renderTable({ progress: p }: SessionInfo) {
+    const { TableContainer, Table, TableBody, TableRow: Row, TableCell: Cell } = MaterialUI
+    const { success: s } = p
+    return (
+      <TableContainer>
+        <Table>
+          <TableBody>
+            <Row>
+              <Cell>
+                {i18n.getMessage('block')} / {i18n.getMessage('unblock')}
+              </Cell>
+              <Cell align="right">
+                {s.Block.toLocaleString()} / {s.UnBlock.toLocaleString()}
+              </Cell>
+            </Row>
+            <Row>
+              <Cell>{i18n.getMessage('mute')}</Cell>
+              <Cell align="right">{s.Mute.toLocaleString()}</Cell>
+            </Row>
+            <Row>
+              <Cell>{i18n.getMessage('already_done')}</Cell>
+              <Cell align="right">{p.already.toLocaleString()}</Cell>
+            </Row>
+            <Row>
+              <Cell>{i18n.getMessage('skipped')}</Cell>
+              <Cell align="right">{p.skipped.toLocaleString()}</Cell>
+            </Row>
+            <Row>
+              <Cell>{i18n.getMessage('failed')}</Cell>
+              <Cell align="right">{p.failure.toLocaleString()}</Cell>
+            </Row>
+          </TableBody>
+        </Table>
+      </TableContainer>
+    )
+  }
+  let name = user.name
+  if (target.type === 'tweetReaction') {
+    name = `<${i18n.getMessage('tweet')}> ${name}`
+  }
+  const biggerProfileImageUrl = user.profile_image_url_https.replace('_normal', '_bigger')
+  const percentage = calculatePercentage(session)
+  const progressBar =
+    typeof percentage === 'number' ? (
+      <M.LinearProgress variant="determinate" value={percentage} />
+    ) : (
+      <M.LinearProgress variant="indeterminate" />
+    )
+  const succProgress = session.progress.success
   return (
-    <div className="session session-follower">
-      <div className="target-user-info">
-        <div className="profile-image-area">{renderProfileImageWithProgress(session)}</div>
-        <div className="profile-right-area">
-          <div className="profile-right-info">
-            <div className="ellipsis nickname" title={user.name}>
-              {user.name}
-            </div>
-            <div className="username" title={'@' + user.screen_name}>
-              <a
-                target="_blank"
-                rel="noopener noreferer"
-                href={`https://twitter.com/${user.screen_name}`}
-                title={`https://twitter.com/${user.screen_name} 로 이동`}
-              >
-                @{user.screen_name}
-              </a>
-            </div>
-            {renderText(session)}
-          </div>
-        </div>
-      </div>
-      {renderControls(session)}
-    </div>
+    <M.Card className={classes.card}>
+      <M.CardHeader avatar={<M.Avatar src={biggerProfileImageUrl} />} title={cardTitle} subheader={localizedTarget} />
+      <M.CardContent>
+        {progressBar}
+        <T>
+          <span>
+            {i18n.getMessage('status')}: {statusToString(session.status)}
+          </span>
+          {isChainBlock && (
+            <span>
+              {' '}
+              / {i18n.getMessage('block')}: {succProgress.Block.toLocaleString()}
+            </span>
+          )}
+          {isUnchainBlock && (
+            <span>
+              {' '}
+              / {i18n.getMessage('unblock')}: {succProgress.UnBlock.toLocaleString()}
+            </span>
+          )}
+        </T>
+        {session.limit && (
+          <T color="textSecondary">
+            {i18n.getMessage('rate_limit_reset_time')} (±5m): {getLimitResetTime(session.limit)}
+          </T>
+        )}
+      </M.CardContent>
+      <M.Divider variant="middle" />
+      <M.CardActions disableSpacing>{renderControls(session)}</M.CardActions>
+      <M.Collapse in={expanded} unmountOnExit>
+        <M.CardContent>{renderTable(session)}</M.CardContent>
+      </M.Collapse>
+    </M.Card>
   )
 }
 
+const useStylesForFabButton = MaterialUI.makeStyles(theme =>
+  MaterialUI.createStyles({
+    fab: {
+      position: 'fixed',
+      bottom: theme.spacing(5),
+      right: theme.spacing(2),
+    },
+  })
+)
+
 export default function ChainBlockSessionsPage(props: { sessions: SessionInfo[] }) {
   const { sessions } = props
+  const modalContext = React.useContext(DialogContext)
+  const pageSwitchCtx = React.useContext(PageSwitchContext)
+  const classes = useStylesForFabButton()
+  function handleFabButtonClicked() {
+    pageSwitchCtx.switchPage(PageEnum.NewSession)
+  }
   function renderGlobalControls() {
     function requestStopAllChainBlock() {
-      const confirmMessage = `실행중인 체인블락 및 언체인블락을 모두 중단하시겠습니까?`
-      if (!window.confirm(confirmMessage)) {
-        return
-      }
-      stopAllChainBlock()
+      modalContext.openModal({
+        dialogType: 'confirm',
+        message: {
+          title: i18n.getMessage('confirm_all_stop'),
+        },
+        callback: stopAllChainBlock,
+      })
     }
     return (
-      <div className="controls align-to-end">
-        <button type="button" onClick={requestStopAllChainBlock}>
-          모두 정지
-        </button>
-        <button type="button" onClick={cleanupSessions}>
-          완료작업 지우기
-        </button>
-      </div>
+      <M.ButtonGroup>
+        <M.Button onClick={requestStopAllChainBlock}>
+          <M.Icon>highlight_off</M.Icon>
+          {i18n.getMessage('stop_all')}
+        </M.Button>
+        <M.Button onClick={cleanupSessions}>
+          <M.Icon>clear_all</M.Icon>
+          {i18n.getMessage('cleanup_sessions')}
+        </M.Button>
+      </M.ButtonGroup>
     )
   }
   function renderSessions() {
@@ -213,7 +256,8 @@ export default function ChainBlockSessionsPage(props: { sessions: SessionInfo[] 
   function renderEmptySessions() {
     return (
       <div className="chainblock-suggest-start">
-        현재 진행중인 세션이 없습니다. 체인블락을 실행하려면 "새 세션" 탭을 눌러주세요.
+        {i18n.getMessage('session_is_empty')}
+        {i18n.getMessage('press_plus_to_start_new_session')}
       </div>
     )
   }
@@ -223,6 +267,11 @@ export default function ChainBlockSessionsPage(props: { sessions: SessionInfo[] 
       {renderGlobalControls()}
       <hr />
       {isSessionExist ? renderSessions() : renderEmptySessions()}
+      <M.Tooltip placement="left" title={i18n.getMessage('new_session')}>
+        <M.Fab className={classes.fab} color="primary" onClick={handleFabButtonClicked}>
+          <M.Icon>add</M.Icon>
+        </M.Fab>
+      </M.Tooltip>
     </div>
   )
 }

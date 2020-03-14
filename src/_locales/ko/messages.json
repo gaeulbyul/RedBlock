@@ -1,0 +1,439 @@
+{
+  "new_session": {
+    "message": "새 세션"
+  },
+  "running_sessions": {
+    "message": "실행중인 세션"
+  },
+  "open_in_new_tab": {
+    "message": "새 탭에서 열기"
+  },
+  "open_settings_ui": {
+    "message": "설정"
+  },
+  "followers": {
+    "message": "팔로워"
+  },
+  "followings": {
+    "message": "팔로잉"
+  },
+  "mutual_followers": {
+    "message": "맞팔로워"
+  },
+  "retweet": {
+    "message": "리트윗"
+  },
+  "like": {
+    "message": "마음에 들어요"
+  },
+  "chainblock": {
+    "message": "체인블락"
+  },
+  "unchainblock": {
+    "message": "언체인블락"
+  },
+  "followers_of_xxx": {
+    "message": "@$username$의 팔로워",
+    "placeholders": {
+      "username": {
+        "content": "$1"
+      }
+    }
+  },
+  "followings_of_xxx": {
+    "message": "@$username$가 팔로우하는 유저",
+    "placeholders": {
+      "username": {
+        "content": "$1"
+      }
+    }
+  },
+  "mutual_followers_of_xxx": {
+    "message": "@$username$와 맞팔로우한 유저",
+    "placeholders": {
+      "username": {
+        "content": "$1"
+      }
+    }
+  },
+  "retweeted_xxxs_tweet": {
+    "message": "@$username$의 트윗을 리트윗한 유저",
+    "placeholders": {
+      "username": {
+        "content": "$1"
+      }
+    }
+  },
+  "liked_xxxs_tweet": {
+    "message": "@$username$의 트윗을 마음에 들어한 유저",
+    "placeholders": {
+      "username": {
+        "content": "$1"
+      }
+    }
+  },
+  "session_status_initial": {
+    "message": "대기 중"
+  },
+  "session_status_completed": {
+    "message": "완료"
+  },
+  "session_status_running": {
+    "message": "실행 중…"
+  },
+  "session_status_rate_limited": {
+    "message": "리밋"
+  },
+  "session_status_stopped": {
+    "message": "정지"
+  },
+  "session_status_error": {
+    "message": "오류"
+  },
+  "close": {
+    "message": "닫기"
+  },
+  "stop": {
+    "message": "중지"
+  },
+  "block": {
+    "message": "차단"
+  },
+  "unblock": {
+    "message": "차단해제"
+  },
+  "mute": {
+    "message": "뮤트"
+  },
+  "unmute": {
+    "message": "언뮤트"
+  },
+  "skipped": {
+    "message": "건너뜀"
+  },
+  "failed": {
+    "message": "실패함"
+  },
+  "already_done": {
+    "message": "이미 처리함"
+  },
+  "tweet": {
+    "message": "트윗"
+  },
+  "status": {
+    "message": "상태"
+  },
+  "rate_limit_reset_time": {
+    "message": "예상 리밋해제 시각"
+  },
+  "confirm_all_stop": {
+    "message": "실행중인 세션을 모두 중지하겠습니까?"
+  },
+  "stop_all": {
+    "message": "모두 중지"
+  },
+  "cleanup_sessions": {
+    "message": "완료작업 지우기"
+  },
+  "session_is_empty": {
+    "message": "현재 진행중인 세션이 없습니다."
+  },
+  "press_plus_to_start_new_session": {
+    "message": "체인블락을 시작하려면 아래의 + 버튼을 눌러주세요."
+  },
+  "user_xxx_added": {
+    "message": "@$username$을(를) 추가했습니다.",
+    "placeholders": {
+      "username": {
+        "content": "$1"
+      }
+    }
+  },
+  "user_xxx_removed": {
+    "message": "@$username$을(를) 제거했습니다.",
+    "placeholders": {
+      "username": {
+        "content": "$1"
+      }
+    }
+  },
+  "current_user": {
+    "message": "현재 유저"
+  },
+  "select_user": {
+    "message": "유저 선택"
+  },
+  "saved_user": {
+    "message": "저장한 유저"
+  },
+  "add": {
+    "message": "추가"
+  },
+  "remove": {
+    "message": "제거"
+  },
+  "user_not_selected": {
+    "message": "체인블락을 실행할 대상 유저를 선택해주세요"
+  },
+  "profile_image": {
+    "message": "프로필 이미지"
+  },
+  "cant_chainblock_to_protected": {
+    "message": "프로텍트가 걸린 유저에게 체인블락을 실행할 수 없습니다."
+  },
+  "cant_chainblock_to_blocked": {
+    "message": "이 유저가 나를 차단하여 체인블락을 실행할 수 없습니다."
+  },
+  "target": {
+    "message": "대상"
+  },
+  "go_to_url": {
+    "message": "$url$로 이동",
+    "placeholders": {
+      "url": {
+        "content": "$1"
+      }
+    }
+  },
+  "my_followers": {
+    "message": "내 팔로워"
+  },
+  "my_followings": {
+    "message": "내 팔로잉"
+  },
+  "failed_to_get_user_info": {
+    "message": "유저 @$username$의 정보를 가져올 수 없습니다.",
+    "placeholders": {
+      "username": {
+        "content": "$1"
+      }
+    }
+  },
+  "followers_with_count": {
+    "message": "팔로워 $count$명",
+    "placeholders": {
+      "count": {
+        "content": "$1"
+      }
+    }
+  },
+  "followings_with_count": {
+    "message": "팔로잉 $count$명",
+    "placeholders": {
+      "count": {
+        "content": "$1"
+      }
+    }
+  },
+  "followers_with_targets_name": {
+    "message": "@$username$의 팔로워",
+    "placeholders": {
+      "username": {
+        "content": "$1"
+      }
+    }
+  },
+  "followings_with_targets_name": {
+    "message": "@$username$의 팔로잉",
+    "placeholders": {
+      "username": {
+        "content": "$1"
+      }
+    }
+  },
+  "mutual_followers_with_targets_name": {
+    "message": "@$username$의 맞팔로워",
+    "placeholders": {
+      "username": {
+        "content": "$1"
+      }
+    }
+  },
+  "followers_with_targets_name_and_count": {
+    "message": "@$username$의 팔로워 $count$명",
+    "placeholders": {
+      "username": {
+        "content": "$1"
+      },
+      "count": {
+        "content": "$2"
+      }
+    }
+  },
+  "followings_with_targets_name_and_count": {
+    "message": "@$username$의 팔로잉 $count$명",
+    "placeholders": {
+      "username": {
+        "content": "$1"
+      },
+      "count": {
+        "content": "$2"
+      }
+    }
+  },
+  "skip": {
+    "message": "냅두기"
+  },
+  "do_block": {
+    "message": "차단하기"
+  },
+  "do_mute": {
+    "message": "뮤트하기"
+  },
+  "do_unblock": {
+    "message": "차단 해제하기"
+  },
+  "mutually_blocked": {
+    "message": "서로 맞차단"
+  },
+  "options": {
+    "message": "옵션"
+  },
+  "chainblock_description": {
+    "message": "설정한 옵션에 따라 유저를 모두 차단합니다."
+  },
+  "unchainblock_description": {
+    "message": "설정한 옵션에 따라 유저를 모두 차단해제합니다."
+  },
+  "my_mutual_followers_wont_block": {
+    "message": "단, 내 맞팔로워는 위 옵션과 무관하게 차단이나 뮤트를 하지 않습니다."
+  },
+  "confirm_follower_chainblock_title": {
+    "message": "정말로 @$username$에게 체인블락을 실행하시겠습니까?",
+    "placeholders": {
+      "username": {
+        "content": "$1"
+      }
+    }
+  },
+  "confirm_follower_unchainblock_title": {
+    "message": "정말로 @$username$에게 언체인블락을 실행하시겠습니까?",
+    "placeholders": {
+      "username": {
+        "content": "$1"
+      }
+    }
+  },
+  "confirm_retweeted_chainblock_title": {
+    "message": "정말로 @$username$이 쓴 트윗을 리트윗한 유저에게 체인블락을 실행하시겠습니까?",
+    "placeholders": {
+      "username": {
+        "content": "$1"
+      }
+    }
+  },
+  "confirm_liked_chainblock_title": {
+    "message": "정말로 @$username$이 쓴 트윗을 마음에 들어한 유저에게 체인블락을 실행하시겠습니까?",
+    "placeholders": {
+      "username": {
+        "content": "$1"
+      }
+    }
+  },
+  "warning_maybe_you_block_your_followers": {
+    "message": "주의! 내 팔로워를 차단할 수도 있습니다."
+  },
+  "warning_maybe_you_block_your_followings": {
+    "message": "주의! 내가 팔로우하는 유저를 차단할 수도 있습니다."
+  },
+  "tweet_contents": {
+    "message": "트윗 내용"
+  },
+  "execute_chainblock": {
+    "message": "체인블락 실행"
+  },
+  "execute_unchainblock": {
+    "message": "언체인블락 실행"
+  },
+  "confirm_session_stop_message": {
+    "message": "이 세션을 중단하시겠습니까?"
+  },
+  "tooltip_close_session": {
+    "message": "이 세션을 닫습니다."
+  },
+  "tooltip_stop_session": {
+    "message": "이 세션을 중단합니다."
+  },
+  "blocked_n_users": {
+    "message": "$count$명을 차단했습니다.",
+    "placeholders": {
+      "count": {
+        "content": "$1"
+      }
+    }
+  },
+  "unblocked_n_users": {
+    "message": "$count$명을 차단해제했습니다.",
+    "placeholders": {
+      "count": {
+        "content": "$1"
+      }
+    }
+  },
+  "already_blocked": {
+    "message": "이미 차단함"
+  },
+  "already_unblocked": {
+    "message": "이미 차단해제함"
+  },
+  "chainblock_completed": {
+    "message": "체인블락 완료!"
+  },
+  "unchainblock_completed": {
+    "message": "언체인블락 완료!"
+  },
+  "yes": {
+    "message": "네"
+  },
+  "no": {
+    "message": "아니요"
+  },
+  "error_occured_check_login": {
+    "message": "오류가 발생했습니다. 로그인을 했는지 확인해주세요."
+  },
+  "error_occured": {
+    "message": "오류가 발생했습니다."
+  },
+  "error_rate_limited": {
+    "message": "현재 리밋이 걸린 상태입니다. 나중에 다시 시도해주세요."
+  },
+  "run_followers_chainblock_to_this_user": {
+    "message": "이 유저의 팔로워에게 체인블락 실행"
+  },
+  "run_followings_chainblock_to_this_user": {
+    "message": "이 유저의 팔로잉에게 체인블락 실행"
+  },
+  "run_mutual_followers_chainblock_to_this_user": {
+    "message": "이 유저의 맞팔로워에게 체인블락 실행"
+  },
+  "run_retweeters_chainblock_to_this_tweet": {
+    "message": "이 트윗을 리트윗한 유저에게 체인블락 실행"
+  },
+  "run_likers_chainblock_to_this_tweet": {
+    "message": "이 트윗을 마음에 들어한 유저에게 체인블락 실행"
+  },
+  "already_running_to_same_target": {
+    "message": "이미 같은 대상에게 (언)체인블락이 실행중입니다."
+  },
+  "cant_chainblock_follower_is_zero": {
+    "message": "팔로워가 0명입니다."
+  },
+  "cant_chainblock_following_is_zero": {
+    "message": "팔로잉이 0명입니다."
+  },
+  "cant_chainblock_mutual_follower_is_zero": {
+    "message": "맞팔로워가 0명입니다."
+  },
+  "cant_chainblock_too_many_block": {
+    "message": "오·남용을 막기 위해 10만명이 넘는 사용자를 대상으로 하는 체인블락은 제한합니다."
+  },
+  "cant_chainblock_nobody_retweeted": {
+    "message": "아무도 리트윗하지 않은 트윗입니다."
+  },
+  "cant_chainblock_nobody_liked": {
+    "message": "아무도 마음에 들어하지 않은 트윗입니다."
+  },
+  "wtf_twitter": {
+    "message": "주의: 현재 레드블락은 내부적으로 트위터의 고급차단 기능을 사용합니다. 실제 유저차단이 반영될 때 까지 다소 시간이 걸릴 수 있습니다."
+  }
+}

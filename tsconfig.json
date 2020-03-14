@@ -2,8 +2,8 @@
   "include": ["src/**/*"],
   "exclude": ["src/vendor/*", "*/**/flycheck_*"],
   "compilerOptions": {
-    "target": "esnext",
-    "module": "esnext",
+    "target": "es2019",
+    "module": "es2020",
     "moduleResolution": "node",
     "allowJs": true,
     "checkJs": false,
@@ -19,6 +19,7 @@
     "noFallthroughCasesInSwitch": true,
     "experimentalDecorators": true,
     "emitDecoratorMetadata": true,
+    "resolveJsonModule": true,
     "typeRoots": ["node_modules/@types", "node_modules/web-ext-types", "src/scripts/types"]
   }
 }

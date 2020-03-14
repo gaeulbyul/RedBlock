@@ -1,4 +1,4 @@
-import { Tweet, TwitterUser, TwitterUserEntities } from './background/twitter-api.js'
+import { Tweet, TwitterUser, TwitterUserEntities, Limit } from './background/twitter-api.js'
 
 export const enum PageEnum {
   Sessions = 0,
@@ -72,10 +72,11 @@ export class TwitterUserMap extends Map<string, TwitterUser> {
 
 export function getUserNameFromURL(url: URL | Location | HTMLAnchorElement): string | null {
   const userNameBlacklist = [
-    '1',
     'about',
     'account',
     'blog',
+    'compose',
+    'download',
     'explore',
     'followers',
     'followings',
@@ -90,9 +91,17 @@ export function getUserNameFromURL(url: URL | Location | HTMLAnchorElement): str
     'oauth',
     'privacy',
     'search',
+    'session',
+    'settings',
+    'share',
+    'signup',
     'tos',
+    'welcome',
   ]
   const supportingHostname = ['twitter.com', 'mobile.twitter.com']
+  if (!/^https?/.test(url.protocol)) {
+    return null
+  }
   if (!supportingHostname.includes(url.hostname)) {
     return null
   }
@@ -148,19 +157,37 @@ export function getReactionsCount(tweet: Tweet, reaction: ReactionKind): number 
   }
 }
 
-export function formatNumber(input: unknown, quick = false): string {
-  if (typeof input === 'number') {
-    const count = quick ? Math.min(input, 200) : input
-    const formatted = count.toLocaleString()
-    return `${formatted}`
-  } else {
-    return '??'
-  }
-}
-
 export function isRunningStatus(status: SessionStatus): boolean {
   const runningStatuses = [SessionStatus.Initial, SessionStatus.Running, SessionStatus.RateLimited]
   return runningStatuses.includes(status)
+}
+
+export function getLimitResetTime(limit: Limit): string {
+  const timeZone = Intl.DateTimeFormat().resolvedOptions().timeZone
+  const formatter = new Intl.DateTimeFormat('ko-KR', {
+    timeZone,
+    hour: '2-digit',
+    minute: '2-digit',
+  })
+  const datetime = new Date(limit.reset * 1000 + 120000)
+  return formatter.format(datetime)
+}
+
+export function unwrap<T>(maybeValue: Either<Error, T>) {
+  if (maybeValue.ok) {
+    return maybeValue.value
+  } else {
+    const { error } = maybeValue
+    console.error(error)
+    throw error
+  }
+}
+
+export function wrapEither<T>(value: T): EitherRight<T> {
+  return {
+    ok: true,
+    value,
+  }
 }
 
 export function wrapEither<T>(value: T): EitherRight<T> {

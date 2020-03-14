@@ -1,28 +1,32 @@
 import * as Scraper from './scraper.js'
 import * as TwitterAPI from '../twitter-api.js'
+import * as i18n from '../../i18n.js'
+import { blockMultipleUsers, BlockAllResult } from '../block-all.js'
+import { collectAsync, unwrap } from '../../common.js'
+
 import {
   EventEmitter,
   SessionStatus,
   copyFrozenObject,
   getFollowersCount,
   getReactionsCount,
-  collectAsync,
   sleep,
-  unwrap,
 } from '../../common.js'
 
 export type SessionRequest = FollowerBlockSessionRequest | TweetReactionBlockSessionRequest
-// export type SessionType = FollowerBlockSession | TweetReactionBlockSession
 
 type Limit = TwitterAPI.Limit
 type TwitterUser = TwitterAPI.TwitterUser
 type Tweet = TwitterAPI.Tweet
 
+const MAX_USER_LIMIT = 10_0000
+
 interface SessionEventEmitter {
   'mark-user': MarkUserParams
   'rate-limit': Limit
   'rate-limit-reset': null
-  complete: SessionInfo['progress']
+  stopped: SessionInfo
+  complete: SessionInfo
   error: string
 }
 
@@ -32,9 +36,9 @@ export interface FollowerBlockSessionRequest {
     type: 'follower'
     user: TwitterUser
     list: FollowKind
+    count: number | null
   }
   options: {
-    quickMode: boolean
     myFollowers: Verb
     myFollowings: Verb
     mutualBlocked: Verb
@@ -51,6 +55,7 @@ export interface TweetReactionBlockSessionRequest {
     // user: TwitterUser
     tweet: Tweet
     reaction: ReactionKind
+    count: number
   }
   options: {
     myFollowers: Verb
@@ -80,8 +85,23 @@ export interface SessionInfo<ReqT = SessionRequest> {
   limit: Limit | null
 }
 
-function isAlreadyDone(user: TwitterUser, verb: VerbSomething): boolean {
-  const { blocking, muting } = user
+interface UserIdObject {
+  id_str: string
+}
+
+function extractUser(either: string | TwitterUser): UserIdObject | TwitterUser {
+  if (typeof either === 'string') {
+    return { id_str: either }
+  } else {
+    return either
+  }
+}
+
+function isAlreadyDone(follower: UserIdObject | TwitterUser, verb: VerbSomething): boolean {
+  if (!('blocking' in follower && 'muting' in follower)) {
+    return false
+  }
+  const { blocking, muting } = follower
   if (blocking && verb === 'Block') {
     return true
   } else if (!blocking && verb === 'UnBlock') {
@@ -122,8 +142,8 @@ export default class ChainBlockSession {
   private readonly sessionInfo = this.initSessionInfo()
   private shouldStop = false
   public readonly eventEmitter = new EventEmitter<SessionEventEmitter>()
-  private readonly friendsFilter = new FriendsFilter()
-  public constructor(private request: SessionRequest) {}
+  private readonly friendsFilter = new FriendsFilter(this.requestedUser)
+  public constructor(private requestedUser: TwitterUser, private request: SessionRequest) {}
   public getSessionInfo() {
     return copyFrozenObject(this.sessionInfo)
   }
@@ -142,11 +162,12 @@ export default class ChainBlockSession {
     }
   }
   public async start() {
-    const scraper = Scraper.initScraper(this.request)
-    const blocker = new Blocker()
-    if (scraper.resultType === 'user-id') {
+    const scraper = Scraper.initScraper(this.requestedUser, this.request)
+    if (scraper.requireFriendsFilter) {
       await this.friendsFilter.collect()
     }
+    const blocker = new Blocker()
+    const multiBlocker = new BlockAllAPIBlocker()
     const { target } = this.request
     let apiKind: FollowKind | ReactionKind
     switch (target.type) {
@@ -159,6 +180,19 @@ export default class ChainBlockSession {
     }
     const incrementSuccess = (v: VerbSomething) => this.sessionInfo.progress.success[v]++
     const incrementFailure = () => this.sessionInfo.progress.failure++
+    const handleAfterMultiBlock = (result: void | BlockAllResult) => {
+      if (!result) {
+        return
+      }
+      result.blocked.forEach(userId => {
+        incrementSuccess('Block')
+        this.eventEmitter.emit('mark-user', {
+          userId,
+          verb: 'Block',
+        })
+      })
+      result.failed.forEach(() => incrementFailure())
+    }
     let stopped = false
     try {
       for await (const maybeUser of scraper) {
@@ -181,8 +215,7 @@ export default class ChainBlockSession {
           }
         }
         this.handleRunning(this.sessionInfo, this.eventEmitter)
-        const user = maybeUser.value
-        const userId = typeof user === 'string' ? user : user.id_str
+        const user = extractUser(maybeUser.value)
         const whatToDo = this.whatToDoGivenUser(this.request, user)
         if (whatToDo === 'Skip') {
           this.sessionInfo.progress.skipped++
@@ -191,24 +224,33 @@ export default class ChainBlockSession {
           this.sessionInfo.progress.already++
           continue
         }
-        blocker.add(whatToDo, user).then(
-          resultUser => {
-            if (resultUser) {
-              incrementSuccess(whatToDo)
-              this.eventEmitter.emit('mark-user', {
-                userId,
-                verb: whatToDo,
-              })
+        if (whatToDo === 'Block') {
+          multiBlocker.add(user)
+        } else {
+          const afterVerb = (result: boolean) => {
+            if (!result) {
+              return
             }
-          },
-          () => incrementFailure
-        )
+            incrementSuccess(whatToDo)
+            this.eventEmitter.emit('mark-user', {
+              userId: user.id_str,
+              verb: whatToDo,
+            })
+          }
+          const blockerPromise = blocker.create(whatToDo, user).then(afterVerb, () => incrementFailure())
+          blocker.add(blockerPromise)
+        }
         await blocker.flushIfNeed()
+        await multiBlocker.flushIfNeeded().then(handleAfterMultiBlock)
       }
       await blocker.flush()
-      if (!stopped) {
+      await multiBlocker.flush().then(handleAfterMultiBlock)
+      if (stopped) {
+        this.sessionInfo.status = SessionStatus.Stopped
+        this.eventEmitter.emit('stopped', this.getSessionInfo())
+      } else {
         this.sessionInfo.status = SessionStatus.Completed
-        this.eventEmitter.emit('complete', this.sessionInfo.progress)
+        this.eventEmitter.emit('complete', this.getSessionInfo())
       }
     } catch (error) {
       this.sessionInfo.status = SessionStatus.Error
@@ -273,10 +315,15 @@ export default class ChainBlockSession {
     const { success, already, failure, error, skipped } = this.sessionInfo.progress
     return _.sum([...Object.values(success), already, failure, error, skipped])
   }
-  private whatToDoGivenUser(request: SessionRequest, user: string | TwitterUser): Verb {
+  private whatToDoGivenUser(request: SessionRequest, follower: UserIdObject | TwitterUser): Verb {
     const { purpose, options } = request
-    const { isMyFollower, isMyFollowing } = this.friendsFilter.checkUser(user)
+    const { isMyFollower, isMyFollowing } = this.friendsFilter.checkUser(follower)
+    // const { following, followed_by, follow_request_sent } = follower
+    // const isMyFollowing = following || follow_request_sent
+    // const isMyFollower = followed_by
     const isMyMutualFollower = isMyFollower && isMyFollowing
+    // 주의!
+    // 팝업 UI에 나타난 순서를 고려할 것.
     if (isMyMutualFollower) {
       return 'Skip'
     }
@@ -295,13 +342,31 @@ export default class ChainBlockSession {
         defaultVerb = 'UnBlock'
         break
     }
-    if (typeof user === 'string') {
-      return defaultVerb
-    }
-    if (isAlreadyDone(user, defaultVerb)) {
+    if (isAlreadyDone(follower, defaultVerb)) {
       return 'AlreadyDone'
     }
     return defaultVerb
+  }
+}
+
+class BlockAllAPIBlocker {
+  private readonly buffer: UserIdObject[] = []
+  public add(user: UserIdObject | TwitterUser) {
+    // console.debug('bmb[b=%d]: insert user:', this.buffer.size, user)
+    this.buffer.push(user)
+  }
+  public async flush() {
+    // console.info('flush start!')
+    const result = await blockMultipleUsers(this.buffer.map(u => u.id_str)) // .catch(() => { })
+    this.buffer.length = 0
+    // console.info('flush end!')
+    return result
+  }
+  public async flushIfNeeded() {
+    if (this.buffer.length >= 800) {
+      return this.flush()
+    }
+    return
   }
 }
 
@@ -311,18 +376,15 @@ class Blocker {
   public get currentSize() {
     return this.buffer.length
   }
-  public add(verb: VerbSomething, user: string | TwitterUser) {
-    let promise: Promise<any>
-    if (typeof user === 'string') {
-      promise = this.callAPIFromVerbById(verb, user)
-    } else {
-      promise = this.callAPIFromVerb(verb, user)
-    }
+  public create(verb: VerbSomething, user: UserIdObject | TwitterUser) {
+    return this.callAPIFromVerb(verb, user)
+  }
+  public add(promise: Promise<any>) {
     this.buffer.push(promise)
     return promise
   }
   public async flush() {
-    await Promise.all(this.buffer)
+    await Promise.all(this.buffer).catch(() => {})
     this.buffer.length = 0
   }
   public async flushIfNeed() {
@@ -330,28 +392,16 @@ class Blocker {
       return this.flush()
     }
   }
-  private async callAPIFromVerb(verb: VerbSomething, user: TwitterUser): Promise<TwitterUser> {
+  private async callAPIFromVerb(verb: VerbSomething, { id_str }: UserIdObject | TwitterUser): Promise<boolean> {
     switch (verb) {
       case 'Block':
-        return TwitterAPI.blockUser(user)
+        return TwitterAPI.blockUserById(id_str)
       case 'UnBlock':
-        return TwitterAPI.unblockUser(user)
+        return TwitterAPI.unblockUserById(id_str)
       case 'Mute':
-        return TwitterAPI.muteUser(user)
+        return TwitterAPI.muteUserById(id_str)
       case 'UnMute':
-        return TwitterAPI.unmuteUser(user)
-    }
-  }
-  private async callAPIFromVerbById(verb: VerbSomething, userId: string): Promise<Response> {
-    switch (verb) {
-      case 'Block':
-        return TwitterAPI.blockUserById(userId)
-      case 'UnBlock':
-        return TwitterAPI.unblockUserById(userId)
-      case 'Mute':
-        return TwitterAPI.muteUserById(userId)
-      case 'UnMute':
-        return TwitterAPI.unmuteUserById(userId)
+        return TwitterAPI.unmuteUserById(id_str)
     }
   }
 }
@@ -360,11 +410,12 @@ class FriendsFilter {
   private readonly followerIds: string[] = []
   private readonly followingIds: string[] = []
   private collected = false
+  public constructor(private myself: TwitterUser) {}
   public async collect() {
     if (this.collected) {
       return
     }
-    const myself = await TwitterAPI.getMyself()
+    const myself = this.myself
     const promises = []
     if (myself.followers_count > 0) {
       promises.push(
@@ -384,21 +435,19 @@ class FriendsFilter {
       this.collected = true
     })
   }
-  public checkUser(user: string | TwitterUser) {
-    if (typeof user === 'string') {
-      return this.checkUserId(user)
-    }
-    return {
-      isMyFollower: user.followed_by,
-      isMyFollowing: user.following || user.follow_request_sent,
-    }
-  }
-  private checkUserId(userId: string) {
+  public checkUser(user: UserIdObject | TwitterUser) {
     if (!this.collected) {
       throw new Error('not collected yet.')
     }
-    const isMyFollower = this.followerIds.includes(userId)
-    const isMyFollowing = this.followingIds.includes(userId)
+    let isMyFollower: boolean
+    let isMyFollowing: boolean
+    if ('following' in user) {
+      isMyFollower = user.followed_by
+      isMyFollowing = user.following || user.follow_request_sent
+    } else {
+      isMyFollower = this.followerIds.includes(user.id_str)
+      isMyFollowing = this.followingIds.includes(user.id_str)
+    }
     return {
       isMyFollower,
       isMyFollowing,
@@ -407,7 +456,6 @@ class FriendsFilter {
 }
 
 export const followerBlockDefaultOption: Readonly<FollowerBlockSessionRequest['options']> = Object.freeze({
-  quickMode: false,
   myFollowers: 'Skip',
   myFollowings: 'Skip',
   mutualBlocked: 'Skip',
@@ -419,27 +467,29 @@ export const tweetReactionBlockDefaultOption: Readonly<TweetReactionBlockSession
 })
 
 export function checkFollowerBlockTarget(target: FollowerBlockSessionRequest['target']): [boolean, string] {
-  if (target.user.blocked_by) {
-    return [false, '\u26d4 상대방이 나를 차단하여 (언)체인블락을 실행할 수 없습니다.']
+  const { protected: isProtected, following, followers_count, friends_count } = target.user
+  if (isProtected && !following) {
+    return [false, `\u{1f512} ${i18n.getMessage('cant_chainblock_to_protected')}`]
   }
-  if (target.user.protected && !target.user.following) {
-    return [false, '\u{1f512} 프로텍트 계정을 대상으로 (언)체인블락을 실행할 수 없습니다.']
+  if (target.list === 'followers' && followers_count <= 0) {
+    return [false, i18n.getMessage('cant_chainblock_follower_is_zero')]
+  } else if (target.list === 'friends' && friends_count <= 0) {
+    return [false, i18n.getMessage('cant_chainblock_following_is_zero')]
+  } else if (target.list === 'mutual-followers' && followers_count <= 0 && friends_count <= 0) {
+    return [false, i18n.getMessage('cant_chainblock_mutual_follower_is_zero')]
   }
-  if (target.list === 'followers' && target.user.followers_count <= 0) {
-    return [false, '팔로워가 0명인 계정입니다.']
-  } else if (target.list === 'friends' && target.user.friends_count <= 0) {
-    return [false, '팔로잉이 0명인 계정입니다.']
-  } else if (target.list === 'mutual-followers' && target.user.followers_count <= 0 && target.user.friends_count <= 0) {
-    return [false, '팔로워나 팔로잉이 0명인 계정입니다.']
+  const userCount = getFollowersCount(target.user, target.list) || 0
+  if (userCount > MAX_USER_LIMIT) {
+    return [false, i18n.getMessage('cant_chainblock_too_many_block')]
   }
   return [true, '']
 }
 
 export function checkTweetReactionBlockTarget(target: TweetReactionBlockSessionRequest['target']): [boolean, string] {
   if (target.reaction === 'retweeted' && target.tweet.retweet_count <= 0) {
-    return [false, '아무도 리트윗하지 않은 트윗입니다.']
+    return [false, i18n.getMessage('cant_chainblock_nobody_retweeted')]
   } else if (target.reaction === 'liked' && target.tweet.favorite_count <= 0) {
-    return [false, '아무도 마음에 들어하지 않은 트윗입니다.']
+    return [false, i18n.getMessage('cant_chainblock_nobody_liked')]
   }
   return [true, '']
 }

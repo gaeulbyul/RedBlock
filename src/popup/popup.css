@@ -6,6 +6,7 @@
 
 :root {
   --default-font-size: 16px;
+  --popup-width: 500px;
   --rb-background-color: white;
   --rb-text-color: black;
   --rb-alt1-color: #333;
@@ -35,6 +36,7 @@
 html,
 body {
   min-height: 600px;
+  min-width: var(--popup-width);
 }
 
 body {
@@ -80,7 +82,7 @@ input[type='radio'] {
   display: flex;
   flex-direction: column;
   height: 100vh;
-  width: 500px;
+  min-width: var(--popup-width);
   padding: 0;
   margin: 0 auto;
 }
@@ -89,52 +91,12 @@ input[type='radio'] {
   flex-grow: 1;
 }
 
-.top-tabs {
-  padding: 10px;
+.page {
+  margin-top: 55px;
 }
 
-.redblock-app .react-tabs__tab:not(.react-tabs__tab--selected) {
-  opacity: 0.8;
-}
-.redblock-app .react-tabs__tab--selected {
-  background: var(--rb-alt4-color);
-  border-color: var(--rb-alt3-color);
-  color: var(--rb-text-color);
-  opacity: 1;
+.Mui-checked span.MuiFormControlLabel-label.MuiTypography-body1 {
   font-weight: bold;
-}
-
-select {
-  background-color: var(--rb-background-color);
-  color: var(--rb-text-color);
-}
-
-.controls {
-  display: flex;
-  margin: 10px 0;
-}
-
-.controls.align-to-end {
-  justify-content: flex-end;
-}
-
-.controls button {
-  display: inline-block;
-  padding: 5px 10px;
-  margin-right: 5px;
-  min-width: 80px;
-  border: 2px solid var(--rb-alt1-color);
-  border-radius: 100px;
-  background-color: transparent;
-  font-size: 12px;
-  color: var(--rb-text-color);
-  cursor: pointer;
-}
-
-.controls button:focus,
-.controls button:hover {
-  background-color: var(--rb-alt1-color);
-  color: var(--rb-alt5-color);
 }
 
 .target-user-info {
@@ -144,7 +106,7 @@ select {
 }
 
 .profile-image-area {
-  margin-right: 5px;
+  margin-right: 10px;
 }
 
 .profile-right-area {
@@ -164,69 +126,25 @@ select {
   color: var(--rb-alt2-color);
 }
 
-.profile-right-targetlist {
-  margin-top: 10px;
-}
-
-.profile-right-targetlist > label {
-  display: inline-block;
-  margin-right: 10px;
-}
-
 .profile-image {
   width: 60px;
   max-width: 60px;
   border-radius: 50%;
 }
 
-fieldset.chainblock-opt {
-  margin: 10px 0;
-  border: 2px solid var(--rb-alt3-color);
-  border-radius: 5px;
-}
-
-fieldset.chainblock-subopt {
-  margin-bottom: 10px;
-  border: 1px solid var(--rb-alt4-color);
-  border-radius: 5px;
-}
-
 .chainblock-subopt label {
   margin: 0 5px;
 }
 
-.chainblock-target label:focus,
-.chainblock-target label:hover {
-  text-decoration: underline;
-}
-
-.chainblock-target label span {
-  padding: 3px;
-  color: var(--rb-alt1-color);
-}
-
-.chainblock-target label input:checked:not(:disabled) ~ span {
-  font-weight: bold;
-  color: var(--rb-text-color);
-}
-
-.chainblock-saved-select {
-  padding: 5px 10px;
-  width: 100%;
-}
-
-.chainblock-saved-select option {
-  padding: 10px 0;
-}
-
 .description {
   margin: 5px 0;
-  padding: 10px 15px;
+  padding: 5px 10px;
   word-break: keep-all;
   border-radius: 5px;
   line-height: 150%;
   background-color: aliceblue;
   color: navy;
+  font-size: 14px;
 }
 
 .description mark {
@@ -242,10 +160,6 @@ fieldset.chainblock-subopt {
     background-color: black;
     color: white;
   }
-}
-
-.small-tab {
-  padding: 3px 10px;
 }
 
 .menu-item {
@@ -324,6 +238,34 @@ fieldset.chainblock-subopt {
 
 .chainblock-suggest-start {
   text-align: center;
+}
+
+.modal-content {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+.modal-content .confirm-message {
+  flex-grow: 1;
+}
+
+.modal-controls {
+  justify-content: center;
+}
+
+.wtf {
+  font-size: smaller;
+  color: maroon;
+}
+
+.warning {
+  margin: 0.3rem 0;
+  padding: 0.3rem;
+  border: 1px solid orange;
+  border-radius: 5px;
+  background-color: yellow;
+  font-weight: bold;
 }
 
 footer.info {

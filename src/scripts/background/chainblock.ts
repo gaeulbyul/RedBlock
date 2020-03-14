@@ -1,9 +1,11 @@
 import { SessionStatus, isRunningStatus } from '../common.js'
 import * as TextGenerate from '../text-generate.js'
+import * as i18n from '../i18n.js'
 import { alert, notify } from './background.js'
 import ChainBlockSession from './chainblock-session/session.js'
 
 export default class ChainBlocker {
+  private readonly MAX_RUNNING_SESSIONS = 5
   private readonly sessions = new Map<string, ChainBlockSession>()
   constructor() {}
   public hasRunningSession(): boolean {
@@ -46,27 +48,46 @@ export default class ChainBlocker {
     })
   }
   private handleEvents(session: ChainBlockSession) {
-    const sessionInfo = session.getSessionInfo()
-    session.eventEmitter.on('complete', () => {
-      const message = TextGenerate.chainBlockResultNotification(sessionInfo)
+    session.eventEmitter.on('complete', info => {
+      const message = TextGenerate.chainBlockResultNotification(info)
       notify(message)
     })
-    session.eventEmitter.on('error', err => {
-      let message = `오류발생! 메시지:\n`
-      message += err
-      notify(message)
+    session.eventEmitter.on('complete', () => {
+      this.startRemainingSessions()
+    })
+    session.eventEmitter.on('stopped', () => {
+      this.startRemainingSessions()
+    })
+    session.eventEmitter.on('error', error => {
+      notify(`${i18n.getMessage('error_occured')}:\n${error}`)
     })
     session.eventEmitter.on('mark-user', params => {
       this.markUser(params)
     })
   }
-  public add(request: SessionRequest) {
+  private checkAvailableSessionsCount() {
+    const runningSessions = this.getCurrentRunningSessions()
+    return this.MAX_RUNNING_SESSIONS - runningSessions.length
+  }
+  private async startRemainingSessions() {
+    for (const session of this.sessions.values()) {
+      const count = this.checkAvailableSessionsCount()
+      if (count <= 0) {
+        break
+      }
+      const sessionInfo = session.getSessionInfo()
+      if (sessionInfo.status === SessionStatus.Initial) {
+        await session.start()
+      }
+    }
+  }
+  public add(requestedUser: TwitterUser, request: SessionRequest) {
     const { target } = request
     if (this.isAlreadyRunning(target)) {
-      alert('이미 같은 대상에게 체인블락이나 언체인블락이 실행중입니다.')
+      alert(i18n.getMessage('already_running_to_same_target'))
       return null
     }
-    const session = new ChainBlockSession(request)
+    const session = new ChainBlockSession(requestedUser, request)
     const sessionId = session.getSessionInfo().sessionId
     this.handleEvents(session)
     this.sessions.set(sessionId, session)
@@ -88,6 +109,10 @@ export default class ChainBlocker {
     }
   }
   public async start(sessionId: string) {
+    const count = this.checkAvailableSessionsCount()
+    if (count <= 0) {
+      return
+    }
     const session = this.sessions.get(sessionId)
     if (session) {
       return session.start()
@@ -97,6 +122,10 @@ export default class ChainBlocker {
     const sessions = this.sessions.values()
     const sessionPromises: Promise<void>[] = []
     for (const session of sessions) {
+      const count = this.checkAvailableSessionsCount()
+      if (count <= 0) {
+        break
+      }
       const sessionInfo = session.getSessionInfo()
       if (sessionInfo.status === SessionStatus.Initial) {
         sessionPromises.push(session.start().catch(() => {}))
