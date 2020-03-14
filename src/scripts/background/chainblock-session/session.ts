@@ -478,7 +478,7 @@ export function checkFollowerBlockTarget(target: FollowerBlockSessionRequest['ta
   } else if (target.list === 'mutual-followers' && followers_count <= 0 && friends_count <= 0) {
     return [false, i18n.getMessage('cant_chainblock_mutual_follower_is_zero')]
   }
-  const userCount = getFollowersCount(target.user, target.list) ?? 0
+  const userCount = getFollowersCount(target.user, target.list) || 0
   if (userCount > MAX_USER_LIMIT) {
     return [false, i18n.getMessage('cant_chainblock_too_many_block')]
   }
