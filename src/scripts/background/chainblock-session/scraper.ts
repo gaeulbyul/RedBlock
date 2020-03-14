@@ -117,7 +117,7 @@ export function calcApiUsage(
   }
 }
 
-export function initScraper(request: SessionRequest): UserScraper | UserIdScraper {
+export function initScraper(requestedUser: TwitterUser, request: SessionRequest): UserScraper | UserIdScraper {
   const { target, purpose } = request
   if (target.type === 'tweetReaction') {
     return new TweetReactedUserScraper(target.tweet, target.reaction)
@@ -125,12 +125,18 @@ export function initScraper(request: SessionRequest): UserScraper | UserIdScrape
   if (target.user.blocked_by) {
     return new FollowerScraperFromBlockedUser(target.user, target.list)
   }
-  // TODO: 내 팔로잉/팔로워를 얻은 후, apiUsage에 따라 simpleScraper 사용
-  if (purpose === 'chainblock') {
-    return new FollowersIdScraper(target.user, target.list)
-  }
   if (target.list === 'mutual-followers') {
     return new MutualFollowerScraper(target.user)
+  }
+  const targetFollowsCount = getFollowersCount(target.user, target.list)!
+  // TODO: 맞팔로우 체인블락은? API 사용횟수 계산식을 바꿔야 할 듯
+  const estimatedApiUsage = calcApiUsage(requestedUser.followers_count, requestedUser.friends_count, targetFollowsCount)
+  // 언체인블락의 경우...
+  // - ids 스크래퍼로 긁으면 상대방의 차단여부를 판단할 수 없고,
+  // - 그래서 불필요한 차단해제요청을 하게 되버린다.
+  // - 따라서 체인블락을 할 때에만 적용
+  if (purpose === 'chainblock' && estimatedApiUsage.prefer === 'ids') {
+    return new FollowersIdScraper(target.user, target.list)
   }
   return new SimpleScraper(target.user, target.list)
 }

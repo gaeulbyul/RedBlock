@@ -162,7 +162,7 @@ export default class ChainBlockSession {
     }
   }
   public async start() {
-    const scraper = Scraper.initScraper(this.request)
+    const scraper = Scraper.initScraper(this.requestedUser, this.request)
     if (scraper.requireFriendsFilter) {
       await this.friendsFilter.collect()
     }
