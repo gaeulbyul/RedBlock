@@ -1,5 +1,3 @@
-import { TwitterUserMap } from '../common.js'
-
 // (taken from GoodTwitter extension source code)
 // https://github.com/ZusorCode/GoodTwitterChrome/blob/c2637657ba64e3ea290813da4fba66c9f95764ec/background.js#L17
 export const userAgent = 'Mozilla/5.0 (Windows NT 6.1; WOW64; Trident/7.0; AS; rv:11.0) Waterfox/56.2'
@@ -37,7 +35,7 @@ function requestBlockAll(ids: string[]) {
   return fetch('https://twitter.com/i/user/block_all', options)
 }
 
-export async function blockMultipleUsersById(ids: string[]): Promise<BlockAllResult> {
+export async function blockMultipleUsers(ids: string[]): Promise<BlockAllResult> {
   // const requests: Promise<Response | null>[] = []
   const totalBlocked = []
   const totalFailed = []
@@ -52,15 +50,4 @@ export async function blockMultipleUsersById(ids: string[]): Promise<BlockAllRes
     blocked: totalBlocked,
     failed: totalFailed,
   }
-}
-
-export async function blockMultipleUsers(users: TwitterUserMap): Promise<BlockAllResult> {
-  if (users.size <= 0) {
-    return {
-      blocked: [],
-      failed: [],
-    }
-  }
-  const ids = users.map(user => user.id_str)
-  return blockMultipleUsersById(ids)
 }

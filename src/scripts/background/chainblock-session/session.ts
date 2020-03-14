@@ -2,7 +2,7 @@ import * as Scraper from './scraper.js'
 import * as TwitterAPI from '../twitter-api.js'
 import * as i18n from '../../i18n.js'
 import { blockMultipleUsers, BlockAllResult } from '../block-all.js'
-import { TwitterUserMap } from '../../common.js'
+import { collectAsync, unwrap } from '../../common.js'
 
 import {
   EventEmitter,
@@ -86,7 +86,22 @@ export interface SessionInfo<ReqT = SessionRequest> {
   limit: Limit | null
 }
 
-function isAlreadyDone(follower: TwitterUser, verb: VerbSomething): boolean {
+interface UserIdObject {
+  id_str: string
+}
+
+function extractUser(either: string | TwitterUser): UserIdObject | TwitterUser {
+  if (typeof either === 'string') {
+    return { id_str: either }
+  } else {
+    return either
+  }
+}
+
+function isAlreadyDone(follower: UserIdObject | TwitterUser, verb: VerbSomething): boolean {
+  if (!('blocking' in follower && 'muting' in follower)) {
+    return false
+  }
   const { blocking, muting } = follower
   if (blocking && verb === 'Block') {
     return true
@@ -128,6 +143,7 @@ export default class ChainBlockSession {
   private readonly sessionInfo = this.initSessionInfo()
   private shouldStop = false
   public readonly eventEmitter = new EventEmitter<SessionEventEmitter>()
+  private readonly friendsFilter = new FriendsFilter()
   public constructor(private request: SessionRequest) {}
   public getSessionInfo() {
     return copyFrozenObject(this.sessionInfo)
@@ -148,6 +164,9 @@ export default class ChainBlockSession {
   }
   public async start() {
     const scraper = Scraper.initScraper(this.request)
+    if (scraper.requireFriendsFilter) {
+      await this.friendsFilter.collect()
+    }
     const blocker = new Blocker()
     const multiBlocker = new BlockAllAPIBlocker()
     const { target } = this.request
@@ -197,7 +216,7 @@ export default class ChainBlockSession {
           }
         }
         this.handleRunning(this.sessionInfo, this.eventEmitter)
-        const user = maybeUser.value
+        const user = extractUser(maybeUser.value)
         const whatToDo = this.whatToDoGivenUser(this.request, user)
         if (whatToDo === 'Skip') {
           this.sessionInfo.progress.skipped++
@@ -209,20 +228,18 @@ export default class ChainBlockSession {
         if (whatToDo === 'Block') {
           multiBlocker.add(user)
         } else {
-          blocker.add(
-            blocker.create(whatToDo, user).then(
-              resultUser => {
-                if (resultUser) {
-                  incrementSuccess(whatToDo)
-                  this.eventEmitter.emit('mark-user', {
-                    userId: resultUser.id_str,
-                    verb: whatToDo,
-                  })
-                }
-              },
-              () => incrementFailure()
-            )
-          )
+          const afterVerb = (result: boolean) => {
+            if (!result) {
+              return
+            }
+            incrementSuccess(whatToDo)
+            this.eventEmitter.emit('mark-user', {
+              userId: user.id_str,
+              verb: whatToDo,
+            })
+          }
+          const blockerPromise = blocker.create(whatToDo, user).then(afterVerb, () => incrementFailure())
+          blocker.add(blockerPromise)
         }
         await blocker.flushIfNeed()
         await multiBlocker.flushIfNeeded().then(handleAfterMultiBlock)
@@ -272,7 +289,7 @@ export default class ChainBlockSession {
   private generateSessionId(): string {
     return `session/${Date.now()}`
   }
-  private updateTotalCount(scraper: Scraper.UserScraper) {
+  private updateTotalCount(scraper: Scraper.UserScraper | Scraper.UserIdScraper) {
     if (this.sessionInfo.count.total === null) {
       this.sessionInfo.count.total = scraper.totalCount
     }
@@ -299,11 +316,12 @@ export default class ChainBlockSession {
     const { success, already, failure, error, skipped } = this.sessionInfo.progress
     return _.sum([...Object.values(success), already, failure, error, skipped])
   }
-  private whatToDoGivenUser(request: SessionRequest, follower: TwitterUser): Verb {
+  private whatToDoGivenUser(request: SessionRequest, follower: UserIdObject | TwitterUser): Verb {
     const { purpose, options } = request
-    const { following, followed_by, follow_request_sent } = follower
-    const isMyFollowing = following || follow_request_sent
-    const isMyFollower = followed_by
+    const { isMyFollower, isMyFollowing } = this.friendsFilter.checkUser(follower)
+    // const { following, followed_by, follow_request_sent } = follower
+    // const isMyFollowing = following || follow_request_sent
+    // const isMyFollower = followed_by
     const isMyMutualFollower = isMyFollower && isMyFollowing
     // 주의!
     // 팝업 UI에 나타난 순서를 고려할 것.
@@ -333,20 +351,20 @@ export default class ChainBlockSession {
 }
 
 class BlockAllAPIBlocker {
-  private readonly buffer = new TwitterUserMap()
-  public add(user: TwitterUser) {
+  private readonly buffer: UserIdObject[] = []
+  public add(user: UserIdObject | TwitterUser) {
     // console.debug('bmb[b=%d]: insert user:', this.buffer.size, user)
-    this.buffer.addUser(user)
+    this.buffer.push(user)
   }
   public async flush() {
     // console.info('flush start!')
-    const result = await blockMultipleUsers(this.buffer) // .catch(() => { })
-    this.buffer.clear()
+    const result = await blockMultipleUsers(this.buffer.map(u => u.id_str)) // .catch(() => { })
+    this.buffer.length = 0
     // console.info('flush end!')
     return result
   }
   public async flushIfNeeded() {
-    if (this.buffer.size >= 800) {
+    if (this.buffer.length >= 800) {
       return this.flush()
     }
     return
@@ -359,7 +377,7 @@ class Blocker {
   public get currentSize() {
     return this.buffer.length
   }
-  public create(verb: VerbSomething, user: TwitterUser) {
+  public create(verb: VerbSomething, user: UserIdObject | TwitterUser) {
     return this.callAPIFromVerb(verb, user)
   }
   public add(promise: Promise<any>) {
@@ -375,16 +393,64 @@ class Blocker {
       return this.flush()
     }
   }
-  private async callAPIFromVerb(verb: VerbSomething, user: TwitterUser): Promise<TwitterUser> {
+  private async callAPIFromVerb(verb: VerbSomething, { id_str }: UserIdObject | TwitterUser): Promise<boolean> {
     switch (verb) {
       case 'Block':
-        return TwitterAPI.blockUser(user)
+        return TwitterAPI.blockUserById(id_str)
       case 'UnBlock':
-        return TwitterAPI.unblockUser(user)
+        return TwitterAPI.unblockUserById(id_str)
       case 'Mute':
-        return TwitterAPI.muteUser(user)
+        return TwitterAPI.muteUserById(id_str)
       case 'UnMute':
-        return TwitterAPI.unmuteUser(user)
+        return TwitterAPI.unmuteUserById(id_str)
+    }
+  }
+}
+
+class FriendsFilter {
+  private readonly followerIds: string[] = []
+  private readonly followingIds: string[] = []
+  private collected = false
+  public async collect() {
+    if (this.collected) {
+      return
+    }
+    const myself = await TwitterAPI.getMyself()
+    const promises = []
+    if (myself.followers_count > 0) {
+      promises.push(
+        collectAsync(TwitterAPI.getAllFollowsIds('followers', myself))
+          .then(eithers => eithers.map(unwrap))
+          .then(userIds => this.followerIds.push(...userIds))
+      )
+    }
+    if (myself.friends_count > 0) {
+      promises.push(
+        collectAsync(TwitterAPI.getAllFollowsIds('friends', myself))
+          .then(eithers => eithers.map(unwrap))
+          .then(userIds => this.followingIds.push(...userIds))
+      )
+    }
+    return Promise.all(promises).then(() => {
+      this.collected = true
+    })
+  }
+  public checkUser(user: UserIdObject | TwitterUser) {
+    if (!this.collected) {
+      throw new Error('not collected yet.')
+    }
+    let isMyFollower: boolean
+    let isMyFollowing: boolean
+    if ('following' in user) {
+      isMyFollower = user.followed_by
+      isMyFollowing = user.following || user.follow_request_sent
+    } else {
+      isMyFollower = this.followerIds.includes(user.id_str)
+      isMyFollowing = this.followingIds.includes(user.id_str)
+    }
+    return {
+      isMyFollower,
+      isMyFollowing,
     }
   }
 }

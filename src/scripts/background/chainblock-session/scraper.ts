@@ -1,18 +1,28 @@
 import * as TwitterAPI from '../twitter-api.js'
-import { getFollowersCount, getReactionsCount, collectAsync, unwrap } from '../../common.js'
+import { getFollowersCount, getReactionsCount, collectAsync, unwrap, wrapEither } from '../../common.js'
 import { SessionRequest } from './session.js'
 
 type TwitterUser = TwitterAPI.TwitterUser
 type Tweet = TwitterAPI.Tweet
 
-type ScrapeResult = AsyncIterableIterator<Either<Error, TwitterUser>>
+type ScrapedUsersIterator = AsyncIterableIterator<Either<Error, TwitterUser>>
 export interface UserScraper {
   totalCount: number | null
-  [Symbol.asyncIterator](): ScrapeResult
+  requireFriendsFilter: false
+  [Symbol.asyncIterator](): ScrapedUsersIterator
 }
+
+type ScrapedUserIdsIterator = AsyncIterableIterator<Either<Error, string>>
+export interface UserIdScraper {
+  totalCount: number | null
+  requireFriendsFilter: true
+  [Symbol.asyncIterator](): ScrapedUserIdsIterator
+}
+
 // 단순 스크래퍼. 기존 체인블락 방식
 export class SimpleScraper implements UserScraper {
   public totalCount: number
+  public readonly requireFriendsFilter = false
   constructor(private user: TwitterUser, private followKind: FollowKind) {
     this.totalCount = getFollowersCount(user, followKind)!
   }
@@ -24,6 +34,7 @@ export class SimpleScraper implements UserScraper {
 // 고속 스크래퍼. 최대 200명 이하의 사용자만 가져온다.
 export class QuickScraper implements UserScraper {
   private readonly limitCount = 200
+  public readonly requireFriendsFilter = false
   public totalCount: number
   constructor(private user: TwitterUser, private followKind: Exclude<FollowKind, 'mutual-followers'>) {
     this.totalCount = Math.min(this.limitCount, getFollowersCount(user, followKind)!)
@@ -43,6 +54,7 @@ export class QuickScraper implements UserScraper {
 // 맞팔로우 스크래퍼
 export class MutualFollowerScraper implements UserScraper {
   public totalCount: number | null = null
+  public readonly requireFriendsFilter = false
   constructor(private user: TwitterUser) {}
   public async *[Symbol.asyncIterator]() {
     const mutualFollowersIds = await TwitterAPI.getAllMutualFollowersIds(this.user)
@@ -54,6 +66,7 @@ export class MutualFollowerScraper implements UserScraper {
 // 차단상대 대상 스크래퍼
 export class FollowerScraperFromBlockedUser implements UserScraper {
   public totalCount: number | null = null
+  public readonly requireFriendsFilter = false
   constructor(private user: TwitterUser, private followKind: FollowKind) {}
   private async prepareActor() {
     const multiCookies = await TwitterAPI.getMultiAccountCookies()
@@ -75,9 +88,26 @@ export class FollowerScraperFromBlockedUser implements UserScraper {
   }
 }
 
+export class FollowersIdScraper implements UserIdScraper {
+  public totalCount: number
+  public readonly requireFriendsFilter = true
+  constructor(private user: TwitterUser, private followKind: FollowKind) {
+    this.totalCount = getFollowersCount(user, followKind)!
+  }
+  public async *[Symbol.asyncIterator]() {
+    console.debug('project railgun: scraper started')
+    if (this.followKind === 'mutual-followers') {
+      yield* await TwitterAPI.getAllMutualFollowersIds(this.user).then(ids => ids.map(wrapEither))
+    } else {
+      yield* TwitterAPI.getAllFollowsIds(this.followKind, this.user)
+    }
+  }
+}
+
 // 트윗반응 유저 스크래퍼
 export class TweetReactedUserScraper implements UserScraper {
   public totalCount: number
+  public readonly requireFriendsFilter = false
   constructor(private tweet: Tweet, private reaction: ReactionKind) {
     this.totalCount = getReactionsCount(tweet, reaction)
   }
@@ -86,31 +116,41 @@ export class TweetReactedUserScraper implements UserScraper {
   }
 }
 
-function getTargetUser(target: SessionRequest['target']): TwitterUser {
-  if ('user' in target) {
-    return target.user
-  } else {
-    return target.tweet.user
+interface ApiUsageCalculationResult {
+  ids: number
+  lists: number
+  prefer: 'lists' | 'ids'
+}
+
+export function calcApiUsage(
+  myFollowersCount: number,
+  myFollowingsCount: number,
+  targetCount: number
+): ApiUsageCalculationResult {
+  const { ceil } = Math
+  const ids = ceil(myFollowersCount / 5000) + ceil(myFollowingsCount / 5000) + ceil(targetCount / 5000)
+  const lists = ceil(targetCount / 200)
+  return {
+    ids,
+    lists,
+    prefer: ids < lists ? 'ids' : 'lists',
   }
 }
 
-export function initScraper(request: SessionRequest) {
-  const { options, target } = request
-  const targetUser = getTargetUser(target)
-  if (target.type === 'follower' && targetUser.blocked_by) {
-    return new FollowerScraperFromBlockedUser(targetUser, target.list)
+export function initScraper(request: SessionRequest): UserScraper | UserIdScraper {
+  const { target, purpose } = request
+  if (target.type === 'tweetReaction') {
+    return new TweetReactedUserScraper(target.tweet, target.reaction)
   }
-  const simpleScraper = 'quickMode' in options && options.quickMode ? QuickScraper : SimpleScraper
-  switch (target.type) {
-    case 'follower':
-      switch (target.list) {
-        case 'followers':
-        case 'friends':
-          return new simpleScraper(target.user, target.list)
-        case 'mutual-followers':
-          return new MutualFollowerScraper(target.user)
-      }
-    case 'tweetReaction':
-      return new TweetReactedUserScraper(target.tweet, target.reaction)
+  if (target.user.blocked_by) {
+    return new FollowerScraperFromBlockedUser(target.user, target.list)
   }
+  // TODO: 내 팔로잉/팔로워를 얻은 후, apiUsage에 따라 simpleScraper 사용
+  if (purpose === 'chainblock') {
+    return new FollowersIdScraper(target.user, target.list)
+  }
+  if (target.list === 'mutual-followers') {
+    return new MutualFollowerScraper(target.user)
+  }
+  return new SimpleScraper(target.user, target.list)
 }
