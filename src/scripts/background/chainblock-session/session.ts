@@ -224,7 +224,10 @@ export default class ChainBlockSession {
           this.sessionInfo.progress.already++
           continue
         }
-        if (whatToDo === 'Block') {
+        // 트윗반응 체인블락은 수집할 수 있는 수가 적으므로
+        // 굳이 block_all API를 타지 않아도 안전할 듯.
+        // 따라서 팔로워 체인블락에만 block_all API를 사용한다.
+        if (this.request.target.type === 'follower' && whatToDo === 'Block') {
           multiBlocker.add(user)
         } else {
           const afterVerb = (result: boolean) => {
@@ -436,15 +439,15 @@ class FriendsFilter {
     })
   }
   public checkUser(user: UserIdObject | TwitterUser) {
-    if (!this.collected) {
-      throw new Error('not collected yet.')
-    }
     let isMyFollower: boolean
     let isMyFollowing: boolean
     if ('following' in user) {
       isMyFollower = user.followed_by
       isMyFollowing = user.following || user.follow_request_sent
     } else {
+      if (!this.collected) {
+        throw new Error('not collected yet.')
+      }
       isMyFollower = this.followerIds.includes(user.id_str)
       isMyFollowing = this.followingIds.includes(user.id_str)
     }
