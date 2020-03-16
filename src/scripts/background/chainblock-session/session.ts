@@ -85,19 +85,19 @@ export interface SessionInfo<ReqT = SessionRequest> {
   limit: Limit | null
 }
 
-interface UserIdObject {
-  id_str: string
-}
+type FilterableUserObject =
+  | TwitterUser
+  | {
+      id_str: string
+      following: boolean
+      followed_by: boolean
+      follow_request_sent: false
+      blocked_by: false
+      blocking: false
+      muting: false
+    }
 
-function extractUser(either: string | TwitterUser): UserIdObject | TwitterUser {
-  if (typeof either === 'string') {
-    return { id_str: either }
-  } else {
-    return either
-  }
-}
-
-function isAlreadyDone(follower: UserIdObject | TwitterUser, verb: VerbSomething): boolean {
+function isAlreadyDone(follower: FilterableUserObject, verb: VerbSomething): boolean {
   if (!('blocking' in follower && 'muting' in follower)) {
     return false
   }
@@ -215,7 +215,7 @@ export default class ChainBlockSession {
           }
         }
         this.handleRunning(this.sessionInfo, this.eventEmitter)
-        const user = extractUser(maybeUser.value)
+        const user = this.friendsFilter.extractUser(maybeUser.value)
         const whatToDo = this.whatToDoGivenUser(this.request, user)
         if (whatToDo === 'Skip') {
           this.sessionInfo.progress.skipped++
@@ -318,8 +318,8 @@ export default class ChainBlockSession {
     const { success, already, failure, error, skipped } = this.sessionInfo.progress
     return _.sum([...Object.values(success), already, failure, error, skipped])
   }
-  private whatToDoGivenUser(request: SessionRequest, follower: UserIdObject | TwitterUser): Verb {
-    const { purpose, options } = request
+  private whatToDoGivenUser(request: SessionRequest, follower: FilterableUserObject): Verb {
+    const { purpose, options, target } = request
     const { isMyFollower, isMyFollowing } = this.friendsFilter.checkUser(follower)
     // const { following, followed_by, follow_request_sent } = follower
     // const isMyFollowing = following || follow_request_sent
@@ -335,6 +335,12 @@ export default class ChainBlockSession {
     }
     if (isMyFollowing) {
       return options.myFollowings
+    }
+    if (purpose === 'unchainblock' && 'mutualBlocked' in options) {
+      const blockedBy = target.type === 'follower' && target.user.blocked_by
+      if (blockedBy) {
+        return options.mutualBlocked
+      }
     }
     let defaultVerb: Verb
     switch (purpose) {
@@ -353,8 +359,8 @@ export default class ChainBlockSession {
 }
 
 class BlockAllAPIBlocker {
-  private readonly buffer: UserIdObject[] = []
-  public add(user: UserIdObject | TwitterUser) {
+  private readonly buffer: FilterableUserObject[] = []
+  public add(user: FilterableUserObject) {
     // console.debug('bmb[b=%d]: insert user:', this.buffer.size, user)
     this.buffer.push(user)
   }
@@ -379,7 +385,7 @@ class Blocker {
   public get currentSize() {
     return this.buffer.length
   }
-  public create(verb: VerbSomething, user: UserIdObject | TwitterUser) {
+  public create(verb: VerbSomething, user: FilterableUserObject) {
     return this.callAPIFromVerb(verb, user)
   }
   public add(promise: Promise<any>) {
@@ -395,7 +401,7 @@ class Blocker {
       return this.flush()
     }
   }
-  private async callAPIFromVerb(verb: VerbSomething, { id_str }: UserIdObject | TwitterUser): Promise<boolean> {
+  private async callAPIFromVerb(verb: VerbSomething, { id_str }: FilterableUserObject): Promise<boolean> {
     switch (verb) {
       case 'Block':
         return TwitterAPI.blockUserById(id_str)
@@ -438,22 +444,28 @@ class FriendsFilter {
       this.collected = true
     })
   }
-  public checkUser(user: UserIdObject | TwitterUser) {
-    let isMyFollower: boolean
-    let isMyFollowing: boolean
-    if ('following' in user) {
-      isMyFollower = user.followed_by
-      isMyFollowing = user.following || user.follow_request_sent
-    } else {
-      if (!this.collected) {
-        throw new Error('not collected yet.')
-      }
-      isMyFollower = this.followerIds.includes(user.id_str)
-      isMyFollowing = this.followingIds.includes(user.id_str)
-    }
+  public checkUser(user: FilterableUserObject) {
     return {
-      isMyFollower,
-      isMyFollowing,
+      isMyFollower: user.followed_by,
+      isMyFollowing: user.following || user.follow_request_sent,
+    }
+  }
+  public extractUser(either: string | TwitterUser): FilterableUserObject {
+    if (typeof either === 'string') {
+      const userId = either
+      const followed_by = this.followerIds.includes(userId)
+      const following = this.followingIds.includes(userId)
+      return {
+        id_str: userId,
+        followed_by,
+        following,
+        follow_request_sent: false,
+        muting: false,
+        blocking: false,
+        blocked_by: false,
+      }
+    } else {
+      return either
     }
   }
 }
