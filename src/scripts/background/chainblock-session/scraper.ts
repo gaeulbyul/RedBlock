@@ -1,5 +1,5 @@
 import * as TwitterAPI from '../twitter-api.js'
-import { getFollowersCount, getReactionsCount, collectAsync, unwrap, wrapEither } from '../../common.js'
+import { getFollowersCount, getReactionsCount, wrapEither } from '../../common.js'
 import { SessionRequest } from './session.js'
 
 type TwitterUser = TwitterAPI.TwitterUser
@@ -44,9 +44,9 @@ export class MutualFollowerScraper implements UserScraper {
 }
 
 // 차단상대 대상 스크래퍼
-export class FollowerScraperFromBlockedUser implements UserScraper {
+export class AntiBlockScraper implements UserIdScraper {
   public totalCount: number | null = null
-  public readonly requireFriendsFilter = false
+  public readonly requireFriendsFilter = true
   constructor(private user: TwitterUser, private followKind: FollowKind) {}
   private async prepareActor() {
     const multiCookies = await TwitterAPI.getMultiAccountCookies()
@@ -62,9 +62,11 @@ export class FollowerScraperFromBlockedUser implements UserScraper {
   }
   public async *[Symbol.asyncIterator]() {
     const actAsUserId = await this.prepareActor()
-    const followsUserIds = await collectAsync(TwitterAPI.getAllFollowsIds(this.followKind, this.user, actAsUserId))
-    this.totalCount = followsUserIds.length
-    yield* TwitterAPI.lookupUsersByIds(followsUserIds.map(unwrap))
+    if (this.followKind === 'mutual-followers') {
+      yield* await TwitterAPI.getAllMutualFollowersIds(this.user, actAsUserId).then(ids => ids.map(wrapEither))
+    } else {
+      yield* TwitterAPI.getAllFollowsIds(this.followKind, this.user, actAsUserId)
+    }
   }
 }
 
@@ -75,7 +77,6 @@ export class FollowersIdScraper implements UserIdScraper {
     this.totalCount = getFollowersCount(user, followKind)!
   }
   public async *[Symbol.asyncIterator]() {
-    console.debug('project railgun: scraper started')
     if (this.followKind === 'mutual-followers') {
       yield* await TwitterAPI.getAllMutualFollowersIds(this.user).then(ids => ids.map(wrapEither))
     } else {
@@ -123,7 +124,7 @@ export function initScraper(requestedUser: TwitterUser, request: SessionRequest)
     return new TweetReactedUserScraper(target.tweet, target.reaction)
   }
   if (target.user.blocked_by) {
-    return new FollowerScraperFromBlockedUser(target.user, target.list)
+    return new AntiBlockScraper(target.user, target.list)
   }
   if (target.list === 'mutual-followers') {
     return new MutualFollowerScraper(target.user)
