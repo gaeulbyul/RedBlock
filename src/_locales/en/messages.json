@@ -434,6 +434,6 @@
     "message": "Nobody liked to this tweet."
   },
   "wtf_twitter": {
-    "message": "Warning: When blocking user, Red Block use Twitter's advanced block options. it may takes several minutes to blocks user."
+    "message": "Warning: Red Block internally use Twitter's advanced block options to avoid force-logout problem. Unfortunately, it has another problem that ChainBlock doesn't block some user or may takes several minutes. Sorry for inconvenience."
   }
 }
