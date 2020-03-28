@@ -8,7 +8,7 @@ import {
   followerBlockDefaultOption,
   tweetReactionBlockDefaultOption,
 } from './chainblock-session/session.js'
-import { loadOptions, onOptionsChanged, RedBlockStorage } from './storage.js'
+import { loadOptions, onOptionsChanged } from './storage.js'
 import { getSingleUserByName, getTweetById } from './twitter-api.js'
 
 const urlPatterns = ['https://twitter.com/*', 'https://mobile.twitter.com/*']
@@ -77,7 +77,7 @@ async function sendTweetReactionChainBlockConfirm(tab: browser.tabs.Tab, tweetId
   })
 }
 
-async function createContextMenu(options: RedBlockStorage['options']) {
+async function createContextMenu() {
   // 크롬에선 browser.menus 대신 비표준 이름(browser.contextMenus)을 쓴다.
   // 이를 파이어폭스와 맞추기 위해 이걸 함
   const menus = new Proxy<typeof browser.menus>({} as any, {
@@ -124,34 +124,32 @@ async function createContextMenu(options: RedBlockStorage['options']) {
     },
   })
 
-  if (options.experimental_tweetReactionBasedChainBlock) {
-    menus.create({
-      type: 'separator',
-    })
+  menus.create({
+    type: 'separator',
+  })
 
-    menus.create({
-      contexts: ['link'],
-      documentUrlPatterns: urlPatterns,
-      targetUrlPatterns: tweetUrlPatterns,
-      title: i18n.getMessage('run_retweeters_chainblock_to_this_tweet'),
-      onclick(clickEvent, tab) {
-        const url = new URL(clickEvent.linkUrl!)
-        const tweetId = getTweetIdFromUrl(url)!
-        sendTweetReactionChainBlockConfirm(tab, tweetId, 'retweeted')
-      },
-    })
-    menus.create({
-      contexts: ['link'],
-      documentUrlPatterns: urlPatterns,
-      targetUrlPatterns: tweetUrlPatterns,
-      title: i18n.getMessage('run_likers_chainblock_to_this_tweet'),
-      onclick(clickEvent, tab) {
-        const url = new URL(clickEvent.linkUrl!)
-        const tweetId = getTweetIdFromUrl(url)!
-        sendTweetReactionChainBlockConfirm(tab, tweetId, 'liked')
-      },
-    })
-  }
+  menus.create({
+    contexts: ['link'],
+    documentUrlPatterns: urlPatterns,
+    targetUrlPatterns: tweetUrlPatterns,
+    title: i18n.getMessage('run_retweeters_chainblock_to_this_tweet'),
+    onclick(clickEvent, tab) {
+      const url = new URL(clickEvent.linkUrl!)
+      const tweetId = getTweetIdFromUrl(url)!
+      sendTweetReactionChainBlockConfirm(tab, tweetId, 'retweeted')
+    },
+  })
+  menus.create({
+    contexts: ['link'],
+    documentUrlPatterns: urlPatterns,
+    targetUrlPatterns: tweetUrlPatterns,
+    title: i18n.getMessage('run_likers_chainblock_to_this_tweet'),
+    onclick(clickEvent, tab) {
+      const url = new URL(clickEvent.linkUrl!)
+      const tweetId = getTweetIdFromUrl(url)!
+      sendTweetReactionChainBlockConfirm(tab, tweetId, 'liked')
+    },
+  })
 }
 
 export function initializeContextMenu() {

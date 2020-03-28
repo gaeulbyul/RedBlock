@@ -4,8 +4,6 @@ type Substitutions = SubstItem | SubstItem[] | undefined
 
 export type I18NMessageKeys = keyof I18NMessages
 
-''.toLocaleString()
-
 export function getMessage(key: string & I18NMessageKeys, substs: Substitutions = undefined) {
   if (Array.isArray(substs)) {
     return browser.i18n.getMessage(

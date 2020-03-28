@@ -21,26 +21,18 @@ function OptionsApp() {
           <label className="field checkbox-field">
             <input
               type="checkbox"
-              checked={options.experimental_tweetReactionBasedChainBlock}
+              checked={options.enableRailgun}
               onChange={() =>
                 mutateOptions({
-                  experimental_tweetReactionBasedChainBlock: !options.experimental_tweetReactionBasedChainBlock,
+                  enableRailgun: !options.enableRailgun,
                 })
               }
             />
-            <span>트윗반응 체인블락</span>
+            <span>Railgun 모드</span>
           </label>
           <div className="info-option">
-            <p>지정한 트윗을 리트윗하거나 마음에 들어한 사용자의 일부를 차단합니다.</p>
-            <p>
-              사용법: 위 옵션이 켜져있을 때, 체인블락을 실행하고 싶은 트윗의 링크에 우클릭을 하면 Red Block 메뉴에
-              항목이 나타납니다.
-            </p>
-            {'\u26a0'} 주의:
-            <ol>
-              <li>이 기능으로 실제로 차단할 수 있는 사용자는 적거나 없을 수 있습니다.</li>
-              <li>이 기능은 이미 차단한 사용자를 집계하지 못 합니다.</li>
-            </ol>
+            <p>체인블락을 할 때 팔로워를 가져오는 API호출을 대폭 줄입니다.</p>
+            <p>단, 이미 차단한 유저수가 집계되지 않습니다.</p>
           </div>
         </div>
       </fieldset>

@@ -1,6 +1,7 @@
 import * as TwitterAPI from '../twitter-api.js'
 import { getFollowersCount, getReactionsCount, wrapEither } from '../../common.js'
 import { SessionRequest } from './session.js'
+import { RedBlockStorage } from '../storage.js'
 
 type TwitterUser = TwitterAPI.TwitterUser
 type Tweet = TwitterAPI.Tweet
@@ -118,7 +119,17 @@ export function calcApiUsage(
   }
 }
 
-export function initScraper(requestedUser: TwitterUser, request: SessionRequest): UserScraper | UserIdScraper {
+interface ScraperInitializationParams {
+  requestedUser: TwitterUser
+  request: SessionRequest
+  redblockOptions: RedBlockStorage['options']
+}
+
+export function initScraper({
+  requestedUser,
+  request,
+  redblockOptions,
+}: ScraperInitializationParams): UserScraper | UserIdScraper {
   const { target, purpose } = request
   if (target.type === 'tweetReaction') {
     return new TweetReactedUserScraper(target.tweet, target.reaction)
@@ -136,7 +147,9 @@ export function initScraper(requestedUser: TwitterUser, request: SessionRequest)
   // - ids 스크래퍼로 긁으면 상대방의 차단여부를 판단할 수 없고,
   // - 그래서 불필요한 차단해제요청을 하게 되버린다.
   // - 따라서 체인블락을 할 때에만 적용
-  if (purpose === 'chainblock' && estimatedApiUsage.prefer === 'ids') {
+  const shouldRailgunScraper =
+    redblockOptions.enableRailgun && purpose === 'chainblock' && estimatedApiUsage.prefer === 'ids'
+  if (shouldRailgunScraper) {
     return new FollowersIdScraper(target.user, target.list)
   }
   return new SimpleScraper(target.user, target.list)

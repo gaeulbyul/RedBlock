@@ -3,6 +3,7 @@ import * as TwitterAPI from '../twitter-api.js'
 import * as i18n from '../../i18n.js'
 import { blockMultipleUsers, BlockAllResult } from '../block-all.js'
 import { collectAsync, unwrap } from '../../common.js'
+import { loadOptions } from '../storage.js'
 
 import {
   EventEmitter,
@@ -162,7 +163,12 @@ export default class ChainBlockSession {
     }
   }
   public async start() {
-    const scraper = Scraper.initScraper(this.requestedUser, this.request)
+    const redblockOptions = await loadOptions()
+    const scraper = Scraper.initScraper({
+      requestedUser: this.requestedUser,
+      request: this.request,
+      redblockOptions,
+    })
     if (scraper.requireFriendsFilter) {
       await this.friendsFilter.collect()
     }
