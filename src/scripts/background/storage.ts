@@ -1,7 +1,11 @@
 import { TwitterUserMap } from '../common.js'
 import { TwitterUser } from './twitter-api.js'
 
-function deleteUnusedOptions(options: RedBlockStorage['options']) {
+function deleteUnusedOptions(options: RedBlockStorage['options'] | null) {
+  // 최초 설치 후 실행시 null/undefined가 온다.
+  if (!options) {
+    return
+  }
   const optionsAsAny = options as any
   delete optionsAsAny.tweetReactionBasedChainBlock
   delete optionsAsAny.experimental_tweetReactionBasedChainBlock
