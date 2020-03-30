@@ -1,4 +1,5 @@
 import * as TwitterAPI from '../twitter-api.js'
+import * as i18n from '../../i18n.js'
 import { getFollowersCount, getReactionsCount, wrapEither } from '../../common.js'
 import { SessionRequest } from './session.js'
 import { RedBlockStorage } from '../storage.js'
@@ -58,7 +59,9 @@ export class AntiBlockScraper implements UserIdScraper {
         return actorId
       }
     }
-    const i18n = await import('../../i18n.js')
+    // 현재 파이어폭스의 addons-linter에선 dynamic-import 구문을 지원하지 않는다.
+    // https://github.com/mozilla/addons-linter/issues/2940
+    // const i18n = await import('../../i18n.js')
     throw new Error(i18n.getMessage('cant_chainblock_to_blocked'))
   }
   public async *[Symbol.asyncIterator]() {
