@@ -267,7 +267,7 @@ export default function ChainBlockSessionsPage(props: { sessions: SessionInfo[] 
       {renderGlobalControls()}
       <hr />
       {isSessionExist ? renderSessions() : renderEmptySessions()}
-      <M.Tooltip placement="left" title={i18n.getMessage('new_session')}>
+      <M.Tooltip placement="left" title={i18n.getMessage('new_follower_session')}>
         <M.Fab className={classes.fab} color="primary" onClick={handleFabButtonClicked}>
           <M.Icon>add</M.Icon>
         </M.Fab>

@@ -391,8 +391,7 @@ function TargetOptionsUI() {
           <TabPanel value={selectedMode} index={'chainblock'}>
             <TargetChainBlockOptionsUI />
             <div className="description">
-              {i18n.getMessage('chainblock_description')}
-              {i18n.getMessage('my_mutual_followers_wont_block')}
+              {i18n.getMessage('chainblock_description')} {i18n.getMessage('my_mutual_followers_wont_block')}
               <div className="wtf">{i18n.getMessage('wtf_twitter')}</div>
             </div>
           </TabPanel>

@@ -1,6 +1,9 @@
 {
-  "new_session": {
-    "message": "New session"
+  "new_follower_session": {
+    "message": "New session (Followers)"
+  },
+  "new_tweetreaction_session": {
+    "message": "New session (Tweet Reactions)"
   },
   "running_sessions": {
     "message": "Running sessions"
@@ -435,5 +438,11 @@
   },
   "wtf_twitter": {
     "message": "Warning: Red Block internally use Twitter's advanced block options to avoid force-logout problem. Unfortunately, it has another problem that ChainBlock doesn't block some user or may takes several minutes. Sorry for inconvenience."
+  },
+  "goto_tweet_url": {
+    "message": "To run tweet-reaction Chain Block, Please visit to tweet url."
+  },
+  "not_all_reaction": {
+    "message": "Note: Sometimes it doesn't blocks all of retweeters/likers. And it doesn't count already-blocked users."
   }
 }

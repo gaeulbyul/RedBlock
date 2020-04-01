@@ -3,6 +3,7 @@ import { Tweet, TwitterUser, TwitterUserEntities, Limit } from './background/twi
 export const enum PageEnum {
   Sessions = 0,
   NewSession = 1,
+  NewTweetReactionBlock = 2,
 }
 
 export const enum SessionStatus {

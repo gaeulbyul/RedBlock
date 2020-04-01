@@ -82,7 +82,7 @@ export function generateFollowerBlockConfirmMessage(request: FollowerBlockSessio
 export function generateTweetReactionBlockMessage(request: TweetReactionBlockSessionRequest): DialogMessageObj {
   const { tweet, reaction } = request.target
   const { myFollowers, myFollowings } = request.options
-  const authorName = tweet.user.name
+  const authorName = tweet.user.screen_name
   let title = ''
   const contents = []
   const warnings = []

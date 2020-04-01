@@ -31,3 +31,16 @@ export function formatFollowsCount(followKind: FollowKind, count: number): strin
       return getMessage('mutual_followers')
   }
 }
+
+function checkMissingTranslations(
+  // ko/messages.json 엔 있고 en/messages.json 엔 없는 키가 있으면
+  // TypeScript 컴파일러가 타입에러를 일으킨다.
+  // tsconfig.json의 resolveJsonModule 옵션을 켜야 함
+  keys: Exclude<
+    keyof typeof import('../_locales/ko/messages.json'),
+    keyof typeof import('../_locales/en/messages.json')
+  >,
+  find: (_keys: never) => void,
+  _check = find(keys)
+) {}
+checkMissingTranslations
