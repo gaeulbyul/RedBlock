@@ -112,34 +112,29 @@ function TargetTweetUI(props: { tweet: Tweet }) {
             {radio('retweeted', i18n.getMessage('retweet'))}
             {radio('liked', i18n.getMessage('like'))}
           </M.RadioGroup>
-          <div className="description">{i18n.getMessage('not_all_reaction')}</div>
         </div>
       </div>
     </div>
   )
 }
 
-function TargetTweetEmptyUI() {
-  let message = i18n.getMessage('goto_tweet_url')
-  return <div>{message}</div>
-}
-
 function TargetTweetOuterUI() {
   const { currentTweet, targetReaction } = React.useContext(TargetTweetContext)
+  if (!currentTweet) {
+    throw new Error()
+  }
   const classes = useStylesForExpansionPanels()
   let targetSummary = ''
-  if (currentTweet) {
-    const userName = currentTweet.user.screen_name
-    switch (targetReaction) {
-      case 'retweeted':
-        targetSummary = i18n.getMessage('retweeted_xxxs_tweet', userName)
-        break
-      case 'liked':
-        targetSummary = i18n.getMessage('liked_xxxs_tweet', userName)
-        break
-    }
-    targetSummary = `(${targetSummary})`
+  const userName = currentTweet.user.screen_name
+  switch (targetReaction) {
+    case 'retweeted':
+      targetSummary = i18n.getMessage('retweeted_xxxs_tweet', userName)
+      break
+    case 'liked':
+      targetSummary = i18n.getMessage('liked_xxxs_tweet', userName)
+      break
   }
+  targetSummary = `(${targetSummary})`
   return (
     <M.ExpansionPanel defaultExpanded>
       <DenseExpansionPanelSummary expandIcon={<M.Icon>expand_more</M.Icon>}>
@@ -150,7 +145,7 @@ function TargetTweetOuterUI() {
       <M.ExpansionPanelDetails className={classes.details}>
         <div style={{ width: '100%' }}>
           <M.FormControl component="fieldset" fullWidth>
-            {currentTweet ? <TargetTweetUI tweet={currentTweet} /> : <TargetTweetEmptyUI />}
+            <TargetTweetUI tweet={currentTweet} />
           </M.FormControl>
         </div>
       </M.ExpansionPanelDetails>
