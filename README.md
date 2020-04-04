@@ -1,8 +1,17 @@
 # Red Block
 
-## 소개
+- Firefox: https://addons.mozilla.org/en-US/firefox/addon/red-block/
+- Chrome/Chromium: https://chrome.google.com/webstore/detail/red-block/knjpopecjigkkaddmoahjcfpbgedkibf
 
 Red Block(레드블락)은 트위터에서 특정 사용자의 팔로워를 일괄적으로 차단하는 [Twitter Block Chain](https://github.com/satsukitv/twitter-block-chain) (aka. 체인블락)이나 [BlockThemAll](https://github.com/u1-liquid/BlockThemAll)을 대체할 수 있는 웹 브라우저 확장기능입니다.
+
+Red Block is an extension for blocking users from Twitter. It is intended to replace [Twitter Block Chain](https://github.com/satsukitv/twitter-block-chain) or [BlockThemAll](https://github.com/u1-liquid/BlockThemAll).
+
+## 주의!
+
+Red Block은 강제 로그아웃 및 계정잠김 현상을 막기위해 기존 체인블락과 다른 API를 사용하고있습니다. 이 때문에 차단이 반영되지 않거나 늦게 반영되는 현상이 있습니다. 불편하시더라도 양해 바랍니다.
+
+To avoid force-logout and account suspension, Red Block uses different API than twitter-block-chain. Unfortunately, It has another problem that Red Block doesn't block some users of may takes several minutes. Sorry for the inconvenience!
 
 ## 기능
 
@@ -11,10 +20,8 @@ Red Block(레드블락)은 트위터에서 특정 사용자의 팔로워를 일�
 - 맞팔로우 체인블락기능: 상대방과 맞팔로우한 사용자만 골라서 차단합니다.
 - 언체인블락 (팔로워 전체를 차단**해제**하기)
 - 사용자 저장기능: 특정 사용자에게 자주 (언)체인블락을 실행한다면, 그 사용자의 프로필을 직접 들어가지 않아도 실행할 수 있는 기능입니다.
-
-### 실험적인 기능
-
 - 트윗반응 기반 체인블락: 특정 트윗을 리트윗하거나 마음에 들어한 사용자를 일괄적으로 차단합니다.
+- 상대방이 나를 차단해도 (조건부로) 체인블락을 실행 할 수 있습니다.
 
 ## 비교
 
@@ -27,6 +34,7 @@ Red Block(레드블락)은 트위터에서 특정 사용자의 팔로워를 일�
 | API 리밋대응          | O         | X                   | O            |
 | 사용자 저장           | O         | X                   | X            |
 | 언체인블락            | O         | X                   | X            |
+| 트윗반응 체인블락     | O         | X                   | X            |
 
 [^1]: 내 팔로잉만 필터링 (옵션 X)
 [^2]: 내 팔로워만 필터링 가능(옵션 O)
