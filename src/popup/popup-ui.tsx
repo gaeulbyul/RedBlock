@@ -1,13 +1,12 @@
 import * as TwitterAPI from '../scripts/background/twitter-api.js'
-import { getCurrentTab, getUserNameFromTab, requestProgress } from './popup.js'
+import { getCurrentTab, getUserNameFromTab, getTweetIdFromTab, requestProgress } from './popup.js'
 import ChainBlockSessionsPage from './popup-ui/chainblock-sessions-page.js'
 import NewChainBlockPage from './popup-ui/new-chainblock-page.js'
+import NewTweetReactionBlockPage from './popup-ui/new-tweetreactionblock-page.js'
 import { PageEnum, UI_UPDATE_DELAY, isRunningStatus } from '../scripts/common.js'
 import * as i18n from '../scripts/i18n.js'
 import { DialogContext, SnackBarContext, PageSwitchContext } from './popup-ui/contexts.js'
 import { RBDialog, TabPanel, DialogContent } from './popup-ui/ui-common.js'
-
-type TwitterUser = TwitterAPI.TwitterUser
 
 const popupMuiTheme = MaterialUI.createMuiTheme({
   palette: {
@@ -24,8 +23,13 @@ const useStylesForAppBar = MaterialUI.makeStyles(() =>
   })
 )
 
-function PopupApp(props: { currentUser: TwitterUser | null; popupAsTab: boolean }) {
-  const { currentUser, popupAsTab } = props
+interface PopupAppProps {
+  currentUser: TwitterAPI.TwitterUser | null
+  currentTweet: TwitterAPI.Tweet | null
+  popupAsTab: boolean
+}
+function PopupApp(props: PopupAppProps) {
+  const { currentUser, currentTweet, popupAsTab } = props
   const [tabIndex, setTabIndex] = React.useState<PageEnum>(PageEnum.Sessions)
   const [sessions, setSessions] = React.useState<SessionInfo[]>([])
   const [modalOpened, setModalOpened] = React.useState(false)
@@ -110,7 +114,7 @@ function PopupApp(props: { currentUser: TwitterUser | null; popupAsTab: boolean 
       window.clearInterval(interval)
     }
   }, [])
-  const runningSessions = React.useMemo(() => sessions.filter(session => isRunningStatus(session.status)), [sessions])
+  const runningSessions = React.useMemo(() => sessions.filter((session) => isRunningStatus(session.status)), [sessions])
   const M = MaterialUI
   return (
     <M.ThemeProvider theme={popupMuiTheme}>
@@ -124,7 +128,8 @@ function PopupApp(props: { currentUser: TwitterUser | null; popupAsTab: boolean 
                 </M.IconButton>
                 <M.Tabs value={tabIndex} onChange={(_ev, val) => setTabIndex(val)}>
                   <M.Tab label={`${i18n.getMessage('running_sessions')} (${runningSessions.length})`} />
-                  <M.Tab label={i18n.getMessage('new_session')} />
+                  <M.Tab label={i18n.getMessage('new_follower_session')} />
+                  {currentTweet && <M.Tab label={i18n.getMessage('new_tweetreaction_session')} />}
                 </M.Tabs>
               </M.Toolbar>
             </M.AppBar>
@@ -145,6 +150,9 @@ function PopupApp(props: { currentUser: TwitterUser | null; popupAsTab: boolean 
                 </TabPanel>
                 <TabPanel value={tabIndex} index={PageEnum.NewSession}>
                   <NewChainBlockPage currentUser={currentUser} />
+                </TabPanel>
+                <TabPanel value={tabIndex} index={PageEnum.NewTweetReactionBlock}>
+                  <NewTweetReactionBlockPage currentTweet={currentTweet} />
                 </TabPanel>
               </M.Container>
             </div>
@@ -181,9 +189,16 @@ export async function initializeUI() {
   const tab = await getCurrentTab()
   const isPopupOpenedAsTab = /\bistab=1\b/.test(location.search)
   const userName = tab ? getUserNameFromTab(tab) : null
+  const tweetId = tab ? getTweetIdFromTab(tab) : null
   const appRoot = document.getElementById('app')!
-  const targetUser = await (userName ? TwitterAPI.getSingleUserByName(userName) : null)
-  const app = <PopupApp currentUser={targetUser} popupAsTab={isPopupOpenedAsTab} />
+  const currentTweet = await (tweetId ? TwitterAPI.getTweetById(tweetId) : null)
+  let currentUser: TwitterUser | null = null
+  if (currentTweet) {
+    currentUser = currentTweet.user
+  } else if (userName) {
+    currentUser = await TwitterAPI.getSingleUserByName(userName)
+  }
+  const app = <PopupApp currentUser={currentUser} currentTweet={currentTweet} popupAsTab={isPopupOpenedAsTab} />
   ReactDOM.render(app, appRoot)
   showVersionOnFooter()
 }

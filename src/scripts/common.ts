@@ -3,6 +3,7 @@ import { Tweet, TwitterUser, TwitterUserEntities, Limit } from './background/twi
 export const enum PageEnum {
   Sessions = 0,
   NewSession = 1,
+  NewTweetReactionBlock = 2,
 }
 
 export const enum SessionStatus {
@@ -37,7 +38,7 @@ export class EventEmitter<T> {
   emit<K extends keyof T>(eventName: string & K, eventHandlerParameter: T[K]) {
     const handlers = [...this.events[eventName], ...this.events['*']]
     // console.debug('EventEmitter: emit "%s" with %o', eventName, eventHandlerParameter)
-    handlers.forEach(handler => handler(eventHandlerParameter))
+    handlers.forEach((handler) => handler(eventHandlerParameter))
     return this
   }
 }
@@ -122,7 +123,7 @@ export function getUserNameFromURL(url: URL | Location | HTMLAnchorElement): str
 }
 
 export function sleep(time: number): Promise<void> {
-  return new Promise(resolve => window.setTimeout(resolve, time))
+  return new Promise((resolve) => window.setTimeout(resolve, time))
 }
 
 export function copyFrozenObject<T extends object>(obj: T): Readonly<T> {

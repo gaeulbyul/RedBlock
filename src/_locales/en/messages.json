@@ -1,6 +1,9 @@
 {
-  "new_session": {
-    "message": "New session"
+  "new_follower_session": {
+    "message": "New session (Followers)"
+  },
+  "new_tweetreaction_session": {
+    "message": "New session (Tweet Reactions)"
   },
   "running_sessions": {
     "message": "Running sessions"
@@ -136,10 +139,10 @@
     "message": "Clear completed sessions"
   },
   "session_is_empty": {
-    "message": "Currently there are no sessions."
+    "message": "Currently there's no sessions."
   },
   "press_plus_to_start_new_session": {
-    "message": "To start a new session, click the + button below."
+    "message": "To start new session, click + buttons on below."
   },
   "user_xxx_added": {
     "message": "Added @$username$",
@@ -173,16 +176,16 @@
     "message": "Remove"
   },
   "user_not_selected": {
-    "message": "Select target user to run Chainblock on"
+    "message": "Select target user to run Chainblock"
   },
   "profile_image": {
     "message": "Profile image"
   },
   "cant_chainblock_to_protected": {
-    "message": "Can't run Chainblock on protected user."
+    "message": "Can't run Chainblock to protected user."
   },
   "cant_chainblock_to_blocked": {
-    "message": "Can't run Chainblock on user that blocks you."
+    "message": "Can't run Chainblock to user that blocks you."
   },
   "target": {
     "message": "Target"
@@ -296,10 +299,10 @@
     "message": "Unblocks all users according to the options you set."
   },
   "my_mutual_followers_wont_block": {
-    "message": "Your mutual-followers won't be blocked to prevent muting/blocking your friends."
+    "message": "But, Your mutual-followers won't block for prevent mute/block your friends."
   },
   "confirm_follower_chainblock_title": {
-    "message": "Do you want to run Chainblock on @$username$?",
+    "message": "Do you want to run Chainblock to @$username$?",
     "placeholders": {
       "username": {
         "content": "$1"
@@ -307,7 +310,7 @@
     }
   },
   "confirm_follower_unchainblock_title": {
-    "message": "Do you want to run Unchainblock on @$username$?",
+    "message": "Do you want to run Unchainblock to @$username$?",
     "placeholders": {
       "username": {
         "content": "$1"
@@ -315,7 +318,7 @@
     }
   },
   "confirm_retweeted_chainblock_title": {
-    "message": "Do you want to run Chainblock on users that retweeted @$username$'s tweet?",
+    "message": "Do you want to run Chainblock to users that retweeted @$username$'s tweet?",
     "placeholders": {
       "username": {
         "content": "$1"
@@ -323,7 +326,7 @@
     }
   },
   "confirm_liked_chainblock_title": {
-    "message": "Do you want to run Chainblock on users that liked @$username$'s tweet?",
+    "message": "Do you want to run Chainblock to users that liked @$username$'s tweet?",
     "placeholders": {
       "username": {
         "content": "$1"
@@ -331,10 +334,10 @@
     }
   },
   "warning_maybe_you_block_your_followers": {
-    "message": "Caution! This option may block users who follow you."
+    "message": "Caution! This options may block users who follows you."
   },
   "warning_maybe_you_block_your_followings": {
-    "message": "Caution! This option may block users who you follow."
+    "message": "Caution! This options may block users who you follow."
   },
   "tweet_contents": {
     "message": "Tweet's contents"
@@ -346,7 +349,7 @@
     "message": "Run Unchainblock"
   },
   "confirm_session_stop_message": {
-    "message": "Do you want to stop this session?"
+    "message": "Dp you want to stop this session?"
   },
   "tooltip_close_session": {
     "message": "Close this session."
@@ -389,7 +392,7 @@
     "message": "No"
   },
   "error_occured_check_login": {
-    "message": "Error occured. Please check your login."
+    "message": "Error occured. Pleas check your login."
   },
   "error_occured": {
     "message": "Error occured."
@@ -398,19 +401,19 @@
     "message": "Rate limited. Please try again later."
   },
   "run_followers_chainblock_to_this_user": {
-    "message": "Run Chainblock on this user's followers"
+    "message": "Run Chainblock to this user's followers"
   },
   "run_followings_chainblock_to_this_user": {
-    "message": "Run Chainblock on this user's followings"
+    "message": "Run Chainblock to this user's followings"
   },
   "run_mutual_followers_chainblock_to_this_user": {
-    "message": "Run Chainblock on this user's mutual-followers"
+    "message": "Run Chainblock to this users' mutual-followers"
   },
   "run_retweeters_chainblock_to_this_tweet": {
-    "message": "Run Chainblock on users who retweeted this tweet"
+    "message": "Run Chainblock to users who retweeted this tweet"
   },
   "run_likers_chainblock_to_this_tweet": {
-    "message": "Run Chainblock on users who liked this tweet"
+    "message": "Run Chainblock to users who liked this tweet"
   },
   "already_running_to_same_target": {
     "message": "Already running on the same target."
@@ -422,18 +425,24 @@
     "message": "This user doesn't follow anyone."
   },
   "cant_chainblock_mutual_follower_is_zero": {
-    "message": "This user doesn't have mutual-followers."
+    "message": "This use doesn't have mutual-followers."
   },
   "cant_chainblock_too_many_block": {
     "message": "To prevent overuse, Red Block won't run Chainblock over 100K Users."
   },
   "cant_chainblock_nobody_retweeted": {
-    "message": "Nobody retweeted this tweet."
+    "message": "Nobody retweeted to this tweet."
   },
   "cant_chainblock_nobody_liked": {
-    "message": "Nobody liked this tweet."
+    "message": "Nobody liked to this tweet."
   },
   "wtf_twitter": {
-    "message": "Warning: Red Block internally uses Twitter's advanced block options to avoid force-logout problems. Unfortunately, it has another problem that ChainBlock doesn't block some users or may takes several minutes. Sorry for the inconvenience!"
+    "message": "Warning: Red Block internally use Twitter's advanced block options to avoid force-logout problem. Unfortunately, it has another problem that ChainBlock doesn't block some user or may takes several minutes. Sorry for inconvenience."
+  },
+  "goto_tweet_url": {
+    "message": "To run tweet-reaction Chain Block, Please visit to tweet url."
+  },
+  "not_all_reaction": {
+    "message": "Note: Sometimes it doesn't blocks all of retweeters/likers. And it doesn't count already-blocked users."
   }
 }

@@ -90,3 +90,15 @@ export function getUserNameFromTab(tab: Tab): string | null {
   const url = new URL(tab.url)
   return getUserNameFromURL(url)
 }
+
+export function getTweetIdFromTab(tab: Tab): string | null {
+  if (!tab || !tab.url) {
+    return null
+  }
+  const url = new URL(tab.url)
+  if (!['twitter.com', 'mobile.twitter.com'].includes(url.host)) {
+    return null
+  }
+  const match = /\/status\/(\d+)/.exec(url.pathname)
+  return match && match[1]
+}

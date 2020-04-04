@@ -21,10 +21,10 @@ export function objToString(msg: DialogMessageObj): string {
   result += '-'.repeat(10)
   result += '\n'
   if (contentLines) {
-    contentLines.forEach(line => (result += `${line}\n`))
+    contentLines.forEach((line) => (result += `${line}\n`))
   }
   if (warningLines) {
-    warningLines.forEach(line => (result += `${line}\n`))
+    warningLines.forEach((line) => (result += `${line}\n`))
   }
   return result
 }
@@ -82,7 +82,7 @@ export function generateFollowerBlockConfirmMessage(request: FollowerBlockSessio
 export function generateTweetReactionBlockMessage(request: TweetReactionBlockSessionRequest): DialogMessageObj {
   const { tweet, reaction } = request.target
   const { myFollowers, myFollowings } = request.options
-  const authorName = tweet.user.name
+  const authorName = tweet.user.screen_name
   let title = ''
   const contents = []
   const warnings = []

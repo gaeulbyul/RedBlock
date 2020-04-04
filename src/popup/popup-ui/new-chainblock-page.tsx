@@ -88,7 +88,7 @@ function TargetSavedUsers(props: {
     }
   }
   const sortedByName = (usersMap: TwitterUserMap): TwitterUser[] =>
-    _.sortBy(usersMap.toUserArray(), user => user.screen_name.toLowerCase())
+    _.sortBy(usersMap.toUserArray(), (user) => user.screen_name.toLowerCase())
   const selectUserFromOption = (elem: EventTarget) => {
     if (!(elem instanceof HTMLSelectElement)) {
       throw new Error('unreachable')
@@ -307,7 +307,7 @@ function TargetUserSelectUI(props: { isAvailable: boolean }) {
       return users
     }
     loadUsers()
-    return Storage.onSavedUsersChanged(async users => {
+    return Storage.onSavedUsersChanged(async (users) => {
       await loadUsers()
       if (!(selectedUser && users.has(selectedUser.id_str))) {
         setSelectedUser(currentUser)
@@ -391,8 +391,7 @@ function TargetOptionsUI() {
           <TabPanel value={selectedMode} index={'chainblock'}>
             <TargetChainBlockOptionsUI />
             <div className="description">
-              {i18n.getMessage('chainblock_description')}
-              {i18n.getMessage('my_mutual_followers_wont_block')}
+              {i18n.getMessage('chainblock_description')} {i18n.getMessage('my_mutual_followers_wont_block')}
               <div className="wtf">{i18n.getMessage('wtf_twitter')}</div>
             </div>
           </TabPanel>
@@ -507,7 +506,7 @@ async function getUserByNameWithCache(userName: string): Promise<TwitterUser> {
   return user
 }
 
-const BigExecuteChainBlockButton = MaterialUI.withStyles(theme => ({
+const BigExecuteChainBlockButton = MaterialUI.withStyles((theme) => ({
   root: {
     width: '100%',
     padding: '10px',
@@ -520,7 +519,7 @@ const BigExecuteChainBlockButton = MaterialUI.withStyles(theme => ({
     },
   },
 }))(MaterialUI.Button)
-const BigExecuteUnChainBlockButton = MaterialUI.withStyles(theme => ({
+const BigExecuteUnChainBlockButton = MaterialUI.withStyles((theme) => ({
   root: {
     width: '100%',
     padding: '10px',

@@ -203,7 +203,7 @@ function ChainBlockSessionItem(props: { session: SessionInfo }) {
   )
 }
 
-const useStylesForFabButton = MaterialUI.makeStyles(theme =>
+const useStylesForFabButton = MaterialUI.makeStyles((theme) =>
   MaterialUI.createStyles({
     fab: {
       position: 'fixed',
@@ -247,7 +247,7 @@ export default function ChainBlockSessionsPage(props: { sessions: SessionInfo[] 
   function renderSessions() {
     return (
       <div className="chainblock-sessions">
-        {sessions.map(session => (
+        {sessions.map((session) => (
           <ChainBlockSessionItem session={session as SessionInfo} key={session.sessionId} />
         ))}
       </div>
@@ -267,7 +267,7 @@ export default function ChainBlockSessionsPage(props: { sessions: SessionInfo[] 
       {renderGlobalControls()}
       <hr />
       {isSessionExist ? renderSessions() : renderEmptySessions()}
-      <M.Tooltip placement="left" title={i18n.getMessage('new_session')}>
+      <M.Tooltip placement="left" title={i18n.getMessage('new_follower_session')}>
         <M.Fab className={classes.fab} color="primary" onClick={handleFabButtonClicked}>
           <M.Icon>add</M.Icon>
         </M.Fab>
