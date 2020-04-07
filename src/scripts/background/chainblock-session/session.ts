@@ -17,8 +17,6 @@ import {
 export type SessionRequest = FollowerBlockSessionRequest | TweetReactionBlockSessionRequest
 
 type Limit = TwitterAPI.Limit
-type TwitterUser = TwitterAPI.TwitterUser
-type Tweet = TwitterAPI.Tweet
 
 const MAX_USER_LIMIT = 10_0000
 
@@ -190,7 +188,7 @@ export default class ChainBlockSession {
       if (!result) {
         return
       }
-      result.blocked.forEach(userId => {
+      result.blocked.forEach((userId) => {
         incrementSuccess('Block')
         this.eventEmitter.emit('mark-user', {
           userId,
@@ -372,7 +370,7 @@ class BlockAllAPIBlocker {
   }
   public async flush() {
     // console.info('flush start!')
-    const result = await blockMultipleUsers(this.buffer.map(u => u.id_str)) // .catch(() => { })
+    const result = await blockMultipleUsers(this.buffer.map((u) => u.id_str)) // .catch(() => { })
     this.buffer.length = 0
     // console.info('flush end!')
     return result
@@ -435,15 +433,15 @@ class FriendsFilter {
     if (myself.followers_count > 0) {
       promises.push(
         collectAsync(TwitterAPI.getAllFollowsIds('followers', myself))
-          .then(eithers => eithers.map(unwrap))
-          .then(userIds => this.followerIds.push(...userIds))
+          .then((eithers) => eithers.map(unwrap))
+          .then((userIds) => this.followerIds.push(...userIds))
       )
     }
     if (myself.friends_count > 0) {
       promises.push(
         collectAsync(TwitterAPI.getAllFollowsIds('friends', myself))
-          .then(eithers => eithers.map(unwrap))
-          .then(userIds => this.followingIds.push(...userIds))
+          .then((eithers) => eithers.map(unwrap))
+          .then((userIds) => this.followingIds.push(...userIds))
       )
     }
     return Promise.all(promises).then(() => {

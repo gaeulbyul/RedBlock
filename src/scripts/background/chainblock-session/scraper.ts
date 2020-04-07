@@ -4,9 +4,6 @@ import { getFollowersCount, getReactionsCount, wrapEither } from '../../common.j
 import { SessionRequest } from './session.js'
 import { RedBlockStorage } from '../storage.js'
 
-type TwitterUser = TwitterAPI.TwitterUser
-type Tweet = TwitterAPI.Tweet
-
 type ScrapedUsersIterator = AsyncIterableIterator<Either<Error, TwitterUser>>
 export interface UserScraper {
   totalCount: number | null
@@ -67,7 +64,7 @@ export class AntiBlockScraper implements UserIdScraper {
   public async *[Symbol.asyncIterator]() {
     const actAsUserId = await this.prepareActor()
     if (this.followKind === 'mutual-followers') {
-      yield* await TwitterAPI.getAllMutualFollowersIds(this.user, actAsUserId).then(ids => ids.map(wrapEither))
+      yield* await TwitterAPI.getAllMutualFollowersIds(this.user, actAsUserId).then((ids) => ids.map(wrapEither))
     } else {
       yield* TwitterAPI.getAllFollowsIds(this.followKind, this.user, actAsUserId)
     }
@@ -82,7 +79,7 @@ export class FollowersIdScraper implements UserIdScraper {
   }
   public async *[Symbol.asyncIterator]() {
     if (this.followKind === 'mutual-followers') {
-      yield* await TwitterAPI.getAllMutualFollowersIds(this.user).then(ids => ids.map(wrapEither))
+      yield* await TwitterAPI.getAllMutualFollowersIds(this.user).then((ids) => ids.map(wrapEither))
     } else {
       yield* TwitterAPI.getAllFollowsIds(this.followKind, this.user)
     }

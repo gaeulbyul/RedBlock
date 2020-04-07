@@ -7,8 +7,6 @@ import * as i18n from '../i18n.js'
 import { initializeContextMenu } from './context-menu.js'
 import { initializeWebRequest } from './webrequest.js'
 
-type TwitterUser = TwitterAPI.TwitterUser
-
 let storageQueue = Promise.resolve()
 const chainblocker = new ChainBlocker()
 const tabConnections = new Set<number>()
