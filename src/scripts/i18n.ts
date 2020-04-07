@@ -1,7 +1,6 @@
 type I18NMessages = typeof import('../_locales/ko/messages.json')
 type SubstItem = number | string
 type Substitutions = SubstItem | SubstItem[] | undefined
-
 export type I18NMessageKeys = keyof I18NMessages
 
 export function getMessage(key: string & I18NMessageKeys, substs: Substitutions = undefined) {

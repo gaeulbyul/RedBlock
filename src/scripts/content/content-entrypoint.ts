@@ -1,8 +1,8 @@
 function injectPageScripts() {
   browser.runtime
     .getManifest()
-    .web_accessible_resources!.filter(path => /\.js/.test(path))
-    .forEach(path => {
+    .web_accessible_resources!.filter((path) => /\.js/.test(path))
+    .forEach((path) => {
       document.body.appendChild(
         Object.assign(document.createElement('script'), {
           src: browser.runtime.getURL(path),
@@ -37,6 +37,10 @@ function listenMarkUserEvents() {
           browser.runtime.sendMessage(msg.action)
         }
         break
+      case 'ToggleOneClickBlockMode':
+        const { enabled } = msg
+        document.body.classList.toggle('redblock-oneclick-block-mode-enabled', enabled)
+        break
     }
   })
 }
@@ -44,4 +48,20 @@ function listenMarkUserEvents() {
 if (document.getElementById('react-root')) {
   injectPageScripts()
   listenMarkUserEvents()
+  document.addEventListener('RedBlock<-BlockUserById', (event) => {
+    const customEvent = event as CustomEvent
+    const { userId } = customEvent.detail
+    browser.runtime.sendMessage<RBActions.BlockUserById>({
+      actionType: 'BlockUserById',
+      userId,
+    })
+  })
+  document.addEventListener('RedBlock<-UnblockUserById', (event) => {
+    const customEvent = event as CustomEvent
+    const { userId } = customEvent.detail
+    browser.runtime.sendMessage<RBActions.UnblockUserById>({
+      actionType: 'UnblockUserById',
+      userId,
+    })
+  })
 }

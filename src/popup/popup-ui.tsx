@@ -3,6 +3,7 @@ import { getCurrentTab, getUserNameFromTab, getTweetIdFromTab, requestProgress }
 import ChainBlockSessionsPage from './popup-ui/chainblock-sessions-page.js'
 import NewChainBlockPage from './popup-ui/new-chainblock-page.js'
 import NewTweetReactionBlockPage from './popup-ui/new-tweetreactionblock-page.js'
+import UtilitiesPage from './popup-ui/utilities-page.js'
 import { PageEnum, UI_UPDATE_DELAY, isRunningStatus } from '../scripts/common.js'
 import * as i18n from '../scripts/i18n.js'
 import { DialogContext, SnackBarContext, PageSwitchContext } from './popup-ui/contexts.js'
@@ -129,7 +130,8 @@ function PopupApp(props: PopupAppProps) {
                 <M.Tabs value={tabIndex} onChange={(_ev, val) => setTabIndex(val)}>
                   <M.Tab label={`${i18n.getMessage('running_sessions')} (${runningSessions.length})`} />
                   <M.Tab label={i18n.getMessage('new_follower_session')} />
-                  {currentTweet && <M.Tab label={i18n.getMessage('new_tweetreaction_session')} />}
+                  <M.Tab disabled={!currentTweet} label={i18n.getMessage('new_tweetreaction_session')} />}
+                  <M.Tab label="Utilities" />
                 </M.Tabs>
               </M.Toolbar>
             </M.AppBar>
@@ -153,6 +155,9 @@ function PopupApp(props: PopupAppProps) {
                 </TabPanel>
                 <TabPanel value={tabIndex} index={PageEnum.NewTweetReactionBlock}>
                   <NewTweetReactionBlockPage currentTweet={currentTweet} />
+                </TabPanel>
+                <TabPanel value={tabIndex} index={PageEnum.Utilities}>
+                  <UtilitiesPage />
                 </TabPanel>
               </M.Container>
             </div>

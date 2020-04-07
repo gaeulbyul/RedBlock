@@ -4,6 +4,7 @@ type SessionRequest = import('./background/chainblock-session/session').SessionR
 type FollowerBlockSessionRequest = import('./background/chainblock-session/session').FollowerBlockSessionRequest
 type TweetReactionBlockSessionRequest = import('./background/chainblock-session/session').TweetReactionBlockSessionRequest
 type TwitterUser = import('./background/twitter-api').TwitterUser
+type Tweet = import('./background/twitter-api').Tweet
 
 // ---- vendor modules ----
 declare var _: typeof import('lodash')
@@ -82,8 +83,19 @@ declare namespace RBActions {
   interface RequestCleanup {
     actionType: 'RequestCleanup'
   }
+
+  interface BlockUserById {
+    actionType: 'BlockUserById'
+    userId: string
+  }
+
+  interface UnblockUserById {
+    actionType: 'UnblockUserById'
+    userId: string
+  }
 }
 
+// background 측으로 보내는 메시지
 type RBAction =
   | RBActions.StartFollowerChainBlock
   | RBActions.StartTweetReactionChainBlock
@@ -95,6 +107,8 @@ type RBAction =
   | RBActions.RemoveUserFromStorage
   | RBActions.RequestProgress
   | RBActions.RequestCleanup
+  | RBActions.BlockUserById
+  | RBActions.UnblockUserById
 
 declare namespace RBMessages {
   interface ChainBlockInfo {
@@ -123,14 +137,21 @@ declare namespace RBMessages {
     confirmMessage: string
     action: RBActions.StartFollowerChainBlock | RBActions.StartTweetReactionChainBlock
   }
+
+  interface ToggleOneClickBlockMode {
+    messageType: 'ToggleOneClickBlockMode'
+    enabled: boolean
+  }
 }
 
+// content측으로 보내는 메시지
 type RBMessage =
   | RBMessages.ChainBlockInfo
   | RBMessages.MarkUser
   | RBMessages.PopupSwitchTab
   | RBMessages.Alert
   | RBMessages.ConfirmChainBlock
+  | RBMessages.ToggleOneClickBlockMode
 
 interface MarkUserParams {
   userId: string

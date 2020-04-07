@@ -438,5 +438,8 @@
   },
   "wtf_twitter": {
     "message": "Warning: Red Block internally uses Twitter's advanced block options to avoid force-logout problems. Unfortunately, it has another problem that ChainBlock doesn't block some users or may takes several minutes. Sorry for the inconvenience!"
+  },
+  "oneclick_block_mode": {
+    "message": "One-click Block Mode"
   }
 }

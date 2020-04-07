@@ -149,6 +149,12 @@ function handleExtensionMessage(message: RBAction, sender: browser.runtime.Messa
     case 'DisconnectToBackground':
       sender.tab && tabConnections.delete(sender.tab.id!)
       break
+    case 'BlockUserById':
+      TwitterAPI.blockUserById(message.userId)
+      break
+    case 'UnblockUserById':
+      TwitterAPI.unblockUserById(message.userId)
+      break
   }
 }
 

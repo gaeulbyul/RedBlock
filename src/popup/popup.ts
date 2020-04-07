@@ -71,6 +71,18 @@ export async function removeUserFromStorage(user: TwitterUser) {
   })
 }
 
+export async function toggleOneClickBlockMode(enabled: boolean) {
+  const tab = await getCurrentTab()
+  const tabId = tab && tab.id
+  if (typeof tabId !== 'number') {
+    throw new Error()
+  }
+  return browser.tabs.sendMessage<RBMessages.ToggleOneClickBlockMode>(tabId, {
+    messageType: 'ToggleOneClickBlockMode',
+    enabled,
+  })
+}
+
 export async function getCurrentTab(): Promise<Tab | null> {
   const tabs = await browser.tabs.query({
     active: true,

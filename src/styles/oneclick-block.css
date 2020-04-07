@@ -1,0 +1,48 @@
+@charset 'utf-8';
+
+#react-root .redblock-btn {
+  display: none;
+  padding: 2px 5px;
+  margin-right: 10px;
+  border: 0;
+  border-radius: 3px;
+  cursor: pointer;
+  font-size: 12px;
+}
+
+.redblock-oneclick-block-mode-enabled #react-root .redblock-btn {
+  display: block;
+}
+
+#react-root .redblock-btn:hover {
+  text-decoration: underline;
+}
+
+#react-root .redblock-block-btn {
+  background-color: firebrick;
+  color: white;
+}
+
+#react-root .redblock-block-btn:hover {
+  background-color: crimson;
+  color: white;
+}
+
+#react-root .redblock-unblock-btn {
+  background-color: seagreen;
+  color: white;
+}
+
+#react-root .redblock-unblock-btn:hover {
+  background-color: mediumseagreen;
+  color: white;
+}
+
+#react-root [data-redblock-blocked-tweet] {
+  filter: blur(3px);
+  transition: filter 0.3s ease;
+}
+
+#react-root [data-redblock-blocked-tweet]:hover {
+  filter: none;
+}

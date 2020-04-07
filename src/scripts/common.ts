@@ -4,6 +4,7 @@ export const enum PageEnum {
   Sessions = 0,
   NewSession = 1,
   NewTweetReactionBlock = 2,
+  Utilities = 3,
 }
 
 export const enum SessionStatus {
