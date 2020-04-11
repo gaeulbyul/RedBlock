@@ -48,18 +48,25 @@ async function sendFollowerChainBlockConfirm(tab: browser.tabs.Tab, userName: st
   })
 }
 
-async function sendTweetReactionChainBlockConfirm(tab: browser.tabs.Tab, tweetId: string, reaction: ReactionKind) {
+async function sendTweetReactionChainBlockConfirm(
+  tab: browser.tabs.Tab,
+  tweetId: string,
+  blockRetweeters: boolean,
+  blockLikers: boolean
+) {
   const tweet = await getTweetById(tweetId)
   const request: TweetReactionBlockSessionRequest = {
     purpose: 'chainblock',
     options: tweetReactionBlockDefaultOption,
     target: {
       type: 'tweetReaction',
-      reaction,
+      blockRetweeters,
+      blockLikers,
       tweet,
-      count: getReactionsCount(tweet, reaction),
+      count: 0,
     },
   }
+  request.target.count = getReactionsCount(request.target)
   const [isOk, alertMessage] = checkTweetReactionBlockTarget(request.target)
   if (!isOk) {
     alert(alertMessage)
@@ -136,7 +143,7 @@ async function createContextMenu() {
     onclick(clickEvent, tab) {
       const url = new URL(clickEvent.linkUrl!)
       const tweetId = getTweetIdFromUrl(url)!
-      sendTweetReactionChainBlockConfirm(tab, tweetId, 'retweeted')
+      sendTweetReactionChainBlockConfirm(tab, tweetId, true, false)
     },
   })
   menus.create({
@@ -147,7 +154,18 @@ async function createContextMenu() {
     onclick(clickEvent, tab) {
       const url = new URL(clickEvent.linkUrl!)
       const tweetId = getTweetIdFromUrl(url)!
-      sendTweetReactionChainBlockConfirm(tab, tweetId, 'liked')
+      sendTweetReactionChainBlockConfirm(tab, tweetId, false, true)
+    },
+  })
+  menus.create({
+    contexts: ['link'],
+    documentUrlPatterns: urlPatterns,
+    targetUrlPatterns: tweetUrlPatterns,
+    title: i18n.getMessage('run_retweeters_and_likers_chainblock_to_this_tweet'),
+    onclick(clickEvent, tab) {
+      const url = new URL(clickEvent.linkUrl!)
+      const tweetId = getTweetIdFromUrl(url)!
+      sendTweetReactionChainBlockConfirm(tab, tweetId, true, true)
     },
   })
 }

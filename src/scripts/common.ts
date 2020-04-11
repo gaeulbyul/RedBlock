@@ -1,4 +1,4 @@
-import { Tweet, TwitterUser, TwitterUserEntities, Limit } from './background/twitter-api.js'
+import { TwitterUserEntities, Limit } from './background/twitter-api.js'
 
 export const enum PageEnum {
   Sessions = 0,
@@ -150,13 +150,16 @@ export function getFollowersCount(user: TwitterUser, followKind: FollowKind): nu
   }
 }
 
-export function getReactionsCount(tweet: Tweet, reaction: ReactionKind): number {
-  switch (reaction) {
-    case 'retweeted':
-      return tweet.retweet_count
-    case 'liked':
-      return tweet.favorite_count
+export function getReactionsCount(target: TweetReactionBlockSessionRequest['target']): number {
+  let result = 0
+  const { retweet_count, favorite_count } = target.tweet
+  if (target.blockRetweeters) {
+    result += retweet_count
   }
+  if (target.blockLikers) {
+    result += favorite_count
+  }
+  return result
 }
 
 export function isRunningStatus(status: SessionStatus): boolean {

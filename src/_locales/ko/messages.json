@@ -59,16 +59,8 @@
       }
     }
   },
-  "retweeted_xxxs_tweet": {
-    "message": "@$username$의 트윗을 리트윗한 유저",
-    "placeholders": {
-      "username": {
-        "content": "$1"
-      }
-    }
-  },
-  "liked_xxxs_tweet": {
-    "message": "@$username$의 트윗을 마음에 들어한 유저",
+  "reacted_xxxs_tweet": {
+    "message": "@$username$의 트윗에 반응한 유저",
     "placeholders": {
       "username": {
         "content": "$1"
@@ -317,21 +309,16 @@
       }
     }
   },
-  "confirm_retweeted_chainblock_title": {
-    "message": "정말로 @$username$이 쓴 트윗을 리트윗한 유저에게 체인블락을 실행하시겠습니까?",
+  "confirm_reacted_chainblock_title": {
+    "message": "정말로 @$username$이 쓴 트윗에 반응한 유저에게 체인블락을 실행하시겠습니까?",
     "placeholders": {
       "username": {
         "content": "$1"
       }
     }
   },
-  "confirm_liked_chainblock_title": {
-    "message": "정말로 @$username$이 쓴 트윗을 마음에 들어한 유저에게 체인블락을 실행하시겠습니까?",
-    "placeholders": {
-      "username": {
-        "content": "$1"
-      }
-    }
+  "select_rt_or_like": {
+    "message": "'리트윗'이나 '마음에 들어요' 중 하나 이상을 선택해주세요."
   },
   "warning_maybe_you_block_your_followers": {
     "message": "주의! 내 팔로워를 차단할 수도 있습니다."
@@ -415,6 +402,9 @@
   "run_likers_chainblock_to_this_tweet": {
     "message": "이 트윗을 마음에 들어한 유저에게 체인블락 실행"
   },
+  "run_retweeters_and_likers_chainblock_to_this_tweet": {
+    "message": "이 트윗을 리트윗하거나 마음에 들어한 유저에게 체인블락 실행"
+  },
   "already_running_to_same_target": {
     "message": "이미 같은 대상에게 (언)체인블락이 실행중입니다."
   },
@@ -435,6 +425,9 @@
   },
   "cant_chainblock_nobody_liked": {
     "message": "아무도 마음에 들어하지 않은 트윗입니다."
+  },
+  "cant_chainblock_nobody_retweet_or_like": {
+    "message": "아무도 리트윗이나 마음에 들어하지 않은 트윗입니다."
   },
   "wtf_twitter": {
     "message": "주의: 현재 레드블락은 강제 로그아웃 현상을 피하기 위해 내부적으로 트위터의 고급차단 기능을 사용합니다. 다만 실제 유저차단이 안 되거나 다소 시간이 걸릴 수 있으니 양해 바랍니다."

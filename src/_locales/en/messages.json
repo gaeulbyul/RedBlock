@@ -1,12 +1,12 @@
 {
   "new_follower_session": {
-    "message": "New session (Followers)"
+    "message": "New (Followers)"
   },
   "new_tweetreaction_session": {
-    "message": "New session (Tweet Reactions)"
+    "message": "New (Tweet Reactions)"
   },
   "running_sessions": {
-    "message": "Running sessions"
+    "message": "Running"
   },
   "open_in_new_tab": {
     "message": "Open in new tab"
@@ -59,16 +59,8 @@
       }
     }
   },
-  "retweeted_xxxs_tweet": {
-    "message": "Users that retweeted @$username$'s tweet",
-    "placeholders": {
-      "username": {
-        "content": "$1"
-      }
-    }
-  },
-  "liked_xxxs_tweet": {
-    "message": "Users that liked @$username$'s tweet",
+  "reacted_xxxs_tweet": {
+    "message": "Users that reacted @$username$'s tweet",
     "placeholders": {
       "username": {
         "content": "$1"
@@ -317,21 +309,16 @@
       }
     }
   },
-  "confirm_retweeted_chainblock_title": {
-    "message": "Do you want to run Chainblock on users that retweeted @$username$'s tweet?",
+  "confirm_reacted_chainblock_title": {
+    "message": "Do you want to run Chainblock on users that reacted @$username$'s tweet?",
     "placeholders": {
       "username": {
         "content": "$1"
       }
     }
   },
-  "confirm_liked_chainblock_title": {
-    "message": "Do you want to run Chainblock on users that liked @$username$'s tweet?",
-    "placeholders": {
-      "username": {
-        "content": "$1"
-      }
-    }
+  "select_rt_or_like": {
+    "message": "Please select retweet and/or like"
   },
   "warning_maybe_you_block_your_followers": {
     "message": "Caution! This option may block users who follow you."
@@ -415,6 +402,9 @@
   "run_likers_chainblock_to_this_tweet": {
     "message": "Run Chainblock on users who liked this tweet"
   },
+  "run_retweeters_and_likers_chainblock_to_this_tweet": {
+    "message": "Run Chainblock on users who retweeted or liked this tweet"
+  },
   "already_running_to_same_target": {
     "message": "Already running on the same target."
   },
@@ -435,6 +425,9 @@
   },
   "cant_chainblock_nobody_liked": {
     "message": "Nobody liked this tweet."
+  },
+  "cant_chainblock_nobody_retweet_or_like": {
+    "message": "Nobody retweeted or liked this tweet."
   },
   "wtf_twitter": {
     "message": "Warning: Red Block internally uses Twitter's advanced block options to avoid force-logout problems. Unfortunately, it has another problem that ChainBlock doesn't block some users or may takes several minutes. Sorry for the inconvenience!"

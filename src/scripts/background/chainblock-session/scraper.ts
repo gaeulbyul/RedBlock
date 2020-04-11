@@ -90,11 +90,17 @@ export class FollowersIdScraper implements UserIdScraper {
 export class TweetReactedUserScraper implements UserScraper {
   public totalCount: number
   public readonly requireFriendsFilter = false
-  constructor(private tweet: Tweet, private reaction: ReactionKind) {
-    this.totalCount = getReactionsCount(tweet, reaction)
+  constructor(private target: TweetReactionBlockSessionRequest['target']) {
+    this.totalCount = getReactionsCount(target)
   }
-  public [Symbol.asyncIterator]() {
-    return TwitterAPI.getAllReactedUserList(this.reaction, this.tweet)
+  public async *[Symbol.asyncIterator]() {
+    const { tweet, blockRetweeters, blockLikers } = this.target
+    if (blockRetweeters) {
+      yield* TwitterAPI.getAllReactedUserList('retweeted', tweet)
+    }
+    if (blockLikers) {
+      yield* TwitterAPI.getAllReactedUserList('liked', tweet)
+    }
   }
 }
 
@@ -132,7 +138,7 @@ export function initScraper({
 }: ScraperInitializationParams): UserScraper | UserIdScraper {
   const { target, purpose } = request
   if (target.type === 'tweetReaction') {
-    return new TweetReactedUserScraper(target.tweet, target.reaction)
+    return new TweetReactedUserScraper(target)
   }
   if (target.user.blocked_by) {
     return new AntiBlockScraper(target.user, target.list)

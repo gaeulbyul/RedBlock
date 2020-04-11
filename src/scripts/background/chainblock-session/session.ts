@@ -53,7 +53,9 @@ export interface TweetReactionBlockSessionRequest {
     // author of tweet
     // user: TwitterUser
     tweet: Tweet
-    reaction: ReactionKind
+    // reaction: ReactionKind
+    blockRetweeters: boolean
+    blockLikers: boolean
     count: number
   }
   options: {
@@ -113,7 +115,10 @@ function isAlreadyDone(follower: FilterableUserObject, verb: VerbSomething): boo
   return false
 }
 
-function extractRateLimit(limitStatuses: TwitterAPI.LimitStatus, apiKind: FollowKind | ReactionKind): Limit {
+// 더 나은 타입이름 없을까...
+type ApiKind = FollowKind | 'tweet-reactions'
+
+function extractRateLimit(limitStatuses: TwitterAPI.LimitStatus, apiKind: ApiKind): Limit {
   switch (apiKind) {
     case 'followers':
       return limitStatuses.followers['/followers/list']
@@ -121,10 +126,9 @@ function extractRateLimit(limitStatuses: TwitterAPI.LimitStatus, apiKind: Follow
       return limitStatuses.friends['/friends/list']
     case 'mutual-followers':
       return limitStatuses.followers['/followers/list']
-    case 'retweeted':
+    case 'tweet-reactions':
       return limitStatuses.statuses['/statuses/retweeted_by']
-    case 'liked':
-      return limitStatuses.statuses['/statuses/favorited_by']
+    // return limitStatuses.statuses['/statuses/favorited_by']
   }
 }
 
@@ -133,7 +137,7 @@ function getCount({ target }: SessionRequest) {
     case 'follower':
       return getFollowersCount(target.user, target.list)
     case 'tweetReaction':
-      return getReactionsCount(target.tweet, target.reaction)
+      return getReactionsCount(target)
   }
 }
 
@@ -173,13 +177,13 @@ export default class ChainBlockSession {
     const blocker = new Blocker()
     const multiBlocker = new BlockAllAPIBlocker()
     const { target } = this.request
-    let apiKind: FollowKind | ReactionKind
+    let apiKind: ApiKind
     switch (target.type) {
       case 'follower':
         apiKind = target.list
         break
       case 'tweetReaction':
-        apiKind = target.reaction
+        apiKind = 'tweet-reactions'
         break
     }
     const incrementSuccess = (v: VerbSomething) => this.sessionInfo.progress.success[v]++
@@ -303,7 +307,7 @@ export default class ChainBlockSession {
   private async handleRateLimit(
     sessionInfo: SessionInfo,
     eventEmitter: EventEmitter<SessionEventEmitter>,
-    apiKind: FollowKind | ReactionKind
+    apiKind: ApiKind
   ) {
     sessionInfo.status = SessionStatus.RateLimited
     const limitStatuses = await TwitterAPI.getRateLimitStatus()
@@ -505,9 +509,18 @@ export function checkFollowerBlockTarget(target: FollowerBlockSessionRequest['ta
 }
 
 export function checkTweetReactionBlockTarget(target: TweetReactionBlockSessionRequest['target']): [boolean, string] {
-  if (target.reaction === 'retweeted' && target.tweet.retweet_count <= 0) {
+  if (!(target.blockRetweeters || target.blockLikers)) {
+    return [false, i18n.getMessage('select_rt_or_like')]
+  }
+  const { retweet_count, favorite_count } = target.tweet
+  if (retweet_count <= 0 && favorite_count <= 0) {
+    return [false, i18n.getMessage('cant_chainblock_nobody_retweet_or_like')]
+  }
+  const onlyWantBlockRetweetedUsers = target.blockRetweeters && !target.blockLikers
+  const onlyWantBlockLikedUsers = !target.blockRetweeters && target.blockLikers
+  if (onlyWantBlockRetweetedUsers && retweet_count <= 0) {
     return [false, i18n.getMessage('cant_chainblock_nobody_retweeted')]
-  } else if (target.reaction === 'liked' && target.tweet.favorite_count <= 0) {
+  } else if (onlyWantBlockLikedUsers && favorite_count <= 0) {
     return [false, i18n.getMessage('cant_chainblock_nobody_liked')]
   }
   return [true, '']

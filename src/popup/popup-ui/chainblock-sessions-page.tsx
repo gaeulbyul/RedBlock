@@ -60,14 +60,7 @@ function ChainBlockSessionItem(props: { session: SessionInfo }) {
       break
     case 'tweetReaction':
       user = target.tweet.user
-      switch (target.reaction) {
-        case 'retweeted':
-          localizedTarget = i18n.getMessage('retweeted_xxxs_tweet', user.screen_name)
-          break
-        case 'liked':
-          localizedTarget = i18n.getMessage('liked_xxxs_tweet', user.screen_name)
-          break
-      }
+      localizedTarget = i18n.getMessage('reacted_xxxs_tweet', user.screen_name)
       break
   }
   const localizedPurpose = i18n.getMessage(purpose)

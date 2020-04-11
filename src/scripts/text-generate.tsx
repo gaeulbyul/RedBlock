@@ -80,26 +80,20 @@ export function generateFollowerBlockConfirmMessage(request: FollowerBlockSessio
 }
 
 export function generateTweetReactionBlockMessage(request: TweetReactionBlockSessionRequest): DialogMessageObj {
-  const { tweet, reaction } = request.target
+  const { tweet, blockRetweeters, blockLikers } = request.target
   const { myFollowers, myFollowings } = request.options
   const authorName = tweet.user.screen_name
-  let title = ''
+  const title = i18n.getMessage('confirm_reacted_chainblock_title', authorName)
   const contents = []
   const warnings = []
-  switch (reaction) {
-    case 'retweeted':
-      title = i18n.getMessage('confirm_retweeted_chainblock_title', authorName)
-      break
-    case 'liked':
-      title = i18n.getMessage('confirm_liked_chainblock_title', authorName)
-      break
-  }
   if (myFollowers === 'Block') {
     warnings.push(`\u26a0 ${i18n.getMessage('warning_maybe_you_block_your_followers')}`)
   }
   if (myFollowings === 'Block') {
     warnings.push(`\u26a0 ${i18n.getMessage('warning_maybe_you_block_your_followings')}`)
   }
+  contents.push(`${i18n.getMessage('retweet')}: ${blockRetweeters ? 'O' : 'X'}`)
+  contents.push(`${i18n.getMessage('like')}: ${blockLikers ? 'O' : 'X'}`)
   contents.push(`${i18n.getMessage('tweet_contents')}: ${tweet.text}`)
   return {
     title,

@@ -4,7 +4,6 @@ import * as i18n from '../../scripts/i18n.js'
 const M = MaterialUI
 
 export default function UtilitiesPage() {
-  // L10N-ME
   return (
     <M.Box padding="10px">
       <M.FormControl component="fieldset">
