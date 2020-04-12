@@ -80,6 +80,8 @@ function TargetTweetUI(props: { tweet: Tweet }) {
   const { tweet } = props
   const user = tweet.user
   const biggerProfileImageUrl = user.profile_image_url_https.replace('_normal', '_bigger')
+  const nobodyRetweeted = tweet.retweet_count <= 0
+  const nobodyLiked = tweet.favorite_count <= 0
   return (
     <div className="target-user-info">
       <div className="profile-image-area">
@@ -110,13 +112,15 @@ function TargetTweetUI(props: { tweet: Tweet }) {
               control={<M.Checkbox size="small" />}
               onChange={() => setWantBlockRetweeters(!wantBlockRetweeters)}
               checked={wantBlockRetweeters}
-              label={i18n.getMessage('retweet')}
+              disabled={nobodyRetweeted}
+              label={`${i18n.getMessage('retweet')} (${tweet.retweet_count.toLocaleString()})`}
             />
             <M.FormControlLabel
               control={<M.Checkbox size="small" />}
               onChange={() => setWantBlockLikers(!wantBlockLikers)}
               checked={wantBlockLikers}
-              label={i18n.getMessage('like')}
+              disabled={nobodyLiked}
+              label={`${i18n.getMessage('like')} (${tweet.favorite_count.toLocaleString()})`}
             />
           </M.FormGroup>
         </div>
