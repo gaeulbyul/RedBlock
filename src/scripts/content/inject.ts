@@ -99,8 +99,7 @@ interface ReduxStore {
       return maybeTweetId1Match[1]
     }
     // tweet from timeline
-    const reh = getReactEventHandlers(article)
-    const maybeTweetId2 = dig<string>(() => reh.children[0][0]._owner.stateNode.props.link.pathname)
+    const maybeTweetId2 = dig<string>(() => parentReh.children[0].props.link.pathname)
     const maybeTweetId2Match = /\/status\/(\d+)$/.exec(maybeTweetId2 || '')
     if (maybeTweetId2Match) {
       return maybeTweetId2Match[1]
@@ -131,6 +130,7 @@ interface ReduxStore {
     } else {
       const tweetId = findTweetIdFromElement(elem)
       if (!tweetId) {
+        console.warn('failed to find tweet id from', elem)
         return
       }
       const tweetEntity = getTweetEntityById(tweetId)
