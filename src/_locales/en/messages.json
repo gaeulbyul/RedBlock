@@ -1,12 +1,15 @@
 {
   "new_follower_session": {
-    "message": "New (Followers)"
+    "message": "New Session (Followers)"
   },
   "new_tweetreaction_session": {
-    "message": "New (Tweet Reactions)"
+    "message": "New Session (Tweet Reactions)"
   },
   "running_sessions": {
     "message": "Running"
+  },
+  "miscellaneous": {
+    "message": "Misc."
   },
   "open_in_new_tab": {
     "message": "Open in new tab"

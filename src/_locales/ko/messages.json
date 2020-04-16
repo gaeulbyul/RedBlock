@@ -8,6 +8,9 @@
   "running_sessions": {
     "message": "실행중인 세션"
   },
+  "miscellaneous": {
+    "message": "기타 도구"
+  },
   "open_in_new_tab": {
     "message": "새 탭에서 열기"
   },

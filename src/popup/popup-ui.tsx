@@ -3,7 +3,7 @@ import { getCurrentTab, getUserNameFromTab, getTweetIdFromTab, requestProgress }
 import ChainBlockSessionsPage from './popup-ui/chainblock-sessions-page.js'
 import NewChainBlockPage from './popup-ui/new-chainblock-page.js'
 import NewTweetReactionBlockPage from './popup-ui/new-tweetreactionblock-page.js'
-import UtilitiesPage from './popup-ui/utilities-page.js'
+import MiscPage from './popup-ui/misc-page.js'
 import { PageEnum, UI_UPDATE_DELAY, isRunningStatus } from '../scripts/common.js'
 import * as i18n from '../scripts/i18n.js'
 import { DialogContext, SnackBarContext, PageSwitchContext } from './popup-ui/contexts.js'
@@ -117,6 +117,18 @@ function PopupApp(props: PopupAppProps) {
   }, [])
   const runningSessions = React.useMemo(() => sessions.filter((session) => isRunningStatus(session.status)), [sessions])
   const M = MaterialUI
+  const runningSessionsTabIcon = (
+    <M.Badge
+      color="secondary"
+      badgeContent={runningSessions.length}
+      anchorOrigin={{
+        vertical: 'bottom',
+        horizontal: 'right',
+      }}
+    >
+      <M.Icon>play_circle_filled_white_icon</M.Icon>
+    </M.Badge>
+  )
   return (
     <M.ThemeProvider theme={popupMuiTheme}>
       <SnackBarContext.Provider value={{ snack }}>
@@ -128,10 +140,18 @@ function PopupApp(props: PopupAppProps) {
                   <M.Icon>menu</M.Icon>
                 </M.IconButton>
                 <M.Tabs value={tabIndex} onChange={(_ev, val) => setTabIndex(val)}>
-                  <M.Tab label={`${i18n.getMessage('running_sessions')} (${runningSessions.length})`} />
-                  <M.Tab label={i18n.getMessage('new_follower_session')} />
-                  <M.Tab disabled={!currentTweet} label={i18n.getMessage('new_tweetreaction_session')} />}
-                  <M.Tab label="Utilities" />
+                  <M.Tooltip arrow title={`${i18n.getMessage('running_sessions')} (${runningSessions.length})`}>
+                    <M.Tab icon={runningSessionsTabIcon} />
+                  </M.Tooltip>
+                  <M.Tooltip arrow title={i18n.getMessage('new_follower_session')}>
+                    <M.Tab icon={<M.Icon>group</M.Icon>} />
+                  </M.Tooltip>
+                  <M.Tooltip arrow title={i18n.getMessage('new_tweetreaction_session')}>
+                    <M.Tab disabled={!currentTweet} icon={<M.Icon>repeat</M.Icon>} />
+                  </M.Tooltip>
+                  <M.Tooltip arrow title={i18n.getMessage('miscellaneous')}>
+                    <M.Tab icon={<M.Icon>build</M.Icon>} />
+                  </M.Tooltip>
                 </M.Tabs>
               </M.Toolbar>
             </M.AppBar>
@@ -157,7 +177,7 @@ function PopupApp(props: PopupAppProps) {
                   <NewTweetReactionBlockPage currentTweet={currentTweet} />
                 </TabPanel>
                 <TabPanel value={tabIndex} index={PageEnum.Utilities}>
-                  <UtilitiesPage />
+                  <MiscPage />
                 </TabPanel>
               </M.Container>
             </div>
