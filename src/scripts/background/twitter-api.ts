@@ -166,26 +166,37 @@ export async function* getAllFollowsIds(
   }
 }
 
-async function getFollowsUserList(followKind: FollowKind, user: TwitterUser, cursor = '-1'): Promise<UserListResponse> {
-  const response = await requestAPI('get', `/${followKind}/list.json`, {
-    user_id: user.id_str,
-    // screen_name: userName,
-    count: 200,
-    skip_status: true,
-    include_user_entities: false,
-    cursor,
-  })
+async function getFollowsUserList(
+  followKind: FollowKind,
+  user: TwitterUser,
+  cursor = '-1',
+  actAsUserId = ''
+): Promise<UserListResponse> {
+  const response = await requestAPI(
+    'get',
+    `/${followKind}/list.json`,
+    {
+      user_id: user.id_str,
+      // screen_name: userName,
+      count: 200,
+      skip_status: true,
+      include_user_entities: false,
+      cursor,
+    },
+    actAsUserId
+  )
   return response.json() as Promise<UserListResponse>
 }
 
 export async function* getAllFollowsUserList(
   followKind: FollowKind,
-  user: TwitterUser
+  user: TwitterUser,
+  actAsUserId = ''
 ): AsyncIterableIterator<Either<Error, TwitterUser>> {
   let cursor = '-1'
   while (true) {
     try {
-      const json = await getFollowsUserList(followKind, user, cursor)
+      const json = await getFollowsUserList(followKind, user, cursor, actAsUserId)
       cursor = json.next_cursor_str
       yield* json.users.map(wrapEither)
       if (cursor === '0') {
@@ -214,7 +225,7 @@ export async function* lookupUsersByIds(userIds: string[]): AsyncIterableIterato
   const chunks = _.chunk(userIds, 100)
   for (const chunk of chunks) {
     const mutualUsers = await getMultipleUsersById(chunk)
-    yield* mutualUsers.map(user => ({
+    yield* mutualUsers.map((user) => ({
       ok: true as const,
       value: user,
     }))
@@ -274,7 +285,7 @@ export async function getSingleUserById(userId: string, actAsUserId = ''): Promi
 }
 
 export async function getFriendships(users: TwitterUser[]): Promise<FriendshipResponse> {
-  const userIds = users.map(user => user.id_str)
+  const userIds = users.map((user) => user.id_str)
   if (userIds.length === 0) {
     return []
   }
@@ -407,7 +418,7 @@ export function parseAuthMultiCookie(authMulti: string): MultiAccountCookies {
   const userTokenPairs = authMulti
     .replace(/^"|"$/g, '')
     .split('|')
-    .map(pair => pair.split(':') as [string, string])
+    .map((pair) => pair.split(':') as [string, string])
   return Object.fromEntries(userTokenPairs)
 }
 

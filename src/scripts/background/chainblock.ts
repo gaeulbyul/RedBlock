@@ -16,7 +16,7 @@ export default class ChainBlocker {
     return currentRunningSessions.length > 0
   }
   private getCurrentRunningSessions() {
-    const currentRunningSessions = Array.from(this.sessions.values()).filter(session =>
+    const currentRunningSessions = Array.from(this.sessions.values()).filter((session) =>
       isRunningStatus(session.getSessionInfo().status)
     )
     return currentRunningSessions
@@ -34,7 +34,7 @@ export default class ChainBlocker {
       discarded: false,
       url: ['https://twitter.com/*', 'https://mobile.twitter.com/*'],
     })
-    tabs.forEach(tab => {
+    tabs.forEach((tab) => {
       const id = tab.id
       if (typeof id !== 'number') {
         return
@@ -48,7 +48,7 @@ export default class ChainBlocker {
     })
   }
   private handleEvents(session: ChainBlockSession) {
-    session.eventEmitter.on('complete', info => {
+    session.eventEmitter.on('complete', (info) => {
       const message = TextGenerate.chainBlockResultNotification(info)
       notify(message)
     })
@@ -58,10 +58,10 @@ export default class ChainBlocker {
     session.eventEmitter.on('stopped', () => {
       this.startRemainingSessions()
     })
-    session.eventEmitter.on('error', error => {
+    session.eventEmitter.on('error', (error) => {
       notify(`${i18n.getMessage('error_occured')}:\n${error}`)
     })
-    session.eventEmitter.on('mark-user', params => {
+    session.eventEmitter.on('mark-user', (params) => {
       this.markUser(params)
     })
   }
@@ -81,13 +81,13 @@ export default class ChainBlocker {
       }
     }
   }
-  public add(requestedUser: TwitterUser, request: SessionRequest) {
+  public add(request: SessionRequest) {
     const { target } = request
     if (this.isAlreadyRunning(target)) {
       alert(i18n.getMessage('already_running_to_same_target'))
       return null
     }
-    const session = new ChainBlockSession(requestedUser, request)
+    const session = new ChainBlockSession(request)
     const sessionId = session.getSessionInfo().sessionId
     this.handleEvents(session)
     this.sessions.set(sessionId, session)
@@ -134,7 +134,7 @@ export default class ChainBlocker {
     return Promise.all(sessionPromises)
   }
   public getAllSessionsProgress(): SessionInfo[] {
-    return Array.from(this.sessions.values()).map(ses => ses.getSessionInfo())
+    return Array.from(this.sessions.values()).map((ses) => ses.getSessionInfo())
   }
   public cleanupSessions() {
     const sessions = this.sessions.values()

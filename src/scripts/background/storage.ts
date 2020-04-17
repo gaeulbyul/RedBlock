@@ -9,6 +9,7 @@ function deleteUnusedOptions(options: RedBlockStorage['options'] | null) {
   const optionsAsAny = options as any
   delete optionsAsAny.tweetReactionBasedChainBlock
   delete optionsAsAny.experimental_tweetReactionBasedChainBlock
+  delete optionsAsAny.enableRailgun
 }
 
 export async function loadUsers(): Promise<TwitterUserMap> {
@@ -81,9 +82,7 @@ export function onSavedUsersChanged(handler: (savedUsers: TwitterUserMap) => voi
 
 export interface RedBlockStorage {
   savedUsers: TwitterUser[]
-  options: {
-    enableRailgun: boolean
-  }
+  options: {}
 }
 
 export type RedBlockStorageChanges = {
