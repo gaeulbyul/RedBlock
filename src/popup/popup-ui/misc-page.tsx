@@ -1,19 +1,26 @@
 import { toggleOneClickBlockMode } from '../popup.js'
+import { SnackBarContext } from './contexts.js'
 import * as i18n from '../../scripts/i18n.js'
 
 const M = MaterialUI
 
 export default function MiscPage() {
+  const snackBarCtx = React.useContext(SnackBarContext)
+  function onClickOneClickBlockModeButtons(enable: boolean) {
+    toggleOneClickBlockMode(enable)
+    const modeState = enable ? 'ON' : 'OFF'
+    snackBarCtx.snack(`${i18n.getMessage('oneclick_block_mode')}: ${modeState}!`)
+  }
   return (
     <M.Box padding="10px">
       <M.FormControl component="fieldset">
         <M.FormLabel component="legend">{i18n.getMessage('oneclick_block_mode')}</M.FormLabel>
         <div>
           <M.ButtonGroup variant="contained" color="primary" size="small">
-            <M.Button onClick={() => toggleOneClickBlockMode(true)}>
+            <M.Button onClick={() => onClickOneClickBlockModeButtons(true)}>
               <span>ON</span>
             </M.Button>
-            <M.Button onClick={() => toggleOneClickBlockMode(false)}>
+            <M.Button onClick={() => onClickOneClickBlockModeButtons(false)}>
               <span>OFF</span>
             </M.Button>
           </M.ButtonGroup>
