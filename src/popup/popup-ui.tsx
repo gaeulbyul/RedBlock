@@ -21,6 +21,9 @@ const useStylesForAppBar = MaterialUI.makeStyles(() =>
     toolbar: {
       padding: 0,
     },
+    tab: {
+      minWidth: '60px',
+    },
   })
 )
 
@@ -141,16 +144,16 @@ function PopupApp(props: PopupAppProps) {
                 </M.IconButton>
                 <M.Tabs value={tabIndex} onChange={(_ev, val) => setTabIndex(val)}>
                   <M.Tooltip arrow title={`${i18n.getMessage('running_sessions')} (${runningSessions.length})`}>
-                    <M.Tab icon={runningSessionsTabIcon} />
+                    <M.Tab className={classes.tab} icon={runningSessionsTabIcon} />
                   </M.Tooltip>
                   <M.Tooltip arrow title={i18n.getMessage('new_follower_session')}>
-                    <M.Tab icon={<M.Icon>group</M.Icon>} />
+                    <M.Tab className={classes.tab} icon={<M.Icon>group</M.Icon>} />
                   </M.Tooltip>
                   <M.Tooltip arrow title={i18n.getMessage('new_tweetreaction_session')}>
-                    <M.Tab disabled={!currentTweet} icon={<M.Icon>repeat</M.Icon>} />
+                    <M.Tab className={classes.tab} disabled={!currentTweet} icon={<M.Icon>repeat</M.Icon>} />
                   </M.Tooltip>
                   <M.Tooltip arrow title={i18n.getMessage('miscellaneous')}>
-                    <M.Tab icon={<M.Icon>build</M.Icon>} />
+                    <M.Tab className={classes.tab} icon={<M.Icon>build</M.Icon>} />
                   </M.Tooltip>
                 </M.Tabs>
               </M.Toolbar>
@@ -226,6 +229,11 @@ export async function initializeUI() {
   const app = <PopupApp currentUser={currentUser} currentTweet={currentTweet} popupAsTab={isPopupOpenedAsTab} />
   ReactDOM.render(app, appRoot)
   showVersionOnFooter()
+  if (isPopupOpenedAsTab) {
+    document.body.classList.add('ui-tab')
+  } else {
+    document.body.classList.add('ui-popup')
+  }
 }
 
 initializeUI()

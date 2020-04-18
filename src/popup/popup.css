@@ -33,15 +33,18 @@
   visibility: hidden;
 }
 
-html,
-body {
-  min-height: 600px;
+body.ui-tab {
   min-width: var(--popup-width);
+}
+
+body.ui-popup {
+  width: var(--popup-width);
 }
 
 body {
   margin: 0;
   padding: 0;
+  min-height: 600px;
   word-break: keep-all;
   font-size: var(--default-font-size);
   font-family: 'NanumGothic', 'Malgun Gothic', sans-serif;
