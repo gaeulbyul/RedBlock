@@ -1,4 +1,4 @@
-/** @license Material-UI v4.9.0
+/** @license Material-UI v4.9.11
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
@@ -10,7 +10,7 @@
 }(this, (function (exports, React, ReactDOM) { 'use strict';
 
   var React__default = 'default' in React ? React['default'] : React;
-  ReactDOM = ReactDOM && ReactDOM.hasOwnProperty('default') ? ReactDOM['default'] : ReactDOM;
+  var ReactDOM__default = 'default' in ReactDOM ? ReactDOM['default'] : ReactDOM;
 
   var common = {
     black: '#000',
@@ -734,6 +734,8 @@
   }
 
   function _typeof(obj) {
+    "@babel/helpers - typeof";
+
     if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") {
       _typeof = function _typeof(obj) {
         return typeof obj;
@@ -747,8 +749,8 @@
     return _typeof(obj);
   }
 
-  function isObject(item) {
-    return item && _typeof(item) === 'object' && !Array.isArray(item);
+  function isPlainObject(item) {
+    return item && _typeof(item) === 'object' && item.constructor === Object;
   }
   function deepmerge(target, source) {
     var options = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : {
@@ -756,14 +758,14 @@
     };
     var output = options.clone ? _extends({}, target) : target;
 
-    if (isObject(target) && isObject(source)) {
+    if (isPlainObject(target) && isPlainObject(source)) {
       Object.keys(source).forEach(function (key) {
         // Avoid prototype pollution
         if (key === '__proto__') {
           return;
         }
 
-        if (isObject(source[key]) && key in target) {
+        if (isPlainObject(source[key]) && key in target) {
           output[key] = deepmerge(target[key], source[key], options);
         } else {
           output[key] = source[key];
@@ -774,52 +776,9 @@
     return output;
   }
 
-  function unwrapExports (x) {
-  	return x && x.__esModule && Object.prototype.hasOwnProperty.call(x, 'default') ? x['default'] : x;
-  }
-
   function createCommonjsModule(fn, module) {
   	return module = { exports: {} }, fn(module, module.exports), module.exports;
   }
-
-  var reactIs_production_min = createCommonjsModule(function (module, exports) {
-  Object.defineProperty(exports,"__esModule",{value:!0});
-  var b="function"===typeof Symbol&&Symbol.for,c=b?Symbol.for("react.element"):60103,d=b?Symbol.for("react.portal"):60106,e=b?Symbol.for("react.fragment"):60107,f=b?Symbol.for("react.strict_mode"):60108,g=b?Symbol.for("react.profiler"):60114,h=b?Symbol.for("react.provider"):60109,k=b?Symbol.for("react.context"):60110,l=b?Symbol.for("react.async_mode"):60111,m=b?Symbol.for("react.concurrent_mode"):60111,n=b?Symbol.for("react.forward_ref"):60112,p=b?Symbol.for("react.suspense"):60113,q=b?Symbol.for("react.suspense_list"):
-  60120,r=b?Symbol.for("react.memo"):60115,t=b?Symbol.for("react.lazy"):60116,v=b?Symbol.for("react.fundamental"):60117,w=b?Symbol.for("react.responder"):60118,x=b?Symbol.for("react.scope"):60119;function y(a){if("object"===typeof a&&null!==a){var u=a.$$typeof;switch(u){case c:switch(a=a.type,a){case l:case m:case e:case g:case f:case p:return a;default:switch(a=a&&a.$$typeof,a){case k:case n:case t:case r:case h:return a;default:return u}}case d:return u}}}function z(a){return y(a)===m}
-  exports.typeOf=y;exports.AsyncMode=l;exports.ConcurrentMode=m;exports.ContextConsumer=k;exports.ContextProvider=h;exports.Element=c;exports.ForwardRef=n;exports.Fragment=e;exports.Lazy=t;exports.Memo=r;exports.Portal=d;exports.Profiler=g;exports.StrictMode=f;exports.Suspense=p;
-  exports.isValidElementType=function(a){return "string"===typeof a||"function"===typeof a||a===e||a===m||a===g||a===f||a===p||a===q||"object"===typeof a&&null!==a&&(a.$$typeof===t||a.$$typeof===r||a.$$typeof===h||a.$$typeof===k||a.$$typeof===n||a.$$typeof===v||a.$$typeof===w||a.$$typeof===x)};exports.isAsyncMode=function(a){return z(a)||y(a)===l};exports.isConcurrentMode=z;exports.isContextConsumer=function(a){return y(a)===k};exports.isContextProvider=function(a){return y(a)===h};
-  exports.isElement=function(a){return "object"===typeof a&&null!==a&&a.$$typeof===c};exports.isForwardRef=function(a){return y(a)===n};exports.isFragment=function(a){return y(a)===e};exports.isLazy=function(a){return y(a)===t};exports.isMemo=function(a){return y(a)===r};exports.isPortal=function(a){return y(a)===d};exports.isProfiler=function(a){return y(a)===g};exports.isStrictMode=function(a){return y(a)===f};exports.isSuspense=function(a){return y(a)===p};
-  });
-
-  unwrapExports(reactIs_production_min);
-  var reactIs_production_min_1 = reactIs_production_min.typeOf;
-  var reactIs_production_min_2 = reactIs_production_min.AsyncMode;
-  var reactIs_production_min_3 = reactIs_production_min.ConcurrentMode;
-  var reactIs_production_min_4 = reactIs_production_min.ContextConsumer;
-  var reactIs_production_min_5 = reactIs_production_min.ContextProvider;
-  var reactIs_production_min_6 = reactIs_production_min.Element;
-  var reactIs_production_min_7 = reactIs_production_min.ForwardRef;
-  var reactIs_production_min_8 = reactIs_production_min.Fragment;
-  var reactIs_production_min_9 = reactIs_production_min.Lazy;
-  var reactIs_production_min_10 = reactIs_production_min.Memo;
-  var reactIs_production_min_11 = reactIs_production_min.Portal;
-  var reactIs_production_min_12 = reactIs_production_min.Profiler;
-  var reactIs_production_min_13 = reactIs_production_min.StrictMode;
-  var reactIs_production_min_14 = reactIs_production_min.Suspense;
-  var reactIs_production_min_15 = reactIs_production_min.isValidElementType;
-  var reactIs_production_min_16 = reactIs_production_min.isAsyncMode;
-  var reactIs_production_min_17 = reactIs_production_min.isConcurrentMode;
-  var reactIs_production_min_18 = reactIs_production_min.isContextConsumer;
-  var reactIs_production_min_19 = reactIs_production_min.isContextProvider;
-  var reactIs_production_min_20 = reactIs_production_min.isElement;
-  var reactIs_production_min_21 = reactIs_production_min.isForwardRef;
-  var reactIs_production_min_22 = reactIs_production_min.isFragment;
-  var reactIs_production_min_23 = reactIs_production_min.isLazy;
-  var reactIs_production_min_24 = reactIs_production_min.isMemo;
-  var reactIs_production_min_25 = reactIs_production_min.isPortal;
-  var reactIs_production_min_26 = reactIs_production_min.isProfiler;
-  var reactIs_production_min_27 = reactIs_production_min.isStrictMode;
-  var reactIs_production_min_28 = reactIs_production_min.isSuspense;
 
   var reactIs_development = createCommonjsModule(function (module, exports) {
 
@@ -827,8 +786,6 @@
 
   {
     (function() {
-
-  Object.defineProperty(exports, '__esModule', { value: true });
 
   // The Symbol used to tag the ReactElement-like types. If there is no native Symbol
   // nor polyfill, then a plain number is used for performance.
@@ -849,69 +806,15 @@
   var REACT_SUSPENSE_LIST_TYPE = hasSymbol ? Symbol.for('react.suspense_list') : 0xead8;
   var REACT_MEMO_TYPE = hasSymbol ? Symbol.for('react.memo') : 0xead3;
   var REACT_LAZY_TYPE = hasSymbol ? Symbol.for('react.lazy') : 0xead4;
+  var REACT_BLOCK_TYPE = hasSymbol ? Symbol.for('react.block') : 0xead9;
   var REACT_FUNDAMENTAL_TYPE = hasSymbol ? Symbol.for('react.fundamental') : 0xead5;
   var REACT_RESPONDER_TYPE = hasSymbol ? Symbol.for('react.responder') : 0xead6;
   var REACT_SCOPE_TYPE = hasSymbol ? Symbol.for('react.scope') : 0xead7;
 
   function isValidElementType(type) {
     return typeof type === 'string' || typeof type === 'function' || // Note: its typeof might be other than 'symbol' or 'number' if it's a polyfill.
-    type === REACT_FRAGMENT_TYPE || type === REACT_CONCURRENT_MODE_TYPE || type === REACT_PROFILER_TYPE || type === REACT_STRICT_MODE_TYPE || type === REACT_SUSPENSE_TYPE || type === REACT_SUSPENSE_LIST_TYPE || typeof type === 'object' && type !== null && (type.$$typeof === REACT_LAZY_TYPE || type.$$typeof === REACT_MEMO_TYPE || type.$$typeof === REACT_PROVIDER_TYPE || type.$$typeof === REACT_CONTEXT_TYPE || type.$$typeof === REACT_FORWARD_REF_TYPE || type.$$typeof === REACT_FUNDAMENTAL_TYPE || type.$$typeof === REACT_RESPONDER_TYPE || type.$$typeof === REACT_SCOPE_TYPE);
+    type === REACT_FRAGMENT_TYPE || type === REACT_CONCURRENT_MODE_TYPE || type === REACT_PROFILER_TYPE || type === REACT_STRICT_MODE_TYPE || type === REACT_SUSPENSE_TYPE || type === REACT_SUSPENSE_LIST_TYPE || typeof type === 'object' && type !== null && (type.$$typeof === REACT_LAZY_TYPE || type.$$typeof === REACT_MEMO_TYPE || type.$$typeof === REACT_PROVIDER_TYPE || type.$$typeof === REACT_CONTEXT_TYPE || type.$$typeof === REACT_FORWARD_REF_TYPE || type.$$typeof === REACT_FUNDAMENTAL_TYPE || type.$$typeof === REACT_RESPONDER_TYPE || type.$$typeof === REACT_SCOPE_TYPE || type.$$typeof === REACT_BLOCK_TYPE);
   }
-
-  /**
-   * Forked from fbjs/warning:
-   * https://github.com/facebook/fbjs/blob/e66ba20ad5be433eb54423f2b097d829324d9de6/packages/fbjs/src/__forks__/warning.js
-   *
-   * Only change is we use console.warn instead of console.error,
-   * and do nothing when 'console' is not supported.
-   * This really simplifies the code.
-   * ---
-   * Similar to invariant but only logs a warning if the condition is not met.
-   * This can be used to log issues in development environments in critical
-   * paths. Removing the logging code for production environments will keep the
-   * same logic and follow the same code paths.
-   */
-  var lowPriorityWarningWithoutStack = function () {};
-
-  {
-    var printWarning = function (format) {
-      for (var _len = arguments.length, args = new Array(_len > 1 ? _len - 1 : 0), _key = 1; _key < _len; _key++) {
-        args[_key - 1] = arguments[_key];
-      }
-
-      var argIndex = 0;
-      var message = 'Warning: ' + format.replace(/%s/g, function () {
-        return args[argIndex++];
-      });
-
-      if (typeof console !== 'undefined') {
-        console.warn(message);
-      }
-
-      try {
-        // --- Welcome to debugging React ---
-        // This error was thrown as a convenience so that you can use this stack
-        // to find the callsite that caused this warning to fire.
-        throw new Error(message);
-      } catch (x) {}
-    };
-
-    lowPriorityWarningWithoutStack = function (condition, format) {
-      if (format === undefined) {
-        throw new Error('`lowPriorityWarningWithoutStack(condition, format, ...args)` requires a warning ' + 'message argument');
-      }
-
-      if (!condition) {
-        for (var _len2 = arguments.length, args = new Array(_len2 > 2 ? _len2 - 2 : 0), _key2 = 2; _key2 < _len2; _key2++) {
-          args[_key2 - 2] = arguments[_key2];
-        }
-
-        printWarning.apply(void 0, [format].concat(args));
-      }
-    };
-  }
-
-  var lowPriorityWarningWithoutStack$1 = lowPriorityWarningWithoutStack;
 
   function typeOf(object) {
     if (typeof object === 'object' && object !== null) {
@@ -973,8 +876,9 @@
   function isAsyncMode(object) {
     {
       if (!hasWarnedAboutDeprecatedIsAsyncMode) {
-        hasWarnedAboutDeprecatedIsAsyncMode = true;
-        lowPriorityWarningWithoutStack$1(false, 'The ReactIs.isAsyncMode() alias has been deprecated, ' + 'and will be removed in React 17+. Update your code to use ' + 'ReactIs.isConcurrentMode() instead. It has the exact same API.');
+        hasWarnedAboutDeprecatedIsAsyncMode = true; // Using console['warn'] to evade Babel and ESLint
+
+        console['warn']('The ReactIs.isAsyncMode() alias has been deprecated, ' + 'and will be removed in React 17+. Update your code to use ' + 'ReactIs.isConcurrentMode() instead. It has the exact same API.');
       }
     }
 
@@ -1017,7 +921,6 @@
     return typeOf(object) === REACT_SUSPENSE_TYPE;
   }
 
-  exports.typeOf = typeOf;
   exports.AsyncMode = AsyncMode;
   exports.ConcurrentMode = ConcurrentMode;
   exports.ContextConsumer = ContextConsumer;
@@ -1031,7 +934,6 @@
   exports.Profiler = Profiler;
   exports.StrictMode = StrictMode;
   exports.Suspense = Suspense;
-  exports.isValidElementType = isValidElementType;
   exports.isAsyncMode = isAsyncMode;
   exports.isConcurrentMode = isConcurrentMode;
   exports.isContextConsumer = isContextConsumer;
@@ -1045,39 +947,39 @@
   exports.isProfiler = isProfiler;
   exports.isStrictMode = isStrictMode;
   exports.isSuspense = isSuspense;
+  exports.isValidElementType = isValidElementType;
+  exports.typeOf = typeOf;
     })();
   }
   });
-
-  unwrapExports(reactIs_development);
-  var reactIs_development_1 = reactIs_development.typeOf;
-  var reactIs_development_2 = reactIs_development.AsyncMode;
-  var reactIs_development_3 = reactIs_development.ConcurrentMode;
-  var reactIs_development_4 = reactIs_development.ContextConsumer;
-  var reactIs_development_5 = reactIs_development.ContextProvider;
-  var reactIs_development_6 = reactIs_development.Element;
-  var reactIs_development_7 = reactIs_development.ForwardRef;
-  var reactIs_development_8 = reactIs_development.Fragment;
-  var reactIs_development_9 = reactIs_development.Lazy;
-  var reactIs_development_10 = reactIs_development.Memo;
-  var reactIs_development_11 = reactIs_development.Portal;
-  var reactIs_development_12 = reactIs_development.Profiler;
-  var reactIs_development_13 = reactIs_development.StrictMode;
-  var reactIs_development_14 = reactIs_development.Suspense;
-  var reactIs_development_15 = reactIs_development.isValidElementType;
-  var reactIs_development_16 = reactIs_development.isAsyncMode;
-  var reactIs_development_17 = reactIs_development.isConcurrentMode;
-  var reactIs_development_18 = reactIs_development.isContextConsumer;
-  var reactIs_development_19 = reactIs_development.isContextProvider;
-  var reactIs_development_20 = reactIs_development.isElement;
-  var reactIs_development_21 = reactIs_development.isForwardRef;
-  var reactIs_development_22 = reactIs_development.isFragment;
-  var reactIs_development_23 = reactIs_development.isLazy;
-  var reactIs_development_24 = reactIs_development.isMemo;
-  var reactIs_development_25 = reactIs_development.isPortal;
-  var reactIs_development_26 = reactIs_development.isProfiler;
-  var reactIs_development_27 = reactIs_development.isStrictMode;
-  var reactIs_development_28 = reactIs_development.isSuspense;
+  var reactIs_development_1 = reactIs_development.AsyncMode;
+  var reactIs_development_2 = reactIs_development.ConcurrentMode;
+  var reactIs_development_3 = reactIs_development.ContextConsumer;
+  var reactIs_development_4 = reactIs_development.ContextProvider;
+  var reactIs_development_5 = reactIs_development.Element;
+  var reactIs_development_6 = reactIs_development.ForwardRef;
+  var reactIs_development_7 = reactIs_development.Fragment;
+  var reactIs_development_8 = reactIs_development.Lazy;
+  var reactIs_development_9 = reactIs_development.Memo;
+  var reactIs_development_10 = reactIs_development.Portal;
+  var reactIs_development_11 = reactIs_development.Profiler;
+  var reactIs_development_12 = reactIs_development.StrictMode;
+  var reactIs_development_13 = reactIs_development.Suspense;
+  var reactIs_development_14 = reactIs_development.isAsyncMode;
+  var reactIs_development_15 = reactIs_development.isConcurrentMode;
+  var reactIs_development_16 = reactIs_development.isContextConsumer;
+  var reactIs_development_17 = reactIs_development.isContextProvider;
+  var reactIs_development_18 = reactIs_development.isElement;
+  var reactIs_development_19 = reactIs_development.isForwardRef;
+  var reactIs_development_20 = reactIs_development.isFragment;
+  var reactIs_development_21 = reactIs_development.isLazy;
+  var reactIs_development_22 = reactIs_development.isMemo;
+  var reactIs_development_23 = reactIs_development.isPortal;
+  var reactIs_development_24 = reactIs_development.isProfiler;
+  var reactIs_development_25 = reactIs_development.isStrictMode;
+  var reactIs_development_26 = reactIs_development.isSuspense;
+  var reactIs_development_27 = reactIs_development.isValidElementType;
+  var reactIs_development_28 = reactIs_development.typeOf;
 
   var reactIs = createCommonjsModule(function (module) {
 
@@ -1089,7 +991,8 @@
   var reactIs_2 = reactIs.isFragment;
   var reactIs_3 = reactIs.isLazy;
   var reactIs_4 = reactIs.isMemo;
-  var reactIs_5 = reactIs.isValidElementType;
+  var reactIs_5 = reactIs.Memo;
+  var reactIs_6 = reactIs.isValidElementType;
 
   /*
   object-assign
@@ -2039,6 +1942,9 @@
         case reactIs_1:
           return getWrappedName(Component, Component.render, 'ForwardRef');
 
+        case reactIs_5:
+          return getWrappedName(Component, Component.type, 'memo');
+
         default:
           return undefined;
       }
@@ -2188,7 +2094,11 @@
       // The color of a disabled action.
       disabled: 'rgba(0, 0, 0, 0.26)',
       // The background color of a disabled action.
-      disabledBackground: 'rgba(0, 0, 0, 0.12)'
+      disabledBackground: 'rgba(0, 0, 0, 0.12)',
+      disabledOpacity: 0.38,
+      focus: 'rgba(0, 0, 0, 0.12)',
+      focusOpacity: 0.12,
+      activatedOpacity: 0.12
     }
   };
   var dark = {
@@ -2211,18 +2121,25 @@
       selected: 'rgba(255, 255, 255, 0.16)',
       selectedOpacity: 0.16,
       disabled: 'rgba(255, 255, 255, 0.3)',
-      disabledBackground: 'rgba(255, 255, 255, 0.12)'
+      disabledBackground: 'rgba(255, 255, 255, 0.12)',
+      disabledOpacity: 0.38,
+      focus: 'rgba(255, 255, 255, 0.12)',
+      focusOpacity: 0.12,
+      activatedOpacity: 0.24
     }
   };
 
   function addLightOrDark(intent, direction, shade, tonalOffset) {
+    var tonalOffsetLight = tonalOffset.light || tonalOffset;
+    var tonalOffsetDark = tonalOffset.dark || tonalOffset * 1.5;
+
     if (!intent[direction]) {
       if (intent.hasOwnProperty(shade)) {
         intent[direction] = intent[shade];
       } else if (direction === 'light') {
-        intent.light = lighten(intent.main, tonalOffset);
+        intent.light = lighten(intent.main, tonalOffsetLight);
       } else if (direction === 'dark') {
-        intent.dark = darken(intent.main, tonalOffset * 1.5);
+        intent.dark = darken(intent.main, tonalOffsetDark);
       }
     }
   }
@@ -2276,10 +2193,6 @@
 
 
     function getContrastText(background) {
-      if (!background) {
-        throw new TypeError("Material-UI: missing background argument in getContrastText(".concat(background, ")."));
-      }
-
       var contrastText = getContrastRatio(background, dark.text.primary) >= contrastThreshold ? dark.text.primary : light.text.primary;
 
       {
@@ -2293,7 +2206,7 @@
       return contrastText;
     }
 
-    function augmentColor(color) {
+    var augmentColor = function augmentColor(color) {
       var mainShade = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : 500;
       var lightShade = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : 300;
       var darkShade = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : 700;
@@ -2303,10 +2216,12 @@
         color.main = color[mainShade];
       }
 
-      {
-        if (!color.main) {
-          throw new Error(['Material-UI: the color provided to augmentColor(color) is invalid.', "The color object needs to have a `main` property or a `".concat(mainShade, "` property.")].join('\n'));
-        }
+      if (!color.main) {
+        throw new Error(['Material-UI: the color provided to augmentColor(color) is invalid.', "The color object needs to have a `main` property or a `".concat(mainShade, "` property.")].join('\n'));
+      }
+
+      if (typeof color.main !== 'string') {
+        throw new Error(['Material-UI: the color provided to augmentColor(color) is invalid.', "`color.main` should be a string, but `".concat(JSON.stringify(color.main), "` was provided instead."), '', 'Did you intend to use one of the following approaches?', '', 'import { green } from "@material-ui/core/colors";', '', 'const theme1 = createMuiTheme({ palette: {', '  primary: green,', '} });', '', 'const theme2 = createMuiTheme({ palette: {', '  primary: { main: green[500] },', '} });'].join('\n'));
       }
 
       addLightOrDark(color, 'light', lightShade, tonalOffset);
@@ -2317,7 +2232,7 @@
       }
 
       return color;
-    }
+    };
 
     var types = {
       dark: dark,
@@ -2444,7 +2359,7 @@
       htmlFontSize: htmlFontSize,
       pxToRem: pxToRem,
       round: round,
-      // TODO To remove in v5?
+      // TODO v5: remove
       fontFamily: fontFamily,
       fontSize: fontSize,
       fontWeightLight: fontWeightLight,
@@ -2472,6 +2387,667 @@
     borderRadius: 4
   };
 
+  var responsivePropType =  propTypes.oneOfType([propTypes.number, propTypes.string, propTypes.object, propTypes.array]) ;
+
+  function _arrayLikeToArray(arr, len) {
+    if (len == null || len > arr.length) len = arr.length;
+
+    for (var i = 0, arr2 = new Array(len); i < len; i++) {
+      arr2[i] = arr[i];
+    }
+
+    return arr2;
+  }
+
+  function _arrayWithoutHoles(arr) {
+    if (Array.isArray(arr)) return _arrayLikeToArray(arr);
+  }
+
+  function _iterableToArray(iter) {
+    if (typeof Symbol !== "undefined" && Symbol.iterator in Object(iter)) return Array.from(iter);
+  }
+
+  function _unsupportedIterableToArray(o, minLen) {
+    if (!o) return;
+    if (typeof o === "string") return _arrayLikeToArray(o, minLen);
+    var n = Object.prototype.toString.call(o).slice(8, -1);
+    if (n === "Object" && o.constructor) n = o.constructor.name;
+    if (n === "Map" || n === "Set") return Array.from(n);
+    if (n === "Arguments" || /^(?:Ui|I)nt(?:8|16|32)(?:Clamped)?Array$/.test(n)) return _arrayLikeToArray(o, minLen);
+  }
+
+  function _nonIterableSpread() {
+    throw new TypeError("Invalid attempt to spread non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method.");
+  }
+
+  function _toConsumableArray(arr) {
+    return _arrayWithoutHoles(arr) || _iterableToArray(arr) || _unsupportedIterableToArray(arr) || _nonIterableSpread();
+  }
+
+  function merge(acc, item) {
+    if (!item) {
+      return acc;
+    }
+
+    return deepmerge(acc, item, {
+      clone: false // No need to clone deep, it's way faster.
+
+    });
+  }
+
+  // For instance with the first breakpoint xs: [xs, sm[.
+
+  var values = {
+    xs: 0,
+    sm: 600,
+    md: 960,
+    lg: 1280,
+    xl: 1920
+  };
+  var defaultBreakpoints = {
+    // Sorted ASC by size. That's important.
+    // It can't be configured as it's used statically for propTypes.
+    keys: ['xs', 'sm', 'md', 'lg', 'xl'],
+    up: function up(key) {
+      return "@media (min-width:".concat(values[key], "px)");
+    }
+  };
+  function handleBreakpoints(props, propValue, styleFromPropValue) {
+    {
+      if (!props.theme) {
+        console.error('@material-ui/system: you are calling a style function without a theme value.');
+      }
+    }
+
+    if (Array.isArray(propValue)) {
+      var themeBreakpoints = props.theme.breakpoints || defaultBreakpoints;
+      return propValue.reduce(function (acc, item, index) {
+        acc[themeBreakpoints.up(themeBreakpoints.keys[index])] = styleFromPropValue(propValue[index]);
+        return acc;
+      }, {});
+    }
+
+    if (_typeof(propValue) === 'object') {
+      var _themeBreakpoints = props.theme.breakpoints || defaultBreakpoints;
+
+      return Object.keys(propValue).reduce(function (acc, breakpoint) {
+        acc[_themeBreakpoints.up(breakpoint)] = styleFromPropValue(propValue[breakpoint]);
+        return acc;
+      }, {});
+    }
+
+    var output = styleFromPropValue(propValue);
+    return output;
+  }
+
+  function getPath(obj, path) {
+    if (!path || typeof path !== 'string') {
+      return null;
+    }
+
+    return path.split('.').reduce(function (acc, item) {
+      return acc && acc[item] ? acc[item] : null;
+    }, obj);
+  }
+
+  function style(options) {
+    var prop = options.prop,
+        _options$cssProperty = options.cssProperty,
+        cssProperty = _options$cssProperty === void 0 ? options.prop : _options$cssProperty,
+        themeKey = options.themeKey,
+        transform = options.transform;
+
+    var fn = function fn(props) {
+      if (props[prop] == null) {
+        return null;
+      }
+
+      var propValue = props[prop];
+      var theme = props.theme;
+      var themeMapping = getPath(theme, themeKey) || {};
+
+      var styleFromPropValue = function styleFromPropValue(propValueFinal) {
+        var value;
+
+        if (typeof themeMapping === 'function') {
+          value = themeMapping(propValueFinal);
+        } else if (Array.isArray(themeMapping)) {
+          value = themeMapping[propValueFinal] || propValueFinal;
+        } else {
+          value = getPath(themeMapping, propValueFinal) || propValueFinal;
+
+          if (transform) {
+            value = transform(value);
+          }
+        }
+
+        if (cssProperty === false) {
+          return value;
+        }
+
+        return _defineProperty({}, cssProperty, value);
+      };
+
+      return handleBreakpoints(props, propValue, styleFromPropValue);
+    };
+
+    fn.propTypes =  _defineProperty({}, prop, responsivePropType) ;
+    fn.filterProps = [prop];
+    return fn;
+  }
+
+  function compose() {
+    for (var _len = arguments.length, styles = new Array(_len), _key = 0; _key < _len; _key++) {
+      styles[_key] = arguments[_key];
+    }
+
+    var fn = function fn(props) {
+      return styles.reduce(function (acc, style) {
+        var output = style(props);
+
+        if (output) {
+          return merge(acc, output);
+        }
+
+        return acc;
+      }, {});
+    }; // Alternative approach that doesn't yield any performance gain.
+    // const handlers = styles.reduce((acc, style) => {
+    //   style.filterProps.forEach(prop => {
+    //     acc[prop] = style;
+    //   });
+    //   return acc;
+    // }, {});
+    // const fn = props => {
+    //   return Object.keys(props).reduce((acc, prop) => {
+    //     if (handlers[prop]) {
+    //       return merge(acc, handlers[prop](props));
+    //     }
+    //     return acc;
+    //   }, {});
+    // };
+
+
+    fn.propTypes =  styles.reduce(function (acc, style) {
+      return _extends(acc, style.propTypes);
+    }, {}) ;
+    fn.filterProps = styles.reduce(function (acc, style) {
+      return acc.concat(style.filterProps);
+    }, []);
+    return fn;
+  }
+
+  function getBorder(value) {
+    if (typeof value !== 'number') {
+      return value;
+    }
+
+    return "".concat(value, "px solid");
+  }
+
+  var border = style({
+    prop: 'border',
+    themeKey: 'borders',
+    transform: getBorder
+  });
+  var borderTop = style({
+    prop: 'borderTop',
+    themeKey: 'borders',
+    transform: getBorder
+  });
+  var borderRight = style({
+    prop: 'borderRight',
+    themeKey: 'borders',
+    transform: getBorder
+  });
+  var borderBottom = style({
+    prop: 'borderBottom',
+    themeKey: 'borders',
+    transform: getBorder
+  });
+  var borderLeft = style({
+    prop: 'borderLeft',
+    themeKey: 'borders',
+    transform: getBorder
+  });
+  var borderColor = style({
+    prop: 'borderColor',
+    themeKey: 'palette'
+  });
+  var borderRadius = style({
+    prop: 'borderRadius',
+    themeKey: 'shape'
+  });
+  var borders = compose(border, borderTop, borderRight, borderBottom, borderLeft, borderColor, borderRadius);
+
+  function omit(input, fields) {
+    var output = {};
+    Object.keys(input).forEach(function (prop) {
+      if (fields.indexOf(prop) === -1) {
+        output[prop] = input[prop];
+      }
+    });
+    return output;
+  }
+
+  function css(styleFunction) {
+    var newStyleFunction = function newStyleFunction(props) {
+      var output = styleFunction(props);
+
+      if (props.css) {
+        return _extends({}, merge(output, styleFunction(_extends({
+          theme: props.theme
+        }, props.css))), {}, omit(props.css, [styleFunction.filterProps]));
+      }
+
+      return output;
+    };
+
+    newStyleFunction.propTypes =  _extends({}, styleFunction.propTypes, {
+      css: propTypes.object
+    }) ;
+    newStyleFunction.filterProps = ['css'].concat(_toConsumableArray(styleFunction.filterProps));
+    return newStyleFunction;
+  }
+
+  var displayPrint = style({
+    prop: 'displayPrint',
+    cssProperty: false,
+    transform: function transform(value) {
+      return {
+        '@media print': {
+          display: value
+        }
+      };
+    }
+  });
+  var displayRaw = style({
+    prop: 'display'
+  });
+  var overflow = style({
+    prop: 'overflow'
+  });
+  var textOverflow = style({
+    prop: 'textOverflow'
+  });
+  var visibility = style({
+    prop: 'visibility'
+  });
+  var whiteSpace = style({
+    prop: 'whiteSpace'
+  });
+  var display = compose(displayPrint, displayRaw, overflow, textOverflow, visibility, whiteSpace);
+
+  var flexBasis = style({
+    prop: 'flexBasis'
+  });
+  var flexDirection = style({
+    prop: 'flexDirection'
+  });
+  var flexWrap = style({
+    prop: 'flexWrap'
+  });
+  var justifyContent = style({
+    prop: 'justifyContent'
+  });
+  var alignItems = style({
+    prop: 'alignItems'
+  });
+  var alignContent = style({
+    prop: 'alignContent'
+  });
+  var order = style({
+    prop: 'order'
+  });
+  var flex = style({
+    prop: 'flex'
+  });
+  var flexGrow = style({
+    prop: 'flexGrow'
+  });
+  var flexShrink = style({
+    prop: 'flexShrink'
+  });
+  var alignSelf = style({
+    prop: 'alignSelf'
+  });
+  var justifyItems = style({
+    prop: 'justifyItems'
+  });
+  var justifySelf = style({
+    prop: 'justifySelf'
+  });
+  var flexbox = compose(flexBasis, flexDirection, flexWrap, justifyContent, alignItems, alignContent, order, flex, flexGrow, flexShrink, alignSelf, justifyItems, justifySelf);
+
+  var gridGap = style({
+    prop: 'gridGap'
+  });
+  var gridColumnGap = style({
+    prop: 'gridColumnGap'
+  });
+  var gridRowGap = style({
+    prop: 'gridRowGap'
+  });
+  var gridColumn = style({
+    prop: 'gridColumn'
+  });
+  var gridRow = style({
+    prop: 'gridRow'
+  });
+  var gridAutoFlow = style({
+    prop: 'gridAutoFlow'
+  });
+  var gridAutoColumns = style({
+    prop: 'gridAutoColumns'
+  });
+  var gridAutoRows = style({
+    prop: 'gridAutoRows'
+  });
+  var gridTemplateColumns = style({
+    prop: 'gridTemplateColumns'
+  });
+  var gridTemplateRows = style({
+    prop: 'gridTemplateRows'
+  });
+  var gridTemplateAreas = style({
+    prop: 'gridTemplateAreas'
+  });
+  var gridArea = style({
+    prop: 'gridArea'
+  });
+  var grid = compose(gridGap, gridColumnGap, gridRowGap, gridColumn, gridRow, gridAutoFlow, gridAutoColumns, gridAutoRows, gridTemplateColumns, gridTemplateRows, gridTemplateAreas, gridArea);
+
+  var color = style({
+    prop: 'color',
+    themeKey: 'palette'
+  });
+  var bgcolor = style({
+    prop: 'bgcolor',
+    cssProperty: 'backgroundColor',
+    themeKey: 'palette'
+  });
+  var palette = compose(color, bgcolor);
+
+  var position = style({
+    prop: 'position'
+  });
+  var zIndex = style({
+    prop: 'zIndex',
+    themeKey: 'zIndex'
+  });
+  var top = style({
+    prop: 'top'
+  });
+  var right = style({
+    prop: 'right'
+  });
+  var bottom = style({
+    prop: 'bottom'
+  });
+  var left = style({
+    prop: 'left'
+  });
+  var positions = compose(position, zIndex, top, right, bottom, left);
+
+  var boxShadow = style({
+    prop: 'boxShadow',
+    themeKey: 'shadows'
+  });
+
+  function transform(value) {
+    return value <= 1 ? "".concat(value * 100, "%") : value;
+  }
+
+  var width = style({
+    prop: 'width',
+    transform: transform
+  });
+  var maxWidth = style({
+    prop: 'maxWidth',
+    transform: transform
+  });
+  var minWidth = style({
+    prop: 'minWidth',
+    transform: transform
+  });
+  var height = style({
+    prop: 'height',
+    transform: transform
+  });
+  var maxHeight = style({
+    prop: 'maxHeight',
+    transform: transform
+  });
+  var minHeight = style({
+    prop: 'minHeight',
+    transform: transform
+  });
+  var sizeWidth = style({
+    prop: 'size',
+    cssProperty: 'width',
+    transform: transform
+  });
+  var sizeHeight = style({
+    prop: 'size',
+    cssProperty: 'height',
+    transform: transform
+  });
+  var boxSizing = style({
+    prop: 'boxSizing'
+  });
+  var sizing = compose(width, maxWidth, minWidth, height, maxHeight, minHeight, boxSizing);
+
+  function _arrayWithHoles(arr) {
+    if (Array.isArray(arr)) return arr;
+  }
+
+  function _iterableToArrayLimit(arr, i) {
+    if (typeof Symbol === "undefined" || !(Symbol.iterator in Object(arr))) return;
+    var _arr = [];
+    var _n = true;
+    var _d = false;
+    var _e = undefined;
+
+    try {
+      for (var _i = arr[Symbol.iterator](), _s; !(_n = (_s = _i.next()).done); _n = true) {
+        _arr.push(_s.value);
+
+        if (i && _arr.length === i) break;
+      }
+    } catch (err) {
+      _d = true;
+      _e = err;
+    } finally {
+      try {
+        if (!_n && _i["return"] != null) _i["return"]();
+      } finally {
+        if (_d) throw _e;
+      }
+    }
+
+    return _arr;
+  }
+
+  function _nonIterableRest() {
+    throw new TypeError("Invalid attempt to destructure non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method.");
+  }
+
+  function _slicedToArray(arr, i) {
+    return _arrayWithHoles(arr) || _iterableToArrayLimit(arr, i) || _unsupportedIterableToArray(arr, i) || _nonIterableRest();
+  }
+
+  function memoize(fn) {
+    var cache = {};
+    return function (arg) {
+      if (cache[arg] === undefined) {
+        cache[arg] = fn(arg);
+      }
+
+      return cache[arg];
+    };
+  }
+
+  var properties = {
+    m: 'margin',
+    p: 'padding'
+  };
+  var directions = {
+    t: 'Top',
+    r: 'Right',
+    b: 'Bottom',
+    l: 'Left',
+    x: ['Left', 'Right'],
+    y: ['Top', 'Bottom']
+  };
+  var aliases = {
+    marginX: 'mx',
+    marginY: 'my',
+    paddingX: 'px',
+    paddingY: 'py'
+  }; // memoize() impact:
+  // From 300,000 ops/sec
+  // To 350,000 ops/sec
+
+  var getCssProperties = memoize(function (prop) {
+    // It's not a shorthand notation.
+    if (prop.length > 2) {
+      if (aliases[prop]) {
+        prop = aliases[prop];
+      } else {
+        return [prop];
+      }
+    }
+
+    var _prop$split = prop.split(''),
+        _prop$split2 = _slicedToArray(_prop$split, 2),
+        a = _prop$split2[0],
+        b = _prop$split2[1];
+
+    var property = properties[a];
+    var direction = directions[b] || '';
+    return Array.isArray(direction) ? direction.map(function (dir) {
+      return property + dir;
+    }) : [property + direction];
+  });
+  var spacingKeys = ['m', 'mt', 'mr', 'mb', 'ml', 'mx', 'my', 'p', 'pt', 'pr', 'pb', 'pl', 'px', 'py', 'margin', 'marginTop', 'marginRight', 'marginBottom', 'marginLeft', 'marginX', 'marginY', 'padding', 'paddingTop', 'paddingRight', 'paddingBottom', 'paddingLeft', 'paddingX', 'paddingY'];
+  function createUnarySpacing(theme) {
+    var themeSpacing = theme.spacing || 8;
+
+    if (typeof themeSpacing === 'number') {
+      return function (abs) {
+        {
+          if (typeof abs !== 'number') {
+            console.error("@material-ui/system: expected spacing argument to be a number, got ".concat(abs, "."));
+          }
+        }
+
+        return themeSpacing * abs;
+      };
+    }
+
+    if (Array.isArray(themeSpacing)) {
+      return function (abs) {
+        {
+          if (abs > themeSpacing.length - 1) {
+            console.error(["@material-ui/system: the value provided (".concat(abs, ") overflows."), "The supported values are: ".concat(JSON.stringify(themeSpacing), "."), "".concat(abs, " > ").concat(themeSpacing.length - 1, ", you need to add the missing values.")].join('\n'));
+          }
+        }
+
+        return themeSpacing[abs];
+      };
+    }
+
+    if (typeof themeSpacing === 'function') {
+      return themeSpacing;
+    }
+
+    {
+      console.error(["@material-ui/system: the `theme.spacing` value (".concat(themeSpacing, ") is invalid."), 'It should be a number, an array or a function.'].join('\n'));
+    }
+
+    return function () {
+      return undefined;
+    };
+  }
+
+  function getValue(transformer, propValue) {
+    if (typeof propValue === 'string') {
+      return propValue;
+    }
+
+    var abs = Math.abs(propValue);
+    var transformed = transformer(abs);
+
+    if (propValue >= 0) {
+      return transformed;
+    }
+
+    if (typeof transformed === 'number') {
+      return -transformed;
+    }
+
+    return "-".concat(transformed);
+  }
+
+  function getStyleFromPropValue(cssProperties, transformer) {
+    return function (propValue) {
+      return cssProperties.reduce(function (acc, cssProperty) {
+        acc[cssProperty] = getValue(transformer, propValue);
+        return acc;
+      }, {});
+    };
+  }
+
+  function spacing(props) {
+    var theme = props.theme;
+    var transformer = createUnarySpacing(theme);
+    return Object.keys(props).map(function (prop) {
+      // Using a hash computation over an array iteration could be faster, but with only 28 items,
+      // it's doesn't worth the bundle size.
+      if (spacingKeys.indexOf(prop) === -1) {
+        return null;
+      }
+
+      var cssProperties = getCssProperties(prop);
+      var styleFromPropValue = getStyleFromPropValue(cssProperties, transformer);
+      var propValue = props[prop];
+      return handleBreakpoints(props, propValue, styleFromPropValue);
+    }).reduce(merge, {});
+  }
+
+  spacing.propTypes =  spacingKeys.reduce(function (obj, key) {
+    obj[key] = responsivePropType;
+    return obj;
+  }, {}) ;
+  spacing.filterProps = spacingKeys;
+
+  var fontFamily = style({
+    prop: 'fontFamily',
+    themeKey: 'typography'
+  });
+  var fontSize = style({
+    prop: 'fontSize',
+    themeKey: 'typography'
+  });
+  var fontStyle = style({
+    prop: 'fontStyle',
+    themeKey: 'typography'
+  });
+  var fontWeight = style({
+    prop: 'fontWeight',
+    themeKey: 'typography'
+  });
+  var letterSpacing = style({
+    prop: 'letterSpacing'
+  });
+  var lineHeight = style({
+    prop: 'lineHeight'
+  });
+  var textAlign = style({
+    prop: 'textAlign'
+  });
+  var typography = compose(fontFamily, fontSize, fontStyle, fontWeight, letterSpacing, lineHeight, textAlign);
+
   var warnOnce;
   function createSpacing() {
     var spacingInput = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : 8;
@@ -2479,31 +3055,14 @@
     // Already transformed.
     if (spacingInput.mui) {
       return spacingInput;
-    } // All components align to an 8dp square baseline grid for mobile, tablet, and desktop.
-    // https://material.io/design/layout/understanding-layout.html#pixel-density
+    } // Material Design layouts are visually balanced. Most measurements align to an 8dp grid applied, which aligns both spacing and the overall layout.
+    // Smaller components, such as icons and type, can align to a 4dp grid.
+    // https://material.io/design/layout/understanding-layout.html#usage
 
 
-    var transform;
-
-    if (typeof spacingInput === 'function') {
-      transform = spacingInput;
-    } else {
-      {
-        if (typeof spacingInput !== 'number') {
-          console.error(["Material-UI: the `theme.spacing` value (".concat(spacingInput, ") is invalid."), 'It should be a number or a function.'].join('\n'));
-        }
-      }
-
-      transform = function transform(factor) {
-        {
-          if (typeof factor !== 'number') {
-            console.error("Expected spacing argument to be a number, got ".concat(factor));
-          }
-        }
-
-        return spacingInput * factor;
-      };
-    }
+    var transform = createUnarySpacing({
+      spacing: spacingInput
+    });
 
     var spacing = function spacing() {
       for (var _len = arguments.length, args = new Array(_len), _key = 0; _key < _len; _key++) {
@@ -2524,8 +3083,12 @@
         return transform(args[0]);
       }
 
-      return args.map(function (factor) {
-        var output = transform(factor);
+      return args.map(function (argument) {
+        if (typeof argument === 'string') {
+          return argument;
+        }
+
+        var output = transform(argument);
         return typeof output === 'number' ? "".concat(output, "px") : output;
       }).join(' ');
     }; // Backward compatibility, to remove in v5.
@@ -2652,7 +3215,7 @@
 
   // We need to centralize the zIndex definitions as they work
   // like global values in the browser.
-  var zIndex = {
+  var zIndex$1 = {
     mobileStepper: 1000,
     speedDial: 1050,
     appBar: 1100,
@@ -2693,7 +3256,7 @@
       spacing: spacing,
       shape: shape,
       transitions: transitions,
-      zIndex: zIndex
+      zIndex: zIndex$1
     }, other);
 
     for (var _len = arguments.length, args = new Array(_len > 1 ? _len - 1 : 0), _key = 1; _key < _len; _key++) {
@@ -2736,6 +3299,981 @@
 
     return muiTheme;
   }
+
+  function toVal(mix) {
+  	var k, y, str='';
+  	if (mix) {
+  		if (typeof mix === 'object') {
+  			if (Array.isArray(mix)) {
+  				for (k=0; k < mix.length; k++) {
+  					if (mix[k] && (y = toVal(mix[k]))) {
+  						str && (str += ' ');
+  						str += y;
+  					}
+  				}
+  			} else {
+  				for (k in mix) {
+  					if (mix[k] && (y = toVal(k))) {
+  						str && (str += ' ');
+  						str += y;
+  					}
+  				}
+  			}
+  		} else if (typeof mix !== 'boolean' && !mix.call) {
+  			str && (str += ' ');
+  			str += mix;
+  		}
+  	}
+  	return str;
+  }
+
+  function clsx () {
+  	var i=0, x, str='';
+  	while (i < arguments.length) {
+  		if (x = toVal(arguments[i++])) {
+  			str && (str += ' ');
+  			str += x;
+  		}
+  	}
+  	return str;
+  }
+
+  function _inheritsLoose(subClass, superClass) {
+    subClass.prototype = Object.create(superClass.prototype);
+    subClass.prototype.constructor = subClass;
+    subClass.__proto__ = superClass;
+  }
+
+  var config = {
+    disabled: false
+  };
+
+  var timeoutsShape =  propTypes.oneOfType([propTypes.number, propTypes.shape({
+    enter: propTypes.number,
+    exit: propTypes.number,
+    appear: propTypes.number
+  }).isRequired]) ;
+  var classNamesShape =  propTypes.oneOfType([propTypes.string, propTypes.shape({
+    enter: propTypes.string,
+    exit: propTypes.string,
+    active: propTypes.string
+  }), propTypes.shape({
+    enter: propTypes.string,
+    enterDone: propTypes.string,
+    enterActive: propTypes.string,
+    exit: propTypes.string,
+    exitDone: propTypes.string,
+    exitActive: propTypes.string
+  })]) ;
+
+  var TransitionGroupContext = React__default.createContext(null);
+
+  var UNMOUNTED = 'unmounted';
+  var EXITED = 'exited';
+  var ENTERING = 'entering';
+  var ENTERED = 'entered';
+  var EXITING = 'exiting';
+  /**
+   * The Transition component lets you describe a transition from one component
+   * state to another _over time_ with a simple declarative API. Most commonly
+   * it's used to animate the mounting and unmounting of a component, but can also
+   * be used to describe in-place transition states as well.
+   *
+   * ---
+   *
+   * **Note**: `Transition` is a platform-agnostic base component. If you're using
+   * transitions in CSS, you'll probably want to use
+   * [`CSSTransition`](https://reactcommunity.org/react-transition-group/css-transition)
+   * instead. It inherits all the features of `Transition`, but contains
+   * additional features necessary to play nice with CSS transitions (hence the
+   * name of the component).
+   *
+   * ---
+   *
+   * By default the `Transition` component does not alter the behavior of the
+   * component it renders, it only tracks "enter" and "exit" states for the
+   * components. It's up to you to give meaning and effect to those states. For
+   * example we can add styles to a component when it enters or exits:
+   *
+   * ```jsx
+   * import { Transition } from 'react-transition-group';
+   *
+   * const duration = 300;
+   *
+   * const defaultStyle = {
+   *   transition: `opacity ${duration}ms ease-in-out`,
+   *   opacity: 0,
+   * }
+   *
+   * const transitionStyles = {
+   *   entering: { opacity: 1 },
+   *   entered:  { opacity: 1 },
+   *   exiting:  { opacity: 0 },
+   *   exited:  { opacity: 0 },
+   * };
+   *
+   * const Fade = ({ in: inProp }) => (
+   *   <Transition in={inProp} timeout={duration}>
+   *     {state => (
+   *       <div style={{
+   *         ...defaultStyle,
+   *         ...transitionStyles[state]
+   *       }}>
+   *         I'm a fade Transition!
+   *       </div>
+   *     )}
+   *   </Transition>
+   * );
+   * ```
+   *
+   * There are 4 main states a Transition can be in:
+   *  - `'entering'`
+   *  - `'entered'`
+   *  - `'exiting'`
+   *  - `'exited'`
+   *
+   * Transition state is toggled via the `in` prop. When `true` the component
+   * begins the "Enter" stage. During this stage, the component will shift from
+   * its current transition state, to `'entering'` for the duration of the
+   * transition and then to the `'entered'` stage once it's complete. Let's take
+   * the following example (we'll use the
+   * [useState](https://reactjs.org/docs/hooks-reference.html#usestate) hook):
+   *
+   * ```jsx
+   * function App() {
+   *   const [inProp, setInProp] = useState(false);
+   *   return (
+   *     <div>
+   *       <Transition in={inProp} timeout={500}>
+   *         {state => (
+   *           // ...
+   *         )}
+   *       </Transition>
+   *       <button onClick={() => setInProp(true)}>
+   *         Click to Enter
+   *       </button>
+   *     </div>
+   *   );
+   * }
+   * ```
+   *
+   * When the button is clicked the component will shift to the `'entering'` state
+   * and stay there for 500ms (the value of `timeout`) before it finally switches
+   * to `'entered'`.
+   *
+   * When `in` is `false` the same thing happens except the state moves from
+   * `'exiting'` to `'exited'`.
+   */
+
+  var Transition =
+  /*#__PURE__*/
+  function (_React$Component) {
+    _inheritsLoose(Transition, _React$Component);
+
+    function Transition(props, context) {
+      var _this;
+
+      _this = _React$Component.call(this, props, context) || this;
+      var parentGroup = context; // In the context of a TransitionGroup all enters are really appears
+
+      var appear = parentGroup && !parentGroup.isMounting ? props.enter : props.appear;
+      var initialStatus;
+      _this.appearStatus = null;
+
+      if (props.in) {
+        if (appear) {
+          initialStatus = EXITED;
+          _this.appearStatus = ENTERING;
+        } else {
+          initialStatus = ENTERED;
+        }
+      } else {
+        if (props.unmountOnExit || props.mountOnEnter) {
+          initialStatus = UNMOUNTED;
+        } else {
+          initialStatus = EXITED;
+        }
+      }
+
+      _this.state = {
+        status: initialStatus
+      };
+      _this.nextCallback = null;
+      return _this;
+    }
+
+    Transition.getDerivedStateFromProps = function getDerivedStateFromProps(_ref, prevState) {
+      var nextIn = _ref.in;
+
+      if (nextIn && prevState.status === UNMOUNTED) {
+        return {
+          status: EXITED
+        };
+      }
+
+      return null;
+    }; // getSnapshotBeforeUpdate(prevProps) {
+    //   let nextStatus = null
+    //   if (prevProps !== this.props) {
+    //     const { status } = this.state
+    //     if (this.props.in) {
+    //       if (status !== ENTERING && status !== ENTERED) {
+    //         nextStatus = ENTERING
+    //       }
+    //     } else {
+    //       if (status === ENTERING || status === ENTERED) {
+    //         nextStatus = EXITING
+    //       }
+    //     }
+    //   }
+    //   return { nextStatus }
+    // }
+
+
+    var _proto = Transition.prototype;
+
+    _proto.componentDidMount = function componentDidMount() {
+      this.updateStatus(true, this.appearStatus);
+    };
+
+    _proto.componentDidUpdate = function componentDidUpdate(prevProps) {
+      var nextStatus = null;
+
+      if (prevProps !== this.props) {
+        var status = this.state.status;
+
+        if (this.props.in) {
+          if (status !== ENTERING && status !== ENTERED) {
+            nextStatus = ENTERING;
+          }
+        } else {
+          if (status === ENTERING || status === ENTERED) {
+            nextStatus = EXITING;
+          }
+        }
+      }
+
+      this.updateStatus(false, nextStatus);
+    };
+
+    _proto.componentWillUnmount = function componentWillUnmount() {
+      this.cancelNextCallback();
+    };
+
+    _proto.getTimeouts = function getTimeouts() {
+      var timeout = this.props.timeout;
+      var exit, enter, appear;
+      exit = enter = appear = timeout;
+
+      if (timeout != null && typeof timeout !== 'number') {
+        exit = timeout.exit;
+        enter = timeout.enter; // TODO: remove fallback for next major
+
+        appear = timeout.appear !== undefined ? timeout.appear : enter;
+      }
+
+      return {
+        exit: exit,
+        enter: enter,
+        appear: appear
+      };
+    };
+
+    _proto.updateStatus = function updateStatus(mounting, nextStatus) {
+      if (mounting === void 0) {
+        mounting = false;
+      }
+
+      if (nextStatus !== null) {
+        // nextStatus will always be ENTERING or EXITING.
+        this.cancelNextCallback();
+        var node = ReactDOM__default.findDOMNode(this);
+
+        if (nextStatus === ENTERING) {
+          this.performEnter(node, mounting);
+        } else {
+          this.performExit(node);
+        }
+      } else if (this.props.unmountOnExit && this.state.status === EXITED) {
+        this.setState({
+          status: UNMOUNTED
+        });
+      }
+    };
+
+    _proto.performEnter = function performEnter(node, mounting) {
+      var _this2 = this;
+
+      var enter = this.props.enter;
+      var appearing = this.context ? this.context.isMounting : mounting;
+      var timeouts = this.getTimeouts();
+      var enterTimeout = appearing ? timeouts.appear : timeouts.enter; // no enter animation skip right to ENTERED
+      // if we are mounting and running this it means appear _must_ be set
+
+      if (!mounting && !enter || config.disabled) {
+        this.safeSetState({
+          status: ENTERED
+        }, function () {
+          _this2.props.onEntered(node);
+        });
+        return;
+      }
+
+      this.props.onEnter(node, appearing);
+      this.safeSetState({
+        status: ENTERING
+      }, function () {
+        _this2.props.onEntering(node, appearing);
+
+        _this2.onTransitionEnd(node, enterTimeout, function () {
+          _this2.safeSetState({
+            status: ENTERED
+          }, function () {
+            _this2.props.onEntered(node, appearing);
+          });
+        });
+      });
+    };
+
+    _proto.performExit = function performExit(node) {
+      var _this3 = this;
+
+      var exit = this.props.exit;
+      var timeouts = this.getTimeouts(); // no exit animation skip right to EXITED
+
+      if (!exit || config.disabled) {
+        this.safeSetState({
+          status: EXITED
+        }, function () {
+          _this3.props.onExited(node);
+        });
+        return;
+      }
+
+      this.props.onExit(node);
+      this.safeSetState({
+        status: EXITING
+      }, function () {
+        _this3.props.onExiting(node);
+
+        _this3.onTransitionEnd(node, timeouts.exit, function () {
+          _this3.safeSetState({
+            status: EXITED
+          }, function () {
+            _this3.props.onExited(node);
+          });
+        });
+      });
+    };
+
+    _proto.cancelNextCallback = function cancelNextCallback() {
+      if (this.nextCallback !== null) {
+        this.nextCallback.cancel();
+        this.nextCallback = null;
+      }
+    };
+
+    _proto.safeSetState = function safeSetState(nextState, callback) {
+      // This shouldn't be necessary, but there are weird race conditions with
+      // setState callbacks and unmounting in testing, so always make sure that
+      // we can cancel any pending setState callbacks after we unmount.
+      callback = this.setNextCallback(callback);
+      this.setState(nextState, callback);
+    };
+
+    _proto.setNextCallback = function setNextCallback(callback) {
+      var _this4 = this;
+
+      var active = true;
+
+      this.nextCallback = function (event) {
+        if (active) {
+          active = false;
+          _this4.nextCallback = null;
+          callback(event);
+        }
+      };
+
+      this.nextCallback.cancel = function () {
+        active = false;
+      };
+
+      return this.nextCallback;
+    };
+
+    _proto.onTransitionEnd = function onTransitionEnd(node, timeout, handler) {
+      this.setNextCallback(handler);
+      var doesNotHaveTimeoutOrListener = timeout == null && !this.props.addEndListener;
+
+      if (!node || doesNotHaveTimeoutOrListener) {
+        setTimeout(this.nextCallback, 0);
+        return;
+      }
+
+      if (this.props.addEndListener) {
+        this.props.addEndListener(node, this.nextCallback);
+      }
+
+      if (timeout != null) {
+        setTimeout(this.nextCallback, timeout);
+      }
+    };
+
+    _proto.render = function render() {
+      var status = this.state.status;
+
+      if (status === UNMOUNTED) {
+        return null;
+      }
+
+      var _this$props = this.props,
+          children = _this$props.children,
+          childProps = _objectWithoutPropertiesLoose(_this$props, ["children"]); // filter props for Transtition
+
+
+      delete childProps.in;
+      delete childProps.mountOnEnter;
+      delete childProps.unmountOnExit;
+      delete childProps.appear;
+      delete childProps.enter;
+      delete childProps.exit;
+      delete childProps.timeout;
+      delete childProps.addEndListener;
+      delete childProps.onEnter;
+      delete childProps.onEntering;
+      delete childProps.onEntered;
+      delete childProps.onExit;
+      delete childProps.onExiting;
+      delete childProps.onExited;
+
+      if (typeof children === 'function') {
+        // allows for nested Transitions
+        return React__default.createElement(TransitionGroupContext.Provider, {
+          value: null
+        }, children(status, childProps));
+      }
+
+      var child = React__default.Children.only(children);
+      return (// allows for nested Transitions
+        React__default.createElement(TransitionGroupContext.Provider, {
+          value: null
+        }, React__default.cloneElement(child, childProps))
+      );
+    };
+
+    return Transition;
+  }(React__default.Component);
+
+  Transition.contextType = TransitionGroupContext;
+  Transition.propTypes =  {
+    /**
+     * A `function` child can be used instead of a React element. This function is
+     * called with the current transition status (`'entering'`, `'entered'`,
+     * `'exiting'`, `'exited'`), which can be used to apply context
+     * specific props to a component.
+     *
+     * ```jsx
+     * <Transition in={this.state.in} timeout={150}>
+     *   {state => (
+     *     <MyComponent className={`fade fade-${state}`} />
+     *   )}
+     * </Transition>
+     * ```
+     */
+    children: propTypes.oneOfType([propTypes.func.isRequired, propTypes.element.isRequired]).isRequired,
+
+    /**
+     * Show the component; triggers the enter or exit states
+     */
+    in: propTypes.bool,
+
+    /**
+     * By default the child component is mounted immediately along with
+     * the parent `Transition` component. If you want to "lazy mount" the component on the
+     * first `in={true}` you can set `mountOnEnter`. After the first enter transition the component will stay
+     * mounted, even on "exited", unless you also specify `unmountOnExit`.
+     */
+    mountOnEnter: propTypes.bool,
+
+    /**
+     * By default the child component stays mounted after it reaches the `'exited'` state.
+     * Set `unmountOnExit` if you'd prefer to unmount the component after it finishes exiting.
+     */
+    unmountOnExit: propTypes.bool,
+
+    /**
+     * Normally a component is not transitioned if it is shown when the
+     * `<Transition>` component mounts. If you want to transition on the first
+     * mount set `appear` to `true`, and the component will transition in as soon
+     * as the `<Transition>` mounts.
+     *
+     * > **Note**: there are no special appear states like `appearing`/`appeared`, this prop
+     * > only adds an additional enter transition. However, in the
+     * > `<CSSTransition>` component that first enter transition does result in
+     * > additional `.appear-*` classes, that way you can choose to style it
+     * > differently.
+     */
+    appear: propTypes.bool,
+
+    /**
+     * Enable or disable enter transitions.
+     */
+    enter: propTypes.bool,
+
+    /**
+     * Enable or disable exit transitions.
+     */
+    exit: propTypes.bool,
+
+    /**
+     * The duration of the transition, in milliseconds.
+     * Required unless `addEndListener` is provided.
+     *
+     * You may specify a single timeout for all transitions:
+     *
+     * ```jsx
+     * timeout={500}
+     * ```
+     *
+     * or individually:
+     *
+     * ```jsx
+     * timeout={{
+     *  appear: 500,
+     *  enter: 300,
+     *  exit: 500,
+     * }}
+     * ```
+     *
+     * - `appear` defaults to the value of `enter`
+     * - `enter` defaults to `0`
+     * - `exit` defaults to `0`
+     *
+     * @type {number | { enter?: number, exit?: number, appear?: number }}
+     */
+    timeout: function timeout(props) {
+      var pt = timeoutsShape;
+      if (!props.addEndListener) pt = pt.isRequired;
+
+      for (var _len = arguments.length, args = new Array(_len > 1 ? _len - 1 : 0), _key = 1; _key < _len; _key++) {
+        args[_key - 1] = arguments[_key];
+      }
+
+      return pt.apply(void 0, [props].concat(args));
+    },
+
+    /**
+     * Add a custom transition end trigger. Called with the transitioning
+     * DOM node and a `done` callback. Allows for more fine grained transition end
+     * logic. **Note:** Timeouts are still used as a fallback if provided.
+     *
+     * ```jsx
+     * addEndListener={(node, done) => {
+     *   // use the css transitionend event to mark the finish of a transition
+     *   node.addEventListener('transitionend', done, false);
+     * }}
+     * ```
+     */
+    addEndListener: propTypes.func,
+
+    /**
+     * Callback fired before the "entering" status is applied. An extra parameter
+     * `isAppearing` is supplied to indicate if the enter stage is occurring on the initial mount
+     *
+     * @type Function(node: HtmlElement, isAppearing: bool) -> void
+     */
+    onEnter: propTypes.func,
+
+    /**
+     * Callback fired after the "entering" status is applied. An extra parameter
+     * `isAppearing` is supplied to indicate if the enter stage is occurring on the initial mount
+     *
+     * @type Function(node: HtmlElement, isAppearing: bool)
+     */
+    onEntering: propTypes.func,
+
+    /**
+     * Callback fired after the "entered" status is applied. An extra parameter
+     * `isAppearing` is supplied to indicate if the enter stage is occurring on the initial mount
+     *
+     * @type Function(node: HtmlElement, isAppearing: bool) -> void
+     */
+    onEntered: propTypes.func,
+
+    /**
+     * Callback fired before the "exiting" status is applied.
+     *
+     * @type Function(node: HtmlElement) -> void
+     */
+    onExit: propTypes.func,
+
+    /**
+     * Callback fired after the "exiting" status is applied.
+     *
+     * @type Function(node: HtmlElement) -> void
+     */
+    onExiting: propTypes.func,
+
+    /**
+     * Callback fired after the "exited" status is applied.
+     *
+     * @type Function(node: HtmlElement) -> void
+     */
+    onExited: propTypes.func // Name the function so it is clearer in the documentation
+
+  } ;
+
+  function noop() {}
+
+  Transition.defaultProps = {
+    in: false,
+    mountOnEnter: false,
+    unmountOnExit: false,
+    appear: false,
+    enter: true,
+    exit: true,
+    onEnter: noop,
+    onEntering: noop,
+    onEntered: noop,
+    onExit: noop,
+    onExiting: noop,
+    onExited: noop
+  };
+  Transition.UNMOUNTED = 0;
+  Transition.EXITED = 1;
+  Transition.ENTERING = 2;
+  Transition.ENTERED = 3;
+  Transition.EXITING = 4;
+
+  function _assertThisInitialized(self) {
+    if (self === void 0) {
+      throw new ReferenceError("this hasn't been initialised - super() hasn't been called");
+    }
+
+    return self;
+  }
+
+  /**
+   * Given `this.props.children`, return an object mapping key to child.
+   *
+   * @param {*} children `this.props.children`
+   * @return {object} Mapping of key to child
+   */
+
+  function getChildMapping(children, mapFn) {
+    var mapper = function mapper(child) {
+      return mapFn && React.isValidElement(child) ? mapFn(child) : child;
+    };
+
+    var result = Object.create(null);
+    if (children) React.Children.map(children, function (c) {
+      return c;
+    }).forEach(function (child) {
+      // run the map function here instead so that the key is the computed one
+      result[child.key] = mapper(child);
+    });
+    return result;
+  }
+  /**
+   * When you're adding or removing children some may be added or removed in the
+   * same render pass. We want to show *both* since we want to simultaneously
+   * animate elements in and out. This function takes a previous set of keys
+   * and a new set of keys and merges them with its best guess of the correct
+   * ordering. In the future we may expose some of the utilities in
+   * ReactMultiChild to make this easy, but for now React itself does not
+   * directly have this concept of the union of prevChildren and nextChildren
+   * so we implement it here.
+   *
+   * @param {object} prev prev children as returned from
+   * `ReactTransitionChildMapping.getChildMapping()`.
+   * @param {object} next next children as returned from
+   * `ReactTransitionChildMapping.getChildMapping()`.
+   * @return {object} a key set that contains all keys in `prev` and all keys
+   * in `next` in a reasonable order.
+   */
+
+  function mergeChildMappings(prev, next) {
+    prev = prev || {};
+    next = next || {};
+
+    function getValueForKey(key) {
+      return key in next ? next[key] : prev[key];
+    } // For each key of `next`, the list of keys to insert before that key in
+    // the combined list
+
+
+    var nextKeysPending = Object.create(null);
+    var pendingKeys = [];
+
+    for (var prevKey in prev) {
+      if (prevKey in next) {
+        if (pendingKeys.length) {
+          nextKeysPending[prevKey] = pendingKeys;
+          pendingKeys = [];
+        }
+      } else {
+        pendingKeys.push(prevKey);
+      }
+    }
+
+    var i;
+    var childMapping = {};
+
+    for (var nextKey in next) {
+      if (nextKeysPending[nextKey]) {
+        for (i = 0; i < nextKeysPending[nextKey].length; i++) {
+          var pendingNextKey = nextKeysPending[nextKey][i];
+          childMapping[nextKeysPending[nextKey][i]] = getValueForKey(pendingNextKey);
+        }
+      }
+
+      childMapping[nextKey] = getValueForKey(nextKey);
+    } // Finally, add the keys which didn't appear before any key in `next`
+
+
+    for (i = 0; i < pendingKeys.length; i++) {
+      childMapping[pendingKeys[i]] = getValueForKey(pendingKeys[i]);
+    }
+
+    return childMapping;
+  }
+
+  function getProp(child, prop, props) {
+    return props[prop] != null ? props[prop] : child.props[prop];
+  }
+
+  function getInitialChildMapping(props, onExited) {
+    return getChildMapping(props.children, function (child) {
+      return React.cloneElement(child, {
+        onExited: onExited.bind(null, child),
+        in: true,
+        appear: getProp(child, 'appear', props),
+        enter: getProp(child, 'enter', props),
+        exit: getProp(child, 'exit', props)
+      });
+    });
+  }
+  function getNextChildMapping(nextProps, prevChildMapping, onExited) {
+    var nextChildMapping = getChildMapping(nextProps.children);
+    var children = mergeChildMappings(prevChildMapping, nextChildMapping);
+    Object.keys(children).forEach(function (key) {
+      var child = children[key];
+      if (!React.isValidElement(child)) return;
+      var hasPrev = key in prevChildMapping;
+      var hasNext = key in nextChildMapping;
+      var prevChild = prevChildMapping[key];
+      var isLeaving = React.isValidElement(prevChild) && !prevChild.props.in; // item is new (entering)
+
+      if (hasNext && (!hasPrev || isLeaving)) {
+        // console.log('entering', key)
+        children[key] = React.cloneElement(child, {
+          onExited: onExited.bind(null, child),
+          in: true,
+          exit: getProp(child, 'exit', nextProps),
+          enter: getProp(child, 'enter', nextProps)
+        });
+      } else if (!hasNext && hasPrev && !isLeaving) {
+        // item is old (exiting)
+        // console.log('leaving', key)
+        children[key] = React.cloneElement(child, {
+          in: false
+        });
+      } else if (hasNext && hasPrev && React.isValidElement(prevChild)) {
+        // item hasn't changed transition states
+        // copy over the last transition props;
+        // console.log('unchanged', key)
+        children[key] = React.cloneElement(child, {
+          onExited: onExited.bind(null, child),
+          in: prevChild.props.in,
+          exit: getProp(child, 'exit', nextProps),
+          enter: getProp(child, 'enter', nextProps)
+        });
+      }
+    });
+    return children;
+  }
+
+  var values$1 = Object.values || function (obj) {
+    return Object.keys(obj).map(function (k) {
+      return obj[k];
+    });
+  };
+
+  var defaultProps = {
+    component: 'div',
+    childFactory: function childFactory(child) {
+      return child;
+    }
+    /**
+     * The `<TransitionGroup>` component manages a set of transition components
+     * (`<Transition>` and `<CSSTransition>`) in a list. Like with the transition
+     * components, `<TransitionGroup>` is a state machine for managing the mounting
+     * and unmounting of components over time.
+     *
+     * Consider the example below. As items are removed or added to the TodoList the
+     * `in` prop is toggled automatically by the `<TransitionGroup>`.
+     *
+     * Note that `<TransitionGroup>`  does not define any animation behavior!
+     * Exactly _how_ a list item animates is up to the individual transition
+     * component. This means you can mix and match animations across different list
+     * items.
+     */
+
+  };
+
+  var TransitionGroup =
+  /*#__PURE__*/
+  function (_React$Component) {
+    _inheritsLoose(TransitionGroup, _React$Component);
+
+    function TransitionGroup(props, context) {
+      var _this;
+
+      _this = _React$Component.call(this, props, context) || this;
+
+      var handleExited = _this.handleExited.bind(_assertThisInitialized(_assertThisInitialized(_this))); // Initial children should all be entering, dependent on appear
+
+
+      _this.state = {
+        contextValue: {
+          isMounting: true
+        },
+        handleExited: handleExited,
+        firstRender: true
+      };
+      return _this;
+    }
+
+    var _proto = TransitionGroup.prototype;
+
+    _proto.componentDidMount = function componentDidMount() {
+      this.mounted = true;
+      this.setState({
+        contextValue: {
+          isMounting: false
+        }
+      });
+    };
+
+    _proto.componentWillUnmount = function componentWillUnmount() {
+      this.mounted = false;
+    };
+
+    TransitionGroup.getDerivedStateFromProps = function getDerivedStateFromProps(nextProps, _ref) {
+      var prevChildMapping = _ref.children,
+          handleExited = _ref.handleExited,
+          firstRender = _ref.firstRender;
+      return {
+        children: firstRender ? getInitialChildMapping(nextProps, handleExited) : getNextChildMapping(nextProps, prevChildMapping, handleExited),
+        firstRender: false
+      };
+    };
+
+    _proto.handleExited = function handleExited(child, node) {
+      var currentChildMapping = getChildMapping(this.props.children);
+      if (child.key in currentChildMapping) return;
+
+      if (child.props.onExited) {
+        child.props.onExited(node);
+      }
+
+      if (this.mounted) {
+        this.setState(function (state) {
+          var children = _extends({}, state.children);
+
+          delete children[child.key];
+          return {
+            children: children
+          };
+        });
+      }
+    };
+
+    _proto.render = function render() {
+      var _this$props = this.props,
+          Component = _this$props.component,
+          childFactory = _this$props.childFactory,
+          props = _objectWithoutPropertiesLoose(_this$props, ["component", "childFactory"]);
+
+      var contextValue = this.state.contextValue;
+      var children = values$1(this.state.children).map(childFactory);
+      delete props.appear;
+      delete props.enter;
+      delete props.exit;
+
+      if (Component === null) {
+        return React__default.createElement(TransitionGroupContext.Provider, {
+          value: contextValue
+        }, children);
+      }
+
+      return React__default.createElement(TransitionGroupContext.Provider, {
+        value: contextValue
+      }, React__default.createElement(Component, props, children));
+    };
+
+    return TransitionGroup;
+  }(React__default.Component);
+
+  TransitionGroup.propTypes =  {
+    /**
+     * `<TransitionGroup>` renders a `<div>` by default. You can change this
+     * behavior by providing a `component` prop.
+     * If you use React v16+ and would like to avoid a wrapping `<div>` element
+     * you can pass in `component={null}`. This is useful if the wrapping div
+     * borks your css styles.
+     */
+    component: propTypes.any,
+
+    /**
+     * A set of `<Transition>` components, that are toggled `in` and out as they
+     * leave. the `<TransitionGroup>` will inject specific transition props, so
+     * remember to spread them through if you are wrapping the `<Transition>` as
+     * with our `<Fade>` example.
+     *
+     * While this component is meant for multiple `Transition` or `CSSTransition`
+     * children, sometimes you may want to have a single transition child with
+     * content that you want to be transitioned out and in when you change it
+     * (e.g. routes, images etc.) In that case you can change the `key` prop of
+     * the transition child as you change its content, this will cause
+     * `TransitionGroup` to transition the child out and back in.
+     */
+    children: propTypes.node,
+
+    /**
+     * A convenience prop that enables or disables appear animations
+     * for all children. Note that specifying this will override any defaults set
+     * on individual children Transitions.
+     */
+    appear: propTypes.bool,
+
+    /**
+     * A convenience prop that enables or disables enter animations
+     * for all children. Note that specifying this will override any defaults set
+     * on individual children Transitions.
+     */
+    enter: propTypes.bool,
+
+    /**
+     * A convenience prop that enables or disables exit animations
+     * for all children. Note that specifying this will override any defaults set
+     * on individual children Transitions.
+     */
+    exit: propTypes.bool,
+
+    /**
+     * You may need to apply reactive updates to a child as it is exiting.
+     * This is generally done by using `cloneElement` however in the case of an exiting
+     * child the element has already been removed and not accessible to the consumer.
+     *
+     * If you do need to update a child as it leaves you can provide a `childFactory`
+     * to wrap every child, even the ones that are leaving.
+     *
+     * @type Function(child: ReactElement) -> ReactElement
+     */
+    childFactory: propTypes.func
+  } ;
+  TransitionGroup.defaultProps = defaultProps;
 
   var hasSymbol = typeof Symbol === 'function' && Symbol.for;
   var nested = hasSymbol ? Symbol.for('mui.nested') : '__THEME_NESTED__';
@@ -2830,10 +4368,6 @@
     return props;
   }
 
-  var _typeof$1 = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; };
-
-  var isBrowser = (typeof window === "undefined" ? "undefined" : _typeof$1(window)) === "object" && (typeof document === "undefined" ? "undefined" : _typeof$1(document)) === 'object' && document.nodeType === 9;
-
   function warning(condition, message) {
     {
       if (condition) {
@@ -2852,6 +4386,10 @@
     }
   }
 
+  var _typeof$1 = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; };
+
+  var isBrowser = (typeof window === "undefined" ? "undefined" : _typeof$1(window)) === "object" && (typeof document === "undefined" ? "undefined" : _typeof$1(document)) === 'object' && document.nodeType === 9;
+
   function _defineProperties(target, props) {
     for (var i = 0; i < props.length; i++) {
       var descriptor = props[i];
@@ -2866,20 +4404,6 @@
     if (protoProps) _defineProperties(Constructor.prototype, protoProps);
     if (staticProps) _defineProperties(Constructor, staticProps);
     return Constructor;
-  }
-
-  function _inheritsLoose(subClass, superClass) {
-    subClass.prototype = Object.create(superClass.prototype);
-    subClass.prototype.constructor = subClass;
-    subClass.__proto__ = superClass;
-  }
-
-  function _assertThisInitialized(self) {
-    if (self === void 0) {
-      throw new ReferenceError("this hasn't been initialised - super() hasn't been called");
-    }
-
-    return self;
   }
 
   var plainObjectConstrurctor = {}.constructor;
@@ -3527,21 +5051,22 @@
         var str = '';
 
         for (var index = 0; index < this.style.length; index++) {
-          str += toCss(this.key, this.style[index]);
+          str += toCss(this.at, this.style[index]);
           if (this.style[index + 1]) str += '\n';
         }
 
         return str;
       }
 
-      return toCss(this.key, this.style, options);
+      return toCss(this.at, this.style, options);
     };
 
     return FontFaceRule;
   }();
+  var keyRegExp$2 = /@font-face/;
   var pluginFontFaceRule = {
     onCreateRule: function onCreateRule(key, style, options) {
-      return key === '@font-face' ? new FontFaceRule(key, style, options) : null;
+      return keyRegExp$2.test(key) ? new FontFaceRule(key, style, options) : null;
     }
   };
 
@@ -4371,7 +5896,7 @@
   /**
    * Cache the value from the first time a function is called.
    */
-  var memoize = function memoize(fn) {
+  var memoize$1 = function memoize(fn) {
     var value;
     return function () {
       if (!value) value = fn();
@@ -4461,7 +5986,7 @@
    */
 
 
-  var getHead = memoize(function () {
+  var getHead = memoize$1(function () {
     return document.querySelector('head');
   });
   /**
@@ -4592,7 +6117,7 @@
    */
 
 
-  var getNonce = memoize(function () {
+  var getNonce = memoize$1(function () {
     var node = document.querySelector('meta[property="csp-nonce"]');
     return node ? node.getAttribute('content') : null;
   });
@@ -4822,7 +6347,7 @@
   function () {
     function Jss(options) {
       this.id = instanceCounter++;
-      this.version = "10.0.3";
+      this.version = "10.1.1";
       this.plugins = new PluginsRegistry();
       this.options = {
         id: {
@@ -5064,13 +6589,22 @@
           // Empty object will remove all currently defined props
           // in case function rule returns a falsy value.
           styleRule.style = fnRule(data) || {};
+
+          {
+            for (var prop in styleRule.style) {
+              if (typeof styleRule.style[prop] === 'function') {
+                 warning(false, '[JSS] Function values inside function rules are not supported.') ;
+                break;
+              }
+            }
+          }
         }
 
         var fnValues = styleRule[fnValuesNs]; // If we have a fn values map, it is a rule with function values.
 
         if (fnValues) {
-          for (var prop in fnValues) {
-            styleRule.prop(prop, fnValues[prop](data), options);
+          for (var _prop in fnValues) {
+            styleRule.prop(_prop, fnValues[_prop](data), options);
           }
         }
       }
@@ -5611,12 +7145,10 @@
         }
       }
     } else if (typeof value === 'number') {
-      if (options[prop]) {
-        return "" + value + options[prop];
-      }
+      var unit = options[prop] || units[prop];
 
-      if (units[prop]) {
-        return typeof units[prop] === 'function' ? units[prop](value).toString() : "" + value + units[prop];
+      if (unit) {
+        return typeof unit === 'function' ? unit(value).toString() : "" + value + unit;
       }
 
       return value.toString();
@@ -5656,31 +7188,9 @@
     };
   }
 
-  function _arrayWithoutHoles(arr) {
-    if (Array.isArray(arr)) {
-      for (var i = 0, arr2 = new Array(arr.length); i < arr.length; i++) {
-        arr2[i] = arr[i];
-      }
-
-      return arr2;
-    }
-  }
-
-  function _iterableToArray(iter) {
-    if (Symbol.iterator in Object(iter) || Object.prototype.toString.call(iter) === "[object Arguments]") return Array.from(iter);
-  }
-
-  function _nonIterableSpread() {
-    throw new TypeError("Invalid attempt to spread non-iterable instance");
-  }
-
-  function _toConsumableArray(arr) {
-    return _arrayWithoutHoles(arr) || _iterableToArray(arr) || _nonIterableSpread();
-  }
-
   // Export javascript style and css style vendor prefixes.
   var js = '';
-  var css = '';
+  var css$1 = '';
   var vendor = '';
   var browser = '';
   var isTouch = isBrowser && 'ontouchstart' in document.documentElement; // We should not do anything if required serverside.
@@ -5696,27 +7206,27 @@
     };
 
     var _document$createEleme = document.createElement('p'),
-        style = _document$createEleme.style;
+        style$1 = _document$createEleme.style;
 
     var testProp = 'Transform';
 
     for (var key in jsCssMap) {
-      if (key + testProp in style) {
+      if (key + testProp in style$1) {
         js = key;
-        css = jsCssMap[key];
+        css$1 = jsCssMap[key];
         break;
       }
     } // Correctly detect the Edge browser.
 
 
-    if (js === 'Webkit' && 'msHyphens' in style) {
+    if (js === 'Webkit' && 'msHyphens' in style$1) {
       js = 'ms';
-      css = jsCssMap.ms;
+      css$1 = jsCssMap.ms;
       browser = 'edge';
     } // Correctly detect the Safari browser.
 
 
-    if (js === 'Webkit' && '-apple-trailing-word' in style) {
+    if (js === 'Webkit' && '-apple-trailing-word' in style$1) {
       vendor = 'apple';
     }
   }
@@ -5730,7 +7240,7 @@
 
   var prefix = {
     js: js,
-    css: css,
+    css: css$1,
     vendor: vendor,
     browser: browser,
     isTouch: isTouch
@@ -5854,7 +7364,7 @@
 
   // https://caniuse.com/#search=transform
 
-  var transform = {
+  var transform$1 = {
     noPrefill: ['transform'],
     supportedProperty: function supportedProperty(prop, style, options) {
       if (prop !== 'transform') return false;
@@ -6073,7 +7583,7 @@
   // 'flex2009' going after 'flex2012'.
   // 'prefixed' going after 'unprefixed'
 
-  var plugins$1 = [appearence, colorAdjust, mask, textOrientation, transform, transition, writingMode, userSelect, breakPropsOld, inlineLogicalOld, unprefixed, prefixed, scrollSnap, overscrollBehavior, flex2012, flex2009];
+  var plugins$1 = [appearence, colorAdjust, mask, textOrientation, transform$1, transition, writingMode, userSelect, breakPropsOld, inlineLogicalOld, unprefixed, prefixed, scrollSnap, overscrollBehavior, flex2012, flex2009];
   var propertyDetectors = plugins$1.filter(function (p) {
     return p.supportedProperty;
   }).map(function (p) {
@@ -6404,7 +7914,14 @@
   }
 
   function useTheme() {
-    return React__default.useContext(ThemeContext);
+    var theme = React__default.useContext(ThemeContext);
+
+    {
+      // eslint-disable-next-line react-hooks/rules-of-hooks
+      React__default.useDebugValue(theme);
+    }
+
+    return theme;
   }
 
   var jss = create(jssPreset()); // Use a singleton or the provided one by the context.
@@ -6430,7 +7947,6 @@
   }
 
   var injectFirstNode;
-
   function StylesProvider(props) {
     var children = props.children,
         _props$injectFirst = props.injectFirst,
@@ -6476,11 +7992,10 @@
       });
     }
 
-    return React__default.createElement(StylesContext.Provider, {
+    return /*#__PURE__*/React__default.createElement(StylesContext.Provider, {
       value: context
     }, children);
   }
-
    StylesProvider.propTypes = {
     /**
      * Your component tree.
@@ -6828,7 +8343,8 @@
       meta: classNamePrefix,
       classNamePrefix: classNamePrefix
     };
-    return function () {
+
+    var useStyles = function useStyles() {
       var props = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
       var theme = useTheme() || defaultTheme;
 
@@ -6858,8 +8374,17 @@
 
         shouldUpdate.current = true;
       });
-      return getClasses(instance.current, props.classes, Component);
+      var classes = getClasses(instance.current, props.classes, Component);
+
+      {
+        // eslint-disable-next-line react-hooks/rules-of-hooks
+        React__default.useDebugValue(classes);
+      }
+
+      return classes;
     };
+
+    return useStyles;
   }
 
   function _classCallCheck(instance, Constructor) {
@@ -6868,9 +8393,7 @@
     }
   }
 
-  var ServerStyleSheets =
-  /*#__PURE__*/
-  function () {
+  var ServerStyleSheets = /*#__PURE__*/function () {
     function ServerStyleSheets() {
       var options = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
 
@@ -6888,7 +8411,7 @@
         this.sheetsRegistry = new SheetsRegistry(); // A new class name generator
 
         var generateClassName = createGenerateClassName();
-        return React__default.createElement(StylesProvider, _extends({
+        return /*#__PURE__*/React__default.createElement(StylesProvider, _extends({
           sheetsManager: sheetsManager,
           serverGenerateClassName: generateClassName,
           sheetsRegistry: this.sheetsRegistry
@@ -6914,44 +8437,6 @@
 
     return ServerStyleSheets;
   }();
-
-  function toVal(mix) {
-  	var k, y, str='';
-  	if (mix) {
-  		if (typeof mix === 'object') {
-  			if (!!mix.push) {
-  				for (k=0; k < mix.length; k++) {
-  					if (mix[k] && (y = toVal(mix[k]))) {
-  						str && (str += ' ');
-  						str += y;
-  					}
-  				}
-  			} else {
-  				for (k in mix) {
-  					if (mix[k] && (y = toVal(k))) {
-  						str && (str += ' ');
-  						str += y;
-  					}
-  				}
-  			}
-  		} else if (typeof mix !== 'boolean' && !mix.call) {
-  			str && (str += ' ');
-  			str += mix;
-  		}
-  	}
-  	return str;
-  }
-
-  function clsx () {
-  	var i=0, x, str='';
-  	while (i < arguments.length) {
-  		if (x = toVal(arguments[i++])) {
-  			str && (str += ' ');
-  			str += x;
-  		}
-  	}
-  	return str;
-  }
 
   /**
    * Copyright 2015, Yahoo! Inc.
@@ -6996,11 +8481,14 @@
   };
   var TYPE_STATICS = {};
   TYPE_STATICS[reactIs.ForwardRef] = FORWARD_REF_STATICS;
+  TYPE_STATICS[reactIs.Memo] = MEMO_STATICS;
 
   function getStatics(component) {
+    // React v16.11 and below
     if (reactIs.isMemo(component)) {
       return MEMO_STATICS;
-    }
+    } // React v16.12 and above
+
 
     return TYPE_STATICS[component['$$typeof']] || REACT_STATICS;
   }
@@ -7050,7 +8538,7 @@
 
   var hoistNonReactStatics_cjs = hoistNonReactStatics;
 
-  function omit(input, fields) {
+  function omit$1(input, fields) {
     var output = {};
     Object.keys(input).forEach(function (prop) {
       if (fields.indexOf(prop) === -1) {
@@ -7131,7 +8619,7 @@
         var spread = other;
 
         if (filterProps) {
-          spread = omit(spread, filterProps);
+          spread = omit$1(spread, filterProps);
         }
 
         if (clone) {
@@ -7147,7 +8635,7 @@
         }
 
         var FinalComponent = ComponentProp || Component;
-        return React__default.createElement(FinalComponent, _extends({
+        return /*#__PURE__*/React__default.createElement(FinalComponent, _extends({
           ref: ref,
           className: className
         }, spread), children);
@@ -7237,7 +8725,7 @@
 
       return output;
     }, [localTheme, outerTheme]);
-    return React__default.createElement(ThemeContext.Provider, {
+    return /*#__PURE__*/React__default.createElement(ThemeContext.Provider, {
       value: theme
     }, children);
   }
@@ -7298,9 +8786,12 @@
       var WithStyles = React__default.forwardRef(function WithStyles(props, ref) {
         var classesProp = props.classes,
             innerRef = props.innerRef,
-            other = _objectWithoutProperties(props, ["classes", "innerRef"]);
+            other = _objectWithoutProperties(props, ["classes", "innerRef"]); // The wrapper receives only user supplied props, which could be a subset of
+        // the actual props Component might receive due to merging with defaultProps.
+        // So copying it here would give us the same result in the wrapper as well.
 
-        var classes = useStyles(props);
+
+        var classes = useStyles(_extends({}, Component.defaultProps, {}, props));
         var theme;
         var more = other;
 
@@ -7324,7 +8815,7 @@
           }
         }
 
-        return React__default.createElement(Component, _extends({
+        return /*#__PURE__*/React__default.createElement(Component, _extends({
           ref: innerRef || ref,
           classes: classes
         }, more));
@@ -7349,11 +8840,7 @@
           //     'Refs are now automatically forwarded to the inner component.',
           // );
         })
-      } ; // The wrapper receives only user supplied props, which could be a subset of
-      // the actual props Component might receive due to merging with defaultProps.
-      // So copying it here would give us the same result in the wrapper as well.
-
-      WithStyles.defaultProps = Component.defaultProps;
+      } ;
 
       {
         WithStyles.displayName = "WithStyles(".concat(getDisplayName(Component), ")");
@@ -7388,7 +8875,7 @@
             other = _objectWithoutProperties(props, ["innerRef"]);
 
         var theme = useTheme() || defaultTheme;
-        return React__default.createElement(Component, _extends({
+        return /*#__PURE__*/React__default.createElement(Component, _extends({
           theme: theme,
           ref: innerRef || ref
         }, other));
@@ -7428,191 +8915,7 @@
 
   var withTheme = withThemeCreator();
 
-  // To remove in v5
-
-  function createStyles$1(styles) {
-    // warning(
-    //   warnOnce,
-    //   [
-    //     'Material-UI: createStyles from @material-ui/core/styles is deprecated.',
-    //     'Please use @material-ui/styles/createStyles',
-    //   ].join('\n'),
-    // );
-    // warnOnce = true;
-    return createStyles(styles);
-  }
-
   var defaultTheme = createMuiTheme();
-
-  function makeStyles$1(stylesOrCreator) {
-    var options = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
-    return makeStyles(stylesOrCreator, _extends({
-      defaultTheme: defaultTheme
-    }, options));
-  }
-
-  var e=function(e){return parseFloat(e)};function convertLength(r){return null==r&&(r=r),function(n,t,i,f){null==i&&(i=r),null==f&&(f=i);var l=String(n).match(/[\d.\-\+]*\s*(.*)/)[1]||"";if(l===t)return n;var u=e(n);if("px"!==l)if("em"===l)u=e(n)*e(i);else if("rem"===l)u=e(n)*e(r);else{if("ex"!==l)return n;u=e(n)*e(i)*2;}var a=u;if("px"!==t)if("em"===t)a=u/e(f);else if("rem"===t)a=u/e(r);else{if("ex"!==t)return n;a=u/e(f)/2;}return parseFloat(a.toFixed(5))+t}}
-
-  function alignProperty(_ref) {
-    var size = _ref.size,
-        grid = _ref.grid;
-    var sizeBelow = size - size % grid;
-    var sizeAbove = sizeBelow + grid;
-    return size - sizeBelow < sizeAbove - size ? sizeBelow : sizeAbove;
-  } // fontGrid finds a minimal grid (in rem) for the fontSize values so that the
-  // lineHeight falls under a x pixels grid, 4px in the case of Material Design,
-  // without changing the relative line height
-
-  function fontGrid(_ref2) {
-    var lineHeight = _ref2.lineHeight,
-        pixels = _ref2.pixels,
-        htmlFontSize = _ref2.htmlFontSize;
-    return pixels / (lineHeight * htmlFontSize);
-  }
-  /**
-   * generate a responsive version of a given CSS property
-   * @example
-   * responsiveProperty({
-   *   cssProperty: 'fontSize',
-   *   min: 15,
-   *   max: 20,
-   *   unit: 'px',
-   *   breakpoints: [300, 600],
-   * })
-   *
-   * // this returns
-   *
-   * {
-   *   fontSize: '15px',
-   *   '@media (min-width:300px)': {
-   *     fontSize: '17.5px',
-   *   },
-   *   '@media (min-width:600px)': {
-   *     fontSize: '20px',
-   *   },
-   * }
-   *
-   * @param {Object} params
-   * @param {string} params.cssProperty - The CSS property to be made responsive
-   * @param {number} params.min - The smallest value of the CSS property
-   * @param {number} params.max - The largest value of the CSS property
-   * @param {string} [params.unit] - The unit to be used for the CSS property
-   * @param {Array.number} [params.breakpoints]  - An array of breakpoints
-   * @param {number} [params.alignStep] - Round scaled value to fall under this grid
-   * @returns {Object} responsive styles for {params.cssProperty}
-   */
-
-  function responsiveProperty(_ref3) {
-    var cssProperty = _ref3.cssProperty,
-        min = _ref3.min,
-        max = _ref3.max,
-        _ref3$unit = _ref3.unit,
-        unit = _ref3$unit === void 0 ? 'rem' : _ref3$unit,
-        _ref3$breakpoints = _ref3.breakpoints,
-        breakpoints = _ref3$breakpoints === void 0 ? [600, 960, 1280] : _ref3$breakpoints,
-        _ref3$transform = _ref3.transform,
-        transform = _ref3$transform === void 0 ? null : _ref3$transform;
-
-    var output = _defineProperty({}, cssProperty, "".concat(min).concat(unit));
-
-    var factor = (max - min) / breakpoints[breakpoints.length - 1];
-    breakpoints.forEach(function (breakpoint) {
-      var value = min + factor * breakpoint;
-
-      if (transform !== null) {
-        value = transform(value);
-      }
-
-      output["@media (min-width:".concat(breakpoint, "px)")] = _defineProperty({}, cssProperty, "".concat(Math.round(value * 10000) / 10000).concat(unit));
-    });
-    return output;
-  }
-
-  function isUnitless(value) {
-    return String(parseFloat(value)).length === String(value).length;
-  }
-
-  function responsiveFontSizes(themeInput) {
-    var options = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
-    var _options$breakpoints = options.breakpoints,
-        breakpoints = _options$breakpoints === void 0 ? ['sm', 'md', 'lg'] : _options$breakpoints,
-        _options$disableAlign = options.disableAlign,
-        disableAlign = _options$disableAlign === void 0 ? false : _options$disableAlign,
-        _options$factor = options.factor,
-        factor = _options$factor === void 0 ? 2 : _options$factor,
-        _options$variants = options.variants,
-        variants = _options$variants === void 0 ? ['h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'subtitle1', 'subtitle2', 'body1', 'body2', 'caption', 'button', 'overline'] : _options$variants;
-
-    var theme = _extends({}, themeInput);
-
-    theme.typography = _extends({}, theme.typography);
-    var typography = theme.typography; // Convert between css lengths e.g. em->px or px->rem
-    // Set the baseFontSize for your project. Defaults to 16px (also the browser default).
-
-    var convert = convertLength(typography.htmlFontSize);
-    var breakpointValues = breakpoints.map(function (x) {
-      return theme.breakpoints.values[x];
-    });
-    variants.forEach(function (variant) {
-      var style = typography[variant];
-      var remFontSize = parseFloat(convert(style.fontSize, 'rem'));
-
-      if (remFontSize <= 1) {
-        return;
-      }
-
-      var maxFontSize = remFontSize;
-      var minFontSize = 1 + (maxFontSize - 1) / factor;
-      var lineHeight = style.lineHeight;
-
-      if (!isUnitless(lineHeight) && !disableAlign) {
-        throw new Error(["Material-UI: unsupported non-unitless line height with grid alignment.", 'Use unitless line heights instead.'].join('\n'));
-      }
-
-      if (!isUnitless(lineHeight)) {
-        // make it unitless
-        lineHeight = parseFloat(convert(lineHeight, 'rem')) / parseFloat(remFontSize);
-      }
-
-      var transform = null;
-
-      if (!disableAlign) {
-        transform = function transform(value) {
-          return alignProperty({
-            size: value,
-            grid: fontGrid({
-              pixels: 4,
-              lineHeight: lineHeight,
-              htmlFontSize: typography.htmlFontSize
-            })
-          });
-        };
-      }
-
-      typography[variant] = _extends({}, style, {}, responsiveProperty({
-        cssProperty: 'fontSize',
-        min: minFontSize,
-        max: maxFontSize,
-        unit: 'rem',
-        breakpoints: breakpointValues,
-        transform: transform
-      }));
-    });
-    return theme;
-  }
-
-  var styled$1 = function styled$1(Component) {
-    var componentCreator = styled(Component);
-    return function (style, options) {
-      return componentCreator(style, _extends({
-        defaultTheme: defaultTheme
-      }, options));
-    };
-  };
-
-  function useTheme$1() {
-    return useTheme() || defaultTheme;
-  }
 
   function withStyles$1(stylesOrCreator, options) {
     return withStyles(stylesOrCreator, _extends({
@@ -7620,339 +8923,218 @@
     }, options));
   }
 
-  var withTheme$1 = withThemeCreator({
-    defaultTheme: defaultTheme
-  });
+  var reflow = function reflow(node) {
+    return node.scrollTop;
+  };
+  function getTransitionProps(props, options) {
+    var timeout = props.timeout,
+        _props$style = props.style,
+        style = _props$style === void 0 ? {} : _props$style;
+    return {
+      duration: style.transitionDuration || typeof timeout === 'number' ? timeout : timeout[options.mode] || 0,
+      delay: style.transitionDelay
+    };
+  }
 
-  // It should to be noted that this function isn't equivalent to `text-transform: capitalize`.
-  //
-  // A strict capitalization should uppercase the first letter of each word a the sentence.
-  // We only handle the first word.
-  function capitalize(string) {
+  function useTheme$1() {
+    var theme = useTheme() || defaultTheme;
+
     {
-      if (typeof string !== 'string') {
-        throw new Error('Material-UI: capitalize(string) expects a string argument.');
-      }
+      // eslint-disable-next-line react-hooks/rules-of-hooks
+      React__default.useDebugValue(theme);
     }
 
-    return string.charAt(0).toUpperCase() + string.slice(1);
+    return theme;
   }
 
   var styles = function styles(theme) {
-    var elevations = {};
-    theme.shadows.forEach(function (shadow, index) {
-      elevations["elevation".concat(index)] = {
-        boxShadow: shadow
-      };
-    });
-    return _extends({
-      /* Styles applied to the root element. */
-      root: {
-        backgroundColor: theme.palette.background.paper,
-        color: theme.palette.text.primary,
-        transition: theme.transitions.create('box-shadow')
-      },
-
-      /* Styles applied to the root element if `square={false}`. */
-      rounded: {
-        borderRadius: theme.shape.borderRadius
-      },
-
-      /* Styles applied to the root element if `variant="outlined"` */
-      outlined: {
-        border: "1px solid ".concat(theme.palette.divider)
-      }
-    }, elevations);
-  };
-  var Paper = React__default.forwardRef(function Paper(props, ref) {
-    var classes = props.classes,
-        className = props.className,
-        _props$component = props.component,
-        Component = _props$component === void 0 ? 'div' : _props$component,
-        _props$square = props.square,
-        square = _props$square === void 0 ? false : _props$square,
-        _props$elevation = props.elevation,
-        elevation = _props$elevation === void 0 ? 1 : _props$elevation,
-        _props$variant = props.variant,
-        variant = _props$variant === void 0 ? 'elevation' : _props$variant,
-        other = _objectWithoutProperties(props, ["classes", "className", "component", "square", "elevation", "variant"]);
-
-    {
-      if (classes["elevation".concat(elevation)] === undefined) {
-        console.error("Material-UI: this elevation `".concat(elevation, "` is not implemented."));
-      }
-    }
-
-    return React__default.createElement(Component, _extends({
-      className: clsx(classes.root, className, variant === 'outlined' ? classes.outlined : classes["elevation".concat(elevation)], !square && classes.rounded),
-      ref: ref
-    }, other));
-  });
-   Paper.propTypes = {
-    /**
-     * The content of the component.
-     */
-    children: propTypes.node,
-
-    /**
-     * Override or extend the styles applied to the component.
-     * See [CSS API](#css) below for more details.
-     */
-    classes: propTypes.object.isRequired,
-
-    /**
-     * @ignore
-     */
-    className: propTypes.string,
-
-    /**
-     * The component used for the root node.
-     * Either a string to use a DOM element or a component.
-     */
-    component: propTypes.elementType,
-
-    /**
-     * Shadow depth, corresponds to `dp` in the spec.
-     * It accepts values between 0 and 24 inclusive.
-     */
-    elevation: propTypes.number,
-
-    /**
-     * If `true`, rounded corners are disabled.
-     */
-    square: propTypes.bool,
-
-    /**
-     * The variant to use.
-     */
-    variant: propTypes.oneOf(['elevation', 'outlined'])
-  } ;
-  var Paper$1 = withStyles$1(styles, {
-    name: 'MuiPaper'
-  })(Paper);
-
-  var styles$1 = function styles(theme) {
-    var backgroundColorDefault = theme.palette.type === 'light' ? theme.palette.grey[100] : theme.palette.grey[900];
     return {
-      /* Styles applied to the root element. */
-      root: {
-        display: 'flex',
-        flexDirection: 'column',
-        width: '100%',
-        boxSizing: 'border-box',
-        // Prevent padding issue with the Modal and fixed positioned AppBar.
-        zIndex: theme.zIndex.appBar,
-        flexShrink: 0
+      /* Styles applied to the container element. */
+      container: {
+        height: 0,
+        overflow: 'hidden',
+        transition: theme.transitions.create('height')
       },
 
-      /* Styles applied to the root element if `position="fixed"`. */
-      positionFixed: {
-        position: 'fixed',
-        top: 0,
-        left: 'auto',
-        right: 0,
-        '@media print': {
-          // Prevent the app bar to be visible on each printed page.
-          position: 'absolute'
-        }
+      /* Styles applied to the container element when the transition has entered. */
+      entered: {
+        height: 'auto',
+        overflow: 'visible'
       },
 
-      /* Styles applied to the root element if `position="absolute"`. */
-      positionAbsolute: {
-        position: 'absolute',
-        top: 0,
-        left: 'auto',
-        right: 0
+      /* Styles applied to the container element when the transition has exited and `collapsedHeight` != 0px. */
+      hidden: {
+        visibility: 'hidden'
       },
 
-      /* Styles applied to the root element if `position="sticky"`. */
-      positionSticky: {
-        // ⚠️ sticky is not supported by IE 11.
-        position: 'sticky',
-        top: 0,
-        left: 'auto',
-        right: 0
+      /* Styles applied to the outer wrapper element. */
+      wrapper: {
+        // Hack to get children with a negative margin to not falsify the height computation.
+        display: 'flex'
       },
 
-      /* Styles applied to the root element if `position="static"`. */
-      positionStatic: {
-        position: 'static',
-        transform: 'translateZ(0)' // Make sure we can see the elevation.
-
-      },
-
-      /* Styles applied to the root element if `position="relative"`. */
-      positionRelative: {
-        position: 'relative'
-      },
-
-      /* Styles applied to the root element if `color="default"`. */
-      colorDefault: {
-        backgroundColor: backgroundColorDefault,
-        color: theme.palette.getContrastText(backgroundColorDefault)
-      },
-
-      /* Styles applied to the root element if `color="primary"`. */
-      colorPrimary: {
-        backgroundColor: theme.palette.primary.main,
-        color: theme.palette.primary.contrastText
-      },
-
-      /* Styles applied to the root element if `color="secondary"`. */
-      colorSecondary: {
-        backgroundColor: theme.palette.secondary.main,
-        color: theme.palette.secondary.contrastText
+      /* Styles applied to the inner wrapper element. */
+      wrapperInner: {
+        width: '100%'
       }
     };
   };
-  var AppBar = React__default.forwardRef(function AppBar(props, ref) {
-    var classes = props.classes,
-        className = props.className,
-        _props$color = props.color,
-        color = _props$color === void 0 ? 'primary' : _props$color,
-        _props$position = props.position,
-        position = _props$position === void 0 ? 'fixed' : _props$position,
-        other = _objectWithoutProperties(props, ["classes", "className", "color", "position"]);
+  /**
+   * The Collapse transition is used by the
+   * [Vertical Stepper](/components/steppers/#vertical-stepper) StepContent component.
+   * It uses [react-transition-group](https://github.com/reactjs/react-transition-group) internally.
+   */
 
-    return React__default.createElement(Paper$1, _extends({
-      square: true,
-      component: "header",
-      elevation: 4,
-      className: clsx(classes.root, classes["position".concat(capitalize(position))], className, color !== 'inherit' && classes["color".concat(capitalize(color))], {
-        fixed: 'mui-fixed'
-      }[position]),
-      ref: ref
-    }, other));
-  });
-   AppBar.propTypes = {
-    // ----------------------------- Warning --------------------------------
-    // | These PropTypes are generated from the TypeScript type definitions |
-    // |     To update them edit the d.ts file and run "yarn proptypes"     |
-    // ----------------------------------------------------------------------
-
-    /**
-     * The content of the component.
-     */
-    children: propTypes.node,
-
-    /**
-     * Override or extend the styles applied to the component.
-     * See [CSS API](#css) below for more details.
-     */
-    classes: propTypes.object,
-
-    /**
-     * @ignore
-     */
-    className: propTypes.string,
-
-    /**
-     * The color of the component. It supports those theme colors that make sense for this component.
-     */
-    color: propTypes.oneOf(['default', 'inherit', 'primary', 'secondary']),
-
-    /**
-     * The positioning type. The behavior of the different options is described
-     * [in the MDN web docs](https://developer.mozilla.org/en-US/docs/Learn/CSS/CSS_layout/Positioning).
-     * Note: `sticky` is not universally supported and will fall back to `static` when unavailable.
-     */
-    position: propTypes.oneOf(['absolute', 'fixed', 'relative', 'static', 'sticky'])
-  } ;
-  var AppBar$1 = withStyles$1(styles$1, {
-    name: 'MuiAppBar'
-  })(AppBar);
-
-  var styles$2 = function styles(theme) {
-    return {
-      /* Styles applied to the root element. */
-      root: {
-        userSelect: 'none',
-        width: '1em',
-        height: '1em',
-        display: 'inline-block',
-        fill: 'currentColor',
-        flexShrink: 0,
-        fontSize: theme.typography.pxToRem(24),
-        transition: theme.transitions.create('fill', {
-          duration: theme.transitions.duration.shorter
-        })
-      },
-
-      /* Styles applied to the root element if `color="primary"`. */
-      colorPrimary: {
-        color: theme.palette.primary.main
-      },
-
-      /* Styles applied to the root element if `color="secondary"`. */
-      colorSecondary: {
-        color: theme.palette.secondary.main
-      },
-
-      /* Styles applied to the root element if `color="action"`. */
-      colorAction: {
-        color: theme.palette.action.active
-      },
-
-      /* Styles applied to the root element if `color="error"`. */
-      colorError: {
-        color: theme.palette.error.main
-      },
-
-      /* Styles applied to the root element if `color="disabled"`. */
-      colorDisabled: {
-        color: theme.palette.action.disabled
-      },
-
-      /* Styles applied to the root element if `fontSize="inherit"`. */
-      fontSizeInherit: {
-        fontSize: 'inherit'
-      },
-
-      /* Styles applied to the root element if `fontSize="small"`. */
-      fontSizeSmall: {
-        fontSize: theme.typography.pxToRem(20)
-      },
-
-      /* Styles applied to the root element if `fontSize="large"`. */
-      fontSizeLarge: {
-        fontSize: theme.typography.pxToRem(35)
-      }
-    };
-  };
-  var SvgIcon = React__default.forwardRef(function SvgIcon(props, ref) {
+  var Collapse = React.forwardRef(function Collapse(props, ref) {
     var children = props.children,
         classes = props.classes,
         className = props.className,
-        _props$color = props.color,
-        color = _props$color === void 0 ? 'inherit' : _props$color,
+        _props$collapsedHeigh = props.collapsedHeight,
+        collapsedHeightProp = _props$collapsedHeigh === void 0 ? '0px' : _props$collapsedHeigh,
         _props$component = props.component,
-        Component = _props$component === void 0 ? 'svg' : _props$component,
-        _props$fontSize = props.fontSize,
-        fontSize = _props$fontSize === void 0 ? 'default' : _props$fontSize,
-        htmlColor = props.htmlColor,
-        titleAccess = props.titleAccess,
-        _props$viewBox = props.viewBox,
-        viewBox = _props$viewBox === void 0 ? '0 0 24 24' : _props$viewBox,
-        other = _objectWithoutProperties(props, ["children", "classes", "className", "color", "component", "fontSize", "htmlColor", "titleAccess", "viewBox"]);
+        Component = _props$component === void 0 ? 'div' : _props$component,
+        inProp = props.in,
+        onEnter = props.onEnter,
+        onEntered = props.onEntered,
+        onEntering = props.onEntering,
+        onExit = props.onExit,
+        onExiting = props.onExiting,
+        style = props.style,
+        _props$timeout = props.timeout,
+        timeout = _props$timeout === void 0 ? duration.standard : _props$timeout,
+        _props$TransitionComp = props.TransitionComponent,
+        TransitionComponent = _props$TransitionComp === void 0 ? Transition : _props$TransitionComp,
+        other = _objectWithoutProperties(props, ["children", "classes", "className", "collapsedHeight", "component", "in", "onEnter", "onEntered", "onEntering", "onExit", "onExiting", "style", "timeout", "TransitionComponent"]);
 
-    return React__default.createElement(Component, _extends({
-      className: clsx(classes.root, className, color !== 'inherit' && classes["color".concat(capitalize(color))], fontSize !== 'default' && classes["fontSize".concat(capitalize(fontSize))]),
-      focusable: "false",
-      viewBox: viewBox,
-      color: htmlColor,
-      "aria-hidden": titleAccess ? null : 'true',
-      role: titleAccess ? 'img' : 'presentation',
-      ref: ref
-    }, other), children, titleAccess ? React__default.createElement("title", null, titleAccess) : null);
+    var theme = useTheme$1();
+    var timer = React.useRef();
+    var wrapperRef = React.useRef(null);
+    var autoTransitionDuration = React.useRef();
+    var collapsedHeight = typeof collapsedHeightProp === 'number' ? "".concat(collapsedHeightProp, "px") : collapsedHeightProp;
+    React.useEffect(function () {
+      return function () {
+        clearTimeout(timer.current);
+      };
+    }, []);
+
+    var handleEnter = function handleEnter(node, isAppearing) {
+      node.style.height = collapsedHeight;
+
+      if (onEnter) {
+        onEnter(node, isAppearing);
+      }
+    };
+
+    var handleEntering = function handleEntering(node, isAppearing) {
+      var wrapperHeight = wrapperRef.current ? wrapperRef.current.clientHeight : 0;
+
+      var _getTransitionProps = getTransitionProps({
+        style: style,
+        timeout: timeout
+      }, {
+        mode: 'enter'
+      }),
+          transitionDuration = _getTransitionProps.duration;
+
+      if (timeout === 'auto') {
+        var duration2 = theme.transitions.getAutoHeightDuration(wrapperHeight);
+        node.style.transitionDuration = "".concat(duration2, "ms");
+        autoTransitionDuration.current = duration2;
+      } else {
+        node.style.transitionDuration = typeof transitionDuration === 'string' ? transitionDuration : "".concat(transitionDuration, "ms");
+      }
+
+      node.style.height = "".concat(wrapperHeight, "px");
+
+      if (onEntering) {
+        onEntering(node, isAppearing);
+      }
+    };
+
+    var handleEntered = function handleEntered(node, isAppearing) {
+      node.style.height = 'auto';
+
+      if (onEntered) {
+        onEntered(node, isAppearing);
+      }
+    };
+
+    var handleExit = function handleExit(node) {
+      var wrapperHeight = wrapperRef.current ? wrapperRef.current.clientHeight : 0;
+      node.style.height = "".concat(wrapperHeight, "px");
+
+      if (onExit) {
+        onExit(node);
+      }
+    };
+
+    var handleExiting = function handleExiting(node) {
+      var wrapperHeight = wrapperRef.current ? wrapperRef.current.clientHeight : 0;
+
+      var _getTransitionProps2 = getTransitionProps({
+        style: style,
+        timeout: timeout
+      }, {
+        mode: 'exit'
+      }),
+          transitionDuration = _getTransitionProps2.duration;
+
+      if (timeout === 'auto') {
+        var duration2 = theme.transitions.getAutoHeightDuration(wrapperHeight);
+        node.style.transitionDuration = "".concat(duration2, "ms");
+        autoTransitionDuration.current = duration2;
+      } else {
+        node.style.transitionDuration = typeof transitionDuration === 'string' ? transitionDuration : "".concat(transitionDuration, "ms");
+      }
+
+      node.style.height = collapsedHeight;
+
+      if (onExiting) {
+        onExiting(node);
+      }
+    };
+
+    var addEndListener = function addEndListener(_, next) {
+      if (timeout === 'auto') {
+        timer.current = setTimeout(next, autoTransitionDuration.current || 0);
+      }
+    };
+
+    return /*#__PURE__*/React.createElement(TransitionComponent, _extends({
+      in: inProp,
+      onEnter: handleEnter,
+      onEntered: handleEntered,
+      onEntering: handleEntering,
+      onExit: handleExit,
+      onExiting: handleExiting,
+      addEndListener: addEndListener,
+      timeout: timeout === 'auto' ? null : timeout
+    }, other), function (state, childProps) {
+      return /*#__PURE__*/React.createElement(Component, _extends({
+        className: clsx(classes.container, className, {
+          'entered': classes.entered,
+          'exited': !inProp && collapsedHeight === '0px' && classes.hidden
+        }[state]),
+        style: _extends({
+          minHeight: collapsedHeight
+        }, style),
+        ref: ref
+      }, childProps), /*#__PURE__*/React.createElement("div", {
+        className: classes.wrapper,
+        ref: wrapperRef
+      }, /*#__PURE__*/React.createElement("div", {
+        className: classes.wrapperInner
+      }, children)));
+    });
   });
-   SvgIcon.propTypes = {
+   Collapse.propTypes = {
     // ----------------------------- Warning --------------------------------
     // | These PropTypes are generated from the TypeScript type definitions |
     // |     To update them edit the d.ts file and run "yarn proptypes"     |
     // ----------------------------------------------------------------------
 
     /**
-     * Node passed into the SVG element.
+     * The content node to be collapsed.
      */
     children: propTypes.node,
 
@@ -7968,10 +9150,9 @@
     className: propTypes.string,
 
     /**
-     * The color of the component. It supports those theme colors that make sense for this component.
-     * You can use the `htmlColor` prop to apply a color attribute to the SVG element.
+     * The height of the container when collapsed.
      */
-    color: propTypes.oneOf(['action', 'disabled', 'error', 'inherit', 'primary', 'secondary']),
+    collapsedHeight: propTypes.oneOfType([propTypes.number, propTypes.string]),
 
     /**
      * The component used for the root node.
@@ -7980,284 +9161,67 @@
     component: propTypes.elementType,
 
     /**
-     * The fontSize applied to the icon. Defaults to 24px, but can be configure to inherit font size.
+     * If `true`, the component will transition in.
      */
-    fontSize: propTypes.oneOf(['default', 'inherit', 'large', 'small']),
-
-    /**
-     * Applies a color attribute to the SVG element.
-     */
-    htmlColor: propTypes.string,
-
-    /**
-     * The shape-rendering attribute. The behavior of the different options is described on the
-     * [MDN Web Docs](https://developer.mozilla.org/en-US/docs/Web/SVG/Attribute/shape-rendering).
-     * If you are having issues with blurry icons you should investigate this property.
-     */
-    shapeRendering: propTypes.string,
-
-    /**
-     * Provides a human-readable title for the element that contains it.
-     * https://www.w3.org/TR/SVG-access/#Equivalent
-     */
-    titleAccess: propTypes.string,
-
-    /**
-     * Allows you to redefine what the coordinates without units mean inside an SVG element.
-     * For example, if the SVG element is 500 (width) by 200 (height),
-     * and you pass viewBox="0 0 50 20",
-     * this means that the coordinates inside the SVG will go from the top left corner (0,0)
-     * to bottom right (50,20) and each unit will be worth 10px.
-     */
-    viewBox: propTypes.string
-  } ;
-  SvgIcon.muiName = 'SvgIcon';
-  var SvgIcon$1 = withStyles$1(styles$2, {
-    name: 'MuiSvgIcon'
-  })(SvgIcon);
-
-  function createSvgIcon(path, displayName) {
-    var Component = React__default.memo(React__default.forwardRef(function (props, ref) {
-      return React__default.createElement(SvgIcon$1, _extends({}, props, {
-        ref: ref
-      }), path);
-    }));
-
-    {
-      Component.displayName = "".concat(displayName, "Icon");
-    }
-
-    Component.muiName = SvgIcon$1.muiName;
-    return Component;
-  }
-
-  /**
-   * @ignore - internal component.
-   */
-
-  var Person = createSvgIcon(React__default.createElement("path", {
-    d: "M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"
-  }), 'Person');
-
-  var styles$3 = function styles(theme) {
-    return {
-      /* Styles applied to the root element. */
-      root: {
-        position: 'relative',
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        flexShrink: 0,
-        width: 40,
-        height: 40,
-        fontFamily: theme.typography.fontFamily,
-        fontSize: theme.typography.pxToRem(20),
-        lineHeight: 1,
-        borderRadius: '50%',
-        overflow: 'hidden',
-        userSelect: 'none'
-      },
-
-      /* Styles applied to the root element if not `src` or `srcSet`. */
-      colorDefault: {
-        color: theme.palette.background.default,
-        backgroundColor: theme.palette.type === 'light' ? theme.palette.grey[400] : theme.palette.grey[600]
-      },
-
-      /* Styles applied to the root element if `variant="circle"`. */
-      circle: {},
-
-      /* Styles applied to the root element if `variant="rounded"`. */
-      rounded: {
-        borderRadius: theme.shape.borderRadius
-      },
-
-      /* Styles applied to the root element if `variant="square"`. */
-      square: {
-        borderRadius: 0
-      },
-
-      /* Styles applied to the img element if either `src` or `srcSet` is defined. */
-      img: {
-        width: '100%',
-        height: '100%',
-        textAlign: 'center',
-        // Handle non-square image. The property isn't supported by IE 11.
-        objectFit: 'cover',
-        // Hide alt text.
-        color: 'transparent',
-        // Hide the image broken icon, only works on Chrome.
-        textIndent: 10000
-      },
-
-      /* Styles applied to the fallback icon */
-      fallback: {
-        width: '75%',
-        height: '75%'
-      }
-    };
-  };
-
-  function useLoaded(_ref) {
-    var src = _ref.src,
-        srcSet = _ref.srcSet;
-
-    var _React$useState = React__default.useState(false),
-        loaded = _React$useState[0],
-        setLoaded = _React$useState[1];
-
-    React__default.useEffect(function () {
-      if (!src && !srcSet) {
-        return undefined;
-      }
-
-      setLoaded(false);
-      var active = true;
-      var image = new Image();
-      image.src = src;
-      image.srcSet = srcSet;
-
-      image.onload = function () {
-        if (!active) {
-          return;
-        }
-
-        setLoaded('loaded');
-      };
-
-      image.onerror = function () {
-        if (!active) {
-          return;
-        }
-
-        setLoaded('error');
-      };
-
-      return function () {
-        active = false;
-      };
-    }, [src, srcSet]);
-    return loaded;
-  }
-
-  var Avatar = React__default.forwardRef(function Avatar(props, ref) {
-    var alt = props.alt,
-        childrenProp = props.children,
-        classes = props.classes,
-        className = props.className,
-        _props$component = props.component,
-        Component = _props$component === void 0 ? 'div' : _props$component,
-        imgProps = props.imgProps,
-        sizes = props.sizes,
-        src = props.src,
-        srcSet = props.srcSet,
-        _props$variant = props.variant,
-        variant = _props$variant === void 0 ? 'circle' : _props$variant,
-        other = _objectWithoutProperties(props, ["alt", "children", "classes", "className", "component", "imgProps", "sizes", "src", "srcSet", "variant"]);
-
-    var children = null; // Use a hook instead of onError on the img element to support server-side rendering.
-
-    var loaded = useLoaded({
-      src: src,
-      srcSet: srcSet
-    });
-    var hasImg = src || srcSet;
-    var hasImgNotFailing = hasImg && loaded !== 'error';
-
-    if (hasImgNotFailing) {
-      children = React__default.createElement("img", _extends({
-        alt: alt,
-        src: src,
-        srcSet: srcSet,
-        sizes: sizes,
-        className: classes.img
-      }, imgProps));
-    } else if (childrenProp != null) {
-      children = childrenProp;
-    } else if (hasImg && alt) {
-      children = alt[0];
-    } else {
-      children = React__default.createElement(Person, {
-        className: classes.fallback
-      });
-    }
-
-    return React__default.createElement(Component, _extends({
-      className: clsx(classes.root, classes.system, classes[variant], className, !hasImgNotFailing && classes.colorDefault),
-      ref: ref
-    }, other), children);
-  });
-   Avatar.propTypes = {
-    /**
-     * Used in combination with `src` or `srcSet` to
-     * provide an alt attribute for the rendered `img` element.
-     */
-    alt: propTypes.string,
-
-    /**
-     * Used to render icon or text elements inside the Avatar if `src` is not set.
-     * This can be an element, or just a string.
-     */
-    children: propTypes.node,
-
-    /**
-     * Override or extend the styles applied to the component.
-     * See [CSS API](#css) below for more details.
-     */
-    classes: propTypes.object.isRequired,
+    in: propTypes.bool,
 
     /**
      * @ignore
      */
-    className: propTypes.string,
+    onEnter: propTypes.func,
 
     /**
-     * The component used for the root node.
-     * Either a string to use a DOM element or a component.
+     * @ignore
      */
-    component: propTypes.elementType,
+    onEntered: propTypes.func,
 
     /**
-     * Attributes applied to the `img` element if the component is used to display an image.
-     * It can be used to listen for the loading error event.
+     * @ignore
      */
-    imgProps: propTypes.object,
+    onEntering: propTypes.func,
 
     /**
-     * The `sizes` attribute for the `img` element.
+     * @ignore
      */
-    sizes: propTypes.string,
+    onExit: propTypes.func,
 
     /**
-     * The `src` attribute for the `img` element.
+     * @ignore
      */
-    src: propTypes.string,
+    onExiting: propTypes.func,
 
     /**
-     * The `srcSet` attribute for the `img` element.
-     * Use this attribute for responsive image display.
+     * @ignore
      */
-    srcSet: propTypes.string,
+    style: propTypes.object,
 
     /**
-     * The shape of the avatar.
+     * The duration for the transition, in milliseconds.
+     * You may specify a single timeout for all transitions, or individually with an object.
+     *
+     * Set to 'auto' to automatically calculate transition time based on height.
      */
-    variant: propTypes.oneOf(['circle', 'rounded', 'square'])
+    timeout: propTypes.oneOfType([propTypes.oneOf(['auto']), propTypes.number, propTypes.shape({
+      appear: propTypes.number,
+      enter: propTypes.number,
+      exit: propTypes.number
+    })])
   } ;
-  var Avatar$1 = withStyles$1(styles$3, {
-    name: 'MuiAvatar'
-  })(Avatar);
+  Collapse.muiSupportAuto = true;
+  var Collapse$1 = withStyles$1(styles, {
+    name: 'MuiCollapse'
+  })(Collapse);
 
-  var config = {
+  var config$1 = {
     disabled: false
   };
 
-  var timeoutsShape =  propTypes.oneOfType([propTypes.number, propTypes.shape({
+  var timeoutsShape$1 =  propTypes.oneOfType([propTypes.number, propTypes.shape({
     enter: propTypes.number,
     exit: propTypes.number,
     appear: propTypes.number
   }).isRequired]) ;
-  var classNamesShape =  propTypes.oneOfType([propTypes.string, propTypes.shape({
+  var classNamesShape$1 =  propTypes.oneOfType([propTypes.string, propTypes.shape({
     enter: propTypes.string,
     exit: propTypes.string,
     active: propTypes.string
@@ -8270,13 +9234,13 @@
     exitActive: propTypes.string
   })]) ;
 
-  var TransitionGroupContext = React__default.createContext(null);
+  var TransitionGroupContext$1 = React__default.createContext(null);
 
-  var UNMOUNTED = 'unmounted';
-  var EXITED = 'exited';
-  var ENTERING = 'entering';
-  var ENTERED = 'entered';
-  var EXITING = 'exiting';
+  var UNMOUNTED$1 = 'unmounted';
+  var EXITED$1 = 'exited';
+  var ENTERING$1 = 'entering';
+  var ENTERED$1 = 'entered';
+  var EXITING$1 = 'exiting';
   /**
    * The Transition component lets you describe a transition from one component
    * state to another _over time_ with a simple declarative API. Most commonly
@@ -8369,7 +9333,7 @@
    * `'exiting'` to `'exited'`.
    */
 
-  var Transition =
+  var Transition$1 =
   /*#__PURE__*/
   function (_React$Component) {
     _inheritsLoose(Transition, _React$Component);
@@ -8386,16 +9350,16 @@
 
       if (props.in) {
         if (appear) {
-          initialStatus = EXITED;
-          _this.appearStatus = ENTERING;
+          initialStatus = EXITED$1;
+          _this.appearStatus = ENTERING$1;
         } else {
-          initialStatus = ENTERED;
+          initialStatus = ENTERED$1;
         }
       } else {
         if (props.unmountOnExit || props.mountOnEnter) {
-          initialStatus = UNMOUNTED;
+          initialStatus = UNMOUNTED$1;
         } else {
-          initialStatus = EXITED;
+          initialStatus = EXITED$1;
         }
       }
 
@@ -8409,9 +9373,9 @@
     Transition.getDerivedStateFromProps = function getDerivedStateFromProps(_ref, prevState) {
       var nextIn = _ref.in;
 
-      if (nextIn && prevState.status === UNMOUNTED) {
+      if (nextIn && prevState.status === UNMOUNTED$1) {
         return {
-          status: EXITED
+          status: EXITED$1
         };
       }
 
@@ -8447,12 +9411,12 @@
         var status = this.state.status;
 
         if (this.props.in) {
-          if (status !== ENTERING && status !== ENTERED) {
-            nextStatus = ENTERING;
+          if (status !== ENTERING$1 && status !== ENTERED$1) {
+            nextStatus = ENTERING$1;
           }
         } else {
-          if (status === ENTERING || status === ENTERED) {
-            nextStatus = EXITING;
+          if (status === ENTERING$1 || status === ENTERED$1) {
+            nextStatus = EXITING$1;
           }
         }
       }
@@ -8491,16 +9455,16 @@
       if (nextStatus !== null) {
         // nextStatus will always be ENTERING or EXITING.
         this.cancelNextCallback();
-        var node = ReactDOM.findDOMNode(this);
+        var node = this.props.findDOMNode(this);
 
-        if (nextStatus === ENTERING) {
+        if (nextStatus === ENTERING$1) {
           this.performEnter(node, mounting);
         } else {
           this.performExit(node);
         }
-      } else if (this.props.unmountOnExit && this.state.status === EXITED) {
+      } else if (this.props.unmountOnExit && this.state.status === EXITED$1) {
         this.setState({
-          status: UNMOUNTED
+          status: UNMOUNTED$1
         });
       }
     };
@@ -8514,9 +9478,9 @@
       var enterTimeout = appearing ? timeouts.appear : timeouts.enter; // no enter animation skip right to ENTERED
       // if we are mounting and running this it means appear _must_ be set
 
-      if (!mounting && !enter || config.disabled) {
+      if (!mounting && !enter || config$1.disabled) {
         this.safeSetState({
-          status: ENTERED
+          status: ENTERED$1
         }, function () {
           _this2.props.onEntered(node);
         });
@@ -8525,13 +9489,13 @@
 
       this.props.onEnter(node, appearing);
       this.safeSetState({
-        status: ENTERING
+        status: ENTERING$1
       }, function () {
         _this2.props.onEntering(node, appearing);
 
         _this2.onTransitionEnd(node, enterTimeout, function () {
           _this2.safeSetState({
-            status: ENTERED
+            status: ENTERED$1
           }, function () {
             _this2.props.onEntered(node, appearing);
           });
@@ -8545,9 +9509,9 @@
       var exit = this.props.exit;
       var timeouts = this.getTimeouts(); // no exit animation skip right to EXITED
 
-      if (!exit || config.disabled) {
+      if (!exit || config$1.disabled) {
         this.safeSetState({
-          status: EXITED
+          status: EXITED$1
         }, function () {
           _this3.props.onExited(node);
         });
@@ -8556,13 +9520,13 @@
 
       this.props.onExit(node);
       this.safeSetState({
-        status: EXITING
+        status: EXITING$1
       }, function () {
         _this3.props.onExiting(node);
 
         _this3.onTransitionEnd(node, timeouts.exit, function () {
           _this3.safeSetState({
-            status: EXITED
+            status: EXITED$1
           }, function () {
             _this3.props.onExited(node);
           });
@@ -8626,7 +9590,7 @@
     _proto.render = function render() {
       var status = this.state.status;
 
-      if (status === UNMOUNTED) {
+      if (status === UNMOUNTED$1) {
         return null;
       }
 
@@ -8641,6 +9605,7 @@
       delete childProps.appear;
       delete childProps.enter;
       delete childProps.exit;
+      delete childProps.findDOMNode;
       delete childProps.timeout;
       delete childProps.addEndListener;
       delete childProps.onEnter;
@@ -8652,14 +9617,14 @@
 
       if (typeof children === 'function') {
         // allows for nested Transitions
-        return React__default.createElement(TransitionGroupContext.Provider, {
+        return React__default.createElement(TransitionGroupContext$1.Provider, {
           value: null
         }, children(status, childProps));
       }
 
       var child = React__default.Children.only(children);
       return (// allows for nested Transitions
-        React__default.createElement(TransitionGroupContext.Provider, {
+        React__default.createElement(TransitionGroupContext$1.Provider, {
           value: null
         }, React__default.cloneElement(child, childProps))
       );
@@ -8668,8 +9633,8 @@
     return Transition;
   }(React__default.Component);
 
-  Transition.contextType = TransitionGroupContext;
-  Transition.propTypes =  {
+  Transition$1.contextType = TransitionGroupContext$1;
+  Transition$1.propTypes =  {
     /**
      * A `function` child can be used instead of a React element. This function is
      * called with the current transition status (`'entering'`, `'entered'`,
@@ -8684,12 +9649,12 @@
      * </Transition>
      * ```
      */
-    children: propTypes.oneOfType([propTypes.func.isRequired, propTypes.element.isRequired]).isRequired,
+    children: propTypes_5([propTypes_3.isRequired, propTypes_6.isRequired]).isRequired,
 
     /**
      * Show the component; triggers the enter or exit states
      */
-    in: propTypes.bool,
+    in: propTypes_2,
 
     /**
      * By default the child component is mounted immediately along with
@@ -8697,37 +9662,40 @@
      * first `in={true}` you can set `mountOnEnter`. After the first enter transition the component will stay
      * mounted, even on "exited", unless you also specify `unmountOnExit`.
      */
-    mountOnEnter: propTypes.bool,
+    mountOnEnter: propTypes_2,
 
     /**
      * By default the child component stays mounted after it reaches the `'exited'` state.
      * Set `unmountOnExit` if you'd prefer to unmount the component after it finishes exiting.
      */
-    unmountOnExit: propTypes.bool,
+    unmountOnExit: propTypes_2,
 
     /**
-     * Normally a component is not transitioned if it is shown when the
-     * `<Transition>` component mounts. If you want to transition on the first
-     * mount set `appear` to `true`, and the component will transition in as soon
-     * as the `<Transition>` mounts.
+     * Normally a component is not transitioned if it is shown when the `<Transition>` component mounts.
+     * If you want to transition on the first mount set `appear` to `true`, and the
+     * component will transition in as soon as the `<Transition>` mounts.
      *
-     * > **Note**: there are no special appear states like `appearing`/`appeared`, this prop
-     * > only adds an additional enter transition. However, in the
-     * > `<CSSTransition>` component that first enter transition does result in
-     * > additional `.appear-*` classes, that way you can choose to style it
-     * > differently.
+     * > Note: there are no specific "appear" states. `appear` only adds an additional `enter` transition.
      */
-    appear: propTypes.bool,
+    appear: propTypes_2,
 
     /**
      * Enable or disable enter transitions.
      */
-    enter: propTypes.bool,
+    enter: propTypes_2,
 
     /**
      * Enable or disable exit transitions.
      */
-    exit: propTypes.bool,
+    exit: propTypes_2,
+
+    /**
+     * The function to find the rendered DOM node that is passed to the transition callbacks.
+     *
+     * By default ReactDOM.findDOMNode is used. For `React.StrictMode` compatiblity
+     * another function must be provided.
+     */
+    findDOMNode: propTypes_3,
 
     /**
      * The duration of the transition, in milliseconds.
@@ -8756,7 +9724,7 @@
      * @type {number | { enter?: number, exit?: number, appear?: number }}
      */
     timeout: function timeout(props) {
-      var pt = timeoutsShape;
+      var pt = timeoutsShape$1;
       if (!props.addEndListener) pt = pt.isRequired;
 
       for (var _len = arguments.length, args = new Array(_len > 1 ? _len - 1 : 0), _key = 1; _key < _len; _key++) {
@@ -8778,7 +9746,7 @@
      * }}
      * ```
      */
-    addEndListener: propTypes.func,
+    addEndListener: propTypes_3,
 
     /**
      * Callback fired before the "entering" status is applied. An extra parameter
@@ -8786,7 +9754,7 @@
      *
      * @type Function(node: HtmlElement, isAppearing: bool) -> void
      */
-    onEnter: propTypes.func,
+    onEnter: propTypes_3,
 
     /**
      * Callback fired after the "entering" status is applied. An extra parameter
@@ -8794,7 +9762,7 @@
      *
      * @type Function(node: HtmlElement, isAppearing: bool)
      */
-    onEntering: propTypes.func,
+    onEntering: propTypes_3,
 
     /**
      * Callback fired after the "entered" status is applied. An extra parameter
@@ -8802,389 +9770,315 @@
      *
      * @type Function(node: HtmlElement, isAppearing: bool) -> void
      */
-    onEntered: propTypes.func,
+    onEntered: propTypes_3,
 
     /**
      * Callback fired before the "exiting" status is applied.
      *
      * @type Function(node: HtmlElement) -> void
      */
-    onExit: propTypes.func,
+    onExit: propTypes_3,
 
     /**
      * Callback fired after the "exiting" status is applied.
      *
      * @type Function(node: HtmlElement) -> void
      */
-    onExiting: propTypes.func,
+    onExiting: propTypes_3,
 
     /**
      * Callback fired after the "exited" status is applied.
      *
      * @type Function(node: HtmlElement) -> void
      */
-    onExited: propTypes.func // Name the function so it is clearer in the documentation
+    onExited: propTypes_3 // Name the function so it is clearer in the documentation
 
   } ;
 
-  function noop() {}
+  function noop$1() {}
 
-  Transition.defaultProps = {
+  Transition$1.defaultProps = {
     in: false,
     mountOnEnter: false,
     unmountOnExit: false,
     appear: false,
     enter: true,
     exit: true,
-    onEnter: noop,
-    onEntering: noop,
-    onEntered: noop,
-    onExit: noop,
-    onExiting: noop,
-    onExited: noop
+    findDOMNode: ReactDOM__default.findDOMNode,
+    onEnter: noop$1,
+    onEntering: noop$1,
+    onEntered: noop$1,
+    onExit: noop$1,
+    onExiting: noop$1,
+    onExited: noop$1
   };
-  Transition.UNMOUNTED = 0;
-  Transition.EXITED = 1;
-  Transition.ENTERING = 2;
-  Transition.ENTERED = 3;
-  Transition.EXITING = 4;
+  Transition$1.UNMOUNTED = 0;
+  Transition$1.EXITED = 1;
+  Transition$1.ENTERING = 2;
+  Transition$1.ENTERED = 3;
+  Transition$1.EXITING = 4;
 
-  /**
-   * Given `this.props.children`, return an object mapping key to child.
-   *
-   * @param {*} children `this.props.children`
-   * @return {object} Mapping of key to child
-   */
+  // It should to be noted that this function isn't equivalent to `text-transform: capitalize`.
+  //
+  // A strict capitalization should uppercase the first letter of each word a the sentence.
+  // We only handle the first word.
+  function capitalize(string) {
+    {
+      if (typeof string !== 'string') {
+        throw new Error('Material-UI: capitalize(string) expects a string argument.');
+      }
+    }
 
-  function getChildMapping(children, mapFn) {
-    var mapper = function mapper(child) {
-      return mapFn && React.isValidElement(child) ? mapFn(child) : child;
+    return string.charAt(0).toUpperCase() + string.slice(1);
+  }
+
+  function deprecatedPropType(validator, reason) {
+
+    return function (props, propName, componentName, location, propFullName) {
+      var componentNameSafe = componentName || '<<anonymous>>';
+      var propFullNameSafe = propFullName || propName;
+
+      if (typeof props[propName] !== 'undefined') {
+        return new Error("The ".concat(location, " `").concat(propFullNameSafe, "` of ") + "`".concat(componentNameSafe, "` is deprecated. ").concat(reason));
+      }
+
+      return null;
     };
-
-    var result = Object.create(null);
-    if (children) React.Children.map(children, function (c) {
-      return c;
-    }).forEach(function (child) {
-      // run the map function here instead so that the key is the computed one
-      result[child.key] = mapper(child);
-    });
-    return result;
   }
-  /**
-   * When you're adding or removing children some may be added or removed in the
-   * same render pass. We want to show *both* since we want to simultaneously
-   * animate elements in and out. This function takes a previous set of keys
-   * and a new set of keys and merges them with its best guess of the correct
-   * ordering. In the future we may expose some of the utilities in
-   * ReactMultiChild to make this easy, but for now React itself does not
-   * directly have this concept of the union of prevChildren and nextChildren
-   * so we implement it here.
-   *
-   * @param {object} prev prev children as returned from
-   * `ReactTransitionChildMapping.getChildMapping()`.
-   * @param {object} next next children as returned from
-   * `ReactTransitionChildMapping.getChildMapping()`.
-   * @return {object} a key set that contains all keys in `prev` and all keys
-   * in `next` in a reasonable order.
-   */
 
-  function mergeChildMappings(prev, next) {
-    prev = prev || {};
-    next = next || {};
+  var styles$1 = function styles(theme) {
+    return {
+      /* Styles applied to the root element. */
+      root: {
+        userSelect: 'none',
+        width: '1em',
+        height: '1em',
+        display: 'inline-block',
+        fill: 'currentColor',
+        flexShrink: 0,
+        fontSize: theme.typography.pxToRem(24),
+        transition: theme.transitions.create('fill', {
+          duration: theme.transitions.duration.shorter
+        })
+      },
 
-    function getValueForKey(key) {
-      return key in next ? next[key] : prev[key];
-    } // For each key of `next`, the list of keys to insert before that key in
-    // the combined list
+      /* Styles applied to the root element if `color="primary"`. */
+      colorPrimary: {
+        color: theme.palette.primary.main
+      },
 
+      /* Styles applied to the root element if `color="secondary"`. */
+      colorSecondary: {
+        color: theme.palette.secondary.main
+      },
 
-    var nextKeysPending = Object.create(null);
-    var pendingKeys = [];
+      /* Styles applied to the root element if `color="action"`. */
+      colorAction: {
+        color: theme.palette.action.active
+      },
 
-    for (var prevKey in prev) {
-      if (prevKey in next) {
-        if (pendingKeys.length) {
-          nextKeysPending[prevKey] = pendingKeys;
-          pendingKeys = [];
-        }
-      } else {
-        pendingKeys.push(prevKey);
+      /* Styles applied to the root element if `color="error"`. */
+      colorError: {
+        color: theme.palette.error.main
+      },
+
+      /* Styles applied to the root element if `color="disabled"`. */
+      colorDisabled: {
+        color: theme.palette.action.disabled
+      },
+
+      /* Styles applied to the root element if `fontSize="inherit"`. */
+      fontSizeInherit: {
+        fontSize: 'inherit'
+      },
+
+      /* Styles applied to the root element if `fontSize="small"`. */
+      fontSizeSmall: {
+        fontSize: theme.typography.pxToRem(20)
+      },
+
+      /* Styles applied to the root element if `fontSize="large"`. */
+      fontSizeLarge: {
+        fontSize: theme.typography.pxToRem(35)
       }
-    }
-
-    var i;
-    var childMapping = {};
-
-    for (var nextKey in next) {
-      if (nextKeysPending[nextKey]) {
-        for (i = 0; i < nextKeysPending[nextKey].length; i++) {
-          var pendingNextKey = nextKeysPending[nextKey][i];
-          childMapping[nextKeysPending[nextKey][i]] = getValueForKey(pendingNextKey);
-        }
-      }
-
-      childMapping[nextKey] = getValueForKey(nextKey);
-    } // Finally, add the keys which didn't appear before any key in `next`
-
-
-    for (i = 0; i < pendingKeys.length; i++) {
-      childMapping[pendingKeys[i]] = getValueForKey(pendingKeys[i]);
-    }
-
-    return childMapping;
-  }
-
-  function getProp(child, prop, props) {
-    return props[prop] != null ? props[prop] : child.props[prop];
-  }
-
-  function getInitialChildMapping(props, onExited) {
-    return getChildMapping(props.children, function (child) {
-      return React.cloneElement(child, {
-        onExited: onExited.bind(null, child),
-        in: true,
-        appear: getProp(child, 'appear', props),
-        enter: getProp(child, 'enter', props),
-        exit: getProp(child, 'exit', props)
-      });
-    });
-  }
-  function getNextChildMapping(nextProps, prevChildMapping, onExited) {
-    var nextChildMapping = getChildMapping(nextProps.children);
-    var children = mergeChildMappings(prevChildMapping, nextChildMapping);
-    Object.keys(children).forEach(function (key) {
-      var child = children[key];
-      if (!React.isValidElement(child)) return;
-      var hasPrev = key in prevChildMapping;
-      var hasNext = key in nextChildMapping;
-      var prevChild = prevChildMapping[key];
-      var isLeaving = React.isValidElement(prevChild) && !prevChild.props.in; // item is new (entering)
-
-      if (hasNext && (!hasPrev || isLeaving)) {
-        // console.log('entering', key)
-        children[key] = React.cloneElement(child, {
-          onExited: onExited.bind(null, child),
-          in: true,
-          exit: getProp(child, 'exit', nextProps),
-          enter: getProp(child, 'enter', nextProps)
-        });
-      } else if (!hasNext && hasPrev && !isLeaving) {
-        // item is old (exiting)
-        // console.log('leaving', key)
-        children[key] = React.cloneElement(child, {
-          in: false
-        });
-      } else if (hasNext && hasPrev && React.isValidElement(prevChild)) {
-        // item hasn't changed transition states
-        // copy over the last transition props;
-        // console.log('unchanged', key)
-        children[key] = React.cloneElement(child, {
-          onExited: onExited.bind(null, child),
-          in: prevChild.props.in,
-          exit: getProp(child, 'exit', nextProps),
-          enter: getProp(child, 'enter', nextProps)
-        });
-      }
-    });
-    return children;
-  }
-
-  var values = Object.values || function (obj) {
-    return Object.keys(obj).map(function (k) {
-      return obj[k];
-    });
+    };
   };
+  var SvgIcon = React.forwardRef(function SvgIcon(props, ref) {
+    var children = props.children,
+        classes = props.classes,
+        className = props.className,
+        _props$color = props.color,
+        color = _props$color === void 0 ? 'inherit' : _props$color,
+        _props$component = props.component,
+        Component = _props$component === void 0 ? 'svg' : _props$component,
+        _props$fontSize = props.fontSize,
+        fontSize = _props$fontSize === void 0 ? 'default' : _props$fontSize,
+        htmlColor = props.htmlColor,
+        titleAccess = props.titleAccess,
+        _props$viewBox = props.viewBox,
+        viewBox = _props$viewBox === void 0 ? '0 0 24 24' : _props$viewBox,
+        other = _objectWithoutProperties(props, ["children", "classes", "className", "color", "component", "fontSize", "htmlColor", "titleAccess", "viewBox"]);
 
-  var defaultProps = {
-    component: 'div',
-    childFactory: function childFactory(child) {
-      return child;
-    }
-    /**
-     * The `<TransitionGroup>` component manages a set of transition components
-     * (`<Transition>` and `<CSSTransition>`) in a list. Like with the transition
-     * components, `<TransitionGroup>` is a state machine for managing the mounting
-     * and unmounting of components over time.
-     *
-     * Consider the example below. As items are removed or added to the TodoList the
-     * `in` prop is toggled automatically by the `<TransitionGroup>`.
-     *
-     * Note that `<TransitionGroup>`  does not define any animation behavior!
-     * Exactly _how_ a list item animates is up to the individual transition
-     * component. This means you can mix and match animations across different list
-     * items.
-     */
-
-  };
-
-  var TransitionGroup =
-  /*#__PURE__*/
-  function (_React$Component) {
-    _inheritsLoose(TransitionGroup, _React$Component);
-
-    function TransitionGroup(props, context) {
-      var _this;
-
-      _this = _React$Component.call(this, props, context) || this;
-
-      var handleExited = _this.handleExited.bind(_assertThisInitialized(_assertThisInitialized(_this))); // Initial children should all be entering, dependent on appear
-
-
-      _this.state = {
-        contextValue: {
-          isMounting: true
-        },
-        handleExited: handleExited,
-        firstRender: true
-      };
-      return _this;
-    }
-
-    var _proto = TransitionGroup.prototype;
-
-    _proto.componentDidMount = function componentDidMount() {
-      this.mounted = true;
-      this.setState({
-        contextValue: {
-          isMounting: false
-        }
-      });
-    };
-
-    _proto.componentWillUnmount = function componentWillUnmount() {
-      this.mounted = false;
-    };
-
-    TransitionGroup.getDerivedStateFromProps = function getDerivedStateFromProps(nextProps, _ref) {
-      var prevChildMapping = _ref.children,
-          handleExited = _ref.handleExited,
-          firstRender = _ref.firstRender;
-      return {
-        children: firstRender ? getInitialChildMapping(nextProps, handleExited) : getNextChildMapping(nextProps, prevChildMapping, handleExited),
-        firstRender: false
-      };
-    };
-
-    _proto.handleExited = function handleExited(child, node) {
-      var currentChildMapping = getChildMapping(this.props.children);
-      if (child.key in currentChildMapping) return;
-
-      if (child.props.onExited) {
-        child.props.onExited(node);
-      }
-
-      if (this.mounted) {
-        this.setState(function (state) {
-          var children = _extends({}, state.children);
-
-          delete children[child.key];
-          return {
-            children: children
-          };
-        });
-      }
-    };
-
-    _proto.render = function render() {
-      var _this$props = this.props,
-          Component = _this$props.component,
-          childFactory = _this$props.childFactory,
-          props = _objectWithoutPropertiesLoose(_this$props, ["component", "childFactory"]);
-
-      var contextValue = this.state.contextValue;
-      var children = values(this.state.children).map(childFactory);
-      delete props.appear;
-      delete props.enter;
-      delete props.exit;
-
-      if (Component === null) {
-        return React__default.createElement(TransitionGroupContext.Provider, {
-          value: contextValue
-        }, children);
-      }
-
-      return React__default.createElement(TransitionGroupContext.Provider, {
-        value: contextValue
-      }, React__default.createElement(Component, props, children));
-    };
-
-    return TransitionGroup;
-  }(React__default.Component);
-
-  TransitionGroup.propTypes =  {
-    /**
-     * `<TransitionGroup>` renders a `<div>` by default. You can change this
-     * behavior by providing a `component` prop.
-     * If you use React v16+ and would like to avoid a wrapping `<div>` element
-     * you can pass in `component={null}`. This is useful if the wrapping div
-     * borks your css styles.
-     */
-    component: propTypes.any,
+    return /*#__PURE__*/React.createElement(Component, _extends({
+      className: clsx(classes.root, className, color !== 'inherit' && classes["color".concat(capitalize(color))], fontSize !== 'default' && classes["fontSize".concat(capitalize(fontSize))]),
+      focusable: "false",
+      viewBox: viewBox,
+      color: htmlColor,
+      "aria-hidden": titleAccess ? undefined : 'true',
+      role: titleAccess ? 'img' : undefined,
+      ref: ref
+    }, other), children, titleAccess ? /*#__PURE__*/React.createElement("title", null, titleAccess) : null);
+  });
+   SvgIcon.propTypes = {
+    // ----------------------------- Warning --------------------------------
+    // | These PropTypes are generated from the TypeScript type definitions |
+    // |     To update them edit the d.ts file and run "yarn proptypes"     |
+    // ----------------------------------------------------------------------
 
     /**
-     * A set of `<Transition>` components, that are toggled `in` and out as they
-     * leave. the `<TransitionGroup>` will inject specific transition props, so
-     * remember to spread them through if you are wrapping the `<Transition>` as
-     * with our `<Fade>` example.
-     *
-     * While this component is meant for multiple `Transition` or `CSSTransition`
-     * children, sometimes you may want to have a single transition child with
-     * content that you want to be transitioned out and in when you change it
-     * (e.g. routes, images etc.) In that case you can change the `key` prop of
-     * the transition child as you change its content, this will cause
-     * `TransitionGroup` to transition the child out and back in.
+     * Node passed into the SVG element.
      */
     children: propTypes.node,
 
     /**
-     * A convenience prop that enables or disables appear animations
-     * for all children. Note that specifying this will override any defaults set
-     * on individual children Transitions.
+     * Override or extend the styles applied to the component.
+     * See [CSS API](#css) below for more details.
      */
-    appear: propTypes.bool,
+    classes: propTypes.object,
 
     /**
-     * A convenience prop that enables or disables enter animations
-     * for all children. Note that specifying this will override any defaults set
-     * on individual children Transitions.
+     * @ignore
      */
-    enter: propTypes.bool,
+    className: propTypes.string,
 
     /**
-     * A convenience prop that enables or disables exit animations
-     * for all children. Note that specifying this will override any defaults set
-     * on individual children Transitions.
+     * The color of the component. It supports those theme colors that make sense for this component.
+     * You can use the `htmlColor` prop to apply a color attribute to the SVG element.
      */
-    exit: propTypes.bool,
+    color: propTypes.oneOf(['action', 'disabled', 'error', 'inherit', 'primary', 'secondary']),
 
     /**
-     * You may need to apply reactive updates to a child as it is exiting.
-     * This is generally done by using `cloneElement` however in the case of an exiting
-     * child the element has already been removed and not accessible to the consumer.
-     *
-     * If you do need to update a child as it leaves you can provide a `childFactory`
-     * to wrap every child, even the ones that are leaving.
-     *
-     * @type Function(child: ReactElement) -> ReactElement
+     * The component used for the root node.
+     * Either a string to use a DOM element or a component.
      */
-    childFactory: propTypes.func
+    component: propTypes.elementType,
+
+    /**
+     * The fontSize applied to the icon. Defaults to 24px, but can be configure to inherit font size.
+     */
+    fontSize: propTypes.oneOf(['default', 'inherit', 'large', 'small']),
+
+    /**
+     * Applies a color attribute to the SVG element.
+     */
+    htmlColor: propTypes.string,
+
+    /**
+     * The shape-rendering attribute. The behavior of the different options is described on the
+     * [MDN Web Docs](https://developer.mozilla.org/en-US/docs/Web/SVG/Attribute/shape-rendering).
+     * If you are having issues with blurry icons you should investigate this property.
+     */
+    shapeRendering: propTypes.string,
+
+    /**
+     * Provides a human-readable title for the element that contains it.
+     * https://www.w3.org/TR/SVG-access/#Equivalent
+     */
+    titleAccess: propTypes.string,
+
+    /**
+     * Allows you to redefine what the coordinates without units mean inside an SVG element.
+     * For example, if the SVG element is 500 (width) by 200 (height),
+     * and you pass viewBox="0 0 50 20",
+     * this means that the coordinates inside the SVG will go from the top left corner (0,0)
+     * to bottom right (50,20) and each unit will be worth 10px.
+     */
+    viewBox: propTypes.string
   } ;
-  TransitionGroup.defaultProps = defaultProps;
+  SvgIcon.muiName = 'SvgIcon';
+  var SvgIcon$1 = withStyles$1(styles$1, {
+    name: 'MuiSvgIcon'
+  })(SvgIcon);
 
-  var reflow = function reflow(node) {
-    return node.scrollTop;
-  };
-  function getTransitionProps(props, options) {
-    var timeout = props.timeout,
-        _props$style = props.style,
-        style = _props$style === void 0 ? {} : _props$style;
-    return {
-      duration: style.transitionDuration || typeof timeout === 'number' ? timeout : timeout[options.mode] || 0,
-      delay: style.transitionDelay
-    };
+  /**
+   * Private module reserved for @material-ui/x packages.
+   */
+
+  function createSvgIcon(path, displayName) {
+    var Component = React__default.memo(React__default.forwardRef(function (props, ref) {
+      return /*#__PURE__*/React__default.createElement(SvgIcon$1, _extends({
+        ref: ref
+      }, props), path);
+    }));
+
+    {
+      Component.displayName = "".concat(displayName, "Icon");
+    }
+
+    Component.muiName = SvgIcon$1.muiName;
+    return Component;
   }
 
-  // TODO: Make it private only in v5
+  // Corresponds to 10 frames at 60 Hz.
+  // A few bytes payload overhead when lodash/debounce is ~3 kB and debounce ~300 B.
+  function debounce(func) {
+    var wait = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : 166;
+    var timeout;
+
+    function debounced() {
+      for (var _len = arguments.length, args = new Array(_len), _key = 0; _key < _len; _key++) {
+        args[_key] = arguments[_key];
+      }
+
+      // eslint-disable-next-line consistent-this
+      var that = this;
+
+      var later = function later() {
+        func.apply(that, args);
+      };
+
+      clearTimeout(timeout);
+      timeout = setTimeout(later, wait);
+    }
+
+    debounced.clear = function () {
+      clearTimeout(timeout);
+    };
+
+    return debounced;
+  }
+
+  function isMuiElement(element, muiNames) {
+    return React.isValidElement(element) && muiNames.indexOf(element.type.muiName) !== -1;
+  }
+
+  function ownerDocument(node) {
+    return node && node.ownerDocument || document;
+  }
+
+  function ownerWindow(node) {
+    var doc = ownerDocument(node);
+    return doc.defaultView || window;
+  }
+
+  function requirePropFactory(componentNameInError) {
+
+    var requireProp = function requireProp(requiredProp) {
+      return function (props, propName, componentName, location, propFullName) {
+        var propFullNameSafe = propFullName || propName;
+
+        if (typeof props[propName] !== 'undefined' && !props[requiredProp]) {
+          return new Error("The prop `".concat(propFullNameSafe, "` of ") + "`".concat(componentNameInError, "` must be used on `").concat(requiredProp, "`."));
+        }
+
+        return null;
+      };
+    };
+
+    return requireProp;
+  }
+
+  // TODO v5: consider to make it private
   function setRef(ref, value) {
     if (typeof ref === 'function') {
       ref(value);
@@ -9193,13 +10087,82 @@
     }
   }
 
+  function unsupportedProp(props, propName, componentName, location, propFullName) {
+
+    var propFullNameSafe = propFullName || propName;
+
+    if (typeof props[propName] !== 'undefined') {
+      return new Error("The prop `".concat(propFullNameSafe, "` is not supported. Please remove it."));
+    }
+
+    return null;
+  }
+
+  function useControlled(_ref) {
+    var controlled = _ref.controlled,
+        defaultProp = _ref.default,
+        name = _ref.name,
+        _ref$state = _ref.state,
+        state = _ref$state === void 0 ? 'value' : _ref$state;
+
+    var _React$useRef = React.useRef(controlled !== undefined),
+        isControlled = _React$useRef.current;
+
+    var _React$useState = React.useState(defaultProp),
+        valueState = _React$useState[0],
+        setValue = _React$useState[1];
+
+    var value = isControlled ? controlled : valueState;
+
+    {
+      React.useEffect(function () {
+        if (isControlled !== (controlled !== undefined)) {
+          console.error(["Material-UI: a component is changing the ".concat(isControlled ? '' : 'un', "controlled ").concat(state, " state of ").concat(name, " to be ").concat(isControlled ? 'un' : '', "controlled."), 'Elements should not switch from uncontrolled to controlled (or vice versa).', "Decide between using a controlled or uncontrolled ".concat(name, " ") + 'element for the lifetime of the component.', "The nature of the state is determined during the first render, it's considered controlled if the value is not `undefined`.", 'More info: https://fb.me/react-controlled-components'].join('\n'));
+        }
+      }, [controlled]);
+
+      var _React$useRef2 = React.useRef(defaultProp),
+          defaultValue = _React$useRef2.current;
+
+      React.useEffect(function () {
+        if (defaultValue !== defaultProp) {
+          console.error(["Material-UI: a component is changing the default ".concat(state, " state of an uncontrolled ").concat(name, " after being initialized. ") + "To suppress this warning opt to use a controlled ".concat(name, ".")].join('\n'));
+        }
+      }, [JSON.stringify(defaultProp)]);
+    }
+
+    var setValueIfUncontrolled = React.useCallback(function (newValue) {
+      if (!isControlled) {
+        setValue(newValue);
+      }
+    }, []);
+    return [value, setValueIfUncontrolled];
+  }
+
+  var useEnhancedEffect = typeof window !== 'undefined' ? React.useLayoutEffect : React.useEffect;
+  /**
+   * https://github.com/facebook/react/issues/14099#issuecomment-440013892
+   *
+   * @param {function} fn
+   */
+
+  function useEventCallback(fn) {
+    var ref = React.useRef(fn);
+    useEnhancedEffect(function () {
+      ref.current = fn;
+    });
+    return React.useCallback(function () {
+      return (ref.current).apply(void 0, arguments);
+    }, []);
+  }
+
   function useForkRef(refA, refB) {
     /**
      * This will create a new function if the ref props change and are defined.
      * This means react will call the old forkRef with `null` and the new forkRef
      * with the ref. Cleanup naturally emerges from this behavior
      */
-    return React__default.useMemo(function () {
+    return React.useMemo(function () {
       if (refA == null && refB == null) {
         return null;
       }
@@ -9211,7 +10174,190 @@
     }, [refA, refB]);
   }
 
-  var styles$4 = {
+  /**
+   * Private module reserved for @material-ui/x packages.
+   */
+
+  function useId(idOverride) {
+    var _React$useState = React.useState(idOverride),
+        defaultId = _React$useState[0],
+        setDefaultId = _React$useState[1];
+
+    var id = idOverride || defaultId;
+    React.useEffect(function () {
+      if (defaultId == null) {
+        // Fallback to this default id when possible.
+        // Use the random value for client-side rendering only.
+        // We can't use it server-side.
+        setDefaultId("mui-".concat(Math.round(Math.random() * 1e5)));
+      }
+    }, [defaultId]);
+    return id;
+  }
+
+  var hadKeyboardEvent = true;
+  var hadFocusVisibleRecently = false;
+  var hadFocusVisibleRecentlyTimeout = null;
+  var inputTypesWhitelist = {
+    text: true,
+    search: true,
+    url: true,
+    tel: true,
+    email: true,
+    password: true,
+    number: true,
+    date: true,
+    month: true,
+    week: true,
+    time: true,
+    datetime: true,
+    'datetime-local': true
+  };
+  /**
+   * Computes whether the given element should automatically trigger the
+   * `focus-visible` class being added, i.e. whether it should always match
+   * `:focus-visible` when focused.
+   * @param {Element} node
+   * @return {boolean}
+   */
+
+  function focusTriggersKeyboardModality(node) {
+    var type = node.type,
+        tagName = node.tagName;
+
+    if (tagName === 'INPUT' && inputTypesWhitelist[type] && !node.readOnly) {
+      return true;
+    }
+
+    if (tagName === 'TEXTAREA' && !node.readOnly) {
+      return true;
+    }
+
+    if (node.isContentEditable) {
+      return true;
+    }
+
+    return false;
+  }
+  /**
+   * Keep track of our keyboard modality state with `hadKeyboardEvent`.
+   * If the most recent user interaction was via the keyboard;
+   * and the key press did not include a meta, alt/option, or control key;
+   * then the modality is keyboard. Otherwise, the modality is not keyboard.
+   * @param {KeyboardEvent} event
+   */
+
+
+  function handleKeyDown(event) {
+    if (event.metaKey || event.altKey || event.ctrlKey) {
+      return;
+    }
+
+    hadKeyboardEvent = true;
+  }
+  /**
+   * If at any point a user clicks with a pointing device, ensure that we change
+   * the modality away from keyboard.
+   * This avoids the situation where a user presses a key on an already focused
+   * element, and then clicks on a different element, focusing it with a
+   * pointing device, while we still think we're in keyboard modality.
+   */
+
+
+  function handlePointerDown() {
+    hadKeyboardEvent = false;
+  }
+
+  function handleVisibilityChange() {
+    if (this.visibilityState === 'hidden') {
+      // If the tab becomes active again, the browser will handle calling focus
+      // on the element (Safari actually calls it twice).
+      // If this tab change caused a blur on an element with focus-visible,
+      // re-apply the class when the user switches back to the tab.
+      if (hadFocusVisibleRecently) {
+        hadKeyboardEvent = true;
+      }
+    }
+  }
+
+  function prepare(doc) {
+    doc.addEventListener('keydown', handleKeyDown, true);
+    doc.addEventListener('mousedown', handlePointerDown, true);
+    doc.addEventListener('pointerdown', handlePointerDown, true);
+    doc.addEventListener('touchstart', handlePointerDown, true);
+    doc.addEventListener('visibilitychange', handleVisibilityChange, true);
+  }
+
+  function isFocusVisible(event) {
+    var target = event.target;
+
+    try {
+      return target.matches(':focus-visible');
+    } catch (error) {} // browsers not implementing :focus-visible will throw a SyntaxError
+    // we use our own heuristic for those browsers
+    // rethrow might be better if it's not the expected error but do we really
+    // want to crash if focus-visible malfunctioned?
+    // no need for validFocusTarget check. the user does that by attaching it to
+    // focusable events only
+
+
+    return hadKeyboardEvent || focusTriggersKeyboardModality(target);
+  }
+  /**
+   * Should be called if a blur event is fired on a focus-visible element
+   */
+
+
+  function handleBlurVisible() {
+    // To detect a tab/window switch, we look for a blur event followed
+    // rapidly by a visibility change.
+    // If we don't see a visibility change within 100ms, it's probably a
+    // regular focus change.
+    hadFocusVisibleRecently = true;
+    window.clearTimeout(hadFocusVisibleRecentlyTimeout);
+    hadFocusVisibleRecentlyTimeout = window.setTimeout(function () {
+      hadFocusVisibleRecently = false;
+    }, 100);
+  }
+
+  function useIsFocusVisible() {
+    var ref = React.useCallback(function (instance) {
+      var node = ReactDOM.findDOMNode(instance);
+
+      if (node != null) {
+        prepare(node.ownerDocument);
+      }
+    }, []);
+
+    {
+      // eslint-disable-next-line react-hooks/rules-of-hooks
+      React.useDebugValue(isFocusVisible);
+    }
+
+    return {
+      isFocusVisible: isFocusVisible,
+      onBlurVisible: handleBlurVisible,
+      ref: ref
+    };
+  }
+
+  /**
+   * @ignore - internal component.
+   */
+
+  var StrictModeCollapse = React.forwardRef(function StrictModeCollapse(props, forwardedRef) {
+    var domRef = React.useRef(null);
+    var ref = useForkRef(domRef, forwardedRef);
+    return /*#__PURE__*/React.createElement(Collapse$1, _extends({}, props, {
+      findDOMNode: function findDOMNode() {
+        return domRef.current;
+      },
+      ref: ref,
+      TransitionComponent: Transition$1
+    }));
+  });
+
+  var styles$2 = {
     entering: {
       opacity: 1
     },
@@ -9228,15 +10374,17 @@
    * It uses [react-transition-group](https://github.com/reactjs/react-transition-group) internally.
    */
 
-  var Fade = React__default.forwardRef(function Fade(props, ref) {
+  var Fade = React.forwardRef(function Fade(props, ref) {
     var children = props.children,
         inProp = props.in,
         onEnter = props.onEnter,
         onExit = props.onExit,
         style = props.style,
+        _props$TransitionComp = props.TransitionComponent,
+        TransitionComponent = _props$TransitionComp === void 0 ? Transition : _props$TransitionComp,
         _props$timeout = props.timeout,
         timeout = _props$timeout === void 0 ? defaultTimeout : _props$timeout,
-        other = _objectWithoutProperties(props, ["children", "in", "onEnter", "onExit", "style", "timeout"]);
+        other = _objectWithoutProperties(props, ["children", "in", "onEnter", "onExit", "style", "TransitionComponent", "timeout"]);
 
     var theme = useTheme$1();
     var handleRef = useForkRef(children.ref, ref);
@@ -9273,23 +10421,28 @@
       }
     };
 
-    return React__default.createElement(Transition, _extends({
+    return /*#__PURE__*/React.createElement(TransitionComponent, _extends({
       appear: true,
       in: inProp,
       onEnter: handleEnter,
       onExit: handleExit,
       timeout: timeout
     }, other), function (state, childProps) {
-      return React__default.cloneElement(children, _extends({
+      return React.cloneElement(children, _extends({
         style: _extends({
           opacity: 0,
           visibility: state === 'exited' && !inProp ? 'hidden' : undefined
-        }, styles$4[state], {}, style, {}, children.props.style),
+        }, styles$2[state], {}, style, {}, children.props.style),
         ref: handleRef
       }, childProps));
     });
   });
    Fade.propTypes = {
+    // ----------------------------- Warning --------------------------------
+    // | These PropTypes are generated from the TypeScript type definitions |
+    // |     To update them edit the d.ts file and run "yarn proptypes"     |
+    // ----------------------------------------------------------------------
+
     /**
      * A single child content element.
      */
@@ -9320,12 +10473,1361 @@
      * You may specify a single timeout for all transitions, or individually with an object.
      */
     timeout: propTypes.oneOfType([propTypes.number, propTypes.shape({
+      appear: propTypes.number,
       enter: propTypes.number,
       exit: propTypes.number
     })])
   } ;
 
-  var styles$5 = {
+  /**
+   * @ignore - internal component.
+   */
+
+  var StrictModeFade = React.forwardRef(function StrictModeFade(props, forwardedRef) {
+    var domRef = React.useRef(null);
+    var ref = useForkRef(domRef, forwardedRef);
+    return /*#__PURE__*/React.createElement(Fade, _extends({}, props, {
+      findDOMNode: function findDOMNode() {
+        return domRef.current;
+      },
+      ref: ref,
+      TransitionComponent: Transition$1
+    }));
+  });
+
+  function getScale(value) {
+    return "scale(".concat(value, ", ").concat(Math.pow(value, 2), ")");
+  }
+
+  var styles$3 = {
+    entering: {
+      opacity: 1,
+      transform: getScale(1)
+    },
+    entered: {
+      opacity: 1,
+      transform: 'none'
+    }
+  };
+  /**
+   * The Grow transition is used by the [Tooltip](/components/tooltips/) and
+   * [Popover](/components/popover/) components.
+   * It uses [react-transition-group](https://github.com/reactjs/react-transition-group) internally.
+   */
+
+  var Grow = React.forwardRef(function Grow(props, ref) {
+    var children = props.children,
+        inProp = props.in,
+        onEnter = props.onEnter,
+        onExit = props.onExit,
+        style = props.style,
+        _props$timeout = props.timeout,
+        timeout = _props$timeout === void 0 ? 'auto' : _props$timeout,
+        _props$TransitionComp = props.TransitionComponent,
+        TransitionComponent = _props$TransitionComp === void 0 ? Transition : _props$TransitionComp,
+        other = _objectWithoutProperties(props, ["children", "in", "onEnter", "onExit", "style", "timeout", "TransitionComponent"]);
+
+    var timer = React.useRef();
+    var autoTimeout = React.useRef();
+    var handleRef = useForkRef(children.ref, ref);
+    var theme = useTheme$1();
+
+    var handleEnter = function handleEnter(node, isAppearing) {
+      reflow(node); // So the animation always start from the start.
+
+      var _getTransitionProps = getTransitionProps({
+        style: style,
+        timeout: timeout
+      }, {
+        mode: 'enter'
+      }),
+          transitionDuration = _getTransitionProps.duration,
+          delay = _getTransitionProps.delay;
+
+      var duration;
+
+      if (timeout === 'auto') {
+        duration = theme.transitions.getAutoHeightDuration(node.clientHeight);
+        autoTimeout.current = duration;
+      } else {
+        duration = transitionDuration;
+      }
+
+      node.style.transition = [theme.transitions.create('opacity', {
+        duration: duration,
+        delay: delay
+      }), theme.transitions.create('transform', {
+        duration: duration * 0.666,
+        delay: delay
+      })].join(',');
+
+      if (onEnter) {
+        onEnter(node, isAppearing);
+      }
+    };
+
+    var handleExit = function handleExit(node) {
+      var _getTransitionProps2 = getTransitionProps({
+        style: style,
+        timeout: timeout
+      }, {
+        mode: 'exit'
+      }),
+          transitionDuration = _getTransitionProps2.duration,
+          delay = _getTransitionProps2.delay;
+
+      var duration;
+
+      if (timeout === 'auto') {
+        duration = theme.transitions.getAutoHeightDuration(node.clientHeight);
+        autoTimeout.current = duration;
+      } else {
+        duration = transitionDuration;
+      }
+
+      node.style.transition = [theme.transitions.create('opacity', {
+        duration: duration,
+        delay: delay
+      }), theme.transitions.create('transform', {
+        duration: duration * 0.666,
+        delay: delay || duration * 0.333
+      })].join(',');
+      node.style.opacity = '0';
+      node.style.transform = getScale(0.75);
+
+      if (onExit) {
+        onExit(node);
+      }
+    };
+
+    var addEndListener = function addEndListener(_, next) {
+      if (timeout === 'auto') {
+        timer.current = setTimeout(next, autoTimeout.current || 0);
+      }
+    };
+
+    React.useEffect(function () {
+      return function () {
+        clearTimeout(timer.current);
+      };
+    }, []);
+    return /*#__PURE__*/React.createElement(TransitionComponent, _extends({
+      appear: true,
+      in: inProp,
+      onEnter: handleEnter,
+      onExit: handleExit,
+      addEndListener: addEndListener,
+      timeout: timeout === 'auto' ? null : timeout
+    }, other), function (state, childProps) {
+      return React.cloneElement(children, _extends({
+        style: _extends({
+          opacity: 0,
+          transform: getScale(0.75),
+          visibility: state === 'exited' && !inProp ? 'hidden' : undefined
+        }, styles$3[state], {}, style, {}, children.props.style),
+        ref: handleRef
+      }, childProps));
+    });
+  });
+   Grow.propTypes = {
+    // ----------------------------- Warning --------------------------------
+    // | These PropTypes are generated from the TypeScript type definitions |
+    // |     To update them edit the d.ts file and run "yarn proptypes"     |
+    // ----------------------------------------------------------------------
+
+    /**
+     * A single child content element.
+     */
+    children: propTypes.element,
+
+    /**
+     * If `true`, show the component; triggers the enter or exit animation.
+     */
+    in: propTypes.bool,
+
+    /**
+     * @ignore
+     */
+    onEnter: propTypes.func,
+
+    /**
+     * @ignore
+     */
+    onExit: propTypes.func,
+
+    /**
+     * @ignore
+     */
+    style: propTypes.object,
+
+    /**
+     * The duration for the transition, in milliseconds.
+     * You may specify a single timeout for all transitions, or individually with an object.
+     *
+     * Set to 'auto' to automatically calculate transition time based on height.
+     */
+    timeout: propTypes.oneOfType([propTypes.oneOf(['auto']), propTypes.number, propTypes.shape({
+      appear: propTypes.number,
+      enter: propTypes.number,
+      exit: propTypes.number
+    })])
+  } ;
+  Grow.muiSupportAuto = true;
+
+  /**
+   * @ignore - internal component.
+   */
+
+  var StrictModeGrow = React.forwardRef(function StrictModeGrow(props, forwardedRef) {
+    var domRef = React.useRef(null);
+    var ref = useForkRef(domRef, forwardedRef);
+    return /*#__PURE__*/React.createElement(Grow, _extends({}, props, {
+      findDOMNode: function findDOMNode() {
+        return domRef.current;
+      },
+      ref: ref,
+      TransitionComponent: Transition$1
+    }));
+  });
+
+  // Later, we gonna translate back the node to his original location
+  // with `none`.`
+
+  function getTranslateValue(direction, node) {
+    var rect = node.getBoundingClientRect();
+    var transform;
+
+    if (node.fakeTransform) {
+      transform = node.fakeTransform;
+    } else {
+      var computedStyle = window.getComputedStyle(node);
+      transform = computedStyle.getPropertyValue('-webkit-transform') || computedStyle.getPropertyValue('transform');
+    }
+
+    var offsetX = 0;
+    var offsetY = 0;
+
+    if (transform && transform !== 'none' && typeof transform === 'string') {
+      var transformValues = transform.split('(')[1].split(')')[0].split(',');
+      offsetX = parseInt(transformValues[4], 10);
+      offsetY = parseInt(transformValues[5], 10);
+    }
+
+    if (direction === 'left') {
+      return "translateX(".concat(window.innerWidth, "px) translateX(-").concat(rect.left - offsetX, "px)");
+    }
+
+    if (direction === 'right') {
+      return "translateX(-".concat(rect.left + rect.width - offsetX, "px)");
+    }
+
+    if (direction === 'up') {
+      return "translateY(".concat(window.innerHeight, "px) translateY(-").concat(rect.top - offsetY, "px)");
+    } // direction === 'down'
+
+
+    return "translateY(-".concat(rect.top + rect.height - offsetY, "px)");
+  }
+
+  function setTranslateValue(direction, node) {
+    var transform = getTranslateValue(direction, node);
+
+    if (transform) {
+      node.style.webkitTransform = transform;
+      node.style.transform = transform;
+    }
+  }
+  var defaultTimeout$1 = {
+    enter: duration.enteringScreen,
+    exit: duration.leavingScreen
+  };
+  /**
+   * The Slide transition is used by the [Drawer](/components/drawers/) component.
+   * It uses [react-transition-group](https://github.com/reactjs/react-transition-group) internally.
+   */
+
+  var Slide = React.forwardRef(function Slide(props, ref) {
+    var children = props.children,
+        _props$direction = props.direction,
+        direction = _props$direction === void 0 ? 'down' : _props$direction,
+        inProp = props.in,
+        onEnter = props.onEnter,
+        onEntering = props.onEntering,
+        onExit = props.onExit,
+        onExited = props.onExited,
+        style = props.style,
+        _props$timeout = props.timeout,
+        timeout = _props$timeout === void 0 ? defaultTimeout$1 : _props$timeout,
+        _props$TransitionComp = props.TransitionComponent,
+        TransitionComponent = _props$TransitionComp === void 0 ? Transition : _props$TransitionComp,
+        other = _objectWithoutProperties(props, ["children", "direction", "in", "onEnter", "onEntering", "onExit", "onExited", "style", "timeout", "TransitionComponent"]);
+
+    var theme = useTheme$1();
+    var childrenRef = React.useRef(null);
+    /**
+     * used in cloneElement(children, { ref: handleRef })
+     */
+
+    var handleOwnRef = React.useCallback(function (instance) {
+      // #StrictMode ready
+      childrenRef.current = ReactDOM.findDOMNode(instance);
+    }, []);
+    var handleRefIntermediary = useForkRef(children.ref, handleOwnRef);
+    var handleRef = useForkRef(handleRefIntermediary, ref);
+
+    var handleEnter = function handleEnter(_, isAppearing) {
+      var node = childrenRef.current;
+      setTranslateValue(direction, node);
+      reflow(node);
+
+      if (onEnter) {
+        onEnter(node, isAppearing);
+      }
+    };
+
+    var handleEntering = function handleEntering(_, isAppearing) {
+      var node = childrenRef.current;
+      var transitionProps = getTransitionProps({
+        timeout: timeout,
+        style: style
+      }, {
+        mode: 'enter'
+      });
+      node.style.webkitTransition = theme.transitions.create('-webkit-transform', _extends({}, transitionProps, {
+        easing: theme.transitions.easing.easeOut
+      }));
+      node.style.transition = theme.transitions.create('transform', _extends({}, transitionProps, {
+        easing: theme.transitions.easing.easeOut
+      }));
+      node.style.webkitTransform = 'none';
+      node.style.transform = 'none';
+
+      if (onEntering) {
+        onEntering(node, isAppearing);
+      }
+    };
+
+    var handleExit = function handleExit() {
+      var node = childrenRef.current;
+      var transitionProps = getTransitionProps({
+        timeout: timeout,
+        style: style
+      }, {
+        mode: 'exit'
+      });
+      node.style.webkitTransition = theme.transitions.create('-webkit-transform', _extends({}, transitionProps, {
+        easing: theme.transitions.easing.sharp
+      }));
+      node.style.transition = theme.transitions.create('transform', _extends({}, transitionProps, {
+        easing: theme.transitions.easing.sharp
+      }));
+      setTranslateValue(direction, node);
+
+      if (onExit) {
+        onExit(node);
+      }
+    };
+
+    var handleExited = function handleExited() {
+      var node = childrenRef.current; // No need for transitions when the component is hidden
+
+      node.style.webkitTransition = '';
+      node.style.transition = '';
+
+      if (onExited) {
+        onExited(node);
+      }
+    };
+
+    var updatePosition = React.useCallback(function () {
+      if (childrenRef.current) {
+        setTranslateValue(direction, childrenRef.current);
+      }
+    }, [direction]);
+    React.useEffect(function () {
+      // Skip configuration where the position is screen size invariant.
+      if (inProp || direction === 'down' || direction === 'right') {
+        return undefined;
+      }
+
+      var handleResize = debounce(function () {
+        if (childrenRef.current) {
+          setTranslateValue(direction, childrenRef.current);
+        }
+      });
+      window.addEventListener('resize', handleResize);
+      return function () {
+        handleResize.clear();
+        window.removeEventListener('resize', handleResize);
+      };
+    }, [direction, inProp]);
+    React.useEffect(function () {
+      if (!inProp) {
+        // We need to update the position of the drawer when the direction change and
+        // when it's hidden.
+        updatePosition();
+      }
+    }, [inProp, updatePosition]);
+    return /*#__PURE__*/React.createElement(TransitionComponent, _extends({
+      onEnter: handleEnter,
+      onEntering: handleEntering,
+      onExit: handleExit,
+      onExited: handleExited,
+      appear: true,
+      in: inProp,
+      timeout: timeout
+    }, other), function (state, childProps) {
+      return React.cloneElement(children, _extends({
+        ref: handleRef,
+        style: _extends({
+          visibility: state === 'exited' && !inProp ? 'hidden' : undefined
+        }, style, {}, children.props.style)
+      }, childProps));
+    });
+  });
+   Slide.propTypes = {
+    // ----------------------------- Warning --------------------------------
+    // | These PropTypes are generated from the TypeScript type definitions |
+    // |     To update them edit the d.ts file and run "yarn proptypes"     |
+    // ----------------------------------------------------------------------
+
+    /**
+     * A single child content element.
+     */
+    children: elementAcceptingRef,
+
+    /**
+     * Direction the child node will enter from.
+     */
+    direction: propTypes.oneOf(['down', 'left', 'right', 'up']),
+
+    /**
+     * If `true`, show the component; triggers the enter or exit animation.
+     */
+    in: propTypes.bool,
+
+    /**
+     * @ignore
+     */
+    onEnter: propTypes.func,
+
+    /**
+     * @ignore
+     */
+    onEntering: propTypes.func,
+
+    /**
+     * @ignore
+     */
+    onExit: propTypes.func,
+
+    /**
+     * @ignore
+     */
+    onExited: propTypes.func,
+
+    /**
+     * @ignore
+     */
+    style: propTypes.object,
+
+    /**
+     * The duration for the transition, in milliseconds.
+     * You may specify a single timeout for all transitions, or individually with an object.
+     */
+    timeout: propTypes.oneOfType([propTypes.number, propTypes.shape({
+      appear: propTypes.number,
+      enter: propTypes.number,
+      exit: propTypes.number
+    })])
+  } ;
+
+  /**
+   * @ignore - internal component.
+   */
+
+  var StrictModeSlide = React.forwardRef(function StrictModeSlide(props, forwardedRef) {
+    var domRef = React.useRef(null);
+    var ref = useForkRef(domRef, forwardedRef);
+    return /*#__PURE__*/React.createElement(Slide, _extends({}, props, {
+      findDOMNode: function findDOMNode() {
+        return domRef.current;
+      },
+      ref: ref,
+      TransitionComponent: Transition$1
+    }));
+  });
+
+  var styles$4 = {
+    entering: {
+      transform: 'none'
+    },
+    entered: {
+      transform: 'none'
+    }
+  };
+  var defaultTimeout$2 = {
+    enter: duration.enteringScreen,
+    exit: duration.leavingScreen
+  };
+  /**
+   * The Zoom transition can be used for the floating variant of the
+   * [Button](/components/buttons/#floating-action-buttons) component.
+   * It uses [react-transition-group](https://github.com/reactjs/react-transition-group) internally.
+   */
+
+  var Zoom = React.forwardRef(function Zoom(props, ref) {
+    var children = props.children,
+        inProp = props.in,
+        onEnter = props.onEnter,
+        onExit = props.onExit,
+        style = props.style,
+        _props$timeout = props.timeout,
+        timeout = _props$timeout === void 0 ? defaultTimeout$2 : _props$timeout,
+        _props$TransitionComp = props.TransitionComponent,
+        TransitionComponent = _props$TransitionComp === void 0 ? Transition : _props$TransitionComp,
+        other = _objectWithoutProperties(props, ["children", "in", "onEnter", "onExit", "style", "timeout", "TransitionComponent"]);
+
+    var theme = useTheme$1();
+    var handleRef = useForkRef(children.ref, ref);
+
+    var handleEnter = function handleEnter(node, isAppearing) {
+      reflow(node); // So the animation always start from the start.
+
+      var transitionProps = getTransitionProps({
+        style: style,
+        timeout: timeout
+      }, {
+        mode: 'enter'
+      });
+      node.style.webkitTransition = theme.transitions.create('transform', transitionProps);
+      node.style.transition = theme.transitions.create('transform', transitionProps);
+
+      if (onEnter) {
+        onEnter(node, isAppearing);
+      }
+    };
+
+    var handleExit = function handleExit(node) {
+      var transitionProps = getTransitionProps({
+        style: style,
+        timeout: timeout
+      }, {
+        mode: 'exit'
+      });
+      node.style.webkitTransition = theme.transitions.create('transform', transitionProps);
+      node.style.transition = theme.transitions.create('transform', transitionProps);
+
+      if (onExit) {
+        onExit(node);
+      }
+    };
+
+    return /*#__PURE__*/React.createElement(TransitionComponent, _extends({
+      appear: true,
+      in: inProp,
+      onEnter: handleEnter,
+      onExit: handleExit,
+      timeout: timeout
+    }, other), function (state, childProps) {
+      return React.cloneElement(children, _extends({
+        style: _extends({
+          transform: 'scale(0)',
+          visibility: state === 'exited' && !inProp ? 'hidden' : undefined
+        }, styles$4[state], {}, style, {}, children.props.style),
+        ref: handleRef
+      }, childProps));
+    });
+  });
+   Zoom.propTypes = {
+    // ----------------------------- Warning --------------------------------
+    // | These PropTypes are generated from the TypeScript type definitions |
+    // |     To update them edit the d.ts file and run "yarn proptypes"     |
+    // ----------------------------------------------------------------------
+
+    /**
+     * A single child content element.
+     */
+    children: propTypes.element,
+
+    /**
+     * If `true`, the component will transition in.
+     */
+    in: propTypes.bool,
+
+    /**
+     * @ignore
+     */
+    onEnter: propTypes.func,
+
+    /**
+     * @ignore
+     */
+    onExit: propTypes.func,
+
+    /**
+     * @ignore
+     */
+    style: propTypes.object,
+
+    /**
+     * The duration for the transition, in milliseconds.
+     * You may specify a single timeout for all transitions, or individually with an object.
+     */
+    timeout: propTypes.oneOfType([propTypes.number, propTypes.shape({
+      appear: propTypes.number,
+      enter: propTypes.number,
+      exit: propTypes.number
+    })])
+  } ;
+
+  /**
+   * @ignore - internal component.
+   */
+
+  var StrictModeZoom = React.forwardRef(function StrictModeZoom(props, forwardedRef) {
+    var domRef = React.useRef(null);
+    var ref = useForkRef(domRef, forwardedRef);
+    return /*#__PURE__*/React.createElement(Zoom, _extends({}, props, {
+      findDOMNode: function findDOMNode() {
+        return domRef.current;
+      },
+      ref: ref,
+      TransitionComponent: Transition$1
+    }));
+  });
+
+  function createMuiStrictModeTheme(options) {
+    return createMuiTheme(deepmerge({
+      props: {
+        // Collapse
+        MuiExpansionPanel: {
+          TransitionComponent: StrictModeCollapse
+        },
+        MuiStepContent: {
+          TransitionComponent: StrictModeCollapse
+        },
+        // Fade
+        MuiBackdrop: {
+          TransitionComponent: StrictModeFade
+        },
+        MuiDialog: {
+          TransitionComponent: StrictModeFade
+        },
+        // Grow
+        MuiPopover: {
+          TransitionComponent: StrictModeGrow
+        },
+        MuiSnackbar: {
+          TransitionComponent: StrictModeGrow
+        },
+        MuiTooltip: {
+          TransitionComponent: StrictModeGrow
+        },
+        // Slide
+        MuiDrawer: {
+          TransitionComponent: StrictModeSlide
+        },
+        // Zoom
+        MuiSpeedDial: {
+          TransitionComponent: StrictModeZoom
+        }
+      }
+    }, options));
+  }
+
+  // To remove in v5
+
+  function createStyles$1(styles) {
+    // warning(
+    //   warnOnce,
+    //   [
+    //     'Material-UI: createStyles from @material-ui/core/styles is deprecated.',
+    //     'Please use @material-ui/styles/createStyles',
+    //   ].join('\n'),
+    // );
+    // warnOnce = true;
+    return createStyles(styles);
+  }
+
+  function makeStyles$1(stylesOrCreator) {
+    var options = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
+    return makeStyles(stylesOrCreator, _extends({
+      defaultTheme: defaultTheme
+    }, options));
+  }
+
+  function isUnitless(value) {
+    return String(parseFloat(value)).length === String(value).length;
+  } // Ported from Compass
+  // https://github.com/Compass/compass/blob/master/core/stylesheets/compass/typography/_units.scss
+  // Emulate the sass function "unit"
+
+  function getUnit(input) {
+    return String(input).match(/[\d.\-+]*\s*(.*)/)[1] || '';
+  } // Emulate the sass function "unitless"
+
+  function toUnitless(length) {
+    return parseFloat(length);
+  } // Convert any CSS <length> or <percentage> value to any another.
+  // From https://github.com/KyleAMathews/convert-css-length
+
+  function convertLength(baseFontSize) {
+    return function (length, toUnit) {
+      var fromUnit = getUnit(length); // Optimize for cases where `from` and `to` units are accidentally the same.
+
+      if (fromUnit === toUnit) {
+        return length;
+      } // Convert input length to pixels.
+
+
+      var pxLength = toUnitless(length);
+
+      if (fromUnit !== 'px') {
+        if (fromUnit === 'em') {
+          pxLength = toUnitless(length) * toUnitless(baseFontSize);
+        } else if (fromUnit === 'rem') {
+          pxLength = toUnitless(length) * toUnitless(baseFontSize);
+          return length;
+        }
+      } // Convert length in pixels to the output unit
+
+
+      var outputLength = pxLength;
+
+      if (toUnit !== 'px') {
+        if (toUnit === 'em') {
+          outputLength = pxLength / toUnitless(baseFontSize);
+        } else if (toUnit === 'rem') {
+          outputLength = pxLength / toUnitless(baseFontSize);
+        } else {
+          return length;
+        }
+      }
+
+      return parseFloat(outputLength.toFixed(5)) + toUnit;
+    };
+  }
+  function alignProperty(_ref) {
+    var size = _ref.size,
+        grid = _ref.grid;
+    var sizeBelow = size - size % grid;
+    var sizeAbove = sizeBelow + grid;
+    return size - sizeBelow < sizeAbove - size ? sizeBelow : sizeAbove;
+  } // fontGrid finds a minimal grid (in rem) for the fontSize values so that the
+  // lineHeight falls under a x pixels grid, 4px in the case of Material Design,
+  // without changing the relative line height
+
+  function fontGrid(_ref2) {
+    var lineHeight = _ref2.lineHeight,
+        pixels = _ref2.pixels,
+        htmlFontSize = _ref2.htmlFontSize;
+    return pixels / (lineHeight * htmlFontSize);
+  }
+  /**
+   * generate a responsive version of a given CSS property
+   * @example
+   * responsiveProperty({
+   *   cssProperty: 'fontSize',
+   *   min: 15,
+   *   max: 20,
+   *   unit: 'px',
+   *   breakpoints: [300, 600],
+   * })
+   *
+   * // this returns
+   *
+   * {
+   *   fontSize: '15px',
+   *   '@media (min-width:300px)': {
+   *     fontSize: '17.5px',
+   *   },
+   *   '@media (min-width:600px)': {
+   *     fontSize: '20px',
+   *   },
+   * }
+   *
+   * @param {Object} params
+   * @param {string} params.cssProperty - The CSS property to be made responsive
+   * @param {number} params.min - The smallest value of the CSS property
+   * @param {number} params.max - The largest value of the CSS property
+   * @param {string} [params.unit] - The unit to be used for the CSS property
+   * @param {Array.number} [params.breakpoints]  - An array of breakpoints
+   * @param {number} [params.alignStep] - Round scaled value to fall under this grid
+   * @returns {Object} responsive styles for {params.cssProperty}
+   */
+
+  function responsiveProperty(_ref3) {
+    var cssProperty = _ref3.cssProperty,
+        min = _ref3.min,
+        max = _ref3.max,
+        _ref3$unit = _ref3.unit,
+        unit = _ref3$unit === void 0 ? 'rem' : _ref3$unit,
+        _ref3$breakpoints = _ref3.breakpoints,
+        breakpoints = _ref3$breakpoints === void 0 ? [600, 960, 1280] : _ref3$breakpoints,
+        _ref3$transform = _ref3.transform,
+        transform = _ref3$transform === void 0 ? null : _ref3$transform;
+
+    var output = _defineProperty({}, cssProperty, "".concat(min).concat(unit));
+
+    var factor = (max - min) / breakpoints[breakpoints.length - 1];
+    breakpoints.forEach(function (breakpoint) {
+      var value = min + factor * breakpoint;
+
+      if (transform !== null) {
+        value = transform(value);
+      }
+
+      output["@media (min-width:".concat(breakpoint, "px)")] = _defineProperty({}, cssProperty, "".concat(Math.round(value * 10000) / 10000).concat(unit));
+    });
+    return output;
+  }
+
+  function responsiveFontSizes(themeInput) {
+    var options = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
+    var _options$breakpoints = options.breakpoints,
+        breakpoints = _options$breakpoints === void 0 ? ['sm', 'md', 'lg'] : _options$breakpoints,
+        _options$disableAlign = options.disableAlign,
+        disableAlign = _options$disableAlign === void 0 ? false : _options$disableAlign,
+        _options$factor = options.factor,
+        factor = _options$factor === void 0 ? 2 : _options$factor,
+        _options$variants = options.variants,
+        variants = _options$variants === void 0 ? ['h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'subtitle1', 'subtitle2', 'body1', 'body2', 'caption', 'button', 'overline'] : _options$variants;
+
+    var theme = _extends({}, themeInput);
+
+    theme.typography = _extends({}, theme.typography);
+    var typography = theme.typography; // Convert between css lengths e.g. em->px or px->rem
+    // Set the baseFontSize for your project. Defaults to 16px (also the browser default).
+
+    var convert = convertLength(typography.htmlFontSize);
+    var breakpointValues = breakpoints.map(function (x) {
+      return theme.breakpoints.values[x];
+    });
+    variants.forEach(function (variant) {
+      var style = typography[variant];
+      var remFontSize = parseFloat(convert(style.fontSize, 'rem'));
+
+      if (remFontSize <= 1) {
+        return;
+      }
+
+      var maxFontSize = remFontSize;
+      var minFontSize = 1 + (maxFontSize - 1) / factor;
+      var lineHeight = style.lineHeight;
+
+      if (!isUnitless(lineHeight) && !disableAlign) {
+        throw new Error(["Material-UI: unsupported non-unitless line height with grid alignment.", 'Use unitless line heights instead.'].join('\n'));
+      }
+
+      if (!isUnitless(lineHeight)) {
+        // make it unitless
+        lineHeight = parseFloat(convert(lineHeight, 'rem')) / parseFloat(remFontSize);
+      }
+
+      var transform = null;
+
+      if (!disableAlign) {
+        transform = function transform(value) {
+          return alignProperty({
+            size: value,
+            grid: fontGrid({
+              pixels: 4,
+              lineHeight: lineHeight,
+              htmlFontSize: typography.htmlFontSize
+            })
+          });
+        };
+      }
+
+      typography[variant] = _extends({}, style, {}, responsiveProperty({
+        cssProperty: 'fontSize',
+        min: minFontSize,
+        max: maxFontSize,
+        unit: 'rem',
+        breakpoints: breakpointValues,
+        transform: transform
+      }));
+    });
+    return theme;
+  }
+
+  var styled$1 = function styled$1(Component) {
+    var componentCreator = styled(Component);
+    return function (style, options) {
+      return componentCreator(style, _extends({
+        defaultTheme: defaultTheme
+      }, options));
+    };
+  };
+
+  var withTheme$1 = withThemeCreator({
+    defaultTheme: defaultTheme
+  });
+
+  var styles$5 = function styles(theme) {
+    var elevations = {};
+    theme.shadows.forEach(function (shadow, index) {
+      elevations["elevation".concat(index)] = {
+        boxShadow: shadow
+      };
+    });
+    return _extends({
+      /* Styles applied to the root element. */
+      root: {
+        backgroundColor: theme.palette.background.paper,
+        color: theme.palette.text.primary,
+        transition: theme.transitions.create('box-shadow')
+      },
+
+      /* Styles applied to the root element if `square={false}`. */
+      rounded: {
+        borderRadius: theme.shape.borderRadius
+      },
+
+      /* Styles applied to the root element if `variant="outlined"` */
+      outlined: {
+        border: "1px solid ".concat(theme.palette.divider)
+      }
+    }, elevations);
+  };
+  var Paper = React.forwardRef(function Paper(props, ref) {
+    var classes = props.classes,
+        className = props.className,
+        _props$component = props.component,
+        Component = _props$component === void 0 ? 'div' : _props$component,
+        _props$square = props.square,
+        square = _props$square === void 0 ? false : _props$square,
+        _props$elevation = props.elevation,
+        elevation = _props$elevation === void 0 ? 1 : _props$elevation,
+        _props$variant = props.variant,
+        variant = _props$variant === void 0 ? 'elevation' : _props$variant,
+        other = _objectWithoutProperties(props, ["classes", "className", "component", "square", "elevation", "variant"]);
+
+    return /*#__PURE__*/React.createElement(Component, _extends({
+      className: clsx(classes.root, className, variant === 'outlined' ? classes.outlined : classes["elevation".concat(elevation)], !square && classes.rounded),
+      ref: ref
+    }, other));
+  });
+   Paper.propTypes = {
+    // ----------------------------- Warning --------------------------------
+    // | These PropTypes are generated from the TypeScript type definitions |
+    // |     To update them edit the d.ts file and run "yarn proptypes"     |
+    // ----------------------------------------------------------------------
+
+    /**
+     * The content of the component.
+     */
+    children: propTypes.node,
+
+    /**
+     * Override or extend the styles applied to the component.
+     * See [CSS API](#css) below for more details.
+     */
+    classes: propTypes.object,
+
+    /**
+     * @ignore
+     */
+    className: propTypes.string,
+
+    /**
+     * The component used for the root node.
+     * Either a string to use a DOM element or a component.
+     */
+    component: propTypes.elementType,
+
+    /**
+     * Shadow depth, corresponds to `dp` in the spec.
+     * It accepts values between 0 and 24 inclusive.
+     */
+    elevation: chainPropTypes(propTypes.number, function (props) {
+      var classes = props.classes,
+          elevation = props.elevation; // in case `withStyles` fails to inject we don't need this warning
+
+      if (classes === undefined) {
+        return null;
+      }
+
+      if (elevation != null && classes["elevation".concat(elevation)] === undefined) {
+        return new Error("Material-UI: this elevation `".concat(elevation, "` is not implemented."));
+      }
+
+      return null;
+    }),
+
+    /**
+     * If `true`, rounded corners are disabled.
+     */
+    square: propTypes.bool,
+
+    /**
+     * The variant to use.
+     */
+    variant: propTypes.oneOf(['elevation', 'outlined'])
+  } ;
+  var Paper$1 = withStyles$1(styles$5, {
+    name: 'MuiPaper'
+  })(Paper);
+
+  var styles$6 = function styles(theme) {
+    var backgroundColorDefault = theme.palette.type === 'light' ? theme.palette.grey[100] : theme.palette.grey[900];
+    return {
+      /* Styles applied to the root element. */
+      root: {
+        display: 'flex',
+        flexDirection: 'column',
+        width: '100%',
+        boxSizing: 'border-box',
+        // Prevent padding issue with the Modal and fixed positioned AppBar.
+        zIndex: theme.zIndex.appBar,
+        flexShrink: 0
+      },
+
+      /* Styles applied to the root element if `position="fixed"`. */
+      positionFixed: {
+        position: 'fixed',
+        top: 0,
+        left: 'auto',
+        right: 0,
+        '@media print': {
+          // Prevent the app bar to be visible on each printed page.
+          position: 'absolute'
+        }
+      },
+
+      /* Styles applied to the root element if `position="absolute"`. */
+      positionAbsolute: {
+        position: 'absolute',
+        top: 0,
+        left: 'auto',
+        right: 0
+      },
+
+      /* Styles applied to the root element if `position="sticky"`. */
+      positionSticky: {
+        // ⚠️ sticky is not supported by IE 11.
+        position: 'sticky',
+        top: 0,
+        left: 'auto',
+        right: 0
+      },
+
+      /* Styles applied to the root element if `position="static"`. */
+      positionStatic: {
+        position: 'static',
+        transform: 'translateZ(0)' // Make sure we can see the elevation.
+
+      },
+
+      /* Styles applied to the root element if `position="relative"`. */
+      positionRelative: {
+        position: 'relative'
+      },
+
+      /* Styles applied to the root element if `color="default"`. */
+      colorDefault: {
+        backgroundColor: backgroundColorDefault,
+        color: theme.palette.getContrastText(backgroundColorDefault)
+      },
+
+      /* Styles applied to the root element if `color="primary"`. */
+      colorPrimary: {
+        backgroundColor: theme.palette.primary.main,
+        color: theme.palette.primary.contrastText
+      },
+
+      /* Styles applied to the root element if `color="secondary"`. */
+      colorSecondary: {
+        backgroundColor: theme.palette.secondary.main,
+        color: theme.palette.secondary.contrastText
+      },
+
+      /* Styles applied to the root element if `color="inherit"`. */
+      colorInherit: {
+        color: 'inherit'
+      },
+
+      /* Styles applied to the root element if `color="transparent"`. */
+      colorTransparent: {
+        backgroundColor: 'transparent',
+        color: 'inherit'
+      }
+    };
+  };
+  var AppBar = React.forwardRef(function AppBar(props, ref) {
+    var classes = props.classes,
+        className = props.className,
+        _props$color = props.color,
+        color = _props$color === void 0 ? 'primary' : _props$color,
+        _props$position = props.position,
+        position = _props$position === void 0 ? 'fixed' : _props$position,
+        other = _objectWithoutProperties(props, ["classes", "className", "color", "position"]);
+
+    return /*#__PURE__*/React.createElement(Paper$1, _extends({
+      square: true,
+      component: "header",
+      elevation: 4,
+      className: clsx(classes.root, classes["position".concat(capitalize(position))], classes["color".concat(capitalize(color))], className, position === 'fixed' && 'mui-fixed'),
+      ref: ref
+    }, other));
+  });
+   AppBar.propTypes = {
+    // ----------------------------- Warning --------------------------------
+    // | These PropTypes are generated from the TypeScript type definitions |
+    // |     To update them edit the d.ts file and run "yarn proptypes"     |
+    // ----------------------------------------------------------------------
+
+    /**
+     * The content of the component.
+     */
+    children: propTypes.node,
+
+    /**
+     * Override or extend the styles applied to the component.
+     * See [CSS API](#css) below for more details.
+     */
+    classes: propTypes.object,
+
+    /**
+     * @ignore
+     */
+    className: propTypes.string,
+
+    /**
+     * The color of the component. It supports those theme colors that make sense for this component.
+     */
+    color: propTypes.oneOf(['default', 'inherit', 'primary', 'secondary', 'transparent']),
+
+    /**
+     * The positioning type. The behavior of the different options is described
+     * [in the MDN web docs](https://developer.mozilla.org/en-US/docs/Learn/CSS/CSS_layout/Positioning).
+     * Note: `sticky` is not universally supported and will fall back to `static` when unavailable.
+     */
+    position: propTypes.oneOf(['absolute', 'fixed', 'relative', 'static', 'sticky'])
+  } ;
+  var AppBar$1 = withStyles$1(styles$6, {
+    name: 'MuiAppBar'
+  })(AppBar);
+
+  /**
+   * @ignore - internal component.
+   */
+
+  var Person = createSvgIcon( /*#__PURE__*/React.createElement("path", {
+    d: "M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"
+  }), 'Person');
+
+  var styles$7 = function styles(theme) {
+    return {
+      /* Styles applied to the root element. */
+      root: {
+        position: 'relative',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        flexShrink: 0,
+        width: 40,
+        height: 40,
+        fontFamily: theme.typography.fontFamily,
+        fontSize: theme.typography.pxToRem(20),
+        lineHeight: 1,
+        borderRadius: '50%',
+        overflow: 'hidden',
+        userSelect: 'none'
+      },
+
+      /* Styles applied to the root element if not `src` or `srcSet`. */
+      colorDefault: {
+        color: theme.palette.background.default,
+        backgroundColor: theme.palette.type === 'light' ? theme.palette.grey[400] : theme.palette.grey[600]
+      },
+
+      /* Styles applied to the root element if `variant="circle"`. */
+      circle: {},
+
+      /* Styles applied to the root element if `variant="rounded"`. */
+      rounded: {
+        borderRadius: theme.shape.borderRadius
+      },
+
+      /* Styles applied to the root element if `variant="square"`. */
+      square: {
+        borderRadius: 0
+      },
+
+      /* Styles applied to the img element if either `src` or `srcSet` is defined. */
+      img: {
+        width: '100%',
+        height: '100%',
+        textAlign: 'center',
+        // Handle non-square image. The property isn't supported by IE 11.
+        objectFit: 'cover',
+        // Hide alt text.
+        color: 'transparent',
+        // Hide the image broken icon, only works on Chrome.
+        textIndent: 10000
+      },
+
+      /* Styles applied to the fallback icon */
+      fallback: {
+        width: '75%',
+        height: '75%'
+      }
+    };
+  };
+
+  function useLoaded(_ref) {
+    var src = _ref.src,
+        srcSet = _ref.srcSet;
+
+    var _React$useState = React.useState(false),
+        loaded = _React$useState[0],
+        setLoaded = _React$useState[1];
+
+    React.useEffect(function () {
+      if (!src && !srcSet) {
+        return undefined;
+      }
+
+      setLoaded(false);
+      var active = true;
+      var image = new Image();
+      image.src = src;
+      image.srcSet = srcSet;
+
+      image.onload = function () {
+        if (!active) {
+          return;
+        }
+
+        setLoaded('loaded');
+      };
+
+      image.onerror = function () {
+        if (!active) {
+          return;
+        }
+
+        setLoaded('error');
+      };
+
+      return function () {
+        active = false;
+      };
+    }, [src, srcSet]);
+    return loaded;
+  }
+
+  var Avatar = React.forwardRef(function Avatar(props, ref) {
+    var alt = props.alt,
+        childrenProp = props.children,
+        classes = props.classes,
+        className = props.className,
+        _props$component = props.component,
+        Component = _props$component === void 0 ? 'div' : _props$component,
+        imgProps = props.imgProps,
+        sizes = props.sizes,
+        src = props.src,
+        srcSet = props.srcSet,
+        _props$variant = props.variant,
+        variant = _props$variant === void 0 ? 'circle' : _props$variant,
+        other = _objectWithoutProperties(props, ["alt", "children", "classes", "className", "component", "imgProps", "sizes", "src", "srcSet", "variant"]);
+
+    var children = null; // Use a hook instead of onError on the img element to support server-side rendering.
+
+    var loaded = useLoaded({
+      src: src,
+      srcSet: srcSet
+    });
+    var hasImg = src || srcSet;
+    var hasImgNotFailing = hasImg && loaded !== 'error';
+
+    if (hasImgNotFailing) {
+      children = /*#__PURE__*/React.createElement("img", _extends({
+        alt: alt,
+        src: src,
+        srcSet: srcSet,
+        sizes: sizes,
+        className: classes.img
+      }, imgProps));
+    } else if (childrenProp != null) {
+      children = childrenProp;
+    } else if (hasImg && alt) {
+      children = alt[0];
+    } else {
+      children = /*#__PURE__*/React.createElement(Person, {
+        className: classes.fallback
+      });
+    }
+
+    return /*#__PURE__*/React.createElement(Component, _extends({
+      className: clsx(classes.root, classes.system, classes[variant], className, !hasImgNotFailing && classes.colorDefault),
+      ref: ref
+    }, other), children);
+  });
+   Avatar.propTypes = {
+    /**
+     * Used in combination with `src` or `srcSet` to
+     * provide an alt attribute for the rendered `img` element.
+     */
+    alt: propTypes.string,
+
+    /**
+     * Used to render icon or text elements inside the Avatar if `src` is not set.
+     * This can be an element, or just a string.
+     */
+    children: propTypes.node,
+
+    /**
+     * Override or extend the styles applied to the component.
+     * See [CSS API](#css) below for more details.
+     */
+    classes: propTypes.object.isRequired,
+
+    /**
+     * @ignore
+     */
+    className: propTypes.string,
+
+    /**
+     * The component used for the root node.
+     * Either a string to use a DOM element or a component.
+     */
+    component: propTypes.elementType,
+
+    /**
+     * Attributes applied to the `img` element if the component is used to display an image.
+     * It can be used to listen for the loading error event.
+     */
+    imgProps: propTypes.object,
+
+    /**
+     * The `sizes` attribute for the `img` element.
+     */
+    sizes: propTypes.string,
+
+    /**
+     * The `src` attribute for the `img` element.
+     */
+    src: propTypes.string,
+
+    /**
+     * The `srcSet` attribute for the `img` element.
+     * Use this attribute for responsive image display.
+     */
+    srcSet: propTypes.string,
+
+    /**
+     * The shape of the avatar.
+     */
+    variant: propTypes.oneOf(['circle', 'rounded', 'square'])
+  } ;
+  var Avatar$1 = withStyles$1(styles$7, {
+    name: 'MuiAvatar'
+  })(Avatar);
+
+  var styles$8 = {
     /* Styles applied to the root element. */
     root: {
       // Improve scrollable dialog support.
@@ -9339,9 +11841,7 @@
       top: 0,
       left: 0,
       backgroundColor: 'rgba(0, 0, 0, 0.5)',
-      WebkitTapHighlightColor: 'transparent',
-      // Disable scroll capabilities.
-      touchAction: 'none'
+      WebkitTapHighlightColor: 'transparent'
     },
 
     /* Styles applied to the root element if `invisible={true}`. */
@@ -9349,7 +11849,7 @@
       backgroundColor: 'transparent'
     }
   };
-  var Backdrop = React__default.forwardRef(function Backdrop(props, ref) {
+  var Backdrop = React.forwardRef(function Backdrop(props, ref) {
     var children = props.children,
         classes = props.classes,
         className = props.className,
@@ -9357,12 +11857,14 @@
         invisible = _props$invisible === void 0 ? false : _props$invisible,
         open = props.open,
         transitionDuration = props.transitionDuration,
-        other = _objectWithoutProperties(props, ["children", "classes", "className", "invisible", "open", "transitionDuration"]);
+        _props$TransitionComp = props.TransitionComponent,
+        TransitionComponent = _props$TransitionComp === void 0 ? Fade : _props$TransitionComp,
+        other = _objectWithoutProperties(props, ["children", "classes", "className", "invisible", "open", "transitionDuration", "TransitionComponent"]);
 
-    return React__default.createElement(Fade, _extends({
+    return /*#__PURE__*/React.createElement(TransitionComponent, _extends({
       in: open,
       timeout: transitionDuration
-    }, other), React__default.createElement("div", {
+    }, other), /*#__PURE__*/React.createElement("div", {
       className: clsx(classes.root, className, invisible && classes.invisible),
       "aria-hidden": true,
       ref: ref
@@ -9411,13 +11913,13 @@
       exit: propTypes.number
     })])
   } ;
-  var Backdrop$1 = withStyles$1(styles$5, {
+  var Backdrop$1 = withStyles$1(styles$8, {
     name: 'MuiBackdrop'
   })(Backdrop);
 
   var RADIUS_STANDARD = 10;
   var RADIUS_DOT = 4;
-  var styles$6 = function styles(theme) {
+  var styles$9 = function styles(theme) {
     return {
       /* Styles applied to the root element. */
       root: {
@@ -9577,7 +12079,7 @@
       }
     };
   };
-  var Badge = React__default.forwardRef(function Badge(props, ref) {
+  var Badge = React.forwardRef(function Badge(props, ref) {
     var _props$anchorOrigin = props.anchorOrigin,
         anchorOrigin = _props$anchorOrigin === void 0 ? {
       vertical: 'top',
@@ -9614,13 +12116,11 @@
       displayValue = badgeContent > max ? "".concat(max, "+") : badgeContent;
     }
 
-    return React__default.createElement(ComponentProp, _extends({
+    return /*#__PURE__*/React.createElement(ComponentProp, _extends({
       className: clsx(classes.root, className),
       ref: ref
-    }, other), children, React__default.createElement("span", {
-      className: clsx(classes.badge, classes["".concat(anchorOrigin.horizontal).concat(capitalize(anchorOrigin.vertical), "}")], classes["anchorOrigin".concat(capitalize(anchorOrigin.vertical)).concat(capitalize(anchorOrigin.horizontal)).concat(capitalize(overlap))], color !== 'default' && classes["color".concat(capitalize(color))], invisible && classes.invisible, {
-        dot: classes.dot
-      }[variant])
+    }, other), children, /*#__PURE__*/React.createElement("span", {
+      className: clsx(classes.badge, classes["".concat(anchorOrigin.horizontal).concat(capitalize(anchorOrigin.vertical), "}")], classes["anchorOrigin".concat(capitalize(anchorOrigin.vertical)).concat(capitalize(anchorOrigin.horizontal)).concat(capitalize(overlap))], color !== 'default' && classes["color".concat(capitalize(color))], invisible && classes.invisible, variant === 'dot' && classes.dot)
     }, displayValue));
   });
    Badge.propTypes = {
@@ -9694,11 +12194,11 @@
      */
     variant: propTypes.oneOf(['dot', 'standard'])
   } ;
-  var Badge$1 = withStyles$1(styles$6, {
+  var Badge$1 = withStyles$1(styles$9, {
     name: 'MuiBadge'
   })(Badge);
 
-  var styles$7 = function styles(theme) {
+  var styles$a = function styles(theme) {
     return {
       /* Styles applied to the root element. */
       root: {
@@ -9709,7 +12209,7 @@
       }
     };
   };
-  var BottomNavigation = React__default.forwardRef(function BottomNavigation(props, ref) {
+  var BottomNavigation = React.forwardRef(function BottomNavigation(props, ref) {
     var children = props.children,
         classes = props.classes,
         className = props.className,
@@ -9721,11 +12221,11 @@
         value = props.value,
         other = _objectWithoutProperties(props, ["children", "classes", "className", "component", "onChange", "showLabels", "value"]);
 
-    return React__default.createElement(Component, _extends({
+    return /*#__PURE__*/React.createElement(Component, _extends({
       className: clsx(classes.root, className),
       ref: ref
-    }, other), React__default.Children.map(children, function (child, childIndex) {
-      if (!React__default.isValidElement(child)) {
+    }, other), React.Children.map(children, function (child, childIndex) {
+      if (!React.isValidElement(child)) {
         return null;
       }
 
@@ -9736,7 +12236,7 @@
       }
 
       var childValue = child.props.value === undefined ? childIndex : child.props.value;
-      return React__default.cloneElement(child, {
+      return React.cloneElement(child, {
         selected: childValue === value,
         showLabel: child.props.showLabel !== undefined ? child.props.showLabel : showLabels,
         value: childValue,
@@ -9791,228 +12291,11 @@
      */
     value: propTypes.any
   } ;
-  var BottomNavigation$1 = withStyles$1(styles$7, {
+  var BottomNavigation$1 = withStyles$1(styles$a, {
     name: 'MuiBottomNavigation'
   })(BottomNavigation);
 
-  var useEnhancedEffect = typeof window !== 'undefined' ? React__default.useLayoutEffect : React__default.useEffect;
-  /**
-   * https://github.com/facebook/react/issues/14099#issuecomment-440013892
-   *
-   * @param {function} fn
-   */
-
-  function useEventCallback(fn) {
-    var ref = React__default.useRef(fn);
-    useEnhancedEffect(function () {
-      ref.current = fn;
-    });
-    return React__default.useCallback(function () {
-      return (ref.current).apply(void 0, arguments);
-    }, []);
-  }
-
-  var useEnhancedEffect$1 = typeof window !== 'undefined' && "development" !== 'test' ? React__default.useLayoutEffect : React__default.useEffect;
-  /**
-   * NoSsr purposely removes components from the subject of Server Side Rendering (SSR).
-   *
-   * This component can be useful in a variety of situations:
-   * - Escape hatch for broken dependencies not supporting SSR.
-   * - Improve the time-to-first paint on the client by only rendering above the fold.
-   * - Reduce the rendering time on the server.
-   * - Under too heavy server load, you can turn on service degradation.
-   */
-
-  function NoSsr(props) {
-    var children = props.children,
-        _props$defer = props.defer,
-        defer = _props$defer === void 0 ? false : _props$defer,
-        _props$fallback = props.fallback,
-        fallback = _props$fallback === void 0 ? null : _props$fallback;
-
-    var _React$useState = React__default.useState(false),
-        mountedState = _React$useState[0],
-        setMountedState = _React$useState[1];
-
-    useEnhancedEffect$1(function () {
-      if (!defer) {
-        setMountedState(true);
-      }
-    }, [defer]);
-    React__default.useEffect(function () {
-      if (defer) {
-        setMountedState(true);
-      }
-    }, [defer]); // We need the Fragment here to force react-docgen to recognise NoSsr as a component.
-
-    return React__default.createElement(React__default.Fragment, null, mountedState ? children : fallback);
-  }
-
-   NoSsr.propTypes = {
-    /**
-     * You can wrap a node.
-     */
-    children: propTypes.node.isRequired,
-
-    /**
-     * If `true`, the component will not only prevent server-side rendering.
-     * It will also defer the rendering of the children into a different screen frame.
-     */
-    defer: propTypes.bool,
-
-    /**
-     * The fallback content to display.
-     */
-    fallback: propTypes.node
-  } ;
-
-  {
-    // eslint-disable-next-line
-    NoSsr['propTypes' + ''] = exactProp(NoSsr.propTypes);
-  }
-
-  // based on https://github.com/WICG/focus-visible/blob/v4.1.5/src/focus-visible.js
-  var hadKeyboardEvent = true;
-  var hadFocusVisibleRecently = false;
-  var hadFocusVisibleRecentlyTimeout = null;
-  var inputTypesWhitelist = {
-    text: true,
-    search: true,
-    url: true,
-    tel: true,
-    email: true,
-    password: true,
-    number: true,
-    date: true,
-    month: true,
-    week: true,
-    time: true,
-    datetime: true,
-    'datetime-local': true
-  };
-  /**
-   * Computes whether the given element should automatically trigger the
-   * `focus-visible` class being added, i.e. whether it should always match
-   * `:focus-visible` when focused.
-   * @param {Element} node
-   * @return {boolean}
-   */
-
-  function focusTriggersKeyboardModality(node) {
-    var type = node.type,
-        tagName = node.tagName;
-
-    if (tagName === 'INPUT' && inputTypesWhitelist[type] && !node.readOnly) {
-      return true;
-    }
-
-    if (tagName === 'TEXTAREA' && !node.readOnly) {
-      return true;
-    }
-
-    if (node.isContentEditable) {
-      return true;
-    }
-
-    return false;
-  }
-  /**
-   * Keep track of our keyboard modality state with `hadKeyboardEvent`.
-   * If the most recent user interaction was via the keyboard;
-   * and the key press did not include a meta, alt/option, or control key;
-   * then the modality is keyboard. Otherwise, the modality is not keyboard.
-   * @param {KeyboardEvent} event
-   */
-
-
-  function handleKeyDown(event) {
-    if (event.metaKey || event.altKey || event.ctrlKey) {
-      return;
-    }
-
-    hadKeyboardEvent = true;
-  }
-  /**
-   * If at any point a user clicks with a pointing device, ensure that we change
-   * the modality away from keyboard.
-   * This avoids the situation where a user presses a key on an already focused
-   * element, and then clicks on a different element, focusing it with a
-   * pointing device, while we still think we're in keyboard modality.
-   */
-
-
-  function handlePointerDown() {
-    hadKeyboardEvent = false;
-  }
-
-  function handleVisibilityChange() {
-    if (this.visibilityState === 'hidden') {
-      // If the tab becomes active again, the browser will handle calling focus
-      // on the element (Safari actually calls it twice).
-      // If this tab change caused a blur on an element with focus-visible,
-      // re-apply the class when the user switches back to the tab.
-      if (hadFocusVisibleRecently) {
-        hadKeyboardEvent = true;
-      }
-    }
-  }
-
-  function prepare(doc) {
-    doc.addEventListener('keydown', handleKeyDown, true);
-    doc.addEventListener('mousedown', handlePointerDown, true);
-    doc.addEventListener('pointerdown', handlePointerDown, true);
-    doc.addEventListener('touchstart', handlePointerDown, true);
-    doc.addEventListener('visibilitychange', handleVisibilityChange, true);
-  }
-
-  function isFocusVisible(event) {
-    var target = event.target;
-
-    try {
-      return target.matches(':focus-visible');
-    } catch (error) {} // browsers not implementing :focus-visible will throw a SyntaxError
-    // we use our own heuristic for those browsers
-    // rethrow might be better if it's not the expected error but do we really
-    // want to crash if focus-visible malfunctioned?
-    // no need for validFocusTarget check. the user does that by attaching it to
-    // focusable events only
-
-
-    return hadKeyboardEvent || focusTriggersKeyboardModality(target);
-  }
-  /**
-   * Should be called if a blur event is fired on a focus-visible element
-   */
-
-
-  function handleBlurVisible() {
-    // To detect a tab/window switch, we look for a blur event followed
-    // rapidly by a visibility change.
-    // If we don't see a visibility change within 100ms, it's probably a
-    // regular focus change.
-    hadFocusVisibleRecently = true;
-    window.clearTimeout(hadFocusVisibleRecentlyTimeout);
-    hadFocusVisibleRecentlyTimeout = window.setTimeout(function () {
-      hadFocusVisibleRecently = false;
-    }, 100);
-  }
-
-  function useIsFocusVisible() {
-    var ref = React__default.useCallback(function (instance) {
-      var node = ReactDOM.findDOMNode(instance);
-
-      if (node != null) {
-        prepare(node.ownerDocument);
-      }
-    }, []);
-    return {
-      isFocusVisible: isFocusVisible,
-      onBlurVisible: handleBlurVisible,
-      ref: ref
-    };
-  }
-
-  var useEnhancedEffect$2 = typeof window === 'undefined' ? React__default.useEffect : React__default.useLayoutEffect;
+  var useEnhancedEffect$1 = typeof window === 'undefined' ? React.useEffect : React.useLayoutEffect;
   /**
    * @ignore - internal component.
    */
@@ -10029,7 +12312,7 @@
         onExited = _props$onExited === void 0 ? function () {} : _props$onExited,
         timeout = props.timeout;
 
-    var _React$useState = React__default.useState(false),
+    var _React$useState = React.useState(false),
         leaving = _React$useState[0],
         setLeaving = _React$useState[1];
 
@@ -10043,7 +12326,7 @@
     var childClassName = clsx(classes.child, leaving && classes.childLeaving, pulsate && classes.childPulsate);
     var handleExited = useEventCallback(onExited); // Ripple is used for user feedback (e.g. click or press) so we want to apply styles with the highest priority
 
-    useEnhancedEffect$2(function () {
+    useEnhancedEffect$1(function () {
       if (!inProp) {
         // react-transition-group#onExit
         setLeaving(true); // react-transition-group#onExited
@@ -10056,10 +12339,10 @@
 
       return undefined;
     }, [handleExited, inProp, timeout]);
-    return React__default.createElement("span", {
+    return /*#__PURE__*/React.createElement("span", {
       className: rippleClassName,
       style: rippleStyles
-    }, React__default.createElement("span", {
+    }, /*#__PURE__*/React.createElement("span", {
       className: childClassName
     }));
   }
@@ -10109,7 +12392,7 @@
 
   var DURATION = 550;
   var DELAY_RIPPLE = 80;
-  var styles$8 = function styles(theme) {
+  var styles$b = function styles(theme) {
     return {
       /* Styles applied to the root element. */
       root: {
@@ -10202,46 +12485,46 @@
    * TODO v5: Make private
    */
 
-  var TouchRipple = React__default.forwardRef(function TouchRipple(props, ref) {
+  var TouchRipple = React.forwardRef(function TouchRipple(props, ref) {
     var _props$center = props.center,
         centerProp = _props$center === void 0 ? false : _props$center,
         classes = props.classes,
         className = props.className,
         other = _objectWithoutProperties(props, ["center", "classes", "className"]);
 
-    var _React$useState = React__default.useState([]),
+    var _React$useState = React.useState([]),
         ripples = _React$useState[0],
         setRipples = _React$useState[1];
 
-    var nextKey = React__default.useRef(0);
-    var rippleCallback = React__default.useRef(null);
-    React__default.useEffect(function () {
+    var nextKey = React.useRef(0);
+    var rippleCallback = React.useRef(null);
+    React.useEffect(function () {
       if (rippleCallback.current) {
         rippleCallback.current();
         rippleCallback.current = null;
       }
     }, [ripples]); // Used to filter out mouse emulated events on mobile.
 
-    var ignoringMouseDown = React__default.useRef(false); // We use a timer in order to only show the ripples for touch "click" like events.
+    var ignoringMouseDown = React.useRef(false); // We use a timer in order to only show the ripples for touch "click" like events.
     // We don't want to display the ripple for touch scroll events.
 
-    var startTimer = React__default.useRef(null); // This is the hook called once the previous timeout is ready.
+    var startTimer = React.useRef(null); // This is the hook called once the previous timeout is ready.
 
-    var startTimerCommit = React__default.useRef(null);
-    var container = React__default.useRef(null);
-    React__default.useEffect(function () {
+    var startTimerCommit = React.useRef(null);
+    var container = React.useRef(null);
+    React.useEffect(function () {
       return function () {
         clearTimeout(startTimer.current);
       };
     }, []);
-    var startCommit = React__default.useCallback(function (params) {
+    var startCommit = React.useCallback(function (params) {
       var pulsate = params.pulsate,
           rippleX = params.rippleX,
           rippleY = params.rippleY,
           rippleSize = params.rippleSize,
           cb = params.cb;
       setRipples(function (oldRipples) {
-        return [].concat(_toConsumableArray(oldRipples), [React__default.createElement(Ripple, {
+        return [].concat(_toConsumableArray(oldRipples), [/*#__PURE__*/React.createElement(Ripple, {
           key: nextKey.current,
           classes: classes,
           timeout: DURATION,
@@ -10254,7 +12537,7 @@
       nextKey.current += 1;
       rippleCallback.current = cb;
     }, [classes]);
-    var start = React__default.useCallback(function () {
+    var start = React.useCallback(function () {
       var event = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
       var options = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
       var cb = arguments.length > 2 ? arguments[2] : undefined;
@@ -10343,12 +12626,12 @@
         });
       }
     }, [centerProp, startCommit]);
-    var pulsate = React__default.useCallback(function () {
+    var pulsate = React.useCallback(function () {
       start({}, {
         pulsate: true
       });
     }, [start]);
-    var stop = React__default.useCallback(function (event, cb) {
+    var stop = React.useCallback(function (event, cb) {
       clearTimeout(startTimer.current); // The touch interaction occurs too quickly.
       // We still want to show ripple effect.
 
@@ -10372,27 +12655,21 @@
       });
       rippleCallback.current = cb;
     }, []);
-    React__default.useImperativeHandle(ref, function () {
+    React.useImperativeHandle(ref, function () {
       return {
         pulsate: pulsate,
         start: start,
         stop: stop
       };
     }, [pulsate, start, stop]);
-    return React__default.createElement("span", _extends({
+    return /*#__PURE__*/React.createElement("span", _extends({
       className: clsx(classes.root, className),
       ref: container
-    }, other), React__default.createElement(TransitionGroup, {
+    }, other), /*#__PURE__*/React.createElement(TransitionGroup, {
       component: null,
       exit: true
     }, ripples));
-  }); // TODO cleanup after https://github.com/reactjs/react-docgen/pull/378 is released
-
-  function withMuiName(Component) {
-    Component.muiName = 'MuiTouchRipple';
-    return Component;
-  }
-
+  });
    TouchRipple.propTypes = {
     /**
      * If `true`, the ripple starts at the center of the component
@@ -10411,12 +12688,12 @@
      */
     className: propTypes.string
   } ;
-  var TouchRipple$1 = withStyles$1(styles$8, {
+  var TouchRipple$1 = withStyles$1(styles$b, {
     flip: false,
     name: 'MuiTouchRipple'
-  })(withMuiName(React__default.memo(TouchRipple)));
+  })(React.memo(TouchRipple));
 
-  var styles$9 = {
+  var styles$c = {
     /* Styles applied to the root element. */
     root: {
       display: 'inline-flex',
@@ -10467,7 +12744,7 @@
    * It contains a load of style reset and some focus/ripple logic.
    */
 
-  var ButtonBase = React__default.forwardRef(function ButtonBase(props, ref) {
+  var ButtonBase = React.forwardRef(function ButtonBase(props, ref) {
     var action = props.action,
         buttonRefProp = props.buttonRef,
         _props$centerRipple = props.centerRipple,
@@ -10506,16 +12783,16 @@
         type = _props$type === void 0 ? 'button' : _props$type,
         other = _objectWithoutProperties(props, ["action", "buttonRef", "centerRipple", "children", "classes", "className", "component", "disabled", "disableRipple", "disableTouchRipple", "focusRipple", "focusVisibleClassName", "onBlur", "onClick", "onFocus", "onFocusVisible", "onKeyDown", "onKeyUp", "onMouseDown", "onMouseLeave", "onMouseUp", "onTouchEnd", "onTouchMove", "onTouchStart", "onDragLeave", "tabIndex", "TouchRippleProps", "type"]);
 
-    var buttonRef = React__default.useRef(null);
+    var buttonRef = React.useRef(null);
 
     function getButtonNode() {
       // #StrictMode ready
       return ReactDOM.findDOMNode(buttonRef.current);
     }
 
-    var rippleRef = React__default.useRef(null);
+    var rippleRef = React.useRef(null);
 
-    var _React$useState = React__default.useState(false),
+    var _React$useState = React.useState(false),
         focusVisible = _React$useState[0],
         setFocusVisible = _React$useState[1];
 
@@ -10528,7 +12805,7 @@
         onBlurVisible = _useIsFocusVisible.onBlurVisible,
         focusVisibleRef = _useIsFocusVisible.ref;
 
-    React__default.useImperativeHandle(action, function () {
+    React.useImperativeHandle(action, function () {
       return {
         focusVisible: function focusVisible() {
           setFocusVisible(true);
@@ -10536,7 +12813,7 @@
         }
       };
     }, []);
-    React__default.useEffect(function () {
+    React.useEffect(function () {
       if (focusVisible && focusRipple && !disableRipple) {
         rippleRef.current.pulsate();
       }
@@ -10585,11 +12862,7 @@
       }
     }, false);
     var handleFocus = useEventCallback(function (event) {
-      if (disabled) {
-        return;
-      } // Fix for https://github.com/facebook/react/issues/7769
-
-
+      // Fix for https://github.com/facebook/react/issues/7769
       if (!buttonRef.current) {
         buttonRef.current = event.currentTarget;
       }
@@ -10616,7 +12889,7 @@
      */
 
 
-    var keydownRef = React__default.useRef(false);
+    var keydownRef = React.useRef(false);
     var handleKeyDown = useEventCallback(function (event) {
       // Check if key is already down to avoid repeats being counted as multiple activations
       if (focusRipple && !keydownRef.current && focusVisible && rippleRef.current && event.key === ' ') {
@@ -10627,12 +12900,16 @@
         });
       }
 
+      if (event.target === event.currentTarget && isNonNativeButton() && event.key === ' ') {
+        event.preventDefault();
+      }
+
       if (onKeyDown) {
         onKeyDown(event);
       } // Keyboard accessibility for non interactive elements
 
 
-      if (event.target === event.currentTarget && isNonNativeButton() && event.key === 'Enter') {
+      if (event.target === event.currentTarget && isNonNativeButton() && event.key === 'Enter' && !disabled) {
         event.preventDefault();
 
         if (onClick) {
@@ -10656,12 +12933,8 @@
       } // Keyboard accessibility for non interactive elements
 
 
-      if (event.target === event.currentTarget && isNonNativeButton() && event.key === ' ' && !event.defaultPrevented) {
-        event.preventDefault();
-
-        if (onClick) {
-          onClick(event);
-        }
+      if (onClick && event.target === event.currentTarget && isNonNativeButton() && event.key === ' ' && !event.defaultPrevented) {
+        onClick(event);
       }
     });
     var ComponentProp = component;
@@ -10686,7 +12959,26 @@
     var handleUserRef = useForkRef(buttonRefProp, ref);
     var handleOwnRef = useForkRef(focusVisibleRef, buttonRef);
     var handleRef = useForkRef(handleUserRef, handleOwnRef);
-    return React__default.createElement(ComponentProp, _extends({
+
+    var _React$useState2 = React.useState(false),
+        mountedState = _React$useState2[0],
+        setMountedState = _React$useState2[1];
+
+    React.useEffect(function () {
+      setMountedState(true);
+    }, []);
+    var enableTouchRipple = mountedState && !disableRipple && !disabled;
+
+    {
+      // eslint-disable-next-line react-hooks/rules-of-hooks
+      React.useEffect(function () {
+        if (enableTouchRipple && !rippleRef.current) {
+          console.error(['Material-UI: the `component` prop provided to ButtonBase is invalid.', 'Please make sure the children prop is rendered in this custom component.'].join('\n'));
+        }
+      }, [enableTouchRipple]);
+    }
+
+    return /*#__PURE__*/React.createElement(ComponentProp, _extends({
       className: clsx(classes.root, className, focusVisible && [classes.focusVisible, focusVisibleClassName], disabled && classes.disabled),
       onBlur: handleBlur,
       onClick: onClick,
@@ -10702,10 +12994,14 @@
       onTouchStart: handleTouchStart,
       ref: handleRef,
       tabIndex: disabled ? -1 : tabIndex
-    }, buttonProps, other), children, !disableRipple && !disabled ? React__default.createElement(NoSsr, null, React__default.createElement(TouchRipple$1, _extends({
+    }, buttonProps, other), children, enableTouchRipple ?
+    /*#__PURE__*/
+
+    /* TouchRipple is only needed client-side, x2 boost on the server. */
+    React.createElement(TouchRipple$1, _extends({
       ref: rippleRef,
       center: centerRipple
-    }, TouchRippleProps))) : null);
+    }, TouchRippleProps)) : null);
   });
    ButtonBase.propTypes = {
     /**
@@ -10871,22 +13167,11 @@
      */
     type: propTypes.oneOf(['submit', 'reset', 'button'])
   } ;
-  var ButtonBase$1 = withStyles$1(styles$9, {
+  var ButtonBase$1 = withStyles$1(styles$c, {
     name: 'MuiButtonBase'
   })(ButtonBase);
 
-  function unsupportedProp(props, propName, componentName, location, propFullName) {
-
-    var propFullNameSafe = propFullName || propName;
-
-    if (typeof props[propName] !== 'undefined') {
-      return new Error("The prop `".concat(propFullNameSafe, "` is not supported. Please remove it."));
-    }
-
-    return null;
-  }
-
-  var styles$a = function styles(theme) {
+  var styles$d = function styles(theme) {
     return {
       /* Styles applied to the root element. */
       root: {
@@ -10939,7 +13224,7 @@
       }
     };
   };
-  var BottomNavigationAction = React__default.forwardRef(function BottomNavigationAction(props, ref) {
+  var BottomNavigationAction = React.forwardRef(function BottomNavigationAction(props, ref) {
     var classes = props.classes,
         className = props.className,
         icon = props.icon,
@@ -10961,14 +13246,14 @@
       }
     };
 
-    return React__default.createElement(ButtonBase$1, _extends({
+    return /*#__PURE__*/React.createElement(ButtonBase$1, _extends({
       ref: ref,
       className: clsx(classes.root, className, selected ? classes.selected : !showLabel && classes.iconOnly),
       focusRipple: true,
       onClick: handleChange
-    }, other), React__default.createElement("span", {
+    }, other), /*#__PURE__*/React.createElement("span", {
       className: classes.wrapper
-    }, icon, React__default.createElement("span", {
+    }, icon, /*#__PURE__*/React.createElement("span", {
       className: clsx(classes.label, selected ? classes.selected : !showLabel && classes.iconOnly)
     }, label)));
   });
@@ -11027,594 +13312,11 @@
      */
     value: propTypes.any
   } ;
-  var BottomNavigationAction$1 = withStyles$1(styles$a, {
+  var BottomNavigationAction$1 = withStyles$1(styles$d, {
     name: 'MuiBottomNavigationAction'
   })(BottomNavigationAction);
 
-  var responsivePropType =  propTypes.oneOfType([propTypes.number, propTypes.string, propTypes.object, propTypes.array]) ;
-
-  function merge(acc, item) {
-    if (!item) {
-      return acc;
-    }
-
-    return deepmerge(acc, item, {
-      clone: false // No need to clone deep, it's way faster.
-
-    });
-  }
-
-  // For instance with the first breakpoint xs: [xs, sm[.
-
-  var values$1 = {
-    xs: 0,
-    sm: 600,
-    md: 960,
-    lg: 1280,
-    xl: 1920
-  };
-  var defaultBreakpoints = {
-    // Sorted ASC by size. That's important.
-    // It can't be configured as it's used statically for propTypes.
-    keys: ['xs', 'sm', 'md', 'lg', 'xl'],
-    up: function up(key) {
-      return "@media (min-width:".concat(values$1[key], "px)");
-    }
-  };
-  function handleBreakpoints(props, propValue, styleFromPropValue) {
-    {
-      if (!props.theme) {
-        console.error('@material-ui/system: you are calling a style function without a theme value.');
-      }
-    }
-
-    if (Array.isArray(propValue)) {
-      var themeBreakpoints = props.theme.breakpoints || defaultBreakpoints;
-      return propValue.reduce(function (acc, item, index) {
-        acc[themeBreakpoints.up(themeBreakpoints.keys[index])] = styleFromPropValue(propValue[index]);
-        return acc;
-      }, {});
-    }
-
-    if (_typeof(propValue) === 'object') {
-      var _themeBreakpoints = props.theme.breakpoints || defaultBreakpoints;
-
-      return Object.keys(propValue).reduce(function (acc, breakpoint) {
-        acc[_themeBreakpoints.up(breakpoint)] = styleFromPropValue(propValue[breakpoint]);
-        return acc;
-      }, {});
-    }
-
-    var output = styleFromPropValue(propValue);
-    return output;
-  }
-
-  function getPath(obj, path) {
-    if (!path || typeof path !== 'string') {
-      return null;
-    }
-
-    return path.split('.').reduce(function (acc, item) {
-      return acc && acc[item] ? acc[item] : null;
-    }, obj);
-  }
-
-  function style$1(options) {
-    var prop = options.prop,
-        _options$cssProperty = options.cssProperty,
-        cssProperty = _options$cssProperty === void 0 ? options.prop : _options$cssProperty,
-        themeKey = options.themeKey,
-        transform = options.transform;
-
-    var fn = function fn(props) {
-      if (props[prop] == null) {
-        return null;
-      }
-
-      var propValue = props[prop];
-      var theme = props.theme;
-      var themeMapping = getPath(theme, themeKey) || {};
-
-      var styleFromPropValue = function styleFromPropValue(propValueFinal) {
-        var value;
-
-        if (typeof themeMapping === 'function') {
-          value = themeMapping(propValueFinal);
-        } else if (Array.isArray(themeMapping)) {
-          value = themeMapping[propValueFinal] || propValueFinal;
-        } else {
-          value = getPath(themeMapping, propValueFinal) || propValueFinal;
-
-          if (transform) {
-            value = transform(value);
-          }
-        }
-
-        if (cssProperty === false) {
-          return value;
-        }
-
-        return _defineProperty({}, cssProperty, value);
-      };
-
-      return handleBreakpoints(props, propValue, styleFromPropValue);
-    };
-
-    fn.propTypes =  _defineProperty({}, prop, responsivePropType) ;
-    fn.filterProps = [prop];
-    return fn;
-  }
-
-  function compose() {
-    for (var _len = arguments.length, styles = new Array(_len), _key = 0; _key < _len; _key++) {
-      styles[_key] = arguments[_key];
-    }
-
-    var fn = function fn(props) {
-      return styles.reduce(function (acc, style) {
-        var output = style(props);
-
-        if (output) {
-          return merge(acc, output);
-        }
-
-        return acc;
-      }, {});
-    }; // Alternative approach that doesn't yield any performance gain.
-    // const handlers = styles.reduce((acc, style) => {
-    //   style.filterProps.forEach(prop => {
-    //     acc[prop] = style;
-    //   });
-    //   return acc;
-    // }, {});
-    // const fn = props => {
-    //   return Object.keys(props).reduce((acc, prop) => {
-    //     if (handlers[prop]) {
-    //       return merge(acc, handlers[prop](props));
-    //     }
-    //     return acc;
-    //   }, {});
-    // };
-
-
-    fn.propTypes =  styles.reduce(function (acc, style) {
-      return _extends(acc, style.propTypes);
-    }, {}) ;
-    fn.filterProps = styles.reduce(function (acc, style) {
-      return acc.concat(style.filterProps);
-    }, []);
-    return fn;
-  }
-
-  function getBorder(value) {
-    if (typeof value !== 'number') {
-      return value;
-    }
-
-    return "".concat(value, "px solid");
-  }
-
-  var border = style$1({
-    prop: 'border',
-    themeKey: 'borders',
-    transform: getBorder
-  });
-  var borderTop = style$1({
-    prop: 'borderTop',
-    themeKey: 'borders',
-    transform: getBorder
-  });
-  var borderRight = style$1({
-    prop: 'borderRight',
-    themeKey: 'borders',
-    transform: getBorder
-  });
-  var borderBottom = style$1({
-    prop: 'borderBottom',
-    themeKey: 'borders',
-    transform: getBorder
-  });
-  var borderLeft = style$1({
-    prop: 'borderLeft',
-    themeKey: 'borders',
-    transform: getBorder
-  });
-  var borderColor = style$1({
-    prop: 'borderColor',
-    themeKey: 'palette'
-  });
-  var borderRadius = style$1({
-    prop: 'borderRadius',
-    themeKey: 'shape'
-  });
-  var borders = compose(border, borderTop, borderRight, borderBottom, borderLeft, borderColor, borderRadius);
-
-  function omit$1(input, fields) {
-    var output = {};
-    Object.keys(input).forEach(function (prop) {
-      if (fields.indexOf(prop) === -1) {
-        output[prop] = input[prop];
-      }
-    });
-    return output;
-  }
-
-  function css$1(styleFunction) {
-    var newStyleFunction = function newStyleFunction(props) {
-      var output = styleFunction(props);
-
-      if (props.css) {
-        return _extends({}, merge(output, styleFunction(_extends({
-          theme: props.theme
-        }, props.css))), {}, omit$1(props.css, [styleFunction.filterProps]));
-      }
-
-      return output;
-    };
-
-    newStyleFunction.propTypes =  _extends({}, styleFunction.propTypes, {
-      css: propTypes.object
-    }) ;
-    newStyleFunction.filterProps = ['css'].concat(_toConsumableArray(styleFunction.filterProps));
-    return newStyleFunction;
-  }
-
-  var displayPrint = style$1({
-    prop: 'displayPrint',
-    cssProperty: false,
-    transform: function transform(value) {
-      return {
-        '@media print': {
-          display: value
-        }
-      };
-    }
-  });
-  var displayRaw = style$1({
-    prop: 'display'
-  });
-  var overflow = style$1({
-    prop: 'overflow'
-  });
-  var textOverflow = style$1({
-    prop: 'textOverflow'
-  });
-  var visibility = style$1({
-    prop: 'visibility'
-  });
-  var whiteSpace = style$1({
-    prop: 'whiteSpace'
-  });
-  var display = compose(displayPrint, displayRaw, overflow, textOverflow, visibility, whiteSpace);
-
-  var flexBasis = style$1({
-    prop: 'flexBasis'
-  });
-  var flexDirection = style$1({
-    prop: 'flexDirection'
-  });
-  var flexWrap = style$1({
-    prop: 'flexWrap'
-  });
-  var justifyContent = style$1({
-    prop: 'justifyContent'
-  });
-  var alignItems = style$1({
-    prop: 'alignItems'
-  });
-  var alignContent = style$1({
-    prop: 'alignContent'
-  });
-  var order = style$1({
-    prop: 'order'
-  });
-  var flex = style$1({
-    prop: 'flex'
-  });
-  var flexGrow = style$1({
-    prop: 'flexGrow'
-  });
-  var flexShrink = style$1({
-    prop: 'flexShrink'
-  });
-  var alignSelf = style$1({
-    prop: 'alignSelf'
-  });
-  var justifyItems = style$1({
-    prop: 'justifyItems'
-  });
-  var justifySelf = style$1({
-    prop: 'justifySelf'
-  });
-  var flexbox = compose(flexBasis, flexDirection, flexWrap, justifyContent, alignItems, alignContent, order, flex, flexGrow, flexShrink, alignSelf, justifyItems, justifySelf);
-
-  var color = style$1({
-    prop: 'color',
-    themeKey: 'palette'
-  });
-  var bgcolor = style$1({
-    prop: 'bgcolor',
-    cssProperty: 'backgroundColor',
-    themeKey: 'palette'
-  });
-  var palette = compose(color, bgcolor);
-
-  var position = style$1({
-    prop: 'position'
-  });
-  var zIndex$1 = style$1({
-    prop: 'zIndex',
-    themeKey: 'zIndex'
-  });
-  var top = style$1({
-    prop: 'top'
-  });
-  var right = style$1({
-    prop: 'right'
-  });
-  var bottom = style$1({
-    prop: 'bottom'
-  });
-  var left = style$1({
-    prop: 'left'
-  });
-  var positions = compose(position, zIndex$1, top, right, bottom, left);
-
-  var boxShadow = style$1({
-    prop: 'boxShadow',
-    themeKey: 'shadows'
-  });
-
-  function transform$1(value) {
-    return value <= 1 ? "".concat(value * 100, "%") : value;
-  }
-
-  var width = style$1({
-    prop: 'width',
-    transform: transform$1
-  });
-  var maxWidth = style$1({
-    prop: 'maxWidth',
-    transform: transform$1
-  });
-  var minWidth = style$1({
-    prop: 'minWidth',
-    transform: transform$1
-  });
-  var height = style$1({
-    prop: 'height',
-    transform: transform$1
-  });
-  var maxHeight = style$1({
-    prop: 'maxHeight',
-    transform: transform$1
-  });
-  var minHeight = style$1({
-    prop: 'minHeight',
-    transform: transform$1
-  });
-  var sizeWidth = style$1({
-    prop: 'size',
-    cssProperty: 'width',
-    transform: transform$1
-  });
-  var sizeHeight = style$1({
-    prop: 'size',
-    cssProperty: 'height',
-    transform: transform$1
-  });
-  var sizing = compose(width, maxWidth, minWidth, height, maxHeight, minHeight);
-
-  function _arrayWithHoles(arr) {
-    if (Array.isArray(arr)) return arr;
-  }
-
-  function _iterableToArrayLimit(arr, i) {
-    if (!(Symbol.iterator in Object(arr) || Object.prototype.toString.call(arr) === "[object Arguments]")) {
-      return;
-    }
-
-    var _arr = [];
-    var _n = true;
-    var _d = false;
-    var _e = undefined;
-
-    try {
-      for (var _i = arr[Symbol.iterator](), _s; !(_n = (_s = _i.next()).done); _n = true) {
-        _arr.push(_s.value);
-
-        if (i && _arr.length === i) break;
-      }
-    } catch (err) {
-      _d = true;
-      _e = err;
-    } finally {
-      try {
-        if (!_n && _i["return"] != null) _i["return"]();
-      } finally {
-        if (_d) throw _e;
-      }
-    }
-
-    return _arr;
-  }
-
-  function _nonIterableRest() {
-    throw new TypeError("Invalid attempt to destructure non-iterable instance");
-  }
-
-  function _slicedToArray(arr, i) {
-    return _arrayWithHoles(arr) || _iterableToArrayLimit(arr, i) || _nonIterableRest();
-  }
-
-  function memoize$1(fn) {
-    var cache = {};
-    return function (arg) {
-      if (cache[arg] === undefined) {
-        cache[arg] = fn(arg);
-      }
-
-      return cache[arg];
-    };
-  }
-
-  var properties = {
-    m: 'margin',
-    p: 'padding'
-  };
-  var directions = {
-    t: 'Top',
-    r: 'Right',
-    b: 'Bottom',
-    l: 'Left',
-    x: ['Left', 'Right'],
-    y: ['Top', 'Bottom']
-  };
-  var aliases = {
-    marginX: 'mx',
-    marginY: 'my',
-    paddingX: 'px',
-    paddingY: 'py'
-  }; // memoize() impact:
-  // From 300,000 ops/sec
-  // To 350,000 ops/sec
-
-  var getCssProperties = memoize$1(function (prop) {
-    // It's not a shorthand notation.
-    if (prop.length > 2) {
-      if (aliases[prop]) {
-        prop = aliases[prop];
-      } else {
-        return [prop];
-      }
-    }
-
-    var _prop$split = prop.split(''),
-        _prop$split2 = _slicedToArray(_prop$split, 2),
-        a = _prop$split2[0],
-        b = _prop$split2[1];
-
-    var property = properties[a];
-    var direction = directions[b] || '';
-    return Array.isArray(direction) ? direction.map(function (dir) {
-      return property + dir;
-    }) : [property + direction];
-  });
-  var spacingKeys = ['m', 'mt', 'mr', 'mb', 'ml', 'mx', 'my', 'p', 'pt', 'pr', 'pb', 'pl', 'px', 'py', 'margin', 'marginTop', 'marginRight', 'marginBottom', 'marginLeft', 'marginX', 'marginY', 'padding', 'paddingTop', 'paddingRight', 'paddingBottom', 'paddingLeft', 'paddingX', 'paddingY'];
-
-  function getTransformer(theme) {
-    var themeSpacing = theme.spacing || 8;
-
-    if (typeof themeSpacing === 'number') {
-      return function (abs) {
-        return themeSpacing * abs;
-      };
-    }
-
-    if (Array.isArray(themeSpacing)) {
-      return function (abs) {
-        {
-          if (abs > themeSpacing.length - 1) {
-            console.error(["@material-ui/system: the value provided (".concat(abs, ") overflows."), "The supported values are: ".concat(JSON.stringify(themeSpacing), "."), "".concat(abs, " > ").concat(themeSpacing.length - 1, ", you need to add the missing values.")].join('\n'));
-          }
-        }
-
-        return themeSpacing[abs];
-      };
-    }
-
-    if (typeof themeSpacing === 'function') {
-      return themeSpacing;
-    }
-
-    {
-      console.error(["@material-ui/system: the `theme.spacing` value (".concat(themeSpacing, ") is invalid."), 'It should be a number, an array or a function.'].join('\n'));
-    }
-
-    return function () {
-      return undefined;
-    };
-  }
-
-  function getValue(transformer, propValue) {
-    if (typeof propValue === 'string') {
-      return propValue;
-    }
-
-    var abs = Math.abs(propValue);
-    var transformed = transformer(abs);
-
-    if (propValue >= 0) {
-      return transformed;
-    }
-
-    if (typeof transformed === 'number') {
-      return -transformed;
-    }
-
-    return "-".concat(transformed);
-  }
-
-  function getStyleFromPropValue(cssProperties, transformer) {
-    return function (propValue) {
-      return cssProperties.reduce(function (acc, cssProperty) {
-        acc[cssProperty] = getValue(transformer, propValue);
-        return acc;
-      }, {});
-    };
-  }
-
-  function spacing(props) {
-    var theme = props.theme;
-    var transformer = getTransformer(theme);
-    return Object.keys(props).map(function (prop) {
-      // Using a hash computation over an array iteration could be faster, but with only 28 items,
-      // it's doesn't worth the bundle size.
-      if (spacingKeys.indexOf(prop) === -1) {
-        return null;
-      }
-
-      var cssProperties = getCssProperties(prop);
-      var styleFromPropValue = getStyleFromPropValue(cssProperties, transformer);
-      var propValue = props[prop];
-      return handleBreakpoints(props, propValue, styleFromPropValue);
-    }).reduce(merge, {});
-  }
-
-  spacing.propTypes =  spacingKeys.reduce(function (obj, key) {
-    obj[key] = responsivePropType;
-    return obj;
-  }, {}) ;
-  spacing.filterProps = spacingKeys;
-
-  var fontFamily = style$1({
-    prop: 'fontFamily',
-    themeKey: 'typography'
-  });
-  var fontSize = style$1({
-    prop: 'fontSize',
-    themeKey: 'typography'
-  });
-  var fontStyle = style$1({
-    prop: 'fontStyle',
-    themeKey: 'typography'
-  });
-  var fontWeight = style$1({
-    prop: 'fontWeight',
-    themeKey: 'typography'
-  });
-  var letterSpacing = style$1({
-    prop: 'letterSpacing'
-  });
-  var lineHeight = style$1({
-    prop: 'lineHeight'
-  });
-  var textAlign = style$1({
-    prop: 'textAlign'
-  });
-  var typography = compose(fontFamily, fontSize, fontStyle, fontWeight, letterSpacing, lineHeight, textAlign);
-
-  var styleFunction = css$1(compose(borders, display, flexbox, positions, palette, boxShadow, sizing, spacing, typography));
+  var styleFunction = css(compose(borders, display, flexbox, grid, positions, palette, boxShadow, sizing, spacing, typography));
   /**
    * @ignore - do not document.
    */
@@ -11623,7 +13325,7 @@
     name: 'MuiBox'
   });
 
-  var styles$b = function styles(theme) {
+  var styles$e = function styles(theme) {
     return {
       /* Styles applied to the root element. */
       root: {
@@ -11767,7 +13469,7 @@
     body1: 'p',
     body2: 'p'
   };
-  var Typography = React__default.forwardRef(function Typography(props, ref) {
+  var Typography = React.forwardRef(function Typography(props, ref) {
     var _props$align = props.align,
         align = _props$align === void 0 ? 'inherit' : _props$align,
         classes = props.classes,
@@ -11790,7 +13492,7 @@
         other = _objectWithoutProperties(props, ["align", "classes", "className", "color", "component", "display", "gutterBottom", "noWrap", "paragraph", "variant", "variantMapping"]);
 
     var Component = component || (paragraph ? 'p' : variantMapping[variant] || defaultVariantMapping[variant]) || 'span';
-    return React__default.createElement(Component, _extends({
+    return /*#__PURE__*/React.createElement(Component, _extends({
       className: clsx(classes.root, className, variant !== 'inherit' && classes[variant], color !== 'initial' && classes["color".concat(capitalize(color))], noWrap && classes.noWrap, gutterBottom && classes.gutterBottom, paragraph && classes.paragraph, align !== 'inherit' && classes["align".concat(capitalize(align))], display !== 'initial' && classes["display".concat(capitalize(display))]),
       ref: ref
     }, other));
@@ -11865,7 +13567,7 @@
      */
     variantMapping: propTypes.object
   } ;
-  var Typography$1 = withStyles$1(styles$b, {
+  var Typography$1 = withStyles$1(styles$e, {
     name: 'MuiTypography'
   })(Typography);
 
@@ -11873,23 +13575,19 @@
    * @ignore - internal component.
    */
 
-  var MoreHorizIcon = createSvgIcon(React__default.createElement("path", {
+  var MoreHorizIcon = createSvgIcon( /*#__PURE__*/React.createElement("path", {
     d: "M6 10c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zm12 0c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zm-6 0c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2z"
   }), 'MoreHoriz');
 
-  var styles$c = function styles(theme) {
+  var styles$f = function styles(theme) {
     return {
       root: {
-        display: 'flex'
-      },
-      icon: {
-        width: 24,
-        height: 16,
+        display: 'flex',
+        marginLeft: theme.spacing(0.5),
+        marginRight: theme.spacing(0.5),
         backgroundColor: theme.palette.grey[100],
         color: theme.palette.grey[700],
         borderRadius: 2,
-        marginLeft: theme.spacing(0.5),
-        marginRight: theme.spacing(0.5),
         cursor: 'pointer',
         '&:hover, &:focus': {
           backgroundColor: theme.palette.grey[200]
@@ -11898,6 +13596,10 @@
           boxShadow: theme.shadows[0],
           backgroundColor: emphasize(theme.palette.grey[200], 0.12)
         }
+      },
+      icon: {
+        width: 24,
+        height: 16
       }
     };
   };
@@ -11910,9 +13612,11 @@
     var classes = props.classes,
         other = _objectWithoutProperties(props, ["classes"]);
 
-    return React__default.createElement("li", _extends({
-      className: classes.root
-    }, other), React__default.createElement(MoreHorizIcon, {
+    return /*#__PURE__*/React.createElement(ButtonBase$1, _extends({
+      component: "li",
+      className: classes.root,
+      focusRipple: true
+    }, other), /*#__PURE__*/React.createElement(MoreHorizIcon, {
       className: classes.icon
     }));
   }
@@ -11923,11 +13627,11 @@
      */
     classes: propTypes.object.isRequired
   } ;
-  var BreadcrumbCollapsed$1 = withStyles$1(styles$c, {
+  var BreadcrumbCollapsed$1 = withStyles$1(styles$f, {
     name: 'PrivateBreadcrumbCollapsed'
   })(BreadcrumbCollapsed);
 
-  var styles$d = {
+  var styles$g = {
     /* Styles applied to the root element. */
     root: {},
 
@@ -11937,15 +13641,12 @@
       flexWrap: 'wrap',
       alignItems: 'center',
       padding: 0,
-      // Reset
-      margin: 0 // Reset
-
+      margin: 0,
+      listStyle: 'none'
     },
 
     /* Styles applied to the li element. */
-    li: {
-      listStyle: 'none'
-    },
+    li: {},
 
     /* Styles applied to the separator element. */
     separator: {
@@ -11959,7 +13660,7 @@
   function insertSeparators(items, className, separator) {
     return items.reduce(function (acc, current, index) {
       if (index < items.length - 1) {
-        acc = acc.concat(current, React__default.createElement("li", {
+        acc = acc.concat(current, /*#__PURE__*/React.createElement("li", {
           "aria-hidden": true,
           key: "separator-".concat(index),
           className: className
@@ -11972,12 +13673,14 @@
     }, []);
   }
 
-  var Breadcrumbs = React__default.forwardRef(function Breadcrumbs(props, ref) {
+  var Breadcrumbs = React.forwardRef(function Breadcrumbs(props, ref) {
     var children = props.children,
         classes = props.classes,
         className = props.className,
         _props$component = props.component,
         Component = _props$component === void 0 ? 'nav' : _props$component,
+        _props$expandText = props.expandText,
+        expandText = _props$expandText === void 0 ? 'Show path' : _props$expandText,
         _props$itemsAfterColl = props.itemsAfterCollapse,
         itemsAfterCollapse = _props$itemsAfterColl === void 0 ? 1 : _props$itemsAfterColl,
         _props$itemsBeforeCol = props.itemsBeforeCollapse,
@@ -11986,15 +13689,22 @@
         maxItems = _props$maxItems === void 0 ? 8 : _props$maxItems,
         _props$separator = props.separator,
         separator = _props$separator === void 0 ? '/' : _props$separator,
-        other = _objectWithoutProperties(props, ["children", "classes", "className", "component", "itemsAfterCollapse", "itemsBeforeCollapse", "maxItems", "separator"]);
+        other = _objectWithoutProperties(props, ["children", "classes", "className", "component", "expandText", "itemsAfterCollapse", "itemsBeforeCollapse", "maxItems", "separator"]);
 
-    var _React$useState = React__default.useState(false),
+    var _React$useState = React.useState(false),
         expanded = _React$useState[0],
         setExpanded = _React$useState[1];
 
     var renderItemsBeforeAndAfter = function renderItemsBeforeAndAfter(allItems) {
-      var handleClickExpand = function handleClickExpand() {
-        setExpanded(true);
+      var handleClickExpand = function handleClickExpand(event) {
+        setExpanded(true); // The clicked element received the focus but gets removed from the DOM.
+        // Let's keep the focus in the component after expanding.
+
+        var focusable = event.currentTarget.parentNode.querySelector('a[href],button,[tabindex]');
+
+        if (focusable) {
+          focusable.focus();
+        }
       }; // This defends against someone passing weird input, to ensure that if all
       // items would be shown anyway, we just show all items without the EllipsisItem
 
@@ -12007,32 +13717,33 @@
         return allItems;
       }
 
-      return [].concat(_toConsumableArray(allItems.slice(0, itemsBeforeCollapse)), [React__default.createElement(BreadcrumbCollapsed$1, {
+      return [].concat(_toConsumableArray(allItems.slice(0, itemsBeforeCollapse)), [/*#__PURE__*/React.createElement(BreadcrumbCollapsed$1, {
+        "aria-label": expandText,
         key: "ellipsis",
         onClick: handleClickExpand
       })], _toConsumableArray(allItems.slice(allItems.length - itemsAfterCollapse, allItems.length)));
     };
 
-    var allItems = React__default.Children.toArray(children).filter(function (child) {
+    var allItems = React.Children.toArray(children).filter(function (child) {
       {
         if (reactIs_2(child)) {
           console.error(["Material-UI: the Breadcrumbs component doesn't accept a Fragment as a child.", 'Consider providing an array instead.'].join('\n'));
         }
       }
 
-      return React__default.isValidElement(child);
+      return React.isValidElement(child);
     }).map(function (child, index) {
-      return React__default.createElement("li", {
+      return /*#__PURE__*/React.createElement("li", {
         className: classes.li,
         key: "child-".concat(index)
       }, child);
     });
-    return React__default.createElement(Typography$1, _extends({
+    return /*#__PURE__*/React.createElement(Typography$1, _extends({
       ref: ref,
       component: Component,
       color: "textSecondary",
       className: clsx(classes.root, className)
-    }, other), React__default.createElement("ol", {
+    }, other), /*#__PURE__*/React.createElement("ol", {
       className: classes.ol
     }, insertSeparators(expanded || maxItems && allItems.length <= maxItems ? allItems : renderItemsBeforeAndAfter(allItems), classes.separator, separator)));
   });
@@ -12061,6 +13772,13 @@
     component: propTypes.elementType,
 
     /**
+     * Override the default label for the expand button.
+     *
+     * For localization purposes, you can use the provided [translations](/guides/localization/).
+     */
+    expandText: propTypes.string,
+
+    /**
      * If max items is exceeded, the number of items to show after the ellipsis.
      */
     itemsAfterCollapse: propTypes.number,
@@ -12082,11 +13800,11 @@
      */
     separator: propTypes.node
   } ;
-  var Breadcrumbs$1 = withStyles$1(styles$d, {
+  var Breadcrumbs$1 = withStyles$1(styles$g, {
     name: 'MuiBreadcrumbs'
   })(Breadcrumbs);
 
-  var styles$e = function styles(theme) {
+  var styles$h = function styles(theme) {
     return {
       /* Styles applied to the root element. */
       root: _extends({}, theme.typography.button, {
@@ -12157,7 +13875,7 @@
         padding: '5px 15px',
         border: "1px solid ".concat(theme.palette.type === 'light' ? 'rgba(0, 0, 0, 0.23)' : 'rgba(255, 255, 255, 0.23)'),
         '&$disabled': {
-          border: "1px solid ".concat(theme.palette.action.disabled)
+          border: "1px solid ".concat(theme.palette.action.disabledBackground)
         }
       },
 
@@ -12366,7 +14084,7 @@
       }
     };
   };
-  var Button = React__default.forwardRef(function Button(props, ref) {
+  var Button = React.forwardRef(function Button(props, ref) {
     var children = props.children,
         classes = props.classes,
         className = props.className,
@@ -12393,13 +14111,13 @@
         variant = _props$variant === void 0 ? 'text' : _props$variant,
         other = _objectWithoutProperties(props, ["children", "classes", "className", "color", "component", "disabled", "disableElevation", "disableFocusRipple", "endIcon", "focusVisibleClassName", "fullWidth", "size", "startIcon", "type", "variant"]);
 
-    var startIcon = startIconProp && React__default.createElement("span", {
+    var startIcon = startIconProp && /*#__PURE__*/React.createElement("span", {
       className: clsx(classes.startIcon, classes["iconSize".concat(capitalize(size))])
     }, startIconProp);
-    var endIcon = endIconProp && React__default.createElement("span", {
+    var endIcon = endIconProp && /*#__PURE__*/React.createElement("span", {
       className: clsx(classes.endIcon, classes["iconSize".concat(capitalize(size))])
     }, endIconProp);
-    return React__default.createElement(ButtonBase$1, _extends({
+    return /*#__PURE__*/React.createElement(ButtonBase$1, _extends({
       className: clsx(classes.root, classes[variant], className, color === 'inherit' ? classes.colorInherit : color !== 'default' && classes["".concat(variant).concat(capitalize(color))], size !== 'medium' && [classes["".concat(variant, "Size").concat(capitalize(size))], classes["size".concat(capitalize(size))]], disableElevation && classes.disableElevation, disabled && classes.disabled, fullWidth && classes.fullWidth),
       component: component,
       disabled: disabled,
@@ -12407,7 +14125,7 @@
       focusVisibleClassName: clsx(classes.focusVisible, focusVisibleClassName),
       ref: ref,
       type: type
-    }, other), React__default.createElement("span", {
+    }, other), /*#__PURE__*/React.createElement("span", {
       className: classes.label
     }, startIcon, children, endIcon));
   });
@@ -12505,14 +14223,14 @@
      */
     variant: propTypes.oneOf(['text', 'outlined', 'contained'])
   } ;
-  var Button$1 = withStyles$1(styles$e, {
+  var Button$1 = withStyles$1(styles$h, {
     name: 'MuiButton'
   })(Button);
 
   // eslint-disable-next-line no-unused-expressions
 
   Button$1.styles;
-  var styles$f = function styles(theme) {
+  var styles$i = function styles(theme) {
     return {
       /* Styles applied to the root element. */
       root: {
@@ -12675,7 +14393,7 @@
       }
     };
   };
-  var ButtonGroup = React__default.forwardRef(function ButtonGroup(props, ref) {
+  var ButtonGroup = React.forwardRef(function ButtonGroup(props, ref) {
     var children = props.children,
         classes = props.classes,
         className = props.className,
@@ -12700,16 +14418,12 @@
         other = _objectWithoutProperties(props, ["children", "classes", "className", "color", "component", "disabled", "disableFocusRipple", "disableRipple", "fullWidth", "orientation", "size", "variant"]);
 
     var buttonClassName = clsx(classes.grouped, classes["grouped".concat(capitalize(orientation))], classes["grouped".concat(capitalize(variant))], classes["grouped".concat(capitalize(variant)).concat(capitalize(orientation))], classes["grouped".concat(capitalize(variant)).concat(color !== 'default' ? capitalize(color) : '')], disabled && classes.disabled);
-    return React__default.createElement(Component, _extends({
+    return /*#__PURE__*/React.createElement(Component, _extends({
       role: "group",
-      className: clsx(classes.root, className, fullWidth && classes.fullWidth, {
-        contained: classes.contained
-      }[variant], {
-        vertical: classes.vertical
-      }[orientation]),
+      className: clsx(classes.root, className, fullWidth && classes.fullWidth, variant === 'contained' && classes.contained, orientation === 'vertical' && classes.vertical),
       ref: ref
-    }, other), React__default.Children.map(children, function (child) {
-      if (!React__default.isValidElement(child)) {
+    }, other), React.Children.map(children, function (child) {
+      if (!React.isValidElement(child)) {
         return null;
       }
 
@@ -12719,7 +14433,7 @@
         }
       }
 
-      return React__default.cloneElement(child, {
+      return React.cloneElement(child, {
         className: clsx(buttonClassName, child.props.className),
         disabled: child.props.disabled || disabled,
         color: child.props.color || color,
@@ -12796,30 +14510,35 @@
      */
     variant: propTypes.oneOf(['text', 'outlined', 'contained'])
   } ;
-  var ButtonGroup$1 = withStyles$1(styles$f, {
+  var ButtonGroup$1 = withStyles$1(styles$i, {
     name: 'MuiButtonGroup'
   })(ButtonGroup);
 
-  var styles$g = {
+  var styles$j = {
     /* Styles applied to the root element. */
     root: {
       overflow: 'hidden'
     }
   };
-  var Card = React__default.forwardRef(function Card(props, ref) {
+  var Card = React.forwardRef(function Card(props, ref) {
     var classes = props.classes,
         className = props.className,
         _props$raised = props.raised,
         raised = _props$raised === void 0 ? false : _props$raised,
         other = _objectWithoutProperties(props, ["classes", "className", "raised"]);
 
-    return React__default.createElement(Paper$1, _extends({
+    return /*#__PURE__*/React.createElement(Paper$1, _extends({
       className: clsx(classes.root, className),
       elevation: raised ? 8 : 1,
       ref: ref
     }, other));
   });
    Card.propTypes = {
+    // ----------------------------- Warning --------------------------------
+    // | These PropTypes are generated from the TypeScript type definitions |
+    // |     To update them edit the d.ts file and run "yarn proptypes"     |
+    // ----------------------------------------------------------------------
+
     /**
      * The content of the component.
      */
@@ -12829,7 +14548,7 @@
      * Override or extend the styles applied to the component.
      * See [CSS API](#css) below for more details.
      */
-    classes: propTypes.object.isRequired,
+    classes: propTypes.object,
 
     /**
      * @ignore
@@ -12841,11 +14560,11 @@
      */
     raised: propTypes.bool
   } ;
-  var Card$1 = withStyles$1(styles$g, {
+  var Card$1 = withStyles$1(styles$j, {
     name: 'MuiCard'
   })(Card);
 
-  var styles$h = function styles(theme) {
+  var styles$k = function styles(theme) {
     return {
       /* Styles applied to the root element. */
       root: {
@@ -12881,18 +14600,18 @@
       }
     };
   };
-  var CardActionArea = React__default.forwardRef(function CardActionArea(props, ref) {
+  var CardActionArea = React.forwardRef(function CardActionArea(props, ref) {
     var children = props.children,
         classes = props.classes,
         className = props.className,
         focusVisibleClassName = props.focusVisibleClassName,
         other = _objectWithoutProperties(props, ["children", "classes", "className", "focusVisibleClassName"]);
 
-    return React__default.createElement(ButtonBase$1, _extends({
+    return /*#__PURE__*/React.createElement(ButtonBase$1, _extends({
       className: clsx(classes.root, className),
       focusVisibleClassName: clsx(focusVisibleClassName, classes.focusVisible),
       ref: ref
-    }, other), children, React__default.createElement("span", {
+    }, other), children, /*#__PURE__*/React.createElement("span", {
       className: classes.focusHighlight
     }));
   });
@@ -12918,11 +14637,11 @@
      */
     focusVisibleClassName: propTypes.string
   } ;
-  var CardActionArea$1 = withStyles$1(styles$h, {
+  var CardActionArea$1 = withStyles$1(styles$k, {
     name: 'MuiCardActionArea'
   })(CardActionArea);
 
-  var styles$i = {
+  var styles$l = {
     /* Styles applied to the root element. */
     root: {
       display: 'flex',
@@ -12937,19 +14656,24 @@
       }
     }
   };
-  var CardActions = React__default.forwardRef(function CardActions(props, ref) {
+  var CardActions = React.forwardRef(function CardActions(props, ref) {
     var _props$disableSpacing = props.disableSpacing,
         disableSpacing = _props$disableSpacing === void 0 ? false : _props$disableSpacing,
         classes = props.classes,
         className = props.className,
         other = _objectWithoutProperties(props, ["disableSpacing", "classes", "className"]);
 
-    return React__default.createElement("div", _extends({
+    return /*#__PURE__*/React.createElement("div", _extends({
       className: clsx(classes.root, className, !disableSpacing && classes.spacing),
       ref: ref
     }, other));
   });
    CardActions.propTypes = {
+    // ----------------------------- Warning --------------------------------
+    // | These PropTypes are generated from the TypeScript type definitions |
+    // |     To update them edit the d.ts file and run "yarn proptypes"     |
+    // ----------------------------------------------------------------------
+
     /**
      * The content of the component.
      */
@@ -12959,7 +14683,7 @@
      * Override or extend the styles applied to the component.
      * See [CSS API](#css) below for more details.
      */
-    classes: propTypes.object.isRequired,
+    classes: propTypes.object,
 
     /**
      * @ignore
@@ -12971,11 +14695,11 @@
      */
     disableSpacing: propTypes.bool
   } ;
-  var CardActions$1 = withStyles$1(styles$i, {
+  var CardActions$1 = withStyles$1(styles$l, {
     name: 'MuiCardActions'
   })(CardActions);
 
-  var styles$j = {
+  var styles$m = {
     /* Styles applied to the root element. */
     root: {
       padding: 16,
@@ -12984,14 +14708,14 @@
       }
     }
   };
-  var CardContent = React__default.forwardRef(function CardContent(props, ref) {
+  var CardContent = React.forwardRef(function CardContent(props, ref) {
     var classes = props.classes,
         className = props.className,
         _props$component = props.component,
         Component = _props$component === void 0 ? 'div' : _props$component,
         other = _objectWithoutProperties(props, ["classes", "className", "component"]);
 
-    return React__default.createElement(Component, _extends({
+    return /*#__PURE__*/React.createElement(Component, _extends({
       className: clsx(classes.root, className),
       ref: ref
     }, other));
@@ -13019,11 +14743,11 @@
      */
     component: propTypes.elementType
   } ;
-  var CardContent$1 = withStyles$1(styles$j, {
+  var CardContent$1 = withStyles$1(styles$m, {
     name: 'MuiCardContent'
   })(CardContent);
 
-  var styles$k = {
+  var styles$n = {
     /* Styles applied to the root element. */
     root: {
       display: 'flex',
@@ -13056,7 +14780,7 @@
     /* Styles applied to the subheader Typography element. */
     subheader: {}
   };
-  var CardHeader = React__default.forwardRef(function CardHeader(props, ref) {
+  var CardHeader = React.forwardRef(function CardHeader(props, ref) {
     var action = props.action,
         avatar = props.avatar,
         classes = props.classes,
@@ -13074,7 +14798,7 @@
     var title = titleProp;
 
     if (title != null && title.type !== Typography$1 && !disableTypography) {
-      title = React__default.createElement(Typography$1, _extends({
+      title = /*#__PURE__*/React.createElement(Typography$1, _extends({
         variant: avatar ? 'body2' : 'h5',
         className: classes.title,
         component: "span",
@@ -13085,7 +14809,7 @@
     var subheader = subheaderProp;
 
     if (subheader != null && subheader.type !== Typography$1 && !disableTypography) {
-      subheader = React__default.createElement(Typography$1, _extends({
+      subheader = /*#__PURE__*/React.createElement(Typography$1, _extends({
         variant: avatar ? 'body2' : 'body1',
         className: classes.subheader,
         color: "textSecondary",
@@ -13094,14 +14818,14 @@
       }, subheaderTypographyProps), subheader);
     }
 
-    return React__default.createElement(Component, _extends({
+    return /*#__PURE__*/React.createElement(Component, _extends({
       className: clsx(classes.root, className),
       ref: ref
-    }, other), avatar && React__default.createElement("div", {
+    }, other), avatar && /*#__PURE__*/React.createElement("div", {
       className: classes.avatar
-    }, avatar), React__default.createElement("div", {
+    }, avatar), /*#__PURE__*/React.createElement("div", {
       className: classes.content
-    }, title, subheader), action && React__default.createElement("div", {
+    }, title, subheader), action && /*#__PURE__*/React.createElement("div", {
       className: classes.action
     }, action));
   });
@@ -13163,11 +14887,11 @@
      */
     titleTypographyProps: propTypes.object
   } ;
-  var CardHeader$1 = withStyles$1(styles$k, {
+  var CardHeader$1 = withStyles$1(styles$n, {
     name: 'MuiCardHeader'
   })(CardHeader);
 
-  var styles$l = {
+  var styles$o = {
     /* Styles applied to the root element. */
     root: {
       display: 'block',
@@ -13188,7 +14912,7 @@
     }
   };
   var MEDIA_COMPONENTS = ['video', 'audio', 'picture', 'iframe', 'img'];
-  var CardMedia = React__default.forwardRef(function CardMedia(props, ref) {
+  var CardMedia = React.forwardRef(function CardMedia(props, ref) {
     var children = props.children,
         classes = props.classes,
         className = props.className,
@@ -13203,7 +14927,7 @@
     var composedStyle = !isMediaComponent && image ? _extends({
       backgroundImage: "url(\"".concat(image, "\")")
     }, style) : style;
-    return React__default.createElement(Component, _extends({
+    return /*#__PURE__*/React.createElement(Component, _extends({
       className: clsx(classes.root, className, isMediaComponent && classes.media, "picture img".indexOf(Component) !== -1 && classes.img),
       ref: ref,
       style: composedStyle,
@@ -13215,8 +14939,8 @@
      * The content of the component.
      */
     children: chainPropTypes(propTypes.node, function (props) {
-      if (!props.children && !props.image && !props.src) {
-        return new Error('Material-UI: either `children`, `image` or `src` prop must be specified.');
+      if (!props.children && !props.image && !props.src && !props.component) {
+        return new Error('Material-UI: either `children`, `image`, `src` or `component` prop must be specified.');
       }
 
       return null;
@@ -13258,68 +14982,29 @@
      */
     style: propTypes.object
   } ;
-  var CardMedia$1 = withStyles$1(styles$l, {
+  var CardMedia$1 = withStyles$1(styles$o, {
     name: 'MuiCardMedia'
   })(CardMedia);
-
-  function useControlled(_ref) {
-    var controlled = _ref.controlled,
-        defaultProp = _ref.default,
-        name = _ref.name;
-
-    var _React$useRef = React__default.useRef(controlled !== undefined),
-        isControlled = _React$useRef.current;
-
-    var _React$useState = React__default.useState(defaultProp),
-        valueState = _React$useState[0],
-        setValue = _React$useState[1];
-
-    var value = isControlled ? controlled : valueState;
-
-    {
-      React__default.useEffect(function () {
-        if (isControlled !== (controlled !== undefined)) {
-          console.error(["Material-UI: A component is changing ".concat(isControlled ? 'a ' : 'an un', "controlled ").concat(name, " to be ").concat(isControlled ? 'un' : '', "controlled."), 'Elements should not switch from uncontrolled to controlled (or vice versa).', "Decide between using a controlled or uncontrolled ".concat(name, " ") + 'element for the lifetime of the component.', 'More info: https://fb.me/react-controlled-components'].join('\n'));
-        }
-      }, [controlled]);
-
-      var _React$useRef2 = React__default.useRef(defaultProp),
-          defaultValue = _React$useRef2.current;
-
-      React__default.useEffect(function () {
-        if (defaultValue !== defaultProp) {
-          console.error(["Material-UI: A component is changing the default value of an uncontrolled ".concat(name, " after being initialized. ") + "To suppress this warning opt to use a controlled ".concat(name, ".")].join('\n'));
-        }
-      }, [JSON.stringify(defaultProp)]);
-    }
-
-    var setValueIfUncontrolled = React__default.useCallback(function (newValue) {
-      if (!isControlled) {
-        setValue(newValue);
-      }
-    }, []);
-    return [value, setValueIfUncontrolled];
-  }
 
   /**
    * @ignore - internal component.
    */
 
-  var FormControlContext = React__default.createContext();
+  var FormControlContext = React.createContext();
 
   {
     FormControlContext.displayName = 'FormControlContext';
   }
 
   function useFormControl() {
-    return React__default.useContext(FormControlContext);
+    return React.useContext(FormControlContext);
   }
 
   function useFormControl$1() {
-    return React__default.useContext(FormControlContext);
+    return React.useContext(FormControlContext);
   }
 
-  var styles$m = function styles(theme) {
+  var styles$p = function styles(theme) {
     return {
       /* Styles applied to the root element. */
       root: {
@@ -13415,7 +15100,7 @@
    * regarding the available icon options.
    */
 
-  var IconButton = React__default.forwardRef(function IconButton(props, ref) {
+  var IconButton = React.forwardRef(function IconButton(props, ref) {
     var _props$edge = props.edge,
         edge = _props$edge === void 0 ? false : _props$edge,
         children = props.children,
@@ -13431,18 +15116,16 @@
         size = _props$size === void 0 ? 'medium' : _props$size,
         other = _objectWithoutProperties(props, ["edge", "children", "classes", "className", "color", "disabled", "disableFocusRipple", "size"]);
 
-    return React__default.createElement(ButtonBase$1, _extends({
-      className: clsx(classes.root, className, color !== 'default' && classes["color".concat(capitalize(color))], disabled && classes.disabled, {
-        small: classes["size".concat(capitalize(size))]
-      }[size], {
-        start: classes.edgeStart,
-        end: classes.edgeEnd
+    return /*#__PURE__*/React.createElement(ButtonBase$1, _extends({
+      className: clsx(classes.root, className, color !== 'default' && classes["color".concat(capitalize(color))], disabled && classes.disabled, size === "small" && classes["size".concat(capitalize(size))], {
+        'start': classes.edgeStart,
+        'end': classes.edgeEnd
       }[edge]),
       centerRipple: true,
       focusRipple: !disableFocusRipple,
       disabled: disabled,
       ref: ref
-    }, other), React__default.createElement("span", {
+    }, other), /*#__PURE__*/React.createElement("span", {
       className: classes.label
     }, children));
   });
@@ -13451,8 +15134,8 @@
      * The icon element.
      */
     children: chainPropTypes(propTypes.node, function (props) {
-      var found = React__default.Children.toArray(props.children).some(function (child) {
-        return React__default.isValidElement(child) && child.props.onClick;
+      var found = React.Children.toArray(props.children).some(function (child) {
+        return React.isValidElement(child) && child.props.onClick;
       });
 
       if (found) {
@@ -13508,11 +15191,11 @@
      */
     size: propTypes.oneOf(['small', 'medium'])
   } ;
-  var IconButton$1 = withStyles$1(styles$m, {
+  var IconButton$1 = withStyles$1(styles$p, {
     name: 'MuiIconButton'
   })(IconButton);
 
-  var styles$n = {
+  var styles$q = {
     root: {
       padding: 9
     },
@@ -13535,7 +15218,7 @@
    * @ignore - internal component.
    */
 
-  var SwitchBase = React__default.forwardRef(function SwitchBase(props, ref) {
+  var SwitchBase = React.forwardRef(function SwitchBase(props, ref) {
     var autoFocus = props.autoFocus,
         checkedProp = props.checked,
         checkedIcon = props.checkedIcon,
@@ -13561,7 +15244,8 @@
     var _useControlled = useControlled({
       controlled: checkedProp,
       default: Boolean(defaultChecked),
-      name: 'SwitchBase'
+      name: 'SwitchBase',
+      state: 'checked'
     }),
         _useControlled2 = _slicedToArray(_useControlled, 2),
         checked = _useControlled2[0],
@@ -13594,6 +15278,7 @@
       setCheckedState(newChecked);
 
       if (onChange) {
+        // TODO v5: remove the second argument.
         onChange(event, newChecked);
       }
     };
@@ -13607,7 +15292,7 @@
     }
 
     var hasLabelFor = type === 'checkbox' || type === 'radio';
-    return React__default.createElement(IconButton$1, _extends({
+    return /*#__PURE__*/React.createElement(IconButton$1, _extends({
       component: "span",
       className: clsx(classes.root, className, checked && classes.checked, disabled && classes.disabled),
       disabled: disabled,
@@ -13616,7 +15301,7 @@
       onFocus: handleFocus,
       onBlur: handleBlur,
       ref: ref
-    }, other), React__default.createElement("input", _extends({
+    }, other), /*#__PURE__*/React.createElement("input", _extends({
       autoFocus: autoFocus,
       checked: checkedProp,
       defaultChecked: defaultChecked,
@@ -13741,7 +15426,7 @@
      */
     value: propTypes.any
   } ;
-  var SwitchBase$1 = withStyles$1(styles$n, {
+  var SwitchBase$1 = withStyles$1(styles$q, {
     name: 'PrivateSwitchBase'
   })(SwitchBase);
 
@@ -13749,7 +15434,7 @@
    * @ignore - internal component.
    */
 
-  var CheckBoxOutlineBlankIcon = createSvgIcon(React__default.createElement("path", {
+  var CheckBoxOutlineBlankIcon = createSvgIcon( /*#__PURE__*/React.createElement("path", {
     d: "M19 5v14H5V5h14m0-2H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2z"
   }), 'CheckBoxOutlineBlank');
 
@@ -13757,7 +15442,7 @@
    * @ignore - internal component.
    */
 
-  var CheckBoxIcon = createSvgIcon(React__default.createElement("path", {
+  var CheckBoxIcon = createSvgIcon( /*#__PURE__*/React.createElement("path", {
     d: "M19 3H5c-1.11 0-2 .9-2 2v14c0 1.1.89 2 2 2h14c1.11 0 2-.9 2-2V5c0-1.1-.89-2-2-2zm-9 14l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"
   }), 'CheckBox');
 
@@ -13765,11 +15450,11 @@
    * @ignore - internal component.
    */
 
-  var IndeterminateCheckBoxIcon = createSvgIcon(React__default.createElement("path", {
+  var IndeterminateCheckBoxIcon = createSvgIcon( /*#__PURE__*/React.createElement("path", {
     d: "M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-2 10H7v-2h10v2z"
   }), 'IndeterminateCheckBox');
 
-  var styles$o = function styles(theme) {
+  var styles$r = function styles(theme) {
     return {
       /* Styles applied to the root element. */
       root: {
@@ -13820,17 +15505,15 @@
       }
     };
   };
-  var defaultCheckedIcon = React__default.createElement(CheckBoxIcon, null);
-  var defaultIcon = React__default.createElement(CheckBoxOutlineBlankIcon, null);
-  var defaultIndeterminateIcon = React__default.createElement(IndeterminateCheckBoxIcon, null);
-  var Checkbox = React__default.forwardRef(function Checkbox(props, ref) {
+  var defaultCheckedIcon = /*#__PURE__*/React.createElement(CheckBoxIcon, null);
+  var defaultIcon = /*#__PURE__*/React.createElement(CheckBoxOutlineBlankIcon, null);
+  var defaultIndeterminateIcon = /*#__PURE__*/React.createElement(IndeterminateCheckBoxIcon, null);
+  var Checkbox = React.forwardRef(function Checkbox(props, ref) {
     var _props$checkedIcon = props.checkedIcon,
         checkedIcon = _props$checkedIcon === void 0 ? defaultCheckedIcon : _props$checkedIcon,
         classes = props.classes,
         _props$color = props.color,
         color = _props$color === void 0 ? 'secondary' : _props$color,
-        _props$disabled = props.disabled,
-        disabled = _props$disabled === void 0 ? false : _props$disabled,
         _props$icon = props.icon,
         icon = _props$icon === void 0 ? defaultIcon : _props$icon,
         _props$indeterminate = props.indeterminate,
@@ -13840,9 +15523,9 @@
         inputProps = props.inputProps,
         _props$size = props.size,
         size = _props$size === void 0 ? 'medium' : _props$size,
-        other = _objectWithoutProperties(props, ["checkedIcon", "classes", "color", "disabled", "icon", "indeterminate", "indeterminateIcon", "inputProps", "size"]);
+        other = _objectWithoutProperties(props, ["checkedIcon", "classes", "color", "icon", "indeterminate", "indeterminateIcon", "inputProps", "size"]);
 
-    return React__default.createElement(SwitchBase$1, _extends({
+    return /*#__PURE__*/React.createElement(SwitchBase$1, _extends({
       type: "checkbox",
       classes: {
         root: clsx(classes.root, classes["color".concat(capitalize(color))], indeterminate && classes.indeterminate),
@@ -13853,17 +15536,21 @@
       inputProps: _extends({
         'data-indeterminate': indeterminate
       }, inputProps),
-      icon: React__default.cloneElement(indeterminate ? indeterminateIcon : icon, {
+      icon: React.cloneElement(indeterminate ? indeterminateIcon : icon, {
         fontSize: size === 'small' ? 'small' : 'default'
       }),
-      checkedIcon: React__default.cloneElement(indeterminate ? indeterminateIcon : checkedIcon, {
+      checkedIcon: React.cloneElement(indeterminate ? indeterminateIcon : checkedIcon, {
         fontSize: size === 'small' ? 'small' : 'default'
       }),
-      ref: ref,
-      disabled: disabled
+      ref: ref
     }, other));
   });
    Checkbox.propTypes = {
+    // ----------------------------- Warning --------------------------------
+    // | These PropTypes are generated from the TypeScript type definitions |
+    // |     To update them edit the d.ts file and run "yarn proptypes"     |
+    // ----------------------------------------------------------------------
+
     /**
      * If `true`, the component is checked.
      */
@@ -13878,15 +15565,15 @@
      * Override or extend the styles applied to the component.
      * See [CSS API](#css) below for more details.
      */
-    classes: propTypes.object.isRequired,
+    classes: propTypes.object,
 
     /**
      * The color of the component. It supports those theme colors that make sense for this component.
      */
-    color: propTypes.oneOf(['primary', 'secondary', 'default']),
+    color: propTypes.oneOf(['default', 'primary', 'secondary']),
 
     /**
-     * If `true`, the switch will be disabled.
+     * If `true`, the checkbox will be disabled.
      */
     disabled: propTypes.bool,
 
@@ -13945,19 +15632,15 @@
      * The size of the checkbox.
      * `small` is equivalent to the dense checkbox styling.
      */
-    size: propTypes.oneOf(['small', 'medium']),
-
-    /**
-     * The input component prop `type`.
-     */
-    type: propTypes.string,
+    size: propTypes.oneOf(['medium', 'small']),
 
     /**
      * The value of the component. The DOM API casts this to a string.
+     * The browser uses "on" as the default value.
      */
     value: propTypes.any
   } ;
-  var Checkbox$1 = withStyles$1(styles$o, {
+  var Checkbox$1 = withStyles$1(styles$r, {
     name: 'MuiCheckbox'
   })(Checkbox);
 
@@ -13965,11 +15648,11 @@
    * @ignore - internal component.
    */
 
-  var CancelIcon = createSvgIcon(React__default.createElement("path", {
+  var CancelIcon = createSvgIcon( /*#__PURE__*/React.createElement("path", {
     d: "M12 2C6.47 2 2 6.47 2 12s4.47 10 10 10 10-4.47 10-10S17.53 2 12 2zm5 13.59L15.59 17 12 13.41 8.41 17 7 15.59 10.59 12 7 8.41 8.41 7 12 10.59 15.59 7 17 8.41 13.41 12 17 15.59z"
   }), 'Cancel');
 
-  var styles$p = function styles(theme) {
+  var styles$s = function styles(theme) {
     var backgroundColor = theme.palette.type === 'light' ? theme.palette.grey[300] : theme.palette.grey[700];
     var deleteIconColor = fade(theme.palette.text.primary, 0.26);
     return {
@@ -14138,7 +15821,7 @@
           backgroundColor: fade(theme.palette.secondary.main, theme.palette.action.hoverOpacity)
         }
       },
-      // TODO remove in V5
+      // TODO v5: remove
 
       /* Styles applied to the `avatar` element. */
       avatar: {},
@@ -14246,11 +15929,16 @@
       }
     };
   };
+
+  function isDeleteKeyboardEvent(keyboardEvent) {
+    return keyboardEvent.key === 'Backspace' || keyboardEvent.key === 'Delete';
+  }
   /**
    * Chips represent complex entities in small blocks, such as a contact.
    */
 
-  var Chip = React__default.forwardRef(function Chip(props, ref) {
+
+  var Chip = React.forwardRef(function Chip(props, ref) {
     var avatarProp = props.avatar,
         classes = props.classes,
         className = props.className,
@@ -14265,14 +15953,15 @@
         label = props.label,
         onClick = props.onClick,
         onDelete = props.onDelete,
+        onKeyDown = props.onKeyDown,
         onKeyUp = props.onKeyUp,
         _props$size = props.size,
         size = _props$size === void 0 ? 'medium' : _props$size,
         _props$variant = props.variant,
         variant = _props$variant === void 0 ? 'default' : _props$variant,
-        other = _objectWithoutProperties(props, ["avatar", "classes", "className", "clickable", "color", "component", "deleteIcon", "disabled", "icon", "label", "onClick", "onDelete", "onKeyUp", "size", "variant"]);
+        other = _objectWithoutProperties(props, ["avatar", "classes", "className", "clickable", "color", "component", "deleteIcon", "disabled", "icon", "label", "onClick", "onDelete", "onKeyDown", "onKeyUp", "size", "variant"]);
 
-    var chipRef = React__default.useRef(null);
+    var chipRef = React.useRef(null);
     var handleRef = useForkRef(chipRef, ref);
 
     var handleDeleteIconClick = function handleDeleteIconClick(event) {
@@ -14284,22 +15973,31 @@
       }
     };
 
-    var handleKeyUp = function handleKeyUp(event) {
-      if (onKeyUp) {
-        onKeyUp(event);
-      } // Ignore events from children of `Chip`.
-
-
-      if (event.currentTarget !== event.target) {
-        return;
+    var handleKeyDown = function handleKeyDown(event) {
+      // Ignore events from children of `Chip`.
+      if (event.currentTarget === event.target && isDeleteKeyboardEvent(event)) {
+        // will be handled in keyUp, otherwise some browsers
+        // might init navigation
+        event.preventDefault();
       }
 
-      var key = event.key;
+      if (onKeyDown) {
+        onKeyDown(event);
+      }
+    };
 
-      if (onDelete && (key === 'Backspace' || key === 'Delete')) {
-        onDelete(event);
-      } else if (key === 'Escape' && chipRef.current) {
-        chipRef.current.blur();
+    var handleKeyUp = function handleKeyUp(event) {
+      // Ignore events from children of `Chip`.
+      if (event.currentTarget === event.target) {
+        if (onDelete && isDeleteKeyboardEvent(event)) {
+          onDelete(event);
+        } else if (event.key === 'Escape' && chipRef.current) {
+          chipRef.current.blur();
+        }
+      }
+
+      if (onKeyUp) {
+        onKeyUp(event);
       }
     };
 
@@ -14313,10 +16011,10 @@
 
     if (onDelete) {
       var customClasses = clsx(color !== 'default' && (variant === "default" ? classes["deleteIconColor".concat(capitalize(color))] : classes["deleteIconOutlinedColor".concat(capitalize(color))]), small && classes.deleteIconSmall);
-      deleteIcon = deleteIconProp && React__default.isValidElement(deleteIconProp) ? React__default.cloneElement(deleteIconProp, {
+      deleteIcon = deleteIconProp && React.isValidElement(deleteIconProp) ? React.cloneElement(deleteIconProp, {
         className: clsx(deleteIconProp.props.className, classes.deleteIcon, customClasses),
         onClick: handleDeleteIconClick
-      }) : React__default.createElement(CancelIcon, {
+      }) : /*#__PURE__*/React.createElement(CancelIcon, {
         className: clsx(classes.deleteIcon, customClasses),
         onClick: handleDeleteIconClick
       });
@@ -14324,16 +16022,16 @@
 
     var avatar = null;
 
-    if (avatarProp && React__default.isValidElement(avatarProp)) {
-      avatar = React__default.cloneElement(avatarProp, {
+    if (avatarProp && React.isValidElement(avatarProp)) {
+      avatar = React.cloneElement(avatarProp, {
         className: clsx(classes.avatar, avatarProp.props.className, small && classes.avatarSmall, color !== 'default' && classes["avatarColor".concat(capitalize(color))])
       });
     }
 
     var icon = null;
 
-    if (iconProp && React__default.isValidElement(iconProp)) {
-      icon = React__default.cloneElement(iconProp, {
+    if (iconProp && React.isValidElement(iconProp)) {
+      icon = React.cloneElement(iconProp, {
         className: clsx(classes.icon, iconProp.props.className, small && classes.iconSmall, color !== 'default' && classes["iconColor".concat(capitalize(color))])
       });
     }
@@ -14344,18 +16042,19 @@
       }
     }
 
-    return React__default.createElement(Component, _extends({
+    return /*#__PURE__*/React.createElement(Component, _extends({
       role: clickable || onDelete ? 'button' : undefined,
       className: clsx(classes.root, className, color !== 'default' && [classes["color".concat(capitalize(color))], clickable && classes["clickableColor".concat(capitalize(color))], onDelete && classes["deletableColor".concat(capitalize(color))]], variant !== "default" && [classes.outlined, {
-        primary: classes.outlinedPrimary,
-        secondary: classes.outlinedSecondary
+        'primary': classes.outlinedPrimary,
+        'secondary': classes.outlinedSecondary
       }[color]], disabled && classes.disabled, small && classes.sizeSmall, clickable && classes.clickable, onDelete && classes.deletable),
       "aria-disabled": disabled ? true : undefined,
       tabIndex: clickable || onDelete ? 0 : undefined,
       onClick: onClick,
+      onKeyDown: handleKeyDown,
       onKeyUp: handleKeyUp,
       ref: handleRef
-    }, moreProps, other), avatar || icon, React__default.createElement("span", {
+    }, moreProps, other), avatar || icon, /*#__PURE__*/React.createElement("span", {
       className: clsx(classes.label, small && classes.labelSmall)
     }, label), deleteIcon);
   });
@@ -14453,7 +16152,7 @@
      */
     variant: propTypes.oneOf(['default', 'outlined'])
   } ;
-  var Chip$1 = withStyles$1(styles$p, {
+  var Chip$1 = withStyles$1(styles$s, {
     name: 'MuiChip'
   })(Chip);
 
@@ -14474,7 +16173,7 @@
     return t * t;
   }
 
-  var styles$q = function styles(theme) {
+  var styles$t = function styles(theme) {
     return {
       /* Styles applied to the root element. */
       root: {
@@ -14561,7 +16260,7 @@
    * attribute to `true` on that region until it has finished loading.
    */
 
-  var CircularProgress = React__default.forwardRef(function CircularProgress(props, ref) {
+  var CircularProgress = React.forwardRef(function CircularProgress(props, ref) {
     var classes = props.classes,
         className = props.className,
         _props$color = props.color,
@@ -14597,10 +16296,10 @@
       }
     }
 
-    return React__default.createElement("div", _extends({
+    return /*#__PURE__*/React.createElement("div", _extends({
       className: clsx(classes.root, className, color !== 'inherit' && classes["color".concat(capitalize(color))], {
-        indeterminate: classes.indeterminate,
-        static: classes.static
+        'indeterminate': classes.indeterminate,
+        'static': classes.static
       }[variant]),
       style: _extends({
         width: size,
@@ -14608,13 +16307,13 @@
       }, rootStyle, {}, style),
       ref: ref,
       role: "progressbar"
-    }, rootProps, other), React__default.createElement("svg", {
+    }, rootProps, other), /*#__PURE__*/React.createElement("svg", {
       className: classes.svg,
       viewBox: "".concat(SIZE / 2, " ").concat(SIZE / 2, " ").concat(SIZE, " ").concat(SIZE)
-    }, React__default.createElement("circle", {
+    }, /*#__PURE__*/React.createElement("circle", {
       className: clsx(classes.circle, disableShrink && classes.circleDisableShrink, {
-        indeterminate: classes.circleIndeterminate,
-        static: classes.circleStatic
+        'indeterminate': classes.circleIndeterminate,
+        'static': classes.circleStatic
       }[variant]),
       style: circleStyle,
       cx: SIZE,
@@ -14625,11 +16324,16 @@
     })));
   });
    CircularProgress.propTypes = {
+    // ----------------------------- Warning --------------------------------
+    // | These PropTypes are generated from the TypeScript type definitions |
+    // |     To update them edit the d.ts file and run "yarn proptypes"     |
+    // ----------------------------------------------------------------------
+
     /**
      * Override or extend the styles applied to the component.
      * See [CSS API](#css) below for more details.
      */
-    classes: propTypes.object.isRequired,
+    classes: propTypes.object,
 
     /**
      * @ignore
@@ -14639,7 +16343,7 @@
     /**
      * The color of the component. It supports those theme colors that make sense for this component.
      */
-    color: propTypes.oneOf(['primary', 'secondary', 'inherit']),
+    color: propTypes.oneOf(['inherit', 'primary', 'secondary']),
 
     /**
      * If `true`, the shrink animation is disabled.
@@ -14682,14 +16386,10 @@
      */
     variant: propTypes.oneOf(['determinate', 'indeterminate', 'static'])
   } ;
-  var CircularProgress$1 = withStyles$1(styles$q, {
+  var CircularProgress$1 = withStyles$1(styles$t, {
     name: 'MuiCircularProgress',
     flip: false
   })(CircularProgress);
-
-  function ownerDocument(node) {
-    return node && node.ownerDocument || document;
-  }
 
   function mapEventPropToEvent(eventProp) {
     return eventProp.substring(2).toLowerCase();
@@ -14700,38 +16400,45 @@
    */
 
 
-  var ClickAwayListener = React__default.forwardRef(function ClickAwayListener(props, ref) {
+  function ClickAwayListener(props) {
     var children = props.children,
+        _props$disableReactTr = props.disableReactTree,
+        disableReactTree = _props$disableReactTr === void 0 ? false : _props$disableReactTr,
         _props$mouseEvent = props.mouseEvent,
         mouseEvent = _props$mouseEvent === void 0 ? 'onClick' : _props$mouseEvent,
+        onClickAway = props.onClickAway,
         _props$touchEvent = props.touchEvent,
-        touchEvent = _props$touchEvent === void 0 ? 'onTouchEnd' : _props$touchEvent,
-        onClickAway = props.onClickAway;
-    var movedRef = React__default.useRef(false);
-    var nodeRef = React__default.useRef(null);
-    var mountedRef = React__default.useRef(false);
-    React__default.useEffect(function () {
+        touchEvent = _props$touchEvent === void 0 ? 'onTouchEnd' : _props$touchEvent;
+    var movedRef = React.useRef(false);
+    var nodeRef = React.useRef(null);
+    var mountedRef = React.useRef(false);
+    var syntheticEventRef = React.useRef(false);
+    React.useEffect(function () {
       mountedRef.current = true;
       return function () {
         mountedRef.current = false;
       };
-    }, []);
-    var handleNodeRef = useForkRef(nodeRef, ref); // can be removed once we drop support for non ref forwarding class components
+    }, []); // can be removed once we drop support for non ref forwarding class components
 
-    var handleOwnRef = React__default.useCallback(function (instance) {
+    var handleOwnRef = React.useCallback(function (instance) {
       // #StrictMode ready
-      setRef(handleNodeRef, ReactDOM.findDOMNode(instance));
-    }, [handleNodeRef]);
-    var handleRef = useForkRef(children.ref, handleOwnRef);
+      nodeRef.current = ReactDOM.findDOMNode(instance);
+    }, []);
+    var handleRef = useForkRef(children.ref, handleOwnRef); // The handler doesn't take event.defaultPrevented into account:
+    //
+    // event.preventDefault() is meant to stop default behaviours like
+    // clicking a checkbox to check it, hitting a button to submit a form,
+    // and hitting left arrow to move the cursor in a text input etc.
+    // Only special HTML elements have these default behaviors.
+
     var handleClickAway = useEventCallback(function (event) {
-      // The handler doesn't take event.defaultPrevented into account:
-      //
-      // event.preventDefault() is meant to stop default behaviours like
-      // clicking a checkbox to check it, hitting a button to submit a form,
-      // and hitting left arrow to move the cursor in a text input etc.
-      // Only special HTML elements have these default behaviors.
-      // IE 11 support, which trigger the handleClickAway even after the unbind
-      if (!mountedRef.current) {
+      // Given developers can stop the propagation of the synthetic event,
+      // we can only be confident with a positive value.
+      var insideReactTree = syntheticEventRef.current;
+      syntheticEventRef.current = false; // 1. IE 11 support, which trigger the handleClickAway even after the unbind
+      // 2. The child might render null.
+
+      if (!mountedRef.current || !nodeRef.current) {
         return;
       } // Do not act if user performed touchmove
 
@@ -14739,27 +16446,54 @@
       if (movedRef.current) {
         movedRef.current = false;
         return;
-      } // The child might render null.
+      }
 
+      var insideDOM; // If not enough, can use https://github.com/DieterHolvoet/event-propagation-path/blob/master/propagationPath.js
 
-      if (!nodeRef.current) {
-        return;
-      } // Multi window support
+      if (event.composedPath) {
+        insideDOM = event.composedPath().indexOf(nodeRef.current) > -1;
+      } else {
+        var doc = ownerDocument(nodeRef.current); // TODO v6 remove dead logic https://caniuse.com/#search=composedPath.
+        // `doc.contains` works in modern browsers but isn't supported in IE 11:
+        // https://github.com/timmywil/panzoom/issues/450
+        // https://github.com/videojs/video.js/pull/5872
 
+        insideDOM = !(doc.documentElement && doc.documentElement.contains(event.target)) || nodeRef.current.contains(event.target);
+      }
 
-      var doc = ownerDocument(nodeRef.current);
-
-      if (doc.documentElement && doc.documentElement.contains(event.target) && !nodeRef.current.contains(event.target)) {
+      if (!insideDOM && (disableReactTree || !insideReactTree)) {
         onClickAway(event);
       }
-    });
-    var handleTouchMove = React__default.useCallback(function () {
-      movedRef.current = true;
-    }, []);
-    React__default.useEffect(function () {
+    }); // Keep track of mouse/touch events that bubbled up through the portal.
+
+    var createHandleSynthetic = function createHandleSynthetic(handlerName) {
+      return function (event) {
+        syntheticEventRef.current = true;
+        var childrenPropsHandler = children.props[handlerName];
+
+        if (childrenPropsHandler) {
+          childrenPropsHandler(event);
+        }
+      };
+    };
+
+    var childrenProps = {
+      ref: handleRef
+    };
+
+    if (touchEvent !== false) {
+      childrenProps[touchEvent] = createHandleSynthetic(touchEvent);
+    }
+
+    React.useEffect(function () {
       if (touchEvent !== false) {
         var mappedTouchEvent = mapEventPropToEvent(touchEvent);
         var doc = ownerDocument(nodeRef.current);
+
+        var handleTouchMove = function handleTouchMove() {
+          movedRef.current = true;
+        };
+
         doc.addEventListener(mappedTouchEvent, handleClickAway);
         doc.addEventListener('touchmove', handleTouchMove);
         return function () {
@@ -14769,8 +16503,13 @@
       }
 
       return undefined;
-    }, [handleClickAway, handleTouchMove, touchEvent]);
-    React__default.useEffect(function () {
+    }, [handleClickAway, touchEvent]);
+
+    if (mouseEvent !== false) {
+      childrenProps[mouseEvent] = createHandleSynthetic(mouseEvent);
+    }
+
+    React.useEffect(function () {
       if (mouseEvent !== false) {
         var mappedMouseEvent = mapEventPropToEvent(mouseEvent);
         var doc = ownerDocument(nodeRef.current);
@@ -14782,15 +16521,24 @@
 
       return undefined;
     }, [handleClickAway, mouseEvent]);
-    return React__default.createElement(React__default.Fragment, null, React__default.cloneElement(children, {
-      ref: handleRef
-    }));
-  });
+    return /*#__PURE__*/React.createElement(React.Fragment, null, React.cloneElement(children, childrenProps));
+  }
+
    ClickAwayListener.propTypes = {
+    // ----------------------------- Warning --------------------------------
+    // | These PropTypes are generated from the TypeScript type definitions |
+    // |     To update them edit the d.ts file and run "yarn proptypes"     |
+    // ----------------------------------------------------------------------
+
     /**
      * The wrapped element.
      */
     children: elementAcceptingRef.isRequired,
+
+    /**
+     * The mouse event to listen to. You can disable the listener by providing `false`.
+     */
+    disableReactTree: propTypes.bool,
 
     /**
      * The mouse event to listen to. You can disable the listener by providing `false`.
@@ -14805,7 +16553,7 @@
     /**
      * The touch event to listen to. You can disable the listener by providing `false`.
      */
-    touchEvent: propTypes.oneOf(['onTouchStart', 'onTouchEnd', false])
+    touchEvent: propTypes.oneOf(['onTouchEnd', 'onTouchStart', false])
   } ;
 
   {
@@ -14813,282 +16561,21 @@
     ClickAwayListener['propTypes' + ''] = exactProp(ClickAwayListener.propTypes);
   }
 
-  var styles$r = function styles(theme) {
-    return {
-      /* Styles applied to the container element. */
-      container: {
-        height: 0,
-        overflow: 'hidden',
-        transition: theme.transitions.create('height')
-      },
-
-      /* Styles applied to the container element when the transition has entered. */
-      entered: {
-        height: 'auto',
-        overflow: 'visible'
-      },
-
-      /* Styles applied to the container element when the transition has exited and `collapsedHeight` != 0px. */
-      hidden: {
-        visibility: 'hidden'
-      },
-
-      /* Styles applied to the outer wrapper element. */
-      wrapper: {
-        // Hack to get children with a negative margin to not falsify the height computation.
-        display: 'flex'
-      },
-
-      /* Styles applied to the inner wrapper element. */
-      wrapperInner: {
-        width: '100%'
-      }
-    };
-  };
-  /**
-   * The Collapse transition is used by the
-   * [Vertical Stepper](/components/steppers/#vertical-stepper) StepContent component.
-   * It uses [react-transition-group](https://github.com/reactjs/react-transition-group) internally.
-   */
-
-  var Collapse = React__default.forwardRef(function Collapse(props, ref) {
-    var children = props.children,
-        classes = props.classes,
-        className = props.className,
-        _props$collapsedHeigh = props.collapsedHeight,
-        collapsedHeightProp = _props$collapsedHeigh === void 0 ? '0px' : _props$collapsedHeigh,
-        _props$component = props.component,
-        Component = _props$component === void 0 ? 'div' : _props$component,
-        inProp = props.in,
-        onEnter = props.onEnter,
-        onEntered = props.onEntered,
-        onEntering = props.onEntering,
-        onExit = props.onExit,
-        onExiting = props.onExiting,
-        style = props.style,
-        _props$timeout = props.timeout,
-        timeout = _props$timeout === void 0 ? duration.standard : _props$timeout,
-        other = _objectWithoutProperties(props, ["children", "classes", "className", "collapsedHeight", "component", "in", "onEnter", "onEntered", "onEntering", "onExit", "onExiting", "style", "timeout"]);
-
-    var theme = useTheme$1();
-    var timer = React__default.useRef();
-    var wrapperRef = React__default.useRef(null);
-    var autoTransitionDuration = React__default.useRef();
-    var collapsedHeight = typeof collapsedHeightProp === 'number' ? "".concat(collapsedHeightProp, "px") : collapsedHeightProp;
-    React__default.useEffect(function () {
-      return function () {
-        clearTimeout(timer.current);
-      };
-    }, []);
-
-    var handleEnter = function handleEnter(node, isAppearing) {
-      node.style.height = collapsedHeight;
-
-      if (onEnter) {
-        onEnter(node, isAppearing);
-      }
-    };
-
-    var handleEntering = function handleEntering(node, isAppearing) {
-      var wrapperHeight = wrapperRef.current ? wrapperRef.current.clientHeight : 0;
-
-      var _getTransitionProps = getTransitionProps({
-        style: style,
-        timeout: timeout
-      }, {
-        mode: 'enter'
-      }),
-          transitionDuration = _getTransitionProps.duration;
-
-      if (timeout === 'auto') {
-        var duration2 = theme.transitions.getAutoHeightDuration(wrapperHeight);
-        node.style.transitionDuration = "".concat(duration2, "ms");
-        autoTransitionDuration.current = duration2;
-      } else {
-        node.style.transitionDuration = typeof transitionDuration === 'string' ? transitionDuration : "".concat(transitionDuration, "ms");
-      }
-
-      node.style.height = "".concat(wrapperHeight, "px");
-
-      if (onEntering) {
-        onEntering(node, isAppearing);
-      }
-    };
-
-    var handleEntered = function handleEntered(node, isAppearing) {
-      node.style.height = 'auto';
-
-      if (onEntered) {
-        onEntered(node, isAppearing);
-      }
-    };
-
-    var handleExit = function handleExit(node) {
-      var wrapperHeight = wrapperRef.current ? wrapperRef.current.clientHeight : 0;
-      node.style.height = "".concat(wrapperHeight, "px");
-
-      if (onExit) {
-        onExit(node);
-      }
-    };
-
-    var handleExiting = function handleExiting(node) {
-      var wrapperHeight = wrapperRef.current ? wrapperRef.current.clientHeight : 0;
-
-      var _getTransitionProps2 = getTransitionProps({
-        style: style,
-        timeout: timeout
-      }, {
-        mode: 'exit'
-      }),
-          transitionDuration = _getTransitionProps2.duration;
-
-      if (timeout === 'auto') {
-        var duration2 = theme.transitions.getAutoHeightDuration(wrapperHeight);
-        node.style.transitionDuration = "".concat(duration2, "ms");
-        autoTransitionDuration.current = duration2;
-      } else {
-        node.style.transitionDuration = typeof transitionDuration === 'string' ? transitionDuration : "".concat(transitionDuration, "ms");
-      }
-
-      node.style.height = collapsedHeight;
-
-      if (onExiting) {
-        onExiting(node);
-      }
-    };
-
-    var addEndListener = function addEndListener(_, next) {
-      if (timeout === 'auto') {
-        timer.current = setTimeout(next, autoTransitionDuration.current || 0);
-      }
-    };
-
-    return React__default.createElement(Transition, _extends({
-      in: inProp,
-      onEnter: handleEnter,
-      onEntered: handleEntered,
-      onEntering: handleEntering,
-      onExit: handleExit,
-      onExiting: handleExiting,
-      addEndListener: addEndListener,
-      timeout: timeout === 'auto' ? null : timeout
-    }, other), function (state, childProps) {
-      return React__default.createElement(Component, _extends({
-        className: clsx(classes.container, className, {
-          entered: classes.entered,
-          exited: !inProp && collapsedHeight === '0px' && classes.hidden
-        }[state]),
-        style: _extends({
-          minHeight: collapsedHeight
-        }, style),
-        ref: ref
-      }, childProps), React__default.createElement("div", {
-        className: classes.wrapper,
-        ref: wrapperRef
-      }, React__default.createElement("div", {
-        className: classes.wrapperInner
-      }, children)));
-    });
-  });
-   Collapse.propTypes = {
-    /**
-     * The content node to be collapsed.
-     */
-    children: propTypes.node,
-
-    /**
-     * Override or extend the styles applied to the component.
-     * See [CSS API](#css) below for more details.
-     */
-    classes: propTypes.object.isRequired,
-
-    /**
-     * @ignore
-     */
-    className: propTypes.string,
-
-    /**
-     * The height of the container when collapsed.
-     */
-    collapsedHeight: propTypes.oneOfType([propTypes.string, propTypes.number]),
-
-    /**
-     * The component used for the root node.
-     * Either a string to use a DOM element or a component.
-     */
-    component: propTypes.elementType,
-
-    /**
-     * If `true`, the component will transition in.
-     */
-    in: propTypes.bool,
-
-    /**
-     * @ignore
-     */
-    onEnter: propTypes.func,
-
-    /**
-     * @ignore
-     */
-    onEntered: propTypes.func,
-
-    /**
-     * @ignore
-     */
-    onEntering: propTypes.func,
-
-    /**
-     * @ignore
-     */
-    onExit: propTypes.func,
-
-    /**
-     * @ignore
-     */
-    onExiting: propTypes.func,
-
-    /**
-     * @ignore
-     */
-    style: propTypes.object,
-
-    /**
-     * The duration for the transition, in milliseconds.
-     * You may specify a single timeout for all transitions, or individually with an object.
-     *
-     * Set to 'auto' to automatically calculate transition time based on height.
-     */
-    timeout: propTypes.oneOfType([propTypes.number, propTypes.shape({
-      enter: propTypes.number,
-      exit: propTypes.number
-    }), propTypes.oneOf(['auto'])])
-  } ;
-  Collapse.muiSupportAuto = true;
-  var Collapse$1 = withStyles$1(styles$r, {
-    name: 'MuiCollapse'
-  })(Collapse);
-
-  var styles$s = function styles(theme) {
-    var _root;
-
+  var styles$u = function styles(theme) {
     return {
       /* Styles applied to the root element. */
-      root: (_root = {
+      root: _defineProperty({
         width: '100%',
         marginLeft: 'auto',
         boxSizing: 'border-box',
         marginRight: 'auto',
         paddingLeft: theme.spacing(2),
-        paddingRight: theme.spacing(2)
-      }, _defineProperty(_root, theme.breakpoints.up('sm'), {
+        paddingRight: theme.spacing(2),
+        display: 'block'
+      }, theme.breakpoints.up('sm'), {
         paddingLeft: theme.spacing(3),
         paddingRight: theme.spacing(3)
-      }), _defineProperty(_root, theme.breakpoints.up('md'), {
-        paddingLeft: theme.spacing(4),
-        paddingRight: theme.spacing(4)
-      }), _root),
+      }),
 
       /* Styles applied to the root element if `disableGutters={true}`. */
       disableGutters: {
@@ -15135,7 +16622,7 @@
       })
     };
   };
-  var Container = React__default.forwardRef(function Container(props, ref) {
+  var Container = React.forwardRef(function Container(props, ref) {
     var classes = props.classes,
         className = props.className,
         _props$component = props.component,
@@ -15148,7 +16635,7 @@
         maxWidth = _props$maxWidth === void 0 ? 'lg' : _props$maxWidth,
         other = _objectWithoutProperties(props, ["classes", "className", "component", "disableGutters", "fixed", "maxWidth"]);
 
-    return React__default.createElement(Component, _extends({
+    return /*#__PURE__*/React.createElement(Component, _extends({
       className: clsx(classes.root, className, fixed && classes.fixed, disableGutters && classes.disableGutters, maxWidth !== false && classes["maxWidth".concat(capitalize(String(maxWidth)))]),
       ref: ref
     }, other));
@@ -15193,38 +16680,43 @@
      */
     maxWidth: propTypes.oneOf(['xs', 'sm', 'md', 'lg', 'xl', false])
   } ;
-  var Container$1 = withStyles$1(styles$s, {
+  var Container$1 = withStyles$1(styles$u, {
     name: 'MuiContainer'
   })(Container);
 
-  var useStyles = makeStyles$1(function (theme) {
+  var html = {
+    WebkitFontSmoothing: 'antialiased',
+    // Antialiasing.
+    MozOsxFontSmoothing: 'grayscale',
+    // Antialiasing.
+    // Change from `box-sizing: content-box` so that `width`
+    // is not affected by `padding` or `border`.
+    boxSizing: 'border-box'
+  };
+  var body = function body(theme) {
+    return _extends({
+      color: theme.palette.text.primary
+    }, theme.typography.body2, {
+      backgroundColor: theme.palette.background.default,
+      '@media print': {
+        // Save printer ink.
+        backgroundColor: theme.palette.common.white
+      }
+    });
+  };
+  var styles$v = function styles(theme) {
     return {
       '@global': {
-        html: {
-          WebkitFontSmoothing: 'antialiased',
-          // Antialiasing.
-          MozOsxFontSmoothing: 'grayscale',
-          // Antialiasing.
-          // Change from `box-sizing: content-box` so that `width`
-          // is not affected by `padding` or `border`.
-          boxSizing: 'border-box'
-        },
+        html: html,
         '*, *::before, *::after': {
           boxSizing: 'inherit'
         },
         'strong, b': {
-          fontWeight: 'bolder'
+          fontWeight: theme.typography.fontWeightBold
         },
         body: _extends({
-          margin: 0,
-          // Remove the margin in all browsers.
-          color: theme.palette.text.primary
-        }, theme.typography.body2, {
-          backgroundColor: theme.palette.background.default,
-          '@media print': {
-            // Save printer ink.
-            backgroundColor: theme.palette.common.white
-          },
+          margin: 0
+        }, body(theme), {
           // Add support for document.body.requestFullScreen().
           // Other elements, if background transparent, are not supported.
           '&::backdrop': {
@@ -15233,25 +16725,37 @@
         })
       }
     };
-  }, {
-    name: 'MuiCssBaseline'
-  });
+  };
   /**
    * Kickstart an elegant, consistent, and simple baseline to build upon.
    */
 
   function CssBaseline(props) {
+    /* eslint-disable no-unused-vars */
     var _props$children = props.children,
-        children = _props$children === void 0 ? null : _props$children;
-    useStyles();
-    return React__default.createElement(React__default.Fragment, null, children);
+        children = _props$children === void 0 ? null : _props$children,
+        classes = props.classes;
+    /* eslint-enable no-unused-vars */
+
+    return /*#__PURE__*/React.createElement(React.Fragment, null, children);
   }
 
    CssBaseline.propTypes = {
+    // ----------------------------- Warning --------------------------------
+    // | These PropTypes are generated from the TypeScript type definitions |
+    // |     To update them edit the d.ts file and run "yarn proptypes"     |
+    // ----------------------------------------------------------------------
+
     /**
      * You can wrap a node.
      */
-    children: propTypes.node
+    children: propTypes.node,
+
+    /**
+     * Override or extend the styles applied to the component.
+     * See [CSS API](#css) below for more details.
+     */
+    classes: propTypes.object
   } ;
 
   {
@@ -15259,36 +16763,40 @@
     CssBaseline['propTypes' + ''] = exactProp(CssBaseline.propTypes);
   }
 
+  var CssBaseline$1 = withStyles$1(styles$v, {
+    name: 'MuiCssBaseline'
+  })(CssBaseline);
+
   function getContainer(container) {
     container = typeof container === 'function' ? container() : container; // #StrictMode ready
 
     return ReactDOM.findDOMNode(container);
   }
 
-  var useEnhancedEffect$3 = typeof window !== 'undefined' ? React__default.useLayoutEffect : React__default.useEffect;
+  var useEnhancedEffect$2 = typeof window !== 'undefined' ? React.useLayoutEffect : React.useEffect;
   /**
    * Portals provide a first-class way to render children into a DOM node
    * that exists outside the DOM hierarchy of the parent component.
    */
 
-  var Portal = React__default.forwardRef(function Portal(props, ref) {
+  var Portal = React.forwardRef(function Portal(props, ref) {
     var children = props.children,
         container = props.container,
         _props$disablePortal = props.disablePortal,
         disablePortal = _props$disablePortal === void 0 ? false : _props$disablePortal,
         onRendered = props.onRendered;
 
-    var _React$useState = React__default.useState(null),
+    var _React$useState = React.useState(null),
         mountNode = _React$useState[0],
         setMountNode = _React$useState[1];
 
-    var handleRef = useForkRef(React__default.isValidElement(children) ? children.ref : null, ref);
-    useEnhancedEffect$3(function () {
+    var handleRef = useForkRef(React.isValidElement(children) ? children.ref : null, ref);
+    useEnhancedEffect$2(function () {
       if (!disablePortal) {
         setMountNode(getContainer(container) || document.body);
       }
     }, [container, disablePortal]);
-    useEnhancedEffect$3(function () {
+    useEnhancedEffect$2(function () {
       if (mountNode && !disablePortal) {
         setRef(ref, mountNode);
         return function () {
@@ -15298,15 +16806,15 @@
 
       return undefined;
     }, [ref, mountNode, disablePortal]);
-    useEnhancedEffect$3(function () {
+    useEnhancedEffect$2(function () {
       if (onRendered && (mountNode || disablePortal)) {
         onRendered();
       }
     }, [onRendered, mountNode, disablePortal]);
 
     if (disablePortal) {
-      if (React__default.isValidElement(children)) {
-        return React__default.cloneElement(children, {
+      if (React.isValidElement(children)) {
+        return React.cloneElement(children, {
           ref: handleRef
         });
       }
@@ -15333,7 +16841,9 @@
      * By default, it uses the body of the top-level document object,
      * so it's simply `document.body` most of the time.
      */
-    container: propTypes.oneOfType([propTypes.func, propTypes.instanceOf(React__default.Component), propTypes.instanceOf(typeof Element === 'undefined' ? Object : Element)]),
+    container: propTypes
+    /* @typescript-to-proptypes-ignore */
+    .oneOfType([propTypes.func, propTypes.instanceOf(React.Component), propTypes.instanceOf(typeof Element === 'undefined' ? Object : Element)]),
 
     /**
      * Disable the portal behavior.
@@ -15403,11 +16913,6 @@
     var scrollbarSize = scrollDiv.offsetWidth - scrollDiv.clientWidth;
     document.body.removeChild(scrollDiv);
     return scrollbarSize;
-  }
-
-  function ownerWindow(node) {
-    var doc = ownerDocument(node);
-    return doc.defaultView || window;
   }
 
   function isOverflowing(container) {
@@ -15541,9 +17046,7 @@
    */
 
 
-  var ModalManager =
-  /*#__PURE__*/
-  function () {
+  var ModalManager = /*#__PURE__*/function () {
     function ModalManager() {
       _classCallCheck(this, ModalManager);
 
@@ -15671,20 +17174,20 @@
         getDoc = props.getDoc,
         isEnabled = props.isEnabled,
         open = props.open;
-    var ignoreNextEnforceFocus = React__default.useRef();
-    var sentinelStart = React__default.useRef(null);
-    var sentinelEnd = React__default.useRef(null);
-    var nodeToRestore = React__default.useRef();
-    var rootRef = React__default.useRef(null); // can be removed once we drop support for non ref forwarding class components
+    var ignoreNextEnforceFocus = React.useRef();
+    var sentinelStart = React.useRef(null);
+    var sentinelEnd = React.useRef(null);
+    var nodeToRestore = React.useRef();
+    var rootRef = React.useRef(null); // can be removed once we drop support for non ref forwarding class components
 
-    var handleOwnRef = React__default.useCallback(function (instance) {
+    var handleOwnRef = React.useCallback(function (instance) {
       // #StrictMode ready
       rootRef.current = ReactDOM.findDOMNode(instance);
     }, []);
     var handleRef = useForkRef(children.ref, handleOwnRef); // ⚠️ You may rely on React.useMemo as a performance optimization, not as a semantic guarantee.
     // https://reactjs.org/docs/hooks-reference.html#usememo
 
-    React__default.useMemo(function () {
+    React.useMemo(function () {
       if (!open || typeof window === 'undefined') {
         return;
       }
@@ -15692,7 +17195,7 @@
       nodeToRestore.current = getDoc().activeElement;
     }, [open]); // eslint-disable-line react-hooks/exhaustive-deps
 
-    React__default.useEffect(function () {
+    React.useEffect(function () {
       if (!open) {
         return;
       }
@@ -15770,13 +17273,13 @@
         }
       };
     }, [disableAutoFocus, disableEnforceFocus, disableRestoreFocus, isEnabled, open]);
-    return React__default.createElement(React__default.Fragment, null, React__default.createElement("div", {
+    return /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement("div", {
       tabIndex: 0,
       ref: sentinelStart,
       "data-test": "sentinelStart"
-    }), React__default.cloneElement(children, {
+    }), React.cloneElement(children, {
       ref: handleRef
-    }), React__default.createElement("div", {
+    }), /*#__PURE__*/React.createElement("div", {
       tabIndex: 0,
       ref: sentinelEnd,
       "data-test": "sentinelEnd"
@@ -15831,7 +17334,7 @@
     open: propTypes.bool.isRequired
   } ;
 
-  var styles$t = {
+  var styles$w = {
     /* Styles applied to the root element. */
     root: {
       zIndex: -1,
@@ -15841,9 +17344,7 @@
       top: 0,
       left: 0,
       backgroundColor: 'rgba(0, 0, 0, 0.5)',
-      WebkitTapHighlightColor: 'transparent',
-      // Disable scroll capabilities.
-      touchAction: 'none'
+      WebkitTapHighlightColor: 'transparent'
     },
 
     /* Styles applied to the root element if `invisible={true}`. */
@@ -15855,17 +17356,17 @@
    * @ignore - internal component.
    */
 
-  var SimpleBackdrop = React__default.forwardRef(function SimpleBackdrop(props, ref) {
+  var SimpleBackdrop = React.forwardRef(function SimpleBackdrop(props, ref) {
     var _props$invisible = props.invisible,
         invisible = _props$invisible === void 0 ? false : _props$invisible,
         open = props.open,
         other = _objectWithoutProperties(props, ["invisible", "open"]);
 
-    return open ? React__default.createElement("div", _extends({
+    return open ? /*#__PURE__*/React.createElement("div", _extends({
       "aria-hidden": true,
       ref: ref
     }, other, {
-      style: _extends({}, styles$t.root, {}, invisible ? styles$t.invisible : {}, {}, other.style)
+      style: _extends({}, styles$w.root, {}, invisible ? styles$w.invisible : {}, {}, other.style)
     })) : null;
   });
    SimpleBackdrop.propTypes = {
@@ -15893,7 +17394,7 @@
 
 
   var defaultManager = new ModalManager();
-  var styles$u = function styles(theme) {
+  var styles$x = function styles(theme) {
     return {
       /* Styles applied to the root element. */
       root: {
@@ -15925,7 +17426,7 @@
    * This component shares many concepts with [react-overlays](https://react-bootstrap.github.io/react-overlays/#modals).
    */
 
-  var Modal = React__default.forwardRef(function Modal(inProps, ref) {
+  var Modal = React.forwardRef(function Modal(inProps, ref) {
     var theme = useTheme();
     var props = getThemeProps({
       name: 'MuiModal',
@@ -15967,13 +17468,13 @@
         open = props.open,
         other = _objectWithoutProperties(props, ["BackdropComponent", "BackdropProps", "children", "closeAfterTransition", "container", "disableAutoFocus", "disableBackdropClick", "disableEnforceFocus", "disableEscapeKeyDown", "disablePortal", "disableRestoreFocus", "disableScrollLock", "hideBackdrop", "keepMounted", "manager", "onBackdropClick", "onClose", "onEscapeKeyDown", "onRendered", "open"]);
 
-    var _React$useState = React__default.useState(true),
+    var _React$useState = React.useState(true),
         exited = _React$useState[0],
         setExited = _React$useState[1];
 
-    var modal = React__default.useRef({});
-    var mountNodeRef = React__default.useRef(null);
-    var modalRef = React__default.useRef(null);
+    var modal = React.useRef({});
+    var mountNodeRef = React.useRef(null);
+    var modalRef = React.useRef(null);
     var handleRef = useForkRef(modalRef, ref);
     var hasTransition = getHasTransition(props);
 
@@ -16003,7 +17504,7 @@
         handleMounted();
       }
     });
-    var isTopModal = React__default.useCallback(function () {
+    var isTopModal = React.useCallback(function () {
       return manager.isTopModal(getModal());
     }, [manager]);
     var handlePortalRef = useEventCallback(function (node) {
@@ -16023,15 +17524,15 @@
         ariaHidden(modalRef.current, true);
       }
     });
-    var handleClose = React__default.useCallback(function () {
+    var handleClose = React.useCallback(function () {
       manager.remove(getModal());
     }, [manager]);
-    React__default.useEffect(function () {
+    React.useEffect(function () {
       return function () {
         handleClose();
       };
     }, [handleClose]);
-    React__default.useEffect(function () {
+    React.useEffect(function () {
       if (open) {
         handleOpen();
       } else if (!hasTransition || !closeAfterTransition) {
@@ -16092,8 +17593,8 @@
       }
     };
 
-    var inlineStyle = styles$u(theme || {
-      zIndex: zIndex
+    var inlineStyle = styles$x(theme || {
+      zIndex: zIndex$1
     });
     var childProps = {};
 
@@ -16107,27 +17608,27 @@
       childProps.onExited = createChainedFunction(handleExited, children.props.onExited);
     }
 
-    return React__default.createElement(Portal, {
+    return /*#__PURE__*/React.createElement(Portal, {
       ref: handlePortalRef,
       container: container,
       disablePortal: disablePortal
-    }, React__default.createElement("div", _extends({
+    }, /*#__PURE__*/React.createElement("div", _extends({
       ref: handleRef,
       onKeyDown: handleKeyDown,
       role: "presentation"
     }, other, {
       style: _extends({}, inlineStyle.root, {}, !open && exited ? inlineStyle.hidden : {}, {}, other.style)
-    }), hideBackdrop ? null : React__default.createElement(BackdropComponent, _extends({
+    }), hideBackdrop ? null : /*#__PURE__*/React.createElement(BackdropComponent, _extends({
       open: open,
       onClick: handleBackdropClick
-    }, BackdropProps)), React__default.createElement(TrapFocus, {
+    }, BackdropProps)), /*#__PURE__*/React.createElement(TrapFocus, {
       disableEnforceFocus: disableEnforceFocus,
       disableAutoFocus: disableAutoFocus,
       disableRestoreFocus: disableRestoreFocus,
       getDoc: getDoc,
       isEnabled: isTopModal,
       open: open
-    }, React__default.cloneElement(children, childProps))));
+    }, React.cloneElement(children, childProps))));
   });
    Modal.propTypes = {
     /**
@@ -16252,7 +17753,7 @@
     open: propTypes.bool.isRequired
   } ;
 
-  var styles$v = function styles(theme) {
+  var styles$y = function styles(theme) {
     return {
       /* Styles applied to the root element. */
       root: {
@@ -16393,7 +17894,7 @@
    * Dialogs are overlaid modal paper based components with a backdrop.
    */
 
-  var Dialog = React__default.forwardRef(function Dialog(props, ref) {
+  var Dialog = React.forwardRef(function Dialog(props, ref) {
     var BackdropProps = props.BackdropProps,
         children = props.children,
         classes = props.classes,
@@ -16433,7 +17934,7 @@
         ariaLabelledby = props['aria-labelledby'],
         other = _objectWithoutProperties(props, ["BackdropProps", "children", "classes", "className", "disableBackdropClick", "disableEscapeKeyDown", "fullScreen", "fullWidth", "maxWidth", "onBackdropClick", "onClose", "onEnter", "onEntered", "onEntering", "onEscapeKeyDown", "onExit", "onExited", "onExiting", "open", "PaperComponent", "PaperProps", "scroll", "TransitionComponent", "transitionDuration", "TransitionProps", "aria-describedby", "aria-labelledby"]);
 
-    var mouseDownTarget = React__default.useRef();
+    var mouseDownTarget = React.useRef();
 
     var handleMouseDown = function handleMouseDown(event) {
       mouseDownTarget.current = event.target;
@@ -16462,7 +17963,7 @@
       }
     };
 
-    return React__default.createElement(Modal, _extends({
+    return /*#__PURE__*/React.createElement(Modal, _extends({
       className: clsx(classes.root, className),
       BackdropComponent: Backdrop$1,
       BackdropProps: _extends({
@@ -16475,7 +17976,7 @@
       onClose: onClose,
       open: open,
       ref: ref
-    }, other), React__default.createElement(TransitionComponent, _extends({
+    }, other), /*#__PURE__*/React.createElement(TransitionComponent, _extends({
       appear: true,
       in: open,
       timeout: transitionDuration,
@@ -16486,11 +17987,11 @@
       onExiting: onExiting,
       onExited: onExited,
       role: "none presentation"
-    }, TransitionProps), React__default.createElement("div", {
+    }, TransitionProps), /*#__PURE__*/React.createElement("div", {
       className: clsx(classes.container, classes["scroll".concat(capitalize(scroll))]),
       onClick: handleBackdropClick,
       onMouseDown: handleMouseDown
-    }, React__default.createElement(PaperComponent, _extends({
+    }, /*#__PURE__*/React.createElement(PaperComponent, _extends({
       elevation: 24,
       role: "dialog",
       "aria-describedby": ariaDescribedby,
@@ -16500,6 +18001,11 @@
     }), children))));
   });
    Dialog.propTypes = {
+    // ----------------------------- Warning --------------------------------
+    // | These PropTypes are generated from the TypeScript type definitions |
+    // |     To update them edit the d.ts file and run "yarn proptypes"     |
+    // ----------------------------------------------------------------------
+
     /**
      * The id(s) of the element(s) that describe the dialog.
      */
@@ -16518,13 +18024,13 @@
     /**
      * Dialog children, usually the included sub-components.
      */
-    children: propTypes.node.isRequired,
+    children: propTypes.node,
 
     /**
      * Override or extend the styles applied to the component.
      * See [CSS API](#css) below for more details.
      */
-    classes: propTypes.object.isRequired,
+    classes: propTypes.object,
 
     /**
      * @ignore
@@ -16558,7 +18064,7 @@
      * The dialog width grows with the size of the screen.
      * Set to `false` to disable `maxWidth`.
      */
-    maxWidth: propTypes.oneOf(['xs', 'sm', 'md', 'lg', 'xl', false]),
+    maxWidth: propTypes.oneOf(['lg', 'md', 'sm', 'xl', 'xs', false]),
 
     /**
      * Callback fired when the backdrop is clicked.
@@ -16640,6 +18146,7 @@
      * You may specify a single timeout for all transitions, or individually with an object.
      */
     transitionDuration: propTypes.oneOfType([propTypes.number, propTypes.shape({
+      appear: propTypes.number,
       enter: propTypes.number,
       exit: propTypes.number
     })]),
@@ -16649,11 +18156,11 @@
      */
     TransitionProps: propTypes.object
   } ;
-  var Dialog$1 = withStyles$1(styles$v, {
+  var Dialog$1 = withStyles$1(styles$y, {
     name: 'MuiDialog'
   })(Dialog);
 
-  var styles$w = {
+  var styles$z = {
     /* Styles applied to the root element. */
     root: {
       display: 'flex',
@@ -16670,19 +18177,24 @@
       }
     }
   };
-  var DialogActions = React__default.forwardRef(function DialogActions(props, ref) {
+  var DialogActions = React.forwardRef(function DialogActions(props, ref) {
     var _props$disableSpacing = props.disableSpacing,
         disableSpacing = _props$disableSpacing === void 0 ? false : _props$disableSpacing,
         classes = props.classes,
         className = props.className,
         other = _objectWithoutProperties(props, ["disableSpacing", "classes", "className"]);
 
-    return React__default.createElement("div", _extends({
+    return /*#__PURE__*/React.createElement("div", _extends({
       className: clsx(classes.root, className, !disableSpacing && classes.spacing),
       ref: ref
     }, other));
   });
    DialogActions.propTypes = {
+    // ----------------------------- Warning --------------------------------
+    // | These PropTypes are generated from the TypeScript type definitions |
+    // |     To update them edit the d.ts file and run "yarn proptypes"     |
+    // ----------------------------------------------------------------------
+
     /**
      * The content of the component.
      */
@@ -16692,7 +18204,7 @@
      * Override or extend the styles applied to the component.
      * See [CSS API](#css) below for more details.
      */
-    classes: propTypes.object.isRequired,
+    classes: propTypes.object,
 
     /**
      * @ignore
@@ -16704,11 +18216,11 @@
      */
     disableSpacing: propTypes.bool
   } ;
-  var DialogActions$1 = withStyles$1(styles$w, {
+  var DialogActions$1 = withStyles$1(styles$z, {
     name: 'MuiDialogActions'
   })(DialogActions);
 
-  var styles$x = function styles(theme) {
+  var styles$A = function styles(theme) {
     return {
       /* Styles applied to the root element. */
       root: {
@@ -16731,19 +18243,24 @@
       }
     };
   };
-  var DialogContent = React__default.forwardRef(function DialogContent(props, ref) {
+  var DialogContent = React.forwardRef(function DialogContent(props, ref) {
     var classes = props.classes,
         className = props.className,
         _props$dividers = props.dividers,
         dividers = _props$dividers === void 0 ? false : _props$dividers,
         other = _objectWithoutProperties(props, ["classes", "className", "dividers"]);
 
-    return React__default.createElement("div", _extends({
+    return /*#__PURE__*/React.createElement("div", _extends({
       className: clsx(classes.root, className, dividers && classes.dividers),
       ref: ref
     }, other));
   });
    DialogContent.propTypes = {
+    // ----------------------------- Warning --------------------------------
+    // | These PropTypes are generated from the TypeScript type definitions |
+    // |     To update them edit the d.ts file and run "yarn proptypes"     |
+    // ----------------------------------------------------------------------
+
     /**
      * The content of the component.
      */
@@ -16753,7 +18270,7 @@
      * Override or extend the styles applied to the component.
      * See [CSS API](#css) below for more details.
      */
-    classes: propTypes.object.isRequired,
+    classes: propTypes.object,
 
     /**
      * @ignore
@@ -16765,18 +18282,18 @@
      */
     dividers: propTypes.bool
   } ;
-  var DialogContent$1 = withStyles$1(styles$x, {
+  var DialogContent$1 = withStyles$1(styles$A, {
     name: 'MuiDialogContent'
   })(DialogContent);
 
-  var styles$y = {
+  var styles$B = {
     /* Styles applied to the root element. */
     root: {
       marginBottom: 12
     }
   };
-  var DialogContentText = React__default.forwardRef(function DialogContentText(props, ref) {
-    return React__default.createElement(Typography$1, _extends({
+  var DialogContentText = React.forwardRef(function DialogContentText(props, ref) {
+    return /*#__PURE__*/React.createElement(Typography$1, _extends({
       component: "p",
       variant: "body1",
       color: "textSecondary",
@@ -16795,11 +18312,11 @@
      */
     classes: propTypes.object.isRequired
   } ;
-  var DialogContentText$1 = withStyles$1(styles$y, {
+  var DialogContentText$1 = withStyles$1(styles$B, {
     name: 'MuiDialogContentText'
   })(DialogContentText);
 
-  var styles$z = {
+  var styles$C = {
     /* Styles applied to the root element. */
     root: {
       margin: 0,
@@ -16807,7 +18324,7 @@
       flex: '0 0 auto'
     }
   };
-  var DialogTitle = React__default.forwardRef(function DialogTitle(props, ref) {
+  var DialogTitle = React.forwardRef(function DialogTitle(props, ref) {
     var children = props.children,
         classes = props.classes,
         className = props.className,
@@ -16815,25 +18332,30 @@
         disableTypography = _props$disableTypogra === void 0 ? false : _props$disableTypogra,
         other = _objectWithoutProperties(props, ["children", "classes", "className", "disableTypography"]);
 
-    return React__default.createElement("div", _extends({
+    return /*#__PURE__*/React.createElement("div", _extends({
       className: clsx(classes.root, className),
       ref: ref
-    }, other), disableTypography ? children : React__default.createElement(Typography$1, {
+    }, other), disableTypography ? children : /*#__PURE__*/React.createElement(Typography$1, {
       component: "h2",
       variant: "h6"
     }, children));
   });
    DialogTitle.propTypes = {
+    // ----------------------------- Warning --------------------------------
+    // | These PropTypes are generated from the TypeScript type definitions |
+    // |     To update them edit the d.ts file and run "yarn proptypes"     |
+    // ----------------------------------------------------------------------
+
     /**
      * The content of the component.
      */
-    children: propTypes.node.isRequired,
+    children: propTypes.node,
 
     /**
      * Override or extend the styles applied to the component.
      * See [CSS API](#css) below for more details.
      */
-    classes: propTypes.object.isRequired,
+    classes: propTypes.object,
 
     /**
      * @ignore
@@ -16846,11 +18368,11 @@
      */
     disableTypography: propTypes.bool
   } ;
-  var DialogTitle$1 = withStyles$1(styles$z, {
+  var DialogTitle$1 = withStyles$1(styles$C, {
     name: 'MuiDialogTitle'
   })(DialogTitle);
 
-  var styles$A = function styles(theme) {
+  var styles$D = function styles(theme) {
     return {
       /* Styles applied to the root element. */
       root: {
@@ -16890,16 +18412,24 @@
       vertical: {
         height: '100%',
         width: 1
+      },
+
+      /* Styles applied to the root element if `flexItem={true}`. */
+      flexItem: {
+        alignSelf: 'stretch',
+        height: 'auto'
       }
     };
   };
-  var Divider = React__default.forwardRef(function Divider(props, ref) {
+  var Divider = React.forwardRef(function Divider(props, ref) {
     var _props$absolute = props.absolute,
         absolute = _props$absolute === void 0 ? false : _props$absolute,
         classes = props.classes,
         className = props.className,
         _props$component = props.component,
         Component = _props$component === void 0 ? 'hr' : _props$component,
+        _props$flexItem = props.flexItem,
+        flexItem = _props$flexItem === void 0 ? false : _props$flexItem,
         _props$light = props.light,
         light = _props$light === void 0 ? false : _props$light,
         _props$orientation = props.orientation,
@@ -16908,12 +18438,10 @@
         role = _props$role === void 0 ? Component !== 'hr' ? 'separator' : undefined : _props$role,
         _props$variant = props.variant,
         variant = _props$variant === void 0 ? 'fullWidth' : _props$variant,
-        other = _objectWithoutProperties(props, ["absolute", "classes", "className", "component", "light", "orientation", "role", "variant"]);
+        other = _objectWithoutProperties(props, ["absolute", "classes", "className", "component", "flexItem", "light", "orientation", "role", "variant"]);
 
-    return React__default.createElement(Component, _extends({
-      className: clsx(classes.root, className, variant !== 'fullWidth' && classes[variant], absolute && classes.absolute, light && classes.light, {
-        vertical: classes.vertical
-      }[orientation]),
+    return /*#__PURE__*/React.createElement(Component, _extends({
+      className: clsx(classes.root, className, variant !== 'fullWidth' && classes[variant], absolute && classes.absolute, flexItem && classes.flexItem, light && classes.light, orientation === 'vertical' && classes.vertical),
       role: role,
       ref: ref
     }, other));
@@ -16942,6 +18470,12 @@
     component: propTypes.elementType,
 
     /**
+     * If `true`, a vertical divider will have the correct height when used in flex container.
+     * (By default, a vertical divider will have a calculated height of `0px` if it is the child of a flex container.)
+     */
+    flexItem: propTypes.bool,
+
+    /**
      * If `true`, the divider will have a lighter color.
      */
     light: propTypes.bool,
@@ -16961,284 +18495,11 @@
      */
     variant: propTypes.oneOf(['fullWidth', 'inset', 'middle'])
   } ;
-  var Divider$1 = withStyles$1(styles$A, {
+  var Divider$1 = withStyles$1(styles$D, {
     name: 'MuiDivider'
   })(Divider);
 
-  // Corresponds to 10 frames at 60 Hz.
-  // A few bytes payload overhead when lodash/debounce is ~3 kB and debounce ~300 B.
-  function debounce(func) {
-    var wait = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : 166;
-    var timeout;
-
-    function debounced() {
-      for (var _len = arguments.length, args = new Array(_len), _key = 0; _key < _len; _key++) {
-        args[_key] = arguments[_key];
-      }
-
-      // eslint-disable-next-line consistent-this
-      var that = this;
-
-      var later = function later() {
-        func.apply(that, args);
-      };
-
-      clearTimeout(timeout);
-      timeout = setTimeout(later, wait);
-    }
-
-    debounced.clear = function () {
-      clearTimeout(timeout);
-    };
-
-    return debounced;
-  }
-
-  // Later, we gonna translate back the node to his original location
-  // with `none`.`
-
-  function getTranslateValue(direction, node) {
-    var rect = node.getBoundingClientRect();
-    var transform;
-
-    if (node.fakeTransform) {
-      transform = node.fakeTransform;
-    } else {
-      var computedStyle = window.getComputedStyle(node);
-      transform = computedStyle.getPropertyValue('-webkit-transform') || computedStyle.getPropertyValue('transform');
-    }
-
-    var offsetX = 0;
-    var offsetY = 0;
-
-    if (transform && transform !== 'none' && typeof transform === 'string') {
-      var transformValues = transform.split('(')[1].split(')')[0].split(',');
-      offsetX = parseInt(transformValues[4], 10);
-      offsetY = parseInt(transformValues[5], 10);
-    }
-
-    if (direction === 'left') {
-      return "translateX(".concat(window.innerWidth, "px) translateX(-").concat(rect.left - offsetX, "px)");
-    }
-
-    if (direction === 'right') {
-      return "translateX(-".concat(rect.left + rect.width - offsetX, "px)");
-    }
-
-    if (direction === 'up') {
-      return "translateY(".concat(window.innerHeight, "px) translateY(-").concat(rect.top - offsetY, "px)");
-    } // direction === 'down'
-
-
-    return "translateY(-".concat(rect.top + rect.height - offsetY, "px)");
-  }
-
-  function setTranslateValue(direction, node) {
-    var transform = getTranslateValue(direction, node);
-
-    if (transform) {
-      node.style.webkitTransform = transform;
-      node.style.transform = transform;
-    }
-  }
-  var defaultTimeout$1 = {
-    enter: duration.enteringScreen,
-    exit: duration.leavingScreen
-  };
-  /**
-   * The Slide transition is used by the [Drawer](/components/drawers/) component.
-   * It uses [react-transition-group](https://github.com/reactjs/react-transition-group) internally.
-   */
-
-  var Slide = React__default.forwardRef(function Slide(props, ref) {
-    var children = props.children,
-        _props$direction = props.direction,
-        direction = _props$direction === void 0 ? 'down' : _props$direction,
-        inProp = props.in,
-        onEnter = props.onEnter,
-        onEntering = props.onEntering,
-        onExit = props.onExit,
-        onExited = props.onExited,
-        style = props.style,
-        _props$timeout = props.timeout,
-        timeout = _props$timeout === void 0 ? defaultTimeout$1 : _props$timeout,
-        other = _objectWithoutProperties(props, ["children", "direction", "in", "onEnter", "onEntering", "onExit", "onExited", "style", "timeout"]);
-
-    var theme = useTheme$1();
-    var childrenRef = React__default.useRef(null);
-    /**
-     * used in cloneElement(children, { ref: handleRef })
-     */
-
-    var handleOwnRef = React__default.useCallback(function (instance) {
-      // #StrictMode ready
-      childrenRef.current = ReactDOM.findDOMNode(instance);
-    }, []);
-    var handleRefIntermediary = useForkRef(children.ref, handleOwnRef);
-    var handleRef = useForkRef(handleRefIntermediary, ref);
-
-    var handleEnter = function handleEnter(_, isAppearing) {
-      var node = childrenRef.current;
-      setTranslateValue(direction, node);
-      reflow(node);
-
-      if (onEnter) {
-        onEnter(node, isAppearing);
-      }
-    };
-
-    var handleEntering = function handleEntering(_, isAppearing) {
-      var node = childrenRef.current;
-      var transitionProps = getTransitionProps({
-        timeout: timeout,
-        style: style
-      }, {
-        mode: 'enter'
-      });
-      node.style.webkitTransition = theme.transitions.create('-webkit-transform', _extends({}, transitionProps, {
-        easing: theme.transitions.easing.easeOut
-      }));
-      node.style.transition = theme.transitions.create('transform', _extends({}, transitionProps, {
-        easing: theme.transitions.easing.easeOut
-      }));
-      node.style.webkitTransform = 'none';
-      node.style.transform = 'none';
-
-      if (onEntering) {
-        onEntering(node, isAppearing);
-      }
-    };
-
-    var handleExit = function handleExit() {
-      var node = childrenRef.current;
-      var transitionProps = getTransitionProps({
-        timeout: timeout,
-        style: style
-      }, {
-        mode: 'exit'
-      });
-      node.style.webkitTransition = theme.transitions.create('-webkit-transform', _extends({}, transitionProps, {
-        easing: theme.transitions.easing.sharp
-      }));
-      node.style.transition = theme.transitions.create('transform', _extends({}, transitionProps, {
-        easing: theme.transitions.easing.sharp
-      }));
-      setTranslateValue(direction, node);
-
-      if (onExit) {
-        onExit(node);
-      }
-    };
-
-    var handleExited = function handleExited() {
-      var node = childrenRef.current; // No need for transitions when the component is hidden
-
-      node.style.webkitTransition = '';
-      node.style.transition = '';
-
-      if (onExited) {
-        onExited(node);
-      }
-    };
-
-    var updatePosition = React__default.useCallback(function () {
-      if (childrenRef.current) {
-        setTranslateValue(direction, childrenRef.current);
-      }
-    }, [direction]);
-    React__default.useEffect(function () {
-      // Skip configuration where the position is screen size invariant.
-      if (inProp || direction === 'down' || direction === 'right') {
-        return undefined;
-      }
-
-      var handleResize = debounce(function () {
-        if (childrenRef.current) {
-          setTranslateValue(direction, childrenRef.current);
-        }
-      });
-      window.addEventListener('resize', handleResize);
-      return function () {
-        handleResize.clear();
-        window.removeEventListener('resize', handleResize);
-      };
-    }, [direction, inProp]);
-    React__default.useEffect(function () {
-      if (!inProp) {
-        // We need to update the position of the drawer when the direction change and
-        // when it's hidden.
-        updatePosition();
-      }
-    }, [inProp, updatePosition]);
-    return React__default.createElement(Transition, _extends({
-      onEnter: handleEnter,
-      onEntering: handleEntering,
-      onExit: handleExit,
-      onExited: handleExited,
-      appear: true,
-      in: inProp,
-      timeout: timeout
-    }, other), function (state, childProps) {
-      return React__default.cloneElement(children, _extends({
-        ref: handleRef,
-        style: _extends({
-          visibility: state === 'exited' && !inProp ? 'hidden' : undefined
-        }, style, {}, children.props.style)
-      }, childProps));
-    });
-  });
-   Slide.propTypes = {
-    /**
-     * A single child content element.
-     */
-    children: elementAcceptingRef,
-
-    /**
-     * Direction the child node will enter from.
-     */
-    direction: propTypes.oneOf(['left', 'right', 'up', 'down']),
-
-    /**
-     * If `true`, show the component; triggers the enter or exit animation.
-     */
-    in: propTypes.bool,
-
-    /**
-     * @ignore
-     */
-    onEnter: propTypes.func,
-
-    /**
-     * @ignore
-     */
-    onEntering: propTypes.func,
-
-    /**
-     * @ignore
-     */
-    onExit: propTypes.func,
-
-    /**
-     * @ignore
-     */
-    onExited: propTypes.func,
-
-    /**
-     * @ignore
-     */
-    style: propTypes.object,
-
-    /**
-     * The duration for the transition, in milliseconds.
-     * You may specify a single timeout for all transitions, or individually with an object.
-     */
-    timeout: propTypes.oneOfType([propTypes.number, propTypes.shape({
-      enter: propTypes.number,
-      exit: propTypes.number
-    })])
-  } ;
-
-  var styles$B = function styles(theme) {
+  var styles$E = function styles(theme) {
     return {
       /* Styles applied to the root element. */
       root: {},
@@ -17344,7 +18605,7 @@
    * when `variant="temporary"` is set.
    */
 
-  var Drawer = React__default.forwardRef(function Drawer(props, ref) {
+  var Drawer = React.forwardRef(function Drawer(props, ref) {
     var _props$anchor = props.anchor,
         anchorProp = _props$anchor === void 0 ? 'left' : _props$anchor,
         BackdropProps = props.BackdropProps,
@@ -17364,22 +18625,24 @@
         _props$PaperProps = props.PaperProps,
         PaperProps = _props$PaperProps === void 0 ? {} : _props$PaperProps,
         SlideProps = props.SlideProps,
+        _props$TransitionComp = props.TransitionComponent,
+        TransitionComponent = _props$TransitionComp === void 0 ? Slide : _props$TransitionComp,
         _props$transitionDura = props.transitionDuration,
         transitionDuration = _props$transitionDura === void 0 ? defaultTransitionDuration$1 : _props$transitionDura,
         _props$variant = props.variant,
         variant = _props$variant === void 0 ? 'temporary' : _props$variant,
-        other = _objectWithoutProperties(props, ["anchor", "BackdropProps", "children", "classes", "className", "elevation", "ModalProps", "onClose", "open", "PaperProps", "SlideProps", "transitionDuration", "variant"]);
+        other = _objectWithoutProperties(props, ["anchor", "BackdropProps", "children", "classes", "className", "elevation", "ModalProps", "onClose", "open", "PaperProps", "SlideProps", "TransitionComponent", "transitionDuration", "variant"]);
 
     var theme = useTheme$1(); // Let's assume that the Drawer will always be rendered on user space.
     // We use this state is order to skip the appear transition during the
     // initial mount of the component.
 
-    var mounted = React__default.useRef(false);
-    React__default.useEffect(function () {
+    var mounted = React.useRef(false);
+    React.useEffect(function () {
       mounted.current = true;
     }, []);
     var anchor = getAnchor(theme, anchorProp);
-    var drawer = React__default.createElement(Paper$1, _extends({
+    var drawer = /*#__PURE__*/React.createElement(Paper$1, _extends({
       elevation: variant === 'temporary' ? elevation : 0,
       square: true
     }, PaperProps, {
@@ -17387,13 +18650,13 @@
     }), children);
 
     if (variant === 'permanent') {
-      return React__default.createElement("div", _extends({
+      return /*#__PURE__*/React.createElement("div", _extends({
         className: clsx(classes.root, classes.docked, className),
         ref: ref
       }, other), drawer);
     }
 
-    var slidingDrawer = React__default.createElement(Slide, _extends({
+    var slidingDrawer = /*#__PURE__*/React.createElement(TransitionComponent, _extends({
       in: open,
       direction: oppositeDirection[anchor],
       timeout: transitionDuration,
@@ -17401,14 +18664,14 @@
     }, SlideProps), drawer);
 
     if (variant === 'persistent') {
-      return React__default.createElement("div", _extends({
+      return /*#__PURE__*/React.createElement("div", _extends({
         className: clsx(classes.root, classes.docked, className),
         ref: ref
       }, other), slidingDrawer);
     } // variant === temporary
 
 
-    return React__default.createElement(Modal, _extends({
+    return /*#__PURE__*/React.createElement(Modal, _extends({
       BackdropProps: _extends({}, BackdropProps, {}, BackdropPropsProp, {
         transitionDuration: transitionDuration
       }),
@@ -17420,10 +18683,15 @@
     }, other, ModalProps), slidingDrawer);
   });
    Drawer.propTypes = {
+    // ----------------------------- Warning --------------------------------
+    // | These PropTypes are generated from the TypeScript type definitions |
+    // |     To update them edit the d.ts file and run "yarn proptypes"     |
+    // ----------------------------------------------------------------------
+
     /**
      * Side from which the drawer will appear.
      */
-    anchor: propTypes.oneOf(['left', 'top', 'right', 'bottom']),
+    anchor: propTypes.oneOf(['bottom', 'left', 'right', 'top']),
 
     /**
      * @ignore
@@ -17439,7 +18707,7 @@
      * Override or extend the styles applied to the component.
      * See [CSS API](#css) below for more details.
      */
-    classes: propTypes.object.isRequired,
+    classes: propTypes.object,
 
     /**
      * @ignore
@@ -17483,6 +18751,7 @@
      * You may specify a single timeout for all transitions, or individually with an object.
      */
     transitionDuration: propTypes.oneOfType([propTypes.number, propTypes.shape({
+      appear: propTypes.number,
       enter: propTypes.number,
       exit: propTypes.number
     })]),
@@ -17492,13 +18761,13 @@
      */
     variant: propTypes.oneOf(['permanent', 'persistent', 'temporary'])
   } ;
-  var Drawer$1 = withStyles$1(styles$B, {
+  var Drawer$1 = withStyles$1(styles$E, {
     name: 'MuiDrawer',
     flip: false
   })(Drawer);
 
   function _toArray(arr) {
-    return _arrayWithHoles(arr) || _iterableToArray(arr) || _nonIterableRest();
+    return _arrayWithHoles(arr) || _iterableToArray(arr) || _unsupportedIterableToArray(arr) || _nonIterableRest();
   }
 
   /**
@@ -17506,13 +18775,13 @@
    * @type {React.Context<{} | {expanded: boolean, disabled: boolean, toggle: () => void}>}
    */
 
-  var ExpansionPanelContext = React__default.createContext({});
+  var ExpansionPanelContext = React.createContext({});
 
   {
     ExpansionPanelContext.displayName = 'ExpansionPanelContext';
   }
 
-  var styles$C = function styles(theme) {
+  var styles$F = function styles(theme) {
     var transition = {
       duration: theme.transitions.duration.shortest
     };
@@ -17584,7 +18853,7 @@
       disabled: {}
     };
   };
-  var ExpansionPanel = React__default.forwardRef(function ExpansionPanel(props, ref) {
+  var ExpansionPanel = React.forwardRef(function ExpansionPanel(props, ref) {
     var childrenProp = props.children,
         classes = props.classes,
         className = props.className,
@@ -17604,13 +18873,14 @@
     var _useControlled = useControlled({
       controlled: expandedProp,
       default: defaultExpanded,
-      name: 'ExpansionPanel'
+      name: 'ExpansionPanel',
+      state: 'expanded'
     }),
         _useControlled2 = _slicedToArray(_useControlled, 2),
         expanded = _useControlled2[0],
         setExpandedState = _useControlled2[1];
 
-    var handleChange = React__default.useCallback(function (event) {
+    var handleChange = React.useCallback(function (event) {
       setExpandedState(!expanded);
 
       if (onChange) {
@@ -17618,45 +18888,50 @@
       }
     }, [expanded, onChange, setExpandedState]);
 
-    var _React$Children$toArr = React__default.Children.toArray(childrenProp),
+    var _React$Children$toArr = React.Children.toArray(childrenProp),
         _React$Children$toArr2 = _toArray(_React$Children$toArr),
         summary = _React$Children$toArr2[0],
         children = _React$Children$toArr2.slice(1);
 
-    var contextValue = React__default.useMemo(function () {
+    var contextValue = React.useMemo(function () {
       return {
         expanded: expanded,
         disabled: disabled,
         toggle: handleChange
       };
     }, [expanded, disabled, handleChange]);
-    return React__default.createElement(Paper$1, _extends({
+    return /*#__PURE__*/React.createElement(Paper$1, _extends({
       className: clsx(classes.root, className, expanded && classes.expanded, disabled && classes.disabled, !square && classes.rounded),
       ref: ref,
       square: square
-    }, other), React__default.createElement(ExpansionPanelContext.Provider, {
+    }, other), /*#__PURE__*/React.createElement(ExpansionPanelContext.Provider, {
       value: contextValue
-    }, summary), React__default.createElement(TransitionComponent, _extends({
+    }, summary), /*#__PURE__*/React.createElement(TransitionComponent, _extends({
       in: expanded,
       timeout: "auto"
-    }, TransitionProps), React__default.createElement("div", {
+    }, TransitionProps), /*#__PURE__*/React.createElement("div", {
       "aria-labelledby": summary.props.id,
       id: summary.props['aria-controls'],
       role: "region"
     }, children)));
   });
    ExpansionPanel.propTypes = {
+    // ----------------------------- Warning --------------------------------
+    // | These PropTypes are generated from the TypeScript type definitions |
+    // |     To update them edit the d.ts file and run "yarn proptypes"     |
+    // ----------------------------------------------------------------------
+
     /**
      * The content of the expansion panel.
      */
     children: chainPropTypes(propTypes.node.isRequired, function (props) {
-      var summary = React__default.Children.toArray(props.children)[0];
+      var summary = React.Children.toArray(props.children)[0];
 
       if (reactIs_2(summary)) {
         return new Error("Material-UI: the ExpansionPanel doesn't accept a Fragment as a child. " + 'Consider providing an array instead.');
       }
 
-      if (!React__default.isValidElement(summary)) {
+      if (!React.isValidElement(summary)) {
         return new Error('Material-UI: expected the first child of ExpansionPanel to be a valid element.');
       }
 
@@ -17667,7 +18942,7 @@
      * Override or extend the styles applied to the component.
      * See [CSS API](#css) below for more details.
      */
-    classes: propTypes.object.isRequired,
+    classes: propTypes.object,
 
     /**
      * @ignore
@@ -17699,7 +18974,7 @@
     onChange: propTypes.func,
 
     /**
-     * @ignore
+     * If `true`, rounded corners are disabled.
      */
     square: propTypes.bool,
 
@@ -17714,11 +18989,11 @@
      */
     TransitionProps: propTypes.object
   } ;
-  var ExpansionPanel$1 = withStyles$1(styles$C, {
+  var ExpansionPanel$1 = withStyles$1(styles$F, {
     name: 'MuiExpansionPanel'
   })(ExpansionPanel);
 
-  var styles$D = {
+  var styles$G = {
     /* Styles applied to the root element. */
     root: {
       display: 'flex',
@@ -17734,29 +19009,34 @@
       }
     }
   };
-  var ExpansionPanelActions = React__default.forwardRef(function ExpansionPanelActions(props, ref) {
+  var ExpansionPanelActions = React.forwardRef(function ExpansionPanelActions(props, ref) {
     var classes = props.classes,
         className = props.className,
         _props$disableSpacing = props.disableSpacing,
         disableSpacing = _props$disableSpacing === void 0 ? false : _props$disableSpacing,
         other = _objectWithoutProperties(props, ["classes", "className", "disableSpacing"]);
 
-    return React__default.createElement("div", _extends({
+    return /*#__PURE__*/React.createElement("div", _extends({
       className: clsx(classes.root, className, !disableSpacing && classes.spacing),
       ref: ref
     }, other));
   });
    ExpansionPanelActions.propTypes = {
+    // ----------------------------- Warning --------------------------------
+    // | These PropTypes are generated from the TypeScript type definitions |
+    // |     To update them edit the d.ts file and run "yarn proptypes"     |
+    // ----------------------------------------------------------------------
+
     /**
      * The content of the component.
      */
-    children: propTypes.node.isRequired,
+    children: propTypes.node,
 
     /**
      * Override or extend the styles applied to the component.
      * See [CSS API](#css) below for more details.
      */
-    classes: propTypes.object.isRequired,
+    classes: propTypes.object,
 
     /**
      * @ignore
@@ -17768,49 +19048,56 @@
      */
     disableSpacing: propTypes.bool
   } ;
-  var ExpansionPanelActions$1 = withStyles$1(styles$D, {
+  var ExpansionPanelActions$1 = withStyles$1(styles$G, {
     name: 'MuiExpansionPanelActions'
   })(ExpansionPanelActions);
 
-  var styles$E = {
-    /* Styles applied to the root element. */
-    root: {
-      display: 'flex',
-      padding: '8px 24px 24px'
-    }
+  var styles$H = function styles(theme) {
+    return {
+      /* Styles applied to the root element. */
+      root: {
+        display: 'flex',
+        padding: theme.spacing(1, 2, 2)
+      }
+    };
   };
-  var ExpansionPanelDetails = React__default.forwardRef(function ExpansionPanelDetails(props, ref) {
+  var ExpansionPanelDetails = React.forwardRef(function ExpansionPanelDetails(props, ref) {
     var classes = props.classes,
         className = props.className,
         other = _objectWithoutProperties(props, ["classes", "className"]);
 
-    return React__default.createElement("div", _extends({
+    return /*#__PURE__*/React.createElement("div", _extends({
       className: clsx(classes.root, className),
       ref: ref
     }, other));
   });
    ExpansionPanelDetails.propTypes = {
+    // ----------------------------- Warning --------------------------------
+    // | These PropTypes are generated from the TypeScript type definitions |
+    // |     To update them edit the d.ts file and run "yarn proptypes"     |
+    // ----------------------------------------------------------------------
+
     /**
      * The content of the expansion panel details.
      */
-    children: propTypes.node.isRequired,
+    children: propTypes.node,
 
     /**
      * Override or extend the styles applied to the component.
      * See [CSS API](#css) below for more details.
      */
-    classes: propTypes.object.isRequired,
+    classes: propTypes.object,
 
     /**
      * @ignore
      */
     className: propTypes.string
   } ;
-  var ExpansionPanelDetails$1 = withStyles$1(styles$E, {
+  var ExpansionPanelDetails$1 = withStyles$1(styles$H, {
     name: 'MuiExpansionPanelDetails'
   })(ExpansionPanelDetails);
 
-  var styles$F = function styles(theme) {
+  var styles$I = function styles(theme) {
     var transition = {
       duration: theme.transitions.duration.shortest
     };
@@ -17820,7 +19107,7 @@
         display: 'flex',
         minHeight: 8 * 6,
         transition: theme.transitions.create(['min-height', 'background-color'], transition),
-        padding: '0 24px 0 24px',
+        padding: theme.spacing(0, 2),
         '&:hover:not($disabled)': {
           cursor: 'pointer'
         },
@@ -17871,7 +19158,7 @@
       }
     };
   };
-  var ExpansionPanelSummary = React__default.forwardRef(function ExpansionPanelSummary(props, ref) {
+  var ExpansionPanelSummary = React.forwardRef(function ExpansionPanelSummary(props, ref) {
     var children = props.children,
         classes = props.classes,
         className = props.className,
@@ -17882,7 +19169,7 @@
         onFocusVisible = props.onFocusVisible,
         other = _objectWithoutProperties(props, ["children", "classes", "className", "expandIcon", "IconButtonProps", "onBlur", "onClick", "onFocusVisible"]);
 
-    var _React$useState = React__default.useState(false),
+    var _React$useState = React.useState(false),
         focusedState = _React$useState[0],
         setFocusedState = _React$useState[1];
 
@@ -17902,7 +19189,7 @@
       }
     };
 
-    var _React$useContext = React__default.useContext(ExpansionPanelContext),
+    var _React$useContext = React.useContext(ExpansionPanelContext),
         _React$useContext$dis = _React$useContext.disabled,
         disabled = _React$useContext$dis === void 0 ? false : _React$useContext$dis,
         expanded = _React$useContext.expanded,
@@ -17918,7 +19205,7 @@
       }
     };
 
-    return React__default.createElement(ButtonBase$1, _extends({
+    return /*#__PURE__*/React.createElement(ButtonBase$1, _extends({
       focusRipple: false,
       disableRipple: true,
       disabled: disabled,
@@ -17929,9 +19216,9 @@
       onBlur: handleBlur,
       onClick: handleChange,
       ref: ref
-    }, other), React__default.createElement("div", {
+    }, other), /*#__PURE__*/React.createElement("div", {
       className: clsx(classes.content, expanded && classes.expanded)
-    }, children), expandIcon && React__default.createElement(IconButton$1, _extends({
+    }, children), expandIcon && /*#__PURE__*/React.createElement(IconButton$1, _extends({
       className: clsx(classes.expandIcon, expanded && classes.expanded),
       edge: "end",
       component: "div",
@@ -17982,11 +19269,11 @@
      */
     onFocusVisible: propTypes.func
   } ;
-  var ExpansionPanelSummary$1 = withStyles$1(styles$F, {
+  var ExpansionPanelSummary$1 = withStyles$1(styles$I, {
     name: 'MuiExpansionPanelSummary'
   })(ExpansionPanelSummary);
 
-  var styles$G = function styles(theme) {
+  var styles$J = function styles(theme) {
     return {
       /* Styles applied to the root element. */
       root: _extends({}, theme.typography.button, {
@@ -18006,9 +19293,6 @@
         },
         color: theme.palette.getContrastText(theme.palette.grey[300]),
         backgroundColor: theme.palette.grey[300],
-        '&$focusVisible': {
-          boxShadow: theme.shadows[6]
-        },
         '&:hover': {
           backgroundColor: theme.palette.grey.A100,
           // Reset on touch devices, it doesn't add specificity
@@ -18019,6 +19303,9 @@
             backgroundColor: theme.palette.action.disabledBackground
           },
           textDecoration: 'none'
+        },
+        '&$focusVisible': {
+          boxShadow: theme.shadows[6]
         },
         '&$disabled': {
           color: theme.palette.action.disabled,
@@ -18110,7 +19397,7 @@
       }
     };
   };
-  var Fab = React__default.forwardRef(function Fab(props, ref) {
+  var Fab = React.forwardRef(function Fab(props, ref) {
     var children = props.children,
         classes = props.classes,
         className = props.className,
@@ -18129,18 +19416,18 @@
         variant = _props$variant === void 0 ? 'round' : _props$variant,
         other = _objectWithoutProperties(props, ["children", "classes", "className", "color", "component", "disabled", "disableFocusRipple", "focusVisibleClassName", "size", "variant"]);
 
-    return React__default.createElement(ButtonBase$1, _extends({
+    return /*#__PURE__*/React.createElement(ButtonBase$1, _extends({
       className: clsx(classes.root, className, variant !== "round" && classes.extended, size !== 'large' && classes["size".concat(capitalize(size))], disabled && classes.disabled, {
-        primary: classes.primary,
-        secondary: classes.secondary,
-        inherit: classes.colorInherit
+        'primary': classes.primary,
+        'secondary': classes.secondary,
+        'inherit': classes.colorInherit
       }[color]),
       component: component,
       disabled: disabled,
       focusRipple: !disableFocusRipple,
       focusVisibleClassName: clsx(classes.focusVisible, focusVisibleClassName),
       ref: ref
-    }, other), React__default.createElement("span", {
+    }, other), /*#__PURE__*/React.createElement("span", {
       className: classes.label
     }, children));
   });
@@ -18215,7 +19502,7 @@
      */
     variant: propTypes.oneOf(['round', 'extended'])
   } ;
-  var Fab$1 = withStyles$1(styles$G, {
+  var Fab$1 = withStyles$1(styles$J, {
     name: 'MuiFab'
   })(Fab);
 
@@ -18240,8 +19527,8 @@
     return parseInt(computedStyle[property], 10) || 0;
   }
 
-  var useEnhancedEffect$4 = typeof window !== 'undefined' ? React__default.useLayoutEffect : React__default.useEffect;
-  var styles$H = {
+  var useEnhancedEffect$3 = typeof window !== 'undefined' ? React.useLayoutEffect : React.useEffect;
+  var styles$K = {
     /* Styles applied to the shadow textarea element. */
     shadow: {
       // Visibility needed to hide the extra text area on iPads
@@ -18257,7 +19544,7 @@
       transform: 'translateZ(0)'
     }
   };
-  var TextareaAutosize = React__default.forwardRef(function TextareaAutosize(props, ref) {
+  var TextareaAutosize = React.forwardRef(function TextareaAutosize(props, ref) {
     var onChange = props.onChange,
         rows = props.rows,
         rowsMax = props.rowsMax,
@@ -18269,23 +19556,32 @@
 
     var rowsMin = rows || rowsMinProp;
 
-    var _React$useRef = React__default.useRef(value != null),
+    var _React$useRef = React.useRef(value != null),
         isControlled = _React$useRef.current;
 
-    var inputRef = React__default.useRef(null);
+    var inputRef = React.useRef(null);
     var handleRef = useForkRef(ref, inputRef);
-    var shadowRef = React__default.useRef(null);
+    var shadowRef = React.useRef(null);
+    var renders = React.useRef(0);
 
-    var _React$useState = React__default.useState({}),
+    var _React$useState = React.useState({}),
         state = _React$useState[0],
         setState = _React$useState[1];
 
-    var syncHeight = React__default.useCallback(function () {
+    var syncHeight = React.useCallback(function () {
       var input = inputRef.current;
       var computedStyle = window.getComputedStyle(input);
       var inputShallow = shadowRef.current;
       inputShallow.style.width = computedStyle.width;
       inputShallow.value = input.value || props.placeholder || 'x';
+
+      if (inputShallow.value.slice(-1) === '\n') {
+        // Certain fonts which overflow the line height will cause the textarea
+        // to report a different scrollHeight depending on whether the last line
+        // is empty. Make it non-empty to avoid this issue.
+        inputShallow.value += ' ';
+      }
+
       var boxSizing = computedStyle['box-sizing'];
       var padding = getStyleValue(computedStyle, 'padding-bottom') + getStyleValue(computedStyle, 'padding-top');
       var border = getStyleValue(computedStyle, 'border-bottom-width') + getStyleValue(computedStyle, 'border-top-width'); // The height of the inner content
@@ -18310,20 +19606,28 @@
       var outerHeightStyle = outerHeight + (boxSizing === 'border-box' ? padding + border : 0);
       var overflow = Math.abs(outerHeight - innerHeight) <= 1;
       setState(function (prevState) {
-        // Need a large enough different to update the height.
+        // Need a large enough difference to update the height.
         // This prevents infinite rendering loop.
-        if (outerHeightStyle > 0 && Math.abs((prevState.outerHeightStyle || 0) - outerHeightStyle) > 1 || prevState.overflow !== overflow) {
+        if (renders.current < 20 && (outerHeightStyle > 0 && Math.abs((prevState.outerHeightStyle || 0) - outerHeightStyle) > 1 || prevState.overflow !== overflow)) {
+          renders.current += 1;
           return {
             overflow: overflow,
             outerHeightStyle: outerHeightStyle
           };
         }
 
+        {
+          if (renders.current === 20) {
+            console.error(['Material-UI: too many re-renders. The layout is unstable.', 'TextareaAutosize limits the number of renders to prevent an infinite loop.'].join('\n'));
+          }
+        }
+
         return prevState;
       });
     }, [rowsMax, rowsMin, props.placeholder]);
-    React__default.useEffect(function () {
+    React.useEffect(function () {
       var handleResize = debounce(function () {
+        renders.current = 0;
         syncHeight();
       });
       window.addEventListener('resize', handleResize);
@@ -18332,11 +19636,16 @@
         window.removeEventListener('resize', handleResize);
       };
     }, [syncHeight]);
-    useEnhancedEffect$4(function () {
+    useEnhancedEffect$3(function () {
       syncHeight();
     });
+    React.useEffect(function () {
+      renders.current = 0;
+    }, [value]);
 
     var handleChange = function handleChange(event) {
+      renders.current = 0;
+
       if (!isControlled) {
         syncHeight();
       }
@@ -18346,7 +19655,7 @@
       }
     };
 
-    return React__default.createElement(React__default.Fragment, null, React__default.createElement("textarea", _extends({
+    return /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement("textarea", _extends({
       value: value,
       onChange: handleChange,
       ref: handleRef // Apply the rows prop to get a "correct" first SSR paint
@@ -18354,20 +19663,25 @@
       rows: rowsMin,
       style: _extends({
         height: state.outerHeightStyle,
-        // Need a large enough different to allow scrolling.
+        // Need a large enough difference to allow scrolling.
         // This prevents infinite rendering loop.
         overflow: state.overflow ? 'hidden' : null
       }, style)
-    }, other)), React__default.createElement("textarea", {
+    }, other)), /*#__PURE__*/React.createElement("textarea", {
       "aria-hidden": true,
       className: props.className,
       readOnly: true,
       ref: shadowRef,
       tabIndex: -1,
-      style: _extends({}, styles$H.shadow, {}, style)
+      style: _extends({}, styles$K.shadow, {}, style)
     }));
   });
    TextareaAutosize.propTypes = {
+    // ----------------------------- Warning --------------------------------
+    // | These PropTypes are generated from the TypeScript type definitions |
+    // |     To update them edit the d.ts file and run "yarn proptypes"     |
+    // ----------------------------------------------------------------------
+
     /**
      * @ignore
      */
@@ -18388,17 +19702,17 @@
      *
      * @deprecated
      */
-    rows: propTypes.oneOfType([propTypes.string, propTypes.number]),
+    rows: propTypes.oneOfType([propTypes.number, propTypes.string]),
 
     /**
      * Maximum number of rows to display.
      */
-    rowsMax: propTypes.oneOfType([propTypes.string, propTypes.number]),
+    rowsMax: propTypes.oneOfType([propTypes.number, propTypes.string]),
 
     /**
      * Minimum number of rows to display.
      */
-    rowsMin: propTypes.oneOfType([propTypes.string, propTypes.number]),
+    rowsMin: propTypes.oneOfType([propTypes.number, propTypes.string]),
 
     /**
      * @ignore
@@ -18408,7 +19722,7 @@
     /**
      * @ignore
      */
-    value: propTypes.any
+    value: propTypes.oneOfType([propTypes.arrayOf(propTypes.string), propTypes.number, propTypes.string])
   } ;
 
   // Supports determination of isControlled().
@@ -18441,7 +19755,7 @@
     return obj.startAdornment;
   }
 
-  var styles$I = function styles(theme) {
+  var styles$L = function styles(theme) {
     var light = theme.palette.type === 'light';
     var placeholder = {
       color: 'currentColor',
@@ -18457,13 +19771,19 @@
       opacity: light ? 0.42 : 0.5
     };
     return {
+      '@global': {
+        '@keyframes mui-auto-fill': {
+          from: {}
+        },
+        '@keyframes mui-auto-fill-cancel': {
+          from: {}
+        }
+      },
+
       /* Styles applied to the root element. */
-      root: {
-        // Mimics the default input display property used by browsers for an input.
-        fontFamily: theme.typography.fontFamily,
+      root: _extends({}, theme.typography.body1, {
         color: theme.palette.text.primary,
-        fontSize: theme.typography.pxToRem(16),
-        lineHeight: '1.1875em',
+        lineHeight: '1.1876em',
         // Reset (19px), match the native input line-height
         boxSizing: 'border-box',
         // Prevent padding issue with fullWidth.
@@ -18475,7 +19795,7 @@
           color: theme.palette.text.disabled,
           cursor: 'default'
         }
-      },
+      }),
 
       /* Styles applied to the root element if the component is a descendant of `FormControl`. */
       formControl: {},
@@ -18492,7 +19812,7 @@
       /* Styles applied to the root element if `endAdornment` is provided. */
       adornedEnd: {},
 
-      /* Styles applied to the root element if `error={true}`. */
+      /* Pseudo-class applied to the root element if `error={true}`. */
       error: {},
 
       /* Styles applied to the `input` element if `margin="dense"`. */
@@ -18522,7 +19842,7 @@
         border: 0,
         boxSizing: 'content-box',
         background: 'none',
-        height: '1.1875em',
+        height: '1.1876em',
         // Reset (19px), match the native input line-height
         margin: 0,
         // Reset for Safari
@@ -18532,7 +19852,7 @@
         minWidth: 0,
         width: '100%',
         // Fix IE 11 width issue
-        animationName: '$auto-fill-cancel',
+        animationName: 'mui-auto-fill-cancel',
         '&::-webkit-input-placeholder': placeholder,
         '&::-moz-placeholder': placeholder,
         // Firefox 19+
@@ -18574,14 +19894,8 @@
         },
         '&:-webkit-autofill': {
           animationDuration: '5000s',
-          animationName: '$auto-fill'
+          animationName: 'mui-auto-fill'
         }
-      },
-      '@keyframes auto-fill': {
-        from: {}
-      },
-      '@keyframes auto-fill-cancel': {
-        from: {}
       },
 
       /* Styles applied to the `input` element if `margin="dense"`. */
@@ -18613,14 +19927,14 @@
       inputHiddenLabel: {}
     };
   };
-  var useEnhancedEffect$5 = typeof window === 'undefined' ? React__default.useEffect : React__default.useLayoutEffect;
+  var useEnhancedEffect$4 = typeof window === 'undefined' ? React.useEffect : React.useLayoutEffect;
   /**
    * `InputBase` contains as few styles as possible.
    * It aims to be a simple building block for creating an input.
    * It contains a load of style reset and some state logic.
    */
 
-  var InputBase = React__default.forwardRef(function InputBase(props, ref) {
+  var InputBase = React.forwardRef(function InputBase(props, ref) {
     var ariaDescribedby = props['aria-describedby'],
         autoComplete = props.autoComplete,
         autoFocus = props.autoFocus,
@@ -18663,11 +19977,11 @@
 
     var value = inputPropsProp.value != null ? inputPropsProp.value : valueProp;
 
-    var _React$useRef = React__default.useRef(value != null),
+    var _React$useRef = React.useRef(value != null),
         isControlled = _React$useRef.current;
 
-    var inputRef = React__default.useRef();
-    var handleInputRefWarning = React__default.useCallback(function (instance) {
+    var inputRef = React.useRef();
+    var handleInputRefWarning = React.useCallback(function (instance) {
       {
         if (instance && !(instance instanceof HTMLInputElement) && !instance.focus) {
           console.error(['Material-UI: you have provided a `inputComponent` to the input component', 'that does not correctly handle the `inputRef` prop.', 'Make sure the `inputRef` prop is called with a HTMLInputElement.'].join('\n'));
@@ -18678,7 +19992,7 @@
     var handleInputRefProp = useForkRef(inputRefProp, handleInputPropsRefProp);
     var handleInputRef = useForkRef(inputRef, handleInputRefProp);
 
-    var _React$useState = React__default.useState(false),
+    var _React$useState = React.useState(false),
         focused = _React$useState[0],
         setFocused = _React$useState[1];
 
@@ -18686,7 +20000,7 @@
 
     {
       // eslint-disable-next-line react-hooks/rules-of-hooks
-      React__default.useEffect(function () {
+      React.useEffect(function () {
         if (muiFormControl) {
           return muiFormControl.registerEffect();
         }
@@ -18703,7 +20017,7 @@
     fcs.focused = muiFormControl ? muiFormControl.focused : focused; // The blur won't fire when the disabled state is set on a focused input.
     // We need to book keep the focused state manually.
 
-    React__default.useEffect(function () {
+    React.useEffect(function () {
       if (!muiFormControl && disabled && focused) {
         setFocused(false);
 
@@ -18714,7 +20028,7 @@
     }, [muiFormControl, disabled, focused, onBlur]);
     var onFilled = muiFormControl && muiFormControl.onFilled;
     var onEmpty = muiFormControl && muiFormControl.onEmpty;
-    var checkDirty = React__default.useCallback(function (obj) {
+    var checkDirty = React.useCallback(function (obj) {
       if (isFilled(obj)) {
         if (onFilled) {
           onFilled();
@@ -18723,7 +20037,7 @@
         onEmpty();
       }
     }, [onFilled, onEmpty]);
-    useEnhancedEffect$5(function () {
+    useEnhancedEffect$4(function () {
       if (isControlled) {
         checkDirty({
           value: value
@@ -18799,7 +20113,7 @@
     // or auto filled by the browser before the hydration (for SSR).
 
 
-    React__default.useEffect(function () {
+    React.useEffect(function () {
       checkDirty(inputRef.current);
     }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
@@ -18846,25 +20160,23 @@
 
     var handleAutoFill = function handleAutoFill(event) {
       // Provide a fake value as Chrome might not let you access it for security reasons.
-      checkDirty(event.animationName.indexOf('auto-fill-cancel') !== -1 ? inputRef.current : {
+      checkDirty(event.animationName === 'mui-auto-fill-cancel' ? inputRef.current : {
         value: 'x'
       });
     };
 
-    React__default.useEffect(function () {
+    React.useEffect(function () {
       if (muiFormControl) {
         muiFormControl.setAdornedStart(Boolean(startAdornment));
       }
     }, [muiFormControl, startAdornment]);
-    return React__default.createElement("div", _extends({
-      className: clsx(classes.root, classes["color".concat(capitalize(fcs.color || 'primary'))], className, fcs.disabled && classes.disabled, fcs.error && classes.error, fullWidth && classes.fullWidth, fcs.focused && classes.focused, muiFormControl && classes.formControl, multiline && classes.multiline, startAdornment && classes.adornedStart, endAdornment && classes.adornedEnd, {
-        dense: classes.marginDense
-      }[fcs.margin]),
+    return /*#__PURE__*/React.createElement("div", _extends({
+      className: clsx(classes.root, classes["color".concat(capitalize(fcs.color || 'primary'))], className, fcs.disabled && classes.disabled, fcs.error && classes.error, fullWidth && classes.fullWidth, fcs.focused && classes.focused, muiFormControl && classes.formControl, multiline && classes.multiline, startAdornment && classes.adornedStart, endAdornment && classes.adornedEnd, fcs.margin === 'dense' && classes.marginDense),
       onClick: handleClick,
       ref: ref
-    }, other), startAdornment, React__default.createElement(FormControlContext.Provider, {
+    }, other), startAdornment, /*#__PURE__*/React.createElement(FormControlContext.Provider, {
       value: null
-    }, React__default.createElement(InputComponent, _extends({
+    }, /*#__PURE__*/React.createElement(InputComponent, _extends({
       "aria-invalid": fcs.error,
       "aria-describedby": ariaDescribedby,
       autoComplete: autoComplete,
@@ -18882,11 +20194,7 @@
       onKeyDown: onKeyDown,
       onKeyUp: onKeyUp
     }, inputProps, {
-      className: clsx(classes.input, inputPropsProp.className, fcs.disabled && classes.disabled, multiline && classes.inputMultiline, fcs.hiddenLabel && classes.inputHiddenLabel, startAdornment && classes.inputAdornedStart, endAdornment && classes.inputAdornedEnd, {
-        search: classes.inputTypeSearch
-      }[type], {
-        dense: classes.inputMarginDense
-      }[fcs.margin]),
+      className: clsx(classes.input, inputPropsProp.className, fcs.disabled && classes.disabled, multiline && classes.inputMultiline, fcs.hiddenLabel && classes.inputHiddenLabel, startAdornment && classes.inputAdornedStart, endAdornment && classes.inputAdornedEnd, type === 'search' && classes.inputTypeSearch, fcs.margin === 'dense' && classes.inputMarginDense),
       onBlur: handleBlur,
       onChange: handleChange,
       onFocus: handleFocus
@@ -18895,6 +20203,11 @@
     })) : null);
   });
    InputBase.propTypes = {
+    // ----------------------------- Warning --------------------------------
+    // | These PropTypes are generated from the TypeScript type definitions |
+    // |     To update them edit the d.ts file and run "yarn proptypes"     |
+    // ----------------------------------------------------------------------
+
     /**
      * @ignore
      */
@@ -18916,10 +20229,10 @@
      * Override or extend the styles applied to the component.
      * See [CSS API](#css) below for more details.
      */
-    classes: propTypes.object.isRequired,
+    classes: propTypes.object,
 
     /**
-     * The CSS class name of the wrapper element.
+     * @ignore
      */
     className: propTypes.string,
 
@@ -19050,17 +20363,17 @@
     /**
      * Number of rows to display when multiline option is set to true.
      */
-    rows: propTypes.oneOfType([propTypes.string, propTypes.number]),
+    rows: propTypes.oneOfType([propTypes.number, propTypes.string]),
 
     /**
      * Maximum number of rows to display when multiline option is set to true.
      */
-    rowsMax: propTypes.oneOfType([propTypes.string, propTypes.number]),
+    rowsMax: propTypes.oneOfType([propTypes.number, propTypes.string]),
 
     /**
      * Minimum number of rows to display when multiline option is set to true.
      */
-    rowsMin: propTypes.oneOfType([propTypes.string, propTypes.number]),
+    rowsMin: propTypes.oneOfType([propTypes.number, propTypes.string]),
 
     /**
      * Start `InputAdornment` for this component.
@@ -19077,11 +20390,11 @@
      */
     value: propTypes.any
   } ;
-  var InputBase$1 = withStyles$1(styles$I, {
+  var InputBase$1 = withStyles$1(styles$L, {
     name: 'MuiInputBase'
   })(InputBase);
 
-  var styles$J = function styles(theme) {
+  var styles$M = function styles(theme) {
     var light = theme.palette.type === 'light';
     var bottomLineColor = light ? 'rgba(0, 0, 0, 0.42)' : 'rgba(255, 255, 255, 0.7)';
     var backgroundColor = light ? 'rgba(0, 0, 0, 0.09)' : 'rgba(255, 255, 255, 0.09)';
@@ -19182,7 +20495,7 @@
         paddingRight: 12
       },
 
-      /* Styles applied to the root element if `error={true}`. */
+      /* Pseudo-class applied to the root element if `error={true}`. */
       error: {},
 
       /* Styles applied to the `input` element if `margin="dense"`. */
@@ -19240,7 +20553,7 @@
       }
     };
   };
-  var FilledInput = React__default.forwardRef(function FilledInput(props, ref) {
+  var FilledInput = React.forwardRef(function FilledInput(props, ref) {
     var disableUnderline = props.disableUnderline,
         classes = props.classes,
         _props$fullWidth = props.fullWidth,
@@ -19253,7 +20566,7 @@
         type = _props$type === void 0 ? 'text' : _props$type,
         other = _objectWithoutProperties(props, ["disableUnderline", "classes", "fullWidth", "inputComponent", "multiline", "type"]);
 
-    return React__default.createElement(InputBase$1, _extends({
+    return /*#__PURE__*/React.createElement(InputBase$1, _extends({
       classes: _extends({}, classes, {
         root: clsx(classes.root, !disableUnderline && classes.underline),
         underline: null
@@ -19266,6 +20579,11 @@
     }, other));
   });
    FilledInput.propTypes = {
+    // ----------------------------- Warning --------------------------------
+    // | These PropTypes are generated from the TypeScript type definitions |
+    // |     To update them edit the d.ts file and run "yarn proptypes"     |
+    // ----------------------------------------------------------------------
+
     /**
      * This prop helps users to fill forms faster, especially on mobile devices.
      * The name can be confusing, as it's more like an autofill.
@@ -19282,12 +20600,7 @@
      * Override or extend the styles applied to the component.
      * See [CSS API](#css) below for more details.
      */
-    classes: propTypes.object.isRequired,
-
-    /**
-     * The CSS class name of the wrapper element.
-     */
-    className: propTypes.string,
+    classes: propTypes.object,
 
     /**
      * The color of the component. It supports those theme colors that make sense for this component.
@@ -19331,7 +20644,7 @@
     id: propTypes.string,
 
     /**
-     * The component used for the native input.
+     * The component used for the `input` element.
      * Either a string to use a DOM element or a component.
      */
     inputComponent: propTypes.elementType,
@@ -19389,12 +20702,12 @@
     /**
      * Number of rows to display when multiline option is set to true.
      */
-    rows: propTypes.oneOfType([propTypes.string, propTypes.number]),
+    rows: propTypes.oneOfType([propTypes.number, propTypes.string]),
 
     /**
      * Maximum number of rows to display when multiline option is set to true.
      */
-    rowsMax: propTypes.oneOfType([propTypes.string, propTypes.number]),
+    rowsMax: propTypes.oneOfType([propTypes.number, propTypes.string]),
 
     /**
      * Start `InputAdornment` for this component.
@@ -19412,15 +20725,11 @@
     value: propTypes.any
   } ;
   FilledInput.muiName = 'Input';
-  var FilledInput$1 = withStyles$1(styles$J, {
+  var FilledInput$1 = withStyles$1(styles$M, {
     name: 'MuiFilledInput'
   })(FilledInput);
 
-  function isMuiElement(element, muiNames) {
-    return React__default.isValidElement(element) && muiNames.indexOf(element.type.muiName) !== -1;
-  }
-
-  var styles$K = {
+  var styles$N = {
     /* Styles applied to the root element. */
     root: {
       display: 'inline-flex',
@@ -19476,7 +20785,7 @@
    * ⚠️Only one input can be used within a FormControl.
    */
 
-  var FormControl = React__default.forwardRef(function FormControl(props, ref) {
+  var FormControl = React.forwardRef(function FormControl(props, ref) {
     var children = props.children,
         classes = props.classes,
         className = props.className,
@@ -19490,6 +20799,7 @@
         error = _props$error === void 0 ? false : _props$error,
         _props$fullWidth = props.fullWidth,
         fullWidth = _props$fullWidth === void 0 ? false : _props$fullWidth,
+        visuallyFocused = props.focused,
         _props$hiddenLabel = props.hiddenLabel,
         hiddenLabel = _props$hiddenLabel === void 0 ? false : _props$hiddenLabel,
         _props$margin = props.margin,
@@ -19499,15 +20809,15 @@
         size = props.size,
         _props$variant = props.variant,
         variant = _props$variant === void 0 ? 'standard' : _props$variant,
-        other = _objectWithoutProperties(props, ["children", "classes", "className", "color", "component", "disabled", "error", "fullWidth", "hiddenLabel", "margin", "required", "size", "variant"]);
+        other = _objectWithoutProperties(props, ["children", "classes", "className", "color", "component", "disabled", "error", "fullWidth", "focused", "hiddenLabel", "margin", "required", "size", "variant"]);
 
-    var _React$useState = React__default.useState(function () {
+    var _React$useState = React.useState(function () {
       // We need to iterate through the children and find the Input in order
       // to fully support server-side rendering.
       var initialAdornedStart = false;
 
       if (children) {
-        React__default.Children.forEach(children, function (child) {
+        React.Children.forEach(children, function (child) {
           if (!isMuiElement(child, ['Input', 'Select'])) {
             return;
           }
@@ -19525,13 +20835,13 @@
         adornedStart = _React$useState[0],
         setAdornedStart = _React$useState[1];
 
-    var _React$useState2 = React__default.useState(function () {
+    var _React$useState2 = React.useState(function () {
       // We need to iterate through the children and find the Input in order
       // to fully support server-side rendering.
       var initialFilled = false;
 
       if (children) {
-        React__default.Children.forEach(children, function (child) {
+        React.Children.forEach(children, function (child) {
           if (!isMuiElement(child, ['Input', 'Select'])) {
             return;
           }
@@ -19547,9 +20857,11 @@
         filled = _React$useState2[0],
         setFilled = _React$useState2[1];
 
-    var _React$useState3 = React__default.useState(false),
-        focused = _React$useState3[0],
+    var _React$useState3 = React.useState(false),
+        _focused = _React$useState3[0],
         setFocused = _React$useState3[1];
+
+    var focused = visuallyFocused !== undefined ? visuallyFocused : _focused;
 
     if (disabled && focused) {
       setFocused(false);
@@ -19559,7 +20871,7 @@
 
     {
       // eslint-disable-next-line react-hooks/rules-of-hooks
-      var registeredInput = React__default.useRef(false);
+      var registeredInput = React.useRef(false);
 
       registerEffect = function registerEffect() {
         if (registeredInput.current) {
@@ -19573,10 +20885,10 @@
       };
     }
 
-    var onFilled = React__default.useCallback(function () {
+    var onFilled = React.useCallback(function () {
       setFilled(true);
     }, []);
-    var onEmpty = React__default.useCallback(function () {
+    var onEmpty = React.useCallback(function () {
       setFilled(false);
     }, []);
     var childContext = {
@@ -19587,6 +20899,7 @@
       error: error,
       filled: filled,
       focused: focused,
+      fullWidth: fullWidth,
       hiddenLabel: hiddenLabel,
       margin: (size === 'small' ? 'dense' : undefined) || margin,
       onBlur: function onBlur() {
@@ -19601,9 +20914,9 @@
       required: required,
       variant: variant
     };
-    return React__default.createElement(FormControlContext.Provider, {
+    return /*#__PURE__*/React.createElement(FormControlContext.Provider, {
       value: childContext
-    }, React__default.createElement(Component, _extends({
+    }, /*#__PURE__*/React.createElement(Component, _extends({
       className: clsx(classes.root, className, margin !== 'none' && classes["margin".concat(capitalize(margin))], fullWidth && classes.fullWidth),
       ref: ref
     }, other), children));
@@ -19647,6 +20960,11 @@
     error: propTypes.bool,
 
     /**
+     * If `true`, the component will be displayed in focused state.
+     */
+    focused: propTypes.bool,
+
+    /**
      * If `true`, the component will take up the full width of its container.
      */
     fullWidth: propTypes.bool,
@@ -19678,11 +20996,11 @@
      */
     variant: propTypes.oneOf(['standard', 'outlined', 'filled'])
   } ;
-  var FormControl$1 = withStyles$1(styles$K, {
+  var FormControl$1 = withStyles$1(styles$N, {
     name: 'MuiFormControl'
   })(FormControl);
 
-  var styles$L = function styles(theme) {
+  var styles$O = function styles(theme) {
     return {
       /* Styles applied to the root element. */
       root: {
@@ -19736,7 +21054,7 @@
    * Use this component if you want to display an extra label.
    */
 
-  var FormControlLabel = React__default.forwardRef(function FormControlLabel(props, ref) {
+  var FormControlLabel = React.forwardRef(function FormControlLabel(props, ref) {
     var checked = props.checked,
         classes = props.classes,
         className = props.className,
@@ -19770,15 +21088,20 @@
         controlProps[key] = props[key];
       }
     });
-    return React__default.createElement("label", _extends({
+    return /*#__PURE__*/React.createElement("label", _extends({
       className: clsx(classes.root, className, labelPlacement !== 'end' && classes["labelPlacement".concat(capitalize(labelPlacement))], disabled && classes.disabled),
       ref: ref
-    }, other), React__default.cloneElement(control, controlProps), React__default.createElement(Typography$1, {
+    }, other), React.cloneElement(control, controlProps), /*#__PURE__*/React.createElement(Typography$1, {
       component: "span",
       className: clsx(classes.label, disabled && classes.disabled)
     }, label));
   });
    FormControlLabel.propTypes = {
+    // ----------------------------- Warning --------------------------------
+    // | These PropTypes are generated from the TypeScript type definitions |
+    // |     To update them edit the d.ts file and run "yarn proptypes"     |
+    // ----------------------------------------------------------------------
+
     /**
      * If `true`, the component appears selected.
      */
@@ -19788,7 +21111,7 @@
      * Override or extend the styles applied to the component.
      * See [CSS API](#css) below for more details.
      */
-    classes: propTypes.object.isRequired,
+    classes: propTypes.object,
 
     /**
      * @ignore
@@ -19798,7 +21121,7 @@
     /**
      * A control element. For instance, it can be be a `Radio`, a `Switch` or a `Checkbox`.
      */
-    control: propTypes.element,
+    control: propTypes.element.isRequired,
 
     /**
      * If `true`, the control will be disabled.
@@ -19818,9 +21141,9 @@
     /**
      * The position of the label.
      */
-    labelPlacement: propTypes.oneOf(['end', 'start', 'top', 'bottom']),
+    labelPlacement: propTypes.oneOf(['bottom', 'end', 'start', 'top']),
 
-    /*
+    /**
      * @ignore
      */
     name: propTypes.string,
@@ -19838,11 +21161,11 @@
      */
     value: propTypes.any
   } ;
-  var FormControlLabel$1 = withStyles$1(styles$L, {
+  var FormControlLabel$1 = withStyles$1(styles$O, {
     name: 'MuiFormControlLabel'
   })(FormControlLabel);
 
-  var styles$M = {
+  var styles$P = {
     /* Styles applied to the root element. */
     root: {
       display: 'flex',
@@ -19861,19 +21184,24 @@
    * For the `Radio`, you should be using the `RadioGroup` component instead of this one.
    */
 
-  var FormGroup = React__default.forwardRef(function FormGroup(props, ref) {
+  var FormGroup = React.forwardRef(function FormGroup(props, ref) {
     var classes = props.classes,
         className = props.className,
         _props$row = props.row,
         row = _props$row === void 0 ? false : _props$row,
         other = _objectWithoutProperties(props, ["classes", "className", "row"]);
 
-    return React__default.createElement("div", _extends({
+    return /*#__PURE__*/React.createElement("div", _extends({
       className: clsx(classes.root, className, row && classes.row),
       ref: ref
     }, other));
   });
    FormGroup.propTypes = {
+    // ----------------------------- Warning --------------------------------
+    // | These PropTypes are generated from the TypeScript type definitions |
+    // |     To update them edit the d.ts file and run "yarn proptypes"     |
+    // ----------------------------------------------------------------------
+
     /**
      * The content of the component.
      */
@@ -19883,7 +21211,7 @@
      * Override or extend the styles applied to the component.
      * See [CSS API](#css) below for more details.
      */
-    classes: propTypes.object.isRequired,
+    classes: propTypes.object,
 
     /**
      * @ignore
@@ -19895,20 +21223,18 @@
      */
     row: propTypes.bool
   } ;
-  var FormGroup$1 = withStyles$1(styles$M, {
+  var FormGroup$1 = withStyles$1(styles$P, {
     name: 'MuiFormGroup'
   })(FormGroup);
 
-  var styles$N = function styles(theme) {
+  var styles$Q = function styles(theme) {
     return {
       /* Styles applied to the root element. */
       root: _extends({
         color: theme.palette.text.secondary
       }, theme.typography.caption, {
         textAlign: 'left',
-        marginTop: 8,
-        lineHeight: '1em',
-        minHeight: '1em',
+        marginTop: 3,
         margin: 0,
         '&$disabled': {
           color: theme.palette.text.disabled
@@ -19931,7 +21257,8 @@
 
       /* Styles applied to the root element if `variant="filled"` or `variant="outlined"`. */
       contained: {
-        margin: '8px 14px 0'
+        marginLeft: 14,
+        marginRight: 14
       },
 
       /* Pseudo-class applied to the root element if `focused={true}`. */
@@ -19944,7 +21271,7 @@
       required: {}
     };
   };
-  var FormHelperText = React__default.forwardRef(function FormHelperText(props, ref) {
+  var FormHelperText = React.forwardRef(function FormHelperText(props, ref) {
     var children = props.children,
         classes = props.classes,
         className = props.className,
@@ -19965,13 +21292,13 @@
       muiFormControl: muiFormControl,
       states: ['variant', 'margin', 'disabled', 'error', 'filled', 'focused', 'required']
     });
-    return React__default.createElement(Component, _extends({
-      className: clsx(classes.root, (fcs.variant === 'filled' || fcs.variant === 'outlined') && classes.contained, className, fcs.disabled && classes.disabled, fcs.error && classes.error, fcs.filled && classes.filled, fcs.focused && classes.focused, fcs.required && classes.required, {
-        dense: classes.marginDense
-      }[fcs.margin]),
+    return /*#__PURE__*/React.createElement(Component, _extends({
+      className: clsx(classes.root, (fcs.variant === 'filled' || fcs.variant === 'outlined') && classes.contained, className, fcs.disabled && classes.disabled, fcs.error && classes.error, fcs.filled && classes.filled, fcs.focused && classes.focused, fcs.required && classes.required, fcs.margin === 'dense' && classes.marginDense),
       ref: ref
-    }, other), children === ' ' ? // eslint-disable-next-line react/no-danger
-    React__default.createElement("span", {
+    }, other), children === ' ' ?
+    /*#__PURE__*/
+    // eslint-disable-next-line react/no-danger
+    React.createElement("span", {
       dangerouslySetInnerHTML: {
         __html: '&#8203;'
       }
@@ -20038,11 +21365,11 @@
      */
     variant: propTypes.oneOf(['standard', 'outlined', 'filled'])
   } ;
-  var FormHelperText$1 = withStyles$1(styles$N, {
+  var FormHelperText$1 = withStyles$1(styles$Q, {
     name: 'MuiFormHelperText'
   })(FormHelperText);
 
-  var styles$O = function styles(theme) {
+  var styles$R = function styles(theme) {
     return {
       /* Styles applied to the root element. */
       root: _extends({
@@ -20091,7 +21418,7 @@
       }
     };
   };
-  var FormLabel = React__default.forwardRef(function FormLabel(props, ref) {
+  var FormLabel = React.forwardRef(function FormLabel(props, ref) {
     var children = props.children,
         classes = props.classes,
         className = props.className,
@@ -20111,10 +21438,10 @@
       muiFormControl: muiFormControl,
       states: ['color', 'required', 'focused', 'disabled', 'error', 'filled']
     });
-    return React__default.createElement(Component, _extends({
+    return /*#__PURE__*/React.createElement(Component, _extends({
       className: clsx(classes.root, classes["color".concat(capitalize(fcs.color || 'primary'))], className, fcs.disabled && classes.disabled, fcs.error && classes.error, fcs.filled && classes.filled, fcs.focused && classes.focused, fcs.required && classes.required),
       ref: ref
-    }, other), children, fcs.required && React__default.createElement("span", {
+    }, other), children, fcs.required && /*#__PURE__*/React.createElement("span", {
       className: clsx(classes.asterisk, fcs.error && classes.error)
     }, "\u2009", '*'));
   });
@@ -20171,26 +21498,9 @@
      */
     required: propTypes.bool
   } ;
-  var FormLabel$1 = withStyles$1(styles$O, {
+  var FormLabel$1 = withStyles$1(styles$R, {
     name: 'MuiFormLabel'
   })(FormLabel);
-
-  function requirePropFactory(componentNameInError) {
-
-    var requireProp = function requireProp(requiredProp) {
-      return function (props, propName, componentName, location, propFullName) {
-        var propFullNameSafe = propFullName || propName;
-
-        if (typeof props[propName] !== 'undefined' && !props[requiredProp]) {
-          return new Error("The prop `".concat(propFullNameSafe, "` of ") + "`".concat(componentNameInError, "` must be used on `").concat(requiredProp, "`."));
-        }
-
-        return null;
-      };
-    };
-
-    return requireProp;
-  }
 
   var SPACINGS = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
   var GRID_SIZES = ['auto', true, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12];
@@ -20269,7 +21579,7 @@
   // justifyContent: 'flex-start',
 
 
-  var styles$P = function styles(theme) {
+  var styles$S = function styles(theme) {
     return _extends({
       /* Styles applied to the root element */
       root: {},
@@ -20304,7 +21614,7 @@
         flexDirection: 'column-reverse'
       },
 
-      /* Styles applied to the root element if `direction="rwo-reverse"`. */
+      /* Styles applied to the root element if `direction="row-reverse"`. */
       'direction-xs-row-reverse': {
         flexDirection: 'row-reverse'
       },
@@ -20394,7 +21704,7 @@
       return accumulator;
     }, {}));
   };
-  var Grid = React__default.forwardRef(function Grid(props, ref) {
+  var Grid = React.forwardRef(function Grid(props, ref) {
     var _props$alignContent = props.alignContent,
         alignContent = _props$alignContent === void 0 ? 'stretch' : _props$alignContent,
         _props$alignItems = props.alignItems,
@@ -20430,7 +21740,7 @@
         other = _objectWithoutProperties(props, ["alignContent", "alignItems", "classes", "className", "component", "container", "direction", "item", "justify", "lg", "md", "sm", "spacing", "wrap", "xl", "xs", "zeroMinWidth"]);
 
     var className = clsx(classes.root, classNameProp, container && [classes.container, spacing !== 0 && classes["spacing-xs-".concat(String(spacing))]], item && classes.item, zeroMinWidth && classes.zeroMinWidth, direction !== 'row' && classes["direction-xs-".concat(String(direction))], wrap !== 'wrap' && classes["wrap-xs-".concat(String(wrap))], alignItems !== 'stretch' && classes["align-items-xs-".concat(String(alignItems))], alignContent !== 'stretch' && classes["align-content-xs-".concat(String(alignContent))], justify !== 'flex-start' && classes["justify-xs-".concat(String(justify))], xs !== false && classes["grid-xs-".concat(String(xs))], sm !== false && classes["grid-sm-".concat(String(sm))], md !== false && classes["grid-md-".concat(String(md))], lg !== false && classes["grid-lg-".concat(String(lg))], xl !== false && classes["grid-xl-".concat(String(xl))]);
-    return React__default.createElement(Component, _extends({
+    return /*#__PURE__*/React.createElement(Component, _extends({
       className: className,
       ref: ref
     }, other));
@@ -20542,7 +21852,7 @@
      */
     zeroMinWidth: propTypes.bool
   } ;
-  var StyledGrid = withStyles$1(styles$P, {
+  var StyledGrid = withStyles$1(styles$S, {
     name: 'MuiGrid'
   })(Grid);
 
@@ -20563,7 +21873,7 @@
     });
   }
 
-  var styles$Q = {
+  var styles$T = {
     /* Styles applied to the root element. */
     root: {
       display: 'flex',
@@ -20575,7 +21885,7 @@
 
     }
   };
-  var GridList = React__default.forwardRef(function GridList(props, ref) {
+  var GridList = React.forwardRef(function GridList(props, ref) {
     var _props$cellHeight = props.cellHeight,
         cellHeight = _props$cellHeight === void 0 ? 180 : _props$cellHeight,
         children = props.children,
@@ -20590,14 +21900,14 @@
         style = props.style,
         other = _objectWithoutProperties(props, ["cellHeight", "children", "classes", "className", "cols", "component", "spacing", "style"]);
 
-    return React__default.createElement(Component, _extends({
+    return /*#__PURE__*/React.createElement(Component, _extends({
       className: clsx(classes.root, className),
       ref: ref,
       style: _extends({
         margin: -spacing / 2
       }, style)
-    }, other), React__default.Children.map(children, function (child) {
-      if (!React__default.isValidElement(child)) {
+    }, other), React.Children.map(children, function (child) {
+      if (!React.isValidElement(child)) {
         return null;
       }
 
@@ -20609,7 +21919,7 @@
 
       var childCols = child.props.cols || 1;
       var childRows = child.props.rows || 1;
-      return React__default.cloneElement(child, {
+      return React.cloneElement(child, {
         style: _extends({
           width: "".concat(100 / cols * childCols, "%"),
           height: cellHeight === 'auto' ? 'auto' : cellHeight * childRows + spacing,
@@ -20662,11 +21972,11 @@
      */
     style: propTypes.object
   } ;
-  var GridList$1 = withStyles$1(styles$Q, {
+  var GridList$1 = withStyles$1(styles$T, {
     name: 'MuiGridList'
   })(GridList);
 
-  var styles$R = {
+  var styles$U = {
     /* Styles applied to the root element. */
     root: {
       boxSizing: 'border-box',
@@ -20733,7 +22043,7 @@
     }
   }
 
-  var GridListTile = React__default.forwardRef(function GridListTile(props, ref) {
+  var GridListTile = React.forwardRef(function GridListTile(props, ref) {
     // cols rows default values are for docs only
     var children = props.children,
         classes = props.classes,
@@ -20744,11 +22054,11 @@
         _props$rows = props.rows,
         other = _objectWithoutProperties(props, ["children", "classes", "className", "cols", "component", "rows"]);
 
-    var imgRef = React__default.useRef(null);
-    React__default.useEffect(function () {
+    var imgRef = React.useRef(null);
+    React.useEffect(function () {
       ensureImageCover(imgRef.current, classes);
     });
-    React__default.useEffect(function () {
+    React.useEffect(function () {
       var handleResize = debounce(function () {
         fit(imgRef.current, classes);
       });
@@ -20758,18 +22068,18 @@
         window.removeEventListener('resize', handleResize);
       };
     }, [classes]);
-    return React__default.createElement(Component, _extends({
+    return /*#__PURE__*/React.createElement(Component, _extends({
       className: clsx(classes.root, className),
       ref: ref
-    }, other), React__default.createElement("div", {
+    }, other), /*#__PURE__*/React.createElement("div", {
       className: classes.tile
-    }, React__default.Children.map(children, function (child) {
-      if (!React__default.isValidElement(child)) {
+    }, React.Children.map(children, function (child) {
+      if (!React.isValidElement(child)) {
         return null;
       }
 
       if (child.type === 'img' || isMuiElement(child, ['Image'])) {
-        return React__default.cloneElement(child, {
+        return React.cloneElement(child, {
           ref: imgRef
         });
       }
@@ -20812,11 +22122,11 @@
      */
     rows: propTypes.number
   } ;
-  var GridListTile$1 = withStyles$1(styles$R, {
+  var GridListTile$1 = withStyles$1(styles$U, {
     name: 'MuiGridListTile'
   })(GridListTile);
 
-  var styles$S = function styles(theme) {
+  var styles$V = function styles(theme) {
     return {
       /* Styles applied to the root element. */
       root: {
@@ -20891,7 +22201,7 @@
       }
     };
   };
-  var GridListTileBar = React__default.forwardRef(function GridListTileBar(props, ref) {
+  var GridListTileBar = React.forwardRef(function GridListTileBar(props, ref) {
     var actionIcon = props.actionIcon,
         _props$actionPosition = props.actionPosition,
         actionPosition = _props$actionPosition === void 0 ? 'right' : _props$actionPosition,
@@ -20904,25 +22214,28 @@
         other = _objectWithoutProperties(props, ["actionIcon", "actionPosition", "classes", "className", "subtitle", "title", "titlePosition"]);
 
     var actionPos = actionIcon && actionPosition;
-    return React__default.createElement("div", _extends({
+    return /*#__PURE__*/React.createElement("div", _extends({
       className: clsx(classes.root, className, titlePosition === 'top' ? classes.titlePositionTop : classes.titlePositionBottom, subtitle && classes.rootSubtitle),
       ref: ref
-    }, other), React__default.createElement("div", {
+    }, other), /*#__PURE__*/React.createElement("div", {
       className: clsx(classes.titleWrap, {
-        left: classes.titleWrapActionPosLeft,
-        right: classes.titleWrapActionPosRight
+        'left': classes.titleWrapActionPosLeft,
+        'right': classes.titleWrapActionPosRight
       }[actionPos])
-    }, React__default.createElement("div", {
+    }, /*#__PURE__*/React.createElement("div", {
       className: classes.title
-    }, title), subtitle ? React__default.createElement("div", {
+    }, title), subtitle ? /*#__PURE__*/React.createElement("div", {
       className: classes.subtitle
-    }, subtitle) : null), actionIcon ? React__default.createElement("div", {
-      className: clsx(classes.actionIcon, {
-        left: classes.actionIconActionPosLeft
-      }[actionPos])
+    }, subtitle) : null), actionIcon ? /*#__PURE__*/React.createElement("div", {
+      className: clsx(classes.actionIcon, actionPos === 'left' && classes.actionIconActionPosLeft)
     }, actionIcon) : null);
   });
    GridListTileBar.propTypes = {
+    // ----------------------------- Warning --------------------------------
+    // | These PropTypes are generated from the TypeScript type definitions |
+    // |     To update them edit the d.ts file and run "yarn proptypes"     |
+    // ----------------------------------------------------------------------
+
     /**
      * An IconButton element to be used as secondary action target
      * (primary action target is the tile itself).
@@ -20938,7 +22251,7 @@
      * Override or extend the styles applied to the component.
      * See [CSS API](#css) below for more details.
      */
-    classes: propTypes.object.isRequired,
+    classes: propTypes.object,
 
     /**
      * @ignore
@@ -20958,182 +22271,11 @@
     /**
      * Position of the title bar.
      */
-    titlePosition: propTypes.oneOf(['top', 'bottom'])
+    titlePosition: propTypes.oneOf(['bottom', 'top'])
   } ;
-  var GridListTileBar$1 = withStyles$1(styles$S, {
+  var GridListTileBar$1 = withStyles$1(styles$V, {
     name: 'MuiGridListTileBar'
   })(GridListTileBar);
-
-  function getScale(value) {
-    return "scale(".concat(value, ", ").concat(Math.pow(value, 2), ")");
-  }
-
-  var styles$T = {
-    entering: {
-      opacity: 1,
-      transform: getScale(1)
-    },
-    entered: {
-      opacity: 1,
-      transform: 'none'
-    }
-  };
-  /**
-   * The Grow transition is used by the [Tooltip](/components/tooltips/) and
-   * [Popover](/components/popover/) components.
-   * It uses [react-transition-group](https://github.com/reactjs/react-transition-group) internally.
-   */
-
-  var Grow = React__default.forwardRef(function Grow(props, ref) {
-    var children = props.children,
-        inProp = props.in,
-        onEnter = props.onEnter,
-        onExit = props.onExit,
-        style = props.style,
-        _props$timeout = props.timeout,
-        timeout = _props$timeout === void 0 ? 'auto' : _props$timeout,
-        other = _objectWithoutProperties(props, ["children", "in", "onEnter", "onExit", "style", "timeout"]);
-
-    var timer = React__default.useRef();
-    var autoTimeout = React__default.useRef();
-    var handleRef = useForkRef(children.ref, ref);
-    var theme = useTheme$1();
-
-    var handleEnter = function handleEnter(node, isAppearing) {
-      reflow(node); // So the animation always start from the start.
-
-      var _getTransitionProps = getTransitionProps({
-        style: style,
-        timeout: timeout
-      }, {
-        mode: 'enter'
-      }),
-          transitionDuration = _getTransitionProps.duration,
-          delay = _getTransitionProps.delay;
-
-      var duration;
-
-      if (timeout === 'auto') {
-        duration = theme.transitions.getAutoHeightDuration(node.clientHeight);
-        autoTimeout.current = duration;
-      } else {
-        duration = transitionDuration;
-      }
-
-      node.style.transition = [theme.transitions.create('opacity', {
-        duration: duration,
-        delay: delay
-      }), theme.transitions.create('transform', {
-        duration: duration * 0.666,
-        delay: delay
-      })].join(',');
-
-      if (onEnter) {
-        onEnter(node, isAppearing);
-      }
-    };
-
-    var handleExit = function handleExit(node) {
-      var _getTransitionProps2 = getTransitionProps({
-        style: style,
-        timeout: timeout
-      }, {
-        mode: 'exit'
-      }),
-          transitionDuration = _getTransitionProps2.duration,
-          delay = _getTransitionProps2.delay;
-
-      var duration;
-
-      if (timeout === 'auto') {
-        duration = theme.transitions.getAutoHeightDuration(node.clientHeight);
-        autoTimeout.current = duration;
-      } else {
-        duration = transitionDuration;
-      }
-
-      node.style.transition = [theme.transitions.create('opacity', {
-        duration: duration,
-        delay: delay
-      }), theme.transitions.create('transform', {
-        duration: duration * 0.666,
-        delay: delay || duration * 0.333
-      })].join(',');
-      node.style.opacity = '0';
-      node.style.transform = getScale(0.75);
-
-      if (onExit) {
-        onExit(node);
-      }
-    };
-
-    var addEndListener = function addEndListener(_, next) {
-      if (timeout === 'auto') {
-        timer.current = setTimeout(next, autoTimeout.current || 0);
-      }
-    };
-
-    React__default.useEffect(function () {
-      return function () {
-        clearTimeout(timer.current);
-      };
-    }, []);
-    return React__default.createElement(Transition, _extends({
-      appear: true,
-      in: inProp,
-      onEnter: handleEnter,
-      onExit: handleExit,
-      addEndListener: addEndListener,
-      timeout: timeout === 'auto' ? null : timeout
-    }, other), function (state, childProps) {
-      return React__default.cloneElement(children, _extends({
-        style: _extends({
-          opacity: 0,
-          transform: getScale(0.75),
-          visibility: state === 'exited' && !inProp ? 'hidden' : undefined
-        }, styles$T[state], {}, style, {}, children.props.style),
-        ref: handleRef
-      }, childProps));
-    });
-  });
-   Grow.propTypes = {
-    /**
-     * A single child content element.
-     */
-    children: propTypes.element,
-
-    /**
-     * If `true`, show the component; triggers the enter or exit animation.
-     */
-    in: propTypes.bool,
-
-    /**
-     * @ignore
-     */
-    onEnter: propTypes.func,
-
-    /**
-     * @ignore
-     */
-    onExit: propTypes.func,
-
-    /**
-     * @ignore
-     */
-    style: propTypes.object,
-
-    /**
-     * The duration for the transition, in milliseconds.
-     * You may specify a single timeout for all transitions, or individually with an object.
-     *
-     * Set to 'auto' to automatically calculate transition time based on height.
-     */
-    timeout: propTypes.oneOfType([propTypes.number, propTypes.shape({
-      enter: propTypes.number,
-      exit: propTypes.number
-    }), propTypes.oneOf(['auto'])])
-  } ;
-  Grow.muiSupportAuto = true;
 
   function useMediaQuery(queryInput) {
     var options = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
@@ -21168,7 +22310,7 @@
         _props$options$ssrMat = _props$options.ssrMatchMedia,
         ssrMatchMedia = _props$options$ssrMat === void 0 ? null : _props$options$ssrMat;
 
-    var _React$useState = React__default.useState(function () {
+    var _React$useState = React.useState(function () {
       if (noSsr && supportMatchMedia) {
         return matchMedia(query).matches;
       }
@@ -21184,7 +22326,7 @@
         match = _React$useState[0],
         setMatch = _React$useState[1];
 
-    React__default.useEffect(function () {
+    React.useEffect(function () {
       var active = true;
 
       if (!supportMatchMedia) {
@@ -21209,6 +22351,15 @@
         queryList.removeListener(updateMatch);
       };
     }, [query, matchMedia, supportMatchMedia]);
+
+    {
+      // eslint-disable-next-line react-hooks/rules-of-hooks
+      React.useDebugValue({
+        query: query,
+        match: match
+      });
+    }
+
     return match;
   }
 
@@ -21231,7 +22382,7 @@
 
     return keys.indexOf(width) < keys.indexOf(breakpoint);
   };
-  var useEnhancedEffect$6 = typeof window === 'undefined' ? React__default.useEffect : React__default.useLayoutEffect;
+  var useEnhancedEffect$5 = typeof window === 'undefined' ? React.useEffect : React.useLayoutEffect;
 
   var withWidth = function withWidth() {
     var options = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
@@ -21255,11 +22406,11 @@
             width = _getThemeProps.width,
             other = _objectWithoutProperties(_getThemeProps, ["initialWidth", "width"]);
 
-        var _React$useState = React__default.useState(false),
+        var _React$useState = React.useState(false),
             mountedState = _React$useState[0],
             setMountedState = _React$useState[1];
 
-        useEnhancedEffect$6(function () {
+        useEnhancedEffect$5(function () {
           setMountedState(true);
         }, []);
         /**
@@ -21292,7 +22443,7 @@
           return null;
         }
 
-        return React__default.createElement(Component, more);
+        return /*#__PURE__*/React.createElement(Component, more);
       }
 
        WithWidth.propTypes = {
@@ -21473,7 +22624,7 @@
 
   var HiddenJs$1 = withWidth()(HiddenJs);
 
-  var styles$U = function styles(theme) {
+  var styles$W = function styles(theme) {
     var hidden = {
       display: 'none'
     };
@@ -21538,7 +22689,7 @@
       });
     }
 
-    return React__default.createElement("div", {
+    return /*#__PURE__*/React.createElement("div", {
       className: clsx.join(' ')
     }, children);
   }
@@ -21621,7 +22772,7 @@
      */
     xsUp: propTypes.bool
   } ;
-  var HiddenCss$1 = withStyles$1(styles$U, {
+  var HiddenCss$1 = withStyles$1(styles$W, {
     name: 'PrivateHiddenCss'
   })(HiddenCss);
 
@@ -21655,7 +22806,7 @@
         other = _objectWithoutProperties(props, ["implementation", "lgDown", "lgUp", "mdDown", "mdUp", "smDown", "smUp", "xlDown", "xlUp", "xsDown", "xsUp"]);
 
     if (implementation === 'js') {
-      return React__default.createElement(HiddenJs$1, _extends({
+      return /*#__PURE__*/React.createElement(HiddenJs$1, _extends({
         lgDown: lgDown,
         lgUp: lgUp,
         mdDown: mdDown,
@@ -21669,7 +22820,7 @@
       }, other));
     }
 
-    return React__default.createElement(HiddenCss$1, _extends({
+    return /*#__PURE__*/React.createElement(HiddenCss$1, _extends({
       lgDown: lgDown,
       lgUp: lgUp,
       mdDown: mdDown,
@@ -21769,7 +22920,7 @@
     xsUp: propTypes.bool
   } ;
 
-  var styles$V = function styles(theme) {
+  var styles$X = function styles(theme) {
     return {
       /* Styles applied to the root element. */
       root: {
@@ -21824,7 +22975,7 @@
       }
     };
   };
-  var Icon = React__default.forwardRef(function Icon(props, ref) {
+  var Icon = React.forwardRef(function Icon(props, ref) {
     var classes = props.classes,
         className = props.className,
         _props$color = props.color,
@@ -21835,7 +22986,7 @@
         fontSize = _props$fontSize === void 0 ? 'default' : _props$fontSize,
         other = _objectWithoutProperties(props, ["classes", "className", "color", "component", "fontSize"]);
 
-    return React__default.createElement(Component, _extends({
+    return /*#__PURE__*/React.createElement(Component, _extends({
       className: clsx('material-icons', classes.root, className, color !== 'inherit' && classes["color".concat(capitalize(color))], fontSize !== 'default' && classes["fontSize".concat(capitalize(fontSize))]),
       "aria-hidden": true,
       ref: ref
@@ -21875,11 +23026,11 @@
     fontSize: propTypes.oneOf(['inherit', 'default', 'small', 'large'])
   } ;
   Icon.muiName = 'Icon';
-  var Icon$1 = withStyles$1(styles$V, {
+  var Icon$1 = withStyles$1(styles$X, {
     name: 'MuiIcon'
   })(Icon);
 
-  var styles$W = function styles(theme) {
+  var styles$Y = function styles(theme) {
     var light = theme.palette.type === 'light';
     var bottomLineColor = light ? 'rgba(0, 0, 0, 0.42)' : 'rgba(255, 255, 255, 0.7)';
     return {
@@ -21960,7 +23111,7 @@
         }
       },
 
-      /* Styles applied to the root element if `error={true}`. */
+      /* Pseudo-class applied to the root element if `error={true}`. */
       error: {},
 
       /* Styles applied to the `input` element if `margin="dense"`. */
@@ -21985,7 +23136,7 @@
       inputTypeSearch: {}
     };
   };
-  var Input = React__default.forwardRef(function Input(props, ref) {
+  var Input = React.forwardRef(function Input(props, ref) {
     var disableUnderline = props.disableUnderline,
         classes = props.classes,
         _props$fullWidth = props.fullWidth,
@@ -21998,7 +23149,7 @@
         type = _props$type === void 0 ? 'text' : _props$type,
         other = _objectWithoutProperties(props, ["disableUnderline", "classes", "fullWidth", "inputComponent", "multiline", "type"]);
 
-    return React__default.createElement(InputBase$1, _extends({
+    return /*#__PURE__*/React.createElement(InputBase$1, _extends({
       classes: _extends({}, classes, {
         root: clsx(classes.root, !disableUnderline && classes.underline),
         underline: null
@@ -22011,6 +23162,11 @@
     }, other));
   });
    Input.propTypes = {
+    // ----------------------------- Warning --------------------------------
+    // | These PropTypes are generated from the TypeScript type definitions |
+    // |     To update them edit the d.ts file and run "yarn proptypes"     |
+    // ----------------------------------------------------------------------
+
     /**
      * This prop helps users to fill forms faster, especially on mobile devices.
      * The name can be confusing, as it's more like an autofill.
@@ -22027,12 +23183,7 @@
      * Override or extend the styles applied to the component.
      * See [CSS API](#css) below for more details.
      */
-    classes: propTypes.object.isRequired,
-
-    /**
-     * The CSS class name of the wrapper element.
-     */
-    className: propTypes.string,
+    classes: propTypes.object,
 
     /**
      * The color of the component. It supports those theme colors that make sense for this component.
@@ -22076,7 +23227,7 @@
     id: propTypes.string,
 
     /**
-     * The component used for the native input.
+     * The component used for the `input` element.
      * Either a string to use a DOM element or a component.
      */
     inputComponent: propTypes.elementType,
@@ -22134,12 +23285,12 @@
     /**
      * Number of rows to display when multiline option is set to true.
      */
-    rows: propTypes.oneOfType([propTypes.string, propTypes.number]),
+    rows: propTypes.oneOfType([propTypes.number, propTypes.string]),
 
     /**
      * Maximum number of rows to display when multiline option is set to true.
      */
-    rowsMax: propTypes.oneOfType([propTypes.string, propTypes.number]),
+    rowsMax: propTypes.oneOfType([propTypes.number, propTypes.string]),
 
     /**
      * Start `InputAdornment` for this component.
@@ -22157,11 +23308,11 @@
     value: propTypes.any
   } ;
   Input.muiName = 'Input';
-  var Input$1 = withStyles$1(styles$W, {
+  var Input$1 = withStyles$1(styles$Y, {
     name: 'MuiInput'
   })(Input);
 
-  var styles$X = {
+  var styles$Z = {
     /* Styles applied to the root element. */
     root: {
       display: 'flex',
@@ -22200,7 +23351,7 @@
     /* Styles applied if the adornment is used inside <FormControl margin="dense" />. */
     marginDense: {}
   };
-  var InputAdornment = React__default.forwardRef(function InputAdornment(props, ref) {
+  var InputAdornment = React.forwardRef(function InputAdornment(props, ref) {
     var children = props.children,
         classes = props.classes,
         className = props.className,
@@ -22229,19 +23380,15 @@
       variant = muiFormControl.variant;
     }
 
-    return React__default.createElement(FormControlContext.Provider, {
+    return /*#__PURE__*/React.createElement(FormControlContext.Provider, {
       value: null
-    }, React__default.createElement(Component, _extends({
-      className: clsx(classes.root, className, disablePointerEvents && classes.disablePointerEvents, muiFormControl.hiddenLabel && classes.hiddenLabel, {
-        filled: classes.filled
-      }[variant], {
-        start: classes.positionStart,
-        end: classes.positionEnd
-      }[position], {
-        dense: classes.marginDense
-      }[muiFormControl.margin]),
+    }, /*#__PURE__*/React.createElement(Component, _extends({
+      className: clsx(classes.root, className, disablePointerEvents && classes.disablePointerEvents, muiFormControl.hiddenLabel && classes.hiddenLabel, variant === 'filled' && classes.filled, {
+        'start': classes.positionStart,
+        'end': classes.positionEnd
+      }[position], muiFormControl.margin === 'dense' && classes.marginDense),
       ref: ref
-    }, other), typeof children === 'string' && !disableTypography ? React__default.createElement(Typography$1, {
+    }, other), typeof children === 'string' && !disableTypography ? /*#__PURE__*/React.createElement(Typography$1, {
       color: "textSecondary"
     }, children) : children));
   });
@@ -22296,11 +23443,11 @@
      */
     variant: propTypes.oneOf(['standard', 'outlined', 'filled'])
   } ;
-  var InputAdornment$1 = withStyles$1(styles$X, {
+  var InputAdornment$1 = withStyles$1(styles$Z, {
     name: 'MuiInputAdornment'
   })(InputAdornment);
 
-  var styles$Y = function styles(theme) {
+  var styles$_ = function styles(theme) {
     return {
       /* Styles applied to the root element. */
       root: {
@@ -22387,7 +23534,7 @@
       }
     };
   };
-  var InputLabel = React__default.forwardRef(function InputLabel(props, ref) {
+  var InputLabel = React.forwardRef(function InputLabel(props, ref) {
     var classes = props.classes,
         className = props.className,
         _props$disableAnimati = props.disableAnimation,
@@ -22409,13 +23556,11 @@
       muiFormControl: muiFormControl,
       states: ['margin', 'variant']
     });
-    return React__default.createElement(FormLabel$1, _extends({
+    return /*#__PURE__*/React.createElement(FormLabel$1, _extends({
       "data-shrink": shrink,
-      className: clsx(classes.root, className, muiFormControl && classes.formControl, !disableAnimation && classes.animated, shrink && classes.shrink, {
-        dense: classes.marginDense
-      }[fcs.margin], {
-        filled: classes.filled,
-        outlined: classes.outlined
+      className: clsx(classes.root, className, muiFormControl && classes.formControl, !disableAnimation && classes.animated, shrink && classes.shrink, fcs.margin === 'dense' && classes.marginDense, {
+        'filled': classes.filled,
+        'outlined': classes.outlined
       }[fcs.variant]),
       classes: {
         focused: classes.focused,
@@ -22428,6 +23573,11 @@
     }, other));
   });
    InputLabel.propTypes = {
+    // ----------------------------- Warning --------------------------------
+    // | These PropTypes are generated from the TypeScript type definitions |
+    // |     To update them edit the d.ts file and run "yarn proptypes"     |
+    // ----------------------------------------------------------------------
+
     /**
      * The contents of the `InputLabel`.
      */
@@ -22437,7 +23587,7 @@
      * Override or extend the styles applied to the component.
      * See [CSS API](#css) below for more details.
      */
-    classes: propTypes.object.isRequired,
+    classes: propTypes.object,
 
     /**
      * @ignore
@@ -22488,15 +23638,15 @@
     /**
      * The variant to use.
      */
-    variant: propTypes.oneOf(['standard', 'outlined', 'filled'])
+    variant: propTypes.oneOf(['filled', 'outlined', 'standard'])
   } ;
-  var InputLabel$1 = withStyles$1(styles$Y, {
+  var InputLabel$1 = withStyles$1(styles$_, {
     name: 'MuiInputLabel'
   })(InputLabel);
 
   var TRANSITION_DURATION = 4; // seconds
 
-  var styles$Z = function styles(theme) {
+  var styles$$ = function styles(theme) {
     var getColor = function getColor(color) {
       return theme.palette.type === 'light' ? lighten(color, 0.62) : darken(color, 0.5);
     };
@@ -22668,7 +23818,7 @@
    * attribute to `true` on that region until it has finished loading.
    */
 
-  var LinearProgress = React__default.forwardRef(function LinearProgress(props, ref) {
+  var LinearProgress = React.forwardRef(function LinearProgress(props, ref) {
     var classes = props.classes,
         className = props.className,
         _props$color = props.color,
@@ -22715,35 +23865,40 @@
       }
     }
 
-    return React__default.createElement("div", _extends({
+    return /*#__PURE__*/React.createElement("div", _extends({
       className: clsx(classes.root, classes["color".concat(capitalize(color))], className, {
-        determinate: classes.determinate,
-        indeterminate: classes.indeterminate,
-        buffer: classes.buffer,
-        query: classes.query
+        'determinate': classes.determinate,
+        'indeterminate': classes.indeterminate,
+        'buffer': classes.buffer,
+        'query': classes.query
       }[variant]),
       role: "progressbar"
     }, rootProps, {
       ref: ref
-    }, other), variant === 'buffer' ? React__default.createElement("div", {
+    }, other), variant === 'buffer' ? /*#__PURE__*/React.createElement("div", {
       className: clsx(classes.dashed, classes["dashedColor".concat(capitalize(color))])
-    }) : null, React__default.createElement("div", {
+    }) : null, /*#__PURE__*/React.createElement("div", {
       className: clsx(classes.bar, classes["barColor".concat(capitalize(color))], (variant === 'indeterminate' || variant === 'query') && classes.bar1Indeterminate, {
-        determinate: classes.bar1Determinate,
-        buffer: classes.bar1Buffer
+        'determinate': classes.bar1Determinate,
+        'buffer': classes.bar1Buffer
       }[variant]),
       style: inlineStyles.bar1
-    }), variant === 'determinate' ? null : React__default.createElement("div", {
+    }), variant === 'determinate' ? null : /*#__PURE__*/React.createElement("div", {
       className: clsx(classes.bar, (variant === 'indeterminate' || variant === 'query') && classes.bar2Indeterminate, variant === 'buffer' ? [classes["color".concat(capitalize(color))], classes.bar2Buffer] : classes["barColor".concat(capitalize(color))]),
       style: inlineStyles.bar2
     }));
   });
    LinearProgress.propTypes = {
+    // ----------------------------- Warning --------------------------------
+    // | These PropTypes are generated from the TypeScript type definitions |
+    // |     To update them edit the d.ts file and run "yarn proptypes"     |
+    // ----------------------------------------------------------------------
+
     /**
      * Override or extend the styles applied to the component.
      * See [CSS API](#css) below for more details.
      */
-    classes: propTypes.object.isRequired,
+    classes: propTypes.object,
 
     /**
      * @ignore
@@ -22771,13 +23926,13 @@
      * The variant to use.
      * Use indeterminate or query when there is no progress value.
      */
-    variant: propTypes.oneOf(['determinate', 'indeterminate', 'buffer', 'query'])
+    variant: propTypes.oneOf(['buffer', 'determinate', 'indeterminate', 'query'])
   } ;
-  var LinearProgress$1 = withStyles$1(styles$Z, {
+  var LinearProgress$1 = withStyles$1(styles$$, {
     name: 'MuiLinearProgress'
   })(LinearProgress);
 
-  var styles$_ = {
+  var styles$10 = {
     /* Styles applied to the root element. */
     root: {},
 
@@ -22833,7 +23988,7 @@
     /* Pseudo-class applied to the root element if the link is keyboard focused. */
     focusVisible: {}
   };
-  var Link = React__default.forwardRef(function Link(props, ref) {
+  var Link = React.forwardRef(function Link(props, ref) {
     var classes = props.classes,
         className = props.className,
         _props$color = props.color,
@@ -22854,7 +24009,7 @@
         onBlurVisible = _useIsFocusVisible.onBlurVisible,
         focusVisibleRef = _useIsFocusVisible.ref;
 
-    var _React$useState = React__default.useState(false),
+    var _React$useState = React.useState(false),
         focusVisible = _React$useState[0],
         setFocusVisible = _React$useState[1];
 
@@ -22881,10 +24036,8 @@
       }
     };
 
-    return React__default.createElement(Typography$1, _extends({
-      className: clsx(classes.root, classes["underline".concat(capitalize(underline))], className, focusVisible && classes.focusVisible, {
-        button: classes.button
-      }[component]),
+    return /*#__PURE__*/React.createElement(Typography$1, _extends({
+      className: clsx(classes.root, classes["underline".concat(capitalize(underline))], className, focusVisible && classes.focusVisible, component === 'button' && classes.button),
       classes: TypographyClasses,
       color: color,
       component: component,
@@ -22914,7 +24067,7 @@
     /**
      * The color of the link.
      */
-    color: propTypes.oneOf(['default', 'error', 'inherit', 'primary', 'secondary', 'textPrimary', 'textSecondary']),
+    color: propTypes.oneOf(['initial', 'inherit', 'primary', 'secondary', 'textPrimary', 'textSecondary', 'error']),
 
     /**
      * The component used for the root node.
@@ -22947,7 +24100,7 @@
      */
     variant: propTypes.string
   } ;
-  var Link$1 = withStyles$1(styles$_, {
+  var Link$1 = withStyles$1(styles$10, {
     name: 'MuiLink'
   })(Link);
 
@@ -22955,13 +24108,13 @@
    * @ignore - internal component.
    */
 
-  var ListContext = React__default.createContext({});
+  var ListContext = React.createContext({});
 
   {
     ListContext.displayName = 'ListContext';
   }
 
-  var styles$$ = {
+  var styles$11 = {
     /* Styles applied to the root element. */
     root: {
       listStyle: 'none',
@@ -22984,7 +24137,7 @@
       paddingTop: 0
     }
   };
-  var List = React__default.forwardRef(function List(props, ref) {
+  var List = React.forwardRef(function List(props, ref) {
     var children = props.children,
         classes = props.classes,
         className = props.className,
@@ -22997,14 +24150,14 @@
         subheader = props.subheader,
         other = _objectWithoutProperties(props, ["children", "classes", "className", "component", "dense", "disablePadding", "subheader"]);
 
-    var context = React__default.useMemo(function () {
+    var context = React.useMemo(function () {
       return {
         dense: dense
       };
     }, [dense]);
-    return React__default.createElement(ListContext.Provider, {
+    return /*#__PURE__*/React.createElement(ListContext.Provider, {
       value: context
-    }, React__default.createElement(Component, _extends({
+    }, /*#__PURE__*/React.createElement(Component, _extends({
       className: clsx(classes.root, className, dense && classes.dense, !disablePadding && classes.padding, subheader && classes.subheader),
       ref: ref
     }, other), subheader, children));
@@ -23049,11 +24202,11 @@
      */
     subheader: propTypes.node
   } ;
-  var List$1 = withStyles$1(styles$$, {
+  var List$1 = withStyles$1(styles$11, {
     name: 'MuiList'
   })(List);
 
-  var styles$10 = function styles(theme) {
+  var styles$12 = function styles(theme) {
     return {
       /* Styles applied to the (normally root) `component` element. May be wrapped by a `container`. */
       root: {
@@ -23138,12 +24291,12 @@
       selected: {}
     };
   };
-  var useEnhancedEffect$7 = typeof window === 'undefined' ? React__default.useEffect : React__default.useLayoutEffect;
+  var useEnhancedEffect$6 = typeof window === 'undefined' ? React.useEffect : React.useLayoutEffect;
   /**
    * Uses an additional container component if `ListItemSecondaryAction` is the last child.
    */
 
-  var ListItem = React__default.forwardRef(function ListItem(props, ref) {
+  var ListItem = React.forwardRef(function ListItem(props, ref) {
     var _props$alignItems = props.alignItems,
         alignItems = _props$alignItems === void 0 ? 'center' : _props$alignItems,
         _props$autoFocus = props.autoFocus,
@@ -23174,13 +24327,13 @@
         selected = _props$selected === void 0 ? false : _props$selected,
         other = _objectWithoutProperties(props, ["alignItems", "autoFocus", "button", "children", "classes", "className", "component", "ContainerComponent", "ContainerProps", "dense", "disabled", "disableGutters", "divider", "focusVisibleClassName", "selected"]);
 
-    var context = React__default.useContext(ListContext);
+    var context = React.useContext(ListContext);
     var childContext = {
       dense: dense || context.dense || false,
       alignItems: alignItems
     };
-    var listItemRef = React__default.useRef(null);
-    useEnhancedEffect$7(function () {
+    var listItemRef = React.useRef(null);
+    useEnhancedEffect$6(function () {
       if (autoFocus) {
         if (listItemRef.current) {
           listItemRef.current.focus();
@@ -23189,9 +24342,9 @@
         }
       }
     }, [autoFocus]);
-    var children = React__default.Children.toArray(childrenProp);
+    var children = React.Children.toArray(childrenProp);
     var hasSecondaryAction = children.length && isMuiElement(children[children.length - 1], ['ListItemSecondaryAction']);
-    var handleOwnRef = React__default.useCallback(function (instance) {
+    var handleOwnRef = React.useCallback(function (instance) {
       // #StrictMode ready
       listItemRef.current = ReactDOM.findDOMNode(instance);
     }, []);
@@ -23222,17 +24375,17 @@
         }
       }
 
-      return React__default.createElement(ListContext.Provider, {
+      return /*#__PURE__*/React.createElement(ListContext.Provider, {
         value: childContext
-      }, React__default.createElement(ContainerComponent, _extends({
+      }, /*#__PURE__*/React.createElement(ContainerComponent, _extends({
         className: clsx(classes.container, ContainerClassName),
         ref: handleRef
-      }, ContainerProps), React__default.createElement(Component, componentProps, children), children.pop()));
+      }, ContainerProps), /*#__PURE__*/React.createElement(Component, componentProps, children), children.pop()));
     }
 
-    return React__default.createElement(ListContext.Provider, {
+    return /*#__PURE__*/React.createElement(ListContext.Provider, {
       value: childContext
-    }, React__default.createElement(Component, _extends({
+    }, /*#__PURE__*/React.createElement(Component, _extends({
       ref: handleRef
     }, componentProps), children));
   });
@@ -23259,7 +24412,7 @@
      * be the last child.
      */
     children: chainPropTypes(propTypes.node, function (props) {
-      var children = React__default.Children.toArray(props.children); // React.Children.toArray(props.children).findLastIndex(isListItemSecondaryAction)
+      var children = React.Children.toArray(props.children); // React.Children.toArray(props.children).findLastIndex(isListItemSecondaryAction)
 
       var secondaryActionIndex = -1;
 
@@ -23338,11 +24491,11 @@
      */
     selected: propTypes.bool
   } ;
-  var ListItem$1 = withStyles$1(styles$10, {
+  var ListItem$1 = withStyles$1(styles$12, {
     name: 'MuiListItem'
   })(ListItem);
 
-  var styles$11 = {
+  var styles$13 = {
     /* Styles applied to the root element. */
     root: {
       minWidth: 56,
@@ -23358,18 +24511,23 @@
    * A simple wrapper to apply `List` styles to an `Avatar`.
    */
 
-  var ListItemAvatar = React__default.forwardRef(function ListItemAvatar(props, ref) {
+  var ListItemAvatar = React.forwardRef(function ListItemAvatar(props, ref) {
     var classes = props.classes,
         className = props.className,
         other = _objectWithoutProperties(props, ["classes", "className"]);
 
-    var context = React__default.useContext(ListContext);
-    return React__default.createElement("div", _extends({
+    var context = React.useContext(ListContext);
+    return /*#__PURE__*/React.createElement("div", _extends({
       className: clsx(classes.root, className, context.alignItems === 'flex-start' && classes.alignItemsFlexStart),
       ref: ref
     }, other));
   });
    ListItemAvatar.propTypes = {
+    // ----------------------------- Warning --------------------------------
+    // | These PropTypes are generated from the TypeScript type definitions |
+    // |     To update them edit the d.ts file and run "yarn proptypes"     |
+    // ----------------------------------------------------------------------
+
     /**
      * The content of the component – normally `Avatar`.
      */
@@ -23379,18 +24537,18 @@
      * Override or extend the styles applied to the component.
      * See [CSS API](#css) below for more details.
      */
-    classes: propTypes.object.isRequired,
+    classes: propTypes.object,
 
     /**
      * @ignore
      */
     className: propTypes.string
   } ;
-  var ListItemAvatar$1 = withStyles$1(styles$11, {
+  var ListItemAvatar$1 = withStyles$1(styles$13, {
     name: 'MuiListItemAvatar'
   })(ListItemAvatar);
 
-  var styles$12 = function styles(theme) {
+  var styles$14 = function styles(theme) {
     return {
       /* Styles applied to the root element. */
       root: {
@@ -23410,40 +24568,45 @@
    * A simple wrapper to apply `List` styles to an `Icon` or `SvgIcon`.
    */
 
-  var ListItemIcon = React__default.forwardRef(function ListItemIcon(props, ref) {
+  var ListItemIcon = React.forwardRef(function ListItemIcon(props, ref) {
     var classes = props.classes,
         className = props.className,
         other = _objectWithoutProperties(props, ["classes", "className"]);
 
-    var context = React__default.useContext(ListContext);
-    return React__default.createElement("div", _extends({
+    var context = React.useContext(ListContext);
+    return /*#__PURE__*/React.createElement("div", _extends({
       className: clsx(classes.root, className, context.alignItems === 'flex-start' && classes.alignItemsFlexStart),
       ref: ref
     }, other));
   });
    ListItemIcon.propTypes = {
+    // ----------------------------- Warning --------------------------------
+    // | These PropTypes are generated from the TypeScript type definitions |
+    // |     To update them edit the d.ts file and run "yarn proptypes"     |
+    // ----------------------------------------------------------------------
+
     /**
      * The content of the component, normally `Icon`, `SvgIcon`,
      * or a `@material-ui/icons` SVG icon element.
      */
-    children: propTypes.element.isRequired,
+    children: propTypes.node,
 
     /**
      * Override or extend the styles applied to the component.
      * See [CSS API](#css) below for more details.
      */
-    classes: propTypes.object.isRequired,
+    classes: propTypes.object,
 
     /**
      * @ignore
      */
     className: propTypes.string
   } ;
-  var ListItemIcon$1 = withStyles$1(styles$12, {
+  var ListItemIcon$1 = withStyles$1(styles$14, {
     name: 'MuiListItemIcon'
   })(ListItemIcon);
 
-  var styles$13 = {
+  var styles$15 = {
     /* Styles applied to the root element. */
     root: {
       position: 'absolute',
@@ -23456,17 +24619,22 @@
    * Must be used as the last child of ListItem to function properly.
    */
 
-  var ListItemSecondaryAction = React__default.forwardRef(function ListItemSecondaryAction(props, ref) {
+  var ListItemSecondaryAction = React.forwardRef(function ListItemSecondaryAction(props, ref) {
     var classes = props.classes,
         className = props.className,
         other = _objectWithoutProperties(props, ["classes", "className"]);
 
-    return React__default.createElement("div", _extends({
+    return /*#__PURE__*/React.createElement("div", _extends({
       className: clsx(classes.root, className),
       ref: ref
     }, other));
   });
    ListItemSecondaryAction.propTypes = {
+    // ----------------------------- Warning --------------------------------
+    // | These PropTypes are generated from the TypeScript type definitions |
+    // |     To update them edit the d.ts file and run "yarn proptypes"     |
+    // ----------------------------------------------------------------------
+
     /**
      * The content of the component, normally an `IconButton` or selection control.
      */
@@ -23476,7 +24644,7 @@
      * Override or extend the styles applied to the component.
      * See [CSS API](#css) below for more details.
      */
-    classes: propTypes.object.isRequired,
+    classes: propTypes.object,
 
     /**
      * @ignore
@@ -23484,11 +24652,11 @@
     className: propTypes.string
   } ;
   ListItemSecondaryAction.muiName = 'ListItemSecondaryAction';
-  var ListItemSecondaryAction$1 = withStyles$1(styles$13, {
+  var ListItemSecondaryAction$1 = withStyles$1(styles$15, {
     name: 'MuiListItemSecondaryAction'
   })(ListItemSecondaryAction);
 
-  var styles$14 = {
+  var styles$16 = {
     /* Styles applied to the root element. */
     root: {
       flex: '1 1 auto',
@@ -23517,7 +24685,7 @@
     /* Styles applied to the secondary `Typography` component. */
     secondary: {}
   };
-  var ListItemText = React__default.forwardRef(function ListItemText(props, ref) {
+  var ListItemText = React.forwardRef(function ListItemText(props, ref) {
     var children = props.children,
         classes = props.classes,
         className = props.className,
@@ -23531,37 +24699,44 @@
         secondaryTypographyProps = props.secondaryTypographyProps,
         other = _objectWithoutProperties(props, ["children", "classes", "className", "disableTypography", "inset", "primary", "primaryTypographyProps", "secondary", "secondaryTypographyProps"]);
 
-    var _React$useContext = React__default.useContext(ListContext),
+    var _React$useContext = React.useContext(ListContext),
         dense = _React$useContext.dense;
 
     var primary = primaryProp != null ? primaryProp : children;
 
     if (primary != null && primary.type !== Typography$1 && !disableTypography) {
-      primary = React__default.createElement(Typography$1, _extends({
+      primary = /*#__PURE__*/React.createElement(Typography$1, _extends({
         variant: dense ? 'body2' : 'body1',
         className: classes.primary,
-        component: "span"
+        component: "span",
+        display: "block"
       }, primaryTypographyProps), primary);
     }
 
     var secondary = secondaryProp;
 
     if (secondary != null && secondary.type !== Typography$1 && !disableTypography) {
-      secondary = React__default.createElement(Typography$1, _extends({
+      secondary = /*#__PURE__*/React.createElement(Typography$1, _extends({
         variant: "body2",
         className: classes.secondary,
-        color: "textSecondary"
+        color: "textSecondary",
+        display: "block"
       }, secondaryTypographyProps), secondary);
     }
 
-    return React__default.createElement("div", _extends({
+    return /*#__PURE__*/React.createElement("div", _extends({
       className: clsx(classes.root, className, dense && classes.dense, inset && classes.inset, primary && secondary && classes.multiline),
       ref: ref
     }, other), primary, secondary);
   });
    ListItemText.propTypes = {
+    // ----------------------------- Warning --------------------------------
+    // | These PropTypes are generated from the TypeScript type definitions |
+    // |     To update them edit the d.ts file and run "yarn proptypes"     |
+    // ----------------------------------------------------------------------
+
     /**
-     * Alias for the `primary` property.
+     * Alias for the `primary` prop.
      */
     children: propTypes.node,
 
@@ -23569,7 +24744,7 @@
      * Override or extend the styles applied to the component.
      * See [CSS API](#css) below for more details.
      */
-    classes: propTypes.object.isRequired,
+    classes: propTypes.object,
 
     /**
      * @ignore
@@ -23612,11 +24787,11 @@
      */
     secondaryTypographyProps: propTypes.object
   } ;
-  var ListItemText$1 = withStyles$1(styles$14, {
+  var ListItemText$1 = withStyles$1(styles$16, {
     name: 'MuiListItemText'
   })(ListItemText);
 
-  var styles$15 = function styles(theme) {
+  var styles$17 = function styles(theme) {
     return {
       /* Styles applied to the root element. */
       root: {
@@ -23659,7 +24834,7 @@
       }
     };
   };
-  var ListSubheader = React__default.forwardRef(function ListSubheader(props, ref) {
+  var ListSubheader = React.forwardRef(function ListSubheader(props, ref) {
     var classes = props.classes,
         className = props.className,
         _props$color = props.color,
@@ -23674,7 +24849,7 @@
         inset = _props$inset === void 0 ? false : _props$inset,
         other = _objectWithoutProperties(props, ["classes", "className", "color", "component", "disableGutters", "disableSticky", "inset"]);
 
-    return React__default.createElement(Component, _extends({
+    return /*#__PURE__*/React.createElement(Component, _extends({
       className: clsx(classes.root, className, color !== 'default' && classes["color".concat(capitalize(color))], inset && classes.inset, !disableSticky && classes.sticky, !disableGutters && classes.gutters),
       ref: ref
     }, other));
@@ -23722,7 +24897,7 @@
      */
     inset: propTypes.bool
   } ;
-  var ListSubheader$1 = withStyles$1(styles$15, {
+  var ListSubheader$1 = withStyles$1(styles$17, {
     name: 'MuiListSubheader'
   })(ListSubheader);
 
@@ -23776,7 +24951,7 @@
     return typeof anchorEl === 'function' ? anchorEl() : anchorEl;
   }
 
-  var styles$16 = {
+  var styles$18 = {
     /* Styles applied to the root element */
     root: {},
 
@@ -23795,7 +24970,7 @@
       outline: 0
     }
   };
-  var Popover = React__default.forwardRef(function Popover(props, ref) {
+  var Popover = React.forwardRef(function Popover(props, ref) {
     var action = props.action,
         anchorEl = props.anchorEl,
         _props$anchorOrigin = props.anchorOrigin,
@@ -23837,10 +25012,10 @@
         TransitionProps = _props$TransitionProp === void 0 ? {} : _props$TransitionProp,
         other = _objectWithoutProperties(props, ["action", "anchorEl", "anchorOrigin", "anchorPosition", "anchorReference", "children", "classes", "className", "container", "elevation", "getContentAnchorEl", "marginThreshold", "onEnter", "onEntered", "onEntering", "onExit", "onExited", "onExiting", "open", "PaperProps", "transformOrigin", "TransitionComponent", "transitionDuration", "TransitionProps"]);
 
-    var paperRef = React__default.useRef(); // Returns the top/left offset of the position
+    var paperRef = React.useRef(); // Returns the top/left offset of the position
     // to attach to on the anchor element (or body if none is provided)
 
-    var getAnchorOffset = React__default.useCallback(function (contentAnchorOffset) {
+    var getAnchorOffset = React.useCallback(function (contentAnchorOffset) {
       if (anchorReference === 'anchorPosition') {
         {
           if (!anchorPosition) {
@@ -23872,7 +25047,7 @@
       };
     }, [anchorEl, anchorOrigin.horizontal, anchorOrigin.vertical, anchorPosition, anchorReference]); // Returns the vertical offset of inner content to anchor the transform on if provided
 
-    var getContentAnchorOffset = React__default.useCallback(function (element) {
+    var getContentAnchorOffset = React.useCallback(function (element) {
       var contentAnchorOffset = 0;
 
       if (getContentAnchorEl && anchorReference === 'anchorEl') {
@@ -23895,14 +25070,14 @@
     }, [anchorOrigin.vertical, anchorReference, getContentAnchorEl]); // Return the base transform origin using the element
     // and taking the content anchor offset into account if in use
 
-    var getTransformOrigin = React__default.useCallback(function (elemRect) {
+    var getTransformOrigin = React.useCallback(function (elemRect) {
       var contentAnchorOffset = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : 0;
       return {
         vertical: getOffsetTop(elemRect, transformOrigin.vertical) + contentAnchorOffset,
         horizontal: getOffsetLeft(elemRect, transformOrigin.horizontal)
       };
     }, [transformOrigin.horizontal, transformOrigin.vertical]);
-    var getPositioningStyle = React__default.useCallback(function (element) {
+    var getPositioningStyle = React.useCallback(function (element) {
       // Check if the parent has requested anchoring on an inner content node
       var contentAnchorOffset = getContentAnchorOffset(element);
       var elemRect = {
@@ -23969,7 +25144,7 @@
         transformOrigin: getTransformOriginValue(elemTransformOrigin)
       };
     }, [anchorEl, anchorReference, getAnchorOffset, getContentAnchorOffset, getTransformOrigin, marginThreshold]);
-    var setPositioningStyles = React__default.useCallback(function () {
+    var setPositioningStyles = React.useCallback(function () {
       var element = paperRef.current;
 
       if (!element) {
@@ -23997,23 +25172,23 @@
       setPositioningStyles();
     };
 
-    var handlePaperRef = React__default.useCallback(function (instance) {
+    var handlePaperRef = React.useCallback(function (instance) {
       // #StrictMode ready
       paperRef.current = ReactDOM.findDOMNode(instance);
     }, []);
-    React__default.useEffect(function () {
+    React.useEffect(function () {
       if (open) {
         setPositioningStyles();
       }
     });
-    React__default.useImperativeHandle(action, function () {
+    React.useImperativeHandle(action, function () {
       return open ? {
         updatePosition: function updatePosition() {
           setPositioningStyles();
         }
       } : null;
     }, [open, setPositioningStyles]);
-    React__default.useEffect(function () {
+    React.useEffect(function () {
       if (!open) {
         return undefined;
       }
@@ -24024,7 +25199,7 @@
       window.addEventListener('resize', handleResize);
       return function () {
         handleResize.clear();
-        window.removeEventListener('rezise', handleResize);
+        window.removeEventListener('resize', handleResize);
       };
     }, [open, setPositioningStyles]);
     var transitionDuration = transitionDurationProp;
@@ -24037,7 +25212,7 @@
 
 
     var container = containerProp || (anchorEl ? ownerDocument(getAnchorEl(anchorEl)).body : undefined);
-    return React__default.createElement(Modal, _extends({
+    return /*#__PURE__*/React.createElement(Modal, _extends({
       container: container,
       open: open,
       ref: ref,
@@ -24045,7 +25220,7 @@
         invisible: true
       },
       className: clsx(classes.root, className)
-    }, other), React__default.createElement(TransitionComponent, _extends({
+    }, other), /*#__PURE__*/React.createElement(TransitionComponent, _extends({
       appear: true,
       in: open,
       onEnter: onEnter,
@@ -24056,7 +25231,7 @@
       timeout: transitionDuration
     }, TransitionProps, {
       onEntering: createChainedFunction(handleEntering, TransitionProps.onEntering)
-    }), React__default.createElement(Paper$1, _extends({
+    }), /*#__PURE__*/React.createElement(Paper$1, _extends({
       elevation: elevation,
       ref: handlePaperRef
     }, PaperProps, {
@@ -24064,6 +25239,11 @@
     }), children)));
   });
    Popover.propTypes = {
+    // ----------------------------- Warning --------------------------------
+    // | These PropTypes are generated from the TypeScript type definitions |
+    // |     To update them edit the d.ts file and run "yarn proptypes"     |
+    // ----------------------------------------------------------------------
+
     /**
      * A ref for imperative actions.
      * It currently only supports updatePosition() action.
@@ -24103,8 +25283,8 @@
      * horizontal: [left, center, right].
      */
     anchorOrigin: propTypes.shape({
-      horizontal: propTypes.oneOfType([propTypes.number, propTypes.oneOf(['left', 'center', 'right'])]).isRequired,
-      vertical: propTypes.oneOfType([propTypes.number, propTypes.oneOf(['top', 'center', 'bottom'])]).isRequired
+      horizontal: propTypes.oneOfType([propTypes.oneOf(['center', 'left', 'right']), propTypes.number]).isRequired,
+      vertical: propTypes.oneOfType([propTypes.oneOf(['bottom', 'center', 'top']), propTypes.number]).isRequired
     }),
 
     /**
@@ -24118,7 +25298,7 @@
       top: propTypes.number.isRequired
     }),
 
-    /*
+    /**
      * This determines which anchor prop to refer to to set
      * the position of the popover.
      */
@@ -24133,7 +25313,7 @@
      * Override or extend the styles applied to the component.
      * See [CSS API](#css) below for more details.
      */
-    classes: propTypes.object.isRequired,
+    classes: propTypes.object,
 
     /**
      * @ignore
@@ -24146,7 +25326,9 @@
      * By default, it uses the body of the anchorEl's top-level document object,
      * so it's simply `document.body` most of the time.
      */
-    container: propTypes.oneOfType([propTypes.object, propTypes.func]),
+    container: propTypes
+    /* @typescript-to-proptypes-ignore */
+    .oneOfType([propTypes.func, propTypes.instanceOf(React.Component), propTypes.instanceOf(typeof Element === 'undefined' ? Object : Element)]),
 
     /**
      * The elevation of the popover.
@@ -24170,9 +25352,6 @@
 
     /**
      * Callback fired when the component requests to be closed.
-     *
-     * @param {object} event The event source of the callback.
-     * @param {string} reason Can be: `"escapeKeyDown"`, `"backdropClick"`.
      */
     onClose: propTypes.func,
 
@@ -24214,7 +25393,9 @@
     /**
      * Props applied to the [`Paper`](/api/paper/) element.
      */
-    PaperProps: propTypes.shape({
+    PaperProps: propTypes
+    /* @typescript-to-proptypes-ignore */
+    .shape({
       component: elementTypeAcceptingRef$1
     }),
 
@@ -24227,8 +25408,8 @@
      * horizontal: [left, center, right, x(px)].
      */
     transformOrigin: propTypes.shape({
-      horizontal: propTypes.oneOfType([propTypes.number, propTypes.oneOf(['left', 'center', 'right'])]).isRequired,
-      vertical: propTypes.oneOfType([propTypes.number, propTypes.oneOf(['top', 'center', 'bottom'])]).isRequired
+      horizontal: propTypes.oneOfType([propTypes.oneOf(['center', 'left', 'right']), propTypes.number]).isRequired,
+      vertical: propTypes.oneOfType([propTypes.oneOf(['bottom', 'center', 'top']), propTypes.number]).isRequired
     }),
 
     /**
@@ -24240,17 +25421,18 @@
     /**
      * Set to 'auto' to automatically calculate transition time based on height.
      */
-    transitionDuration: propTypes.oneOfType([propTypes.number, propTypes.shape({
+    transitionDuration: propTypes.oneOfType([propTypes.oneOf(['auto']), propTypes.number, propTypes.shape({
+      appear: propTypes.number,
       enter: propTypes.number,
       exit: propTypes.number
-    }), propTypes.oneOf(['auto'])]),
+    })]),
 
     /**
      * Props applied to the [`Transition`](http://reactcommunity.org/react-transition-group/transition#Transition-props) element.
      */
     TransitionProps: propTypes.object
   } ;
-  var Popover$1 = withStyles$1(styles$16, {
+  var Popover$1 = withStyles$1(styles$18, {
     name: 'MuiPopover'
   })(Popover);
 
@@ -24303,7 +25485,7 @@
     return text.indexOf(textCriteria.keys.join('')) === 0;
   }
 
-  function moveFocus(list, currentFocus, disableListWrap, traversalFunction, textCriteria) {
+  function moveFocus(list, currentFocus, disableListWrap, disabledItemsFocusable, traversalFunction, textCriteria) {
     var wrappedOnce = false;
     var nextFocus = traversalFunction(list, currentFocus, currentFocus ? disableListWrap : false);
 
@@ -24311,33 +25493,34 @@
       // Prevent infinite loop.
       if (nextFocus === list.firstChild) {
         if (wrappedOnce) {
-          return false;
+          return;
         }
 
         wrappedOnce = true;
-      } // Move to the next element.
+      } // Same logic as useAutocomplete.js
 
 
-      if (!nextFocus.hasAttribute('tabindex') || nextFocus.disabled || nextFocus.getAttribute('aria-disabled') === 'true' || !textCriteriaMatches(nextFocus, textCriteria)) {
+      var nextFocusDisabled = disabledItemsFocusable ? false : nextFocus.disabled || nextFocus.getAttribute('aria-disabled') === 'true';
+
+      if (!nextFocus.hasAttribute('tabindex') || !textCriteriaMatches(nextFocus, textCriteria) || nextFocusDisabled) {
+        // Move to the next element.
         nextFocus = traversalFunction(list, nextFocus, disableListWrap);
       } else {
         nextFocus.focus();
-        return true;
+        return;
       }
     }
-
-    return false;
   }
 
-  var useEnhancedEffect$8 = typeof window === 'undefined' ? React__default.useEffect : React__default.useLayoutEffect;
+  var useEnhancedEffect$7 = typeof window === 'undefined' ? React.useEffect : React.useLayoutEffect;
   /**
-   * A permanently displayed menu following https://www.w3.org/TR/wai-aria-practices/#menubutton
+   * A permanently displayed menu following https://www.w3.org/TR/wai-aria-practices/#menubutton.
    * It's exposed to help customization of the [`Menu`](/api/menu/) component. If you
    * use it separately you need to move focus into the component manually. Once
    * the focus is placed inside the component it is fully keyboard accessible.
    */
 
-  var MenuList = React__default.forwardRef(function MenuList(props, ref) {
+  var MenuList = React.forwardRef(function MenuList(props, ref) {
     var actions = props.actions,
         _props$autoFocus = props.autoFocus,
         autoFocus = _props$autoFocus === void 0 ? false : _props$autoFocus,
@@ -24345,26 +25528,28 @@
         autoFocusItem = _props$autoFocusItem === void 0 ? false : _props$autoFocusItem,
         children = props.children,
         className = props.className,
-        onKeyDown = props.onKeyDown,
+        _props$disabledItemsF = props.disabledItemsFocusable,
+        disabledItemsFocusable = _props$disabledItemsF === void 0 ? false : _props$disabledItemsF,
         _props$disableListWra = props.disableListWrap,
         disableListWrap = _props$disableListWra === void 0 ? false : _props$disableListWra,
+        onKeyDown = props.onKeyDown,
         _props$variant = props.variant,
         variant = _props$variant === void 0 ? 'selectedMenu' : _props$variant,
-        other = _objectWithoutProperties(props, ["actions", "autoFocus", "autoFocusItem", "children", "className", "onKeyDown", "disableListWrap", "variant"]);
+        other = _objectWithoutProperties(props, ["actions", "autoFocus", "autoFocusItem", "children", "className", "disabledItemsFocusable", "disableListWrap", "onKeyDown", "variant"]);
 
-    var listRef = React__default.useRef(null);
-    var textCriteriaRef = React__default.useRef({
+    var listRef = React.useRef(null);
+    var textCriteriaRef = React.useRef({
       keys: [],
       repeating: true,
       previousKeyMatched: true,
       lastTime: null
     });
-    useEnhancedEffect$8(function () {
+    useEnhancedEffect$7(function () {
       if (autoFocus) {
         listRef.current.focus();
       }
     }, [autoFocus]);
-    React__default.useImperativeHandle(actions, function () {
+    React.useImperativeHandle(actions, function () {
       return {
         adjustStyleForScrollbar: function adjustStyleForScrollbar(containerElement, theme) {
           // Let's ignore that piece of logic if users are already overriding the width
@@ -24397,16 +25582,16 @@
       if (key === 'ArrowDown') {
         // Prevent scroll of the page
         event.preventDefault();
-        moveFocus(list, currentFocus, disableListWrap, nextItem);
+        moveFocus(list, currentFocus, disableListWrap, disabledItemsFocusable, nextItem);
       } else if (key === 'ArrowUp') {
         event.preventDefault();
-        moveFocus(list, currentFocus, disableListWrap, previousItem);
+        moveFocus(list, currentFocus, disableListWrap, disabledItemsFocusable, previousItem);
       } else if (key === 'Home') {
         event.preventDefault();
-        moveFocus(list, null, disableListWrap, nextItem);
+        moveFocus(list, null, disableListWrap, disabledItemsFocusable, nextItem);
       } else if (key === 'End') {
         event.preventDefault();
-        moveFocus(list, null, disableListWrap, previousItem);
+        moveFocus(list, null, disableListWrap, disabledItemsFocusable, previousItem);
       } else if (key.length === 1) {
         var criteria = textCriteriaRef.current;
         var lowerKey = key.toLowerCase();
@@ -24427,7 +25612,7 @@
         criteria.keys.push(lowerKey);
         var keepFocusOnCurrent = currentFocus && !criteria.repeating && textCriteriaMatches(currentFocus, criteria);
 
-        if (criteria.previousKeyMatched && (keepFocusOnCurrent || moveFocus(list, currentFocus, false, nextItem, criteria))) {
+        if (criteria.previousKeyMatched && (keepFocusOnCurrent || moveFocus(list, currentFocus, false, disabledItemsFocusable, nextItem, criteria))) {
           event.preventDefault();
         } else {
           criteria.previousKeyMatched = false;
@@ -24439,7 +25624,7 @@
       }
     };
 
-    var handleOwnRef = React__default.useCallback(function (instance) {
+    var handleOwnRef = React.useCallback(function (instance) {
       // #StrictMode ready
       listRef.current = ReactDOM.findDOMNode(instance);
     }, []);
@@ -24454,8 +25639,8 @@
     // to check if there is a `selected` item. We're looking for the last `selected`
     // item and use the first valid item as a fallback
 
-    React__default.Children.forEach(children, function (child, index) {
-      if (!React__default.isValidElement(child)) {
+    React.Children.forEach(children, function (child, index) {
+      if (!React.isValidElement(child)) {
         return;
       }
 
@@ -24473,7 +25658,7 @@
         }
       }
     });
-    var items = React__default.Children.map(children, function (child, index) {
+    var items = React.Children.map(children, function (child, index) {
       if (index === activeItemIndex) {
         var newChildProps = {};
 
@@ -24485,14 +25670,12 @@
           newChildProps.tabIndex = 0;
         }
 
-        if (newChildProps !== null) {
-          return React__default.cloneElement(child, newChildProps);
-        }
+        return React.cloneElement(child, newChildProps);
       }
 
       return child;
     });
-    return React__default.createElement(List$1, _extends({
+    return /*#__PURE__*/React.createElement(List$1, _extends({
       role: "menu",
       ref: handleRef,
       className: className,
@@ -24501,21 +25684,19 @@
     }, other), items);
   });
    MenuList.propTypes = {
-    /**
-     * @ignore
-     */
-    actions: propTypes.shape({
-      current: propTypes.object
-    }),
+    // ----------------------------- Warning --------------------------------
+    // | These PropTypes are generated from the TypeScript type definitions |
+    // |     To update them edit the d.ts file and run "yarn proptypes"     |
+    // ----------------------------------------------------------------------
 
     /**
-     * If `true`, will focus the `[role="menu"]` container and move into tab order
+     * If `true`, will focus the `[role="menu"]` container and move into tab order.
      */
     autoFocus: propTypes.bool,
 
     /**
      * If `true`, will focus the first menuitem if `variant="menu"` or selected item
-     * if `variant="selectedMenu"`
+     * if `variant="selectedMenu"`.
      */
     autoFocusItem: propTypes.bool,
 
@@ -24528,6 +25709,11 @@
      * @ignore
      */
     className: propTypes.string,
+
+    /**
+     * If `true`, will allow focus on disabled items.
+     */
+    disabledItemsFocusable: propTypes.bool,
 
     /**
      * If `true`, the menu items will not wrap focus.
@@ -24554,7 +25740,7 @@
     vertical: 'top',
     horizontal: 'left'
   };
-  var styles$17 = {
+  var styles$19 = {
     /* Styles applied to the `Paper` component. */
     paper: {
       // specZ: The maximum height of a simple menu should be one or more rows less than the view
@@ -24571,7 +25757,7 @@
       outline: 0
     }
   };
-  var Menu = React__default.forwardRef(function Menu(props, ref) {
+  var Menu = React.forwardRef(function Menu(props, ref) {
     var _props$autoFocus = props.autoFocus,
         autoFocus = _props$autoFocus === void 0 ? true : _props$autoFocus,
         children = props.children,
@@ -24594,8 +25780,8 @@
 
     var theme = useTheme$1();
     var autoFocusItem = autoFocus && !disableAutoFocusItem && open;
-    var menuListActionsRef = React__default.useRef(null);
-    var contentAnchorRef = React__default.useRef(null);
+    var menuListActionsRef = React.useRef(null);
+    var contentAnchorRef = React.useRef(null);
 
     var getContentAnchorEl = function getContentAnchorEl() {
       return contentAnchorRef.current;
@@ -24631,8 +25817,8 @@
     // to check if there is a `selected` item. We're looking for the last `selected`
     // item and use the first valid item as a fallback
 
-    React__default.Children.map(children, function (child, index) {
-      if (!React__default.isValidElement(child)) {
+    React.Children.map(children, function (child, index) {
+      if (!React.isValidElement(child)) {
         return;
       }
 
@@ -24650,9 +25836,9 @@
         }
       }
     });
-    var items = React__default.Children.map(children, function (child, index) {
+    var items = React.Children.map(children, function (child, index) {
       if (index === activeItemIndex) {
-        return React__default.cloneElement(child, {
+        return React.cloneElement(child, {
           ref: function ref(instance) {
             // #StrictMode ready
             contentAnchorRef.current = ReactDOM.findDOMNode(instance);
@@ -24663,7 +25849,7 @@
 
       return child;
     });
-    return React__default.createElement(Popover$1, _extends({
+    return /*#__PURE__*/React.createElement(Popover$1, _extends({
       getContentAnchorEl: getContentAnchorEl,
       classes: PopoverClasses,
       onClose: onClose,
@@ -24678,7 +25864,7 @@
       open: open,
       ref: ref,
       transitionDuration: transitionDuration
-    }, other), React__default.createElement(MenuList, _extends({
+    }, other), /*#__PURE__*/React.createElement(MenuList, _extends({
       onKeyDown: handleListKeyDown,
       actions: menuListActionsRef,
       autoFocus: autoFocus && (activeItemIndex === -1 || disableAutoFocusItem),
@@ -24689,10 +25875,17 @@
     }), items));
   });
    Menu.propTypes = {
+    // ----------------------------- Warning --------------------------------
+    // | These PropTypes are generated from the TypeScript type definitions |
+    // |     To update them edit the d.ts file and run "yarn proptypes"     |
+    // ----------------------------------------------------------------------
+
     /**
      * The DOM element used to set the position of the menu.
      */
-    anchorEl: propTypes.oneOfType([propTypes.object, propTypes.func]),
+    anchorEl: propTypes
+    /* @typescript-to-proptypes-ignore */
+    .oneOfType([propTypes.func, propTypes.instanceOf(typeof Element === 'undefined' ? Object : Element)]),
 
     /**
      * If `true` (Default) will focus the `[role="menu"]` if no focusable child is found. Disabled
@@ -24711,7 +25904,7 @@
      * Override or extend the styles applied to the component.
      * See [CSS API](#css) below for more details.
      */
-    classes: propTypes.object.isRequired,
+    classes: propTypes.object,
 
     /**
      * When opening the menu will not focus the active item but the `[role="menu"]`
@@ -24782,10 +25975,11 @@
     /**
      * The length of the transition in `ms`, or 'auto'
      */
-    transitionDuration: propTypes.oneOfType([propTypes.number, propTypes.shape({
+    transitionDuration: propTypes.oneOfType([propTypes.oneOf(['auto']), propTypes.number, propTypes.shape({
+      appear: propTypes.number,
       enter: propTypes.number,
       exit: propTypes.number
-    }), propTypes.oneOf(['auto'])]),
+    })]),
 
     /**
      * The variant to use. Use `menu` to prevent selected items from impacting the initial focus
@@ -24793,11 +25987,11 @@
      */
     variant: propTypes.oneOf(['menu', 'selectedMenu'])
   } ;
-  var Menu$1 = withStyles$1(styles$17, {
+  var Menu$1 = withStyles$1(styles$19, {
     name: 'MuiMenu'
   })(Menu);
 
-  var styles$18 = function styles(theme) {
+  var styles$1a = function styles(theme) {
     return {
       /* Styles applied to the root element. */
       root: _extends({}, theme.typography.body1, _defineProperty({
@@ -24811,7 +26005,7 @@
       }, theme.breakpoints.up('sm'), {
         minHeight: 'auto'
       })),
-      // TODO To remove in v5?
+      // TODO v5: remove
 
       /* Styles applied to the root element if `disableGutters={false}`. */
       gutters: {},
@@ -24825,18 +26019,19 @@
       })
     };
   };
-  var MenuItem = React__default.forwardRef(function MenuItem(props, ref) {
+  var MenuItem = React.forwardRef(function MenuItem(props, ref) {
     var classes = props.classes,
         className = props.className,
         _props$component = props.component,
         component = _props$component === void 0 ? 'li' : _props$component,
         _props$disableGutters = props.disableGutters,
         disableGutters = _props$disableGutters === void 0 ? false : _props$disableGutters,
+        ListItemClasses = props.ListItemClasses,
         _props$role = props.role,
         role = _props$role === void 0 ? 'menuitem' : _props$role,
         selected = props.selected,
         tabIndexProp = props.tabIndex,
-        other = _objectWithoutProperties(props, ["classes", "className", "component", "disableGutters", "role", "selected", "tabIndex"]);
+        other = _objectWithoutProperties(props, ["classes", "className", "component", "disableGutters", "ListItemClasses", "role", "selected", "tabIndex"]);
 
     var tabIndex;
 
@@ -24844,16 +26039,16 @@
       tabIndex = tabIndexProp !== undefined ? tabIndexProp : -1;
     }
 
-    return React__default.createElement(ListItem$1, _extends({
+    return /*#__PURE__*/React.createElement(ListItem$1, _extends({
       button: true,
       role: role,
       tabIndex: tabIndex,
       component: component,
       selected: selected,
       disableGutters: disableGutters,
-      classes: {
+      classes: _extends({
         dense: classes.dense
-      },
+      }, ListItemClasses),
       className: clsx(classes.root, className, selected && classes.selected, !disableGutters && classes.gutters),
       ref: ref
     }, other));
@@ -24897,6 +26092,11 @@
     disableGutters: propTypes.bool,
 
     /**
+     * `classes` prop applied to the [`ListItem`](/api/list-item/) element.
+     */
+    ListItemClasses: propTypes.object,
+
+    /**
      * @ignore
      */
     role: propTypes.string,
@@ -24911,11 +26111,11 @@
      */
     tabIndex: propTypes.number
   } ;
-  var MenuItem$1 = withStyles$1(styles$18, {
+  var MenuItem$1 = withStyles$1(styles$1a, {
     name: 'MuiMenuItem'
   })(MenuItem);
 
-  var styles$19 = function styles(theme) {
+  var styles$1b = function styles(theme) {
     return {
       /* Styles applied to the root element. */
       root: {
@@ -24974,7 +26174,7 @@
       }
     };
   };
-  var MobileStepper = React__default.forwardRef(function MobileStepper(props, ref) {
+  var MobileStepper = React.forwardRef(function MobileStepper(props, ref) {
     var _props$activeStep = props.activeStep,
         activeStep = _props$activeStep === void 0 ? 0 : _props$activeStep,
         backButton = props.backButton,
@@ -24989,25 +26189,30 @@
         variant = _props$variant === void 0 ? 'dots' : _props$variant,
         other = _objectWithoutProperties(props, ["activeStep", "backButton", "classes", "className", "LinearProgressProps", "nextButton", "position", "steps", "variant"]);
 
-    return React__default.createElement(Paper$1, _extends({
+    return /*#__PURE__*/React.createElement(Paper$1, _extends({
       square: true,
       elevation: 0,
       className: clsx(classes.root, classes["position".concat(capitalize(position))], className),
       ref: ref
-    }, other), backButton, variant === 'text' && React__default.createElement(React__default.Fragment, null, activeStep + 1, " / ", steps), variant === 'dots' && React__default.createElement("div", {
+    }, other), backButton, variant === 'text' && /*#__PURE__*/React.createElement(React.Fragment, null, activeStep + 1, " / ", steps), variant === 'dots' && /*#__PURE__*/React.createElement("div", {
       className: classes.dots
     }, _toConsumableArray(new Array(steps)).map(function (_, index) {
-      return React__default.createElement("div", {
+      return /*#__PURE__*/React.createElement("div", {
         key: index,
         className: clsx(classes.dot, index === activeStep && classes.dotActive)
       });
-    })), variant === 'progress' && React__default.createElement(LinearProgress$1, _extends({
+    })), variant === 'progress' && /*#__PURE__*/React.createElement(LinearProgress$1, _extends({
       className: classes.progress,
       variant: "determinate",
       value: Math.ceil(activeStep / (steps - 1) * 100)
     }, LinearProgressProps)), nextButton);
   });
    MobileStepper.propTypes = {
+    // ----------------------------- Warning --------------------------------
+    // | These PropTypes are generated from the TypeScript type definitions |
+    // |     To update them edit the d.ts file and run "yarn proptypes"     |
+    // ----------------------------------------------------------------------
+
     /**
      * Set the active step (zero based index).
      * Defines which dot is highlighted when the variant is 'dots'.
@@ -25023,7 +26228,7 @@
      * Override or extend the styles applied to the component.
      * See [CSS API](#css) below for more details.
      */
-    classes: propTypes.object.isRequired,
+    classes: propTypes.object,
 
     /**
      * @ignore
@@ -25043,7 +26248,7 @@
     /**
      * Set the positioning type.
      */
-    position: propTypes.oneOf(['bottom', 'top', 'static']),
+    position: propTypes.oneOf(['bottom', 'static', 'top']),
 
     /**
      * The total steps.
@@ -25053,9 +26258,9 @@
     /**
      * The variant to use.
      */
-    variant: propTypes.oneOf(['text', 'dots', 'progress'])
+    variant: propTypes.oneOf(['dots', 'progress', 'text'])
   } ;
-  var MobileStepper$1 = withStyles$1(styles$19, {
+  var MobileStepper$1 = withStyles$1(styles$1b, {
     name: 'MuiMobileStepper'
   })(MobileStepper);
 
@@ -25063,7 +26268,7 @@
    * @ignore - internal component.
    */
 
-  var NativeSelectInput = React__default.forwardRef(function NativeSelectInput(props, ref) {
+  var NativeSelectInput = React.forwardRef(function NativeSelectInput(props, ref) {
     var classes = props.classes,
         className = props.className,
         disabled = props.disabled,
@@ -25073,13 +26278,13 @@
         variant = _props$variant === void 0 ? 'standard' : _props$variant,
         other = _objectWithoutProperties(props, ["classes", "className", "disabled", "IconComponent", "inputRef", "variant"]);
 
-    return React__default.createElement(React__default.Fragment, null, React__default.createElement("select", _extends({
+    return /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement("select", _extends({
       className: clsx(classes.root, // TODO v5: merge root and select
       classes.select, classes[variant], className, disabled && classes.disabled),
       disabled: disabled,
       ref: inputRef || ref
-    }, other)), props.multiple ? null : React__default.createElement(IconComponent, {
-      className: clsx(classes.icon, classes["icon".concat(capitalize(variant))])
+    }, other)), props.multiple ? null : /*#__PURE__*/React.createElement(IconComponent, {
+      className: clsx(classes.icon, classes["icon".concat(capitalize(variant))], disabled && classes.disabled)
     }));
   });
    NativeSelectInput.propTypes = {
@@ -25149,11 +26354,11 @@
    * @ignore - internal component.
    */
 
-  var ArrowDropDownIcon = createSvgIcon(React__default.createElement("path", {
+  var ArrowDropDownIcon = createSvgIcon( /*#__PURE__*/React.createElement("path", {
     d: "M7 10l5 5 5-5z"
   }), 'ArrowDropDown');
 
-  var styles$1a = function styles(theme) {
+  var styles$1c = function styles(theme) {
     return {
       /* Styles applied to the select component `root` class. */
       root: {},
@@ -25231,9 +26436,12 @@
         right: 0,
         top: 'calc(50% - 12px)',
         // Center vertically
+        pointerEvents: 'none',
+        // Don't block pointer events on the select under the icon.
         color: theme.palette.action.active,
-        pointerEvents: 'none' // Don't block pointer events on the select under the icon.
-
+        '&$disabled': {
+          color: theme.palette.action.disabled
+        }
       },
 
       /* Styles applied to the icon component if the popup is open. */
@@ -25252,12 +26460,12 @@
       }
     };
   };
-  var defaultInput = React__default.createElement(Input$1, null);
+  var defaultInput = /*#__PURE__*/React.createElement(Input$1, null);
   /**
    * An alternative to `<Select native />` with a much smaller bundle size footprint.
    */
 
-  var NativeSelect = React__default.forwardRef(function NativeSelect(props, ref) {
+  var NativeSelect = React.forwardRef(function NativeSelect(props, ref) {
     var children = props.children,
         classes = props.classes,
         _props$IconComponent = props.IconComponent,
@@ -25274,7 +26482,7 @@
       muiFormControl: muiFormControl,
       states: ['variant']
     });
-    return React__default.cloneElement(input, _extends({
+    return React.cloneElement(input, _extends({
       // Most of the logic is implemented in `NativeSelectInput`.
       // The `Select` component is a simple API wrapper to expose something better to play with.
       inputComponent: NativeSelectInput,
@@ -25289,6 +26497,11 @@
     }, other));
   });
    NativeSelect.propTypes = {
+    // ----------------------------- Warning --------------------------------
+    // | These PropTypes are generated from the TypeScript type definitions |
+    // |     To update them edit the d.ts file and run "yarn proptypes"     |
+    // ----------------------------------------------------------------------
+
     /**
      * The option elements to populate the select with.
      * Can be some `<option>` elements.
@@ -25299,7 +26512,7 @@
      * Override or extend the styles applied to the component.
      * See [CSS API](#css) below for more details.
      */
-    classes: propTypes.object.isRequired,
+    classes: propTypes.object,
 
     /**
      * The icon that displays the arrow.
@@ -25332,14 +26545,78 @@
     /**
      * The variant to use.
      */
-    variant: propTypes.oneOf(['standard', 'outlined', 'filled'])
+    variant: propTypes.oneOf(['filled', 'outlined', 'standard'])
   } ;
   NativeSelect.muiName = 'Select';
-  var NativeSelect$1 = withStyles$1(styles$1a, {
+  var NativeSelect$1 = withStyles$1(styles$1c, {
     name: 'MuiNativeSelect'
   })(NativeSelect);
 
-  var styles$1b = function styles(theme) {
+  var useEnhancedEffect$8 = typeof window !== 'undefined' && "development" !== 'test' ? React.useLayoutEffect : React.useEffect;
+  /**
+   * NoSsr purposely removes components from the subject of Server Side Rendering (SSR).
+   *
+   * This component can be useful in a variety of situations:
+   * - Escape hatch for broken dependencies not supporting SSR.
+   * - Improve the time-to-first paint on the client by only rendering above the fold.
+   * - Reduce the rendering time on the server.
+   * - Under too heavy server load, you can turn on service degradation.
+   */
+
+  function NoSsr(props) {
+    var children = props.children,
+        _props$defer = props.defer,
+        defer = _props$defer === void 0 ? false : _props$defer,
+        _props$fallback = props.fallback,
+        fallback = _props$fallback === void 0 ? null : _props$fallback;
+
+    var _React$useState = React.useState(false),
+        mountedState = _React$useState[0],
+        setMountedState = _React$useState[1];
+
+    useEnhancedEffect$8(function () {
+      if (!defer) {
+        setMountedState(true);
+      }
+    }, [defer]);
+    React.useEffect(function () {
+      if (defer) {
+        setMountedState(true);
+      }
+    }, [defer]); // We need the Fragment here to force react-docgen to recognise NoSsr as a component.
+
+    return /*#__PURE__*/React.createElement(React.Fragment, null, mountedState ? children : fallback);
+  }
+
+   NoSsr.propTypes = {
+    // ----------------------------- Warning --------------------------------
+    // | These PropTypes are generated from the TypeScript type definitions |
+    // |     To update them edit the d.ts file and run "yarn proptypes"     |
+    // ----------------------------------------------------------------------
+
+    /**
+     * You can wrap a node.
+     */
+    children: propTypes.node,
+
+    /**
+     * If `true`, the component will not only prevent server-side rendering.
+     * It will also defer the rendering of the children into a different screen frame.
+     */
+    defer: propTypes.bool,
+
+    /**
+     * The fallback content to display.
+     */
+    fallback: propTypes.node
+  } ;
+
+  {
+    // eslint-disable-next-line
+    NoSsr['propTypes' + ''] = exactProp(NoSsr.propTypes);
+  }
+
+  var styles$1d = function styles(theme) {
     return {
       /* Styles applied to the root element. */
       root: {
@@ -25349,12 +26626,12 @@
         top: -5,
         left: 0,
         margin: 0,
-        padding: 0,
-        paddingLeft: 8,
+        padding: '0 8px',
         pointerEvents: 'none',
         borderRadius: 'inherit',
         borderStyle: 'solid',
-        borderWidth: 1
+        borderWidth: 1,
+        overflow: 'hidden'
       },
 
       /* Styles applied to the legend element when `labelWidth` is provided. */
@@ -25371,20 +26648,23 @@
 
       /* Styles applied to the legend element. */
       legendLabelled: {
+        display: 'block',
+        width: 'auto',
         textAlign: 'left',
         padding: 0,
         height: 11,
         // sync with `lineHeight` in `legend` styles
-        fontSize: '0.75rem',
+        fontSize: '0.75em',
         visibility: 'hidden',
         maxWidth: 0.01,
         transition: theme.transitions.create('max-width', {
           duration: 50,
           easing: theme.transitions.easing.easeOut
         }),
-        '& span': {
+        '& > span': {
           paddingLeft: 5,
-          paddingRight: 5
+          paddingRight: 5,
+          display: 'inline-block'
         }
       },
 
@@ -25403,7 +26683,7 @@
    * @ignore - internal component.
    */
 
-  var NotchedOutline = React__default.forwardRef(function NotchedOutline(props, ref) {
+  var NotchedOutline = React.forwardRef(function NotchedOutline(props, ref) {
     var children = props.children,
         classes = props.classes,
         className = props.className,
@@ -25417,14 +26697,14 @@
     var align = theme.direction === 'rtl' ? 'right' : 'left';
 
     if (label !== undefined) {
-      return React__default.createElement("fieldset", _extends({
+      return /*#__PURE__*/React.createElement("fieldset", _extends({
         "aria-hidden": true,
         className: clsx(classes.root, className),
         ref: ref,
         style: style
-      }, other), React__default.createElement("legend", {
+      }, other), /*#__PURE__*/React.createElement("legend", {
         className: clsx(classes.legendLabelled, notched && classes.legendNotched)
-      }, label ? React__default.createElement("span", null, label) : React__default.createElement("span", {
+      }, label ? /*#__PURE__*/React.createElement("span", null, label) : /*#__PURE__*/React.createElement("span", {
         dangerouslySetInnerHTML: {
           __html: '&#8203;'
         }
@@ -25432,12 +26712,12 @@
     }
 
     var labelWidth = labelWidthProp > 0 ? labelWidthProp * 0.75 + 8 : 0.01;
-    return React__default.createElement("fieldset", _extends({
+    return /*#__PURE__*/React.createElement("fieldset", _extends({
       "aria-hidden": true,
       style: _extends(_defineProperty({}, "padding".concat(capitalize(align)), 8), style),
       className: clsx(classes.root, className),
       ref: ref
-    }, other), React__default.createElement("legend", {
+    }, other), /*#__PURE__*/React.createElement("legend", {
       className: classes.legend,
       style: {
         // IE 11: fieldset with legend does not render
@@ -25445,7 +26725,7 @@
         // by always having a legend rendered
         width: notched ? labelWidth : 0.01
       }
-    }, React__default.createElement("span", {
+    }, /*#__PURE__*/React.createElement("span", {
       dangerouslySetInnerHTML: {
         __html: '&#8203;'
       }
@@ -25488,11 +26768,11 @@
      */
     style: propTypes.object
   } ;
-  var NotchedOutline$1 = withStyles$1(styles$1b, {
+  var NotchedOutline$1 = withStyles$1(styles$1d, {
     name: 'PrivateNotchedOutline'
   })(NotchedOutline);
 
-  var styles$1c = function styles(theme) {
+  var styles$1e = function styles(theme) {
     var borderColor = theme.palette.type === 'light' ? 'rgba(0, 0, 0, 0.23)' : 'rgba(255, 255, 255, 0.23)';
     return {
       /* Styles applied to the root element. */
@@ -25543,7 +26823,7 @@
         paddingRight: 14
       },
 
-      /* Styles applied to the root element if `error={true}`. */
+      /* Pseudo-class applied to the root element if `error={true}`. */
       error: {},
 
       /* Styles applied to the `input` element if `margin="dense"`. */
@@ -25595,7 +26875,7 @@
       }
     };
   };
-  var OutlinedInput = React__default.forwardRef(function OutlinedInput(props, ref) {
+  var OutlinedInput = React.forwardRef(function OutlinedInput(props, ref) {
     var classes = props.classes,
         _props$fullWidth = props.fullWidth,
         fullWidth = _props$fullWidth === void 0 ? false : _props$fullWidth,
@@ -25611,9 +26891,9 @@
         type = _props$type === void 0 ? 'text' : _props$type,
         other = _objectWithoutProperties(props, ["classes", "fullWidth", "inputComponent", "label", "labelWidth", "multiline", "notched", "type"]);
 
-    return React__default.createElement(InputBase$1, _extends({
+    return /*#__PURE__*/React.createElement(InputBase$1, _extends({
       renderSuffix: function renderSuffix(state) {
-        return React__default.createElement(NotchedOutline$1, {
+        return /*#__PURE__*/React.createElement(NotchedOutline$1, {
           className: classes.notchedOutline,
           label: label,
           labelWidth: labelWidth,
@@ -25632,6 +26912,11 @@
     }, other));
   });
    OutlinedInput.propTypes = {
+    // ----------------------------- Warning --------------------------------
+    // | These PropTypes are generated from the TypeScript type definitions |
+    // |     To update them edit the d.ts file and run "yarn proptypes"     |
+    // ----------------------------------------------------------------------
+
     /**
      * This prop helps users to fill forms faster, especially on mobile devices.
      * The name can be confusing, as it's more like an autofill.
@@ -25648,12 +26933,7 @@
      * Override or extend the styles applied to the component.
      * See [CSS API](#css) below for more details.
      */
-    classes: propTypes.object.isRequired,
-
-    /**
-     * The CSS class name of the wrapper element.
-     */
-    className: propTypes.string,
+    classes: propTypes.object,
 
     /**
      * The color of the component. It supports those theme colors that make sense for this component.
@@ -25692,7 +26972,7 @@
     id: propTypes.string,
 
     /**
-     * The component used for the native input.
+     * The component used for the `input` element.
      * Either a string to use a DOM element or a component.
      */
     inputComponent: propTypes.elementType,
@@ -25767,12 +27047,12 @@
     /**
      * Number of rows to display when multiline option is set to true.
      */
-    rows: propTypes.oneOfType([propTypes.string, propTypes.number]),
+    rows: propTypes.oneOfType([propTypes.number, propTypes.string]),
 
     /**
      * Maximum number of rows to display when multiline option is set to true.
      */
-    rowsMax: propTypes.oneOfType([propTypes.string, propTypes.number]),
+    rowsMax: propTypes.oneOfType([propTypes.number, propTypes.string]),
 
     /**
      * Start `InputAdornment` for this component.
@@ -25790,13 +27070,13 @@
     value: propTypes.any
   } ;
   OutlinedInput.muiName = 'Input';
-  var OutlinedInput$1 = withStyles$1(styles$1c, {
+  var OutlinedInput$1 = withStyles$1(styles$1e, {
     name: 'MuiOutlinedInput'
   })(OutlinedInput);
 
   /**!
    * @fileOverview Kickass library to create and place poppers near their reference elements.
-   * @version 1.16.0
+   * @version 1.16.1
    * @license
    * Copyright (c) 2016 Federico Zivolo and contributors
    *
@@ -26142,7 +27422,7 @@
     var sideA = axis === 'x' ? 'Left' : 'Top';
     var sideB = sideA === 'Left' ? 'Right' : 'Bottom';
 
-    return parseFloat(styles['border' + sideA + 'Width'], 10) + parseFloat(styles['border' + sideB + 'Width'], 10);
+    return parseFloat(styles['border' + sideA + 'Width']) + parseFloat(styles['border' + sideB + 'Width']);
   }
 
   function getSize(axis, body, html, computedStyle) {
@@ -26297,8 +27577,8 @@
     var scrollParent = getScrollParent$1(children);
 
     var styles = getStyleComputedProperty(parent);
-    var borderTopWidth = parseFloat(styles.borderTopWidth, 10);
-    var borderLeftWidth = parseFloat(styles.borderLeftWidth, 10);
+    var borderTopWidth = parseFloat(styles.borderTopWidth);
+    var borderLeftWidth = parseFloat(styles.borderLeftWidth);
 
     // In cases where the parent is fixed, we must ignore negative scroll in offset calc
     if (fixedPosition && isHTML) {
@@ -26319,8 +27599,8 @@
     // differently when margins are applied to it. The margins are included in
     // the box of the documentElement, in the other cases not.
     if (!isIE10 && isHTML) {
-      var marginTop = parseFloat(styles.marginTop, 10);
-      var marginLeft = parseFloat(styles.marginLeft, 10);
+      var marginTop = parseFloat(styles.marginTop);
+      var marginLeft = parseFloat(styles.marginLeft);
 
       offsets.top -= borderTopWidth - marginTop;
       offsets.bottom -= borderTopWidth - marginTop;
@@ -27259,8 +28539,8 @@
     // Compute the sideValue using the updated popper offsets
     // take popper margin in account because we don't have this info available
     var css = getStyleComputedProperty(data.instance.popper);
-    var popperMarginSide = parseFloat(css['margin' + sideCapitalized], 10);
-    var popperBorderSide = parseFloat(css['border' + sideCapitalized + 'Width'], 10);
+    var popperMarginSide = parseFloat(css['margin' + sideCapitalized]);
+    var popperBorderSide = parseFloat(css['border' + sideCapitalized + 'Width']);
     var sideValue = center - data.offsets.popper[side] - popperMarginSide - popperBorderSide;
 
     // prevent arrowElement from being placed not contiguously to its popper
@@ -28437,13 +29717,13 @@
     return typeof anchorEl === 'function' ? anchorEl() : anchorEl;
   }
 
-  var useEnhancedEffect$9 = typeof window !== 'undefined' ? React__default.useLayoutEffect : React__default.useEffect;
+  var useEnhancedEffect$9 = typeof window !== 'undefined' ? React.useLayoutEffect : React.useEffect;
   var defaultPopperOptions = {};
   /**
-   * Poppers rely on the 3rd party library [Popper.js](https://github.com/FezVrasta/popper.js) for positioning.
+   * Poppers rely on the 3rd party library [Popper.js](https://popper.js.org/docs/v1/) for positioning.
    */
 
-  var Popper$1 = React__default.forwardRef(function Popper$1(props, ref) {
+  var Popper$1 = React.forwardRef(function Popper$1(props, ref) {
     var anchorEl = props.anchorEl,
         children = props.children,
         container = props.container,
@@ -28458,23 +29738,24 @@
         _props$popperOptions = props.popperOptions,
         popperOptions = _props$popperOptions === void 0 ? defaultPopperOptions : _props$popperOptions,
         popperRefProp = props.popperRef,
+        style = props.style,
         _props$transition = props.transition,
         transition = _props$transition === void 0 ? false : _props$transition,
-        other = _objectWithoutProperties(props, ["anchorEl", "children", "container", "disablePortal", "keepMounted", "modifiers", "open", "placement", "popperOptions", "popperRef", "transition"]);
+        other = _objectWithoutProperties(props, ["anchorEl", "children", "container", "disablePortal", "keepMounted", "modifiers", "open", "placement", "popperOptions", "popperRef", "style", "transition"]);
 
-    var tooltipRef = React__default.useRef(null);
+    var tooltipRef = React.useRef(null);
     var ownRef = useForkRef(tooltipRef, ref);
-    var popperRef = React__default.useRef(null);
+    var popperRef = React.useRef(null);
     var handlePopperRef = useForkRef(popperRef, popperRefProp);
-    var handlePopperRefRef = React__default.useRef(handlePopperRef);
+    var handlePopperRefRef = React.useRef(handlePopperRef);
     useEnhancedEffect$9(function () {
       handlePopperRefRef.current = handlePopperRef;
     }, [handlePopperRef]);
-    React__default.useImperativeHandle(popperRefProp, function () {
+    React.useImperativeHandle(popperRefProp, function () {
       return popperRef.current;
     }, []);
 
-    var _React$useState = React__default.useState(true),
+    var _React$useState = React.useState(true),
         exited = _React$useState[0],
         setExited = _React$useState[1];
 
@@ -28485,16 +29766,16 @@
      * modifiers.flip is essentially a flip for controlled/uncontrolled behavior
      */
 
-    var _React$useState2 = React__default.useState(rtlPlacement),
+    var _React$useState2 = React.useState(rtlPlacement),
         placement = _React$useState2[0],
         setPlacement = _React$useState2[1];
 
-    React__default.useEffect(function () {
+    React.useEffect(function () {
       if (popperRef.current) {
         popperRef.current.update();
       }
     });
-    var handleOpen = React__default.useCallback(function () {
+    var handleOpen = React.useCallback(function () {
       if (!tooltipRef.current || !anchorEl || !open) {
         return;
       }
@@ -28538,7 +29819,7 @@
       }));
       handlePopperRefRef.current(popper);
     }, [anchorEl, disablePortal, modifiers, open, rtlPlacement, popperOptions]);
-    var handleRef = React__default.useCallback(function (node) {
+    var handleRef = React.useCallback(function (node) {
       setRef(ownRef, node);
       handleOpen();
     }, [ownRef, handleOpen]);
@@ -28561,16 +29842,16 @@
       handleClose();
     };
 
-    React__default.useEffect(function () {
+    React.useEffect(function () {
       // Let's update the popper position.
       handleOpen();
     }, [handleOpen]);
-    React__default.useEffect(function () {
+    React.useEffect(function () {
       return function () {
         handleClose();
       };
     }, []);
-    React__default.useEffect(function () {
+    React.useEffect(function () {
       if (!open && !transition) {
         // Otherwise handleExited will call this.
         handleClose();
@@ -28593,10 +29874,10 @@
       };
     }
 
-    return React__default.createElement(Portal, {
+    return /*#__PURE__*/React.createElement(Portal, {
       disablePortal: disablePortal,
       container: container
-    }, React__default.createElement("div", _extends({
+    }, /*#__PURE__*/React.createElement("div", _extends({
       ref: handleRef,
       role: "tooltip"
     }, other, {
@@ -28606,18 +29887,22 @@
         // Fix Popper.js display issue
         top: 0,
         left: 0
-      }, other.style)
+      }, style)
     }), typeof children === 'function' ? children(childProps) : children));
   });
    Popper$1.propTypes = {
+    // ----------------------------- Warning --------------------------------
+    // | These PropTypes are generated from the TypeScript type definitions |
+    // |     To update them edit the d.ts file and run "yarn proptypes"     |
+    // ----------------------------------------------------------------------
+
     /**
      * This is the reference element, or a function that returns the reference element,
      * that may be used to set the position of the popover.
      * The return value will passed as the reference object of the Popper
      * instance.
      *
-     * The reference element should be an HTML Element instance or a referenceObject:
-     * https://popper.js.org/popper-documentation.html#referenceObject.
+     * The reference element should be an HTML Element instance or a [referenceObject](https://popper.js.org/docs/v1/#referenceObject).
      */
     anchorEl: chainPropTypes(propTypes.oneOfType([propTypes.object, propTypes.func]), function (props) {
       if (props.open) {
@@ -28631,7 +29916,7 @@
             return new Error(['Material-UI: the `anchorEl` prop provided to the component is invalid.', 'The anchor element should be part of the document layout.', "Make sure the element is present in the document or that it's not display none."].join('\n'));
           }
         } else if (!resolvedAnchorEl || typeof resolvedAnchorEl.clientWidth !== 'number' || typeof resolvedAnchorEl.clientHeight !== 'number' || typeof resolvedAnchorEl.getBoundingClientRect !== 'function') {
-          return new Error(['Material-UI: the `anchorEl` prop provided to the component is invalid.', 'It should be an HTML Element instance or a referenceObject:', 'https://popper.js.org/popper-documentation.html#referenceObject.'].join('\n'));
+          return new Error(['Material-UI: the `anchorEl` prop provided to the component is invalid.', 'It should be an HTML Element instance or a referenceObject ', '(https://popper.js.org/docs/v1/#referenceObject).'].join('\n'));
         }
       }
 
@@ -28641,7 +29926,9 @@
     /**
      * Popper render function or node.
      */
-    children: propTypes.oneOfType([propTypes.node, propTypes.func]).isRequired,
+    children: propTypes
+    /* @typescript-to-proptypes-ignore */
+    .oneOfType([propTypes.node, propTypes.func]).isRequired,
 
     /**
      * A node, component instance, or function that returns either.
@@ -28649,7 +29936,9 @@
      * By default, it uses the body of the anchorEl's top-level document object,
      * so it's simply `document.body` most of the time.
      */
-    container: propTypes.oneOfType([propTypes.object, propTypes.func]),
+    container: propTypes
+    /* @typescript-to-proptypes-ignore */
+    .oneOfType([propTypes.func, propTypes.instanceOf(React.Component), propTypes.instanceOf(typeof Element === 'undefined' ? Object : Element)]),
 
     /**
      * Disable the portal behavior.
@@ -28671,7 +29960,7 @@
      * A modifier is a function that is called each time Popper.js needs to
      * compute the position of the popper.
      * For this reason, modifiers should be very performant to avoid bottlenecks.
-     * To learn how to create a modifier, [read the modifiers documentation](https://github.com/FezVrasta/popper.js/blob/master/docs/_includes/popper-documentation.md#modifiers--object).
+     * To learn how to create a modifier, [read the modifiers documentation](https://popper.js.org/docs/v1/#modifiers).
      */
     modifiers: propTypes.object,
 
@@ -28686,7 +29975,7 @@
     placement: propTypes.oneOf(['bottom-end', 'bottom-start', 'bottom', 'left-end', 'left-start', 'left', 'right-end', 'right-start', 'right', 'top-end', 'top-start', 'top']),
 
     /**
-     * Options provided to the [`popper.js`](https://github.com/FezVrasta/popper.js) instance.
+     * Options provided to the [`popper.js`](https://popper.js.org/docs/v1/) instance.
      */
     popperOptions: propTypes.object,
 
@@ -28694,6 +29983,11 @@
      * A ref that points to the used popper instance.
      */
     popperRef: refType,
+
+    /**
+     * @ignore
+     */
+    style: propTypes.object,
 
     /**
      * Help supporting a react-transition-group/Transition component.
@@ -28705,7 +29999,7 @@
    * @ignore - internal component.
    */
 
-  var RadioButtonUncheckedIcon = createSvgIcon(React__default.createElement("path", {
+  var RadioButtonUncheckedIcon = createSvgIcon( /*#__PURE__*/React.createElement("path", {
     d: "M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.42 0-8-3.58-8-8s3.58-8 8-8 8 3.58 8 8-3.58 8-8 8z"
   }), 'RadioButtonUnchecked');
 
@@ -28713,11 +30007,11 @@
    * @ignore - internal component.
    */
 
-  var RadioButtonCheckedIcon = createSvgIcon(React__default.createElement("path", {
+  var RadioButtonCheckedIcon = createSvgIcon( /*#__PURE__*/React.createElement("path", {
     d: "M8.465 8.465C9.37 7.56 10.62 7 12 7C14.76 7 17 9.24 17 12C17 13.38 16.44 14.63 15.535 15.535C14.63 16.44 13.38 17 12 17C9.24 17 7 14.76 7 12C7 10.62 7.56 9.37 8.465 8.465Z"
   }), 'RadioButtonChecked');
 
-  var styles$1d = function styles(theme) {
+  var styles$1f = function styles(theme) {
     return {
       root: {
         position: 'relative',
@@ -28750,11 +30044,11 @@
     var checked = props.checked,
         classes = props.classes,
         fontSize = props.fontSize;
-    return React__default.createElement("div", {
+    return /*#__PURE__*/React.createElement("div", {
       className: clsx(classes.root, checked && classes.checked)
-    }, React__default.createElement(RadioButtonUncheckedIcon, {
+    }, /*#__PURE__*/React.createElement(RadioButtonUncheckedIcon, {
       fontSize: fontSize
-    }), React__default.createElement(RadioButtonCheckedIcon, {
+    }), /*#__PURE__*/React.createElement(RadioButtonCheckedIcon, {
       fontSize: fontSize,
       className: classes.layer
     }));
@@ -28778,7 +30072,7 @@
      */
     fontSize: propTypes.oneOf(['small', 'default'])
   } ;
-  var RadioButtonIcon$1 = withStyles$1(styles$1d, {
+  var RadioButtonIcon$1 = withStyles$1(styles$1f, {
     name: 'PrivateRadioButtonIcon'
   })(RadioButtonIcon);
 
@@ -28786,17 +30080,17 @@
    * @ignore - internal component.
    */
 
-  var RadioGroupContext = React__default.createContext();
+  var RadioGroupContext = React.createContext();
 
   {
     RadioGroupContext.displayName = 'RadioGroupContext';
   }
 
   function useRadioGroup() {
-    return React__default.useContext(RadioGroupContext);
+    return React.useContext(RadioGroupContext);
   }
 
-  var styles$1e = function styles(theme) {
+  var styles$1g = function styles(theme) {
     return {
       /* Styles applied to the root element. */
       root: {
@@ -28844,22 +30138,20 @@
       }
     };
   };
-  var defaultCheckedIcon$1 = React__default.createElement(RadioButtonIcon$1, {
+  var defaultCheckedIcon$1 = /*#__PURE__*/React.createElement(RadioButtonIcon$1, {
     checked: true
   });
-  var defaultIcon$1 = React__default.createElement(RadioButtonIcon$1, null);
-  var Radio = React__default.forwardRef(function Radio(props, ref) {
+  var defaultIcon$1 = /*#__PURE__*/React.createElement(RadioButtonIcon$1, null);
+  var Radio = React.forwardRef(function Radio(props, ref) {
     var checkedProp = props.checked,
         classes = props.classes,
         _props$color = props.color,
         color = _props$color === void 0 ? 'secondary' : _props$color,
-        _props$disabled = props.disabled,
-        disabled = _props$disabled === void 0 ? false : _props$disabled,
         nameProp = props.name,
         onChangeProp = props.onChange,
         _props$size = props.size,
         size = _props$size === void 0 ? 'medium' : _props$size,
-        other = _objectWithoutProperties(props, ["checked", "classes", "color", "disabled", "name", "onChange", "size"]);
+        other = _objectWithoutProperties(props, ["checked", "classes", "color", "name", "onChange", "size"]);
 
     var radioGroup = useRadioGroup();
     var checked = checkedProp;
@@ -28876,13 +30168,13 @@
       }
     }
 
-    return React__default.createElement(SwitchBase$1, _extends({
+    return /*#__PURE__*/React.createElement(SwitchBase$1, _extends({
       color: color,
       type: "radio",
-      icon: React__default.cloneElement(defaultIcon$1, {
+      icon: React.cloneElement(defaultIcon$1, {
         fontSize: size === 'small' ? 'small' : 'default'
       }),
-      checkedIcon: React__default.cloneElement(defaultCheckedIcon$1, {
+      checkedIcon: React.cloneElement(defaultCheckedIcon$1, {
         fontSize: size === 'small' ? 'small' : 'default'
       }),
       classes: {
@@ -28893,11 +30185,15 @@
       name: name,
       checked: checked,
       onChange: onChange,
-      ref: ref,
-      disabled: disabled
+      ref: ref
     }, other));
   });
    Radio.propTypes = {
+    // ----------------------------- Warning --------------------------------
+    // | These PropTypes are generated from the TypeScript type definitions |
+    // |     To update them edit the d.ts file and run "yarn proptypes"     |
+    // ----------------------------------------------------------------------
+
     /**
      * If `true`, the component is checked.
      */
@@ -28912,15 +30208,15 @@
      * Override or extend the styles applied to the component.
      * See [CSS API](#css) below for more details.
      */
-    classes: propTypes.object.isRequired,
+    classes: propTypes.object,
 
     /**
      * The color of the component. It supports those theme colors that make sense for this component.
      */
-    color: propTypes.oneOf(['primary', 'secondary', 'default']),
+    color: propTypes.oneOf(['default', 'primary', 'secondary']),
 
     /**
-     * If `true`, the switch will be disabled.
+     * If `true`, the radio will be disabled.
      */
     disabled: propTypes.bool,
 
@@ -28972,31 +30268,26 @@
      * The size of the radio.
      * `small` is equivalent to the dense radio styling.
      */
-    size: propTypes.oneOf(['small', 'medium']),
-
-    /**
-     * The input component prop `type`.
-     */
-    type: propTypes.string,
+    size: propTypes.oneOf(['medium', 'small']),
 
     /**
      * The value of the component. The DOM API casts this to a string.
      */
     value: propTypes.any
   } ;
-  var Radio$1 = withStyles$1(styles$1e, {
+  var Radio$1 = withStyles$1(styles$1g, {
     name: 'MuiRadio'
   })(Radio);
 
-  var RadioGroup = React__default.forwardRef(function RadioGroup(props, ref) {
+  var RadioGroup = React.forwardRef(function RadioGroup(props, ref) {
     var actions = props.actions,
         children = props.children,
-        name = props.name,
+        nameProp = props.name,
         valueProp = props.value,
         onChange = props.onChange,
         other = _objectWithoutProperties(props, ["actions", "children", "name", "value", "onChange"]);
 
-    var rootRef = React__default.useRef(null);
+    var rootRef = React.useRef(null);
 
     var _useControlled = useControlled({
       controlled: valueProp,
@@ -29007,7 +30298,7 @@
         value = _useControlled2[0],
         setValue = _useControlled2[1];
 
-    React__default.useImperativeHandle(actions, function () {
+    React.useImperativeHandle(actions, function () {
       return {
         focus: function focus() {
           var input = rootRef.current.querySelector('input:not(:disabled):checked');
@@ -29032,24 +30323,23 @@
       }
     };
 
-    return React__default.createElement(RadioGroupContext.Provider, {
+    var name = useId(nameProp);
+    return /*#__PURE__*/React.createElement(RadioGroupContext.Provider, {
       value: {
         name: name,
         onChange: handleChange,
         value: value
       }
-    }, React__default.createElement(FormGroup$1, _extends({
+    }, /*#__PURE__*/React.createElement(FormGroup$1, _extends({
       role: "radiogroup",
       ref: handleRef
     }, other), children));
   });
    RadioGroup.propTypes = {
-    /**
-     * @ignore
-     */
-    actions: propTypes.shape({
-      current: propTypes.object
-    }),
+    // ----------------------------- Warning --------------------------------
+    // | These PropTypes are generated from the TypeScript type definitions |
+    // |     To update them edit the d.ts file and run "yarn proptypes"     |
+    // ----------------------------------------------------------------------
 
     /**
      * The content of the component.
@@ -29059,17 +30349,13 @@
     /**
      * The default `input` element value. Use when the component is not controlled.
      */
-    defaultValue: propTypes.any,
+    defaultValue: propTypes.oneOfType([propTypes.arrayOf(propTypes.string), propTypes.number, propTypes.string]),
 
     /**
      * The name used to reference the value of the control.
+     * If you don't provide this prop, it falls back to a randomly generated name.
      */
     name: propTypes.string,
-
-    /**
-     * @ignore
-     */
-    onBlur: propTypes.func,
 
     /**
      * Callback fired when a radio button is selected.
@@ -29078,11 +30364,6 @@
      * You can pull out the new value by accessing `event.target.value` (string).
      */
     onChange: propTypes.func,
-
-    /**
-     * @ignore
-     */
-    onKeyDown: propTypes.func,
 
     /**
      * Value of the selected radio button. The DOM API casts this to a string.
@@ -29129,6 +30410,9 @@
     if (superClass) _setPrototypeOf(subClass, superClass);
   }
 
+  function _createSuper(Derived) { return function () { var Super = _getPrototypeOf(Derived), result; if (_isNativeReflectConstruct()) { var NewTarget = _getPrototypeOf(this).constructor; result = Reflect.construct(Super, arguments, NewTarget); } else { result = Super.apply(this, arguments); } return _possibleConstructorReturn(this, result); }; }
+
+  function _isNativeReflectConstruct() { if (typeof Reflect === "undefined" || !Reflect.construct) return false; if (Reflect.construct.sham) return false; if (typeof Proxy === "function") return true; try { Date.prototype.toString.call(Reflect.construct(Date, [], function () {})); return true; } catch (e) { return false; } }
   /**
    * ⚠️⚠️⚠️
    * If you want the DOM element of a Material-UI component check out
@@ -29162,15 +30446,15 @@
    * ```
    */
 
-  var RootRef =
-  /*#__PURE__*/
-  function (_React$Component) {
+  var RootRef = /*#__PURE__*/function (_React$Component) {
     _inherits(RootRef, _React$Component);
+
+    var _super = _createSuper(RootRef);
 
     function RootRef() {
       _classCallCheck(this, RootRef);
 
-      return _possibleConstructorReturn(this, _getPrototypeOf(RootRef).apply(this, arguments));
+      return _super.apply(this, arguments);
     }
 
     _createClass(RootRef, [{
@@ -29207,7 +30491,7 @@
     }]);
 
     return RootRef;
-  }(React__default.Component);
+  }(React.Component);
 
    RootRef.propTypes = {
     /**
@@ -29241,8 +30525,9 @@
    */
 
 
-  var SelectInput = React__default.forwardRef(function SelectInput(props, ref) {
-    var autoFocus = props.autoFocus,
+  var SelectInput = React.forwardRef(function SelectInput(props, ref) {
+    var ariaLabel = props['aria-label'],
+        autoFocus = props.autoFocus,
         autoWidth = props.autoWidth,
         children = props.children,
         classes = props.classes,
@@ -29273,7 +30558,7 @@
         valueProp = props.value,
         _props$variant = props.variant,
         variant = _props$variant === void 0 ? 'standard' : _props$variant,
-        other = _objectWithoutProperties(props, ["autoFocus", "autoWidth", "children", "classes", "className", "defaultValue", "disabled", "displayEmpty", "IconComponent", "inputRef", "labelId", "MenuProps", "multiple", "name", "onBlur", "onChange", "onClose", "onFocus", "onOpen", "open", "readOnly", "renderValue", "required", "SelectDisplayProps", "tabIndex", "type", "value", "variant"]);
+        other = _objectWithoutProperties(props, ["aria-label", "autoFocus", "autoWidth", "children", "classes", "className", "defaultValue", "disabled", "displayEmpty", "IconComponent", "inputRef", "labelId", "MenuProps", "multiple", "name", "onBlur", "onChange", "onClose", "onFocus", "onOpen", "open", "readOnly", "renderValue", "required", "SelectDisplayProps", "tabIndex", "type", "value", "variant"]);
 
     var _useControlled = useControlled({
       controlled: valueProp,
@@ -29284,25 +30569,25 @@
         value = _useControlled2[0],
         setValue = _useControlled2[1];
 
-    var inputRef = React__default.useRef(null);
+    var inputRef = React.useRef(null);
 
-    var _React$useState = React__default.useState(null),
+    var _React$useState = React.useState(null),
         displayNode = _React$useState[0],
         setDisplayNode = _React$useState[1];
 
-    var _React$useRef = React__default.useRef(openProp != null),
+    var _React$useRef = React.useRef(openProp != null),
         isOpenControlled = _React$useRef.current;
 
-    var _React$useState2 = React__default.useState(),
+    var _React$useState2 = React.useState(),
         menuMinWidthState = _React$useState2[0],
         setMenuMinWidthState = _React$useState2[1];
 
-    var _React$useState3 = React__default.useState(false),
+    var _React$useState3 = React.useState(false),
         openState = _React$useState3[0],
         setOpenState = _React$useState3[1];
 
     var handleRef = useForkRef(ref, inputRefProp);
-    React__default.useImperativeHandle(handleRef, function () {
+    React.useImperativeHandle(handleRef, function () {
       return {
         focus: function focus() {
           displayNode.focus();
@@ -29311,7 +30596,7 @@
         value: value
       };
     }, [displayNode, value]);
-    React__default.useEffect(function () {
+    React.useEffect(function () {
       if (autoFocus && displayNode) {
         displayNode.focus();
       }
@@ -29333,7 +30618,12 @@
     };
 
     var handleMouseDown = function handleMouseDown(event) {
-      // Hijack the default focus behavior.
+      // Ignore everything but left-click
+      if (event.button !== 0) {
+        return;
+      } // Hijack the default focus behavior.
+
+
       event.preventDefault();
       displayNode.focus();
       update(true, event);
@@ -29362,6 +30652,10 @@
           }
         } else {
           newValue = child.props.value;
+        }
+
+        if (value === newValue) {
+          return;
         }
 
         setValue(newValue);
@@ -29429,8 +30723,8 @@
       }
     }
 
-    var items = React__default.Children.map(children, function (child) {
-      if (!React__default.isValidElement(child)) {
+    var items = React.Children.map(children, function (child) {
+      if (!React.isValidElement(child)) {
         return null;
       }
 
@@ -29466,7 +30760,7 @@
         foundMatch = true;
       }
 
-      return React__default.cloneElement(child, {
+      return React.cloneElement(child, {
         'aria-selected': selected ? 'true' : undefined,
         onClick: handleItemClick(child),
         onKeyUp: function onKeyUp(event) {
@@ -29494,9 +30788,9 @@
 
     {
       // eslint-disable-next-line react-hooks/rules-of-hooks
-      React__default.useEffect(function () {
+      React.useEffect(function () {
         if (!foundMatch && !multiple && value !== '') {
-          var values = React__default.Children.toArray(children).map(function (child) {
+          var values = React.Children.toArray(children).map(function (child) {
             return child.props.value;
           });
           console.warn(["Material-UI: you have provided an out-of-range value `".concat(value, "` for the select ").concat(name ? "(name=\"".concat(name, "\") ") : '', "component."), "Consider providing a value that matches one of the available options or ''.", "The available values are ".concat(values.filter(function (x) {
@@ -29528,15 +30822,17 @@
     }
 
     var buttonId = SelectDisplayProps.id || (name ? "mui-component-select-".concat(name) : undefined);
-    return React__default.createElement(React__default.Fragment, null, React__default.createElement("div", _extends({
+    return /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement("div", _extends({
       className: clsx(classes.root, // TODO v5: merge root and select
       classes.select, classes.selectMenu, classes[variant], className, disabled && classes.disabled),
       ref: setDisplayNode,
       tabIndex: tabIndex,
       role: "button",
+      "aria-disabled": disabled ? 'true' : undefined,
       "aria-expanded": open ? 'true' : undefined,
-      "aria-labelledby": "".concat(labelId || '', " ").concat(buttonId || ''),
       "aria-haspopup": "listbox",
+      "aria-label": ariaLabel,
+      "aria-labelledby": [labelId, buttonId].filter(Boolean).join(' ') || undefined,
       onKeyDown: handleKeyDown,
       onMouseDown: disabled || readOnly ? null : handleMouseDown,
       onBlur: handleBlur,
@@ -29544,20 +30840,22 @@
     }, SelectDisplayProps, {
       // The id is required for proper a11y
       id: buttonId
-    }), isEmpty(display) ? // eslint-disable-next-line react/no-danger
-    React__default.createElement("span", {
+    }), isEmpty(display) ?
+    /*#__PURE__*/
+    // eslint-disable-next-line react/no-danger
+    React.createElement("span", {
       dangerouslySetInnerHTML: {
         __html: '&#8203;'
       }
-    }) : display), React__default.createElement("input", _extends({
+    }) : display), /*#__PURE__*/React.createElement("input", _extends({
       value: Array.isArray(value) ? value.join(',') : value,
       name: name,
       ref: inputRef,
       type: "hidden",
       autoFocus: autoFocus
-    }, other)), React__default.createElement(IconComponent, {
-      className: clsx(classes.icon, classes["icon".concat(capitalize(variant))], open && classes.iconOpen)
-    }), React__default.createElement(Menu$1, _extends({
+    }, other)), /*#__PURE__*/React.createElement(IconComponent, {
+      className: clsx(classes.icon, classes["icon".concat(capitalize(variant))], open && classes.iconOpen, disabled && classes.disabled)
+    }), /*#__PURE__*/React.createElement(Menu$1, _extends({
       id: "menu-".concat(name || ''),
       anchorEl: displayNode,
       open: open,
@@ -29576,6 +30874,11 @@
     }), items));
   });
    SelectInput.propTypes = {
+    /**
+     * @ignore
+     */
+    'aria-label': propTypes.string,
+
     /**
      * @ignore
      */
@@ -29631,7 +30934,7 @@
     inputRef: refType,
 
     /**
-     * The idea of an element that acts as an additional label. The Select will
+     * The ID of an element that acts as an additional label. The Select will
      * be labelled by the additional label and the selected value.
      */
     labelId: propTypes.string,
@@ -29735,13 +31038,13 @@
     variant: propTypes.oneOf(['standard', 'outlined', 'filled'])
   } ;
 
-  var styles$1f = styles$1a;
+  var styles$1h = styles$1c;
 
-  var _ref = React__default.createElement(Input$1, null);
+  var _ref = /*#__PURE__*/React.createElement(Input$1, null);
 
-  var _ref2 = React__default.createElement(FilledInput$1, null);
+  var _ref2 = /*#__PURE__*/React.createElement(FilledInput$1, null);
 
-  var Select = React__default.forwardRef(function Select(props, ref) {
+  var Select = React.forwardRef(function Select(props, ref) {
     var _props$autoWidth = props.autoWidth,
         autoWidth = _props$autoWidth === void 0 ? false : _props$autoWidth,
         children = props.children,
@@ -29781,13 +31084,13 @@
     var variant = fcs.variant || variantProps;
     var InputComponent = input || {
       standard: _ref,
-      outlined: React__default.createElement(OutlinedInput$1, {
+      outlined: /*#__PURE__*/React.createElement(OutlinedInput$1, {
         label: label,
         labelWidth: labelWidth
       }),
       filled: _ref2
     }[variant];
-    return React__default.cloneElement(InputComponent, _extends({
+    return React.cloneElement(InputComponent, _extends({
       // Most of the logic is implemented in `SelectInput`.
       // The `Select` component is a simple API wrapper to expose something better to play with.
       inputComponent: inputComponent,
@@ -29823,6 +31126,11 @@
     }, other));
   });
    Select.propTypes = {
+    // ----------------------------- Warning --------------------------------
+    // | These PropTypes are generated from the TypeScript type definitions |
+    // |     To update them edit the d.ts file and run "yarn proptypes"     |
+    // ----------------------------------------------------------------------
+
     /**
      * If `true`, the width of the popover will automatically be set according to the items inside the
      * menu, otherwise it will be at least the width of the select input.
@@ -29841,7 +31149,7 @@
      * Override or extend the styles applied to the component.
      * See [CSS API](#css) below for more details.
      */
-    classes: propTypes.object.isRequired,
+    classes: propTypes.object,
 
     /**
      * The default element value. Use when the component is not controlled.
@@ -29862,7 +31170,7 @@
     IconComponent: propTypes.elementType,
 
     /**
-     * @ignore
+     * The `id` of the wrapper element or the `select` elment when `native`.
      */
     id: propTypes.string,
 
@@ -29878,18 +31186,18 @@
     inputProps: propTypes.object,
 
     /**
-     * See [OutlinedLabel#label](/api/outlined-input/#props)
+     * See [OutlinedInput#label](/api/outlined-input/#props)
      */
     label: propTypes.node,
 
     /**
-     * The idea of an element that acts as an additional label. The Select will
+     * The ID of an element that acts as an additional label. The Select will
      * be labelled by the additional label and the selected value.
      */
     labelId: propTypes.string,
 
     /**
-     * See OutlinedLabel#label
+     * See [OutlinedInput#label](/api/outlined-input/#props)
      */
     labelWidth: propTypes.number,
 
@@ -29966,14 +31274,14 @@
     /**
      * The variant to use.
      */
-    variant: propTypes.oneOf(['standard', 'outlined', 'filled'])
+    variant: propTypes.oneOf(['filled', 'outlined', 'standard'])
   } ;
   Select.muiName = 'Select';
-  var Select$1 = withStyles$1(styles$1f, {
+  var Select$1 = withStyles$1(styles$1h, {
     name: 'MuiSelect'
   })(Select);
 
-  var styles$1g = function styles(theme) {
+  var styles$1i = function styles(theme) {
     return {
       thumb: {
         '&$open': {
@@ -30029,18 +31337,18 @@
       return children;
     }
 
-    return React__default.cloneElement(children, {
+    return React.cloneElement(children, {
       className: clsx(children.props.className, (open || valueLabelDisplay === 'on') && classes.open, classes.thumb)
-    }, React__default.createElement("span", {
+    }, /*#__PURE__*/React.createElement("span", {
       className: clsx(classes.offset, className)
-    }, React__default.createElement("span", {
+    }, /*#__PURE__*/React.createElement("span", {
       className: classes.circle
-    }, React__default.createElement("span", {
+    }, /*#__PURE__*/React.createElement("span", {
       className: classes.label
     }, value))));
   }
 
-  var ValueLabel$1 = withStyles$1(styles$1g, {
+  var ValueLabel$1 = withStyles$1(styles$1i, {
     name: 'PrivateValueLabel'
   })(ValueLabel);
 
@@ -30187,13 +31495,12 @@
       }
     }
   };
-  var defaultMarks = [];
 
   var Identity = function Identity(x) {
     return x;
   };
 
-  var styles$1h = function styles(theme) {
+  var styles$1j = function styles(theme) {
     return {
       /* Styles applied to the root element. */
       root: {
@@ -30228,7 +31535,7 @@
       },
 
       /* Styles applied to the root element if `color="primary"`. */
-      colorPrimary: {// TODO v5, move the style here
+      colorPrimary: {// TODO v5: move the style here
       },
 
       /* Styles applied to the root element if `color="secondary"`. */
@@ -30352,7 +31659,7 @@
       },
 
       /* Styles applied to the thumb element if `color="primary"`. */
-      thumbColorPrimary: {// TODO v5, move the style here
+      thumbColorPrimary: {// TODO v5: move the style here
       },
 
       /* Styles applied to the thumb element if `color="secondary"`. */
@@ -30415,7 +31722,7 @@
       }
     };
   };
-  var Slider = React__default.forwardRef(function Slider(props, ref) {
+  var Slider = React.forwardRef(function Slider(props, ref) {
     var ariaLabel = props['aria-label'],
         ariaLabelledby = props['aria-labelledby'],
         ariaValuetext = props['aria-valuetext'],
@@ -30431,7 +31738,7 @@
         getAriaLabel = props.getAriaLabel,
         getAriaValueText = props.getAriaValueText,
         _props$marks = props.marks,
-        marksProp = _props$marks === void 0 ? defaultMarks : _props$marks,
+        marksProp = _props$marks === void 0 ? false : _props$marks,
         _props$max = props.max,
         max = _props$max === void 0 ? 100 : _props$max,
         _props$min = props.min,
@@ -30460,15 +31767,15 @@
         other = _objectWithoutProperties(props, ["aria-label", "aria-labelledby", "aria-valuetext", "classes", "className", "color", "component", "defaultValue", "disabled", "getAriaLabel", "getAriaValueText", "marks", "max", "min", "name", "onChange", "onChangeCommitted", "onMouseDown", "orientation", "scale", "step", "ThumbComponent", "track", "value", "ValueLabelComponent", "valueLabelDisplay", "valueLabelFormat"]);
 
     var theme = useTheme$1();
-    var touchId = React__default.useRef(); // We can't use the :active browser pseudo-classes.
+    var touchId = React.useRef(); // We can't use the :active browser pseudo-classes.
     // - The active state isn't triggered when clicking on the rail.
     // - The active state isn't transfered when inversing a range slider.
 
-    var _React$useState = React__default.useState(-1),
+    var _React$useState = React.useState(-1),
         active = _React$useState[0],
         setActive = _React$useState[1];
 
-    var _React$useState2 = React__default.useState(-1),
+    var _React$useState2 = React.useState(-1),
         open = _React$useState2[0],
         setOpen = _React$useState2[1];
 
@@ -30482,7 +31789,7 @@
         setValueState = _useControlled2[1];
 
     var range = Array.isArray(valueDerived);
-    var instanceRef = React__default.useRef();
+    var instanceRef = React.useRef();
     var values = range ? _toConsumableArray(valueDerived).sort(asc) : [valueDerived];
     values = values.map(function (value) {
       return clamp$1(value, min, max);
@@ -30491,7 +31798,7 @@
       return {
         value: min + step * index
       };
-    }) : marksProp;
+    }) : marksProp || [];
     instanceRef.current = {
       source: valueDerived // Keep track of the input value to leverage immutable state comparison.
 
@@ -30502,11 +31809,11 @@
         onBlurVisible = _useIsFocusVisible.onBlurVisible,
         focusVisibleRef = _useIsFocusVisible.ref;
 
-    var _React$useState3 = React__default.useState(-1),
+    var _React$useState3 = React.useState(-1),
         focusVisible = _React$useState3[0],
         setFocusVisible = _React$useState3[1];
 
-    var sliderRef = React__default.useRef();
+    var sliderRef = React.useRef();
     var handleFocusRef = useForkRef(focusVisibleRef, sliderRef);
     var handleRef = useForkRef(ref, handleFocusRef);
     var handleFocus = useEventCallback(function (event) {
@@ -30624,14 +31931,14 @@
         onChangeCommitted(event, newValue);
       }
     });
-    var previousIndex = React__default.useRef();
+    var previousIndex = React.useRef();
     var axis = orientation;
 
     if (theme.direction === 'rtl' && orientation !== "vertical") {
       axis += '-reverse';
     }
 
-    var getFingerNewValue = React__default.useCallback(function (_ref3) {
+    var getFingerNewValue = function getFingerNewValue(_ref3) {
       var finger = _ref3.finger,
           _ref3$move = _ref3.move,
           move = _ref3$move === void 0 ? false : _ref3$move,
@@ -30695,7 +32002,8 @@
         newValue: newValue,
         activeIndex: activeIndex
       };
-    }, [max, min, axis, range, step, marks]);
+    };
+
     var handleTouchMove = useEventCallback(function (event) {
       var finger = trackFinger(event, touchId);
 
@@ -30789,7 +32097,7 @@
       doc.addEventListener('touchmove', handleTouchMove);
       doc.addEventListener('touchend', handleTouchEnd);
     });
-    React__default.useEffect(function () {
+    React.useEffect(function () {
       var slider = sliderRef.current;
       slider.addEventListener('touchstart', handleTouchStart);
       var doc = ownerDocument(slider);
@@ -30837,26 +32145,22 @@
 
     var trackStyle = _extends({}, axisProps[axis].offset(trackOffset), {}, axisProps[axis].leap(trackLeap));
 
-    return React__default.createElement(Component, _extends({
+    return /*#__PURE__*/React.createElement(Component, _extends({
       ref: handleRef,
       className: clsx(classes.root, classes["color".concat(capitalize(color))], className, disabled && classes.disabled, marks.length > 0 && marks.some(function (mark) {
         return mark.label;
-      }) && classes.marked, track === false && classes.trackFalse, {
-        vertical: classes.vertical
-      }[orientation], {
-        inverted: classes.trackInverted
-      }[track]),
+      }) && classes.marked, track === false && classes.trackFalse, orientation === 'vertical' && classes.vertical, track === 'inverted' && classes.trackInverted),
       onMouseDown: handleMouseDown
-    }, other), React__default.createElement("span", {
+    }, other), /*#__PURE__*/React.createElement("span", {
       className: classes.rail
-    }), React__default.createElement("span", {
+    }), /*#__PURE__*/React.createElement("span", {
       className: classes.track,
       style: trackStyle
-    }), React__default.createElement("input", {
+    }), /*#__PURE__*/React.createElement("input", {
       value: values.join(','),
       name: name,
       type: "hidden"
-    }), marks.map(function (mark) {
+    }), marks.map(function (mark, index) {
       var percent = valueToPercent(mark.value, min, max);
       var style = axisProps[axis].offset(percent);
       var markActive;
@@ -30867,20 +32171,22 @@
         markActive = track === 'normal' && (range ? mark.value >= values[0] && mark.value <= values[values.length - 1] : mark.value <= values[0]) || track === 'inverted' && (range ? mark.value <= values[0] || mark.value >= values[values.length - 1] : mark.value >= values[0]);
       }
 
-      return React__default.createElement(React__default.Fragment, {
+      return /*#__PURE__*/React.createElement(React.Fragment, {
         key: mark.value
-      }, React__default.createElement("span", {
+      }, /*#__PURE__*/React.createElement("span", {
         style: style,
+        "data-index": index,
         className: clsx(classes.mark, markActive && classes.markActive)
-      }), React__default.createElement("span", {
+      }), mark.label != null ? /*#__PURE__*/React.createElement("span", {
         "aria-hidden": true,
+        "data-index": index,
         style: style,
         className: clsx(classes.markLabel, markActive && classes.markLabelActive)
-      }, mark.label));
+      }, mark.label) : null);
     }), values.map(function (value, index) {
       var percent = valueToPercent(value, min, max);
       var style = axisProps[axis].offset(percent);
-      return React__default.createElement(ValueLabelComponent, {
+      return /*#__PURE__*/React.createElement(ValueLabelComponent, {
         key: index,
         valueLabelFormat: valueLabelFormat,
         valueLabelDisplay: valueLabelDisplay,
@@ -30889,7 +32195,7 @@
         index: index,
         open: open === index || active === index || valueLabelDisplay === 'on',
         disabled: disabled
-      }, React__default.createElement(ThumbComponent, {
+      }, /*#__PURE__*/React.createElement(ThumbComponent, {
         className: clsx(classes.thumb, classes["thumbColor".concat(capitalize(color))], active === index && classes.active, disabled && classes.disabled, focusVisible === index && classes.focusVisible),
         tabIndex: disabled ? null : 0,
         role: "slider",
@@ -31019,7 +32325,7 @@
      * Callback function that is fired when the slider's value changed.
      *
      * @param {object} event The event source of the callback.
-     * @param {any} value The new value.
+     * @param {number | number[]} value The new value.
      */
     onChange: propTypes.func,
 
@@ -31027,7 +32333,7 @@
      * Callback function that is fired when the `mouseup` is triggered.
      *
      * @param {object} event The event source of the callback.
-     * @param {any} value The new value.
+     * @param {number | number[]} value The new value.
      */
     onChangeCommitted: propTypes.func,
 
@@ -31099,11 +32405,11 @@
      */
     valueLabelFormat: propTypes.oneOfType([propTypes.string, propTypes.func])
   } ;
-  var Slider$1 = withStyles$1(styles$1h, {
+  var Slider$1 = withStyles$1(styles$1j, {
     name: 'MuiSlider'
   })(Slider);
 
-  var styles$1i = function styles(theme) {
+  var styles$1k = function styles(theme) {
     var emphasis = theme.palette.type === 'light' ? 0.8 : 0.98;
     var backgroundColor = emphasize(theme.palette.background.default, emphasis);
     return {
@@ -31137,7 +32443,7 @@
       }
     };
   };
-  var SnackbarContent = React__default.forwardRef(function SnackbarContent(props, ref) {
+  var SnackbarContent = React.forwardRef(function SnackbarContent(props, ref) {
     var action = props.action,
         classes = props.classes,
         className = props.className,
@@ -31146,19 +32452,24 @@
         role = _props$role === void 0 ? 'alert' : _props$role,
         other = _objectWithoutProperties(props, ["action", "classes", "className", "message", "role"]);
 
-    return React__default.createElement(Paper$1, _extends({
+    return /*#__PURE__*/React.createElement(Paper$1, _extends({
       role: role,
       square: true,
       elevation: 6,
       className: clsx(classes.root, className),
       ref: ref
-    }, other), React__default.createElement("div", {
+    }, other), /*#__PURE__*/React.createElement("div", {
       className: classes.message
-    }, message), action ? React__default.createElement("div", {
+    }, message), action ? /*#__PURE__*/React.createElement("div", {
       className: classes.action
     }, action) : null);
   });
    SnackbarContent.propTypes = {
+    // ----------------------------- Warning --------------------------------
+    // | These PropTypes are generated from the TypeScript type definitions |
+    // |     To update them edit the d.ts file and run "yarn proptypes"     |
+    // ----------------------------------------------------------------------
+
     /**
      * The action to display. It renders after the message, at the end of the snackbar.
      */
@@ -31168,7 +32479,7 @@
      * Override or extend the styles applied to the component.
      * See [CSS API](#css) below for more details.
      */
-    classes: propTypes.object.isRequired,
+    classes: propTypes.object,
 
     /**
      * @ignore
@@ -31185,11 +32496,11 @@
      */
     role: propTypes.string
   } ;
-  var SnackbarContent$1 = withStyles$1(styles$1i, {
+  var SnackbarContent$1 = withStyles$1(styles$1k, {
     name: 'MuiSnackbarContent'
   })(SnackbarContent);
 
-  var styles$1j = function styles(theme) {
+  var styles$1l = function styles(theme) {
     var top1 = {
       top: 8
     };
@@ -31258,7 +32569,7 @@
       }, bottom3, {}, left3)))
     };
   };
-  var Snackbar = React__default.forwardRef(function Snackbar(props, ref) {
+  var Snackbar = React.forwardRef(function Snackbar(props, ref) {
     var action = props.action,
         _props$anchorOrigin = props.anchorOrigin;
     _props$anchorOrigin = _props$anchorOrigin === void 0 ? {
@@ -31299,9 +32610,9 @@
         TransitionProps = props.TransitionProps,
         other = _objectWithoutProperties(props, ["action", "anchorOrigin", "autoHideDuration", "children", "classes", "className", "ClickAwayListenerProps", "ContentProps", "disableWindowBlurListener", "message", "onClose", "onEnter", "onEntered", "onEntering", "onExit", "onExited", "onExiting", "onMouseEnter", "onMouseLeave", "open", "resumeHideDuration", "TransitionComponent", "transitionDuration", "TransitionProps"]);
 
-    var timerAutoHide = React__default.useRef();
+    var timerAutoHide = React.useRef();
 
-    var _React$useState = React__default.useState(true),
+    var _React$useState = React.useState(true),
         exited = _React$useState[0],
         setExited = _React$useState[1];
 
@@ -31320,7 +32631,7 @@
         handleClose(null, 'timeout');
       }, autoHideDurationParam);
     });
-    React__default.useEffect(function () {
+    React.useEffect(function () {
       if (open) {
         setAutoHideTimer(autoHideDuration);
       }
@@ -31337,7 +32648,7 @@
     // or when the window is shown back.
 
 
-    var handleResume = React__default.useCallback(function () {
+    var handleResume = React.useCallback(function () {
       if (autoHideDuration != null) {
         setAutoHideTimer(resumeHideDuration != null ? resumeHideDuration : autoHideDuration * 0.5);
       }
@@ -31373,7 +32684,7 @@
       setExited(false);
     };
 
-    React__default.useEffect(function () {
+    React.useEffect(function () {
       if (!disableWindowBlurListener && open) {
         window.addEventListener('focus', handleResume);
         window.addEventListener('blur', handlePause);
@@ -31390,14 +32701,14 @@
       return null;
     }
 
-    return React__default.createElement(ClickAwayListener, _extends({
+    return /*#__PURE__*/React.createElement(ClickAwayListener, _extends({
       onClickAway: handleClickAway
-    }, ClickAwayListenerProps), React__default.createElement("div", _extends({
+    }, ClickAwayListenerProps), /*#__PURE__*/React.createElement("div", _extends({
       className: clsx(classes.root, classes["anchorOrigin".concat(capitalize(vertical)).concat(capitalize(horizontal))], className),
       onMouseEnter: handleMouseEnter,
       onMouseLeave: handleMouseLeave,
       ref: ref
-    }, other), React__default.createElement(TransitionComponent, _extends({
+    }, other), /*#__PURE__*/React.createElement(TransitionComponent, _extends({
       appear: true,
       in: open,
       onEnter: createChainedFunction(handleEnter, onEnter),
@@ -31408,12 +32719,17 @@
       onExiting: onExiting,
       timeout: transitionDuration,
       direction: vertical === 'top' ? 'down' : 'up'
-    }, TransitionProps), children || React__default.createElement(SnackbarContent$1, _extends({
+    }, TransitionProps), children || /*#__PURE__*/React.createElement(SnackbarContent$1, _extends({
       message: message,
       action: action
     }, ContentProps)))));
   });
    Snackbar.propTypes = {
+    // ----------------------------- Warning --------------------------------
+    // | These PropTypes are generated from the TypeScript type definitions |
+    // |     To update them edit the d.ts file and run "yarn proptypes"     |
+    // ----------------------------------------------------------------------
+
     /**
      * The action to display. It renders after the message, at the end of the snackbar.
      */
@@ -31423,8 +32739,8 @@
      * The anchor of the `Snackbar`.
      */
     anchorOrigin: propTypes.shape({
-      horizontal: propTypes.oneOf(['left', 'center', 'right']).isRequired,
-      vertical: propTypes.oneOf(['top', 'bottom']).isRequired
+      horizontal: propTypes.oneOf(['center', 'left', 'right']).isRequired,
+      vertical: propTypes.oneOf(['bottom', 'top']).isRequired
     }),
 
     /**
@@ -31444,7 +32760,7 @@
      * Override or extend the styles applied to the component.
      * See [CSS API](#css) below for more details.
      */
-    classes: propTypes.object.isRequired,
+    classes: propTypes.object,
 
     /**
      * @ignore
@@ -31555,6 +32871,7 @@
      * You may specify a single timeout for all transitions, or individually with an object.
      */
     transitionDuration: propTypes.oneOfType([propTypes.number, propTypes.shape({
+      appear: propTypes.number,
       enter: propTypes.number,
       exit: propTypes.number
     })]),
@@ -31564,12 +32881,12 @@
      */
     TransitionProps: propTypes.object
   } ;
-  var Snackbar$1 = withStyles$1(styles$1j, {
+  var Snackbar$1 = withStyles$1(styles$1l, {
     flip: false,
     name: 'MuiSnackbar'
   })(Snackbar);
 
-  var styles$1k = {
+  var styles$1m = {
     /* Styles applied to the root element. */
     root: {},
 
@@ -31591,7 +32908,7 @@
     /* Pseudo-class applied to the root element if `completed={true}`. */
     completed: {}
   };
-  var Step = React__default.forwardRef(function Step(props, ref) {
+  var Step = React.forwardRef(function Step(props, ref) {
     var _props$active = props.active,
         active = _props$active === void 0 ? false : _props$active,
         alternativeLabel = props.alternativeLabel,
@@ -31610,18 +32927,18 @@
         orientation = props.orientation,
         other = _objectWithoutProperties(props, ["active", "alternativeLabel", "children", "classes", "className", "completed", "connector", "disabled", "expanded", "index", "last", "orientation"]);
 
-    return React__default.createElement("div", _extends({
+    return /*#__PURE__*/React.createElement("div", _extends({
       className: clsx(classes.root, classes[orientation], className, alternativeLabel && classes.alternativeLabel, completed && classes.completed),
       ref: ref
-    }, other), connector && alternativeLabel && index !== 0 && React__default.cloneElement(connector, {
+    }, other), connector && alternativeLabel && index !== 0 && React.cloneElement(connector, {
       orientation: orientation,
       alternativeLabel: alternativeLabel,
       index: index,
       active: active,
       completed: completed,
       disabled: disabled
-    }), React__default.Children.map(children, function (child) {
-      if (!React__default.isValidElement(child)) {
+    }), React.Children.map(children, function (child) {
+      if (!React.isValidElement(child)) {
         return null;
       }
 
@@ -31631,7 +32948,7 @@
         }
       }
 
-      return React__default.cloneElement(child, _extends({
+      return React.cloneElement(child, _extends({
         active: active,
         alternativeLabel: alternativeLabel,
         completed: completed,
@@ -31644,16 +32961,15 @@
     }));
   });
    Step.propTypes = {
+    // ----------------------------- Warning --------------------------------
+    // | These PropTypes are generated from the TypeScript type definitions |
+    // |     To update them edit the d.ts file and run "yarn proptypes"     |
+    // ----------------------------------------------------------------------
+
     /**
      * Sets the step as active. Is passed to child components.
      */
     active: propTypes.bool,
-
-    /**
-     * @ignore
-     * Set internally by Stepper when it's supplied with the alternativeLabel property.
-     */
-    alternativeLabel: propTypes.bool,
 
     /**
      * Should be `Step` sub-components such as `StepLabel`, `StepContent`.
@@ -31664,7 +32980,7 @@
      * Override or extend the styles applied to the component.
      * See [CSS API](#css) below for more details.
      */
-    classes: propTypes.object.isRequired,
+    classes: propTypes.object,
 
     /**
      * @ignore
@@ -31677,12 +32993,6 @@
     completed: propTypes.bool,
 
     /**
-     * @ignore
-     * Passed down from Stepper if alternativeLabel is also set.
-     */
-    connector: propTypes.element,
-
-    /**
      * Mark the step as disabled, will also disable the button if
      * `StepButton` is a child of `Step`. Is passed to child components.
      */
@@ -31691,25 +33001,9 @@
     /**
      * Expand the step.
      */
-    expanded: propTypes.bool,
-
-    /**
-     * @ignore
-     * Used internally for numbering.
-     */
-    index: propTypes.number,
-
-    /**
-     * @ignore
-     */
-    last: propTypes.bool,
-
-    /**
-     * @ignore
-     */
-    orientation: propTypes.oneOf(['horizontal', 'vertical'])
+    expanded: propTypes.bool
   } ;
-  var Step$1 = withStyles$1(styles$1k, {
+  var Step$1 = withStyles$1(styles$1m, {
     name: 'MuiStep'
   })(Step);
 
@@ -31717,7 +33011,7 @@
    * @ignore - internal component.
    */
 
-  var CheckCircle = createSvgIcon(React__default.createElement("path", {
+  var CheckCircle = createSvgIcon( /*#__PURE__*/React.createElement("path", {
     d: "M12 0a12 12 0 1 0 0 24 12 12 0 0 0 0-24zm-2 17l-5-5 1.4-1.4 3.6 3.6 7.6-7.6L19 8l-9 9z"
   }), 'CheckCircle');
 
@@ -31725,11 +33019,11 @@
    * @ignore - internal component.
    */
 
-  var Warning = createSvgIcon(React__default.createElement("path", {
+  var Warning = createSvgIcon( /*#__PURE__*/React.createElement("path", {
     d: "M1 21h22L12 2 1 21zm12-3h-2v-2h2v2zm0-4h-2v-4h2v4z"
   }), 'Warning');
 
-  var styles$1l = function styles(theme) {
+  var styles$1n = function styles(theme) {
     return {
       /* Styles applied to the root element. */
       root: {
@@ -31764,13 +33058,13 @@
     };
   };
 
-  var _ref$1 = React__default.createElement("circle", {
+  var _ref$1 = /*#__PURE__*/React.createElement("circle", {
     cx: "12",
     cy: "12",
     r: "12"
   });
 
-  var StepIcon = React__default.forwardRef(function StepIcon(props, ref) {
+  var StepIcon = React.forwardRef(function StepIcon(props, ref) {
     var _props$completed = props.completed,
         completed = _props$completed === void 0 ? false : _props$completed,
         icon = props.icon,
@@ -31784,23 +33078,23 @@
       var className = clsx(classes.root, active && classes.active, error && classes.error, completed && classes.completed);
 
       if (error) {
-        return React__default.createElement(Warning, {
+        return /*#__PURE__*/React.createElement(Warning, {
           className: className,
           ref: ref
         });
       }
 
       if (completed) {
-        return React__default.createElement(CheckCircle, {
+        return /*#__PURE__*/React.createElement(CheckCircle, {
           className: className,
           ref: ref
         });
       }
 
-      return React__default.createElement(SvgIcon$1, {
+      return /*#__PURE__*/React.createElement(SvgIcon$1, {
         className: className,
         ref: ref
-      }, _ref$1, React__default.createElement("text", {
+      }, _ref$1, /*#__PURE__*/React.createElement("text", {
         className: classes.text,
         x: "12",
         y: "16",
@@ -31811,6 +33105,11 @@
     return icon;
   });
    StepIcon.propTypes = {
+    // ----------------------------- Warning --------------------------------
+    // | These PropTypes are generated from the TypeScript type definitions |
+    // |     To update them edit the d.ts file and run "yarn proptypes"     |
+    // ----------------------------------------------------------------------
+
     /**
      * Whether this step is active.
      */
@@ -31820,7 +33119,7 @@
      * Override or extend the styles applied to the component.
      * See [CSS API](#css) below for more details.
      */
-    classes: propTypes.object.isRequired,
+    classes: propTypes.object,
 
     /**
      * Mark the step as completed. Is passed to child components.
@@ -31835,13 +33134,13 @@
     /**
      * The label displayed in the step icon.
      */
-    icon: propTypes.node.isRequired
+    icon: propTypes.node
   } ;
-  var StepIcon$1 = withStyles$1(styles$1l, {
+  var StepIcon$1 = withStyles$1(styles$1n, {
     name: 'MuiStepIcon'
   })(StepIcon);
 
-  var styles$1m = function styles(theme) {
+  var styles$1o = function styles(theme) {
     return {
       /* Styles applied to the root element. */
       root: {
@@ -31913,7 +33212,7 @@
       }
     };
   };
-  var StepLabel = React__default.forwardRef(function StepLabel(props, ref) {
+  var StepLabel = React.forwardRef(function StepLabel(props, ref) {
     var _props$active = props.active,
         active = _props$active === void 0 ? false : _props$active,
         _props$alternativeLab = props.alternativeLabel,
@@ -31943,19 +33242,19 @@
       StepIconComponent = StepIcon$1;
     }
 
-    return React__default.createElement("span", _extends({
+    return /*#__PURE__*/React.createElement("span", _extends({
       className: clsx(classes.root, classes[orientation], className, disabled && classes.disabled, alternativeLabel && classes.alternativeLabel, error && classes.error),
       ref: ref
-    }, other), icon || StepIconComponent ? React__default.createElement("span", {
+    }, other), icon || StepIconComponent ? /*#__PURE__*/React.createElement("span", {
       className: clsx(classes.iconContainer, alternativeLabel && classes.alternativeLabel)
-    }, React__default.createElement(StepIconComponent, _extends({
+    }, /*#__PURE__*/React.createElement(StepIconComponent, _extends({
       completed: completed,
       active: active,
       error: error,
       icon: icon
-    }, StepIconProps))) : null, React__default.createElement("span", {
+    }, StepIconProps))) : null, /*#__PURE__*/React.createElement("span", {
       className: classes.labelContainer
-    }, React__default.createElement(Typography$1, {
+    }, /*#__PURE__*/React.createElement(Typography$1, {
       variant: "body2",
       component: "span",
       className: clsx(classes.label, alternativeLabel && classes.alternativeLabel, completed && classes.completed, active && classes.active, error && classes.error),
@@ -31963,15 +33262,10 @@
     }, children), optional));
   });
    StepLabel.propTypes = {
-    /**
-     * @ignore
-     */
-    active: propTypes.bool,
-
-    /**
-     * @ignore
-     */
-    alternativeLabel: propTypes.bool,
+    // ----------------------------- Warning --------------------------------
+    // | These PropTypes are generated from the TypeScript type definitions |
+    // |     To update them edit the d.ts file and run "yarn proptypes"     |
+    // ----------------------------------------------------------------------
 
     /**
      * In most cases will simply be a string containing a title for the label.
@@ -31982,17 +33276,12 @@
      * Override or extend the styles applied to the component.
      * See [CSS API](#css) below for more details.
      */
-    classes: propTypes.object.isRequired,
+    classes: propTypes.object,
 
     /**
      * @ignore
      */
     className: propTypes.string,
-
-    /**
-     * @ignore
-     */
-    completed: propTypes.bool,
 
     /**
      * Mark the step as disabled, will also disable the button if
@@ -32006,29 +33295,14 @@
     error: propTypes.bool,
 
     /**
-     * @ignore
-     */
-    expanded: propTypes.bool,
-
-    /**
      * Override the default label of the step icon.
      */
     icon: propTypes.node,
 
     /**
-     * @ignore
-     */
-    last: propTypes.bool,
-
-    /**
      * The optional node to display.
      */
     optional: propTypes.node,
-
-    /**
-     * @ignore
-     */
-    orientation: propTypes.oneOf(['horizontal', 'vertical']),
 
     /**
      * The component to render in place of the [`StepIcon`](/api/step-icon/).
@@ -32041,11 +33315,11 @@
     StepIconProps: propTypes.object
   } ;
   StepLabel.muiName = 'StepLabel';
-  var StepLabel$1 = withStyles$1(styles$1m, {
+  var StepLabel$1 = withStyles$1(styles$1o, {
     name: 'MuiStepLabel'
   })(StepLabel);
 
-  var styles$1n = {
+  var styles$1p = {
     /* Styles applied to the root element. */
     root: {
       width: '100%',
@@ -32069,7 +33343,7 @@
       color: 'rgba(0, 0, 0, 0.3)'
     }
   };
-  var StepButton = React__default.forwardRef(function StepButton(props, ref) {
+  var StepButton = React.forwardRef(function StepButton(props, ref) {
     var active = props.active,
         alternativeLabel = props.alternativeLabel,
         children = props.children,
@@ -32093,8 +33367,8 @@
       optional: optional,
       orientation: orientation
     };
-    var child = isMuiElement(children, ['StepLabel']) ? React__default.cloneElement(children, childProps) : React__default.createElement(StepLabel$1, childProps, children);
-    return React__default.createElement(ButtonBase$1, _extends({
+    var child = isMuiElement(children, ['StepLabel']) ? React.cloneElement(children, childProps) : /*#__PURE__*/React.createElement(StepLabel$1, childProps, children);
+    return /*#__PURE__*/React.createElement(ButtonBase$1, _extends({
       disabled: disabled,
       TouchRippleProps: {
         className: classes.touchRipple
@@ -32170,11 +33444,11 @@
      */
     orientation: propTypes.oneOf(['horizontal', 'vertical'])
   } ;
-  var StepButton$1 = withStyles$1(styles$1n, {
+  var StepButton$1 = withStyles$1(styles$1p, {
     name: 'MuiStepButton'
   })(StepButton);
 
-  var styles$1o = function styles(theme) {
+  var styles$1q = function styles(theme) {
     return {
       /* Styles applied to the root element. */
       root: {
@@ -32228,7 +33502,7 @@
       }
     };
   };
-  var StepConnector = React__default.forwardRef(function StepConnector(props, ref) {
+  var StepConnector = React.forwardRef(function StepConnector(props, ref) {
     var active = props.active,
         _props$alternativeLab = props.alternativeLabel,
         alternativeLabel = _props$alternativeLab === void 0 ? false : _props$alternativeLab,
@@ -32241,61 +33515,38 @@
         orientation = _props$orientation === void 0 ? 'horizontal' : _props$orientation,
         other = _objectWithoutProperties(props, ["active", "alternativeLabel", "classes", "className", "completed", "disabled", "index", "orientation"]);
 
-    return React__default.createElement("div", _extends({
+    return /*#__PURE__*/React.createElement("div", _extends({
       className: clsx(classes.root, classes[orientation], className, alternativeLabel && classes.alternativeLabel, active && classes.active, completed && classes.completed, disabled && classes.disabled),
       ref: ref
-    }, other), React__default.createElement("span", {
-      className: clsx(classes.line, orientation === 'vertical' ? classes.lineVertical : classes.lineHorizontal)
+    }, other), /*#__PURE__*/React.createElement("span", {
+      className: clsx(classes.line, {
+        'horizontal': classes.lineHorizontal,
+        'vertical': classes.lineVertical
+      }[orientation])
     }));
   });
    StepConnector.propTypes = {
-    /**
-     * @ignore
-     */
-    active: propTypes.bool,
-
-    /**
-     * @ignore
-     * Set internally by Step when it's supplied with the alternativeLabel property.
-     */
-    alternativeLabel: propTypes.bool,
+    // ----------------------------- Warning --------------------------------
+    // | These PropTypes are generated from the TypeScript type definitions |
+    // |     To update them edit the d.ts file and run "yarn proptypes"     |
+    // ----------------------------------------------------------------------
 
     /**
      * Override or extend the styles applied to the component.
      * See [CSS API](#css) below for more details.
      */
-    classes: propTypes.object.isRequired,
+    classes: propTypes.object,
 
     /**
      * @ignore
      */
-    className: propTypes.string,
-
-    /**
-     * @ignore
-     */
-    completed: propTypes.bool,
-
-    /**
-     * @ignore
-     */
-    disabled: propTypes.bool,
-
-    /**
-     * @ignore
-     */
-    index: propTypes.number,
-
-    /**
-     * @ignore
-     */
-    orientation: propTypes.oneOf(['horizontal', 'vertical'])
+    className: propTypes.string
   } ;
-  var StepConnector$1 = withStyles$1(styles$1o, {
+  var StepConnector$1 = withStyles$1(styles$1q, {
     name: 'MuiStepConnector'
   })(StepConnector);
 
-  var styles$1p = function styles(theme) {
+  var styles$1r = function styles(theme) {
     return {
       /* Styles applied to the root element. */
       root: {
@@ -32317,7 +33568,7 @@
       transition: {}
     };
   };
-  var StepContent = React__default.forwardRef(function StepContent(props, ref) {
+  var StepContent = React.forwardRef(function StepContent(props, ref) {
     var active = props.active,
         alternativeLabel = props.alternativeLabel,
         children = props.children,
@@ -32347,10 +33598,10 @@
       transitionDuration = undefined;
     }
 
-    return React__default.createElement("div", _extends({
+    return /*#__PURE__*/React.createElement("div", _extends({
       className: clsx(classes.root, className, last && classes.last),
       ref: ref
-    }, other), React__default.createElement(TransitionComponent, _extends({
+    }, other), /*#__PURE__*/React.createElement(TransitionComponent, _extends({
       in: active || expanded,
       className: classes.transition,
       timeout: transitionDuration,
@@ -32358,17 +33609,10 @@
     }, TransitionProps), children));
   });
    StepContent.propTypes = {
-    /**
-     * @ignore
-     * Expands the content.
-     */
-    active: propTypes.bool,
-
-    /**
-     * @ignore
-     * Set internally by Step when it's supplied with the alternativeLabel prop.
-     */
-    alternativeLabel: propTypes.bool,
+    // ----------------------------- Warning --------------------------------
+    // | These PropTypes are generated from the TypeScript type definitions |
+    // |     To update them edit the d.ts file and run "yarn proptypes"     |
+    // ----------------------------------------------------------------------
 
     /**
      * Step content.
@@ -32379,38 +33623,12 @@
      * Override or extend the styles applied to the component.
      * See [CSS API](#css) below for more details.
      */
-    classes: propTypes.object.isRequired,
+    classes: propTypes.object,
 
     /**
      * @ignore
      */
     className: propTypes.string,
-
-    /**
-     * @ignore
-     */
-    completed: propTypes.bool,
-
-    /**
-     * @ignore
-     */
-    expanded: propTypes.bool,
-
-    /**
-     * @ignore
-     */
-    last: propTypes.bool,
-
-    /**
-     * @ignore
-     * Set internally by Step when it's supplied with the optional prop.
-     */
-    optional: propTypes.bool,
-
-    /**
-     * @ignore
-     */
-    orientation: propTypes.oneOf(['horizontal', 'vertical']),
 
     /**
      * The component used for the transition.
@@ -32424,21 +33642,22 @@
      *
      * Set to 'auto' to automatically calculate transition time based on height.
      */
-    transitionDuration: propTypes.oneOfType([propTypes.number, propTypes.shape({
+    transitionDuration: propTypes.oneOfType([propTypes.oneOf(['auto']), propTypes.number, propTypes.shape({
+      appear: propTypes.number,
       enter: propTypes.number,
       exit: propTypes.number
-    }), propTypes.oneOf(['auto'])]),
+    })]),
 
     /**
      * Props applied to the [`Transition`](http://reactcommunity.org/react-transition-group/transition#Transition-props) element.
      */
     TransitionProps: propTypes.object
   } ;
-  var StepContent$1 = withStyles$1(styles$1p, {
+  var StepContent$1 = withStyles$1(styles$1r, {
     name: 'MuiStepContent'
   })(StepContent);
 
-  var styles$1q = {
+  var styles$1s = {
     /* Styles applied to the root element. */
     root: {
       display: 'flex',
@@ -32461,8 +33680,8 @@
       alignItems: 'flex-start'
     }
   };
-  var defaultConnector = React__default.createElement(StepConnector$1, null);
-  var Stepper = React__default.forwardRef(function Stepper(props, ref) {
+  var defaultConnector = /*#__PURE__*/React.createElement(StepConnector$1, null);
+  var Stepper = React.forwardRef(function Stepper(props, ref) {
     var _props$activeStep = props.activeStep,
         activeStep = _props$activeStep === void 0 ? 0 : _props$activeStep,
         _props$alternativeLab = props.alternativeLabel,
@@ -32478,10 +33697,10 @@
         orientation = _props$orientation === void 0 ? 'horizontal' : _props$orientation,
         other = _objectWithoutProperties(props, ["activeStep", "alternativeLabel", "children", "classes", "className", "connector", "nonLinear", "orientation"]);
 
-    var connector = React__default.isValidElement(connectorProp) ? React__default.cloneElement(connectorProp, {
+    var connector = React.isValidElement(connectorProp) ? React.cloneElement(connectorProp, {
       orientation: orientation
     }) : null;
-    var childrenArray = React__default.Children.toArray(children);
+    var childrenArray = React.Children.toArray(children);
     var steps = childrenArray.map(function (step, index) {
       var controlProps = {
         alternativeLabel: alternativeLabel,
@@ -32504,11 +33723,11 @@
         state.disabled = true;
       }
 
-      return [!alternativeLabel && connector && index !== 0 && React__default.cloneElement(connector, _extends({
+      return [!alternativeLabel && connector && index !== 0 && React.cloneElement(connector, _extends({
         key: index
-      }, state)), React__default.cloneElement(step, _extends({}, controlProps, {}, state, {}, step.props))];
+      }, state)), React.cloneElement(step, _extends({}, controlProps, {}, state, {}, step.props))];
     });
-    return React__default.createElement(Paper$1, _extends({
+    return /*#__PURE__*/React.createElement(Paper$1, _extends({
       square: true,
       elevation: 0,
       className: clsx(classes.root, classes[orientation], className, alternativeLabel && classes.alternativeLabel),
@@ -32516,6 +33735,11 @@
     }, other), steps);
   });
    Stepper.propTypes = {
+    // ----------------------------- Warning --------------------------------
+    // | These PropTypes are generated from the TypeScript type definitions |
+    // |     To update them edit the d.ts file and run "yarn proptypes"     |
+    // ----------------------------------------------------------------------
+
     /**
      * Set the active step (zero based index).
      * Set to -1 to disable all the steps.
@@ -32531,13 +33755,13 @@
     /**
      * Two or more `<Step />` components.
      */
-    children: propTypes.node.isRequired,
+    children: propTypes.node,
 
     /**
      * Override or extend the styles applied to the component.
      * See [CSS API](#css) below for more details.
      */
-    classes: propTypes.object.isRequired,
+    classes: propTypes.object,
 
     /**
      * @ignore
@@ -32559,11 +33783,11 @@
      */
     orientation: propTypes.oneOf(['horizontal', 'vertical'])
   } ;
-  var Stepper$1 = withStyles$1(styles$1q, {
+  var Stepper$1 = withStyles$1(styles$1s, {
     name: 'MuiStepper'
   })(Stepper);
 
-  var styles$1r = function styles(theme) {
+  var styles$1t = function styles(theme) {
     return {
       /* Styles applied to the root element. */
       root: {
@@ -32595,14 +33819,14 @@
    * @ignore - internal component.
    */
 
-  var SwipeArea = React__default.forwardRef(function SwipeArea(props, ref) {
+  var SwipeArea = React.forwardRef(function SwipeArea(props, ref) {
     var anchor = props.anchor,
         classes = props.classes,
         className = props.className,
         width = props.width,
         other = _objectWithoutProperties(props, ["anchor", "classes", "className", "width"]);
 
-    return React__default.createElement("div", _extends({
+    return /*#__PURE__*/React.createElement("div", _extends({
       className: clsx(classes.root, classes["anchor".concat(capitalize(anchor))], className),
       ref: ref,
       style: _defineProperty({}, isHorizontal(anchor) ? 'width' : 'height', width)
@@ -32630,7 +33854,7 @@
      */
     width: propTypes.number.isRequired
   } ;
-  var SwipeArea$1 = withStyles$1(styles$1r, {
+  var SwipeArea$1 = withStyles$1(styles$1t, {
     name: 'PrivateSwipeArea'
   })(SwipeArea);
 
@@ -32728,8 +33952,14 @@
     enter: duration.enteringScreen,
     exit: duration.leavingScreen
   };
-  var useEnhancedEffect$a = typeof window !== 'undefined' ? React__default.useLayoutEffect : React__default.useEffect;
-  var SwipeableDrawer = React__default.forwardRef(function SwipeableDrawer(props, ref) {
+  var useEnhancedEffect$a = typeof window !== 'undefined' ? React.useLayoutEffect : React.useEffect;
+  var SwipeableDrawer = React.forwardRef(function SwipeableDrawer(inProps, ref) {
+    var theme = useTheme$1();
+    var props = getThemeProps({
+      name: 'MuiSwipeableDrawer',
+      props: _extends({}, inProps),
+      theme: theme
+    });
     var _props$anchor = props.anchor,
         anchor = _props$anchor === void 0 ? 'left' : _props$anchor,
         _props$disableBackdro = props.disableBackdropTransition,
@@ -32762,26 +33992,24 @@
         variant = _props$variant === void 0 ? 'temporary' : _props$variant,
         other = _objectWithoutProperties(props, ["anchor", "disableBackdropTransition", "disableDiscovery", "disableSwipeToOpen", "hideBackdrop", "hysteresis", "minFlingVelocity", "ModalProps", "onClose", "onOpen", "open", "PaperProps", "SwipeAreaProps", "swipeAreaWidth", "transitionDuration", "variant"]);
 
-    var theme = useTheme$1();
-
-    var _React$useState = React__default.useState(false),
+    var _React$useState = React.useState(false),
         maybeSwiping = _React$useState[0],
         setMaybeSwiping = _React$useState[1];
 
-    var swipeInstance = React__default.useRef({
+    var swipeInstance = React.useRef({
       isSwiping: null
     });
-    var swipeAreaRef = React__default.useRef();
-    var backdropRef = React__default.useRef();
-    var paperRef = React__default.useRef();
-    var touchDetected = React__default.useRef(false); // Ref for transition duration based on / to match swipe speed
+    var swipeAreaRef = React.useRef();
+    var backdropRef = React.useRef();
+    var paperRef = React.useRef();
+    var touchDetected = React.useRef(false); // Ref for transition duration based on / to match swipe speed
 
-    var calculatedDurationRef = React__default.useRef(); // Use a ref so the open value used is always up to date inside useCallback.
+    var calculatedDurationRef = React.useRef(); // Use a ref so the open value used is always up to date inside useCallback.
 
     useEnhancedEffect$a(function () {
       calculatedDurationRef.current = null;
     }, [open]);
-    var setPosition = React__default.useCallback(function (translate) {
+    var setPosition = React.useCallback(function (translate) {
       var options = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
       var _options$mode = options.mode,
           mode = _options$mode === void 0 ? null : _options$mode,
@@ -33046,7 +34274,7 @@
       swipeInstance.current.paperHit = false;
       touchDetected.current = true;
     });
-    React__default.useEffect(function () {
+    React.useEffect(function () {
       if (variant === 'temporary') {
         var doc = ownerDocument(paperRef.current);
         doc.addEventListener('touchstart', handleBodyTouchStart);
@@ -33065,7 +34293,7 @@
 
       return undefined;
     }, [variant, handleBodyTouchStart, handleBodyTouchMove, handleBodyTouchEnd]);
-    React__default.useEffect(function () {
+    React.useEffect(function () {
       return function () {
         // We need to release the lock.
         if (nodeThatClaimedTheSwipe === swipeInstance.current) {
@@ -33073,20 +34301,16 @@
         }
       };
     }, []);
-    React__default.useEffect(function () {
+    React.useEffect(function () {
       if (!open) {
         setMaybeSwiping(false);
       }
     }, [open]);
-    var handleBackdropRef = React__default.useCallback(function (instance) {
+    var handleBackdropRef = React.useCallback(function (instance) {
       // #StrictMode ready
       backdropRef.current = ReactDOM.findDOMNode(instance);
     }, []);
-    var handlePaperRef = React__default.useCallback(function (instance) {
-      // #StrictMode ready
-      paperRef.current = ReactDOM.findDOMNode(instance);
-    }, []);
-    return React__default.createElement(React__default.Fragment, null, React__default.createElement(Drawer$1, _extends({
+    return /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement(Drawer$1, _extends({
       open: variant === 'temporary' && maybeSwiping ? true : open,
       variant: variant,
       ModalProps: _extends({
@@ -33098,13 +34322,13 @@
         style: _extends({
           pointerEvents: variant === 'temporary' && !open ? 'none' : ''
         }, PaperProps.style),
-        ref: handlePaperRef
+        ref: paperRef
       }),
       anchor: anchor,
       transitionDuration: calculatedDurationRef.current || transitionDuration,
       onClose: onClose,
       ref: ref
-    }, other)), !disableSwipeToOpen && variant === 'temporary' && React__default.createElement(NoSsr, null, React__default.createElement(SwipeArea$1, _extends({
+    }, other)), !disableSwipeToOpen && variant === 'temporary' && /*#__PURE__*/React.createElement(NoSsr, null, /*#__PURE__*/React.createElement(SwipeArea$1, _extends({
       anchor: anchor,
       ref: swipeAreaRef,
       width: swipeAreaWidth
@@ -33194,7 +34418,7 @@
     }),
 
     /**
-     * Props applied to the swipe area element.
+     * The element is used to intercept the touch events on the edge.
      */
     SwipeAreaProps: propTypes.object,
 
@@ -33219,7 +34443,7 @@
     variant: propTypes.oneOf(['permanent', 'persistent', 'temporary'])
   } ;
 
-  var styles$1s = function styles(theme) {
+  var styles$1u = function styles(theme) {
     return {
       /* Styles applied to the root element. */
       root: {
@@ -33368,30 +34592,26 @@
       }
     };
   };
-  var Switch = React__default.forwardRef(function Switch(props, ref) {
+  var Switch = React.forwardRef(function Switch(props, ref) {
     var classes = props.classes,
         className = props.className,
         _props$color = props.color,
         color = _props$color === void 0 ? 'secondary' : _props$color,
-        _props$disabled = props.disabled,
-        disabled = _props$disabled === void 0 ? false : _props$disabled,
         _props$edge = props.edge,
         edge = _props$edge === void 0 ? false : _props$edge,
         _props$size = props.size,
         size = _props$size === void 0 ? 'medium' : _props$size,
-        other = _objectWithoutProperties(props, ["classes", "className", "color", "disabled", "edge", "size"]);
+        other = _objectWithoutProperties(props, ["classes", "className", "color", "edge", "size"]);
 
-    var icon = React__default.createElement("span", {
+    var icon = /*#__PURE__*/React.createElement("span", {
       className: classes.thumb
     });
-    return React__default.createElement("span", {
+    return /*#__PURE__*/React.createElement("span", {
       className: clsx(classes.root, className, {
-        start: classes.edgeStart,
-        end: classes.edgeEnd
-      }[edge], {
-        small: classes["size".concat(capitalize(size))]
-      }[size])
-    }, React__default.createElement(SwitchBase$1, _extends({
+        'start': classes.edgeStart,
+        'end': classes.edgeEnd
+      }[edge], size === "small" && classes["size".concat(capitalize(size))])
+    }, /*#__PURE__*/React.createElement(SwitchBase$1, _extends({
       type: "checkbox",
       icon: icon,
       checkedIcon: icon,
@@ -33401,13 +34621,17 @@
         checked: classes.checked,
         disabled: classes.disabled
       },
-      ref: ref,
-      disabled: disabled
-    }, other)), React__default.createElement("span", {
+      ref: ref
+    }, other)), /*#__PURE__*/React.createElement("span", {
       className: classes.track
     }));
   });
    Switch.propTypes = {
+    // ----------------------------- Warning --------------------------------
+    // | These PropTypes are generated from the TypeScript type definitions |
+    // |     To update them edit the d.ts file and run "yarn proptypes"     |
+    // ----------------------------------------------------------------------
+
     /**
      * If `true`, the component is checked.
      */
@@ -33422,7 +34646,7 @@
      * Override or extend the styles applied to the component.
      * See [CSS API](#css) below for more details.
      */
-    classes: propTypes.object.isRequired,
+    classes: propTypes.object,
 
     /**
      * @ignore
@@ -33432,7 +34656,7 @@
     /**
      * The color of the component. It supports those theme colors that make sense for this component.
      */
-    color: propTypes.oneOf(['primary', 'secondary', 'default']),
+    color: propTypes.oneOf(['default', 'primary', 'secondary']),
 
     /**
      * @ignore
@@ -33455,7 +34679,7 @@
      * side of the icon with content above or below, without ruining the border
      * size and shape).
      */
-    edge: propTypes.oneOf(['start', 'end', false]),
+    edge: propTypes.oneOf(['end', 'start', false]),
 
     /**
      * The icon to display when the component is unchecked.
@@ -33481,6 +34705,7 @@
      * Callback fired when the state is changed.
      *
      * @param {object} event The event source of the callback.
+     * You can pull out the new value by accessing `event.target.value` (string).
      * You can pull out the new checked state by accessing `event.target.checked` (boolean).
      */
     onChange: propTypes.func,
@@ -33494,23 +34719,19 @@
      * The size of the switch.
      * `small` is equivalent to the dense switch styling.
      */
-    size: propTypes.oneOf(['small', 'medium']),
-
-    /**
-     * The input component prop `type`.
-     */
-    type: propTypes.string,
+    size: propTypes.oneOf(['medium', 'small']),
 
     /**
      * The value of the component. The DOM API casts this to a string.
+     * The browser uses "on" as the default value.
      */
     value: propTypes.any
   } ;
-  var Switch$1 = withStyles$1(styles$1s, {
+  var Switch$1 = withStyles$1(styles$1u, {
     name: 'MuiSwitch'
   })(Switch);
 
-  var styles$1t = function styles(theme) {
+  var styles$1v = function styles(theme) {
     var _extends2;
 
     return {
@@ -33602,7 +34823,7 @@
       }
     };
   };
-  var Tab = React__default.forwardRef(function Tab(props, ref) {
+  var Tab = React.forwardRef(function Tab(props, ref) {
     var classes = props.classes,
         className = props.className,
         _props$disabled = props.disabled,
@@ -33633,7 +34854,7 @@
       }
     };
 
-    return React__default.createElement(ButtonBase$1, _extends({
+    return /*#__PURE__*/React.createElement(ButtonBase$1, _extends({
       focusRipple: !disableFocusRipple,
       className: clsx(classes.root, classes["textColor".concat(capitalize(textColor))], className, disabled && classes.disabled, selected && classes.selected, label && icon && classes.labelIcon, fullWidth && classes.fullWidth, wrapped && classes.wrapped),
       ref: ref,
@@ -33641,7 +34862,7 @@
       "aria-selected": selected,
       disabled: disabled,
       onClick: handleChange
-    }, other), React__default.createElement("span", {
+    }, other), /*#__PURE__*/React.createElement("span", {
       className: classes.wrapper
     }, icon, label), indicator);
   });
@@ -33732,7 +34953,7 @@
      */
     wrapped: propTypes.bool
   } ;
-  var Tab$1 = withStyles$1(styles$1t, {
+  var Tab$1 = withStyles$1(styles$1v, {
     name: 'MuiTab'
   })(Tab);
 
@@ -33740,13 +34961,13 @@
    * @ignore - internal component.
    */
 
-  var TableContext = React__default.createContext();
+  var TableContext = React.createContext();
 
   {
     TableContext.displayName = 'TableContext';
   }
 
-  var styles$1u = function styles(theme) {
+  var styles$1w = function styles(theme) {
     return {
       /* Styles applied to the root element. */
       root: {
@@ -33768,11 +34989,12 @@
       }
     };
   };
-  var Table = React__default.forwardRef(function Table(props, ref) {
+  var defaultComponent = 'table';
+  var Table = React.forwardRef(function Table(props, ref) {
     var classes = props.classes,
         className = props.className,
         _props$component = props.component,
-        Component = _props$component === void 0 ? 'table' : _props$component,
+        Component = _props$component === void 0 ? defaultComponent : _props$component,
         _props$padding = props.padding,
         padding = _props$padding === void 0 ? 'default' : _props$padding,
         _props$size = props.size,
@@ -33781,16 +35003,17 @@
         stickyHeader = _props$stickyHeader === void 0 ? false : _props$stickyHeader,
         other = _objectWithoutProperties(props, ["classes", "className", "component", "padding", "size", "stickyHeader"]);
 
-    var table = React__default.useMemo(function () {
+    var table = React.useMemo(function () {
       return {
         padding: padding,
         size: size,
         stickyHeader: stickyHeader
       };
     }, [padding, size, stickyHeader]);
-    return React__default.createElement(TableContext.Provider, {
+    return /*#__PURE__*/React.createElement(TableContext.Provider, {
       value: table
-    }, React__default.createElement(Component, _extends({
+    }, /*#__PURE__*/React.createElement(Component, _extends({
+      role: Component === defaultComponent ? null : 'table',
       ref: ref,
       className: clsx(classes.root, className, stickyHeader && classes.stickyHeader)
     }, other)));
@@ -33835,7 +35058,7 @@
      */
     stickyHeader: propTypes.bool
   } ;
-  var Table$1 = withStyles$1(styles$1u, {
+  var Table$1 = withStyles$1(styles$1w, {
     name: 'MuiTable'
   })(Table);
 
@@ -33843,13 +35066,13 @@
    * @ignore - internal component.
    */
 
-  var Tablelvl2Context = React__default.createContext();
+  var Tablelvl2Context = React.createContext();
 
   {
     Tablelvl2Context.displayName = 'Tablelvl2Context';
   }
 
-  var styles$1v = {
+  var styles$1x = {
     /* Styles applied to the root element. */
     root: {
       display: 'table-row-group'
@@ -33858,18 +35081,20 @@
   var tablelvl2 = {
     variant: 'body'
   };
-  var TableBody = React__default.forwardRef(function TableBody(props, ref) {
+  var defaultComponent$1 = 'tbody';
+  var TableBody = React.forwardRef(function TableBody(props, ref) {
     var classes = props.classes,
         className = props.className,
         _props$component = props.component,
-        Component = _props$component === void 0 ? 'tbody' : _props$component,
+        Component = _props$component === void 0 ? defaultComponent$1 : _props$component,
         other = _objectWithoutProperties(props, ["classes", "className", "component"]);
 
-    return React__default.createElement(Tablelvl2Context.Provider, {
+    return /*#__PURE__*/React.createElement(Tablelvl2Context.Provider, {
       value: tablelvl2
-    }, React__default.createElement(Component, _extends({
+    }, /*#__PURE__*/React.createElement(Component, _extends({
       className: clsx(classes.root, className),
-      ref: ref
+      ref: ref,
+      role: Component === defaultComponent$1 ? null : 'rowgroup'
     }, other)));
   });
    TableBody.propTypes = {
@@ -33895,11 +35120,11 @@
      */
     component: propTypes.elementType
   } ;
-  var TableBody$1 = withStyles$1(styles$1v, {
+  var TableBody$1 = withStyles$1(styles$1x, {
     name: 'MuiTableBody'
   })(TableBody);
 
-  var styles$1w = function styles(theme) {
+  var styles$1y = function styles(theme) {
     return {
       /* Styles applied to the root element. */
       root: _extends({}, theme.typography.body2, {
@@ -34006,7 +35231,7 @@
    * or otherwise a `<td>` element.
    */
 
-  var TableCell = React__default.forwardRef(function TableCell(props, ref) {
+  var TableCell = React.forwardRef(function TableCell(props, ref) {
     var _props$align = props.align,
         align = _props$align === void 0 ? 'inherit' : _props$align,
         classes = props.classes,
@@ -34019,19 +35244,22 @@
         variantProp = props.variant,
         other = _objectWithoutProperties(props, ["align", "classes", "className", "component", "padding", "scope", "size", "sortDirection", "variant"]);
 
-    var table = React__default.useContext(TableContext);
-    var tablelvl2 = React__default.useContext(Tablelvl2Context);
+    var table = React.useContext(TableContext);
+    var tablelvl2 = React.useContext(Tablelvl2Context);
+    var isHeadCell = tablelvl2 && tablelvl2.variant === 'head';
+    var role;
     var Component;
 
     if (component) {
       Component = component;
+      role = isHeadCell ? 'columnheader' : 'cell';
     } else {
-      Component = tablelvl2 && tablelvl2.variant === 'head' ? 'th' : 'td';
+      Component = isHeadCell ? 'th' : 'td';
     }
 
     var scope = scopeProp;
 
-    if (!scope && tablelvl2 && tablelvl2.variant === 'head') {
+    if (!scope && isHeadCell) {
       scope = 'col';
     }
 
@@ -34044,23 +35272,27 @@
       ariaSort = sortDirection === 'asc' ? 'ascending' : 'descending';
     }
 
-    return React__default.createElement(Component, _extends({
+    return /*#__PURE__*/React.createElement(Component, _extends({
       ref: ref,
-      className: clsx(classes.root, classes[variant], className, align !== 'inherit' && classes["align".concat(capitalize(align))], padding !== 'default' && classes["padding".concat(capitalize(padding))], size !== 'medium' && classes["size".concat(capitalize(size))], {
-        head: table && table.stickyHeader && classes.stickyHeader
-      }[variant]),
+      className: clsx(classes.root, classes[variant], className, align !== 'inherit' && classes["align".concat(capitalize(align))], padding !== 'default' && classes["padding".concat(capitalize(padding))], size !== 'medium' && classes["size".concat(capitalize(size))], variant === 'head' && table && table.stickyHeader && classes.stickyHeader),
       "aria-sort": ariaSort,
+      role: role,
       scope: scope
     }, other));
   });
    TableCell.propTypes = {
+    // ----------------------------- Warning --------------------------------
+    // | These PropTypes are generated from the TypeScript type definitions |
+    // |     To update them edit the d.ts file and run "yarn proptypes"     |
+    // ----------------------------------------------------------------------
+
     /**
      * Set the text-align on the table cell content.
      *
      * Monetary or generally number fields **should be right aligned** as that allows
      * you to add them up quickly in your head without having to worry about decimals.
      */
-    align: propTypes.oneOf(['inherit', 'left', 'center', 'right', 'justify']),
+    align: propTypes.oneOf(['center', 'inherit', 'justify', 'left', 'right']),
 
     /**
      * The table cell contents.
@@ -34071,7 +35303,7 @@
      * Override or extend the styles applied to the component.
      * See [CSS API](#css) below for more details.
      */
-    classes: propTypes.object.isRequired,
+    classes: propTypes.object,
 
     /**
      * @ignore
@@ -34088,7 +35320,7 @@
      * Sets the padding applied to the cell.
      * By default, the Table parent component set the value (`default`).
      */
-    padding: propTypes.oneOf(['default', 'checkbox', 'none']),
+    padding: propTypes.oneOf(['checkbox', 'default', 'none']),
 
     /**
      * Set scope attribute.
@@ -34099,7 +35331,7 @@
      * Specify the size of the cell.
      * By default, the Table parent component set the value (`medium`).
      */
-    size: propTypes.oneOf(['small', 'medium']),
+    size: propTypes.oneOf(['medium', 'small']),
 
     /**
      * Set aria-sort direction.
@@ -34110,27 +35342,27 @@
      * Specify the cell type.
      * By default, the TableHead, TableBody or TableFooter parent component set the value.
      */
-    variant: propTypes.oneOf(['head', 'body', 'footer'])
+    variant: propTypes.oneOf(['body', 'footer', 'head'])
   } ;
-  var TableCell$1 = withStyles$1(styles$1w, {
+  var TableCell$1 = withStyles$1(styles$1y, {
     name: 'MuiTableCell'
   })(TableCell);
 
-  var styles$1x = {
+  var styles$1z = {
     /* Styles applied to the root element. */
     root: {
       width: '100%',
       overflowX: 'auto'
     }
   };
-  var TableContainer = React__default.forwardRef(function TableContainer(props, ref) {
+  var TableContainer = React.forwardRef(function TableContainer(props, ref) {
     var classes = props.classes,
         className = props.className,
         _props$component = props.component,
         Component = _props$component === void 0 ? 'div' : _props$component,
         other = _objectWithoutProperties(props, ["classes", "className", "component"]);
 
-    return React__default.createElement(Component, _extends({
+    return /*#__PURE__*/React.createElement(Component, _extends({
       ref: ref,
       className: clsx(classes.root, className)
     }, other));
@@ -34158,11 +35390,11 @@
      */
     component: propTypes.elementType
   } ;
-  var TableContainer$1 = withStyles$1(styles$1x, {
+  var TableContainer$1 = withStyles$1(styles$1z, {
     name: 'MuiTableContainer'
   })(TableContainer);
 
-  var styles$1y = {
+  var styles$1A = {
     /* Styles applied to the root element. */
     root: {
       display: 'table-footer-group'
@@ -34171,18 +35403,20 @@
   var tablelvl2$1 = {
     variant: 'footer'
   };
-  var TableFooter = React__default.forwardRef(function TableFooter(props, ref) {
+  var defaultComponent$2 = 'tfoot';
+  var TableFooter = React.forwardRef(function TableFooter(props, ref) {
     var classes = props.classes,
         className = props.className,
         _props$component = props.component,
-        Component = _props$component === void 0 ? 'tfoot' : _props$component,
+        Component = _props$component === void 0 ? defaultComponent$2 : _props$component,
         other = _objectWithoutProperties(props, ["classes", "className", "component"]);
 
-    return React__default.createElement(Tablelvl2Context.Provider, {
+    return /*#__PURE__*/React.createElement(Tablelvl2Context.Provider, {
       value: tablelvl2$1
-    }, React__default.createElement(Component, _extends({
+    }, /*#__PURE__*/React.createElement(Component, _extends({
       className: clsx(classes.root, className),
-      ref: ref
+      ref: ref,
+      role: Component === defaultComponent$2 ? null : 'rowgroup'
     }, other)));
   });
    TableFooter.propTypes = {
@@ -34208,11 +35442,11 @@
      */
     component: propTypes.elementType
   } ;
-  var TableFooter$1 = withStyles$1(styles$1y, {
+  var TableFooter$1 = withStyles$1(styles$1A, {
     name: 'MuiTableFooter'
   })(TableFooter);
 
-  var styles$1z = {
+  var styles$1B = {
     /* Styles applied to the root element. */
     root: {
       display: 'table-header-group'
@@ -34221,18 +35455,20 @@
   var tablelvl2$2 = {
     variant: 'head'
   };
-  var TableHead = React__default.forwardRef(function TableHead(props, ref) {
+  var defaultComponent$3 = 'thead';
+  var TableHead = React.forwardRef(function TableHead(props, ref) {
     var classes = props.classes,
         className = props.className,
         _props$component = props.component,
-        Component = _props$component === void 0 ? 'thead' : _props$component,
+        Component = _props$component === void 0 ? defaultComponent$3 : _props$component,
         other = _objectWithoutProperties(props, ["classes", "className", "component"]);
 
-    return React__default.createElement(Tablelvl2Context.Provider, {
+    return /*#__PURE__*/React.createElement(Tablelvl2Context.Provider, {
       value: tablelvl2$2
-    }, React__default.createElement(Component, _extends({
+    }, /*#__PURE__*/React.createElement(Component, _extends({
       className: clsx(classes.root, className),
-      ref: ref
+      ref: ref,
+      role: Component === defaultComponent$3 ? null : 'rowgroup'
     }, other)));
   });
    TableHead.propTypes = {
@@ -34258,11 +35494,11 @@
      */
     component: propTypes.elementType
   } ;
-  var TableHead$1 = withStyles$1(styles$1z, {
+  var TableHead$1 = withStyles$1(styles$1B, {
     name: 'MuiTableHead'
   })(TableHead);
 
-  var styles$1A = function styles(theme) {
+  var styles$1C = function styles(theme) {
     return {
       /* Styles applied to the root element. */
       root: {
@@ -34289,7 +35525,7 @@
       }
     };
   };
-  var Toolbar = React__default.forwardRef(function Toolbar(props, ref) {
+  var Toolbar = React.forwardRef(function Toolbar(props, ref) {
     var classes = props.classes,
         className = props.className,
         _props$component = props.component,
@@ -34300,7 +35536,7 @@
         variant = _props$variant === void 0 ? 'regular' : _props$variant,
         other = _objectWithoutProperties(props, ["classes", "className", "component", "disableGutters", "variant"]);
 
-    return React__default.createElement(Component, _extends({
+    return /*#__PURE__*/React.createElement(Component, _extends({
       className: clsx(classes.root, classes[variant], className, !disableGutters && classes.gutters),
       ref: ref
     }, other));
@@ -34338,7 +35574,7 @@
      */
     variant: propTypes.oneOf(['regular', 'dense'])
   } ;
-  var Toolbar$1 = withStyles$1(styles$1A, {
+  var Toolbar$1 = withStyles$1(styles$1C, {
     name: 'MuiToolbar'
   })(Toolbar);
 
@@ -34346,7 +35582,7 @@
    * @ignore - internal component.
    */
 
-  var KeyboardArrowLeft = createSvgIcon(React__default.createElement("path", {
+  var KeyboardArrowLeft = createSvgIcon( /*#__PURE__*/React.createElement("path", {
     d: "M15.41 16.09l-4.58-4.59 4.58-4.59L14 5.5l-6 6 6 6z"
   }), 'KeyboardArrowLeft');
 
@@ -34354,7 +35590,7 @@
    * @ignore - internal component.
    */
 
-  var KeyboardArrowRight = createSvgIcon(React__default.createElement("path", {
+  var KeyboardArrowRight = createSvgIcon( /*#__PURE__*/React.createElement("path", {
     d: "M8.59 16.34l4.58-4.59-4.58-4.59L10 5.75l6 6-6 6z"
   }), 'KeyboardArrowRight');
 
@@ -34362,15 +35598,15 @@
    * @ignore - internal component.
    */
 
-  var _ref$2 = React__default.createElement(KeyboardArrowRight, null);
+  var _ref$2 = /*#__PURE__*/React.createElement(KeyboardArrowRight, null);
 
-  var _ref2$1 = React__default.createElement(KeyboardArrowLeft, null);
+  var _ref2$1 = /*#__PURE__*/React.createElement(KeyboardArrowLeft, null);
 
-  var _ref3 = React__default.createElement(KeyboardArrowLeft, null);
+  var _ref3 = /*#__PURE__*/React.createElement(KeyboardArrowLeft, null);
 
-  var _ref4 = React__default.createElement(KeyboardArrowRight, null);
+  var _ref4 = /*#__PURE__*/React.createElement(KeyboardArrowRight, null);
 
-  var TablePaginationActions = React__default.forwardRef(function TablePaginationActions(props, ref) {
+  var TablePaginationActions = React.forwardRef(function TablePaginationActions(props, ref) {
     var backIconButtonProps = props.backIconButtonProps,
         count = props.count,
         nextIconButtonProps = props.nextIconButtonProps,
@@ -34389,15 +35625,15 @@
       onChangePage(event, page + 1);
     };
 
-    return React__default.createElement("div", _extends({
+    return /*#__PURE__*/React.createElement("div", _extends({
       ref: ref
-    }, other), React__default.createElement(IconButton$1, _extends({
+    }, other), /*#__PURE__*/React.createElement(IconButton$1, _extends({
       onClick: handleBackButtonClick,
       disabled: page === 0,
       color: "inherit"
-    }, backIconButtonProps), theme.direction === 'rtl' ? _ref$2 : _ref2$1), React__default.createElement(IconButton$1, _extends({
+    }, backIconButtonProps), theme.direction === 'rtl' ? _ref$2 : _ref2$1), /*#__PURE__*/React.createElement(IconButton$1, _extends({
       onClick: handleNextButtonClick,
-      disabled: page >= Math.ceil(count / rowsPerPage) - 1,
+      disabled: count !== -1 ? page >= Math.ceil(count / rowsPerPage) - 1 : false,
       color: "inherit"
     }, nextIconButtonProps), theme.direction === 'rtl' ? _ref3 : _ref4));
   });
@@ -34436,7 +35672,7 @@
     rowsPerPage: propTypes.number.isRequired
   } ;
 
-  var styles$1B = function styles(theme) {
+  var styles$1D = function styles(theme) {
     return {
       /* Styles applied to the root element. */
       root: {
@@ -34464,10 +35700,10 @@
       caption: {
         flexShrink: 0
       },
+      // TODO v5: `.selectRoot` should be merged with `.input`
 
       /* Styles applied to the Select component root element. */
       selectRoot: {
-        // `.selectRoot` should be merged with `.input` in v5.
         marginRight: 32,
         marginLeft: 8
       },
@@ -34480,11 +35716,10 @@
         textAlignLast: 'right' // Align <select> on Chrome.
 
       },
+      // TODO v5: remove
 
       /* Styles applied to the Select component `icon` class. */
-      selectIcon: {
-        top: 1
-      },
+      selectIcon: {},
 
       /* Styles applied to the `InputBase` component. */
       input: {
@@ -34508,7 +35743,7 @@
     var from = _ref.from,
         to = _ref.to,
         count = _ref.count;
-    return "".concat(from, "-").concat(to === -1 ? count : to, " of ").concat(count);
+    return "".concat(from, "-").concat(to === -1 ? count : to, " of ").concat(count !== -1 ? count : "more than ".concat(to));
   };
 
   var defaultRowsPerPageOptions = [10, 25, 50, 100];
@@ -34516,7 +35751,7 @@
    * A `TableCell` based component for placing inside `TableFooter` for pagination.
    */
 
-  var TablePagination = React__default.forwardRef(function TablePagination(props, ref) {
+  var TablePagination = React.forwardRef(function TablePagination(props, ref) {
     var _props$ActionsCompone = props.ActionsComponent,
         ActionsComponent = _props$ActionsCompone === void 0 ? TablePaginationActions : _props$ActionsCompone,
         backIconButtonProps = props.backIconButtonProps,
@@ -34552,44 +35787,47 @@
     }
 
     var MenuItemComponent = SelectProps.native ? 'option' : MenuItem$1;
-    return React__default.createElement(Component, _extends({
+    return /*#__PURE__*/React.createElement(Component, _extends({
       className: clsx(classes.root, className),
       colSpan: colSpan,
       ref: ref
-    }, other), React__default.createElement(Toolbar$1, {
+    }, other), /*#__PURE__*/React.createElement(Toolbar$1, {
       className: classes.toolbar
-    }, React__default.createElement("div", {
+    }, /*#__PURE__*/React.createElement("div", {
       className: classes.spacer
-    }), rowsPerPageOptions.length > 1 && React__default.createElement(Typography$1, {
+    }), rowsPerPageOptions.length > 1 && /*#__PURE__*/React.createElement(Typography$1, {
       color: "inherit",
       variant: "body2",
       className: classes.caption
-    }, labelRowsPerPage), rowsPerPageOptions.length > 1 && React__default.createElement(Select$1, _extends({
+    }, labelRowsPerPage), rowsPerPageOptions.length > 1 && /*#__PURE__*/React.createElement(Select$1, _extends({
       classes: {
         select: classes.select,
         icon: classes.selectIcon
       },
-      input: React__default.createElement(InputBase$1, {
+      input: /*#__PURE__*/React.createElement(InputBase$1, {
         className: clsx(classes.input, classes.selectRoot)
       }),
       value: rowsPerPage,
-      onChange: onChangeRowsPerPage
+      onChange: onChangeRowsPerPage,
+      inputProps: {
+        'aria-label': labelRowsPerPage
+      }
     }, SelectProps), rowsPerPageOptions.map(function (rowsPerPageOption) {
-      return React__default.createElement(MenuItemComponent, {
+      return /*#__PURE__*/React.createElement(MenuItemComponent, {
         className: classes.menuItem,
         key: rowsPerPageOption.value ? rowsPerPageOption.value : rowsPerPageOption,
         value: rowsPerPageOption.value ? rowsPerPageOption.value : rowsPerPageOption
       }, rowsPerPageOption.label ? rowsPerPageOption.label : rowsPerPageOption);
-    })), React__default.createElement(Typography$1, {
+    })), /*#__PURE__*/React.createElement(Typography$1, {
       color: "inherit",
       variant: "body2",
       className: classes.caption
     }, labelDisplayedRows({
       from: count === 0 ? 0 : page * rowsPerPage + 1,
-      to: Math.min(count, (page + 1) * rowsPerPage),
+      to: count !== -1 ? Math.min(count, (page + 1) * rowsPerPage) : (page + 1) * rowsPerPage,
       count: count,
       page: page
-    })), React__default.createElement(ActionsComponent, {
+    })), /*#__PURE__*/React.createElement(ActionsComponent, {
       className: classes.actions,
       backIconButtonProps: _extends({
         title: backIconButtonText,
@@ -34648,19 +35886,21 @@
 
     /**
      * The total number of rows.
+     *
+     * To enable server side pagination for an unknown number of items, provide -1.
      */
     count: propTypes.number.isRequired,
 
     /**
-     * Customize the displayed rows label.
+     * Customize the displayed rows label. Invoked with a `{ from, to, count, page }`
+     * object.
      *
      * For localization purposes, you can use the provided [translations](/guides/localization/).
      */
     labelDisplayedRows: propTypes.func,
 
     /**
-     * Customize the rows per page label. Invoked with a `{ from, to, count, page }`
-     * object.
+     * Customize the rows per page label.
      *
      * For localization purposes, you can use the provided [translations](/guides/localization/).
      */
@@ -34700,6 +35940,11 @@
       var count = props.count,
           page = props.page,
           rowsPerPage = props.rowsPerPage;
+
+      if (count === -1) {
+        return null;
+      }
+
       var newLastPage = Math.max(0, Math.ceil(count / rowsPerPage) - 1);
 
       if (page < 0 || page > newLastPage) {
@@ -34725,11 +35970,11 @@
      */
     SelectProps: propTypes.object
   } ;
-  var TablePagination$1 = withStyles$1(styles$1B, {
+  var TablePagination$1 = withStyles$1(styles$1D, {
     name: 'MuiTablePagination'
   })(TablePagination);
 
-  var styles$1C = function styles(theme) {
+  var styles$1E = function styles(theme) {
     return {
       /* Styles applied to the root element. */
       root: {
@@ -34741,7 +35986,7 @@
         '&$hover:hover': {
           backgroundColor: theme.palette.action.hover
         },
-        '&$selected,&$selected:hover': {
+        '&$selected, &$selected:hover': {
           backgroundColor: fade(theme.palette.secondary.main, theme.palette.action.selectedOpacity)
         }
       },
@@ -34759,29 +36004,31 @@
       footer: {}
     };
   };
+  var defaultComponent$4 = 'tr';
   /**
    * Will automatically set dynamic row height
    * based on the material table element parent (head, body, etc).
    */
 
-  var TableRow = React__default.forwardRef(function TableRow(props, ref) {
+  var TableRow = React.forwardRef(function TableRow(props, ref) {
     var classes = props.classes,
         className = props.className,
         _props$component = props.component,
-        Component = _props$component === void 0 ? 'tr' : _props$component,
+        Component = _props$component === void 0 ? defaultComponent$4 : _props$component,
         _props$hover = props.hover,
         hover = _props$hover === void 0 ? false : _props$hover,
         _props$selected = props.selected,
         selected = _props$selected === void 0 ? false : _props$selected,
         other = _objectWithoutProperties(props, ["classes", "className", "component", "hover", "selected"]);
 
-    var tablelvl2 = React__default.useContext(Tablelvl2Context);
-    return React__default.createElement(Component, _extends({
+    var tablelvl2 = React.useContext(Tablelvl2Context);
+    return /*#__PURE__*/React.createElement(Component, _extends({
       ref: ref,
       className: clsx(classes.root, className, tablelvl2 && {
-        head: classes.head,
-        footer: classes.footer
-      }[tablelvl2.variant], hover && classes.hover, selected && classes.selected)
+        'head': classes.head,
+        'footer': classes.footer
+      }[tablelvl2.variant], hover && classes.hover, selected && classes.selected),
+      role: Component === defaultComponent$4 ? null : 'row'
     }, other));
   });
    TableRow.propTypes = {
@@ -34817,7 +36064,7 @@
      */
     selected: propTypes.bool
   } ;
-  var TableRow$1 = withStyles$1(styles$1C, {
+  var TableRow$1 = withStyles$1(styles$1E, {
     name: 'MuiTableRow'
   })(TableRow);
 
@@ -34825,11 +36072,11 @@
    * @ignore - internal component.
    */
 
-  var ArrowDownwardIcon = createSvgIcon(React__default.createElement("path", {
+  var ArrowDownwardIcon = createSvgIcon( /*#__PURE__*/React.createElement("path", {
     d: "M20 12l-1.41-1.41L13 16.17V4h-2v12.17l-5.58-5.59L4 12l8 8 8-8z"
   }), 'ArrowDownward');
 
-  var styles$1D = function styles(theme) {
+  var styles$1F = function styles(theme) {
     return {
       /* Styles applied to the root element. */
       root: {
@@ -34887,7 +36134,7 @@
    * A button based label for placing inside `TableCell` for column sorting.
    */
 
-  var TableSortLabel = React__default.forwardRef(function TableSortLabel(props, ref) {
+  var TableSortLabel = React.forwardRef(function TableSortLabel(props, ref) {
     var _props$active = props.active,
         active = _props$active === void 0 ? false : _props$active,
         children = props.children,
@@ -34901,12 +36148,12 @@
         IconComponent = _props$IconComponent === void 0 ? ArrowDownwardIcon : _props$IconComponent,
         other = _objectWithoutProperties(props, ["active", "children", "classes", "className", "direction", "hideSortIcon", "IconComponent"]);
 
-    return React__default.createElement(ButtonBase$1, _extends({
+    return /*#__PURE__*/React.createElement(ButtonBase$1, _extends({
       className: clsx(classes.root, className, active && classes.active),
       component: "span",
       disableRipple: true,
       ref: ref
-    }, other), children, hideSortIcon && !active ? null : React__default.createElement(IconComponent, {
+    }, other), children, hideSortIcon && !active ? null : /*#__PURE__*/React.createElement(IconComponent, {
       className: clsx(classes.icon, classes["iconDirection".concat(capitalize(direction))])
     }));
   });
@@ -34947,62 +36194,74 @@
      */
     IconComponent: propTypes.elementType
   } ;
-  var TableSortLabel$1 = withStyles$1(styles$1D, {
+  var TableSortLabel$1 = withStyles$1(styles$1F, {
     name: 'MuiTableSortLabel'
   })(TableSortLabel);
 
-  // Based on https://github.com/react-bootstrap/dom-helpers/blob/master/src/util/inDOM.js
-  var inDOM = !!(typeof window !== 'undefined' && window.document && window.document.createElement);
+  // Source from https://github.com/alitaheri/normalize-scroll-left
   var cachedType;
-  // Based on the jquery plugin https://github.com/othree/jquery.rtl-scroll-type
+  /**
+   * Based on the jquery plugin https://github.com/othree/jquery.rtl-scroll-type
+   *
+   * Types of scrollLeft, assiming scrollWidth=100 and direction is rtl.
+   *
+   * Browser        | Type          | <- Most Left | Most Right -> | Initial
+   * -------------- | ------------- | ------------ | ------------- | -------
+   * WebKit         | default       | 0            | 100           | 100
+   * Firefox/Opera  | negative      | -100         | 0             | 0
+   * IE/Edge        | reverse       | 100          | 0             | 0
+   */
+
   function detectScrollType() {
-      if (cachedType) {
-          return cachedType;
-      }
-      if (!inDOM || !window.document.body) {
-          return 'indeterminate';
-      }
-      var dummy = window.document.createElement('div');
-      dummy.appendChild(document.createTextNode('ABCD'));
-      dummy.dir = 'rtl';
-      dummy.style.fontSize = '14px';
-      dummy.style.width = '4px';
-      dummy.style.height = '1px';
-      dummy.style.position = 'absolute';
-      dummy.style.top = '-1000px';
-      dummy.style.overflow = 'scroll';
-      document.body.appendChild(dummy);
-      cachedType = 'reverse';
-      if (dummy.scrollLeft > 0) {
-          cachedType = 'default';
-      }
-      else {
-          dummy.scrollLeft = 1;
-          if (dummy.scrollLeft === 0) {
-              cachedType = 'negative';
-          }
-      }
-      document.body.removeChild(dummy);
+    if (cachedType) {
       return cachedType;
-  }
-  // Based on https://stackoverflow.com/a/24394376
+    }
+
+    var dummy = document.createElement('div');
+    dummy.appendChild(document.createTextNode('ABCD'));
+    dummy.dir = 'rtl';
+    dummy.style.fontSize = '14px';
+    dummy.style.width = '4px';
+    dummy.style.height = '1px';
+    dummy.style.position = 'absolute';
+    dummy.style.top = '-1000px';
+    dummy.style.overflow = 'scroll';
+    document.body.appendChild(dummy);
+    cachedType = 'reverse';
+
+    if (dummy.scrollLeft > 0) {
+      cachedType = 'default';
+    } else {
+      dummy.scrollLeft = 1;
+
+      if (dummy.scrollLeft === 0) {
+        cachedType = 'negative';
+      }
+    }
+
+    document.body.removeChild(dummy);
+    return cachedType;
+  } // Based on https://stackoverflow.com/a/24394376
+
   function getNormalizedScrollLeft(element, direction) {
-      var scrollLeft = element.scrollLeft;
-      // Perform the calculations only when direction is rtl to avoid messing up the ltr bahavior
-      if (direction !== 'rtl') {
-          return scrollLeft;
-      }
-      var type = detectScrollType();
-      if (type === 'indeterminate') {
-          return Number.NaN;
-      }
-      switch (type) {
-          case 'negative':
-              return element.scrollWidth - element.clientWidth + scrollLeft;
-          case 'reverse':
-              return element.scrollWidth - element.clientWidth - scrollLeft;
-      }
+    var scrollLeft = element.scrollLeft; // Perform the calculations only when direction is rtl to avoid messing up the ltr bahavior
+
+    if (direction !== 'rtl') {
       return scrollLeft;
+    }
+
+    var type = detectScrollType();
+
+    switch (type) {
+      case 'negative':
+        return element.scrollWidth - element.clientWidth + scrollLeft;
+
+      case 'reverse':
+        return element.scrollWidth - element.clientWidth - scrollLeft;
+
+      default:
+        return scrollLeft;
+    }
   }
 
   function easeInOutSin(time) {
@@ -35056,7 +36315,7 @@
     return cancel;
   }
 
-  var styles$1E = {
+  var styles$1G = {
     width: 99,
     height: 99,
     position: 'absolute',
@@ -35073,14 +36332,14 @@
     var onChange = props.onChange,
         other = _objectWithoutProperties(props, ["onChange"]);
 
-    var scrollbarHeight = React__default.useRef();
-    var nodeRef = React__default.useRef(null);
+    var scrollbarHeight = React.useRef();
+    var nodeRef = React.useRef(null);
 
     var setMeasurements = function setMeasurements() {
       scrollbarHeight.current = nodeRef.current.offsetHeight - nodeRef.current.clientHeight;
     };
 
-    React__default.useEffect(function () {
+    React.useEffect(function () {
       var handleResize = debounce(function () {
         var prevHeight = scrollbarHeight.current;
         setMeasurements();
@@ -35095,12 +36354,12 @@
         window.removeEventListener('resize', handleResize);
       };
     }, [onChange]);
-    React__default.useEffect(function () {
+    React.useEffect(function () {
       setMeasurements();
       onChange(scrollbarHeight.current);
     }, [onChange]);
-    return React__default.createElement("div", _extends({
-      style: styles$1E,
+    return /*#__PURE__*/React.createElement("div", _extends({
+      style: styles$1G,
       ref: nodeRef
     }, other));
   }
@@ -35108,7 +36367,7 @@
     onChange: propTypes.func.isRequired
   } ;
 
-  var styles$1F = function styles(theme) {
+  var styles$1H = function styles(theme) {
     return {
       root: {
         position: 'absolute',
@@ -35134,17 +36393,15 @@
    * @ignore - internal component.
    */
 
-  var TabIndicator = React__default.forwardRef(function TabIndicator(props, ref) {
+  var TabIndicator = React.forwardRef(function TabIndicator(props, ref) {
     var classes = props.classes,
         className = props.className,
         color = props.color,
         orientation = props.orientation,
         other = _objectWithoutProperties(props, ["classes", "className", "color", "orientation"]);
 
-    return React__default.createElement("span", _extends({
-      className: clsx(classes.root, classes["color".concat(capitalize(color))], className, {
-        vertical: classes.vertical
-      }[orientation]),
+    return /*#__PURE__*/React.createElement("span", _extends({
+      className: clsx(classes.root, classes["color".concat(capitalize(color))], className, orientation === 'vertical' && classes.vertical),
       ref: ref
     }, other));
   });
@@ -35171,11 +36428,11 @@
      */
     orientation: propTypes.oneOf(['horizontal', 'vertical']).isRequired
   } ;
-  var TabIndicator$1 = withStyles$1(styles$1F, {
+  var TabIndicator$1 = withStyles$1(styles$1H, {
     name: 'PrivateTabIndicator'
   })(TabIndicator);
 
-  var styles$1G = {
+  var styles$1I = {
     root: {
       width: 40,
       flexShrink: 0
@@ -35192,15 +36449,15 @@
    * @ignore - internal component.
    */
 
-  var _ref$3 = React__default.createElement(KeyboardArrowLeft, {
+  var _ref$3 = /*#__PURE__*/React.createElement(KeyboardArrowLeft, {
     fontSize: "small"
   });
 
-  var _ref2$2 = React__default.createElement(KeyboardArrowRight, {
+  var _ref2$2 = /*#__PURE__*/React.createElement(KeyboardArrowRight, {
     fontSize: "small"
   });
 
-  var TabScrollButton = React__default.forwardRef(function TabScrollButton(props, ref) {
+  var TabScrollButton = React.forwardRef(function TabScrollButton(props, ref) {
     var classes = props.classes,
         classNameProp = props.className,
         direction = props.direction,
@@ -35208,17 +36465,15 @@
         visible = props.visible,
         other = _objectWithoutProperties(props, ["classes", "className", "direction", "orientation", "visible"]);
 
-    var className = clsx(classes.root, classNameProp, {
-      vertical: classes.vertical
-    }[orientation]);
+    var className = clsx(classes.root, classNameProp, orientation === 'vertical' && classes.vertical);
 
     if (!visible) {
-      return React__default.createElement("div", {
+      return /*#__PURE__*/React.createElement("div", {
         className: className
       });
     }
 
-    return React__default.createElement(ButtonBase$1, _extends({
+    return /*#__PURE__*/React.createElement(ButtonBase$1, _extends({
       component: "div",
       className: className,
       ref: ref,
@@ -35253,11 +36508,11 @@
      */
     visible: propTypes.bool.isRequired
   } ;
-  var TabScrollButton$1 = withStyles$1(styles$1G, {
+  var TabScrollButton$1 = withStyles$1(styles$1I, {
     name: 'PrivateTabScrollButton'
   })(TabScrollButton);
 
-  var styles$1H = function styles(theme) {
+  var styles$1J = function styles(theme) {
     return {
       /* Styles applied to the root element. */
       root: {
@@ -35326,7 +36581,7 @@
       indicator: {}
     };
   };
-  var Tabs = React__default.forwardRef(function Tabs(props, ref) {
+  var Tabs = React.forwardRef(function Tabs(props, ref) {
     var action = props.action,
         _props$centered = props.centered,
         centered = _props$centered === void 0 ? false : _props$centered,
@@ -35369,22 +36624,22 @@
       }
     }
 
-    var _React$useState = React__default.useState(false),
+    var _React$useState = React.useState(false),
         mounted = _React$useState[0],
         setMounted = _React$useState[1];
 
-    var _React$useState2 = React__default.useState({}),
+    var _React$useState2 = React.useState({}),
         indicatorStyle = _React$useState2[0],
         setIndicatorStyle = _React$useState2[1];
 
-    var _React$useState3 = React__default.useState({
+    var _React$useState3 = React.useState({
       start: false,
       end: false
     }),
         displayScroll = _React$useState3[0],
         setDisplayScroll = _React$useState3[1];
 
-    var _React$useState4 = React__default.useState({
+    var _React$useState4 = React.useState({
       overflow: 'hidden',
       marginBottom: null
     }),
@@ -35392,8 +36647,8 @@
         setScrollerStyle = _React$useState4[1];
 
     var valueToIndex = new Map();
-    var tabsRef = React__default.useRef(null);
-    var childrenWrapperRef = React__default.useRef(null);
+    var tabsRef = React.useRef(null);
+    var childrenWrapperRef = React.useRef(null);
 
     var getTabsMeta = function getTabsMeta() {
       var tabsNode = tabsRef.current;
@@ -35425,7 +36680,7 @@
 
           {
             if (!tab) {
-              console.error(["Material-UI: the value provided `".concat(value, "` to the Tabs component is invalid."), 'None of the Tabs children have this value.', valueToIndex.keys ? "You can provide one of the following values: ".concat(Array.from(valueToIndex.keys()).join(', '), ".") : null].join('\n'));
+              console.error(["Material-UI: the value provided to the Tabs component is invalid.", "None of the Tabs' children match with `".concat(value, "`."), valueToIndex.keys ? "You can provide one of the following values: ".concat(Array.from(valueToIndex.keys()).join(', '), ".") : null].join('\n'));
             }
           }
 
@@ -35497,7 +36752,7 @@
       moveTabsScroll(tabsRef.current[clientSize]);
     };
 
-    var handleScrollbarSizeChange = React__default.useCallback(function (scrollbarHeight) {
+    var handleScrollbarSizeChange = React.useCallback(function (scrollbarHeight) {
       setScrollerStyle({
         overflow: null,
         marginBottom: -scrollbarHeight
@@ -35506,20 +36761,20 @@
 
     var getConditionalElements = function getConditionalElements() {
       var conditionalElements = {};
-      conditionalElements.scrollbarSizeListener = scrollable ? React__default.createElement(ScrollbarSize, {
+      conditionalElements.scrollbarSizeListener = scrollable ? /*#__PURE__*/React.createElement(ScrollbarSize, {
         className: classes.scrollable,
         onChange: handleScrollbarSizeChange
       }) : null;
       var scrollButtonsActive = displayScroll.start || displayScroll.end;
       var showScrollButtons = scrollable && (scrollButtons === 'auto' && scrollButtonsActive || scrollButtons === 'desktop' || scrollButtons === 'on');
-      conditionalElements.scrollButtonStart = showScrollButtons ? React__default.createElement(ScrollButtonComponent, {
+      conditionalElements.scrollButtonStart = showScrollButtons ? /*#__PURE__*/React.createElement(ScrollButtonComponent, {
         orientation: orientation,
         direction: isRtl ? 'right' : 'left',
         onClick: handleStartScrollClick,
         visible: displayScroll.start,
         className: clsx(classes.scrollButtons, scrollButtons !== 'on' && classes.scrollButtonsDesktop)
       }) : null;
-      conditionalElements.scrollButtonEnd = showScrollButtons ? React__default.createElement(ScrollButtonComponent, {
+      conditionalElements.scrollButtonEnd = showScrollButtons ? /*#__PURE__*/React.createElement(ScrollButtonComponent, {
         orientation: orientation,
         direction: isRtl ? 'left' : 'right',
         onClick: handleEndScrollClick,
@@ -35578,7 +36833,7 @@
         }
       }
     });
-    React__default.useEffect(function () {
+    React.useEffect(function () {
       var handleResize = debounce(function () {
         updateIndicatorState();
         updateScrollButtonState();
@@ -35590,31 +36845,31 @@
         win.removeEventListener('resize', handleResize);
       };
     }, [updateIndicatorState, updateScrollButtonState]);
-    var handleTabsScroll = React__default.useCallback(debounce(function () {
+    var handleTabsScroll = React.useCallback(debounce(function () {
       updateScrollButtonState();
     }));
-    React__default.useEffect(function () {
+    React.useEffect(function () {
       return function () {
         handleTabsScroll.clear();
       };
     }, [handleTabsScroll]);
-    React__default.useEffect(function () {
+    React.useEffect(function () {
       setMounted(true);
     }, []);
-    React__default.useEffect(function () {
+    React.useEffect(function () {
       updateIndicatorState();
       updateScrollButtonState();
     });
-    React__default.useEffect(function () {
+    React.useEffect(function () {
       scrollSelectedIntoView();
     }, [scrollSelectedIntoView, indicatorStyle]);
-    React__default.useImperativeHandle(action, function () {
+    React.useImperativeHandle(action, function () {
       return {
         updateIndicator: updateIndicatorState,
         updateScrollButtons: updateScrollButtonState
       };
     }, [updateIndicatorState, updateScrollButtonState]);
-    var indicator = React__default.createElement(TabIndicator$1, _extends({
+    var indicator = /*#__PURE__*/React.createElement(TabIndicator$1, _extends({
       className: classes.indicator,
       orientation: orientation,
       color: indicatorColor
@@ -35622,8 +36877,8 @@
       style: _extends({}, indicatorStyle, {}, TabIndicatorProps.style)
     }));
     var childIndex = 0;
-    var children = React__default.Children.map(childrenProp, function (child) {
-      if (!React__default.isValidElement(child)) {
+    var children = React.Children.map(childrenProp, function (child) {
+      if (!React.isValidElement(child)) {
         return null;
       }
 
@@ -35637,7 +36892,7 @@
       valueToIndex.set(childValue, childIndex);
       var selected = childValue === value;
       childIndex += 1;
-      return React__default.cloneElement(child, {
+      return React.cloneElement(child, {
         fullWidth: variant === 'fullWidth',
         indicator: selected && !mounted && indicator,
         selected: selected,
@@ -35647,15 +36902,15 @@
       });
     });
     var conditionalElements = getConditionalElements();
-    return React__default.createElement(Component, _extends({
+    return /*#__PURE__*/React.createElement(Component, _extends({
       className: clsx(classes.root, className, vertical && classes.vertical),
       ref: ref
-    }, other), conditionalElements.scrollButtonStart, conditionalElements.scrollbarSizeListener, React__default.createElement("div", {
+    }, other), conditionalElements.scrollButtonStart, conditionalElements.scrollbarSizeListener, /*#__PURE__*/React.createElement("div", {
       className: clsx(classes.scroller, scrollable ? classes.scrollable : classes.fixed),
       style: scrollerStyle,
       ref: tabsRef,
       onScroll: handleTabsScroll
-    }, React__default.createElement("div", {
+    }, /*#__PURE__*/React.createElement("div", {
       className: clsx(classes.flexContainer, vertical && classes.flexContainerVertical, centered && !scrollable && classes.centered),
       ref: childrenWrapperRef,
       role: "tablist"
@@ -35760,7 +37015,7 @@
      */
     variant: propTypes.oneOf(['standard', 'scrollable', 'fullWidth'])
   } ;
-  var Tabs$1 = withStyles$1(styles$1H, {
+  var Tabs$1 = withStyles$1(styles$1J, {
     name: 'MuiTabs'
   })(Tabs);
 
@@ -35769,7 +37024,7 @@
     filled: FilledInput$1,
     outlined: OutlinedInput$1
   };
-  var styles$1I = {
+  var styles$1K = {
     /* Styles applied to the root element. */
     root: {}
   };
@@ -35806,7 +37061,7 @@
    * - using the underlying components directly as shown in the demos
    */
 
-  var TextField = React__default.forwardRef(function TextField(props, ref) {
+  var TextField = React.forwardRef(function TextField(props, ref) {
     var autoComplete = props.autoComplete,
         _props$autoFocus = props.autoFocus,
         autoFocus = _props$autoFocus === void 0 ? false : _props$autoFocus,
@@ -35864,7 +37119,9 @@
         InputMore.notched = InputLabelProps.shrink;
       }
 
-      InputMore.label = label ? React__default.createElement(React__default.Fragment, null, label, required && "\xA0*") : label;
+      if (label) {
+        InputMore.label = /*#__PURE__*/React.createElement(React.Fragment, null, label, required && "\xA0*");
+      }
     }
 
     if (select) {
@@ -35879,7 +37136,7 @@
     var helperTextId = helperText && id ? "".concat(id, "-helper-text") : undefined;
     var inputLabelId = label && id ? "".concat(id, "-label") : undefined;
     var InputComponent = variantComponent[variant];
-    var InputElement = React__default.createElement(InputComponent, _extends({
+    var InputElement = /*#__PURE__*/React.createElement(InputComponent, _extends({
       "aria-describedby": helperTextId,
       autoComplete: autoComplete,
       autoFocus: autoFocus,
@@ -35899,7 +37156,7 @@
       placeholder: placeholder,
       inputProps: inputProps
     }, InputMore, InputProps));
-    return React__default.createElement(FormControl$1, _extends({
+    return /*#__PURE__*/React.createElement(FormControl$1, _extends({
       className: clsx(classes.root, className),
       disabled: disabled,
       error: error,
@@ -35909,20 +37166,25 @@
       required: required,
       color: color,
       variant: variant
-    }, other), label && React__default.createElement(InputLabel$1, _extends({
+    }, other), label && /*#__PURE__*/React.createElement(InputLabel$1, _extends({
       htmlFor: id,
       id: inputLabelId
-    }, InputLabelProps), label), select ? React__default.createElement(Select$1, _extends({
+    }, InputLabelProps), label), select ? /*#__PURE__*/React.createElement(Select$1, _extends({
       "aria-describedby": helperTextId,
       id: id,
       labelId: inputLabelId,
       value: value,
       input: InputElement
-    }, SelectProps), children) : InputElement, helperText && React__default.createElement(FormHelperText$1, _extends({
+    }, SelectProps), children) : InputElement, helperText && /*#__PURE__*/React.createElement(FormHelperText$1, _extends({
       id: helperTextId
     }, FormHelperTextProps), helperText));
   });
    TextField.propTypes = {
+    // ----------------------------- Warning --------------------------------
+    // | These PropTypes are generated from the TypeScript type definitions |
+    // |     To update them edit the d.ts file and run "yarn proptypes"     |
+    // ----------------------------------------------------------------------
+
     /**
      * This prop helps users to fill forms faster, especially on mobile devices.
      * The name can be confusing, as it's more like an autofill.
@@ -35944,7 +37206,7 @@
      * Override or extend the styles applied to the component.
      * See [CSS API](#css) below for more details.
      */
-    classes: propTypes.object.isRequired,
+    classes: propTypes.object,
 
     /**
      * @ignore
@@ -36003,17 +37265,17 @@
     InputLabelProps: propTypes.object,
 
     /**
+     * [Attributes](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/input#Attributes) applied to the `input` element.
+     */
+    inputProps: propTypes.object,
+
+    /**
      * Props applied to the Input element.
      * It will be a [`FilledInput`](/api/filled-input/),
      * [`OutlinedInput`](/api/outlined-input/) or [`Input`](/api/input/)
      * component depending on the `variant` prop value.
      */
     InputProps: propTypes.object,
-
-    /**
-     * [Attributes](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/input#Attributes) applied to the `input` element.
-     */
-    inputProps: propTypes.object,
 
     /**
      * Pass a ref to the `input` element.
@@ -36028,7 +37290,7 @@
     /**
      * If `dense` or `normal`, will adjust vertical spacing of this and contained components.
      */
-    margin: propTypes.oneOf(['none', 'dense', 'normal']),
+    margin: propTypes.oneOf(['dense', 'none', 'normal']),
 
     /**
      * If `true`, a textarea element will be rendered instead of an input.
@@ -36071,12 +37333,12 @@
     /**
      * Number of rows to display when multiline option is set to true.
      */
-    rows: propTypes.oneOfType([propTypes.string, propTypes.number]),
+    rows: propTypes.oneOfType([propTypes.number, propTypes.string]),
 
     /**
      * Maximum number of rows to display when multiline option is set to true.
      */
-    rowsMax: propTypes.oneOfType([propTypes.string, propTypes.number]),
+    rowsMax: propTypes.oneOfType([propTypes.number, propTypes.string]),
 
     /**
      * Render a [`Select`](/api/select/) element while passing the Input element to `Select` as `input` parameter.
@@ -36092,7 +37354,7 @@
     /**
      * The size of the text field.
      */
-    size: propTypes.oneOf(['small', 'medium']),
+    size: propTypes.oneOf(['medium', 'small']),
 
     /**
      * Type of the `input` element. It should be [a valid HTML5 input type](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/input#Form_%3Cinput%3E_types).
@@ -36107,9 +37369,9 @@
     /**
      * The variant to use.
      */
-    variant: propTypes.oneOf(['standard', 'outlined', 'filled'])
+    variant: propTypes.oneOf(['filled', 'outlined', 'standard'])
   } ;
-  var TextField$1 = withStyles$1(styles$1I, {
+  var TextField$1 = withStyles$1(styles$1K, {
     name: 'MuiTextField'
   })(TextField);
 
@@ -36180,7 +37442,7 @@
     };
   }
 
-  var styles$1J = function styles(theme) {
+  var styles$1L = function styles(theme) {
     return {
       /* Styles applied to the Popper component. */
       popper: {
@@ -36276,7 +37538,7 @@
   };
   var hystersisOpen = false;
   var hystersisTimer = null;
-  var Tooltip = React__default.forwardRef(function Tooltip(props, ref) {
+  var Tooltip = React.forwardRef(function Tooltip(props, ref) {
     var _props$arrow = props.arrow,
         arrow = _props$arrow === void 0 ? false : _props$arrow,
         children = props.children,
@@ -36288,7 +37550,9 @@
         _props$disableTouchLi = props.disableTouchListener,
         disableTouchListener = _props$disableTouchLi === void 0 ? false : _props$disableTouchLi,
         _props$enterDelay = props.enterDelay,
-        enterDelay = _props$enterDelay === void 0 ? 0 : _props$enterDelay,
+        enterDelay = _props$enterDelay === void 0 ? 100 : _props$enterDelay,
+        _props$enterNextDelay = props.enterNextDelay,
+        enterNextDelay = _props$enterNextDelay === void 0 ? 0 : _props$enterNextDelay,
         _props$enterTouchDela = props.enterTouchDelay,
         enterTouchDelay = _props$enterTouchDela === void 0 ? 700 : _props$enterTouchDela,
         idProp = props.id,
@@ -36308,28 +37572,29 @@
         _props$TransitionComp = props.TransitionComponent,
         TransitionComponent = _props$TransitionComp === void 0 ? Grow : _props$TransitionComp,
         TransitionProps = props.TransitionProps,
-        other = _objectWithoutProperties(props, ["arrow", "children", "classes", "disableFocusListener", "disableHoverListener", "disableTouchListener", "enterDelay", "enterTouchDelay", "id", "interactive", "leaveDelay", "leaveTouchDelay", "onClose", "onOpen", "open", "placement", "PopperProps", "title", "TransitionComponent", "TransitionProps"]);
+        other = _objectWithoutProperties(props, ["arrow", "children", "classes", "disableFocusListener", "disableHoverListener", "disableTouchListener", "enterDelay", "enterNextDelay", "enterTouchDelay", "id", "interactive", "leaveDelay", "leaveTouchDelay", "onClose", "onOpen", "open", "placement", "PopperProps", "title", "TransitionComponent", "TransitionProps"]);
 
     var theme = useTheme$1();
 
-    var _React$useState = React__default.useState(),
+    var _React$useState = React.useState(),
         childNode = _React$useState[0],
         setChildNode = _React$useState[1];
 
-    var _React$useState2 = React__default.useState(null),
+    var _React$useState2 = React.useState(null),
         arrowRef = _React$useState2[0],
         setArrowRef = _React$useState2[1];
 
-    var ignoreNonTouchEvents = React__default.useRef(false);
-    var closeTimer = React__default.useRef();
-    var enterTimer = React__default.useRef();
-    var leaveTimer = React__default.useRef();
-    var touchTimer = React__default.useRef();
+    var ignoreNonTouchEvents = React.useRef(false);
+    var closeTimer = React.useRef();
+    var enterTimer = React.useRef();
+    var leaveTimer = React.useRef();
+    var touchTimer = React.useRef();
 
     var _useControlled = useControlled({
       controlled: openProp,
       default: false,
-      name: 'Tooltip'
+      name: 'Tooltip',
+      state: 'open'
     }),
         _useControlled2 = _slicedToArray(_useControlled, 2),
         openState = _useControlled2[0],
@@ -36339,33 +37604,19 @@
 
     {
       // eslint-disable-next-line react-hooks/rules-of-hooks
-      var _React$useRef = React__default.useRef(openProp !== undefined),
+      var _React$useRef = React.useRef(openProp !== undefined),
           isControlled = _React$useRef.current; // eslint-disable-next-line react-hooks/rules-of-hooks
 
 
-      React__default.useEffect(function () {
+      React.useEffect(function () {
         if (childNode && childNode.disabled && !isControlled && title !== '' && childNode.tagName.toLowerCase() === 'button') {
           console.error(['Material-UI: you are providing a disabled `button` child to the Tooltip component.', 'A disabled element does not fire events.', "Tooltip needs to listen to the child element's events to display the title.", '', 'Add a simple wrapper element, such as a `span`.'].join('\n'));
         }
       }, [title, childNode, isControlled]);
     }
 
-    var _React$useState3 = React__default.useState(),
-        defaultId = _React$useState3[0],
-        setDefaultId = _React$useState3[1];
-
-    var id = idProp || defaultId;
-    React__default.useEffect(function () {
-      if (!open || defaultId) {
-        return;
-      } // Fallback to this default id when possible.
-      // Use the random value for client-side rendering only.
-      // We can't use it server-side.
-
-
-      setDefaultId("mui-tooltip-".concat(Math.round(Math.random() * 1e5)));
-    }, [open, defaultId]);
-    React__default.useEffect(function () {
+    var id = useId(idProp);
+    React.useEffect(function () {
       return function () {
         clearTimeout(closeTimer.current);
         clearTimeout(enterTimer.current);
@@ -36387,35 +37638,38 @@
       }
     };
 
-    var handleEnter = function handleEnter(event) {
-      var childrenProps = children.props;
+    var handleEnter = function handleEnter() {
+      var forward = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : true;
+      return function (event) {
+        var childrenProps = children.props;
 
-      if (event.type === 'mouseover' && childrenProps.onMouseOver && event.currentTarget === childNode) {
-        childrenProps.onMouseOver(event);
-      }
+        if (event.type === 'mouseover' && childrenProps.onMouseOver && forward) {
+          childrenProps.onMouseOver(event);
+        }
 
-      if (ignoreNonTouchEvents.current && event.type !== 'touchstart') {
-        return;
-      } // Remove the title ahead of time.
-      // We don't want to wait for the next render commit.
-      // We would risk displaying two tooltips at the same time (native + this one).
+        if (ignoreNonTouchEvents.current && event.type !== 'touchstart') {
+          return;
+        } // Remove the title ahead of time.
+        // We don't want to wait for the next render commit.
+        // We would risk displaying two tooltips at the same time (native + this one).
 
 
-      if (childNode) {
-        childNode.removeAttribute('title');
-      }
+        if (childNode) {
+          childNode.removeAttribute('title');
+        }
 
-      clearTimeout(enterTimer.current);
-      clearTimeout(leaveTimer.current);
+        clearTimeout(enterTimer.current);
+        clearTimeout(leaveTimer.current);
 
-      if (enterDelay && !hystersisOpen) {
-        event.persist();
-        enterTimer.current = setTimeout(function () {
+        if (enterDelay || hystersisOpen && enterNextDelay) {
+          event.persist();
+          enterTimer.current = setTimeout(function () {
+            handleOpen(event);
+          }, hystersisOpen ? enterNextDelay : enterDelay);
+        } else {
           handleOpen(event);
-        }, enterDelay);
-      } else {
-        handleOpen(event);
-      }
+        }
+      };
     };
 
     var _useIsFocusVisible = useIsFocusVisible(),
@@ -36423,9 +37677,9 @@
         onBlurVisible = _useIsFocusVisible.onBlurVisible,
         focusVisibleRef = _useIsFocusVisible.ref;
 
-    var _React$useState4 = React__default.useState(false),
-        childIsFocusVisible = _React$useState4[0],
-        setChildIsFocusVisible = _React$useState4[1];
+    var _React$useState3 = React.useState(false),
+        childIsFocusVisible = _React$useState3[0],
+        setChildIsFocusVisible = _React$useState3[1];
 
     var handleBlur = function handleBlur() {
       if (childIsFocusVisible) {
@@ -36434,32 +37688,34 @@
       }
     };
 
-    var handleFocus = function handleFocus(event) {
-      // Workaround for https://github.com/facebook/react/issues/7769
-      // The autoFocus of React might trigger the event before the componentDidMount.
-      // We need to account for this eventuality.
-      if (!childNode) {
-        setChildNode(event.currentTarget);
-      }
+    var handleFocus = function handleFocus() {
+      var forward = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : true;
+      return function (event) {
+        // Workaround for https://github.com/facebook/react/issues/7769
+        // The autoFocus of React might trigger the event before the componentDidMount.
+        // We need to account for this eventuality.
+        if (!childNode) {
+          setChildNode(event.currentTarget);
+        }
 
-      if (isFocusVisible(event)) {
-        setChildIsFocusVisible(true);
-        handleEnter(event);
-      }
+        if (isFocusVisible(event)) {
+          setChildIsFocusVisible(true);
+          handleEnter()(event);
+        }
 
-      var childrenProps = children.props;
+        var childrenProps = children.props;
 
-      if (childrenProps.onFocus && event.currentTarget === childNode) {
-        childrenProps.onFocus(event);
-      }
+        if (childrenProps.onFocus && forward) {
+          childrenProps.onFocus(event);
+        }
+      };
     };
 
     var handleClose = function handleClose(event) {
       clearTimeout(hystersisTimer);
       hystersisTimer = setTimeout(function () {
         hystersisOpen = false;
-      }, 500); // Use 500 ms per https://github.com/reach/reach-ui/blob/3b5319027d763a3082880be887d7a29aee7d3afc/packages/tooltip/src/index.js#L214
-
+      }, 800 + leaveDelay);
       setOpenState(false);
 
       if (onClose) {
@@ -36472,27 +37728,30 @@
       }, theme.transitions.duration.shortest);
     };
 
-    var handleLeave = function handleLeave(event) {
-      var childrenProps = children.props;
+    var handleLeave = function handleLeave() {
+      var forward = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : true;
+      return function (event) {
+        var childrenProps = children.props;
 
-      if (event.type === 'blur') {
-        if (childrenProps.onBlur && event.currentTarget === childNode) {
-          childrenProps.onBlur(event);
+        if (event.type === 'blur') {
+          if (childrenProps.onBlur && forward) {
+            childrenProps.onBlur(event);
+          }
+
+          handleBlur();
         }
 
-        handleBlur();
-      }
+        if (event.type === 'mouseleave' && childrenProps.onMouseLeave && event.currentTarget === childNode) {
+          childrenProps.onMouseLeave(event);
+        }
 
-      if (event.type === 'mouseleave' && childrenProps.onMouseLeave && event.currentTarget === childNode) {
-        childrenProps.onMouseLeave(event);
-      }
-
-      clearTimeout(enterTimer.current);
-      clearTimeout(leaveTimer.current);
-      event.persist();
-      leaveTimer.current = setTimeout(function () {
-        handleClose(event);
-      }, leaveDelay);
+        clearTimeout(enterTimer.current);
+        clearTimeout(leaveTimer.current);
+        event.persist();
+        leaveTimer.current = setTimeout(function () {
+          handleClose(event);
+        }, leaveDelay);
+      };
     };
 
     var handleTouchStart = function handleTouchStart(event) {
@@ -36508,7 +37767,7 @@
       clearTimeout(touchTimer.current);
       event.persist();
       touchTimer.current = setTimeout(function () {
-        handleEnter(event);
+        handleEnter()(event);
       }, enterTouchDelay);
     };
 
@@ -36528,7 +37787,7 @@
     var handleUseRef = useForkRef(setChildNode, ref);
     var handleFocusRef = useForkRef(focusVisibleRef, handleUseRef); // can be removed once we drop support for non ref forwarding class components
 
-    var handleOwnRef = React__default.useCallback(function (instance) {
+    var handleOwnRef = React.useCallback(function (instance) {
       // #StrictMode ready
       setRef(handleFocusRef, ReactDOM.findDOMNode(instance));
     }, [handleFocusRef]);
@@ -36549,8 +37808,11 @@
       'aria-describedby': open ? id : null,
       title: shouldShowNativeTitle && typeof title === 'string' ? title : null
     }, other, {}, children.props, {
-      className: clsx(other.className, children.props.className)
+      className: clsx(other.className, children.props.className),
+      ref: handleRef
     });
+
+    var interactiveWrapperListeners = {};
 
     if (!disableTouchListener) {
       childrenProps.onTouchStart = handleTouchStart;
@@ -36558,63 +37820,69 @@
     }
 
     if (!disableHoverListener) {
-      childrenProps.onMouseOver = handleEnter;
-      childrenProps.onMouseLeave = handleLeave;
+      childrenProps.onMouseOver = handleEnter();
+      childrenProps.onMouseLeave = handleLeave();
+
+      if (interactive) {
+        interactiveWrapperListeners.onMouseOver = handleEnter(false);
+        interactiveWrapperListeners.onMouseLeave = handleLeave(false);
+      }
     }
 
     if (!disableFocusListener) {
-      childrenProps.onFocus = handleFocus;
-      childrenProps.onBlur = handleLeave;
-    }
+      childrenProps.onFocus = handleFocus();
+      childrenProps.onBlur = handleLeave();
 
-    var interactiveWrapperListeners = interactive ? {
-      onMouseOver: childrenProps.onMouseOver,
-      onMouseLeave: childrenProps.onMouseLeave,
-      onFocus: childrenProps.onFocus,
-      onBlur: childrenProps.onBlur
-    } : {};
+      if (interactive) {
+        interactiveWrapperListeners.onFocus = handleFocus(false);
+        interactiveWrapperListeners.onBlur = handleLeave(false);
+      }
+    }
 
     {
       if (children.props.title) {
         console.error(['Material-UI: you have provided a `title` prop to the child of <Tooltip />.', "Remove this title prop `".concat(children.props.title, "` or the Tooltip component.")].join('\n'));
       }
-    } // Avoid the creation of a new Popper.js instance at each render.
+    }
 
-
-    var popperOptions = React__default.useMemo(function () {
-      return {
-        modifiers: {
-          arrow: {
-            enabled: Boolean(arrowRef),
-            element: arrowRef
+    var mergedPopperProps = React.useMemo(function () {
+      return deepmerge({
+        popperOptions: {
+          modifiers: {
+            arrow: {
+              enabled: Boolean(arrowRef),
+              element: arrowRef
+            }
           }
         }
-      };
-    }, [arrowRef]);
-    return React__default.createElement(React__default.Fragment, null, React__default.cloneElement(children, _extends({
-      ref: handleRef
-    }, childrenProps)), React__default.createElement(Popper$1, _extends({
+      }, PopperProps);
+    }, [arrowRef, PopperProps]);
+    return /*#__PURE__*/React.createElement(React.Fragment, null, React.cloneElement(children, childrenProps), /*#__PURE__*/React.createElement(Popper$1, _extends({
       className: clsx(classes.popper, interactive && classes.popperInteractive, arrow && classes.popperArrow),
       placement: placement,
       anchorEl: childNode,
       open: childNode ? open : false,
       id: childrenProps['aria-describedby'],
-      transition: true,
-      popperOptions: popperOptions
-    }, interactiveWrapperListeners, PopperProps), function (_ref) {
+      transition: true
+    }, interactiveWrapperListeners, mergedPopperProps), function (_ref) {
       var placementInner = _ref.placement,
           TransitionPropsInner = _ref.TransitionProps;
-      return React__default.createElement(TransitionComponent, _extends({
+      return /*#__PURE__*/React.createElement(TransitionComponent, _extends({
         timeout: theme.transitions.duration.shorter
-      }, TransitionPropsInner, TransitionProps), React__default.createElement("div", {
+      }, TransitionPropsInner, TransitionProps), /*#__PURE__*/React.createElement("div", {
         className: clsx(classes.tooltip, classes["tooltipPlacement".concat(capitalize(placementInner.split('-')[0]))], ignoreNonTouchEvents.current && classes.touch, arrow && classes.tooltipArrow)
-      }, title, arrow ? React__default.createElement("span", {
+      }, title, arrow ? /*#__PURE__*/React.createElement("span", {
         className: classes.arrow,
         ref: setArrowRef
       }) : null));
     }));
   });
    Tooltip.propTypes = {
+    // ----------------------------- Warning --------------------------------
+    // | These PropTypes are generated from the TypeScript type definitions |
+    // |     To update them edit the d.ts file and run "yarn proptypes"     |
+    // ----------------------------------------------------------------------
+
     /**
      * If `true`, adds an arrow to the tooltip.
      */
@@ -36629,7 +37897,12 @@
      * Override or extend the styles applied to the component.
      * See [CSS API](#css) below for more details.
      */
-    classes: propTypes.object.isRequired,
+    classes: propTypes.object,
+
+    /**
+     * @ignore
+     */
+    className: propTypes.string,
 
     /**
      * Do not respond to focus events.
@@ -36651,6 +37924,11 @@
      * This prop won't impact the enter touch delay (`enterTouchDelay`).
      */
     enterDelay: propTypes.number,
+
+    /**
+     * The number of milliseconds to wait before showing the tooltip when one was already recently opened.
+     */
+    enterNextDelay: propTypes.number,
 
     /**
      * The number of milliseconds a user must touch the element before showing the tooltip.
@@ -36712,7 +37990,9 @@
     /**
      * Tooltip title. Zero-length titles string are never displayed.
      */
-    title: propTypes.node.isRequired,
+    title: propTypes
+    /* @typescript-to-proptypes-ignore */
+    .node.isRequired,
 
     /**
      * The component used for the transition.
@@ -36725,7 +38005,7 @@
      */
     TransitionProps: propTypes.object
   } ;
-  var Tooltip$1 = withStyles$1(styles$1J, {
+  var Tooltip$1 = withStyles$1(styles$1L, {
     name: 'MuiTooltip'
   })(Tooltip);
 
@@ -36760,15 +38040,15 @@
         target = _options$target === void 0 ? defaultTarget : _options$target,
         other = _objectWithoutProperties(options, ["getTrigger", "target"]);
 
-    var store = React__default.useRef();
+    var store = React.useRef();
 
-    var _React$useState = React__default.useState(function () {
+    var _React$useState = React.useState(function () {
       return getTrigger(null, store, other);
     }),
         trigger = _React$useState[0],
         setTrigger = _React$useState[1];
 
-    React__default.useEffect(function () {
+    React.useEffect(function () {
       var handleScroll = function handleScroll(event) {
         setTrigger(getTrigger(event, store, other));
       };
@@ -36797,7 +38077,7 @@
           breakpoint = _options$breakpoint === void 0 ? 'sm' : _options$breakpoint;
 
       function WithMobileDialog(props) {
-        return React__default.createElement(Component, _extends({
+        return /*#__PURE__*/React.createElement(Component, _extends({
           fullScreen: isWidthDown(breakpoint, props.width)
         }, props));
       }
@@ -36808,121 +38088,6 @@
       return withWidth()(WithMobileDialog);
     };
   };
-
-  var styles$1K = {
-    entering: {
-      transform: 'none'
-    },
-    entered: {
-      transform: 'none'
-    }
-  };
-  var defaultTimeout$2 = {
-    enter: duration.enteringScreen,
-    exit: duration.leavingScreen
-  };
-  /**
-   * The Zoom transition can be used for the floating variant of the
-   * [Button](/components/buttons/#floating-action-buttons) component.
-   * It uses [react-transition-group](https://github.com/reactjs/react-transition-group) internally.
-   */
-
-  var Zoom = React__default.forwardRef(function Zoom(props, ref) {
-    var children = props.children,
-        inProp = props.in,
-        onEnter = props.onEnter,
-        onExit = props.onExit,
-        style = props.style,
-        _props$timeout = props.timeout,
-        timeout = _props$timeout === void 0 ? defaultTimeout$2 : _props$timeout,
-        other = _objectWithoutProperties(props, ["children", "in", "onEnter", "onExit", "style", "timeout"]);
-
-    var theme = useTheme$1();
-    var handleRef = useForkRef(children.ref, ref);
-
-    var handleEnter = function handleEnter(node, isAppearing) {
-      reflow(node); // So the animation always start from the start.
-
-      var transitionProps = getTransitionProps({
-        style: style,
-        timeout: timeout
-      }, {
-        mode: 'enter'
-      });
-      node.style.webkitTransition = theme.transitions.create('transform', transitionProps);
-      node.style.transition = theme.transitions.create('transform', transitionProps);
-
-      if (onEnter) {
-        onEnter(node, isAppearing);
-      }
-    };
-
-    var handleExit = function handleExit(node) {
-      var transitionProps = getTransitionProps({
-        style: style,
-        timeout: timeout
-      }, {
-        mode: 'exit'
-      });
-      node.style.webkitTransition = theme.transitions.create('transform', transitionProps);
-      node.style.transition = theme.transitions.create('transform', transitionProps);
-
-      if (onExit) {
-        onExit(node);
-      }
-    };
-
-    return React__default.createElement(Transition, _extends({
-      appear: true,
-      in: inProp,
-      onEnter: handleEnter,
-      onExit: handleExit,
-      timeout: timeout
-    }, other), function (state, childProps) {
-      return React__default.cloneElement(children, _extends({
-        style: _extends({
-          transform: 'scale(0)',
-          visibility: state === 'exited' && !inProp ? 'hidden' : undefined
-        }, styles$1K[state], {}, style, {}, children.props.style),
-        ref: handleRef
-      }, childProps));
-    });
-  });
-   Zoom.propTypes = {
-    /**
-     * A single child content element.
-     */
-    children: propTypes.element,
-
-    /**
-     * If `true`, the component will transition in.
-     */
-    in: propTypes.bool,
-
-    /**
-     * @ignore
-     */
-    onEnter: propTypes.func,
-
-    /**
-     * @ignore
-     */
-    onExit: propTypes.func,
-
-    /**
-     * @ignore
-     */
-    style: propTypes.object,
-
-    /**
-     * The duration for the transition, in milliseconds.
-     * You may specify a single timeout for all transitions, or individually with an object.
-     */
-    timeout: propTypes.oneOfType([propTypes.number, propTypes.shape({
-      enter: propTypes.number,
-      exit: propTypes.number
-    })])
-  } ;
 
   exports.AppBar = AppBar$1;
   exports.Avatar = Avatar$1;
@@ -36947,7 +38112,7 @@
   exports.ClickAwayListener = ClickAwayListener;
   exports.Collapse = Collapse$1;
   exports.Container = Container$1;
-  exports.CssBaseline = CssBaseline;
+  exports.CssBaseline = CssBaseline$1;
   exports.Dialog = Dialog$1;
   exports.DialogActions = DialogActions$1;
   exports.DialogContent = DialogContent$1;
@@ -37040,12 +38205,17 @@
   exports.Tooltip = Tooltip$1;
   exports.Typography = Typography$1;
   exports.Zoom = Zoom;
+  exports.capitalize = capitalize;
   exports.colors = index;
+  exports.createChainedFunction = deprecatedPropType;
   exports.createGenerateClassName = createGenerateClassName;
   exports.createMuiTheme = createMuiTheme;
   exports.createStyles = createStyles$1;
+  exports.createSvgIcon = createSvgIcon;
   exports.darken = darken;
+  exports.debounce = debounce;
   exports.decomposeColor = decomposeColor;
+  exports.deprecatedPropType = deprecatedPropType;
   exports.duration = duration;
   exports.easing = easing;
   exports.emphasize = emphasize;
@@ -37054,17 +38224,34 @@
   exports.getLuminance = getLuminance;
   exports.hexToRgb = hexToRgb;
   exports.hslToRgb = hslToRgb;
+  exports.isMuiElement = isMuiElement;
   exports.isWidthDown = isWidthDown;
   exports.isWidthUp = isWidthUp;
   exports.jssPreset = jssPreset;
   exports.lighten = lighten;
   exports.makeStyles = makeStyles$1;
+  exports.ownerDocument = ownerDocument;
+  exports.ownerWindow = ownerWindow;
   exports.recomposeColor = recomposeColor;
+  exports.requirePropFactory = requirePropFactory;
   exports.responsiveFontSizes = responsiveFontSizes;
   exports.rgbToHex = rgbToHex;
+  exports.setRef = setRef;
   exports.styleFunction = styleFunction;
   exports.styled = styled$1;
+  exports.unstable_StrictModeCollapse = StrictModeCollapse;
+  exports.unstable_StrictModeFade = StrictModeFade;
+  exports.unstable_StrictModeGrow = StrictModeGrow;
+  exports.unstable_StrictModeSlide = StrictModeSlide;
+  exports.unstable_StrictModeZoom = StrictModeZoom;
+  exports.unstable_createMuiStrictModeTheme = createMuiStrictModeTheme;
+  exports.unstable_useId = useId;
+  exports.unsupportedProp = unsupportedProp;
+  exports.useControlled = useControlled;
+  exports.useEventCallback = useEventCallback;
+  exports.useForkRef = useForkRef;
   exports.useFormControl = useFormControl$1;
+  exports.useIsFocusVisible = useIsFocusVisible;
   exports.useMediaQuery = useMediaQuery;
   exports.useRadioGroup = useRadioGroup;
   exports.useScrollTrigger = useScrollTrigger;
