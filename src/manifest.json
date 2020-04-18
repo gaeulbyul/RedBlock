@@ -15,6 +15,7 @@
     "https://twitter.com/*",
     "https://api.twitter.com/*",
     "https://mobile.twitter.com/*",
+    "https://tweetdeck.twitter.com/*",
     "storage",
     "notifications",
     "cookies",
@@ -34,7 +35,7 @@
 
   "content_scripts": [
     {
-      "matches": ["https://twitter.com/*", "https://mobile.twitter.com/*"],
+      "matches": ["https://twitter.com/*", "https://mobile.twitter.com/*", "https://tweetdeck.twitter.com/*"],
       "css": ["styles/oneclick-block.css"],
       "js": ["vendor/browser-polyfill.min.js", "scripts/content/content-entrypoint.js"]
     }

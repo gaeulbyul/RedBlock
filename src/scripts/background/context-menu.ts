@@ -12,6 +12,7 @@ import { loadOptions, onOptionsChanged } from './storage.js'
 import { getSingleUserByName, getTweetById } from './twitter-api.js'
 
 const urlPatterns = ['https://twitter.com/*', 'https://mobile.twitter.com/*']
+const documentUrlPatterns = ['https://twitter.com/*', 'https://mobile.twitter.com/*', 'https://tweetdeck.twitter.com/*']
 const tweetUrlPatterns = ['https://twitter.com/*/status/*', 'https://mobile.twitter.com/*/status/*']
 
 function getTweetIdFromUrl(url: URL) {
@@ -99,7 +100,7 @@ async function createContextMenu() {
 
   menus.create({
     contexts: ['link'],
-    documentUrlPatterns: urlPatterns,
+    documentUrlPatterns,
     targetUrlPatterns: urlPatterns,
     title: i18n.getMessage('run_followers_chainblock_to_this_user'),
     onclick(clickEvent, tab) {
@@ -110,7 +111,7 @@ async function createContextMenu() {
   })
   menus.create({
     contexts: ['link'],
-    documentUrlPatterns: urlPatterns,
+    documentUrlPatterns,
     targetUrlPatterns: urlPatterns,
     title: i18n.getMessage('run_followings_chainblock_to_this_user'),
     onclick(clickEvent, tab) {
@@ -121,7 +122,7 @@ async function createContextMenu() {
   })
   menus.create({
     contexts: ['link'],
-    documentUrlPatterns: urlPatterns,
+    documentUrlPatterns,
     targetUrlPatterns: urlPatterns,
     title: i18n.getMessage('run_mutual_followers_chainblock_to_this_user'),
     onclick(clickEvent, tab) {
@@ -137,7 +138,7 @@ async function createContextMenu() {
 
   menus.create({
     contexts: ['link'],
-    documentUrlPatterns: urlPatterns,
+    documentUrlPatterns,
     targetUrlPatterns: tweetUrlPatterns,
     title: i18n.getMessage('run_retweeters_chainblock_to_this_tweet'),
     onclick(clickEvent, tab) {
@@ -148,7 +149,7 @@ async function createContextMenu() {
   })
   menus.create({
     contexts: ['link'],
-    documentUrlPatterns: urlPatterns,
+    documentUrlPatterns,
     targetUrlPatterns: tweetUrlPatterns,
     title: i18n.getMessage('run_likers_chainblock_to_this_tweet'),
     onclick(clickEvent, tab) {
@@ -159,7 +160,7 @@ async function createContextMenu() {
   })
   menus.create({
     contexts: ['link'],
-    documentUrlPatterns: urlPatterns,
+    documentUrlPatterns,
     targetUrlPatterns: tweetUrlPatterns,
     title: i18n.getMessage('run_retweeters_and_likers_chainblock_to_this_tweet'),
     onclick(clickEvent, tab) {

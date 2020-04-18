@@ -46,7 +46,7 @@ function listenExtensionMessages(reactRoot: Element | null) {
 const reactRoot = document.getElementById('react-root')
 listenExtensionMessages(reactRoot)
 
-if (reactRoot) {
+if (reactRoot && location.hostname !== 'tweetdeck.twitter.com') {
   injectScriptToPage('vendor/uuid.js')
   injectScriptToPage('scripts/content/inject.js')
   document.addEventListener('RedBlock<-BlockUserById', (event) => {

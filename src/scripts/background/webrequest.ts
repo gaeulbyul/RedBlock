@@ -14,7 +14,9 @@ function stripOrigin(headers: HttpHeaders) {
     const name = headers[i].name.toLowerCase()
     switch (name) {
       case 'origin':
-        headers[i].value = 'https://twitter.com'
+        if (!/^https?:/.test(headers[i].value || '')) {
+          headers[i].value = 'https://twitter.com'
+        }
         break
     }
   }
@@ -30,7 +32,7 @@ function initializeBlockAllRequestHeaderModifier() {
     urls: ['https://twitter.com/i/user/block_all'],
   }
   browser.webRequest.onBeforeSendHeaders.addListener(
-    details => {
+    (details) => {
       // console.debug('block_all api', details)
       const headers = details.requestHeaders!
       stripOrigin(headers)
@@ -78,7 +80,7 @@ function initializeTwitterAPIRequestHeaderModifier() {
     urls: ['https://api.twitter.com/*'],
   }
   browser.webRequest.onBeforeSendHeaders.addListener(
-    details => {
+    (details) => {
       // console.debug('block_all api', details)
       const headers = details.requestHeaders!
       stripOrigin(headers)
