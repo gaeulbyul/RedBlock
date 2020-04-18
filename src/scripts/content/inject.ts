@@ -9,6 +9,8 @@ interface ReduxStore {
 }
 
 {
+  let reduxStore: ReduxStore
+  let myselfUserId = ''
   function dig<T>(obj: () => T): T | null {
     try {
       return obj()
@@ -39,9 +41,23 @@ interface ReduxStore {
   }
 
   function findReduxStore(): ReduxStore {
+    if (reduxStore) {
+      return reduxStore
+    }
     const reactRoot = document.querySelector('[data-reactroot]')!.children[0]
     const rEventHandler = getReactEventHandlers(reactRoot)
-    return rEventHandler.children.props.store
+    reduxStore = rEventHandler.children.props.store
+    return reduxStore
+  }
+
+  function getMyselfUserId(): string {
+    if (myselfUserId) {
+      return myselfUserId
+    }
+    const reduxStore = findReduxStore()
+    const state = reduxStore.getState()
+    myselfUserId = state.session.user_id
+    return myselfUserId
   }
 
   function getTweetEntityById(tweetId: string) {
@@ -141,6 +157,9 @@ interface ReduxStore {
       if (!user) {
         return
       }
+    }
+    if (user.id_str === getMyselfUserId()) {
+      return
     }
     const skipCondition = user.following || user.followed_by
     if (skipCondition) {

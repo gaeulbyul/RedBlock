@@ -1,17 +1,14 @@
-function injectPageScripts() {
-  browser.runtime
-    .getManifest()
-    .web_accessible_resources!.filter((path) => /\.js/.test(path))
-    .forEach((path) => {
-      document.body.appendChild(
-        Object.assign(document.createElement('script'), {
-          src: browser.runtime.getURL(path),
-        })
-      )
-    })
+function injectScriptToPage(path: string) {
+  document.body
+    .appendChild(
+      Object.assign(document.createElement('script'), {
+        src: browser.runtime.getURL(path),
+      })
+    )
+    .remove()
 }
 
-function listenMarkUserEvents() {
+function listenExtensionMessages(reactRoot: Element | null) {
   browser.runtime.onMessage.addListener((msgobj: any) => {
     if (!(typeof msgobj === 'object' && 'messageType' in msgobj)) {
       console.debug('unknown msg?', msgobj)
@@ -20,14 +17,16 @@ function listenMarkUserEvents() {
     const msg = msgobj as RBMessage
     switch (msg.messageType) {
       case 'MarkUser':
-        document.dispatchEvent(
-          new CustomEvent<MarkUserParams>('RedBlock->MarkUser', {
-            detail: {
-              userId: msg.userId,
-              verb: msg.verb,
-            },
-          })
-        )
+        if (reactRoot) {
+          document.dispatchEvent(
+            new CustomEvent<MarkUserParams>('RedBlock->MarkUser', {
+              detail: {
+                userId: msg.userId,
+                verb: msg.verb,
+              },
+            })
+          )
+        }
         break
       case 'Alert':
         window.alert(msg.message)
@@ -38,16 +37,18 @@ function listenMarkUserEvents() {
         }
         break
       case 'ToggleOneClickBlockMode':
-        const { enabled } = msg
-        document.body.classList.toggle('redblock-oneclick-block-mode-enabled', enabled)
+        document.body.classList.toggle('redblock-oneclick-block-mode-enabled', msg.enabled)
         break
     }
   })
 }
 
-if (document.getElementById('react-root')) {
-  injectPageScripts()
-  listenMarkUserEvents()
+const reactRoot = document.getElementById('react-root')
+listenExtensionMessages(reactRoot)
+
+if (reactRoot) {
+  injectScriptToPage('vendor/uuid.js')
+  injectScriptToPage('scripts/content/inject.js')
   document.addEventListener('RedBlock<-BlockUserById', (event) => {
     const customEvent = event as CustomEvent
     const { userId } = customEvent.detail
