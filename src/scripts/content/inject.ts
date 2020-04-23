@@ -71,7 +71,7 @@ interface ReduxStore {
     return null
   }
 
-  function getUserEntityById(userId: string) {
+  function getUserEntityById(userId: string): TwitterUser | null {
     const entities = findReduxStore().getState().entities.users.entities
     return entities[userId] || null
   }
@@ -125,7 +125,7 @@ interface ReduxStore {
   }
 
   function initializeListener() {
-    document.addEventListener('RedBlock->MarkUser', (event) => {
+    document.addEventListener('RedBlock->MarkUser', event => {
       const customEvent = event as CustomEvent<MarkUserParams>
       const rafTimeout = { timeout: 30000 }
       window.requestAnimationFrame(() => {
@@ -136,27 +136,27 @@ interface ReduxStore {
     console.debug('[RedBlock] page script: injected!')
   }
 
+  function getUserFromTweetElement(elem: HTMLElement): TwitterUser | null {
+    const tweetId = findTweetIdFromElement(elem)
+    if (!tweetId) {
+      console.warn('failed to find tweet id from', elem)
+      return null
+    }
+    const tweetEntity = getTweetEntityById(tweetId)
+    if (!tweetEntity) {
+      return null
+    }
+    const user = getUserEntityById(tweetEntity.user)
+    return user
+  }
+
   function addBlockButton(elem: HTMLElement, givenUser: TwitterUser | null = null) {
-    if (elem.querySelector('.redblock-block-btn')) {
+    if (elem.querySelector('.redblock-btn')) {
       return
     }
-    let user: TwitterUser
-    if (givenUser) {
-      user = givenUser
-    } else {
-      const tweetId = findTweetIdFromElement(elem)
-      if (!tweetId) {
-        console.warn('failed to find tweet id from', elem)
-        return
-      }
-      const tweetEntity = getTweetEntityById(tweetId)
-      if (!tweetEntity) {
-        return
-      }
-      user = getUserEntityById(tweetEntity.user)
-      if (!user) {
-        return
-      }
+    const user = givenUser || getUserFromTweetElement(elem) || null
+    if (!user) {
+      return
     }
     if (user.id_str === getMyselfUserId()) {
       return
@@ -180,7 +180,7 @@ interface ReduxStore {
     }
     btn.addEventListener(
       'click',
-      (event) => {
+      event => {
         event.preventDefault()
         const userId = user.id_str
         const detail = { userId }
@@ -218,10 +218,10 @@ interface ReduxStore {
   }
 
   function initializeOneClickBlockMode(reactRoot: Element) {
-    new MutationObserver((mutations) => {
+    new MutationObserver(mutations => {
       for (const elem of getAddedElementsFromMutations(mutations)) {
         const tweetElems = elem.querySelectorAll<HTMLElement>('[data-testid=tweet]')
-        tweetElems.forEach((elem) => addBlockButton(elem))
+        tweetElems.forEach(elem => addBlockButton(elem))
       }
     }).observe(reactRoot, {
       subtree: true,
