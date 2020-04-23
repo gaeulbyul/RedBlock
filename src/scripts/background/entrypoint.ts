@@ -76,7 +76,7 @@ async function stopAllChainBlock() {
 }
 
 async function sendChainBlockerInfoToTabs() {
-  const infos = chainblocker.getAllSessionsProgress().reverse()
+  const infos = chainblocker.getAllSessionInfos().reverse()
   for (const tabId of tabConnections) {
     browser.tabs
       .sendMessage<RBMessages.ChainBlockInfo>(tabId, {
@@ -90,7 +90,7 @@ async function sendChainBlockerInfoToTabs() {
 }
 
 async function sendProgress() {
-  const infos = chainblocker.getAllSessionsProgress()
+  const infos = chainblocker.getAllSessionInfos()
   return browser.runtime
     .sendMessage<RBMessages.ChainBlockInfo>({
       messageType: 'ChainBlockInfo',

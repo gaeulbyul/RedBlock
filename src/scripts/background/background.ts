@@ -1,3 +1,5 @@
+import * as i18n from '../i18n.js'
+
 export function notify(message: string): void {
   const notif: browser.notifications.NotificationOptions = {
     type: 'basic',
@@ -21,5 +23,23 @@ export async function alert(message: string) {
   browser.tabs.sendMessage<RBMessages.Alert>(currentTab.id!, {
     messageType: 'Alert',
     message,
+  })
+}
+
+export function updateExtensionBadge(sessions: SessionInfo[]) {
+  const manifest = browser.runtime.getManifest()
+  const runningSessionsCount = sessions.length
+  // Chromium에선 setBadgeText의 text에 null을 허용하지 않음
+  const text: string = runningSessionsCount ? runningSessionsCount.toString() : ''
+  browser.browserAction.setBadgeText({
+    text,
+  })
+  browser.browserAction.setBadgeBackgroundColor({
+    color: '#3d5afe',
+  })
+  let title = `Red Block v${manifest.version}\n`
+  title += `* ${i18n.getMessage('running_sessions')}: ${runningSessionsCount}`
+  browser.browserAction.setTitle({
+    title,
   })
 }

@@ -1,7 +1,7 @@
 import { SessionStatus, isRunningStatus } from '../common.js'
 import * as TextGenerate from '../text-generate.js'
 import * as i18n from '../i18n.js'
-import { alert, notify } from './background.js'
+import { alert, notify, updateExtensionBadge } from './background.js'
 import ChainBlockSession from './chainblock-session/session.js'
 
 export default class ChainBlocker {
@@ -16,7 +16,7 @@ export default class ChainBlocker {
     return currentRunningSessions.length > 0
   }
   private getCurrentRunningSessions() {
-    const currentRunningSessions = Array.from(this.sessions.values()).filter((session) =>
+    const currentRunningSessions = Array.from(this.sessions.values()).filter(session =>
       isRunningStatus(session.getSessionInfo().status)
     )
     return currentRunningSessions
@@ -34,7 +34,7 @@ export default class ChainBlocker {
       discarded: false,
       url: ['https://twitter.com/*', 'https://mobile.twitter.com/*'],
     })
-    tabs.forEach((tab) => {
+    tabs.forEach(tab => {
       const id = tab.id
       if (typeof id !== 'number') {
         return
@@ -48,22 +48,31 @@ export default class ChainBlocker {
     })
   }
   private handleEvents(session: ChainBlockSession) {
-    session.eventEmitter.on('complete', (info) => {
+    session.eventEmitter.on('started', () => {
+      this.updateBadge()
+    })
+    session.eventEmitter.on('complete', info => {
       const message = TextGenerate.chainBlockResultNotification(info)
       notify(message)
-    })
-    session.eventEmitter.on('complete', () => {
       this.startRemainingSessions()
+      this.updateBadge()
     })
     session.eventEmitter.on('stopped', () => {
       this.startRemainingSessions()
+      this.updateBadge()
     })
-    session.eventEmitter.on('error', (error) => {
+    session.eventEmitter.on('error', error => {
       notify(`${i18n.getMessage('error_occured')}:\n${error}`)
+      this.updateBadge()
     })
-    session.eventEmitter.on('mark-user', (params) => {
+    session.eventEmitter.on('mark-user', params => {
       this.markUser(params)
     })
+  }
+  private updateBadge() {
+    const runningSessions = this.getCurrentRunningSessions().map(session => session.getSessionInfo())
+    console.debug('updateExtensionBadge(%o)', runningSessions)
+    updateExtensionBadge(runningSessions)
   }
   private checkAvailableSessionsCount() {
     const runningSessions = this.getCurrentRunningSessions()
@@ -96,6 +105,7 @@ export default class ChainBlocker {
   public stop(sessionId: string) {
     const session = this.sessions.get(sessionId)!
     session.stop()
+    this.updateBadge()
     this.sessions.delete(sessionId)
   }
   public stopAll() {
@@ -107,6 +117,7 @@ export default class ChainBlocker {
       }
       session.stop()
     }
+    this.updateBadge()
   }
   public async start(sessionId: string) {
     const count = this.checkAvailableSessionsCount()
@@ -115,7 +126,8 @@ export default class ChainBlocker {
     }
     const session = this.sessions.get(sessionId)
     if (session) {
-      return session.start()
+      await session.start()
+      this.updateBadge()
     }
   }
   public async startAll() {
@@ -131,10 +143,11 @@ export default class ChainBlocker {
         sessionPromises.push(session.start().catch(() => {}))
       }
     }
-    return Promise.all(sessionPromises)
+    await Promise.all(sessionPromises)
+    this.updateBadge()
   }
-  public getAllSessionsProgress(): SessionInfo[] {
-    return Array.from(this.sessions.values()).map((ses) => ses.getSessionInfo())
+  public getAllSessionInfos(): SessionInfo[] {
+    return Array.from(this.sessions.values()).map(ses => ses.getSessionInfo())
   }
   public cleanupSessions() {
     const sessions = this.sessions.values()
@@ -145,5 +158,6 @@ export default class ChainBlocker {
       }
       this.sessions.delete(sessionInfo.sessionId)
     }
+    this.updateBadge()
   }
 }

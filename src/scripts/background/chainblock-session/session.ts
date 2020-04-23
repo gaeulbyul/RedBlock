@@ -2,7 +2,6 @@ import * as Scraper from './scraper.js'
 import * as TwitterAPI from '../twitter-api.js'
 import * as i18n from '../../i18n.js'
 import { blockMultipleUsers, BlockAllResult } from '../block-all.js'
-
 import {
   EventEmitter,
   SessionStatus,
@@ -22,6 +21,7 @@ interface SessionEventEmitter {
   'mark-user': MarkUserParams
   'rate-limit': Limit
   'rate-limit-reset': null
+  started: SessionInfo
   stopped: SessionInfo
   complete: SessionInfo
   error: string
@@ -169,7 +169,7 @@ export default class ChainBlockSession {
       if (!result) {
         return
       }
-      result.blocked.forEach((userId) => {
+      result.blocked.forEach(userId => {
         incrementSuccess('Block')
         this.eventEmitter.emit('mark-user', {
           userId,
@@ -293,11 +293,14 @@ export default class ChainBlockSession {
     eventEmitter.emit('rate-limit', limit)
   }
   private handleRunning(sessionInfo: SessionInfo, eventEmitter: EventEmitter<SessionEventEmitter>) {
+    if (sessionInfo.status === SessionStatus.Initial) {
+      eventEmitter.emit('started', sessionInfo)
+    }
     if (sessionInfo.status === SessionStatus.RateLimited) {
       eventEmitter.emit('rate-limit-reset', null)
     }
-    sessionInfo.status = SessionStatus.Running
     sessionInfo.limit = null
+    sessionInfo.status = SessionStatus.Running
   }
   private calculateScrapedCount() {
     const { success, already, failure, error, skipped } = this.sessionInfo.progress
@@ -350,7 +353,7 @@ class BlockAllAPIBlocker {
   }
   public async flush() {
     // console.info('flush start!')
-    const result = await blockMultipleUsers(this.buffer.map((u) => u.id_str)) // .catch(() => { })
+    const result = await blockMultipleUsers(this.buffer.map(u => u.id_str)) // .catch(() => { })
     this.buffer.length = 0
     // console.info('flush end!')
     return result
