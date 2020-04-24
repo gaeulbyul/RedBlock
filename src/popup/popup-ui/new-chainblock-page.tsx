@@ -1,7 +1,7 @@
 import * as Storage from '../../scripts/background/storage.js'
 import * as TwitterAPI from '../../scripts/background/twitter-api.js'
 import { TwitterUser } from '../../scripts/background/twitter-api.js'
-import { TwitterUserMap, getFollowersCount } from '../../scripts/common.js'
+import { TwitterUserMap, getFollowersCount, MAX_USER_LIMIT } from '../../scripts/common.js'
 import * as i18n from '../../scripts/i18n.js'
 import * as TextGenerate from '../../scripts/text-generate.js'
 import { insertUserToStorage, removeUserFromStorage, startFollowerChainBlock } from '../popup.js'
@@ -88,7 +88,7 @@ function TargetSavedUsers(props: {
     }
   }
   const sortedByName = (usersMap: TwitterUserMap): TwitterUser[] =>
-    _.sortBy(usersMap.toUserArray(), (user) => user.screen_name.toLowerCase())
+    _.sortBy(usersMap.toUserArray(), user => user.screen_name.toLowerCase())
   const selectUserFromOption = (elem: EventTarget) => {
     if (!(elem instanceof HTMLSelectElement)) {
       throw new Error('unreachable')
@@ -307,7 +307,7 @@ function TargetUserSelectUI(props: { isAvailable: boolean }) {
       return users
     }
     loadUsers()
-    return Storage.onSavedUsersChanged(async (users) => {
+    return Storage.onSavedUsersChanged(async users => {
       await loadUsers()
       if (!(selectedUser && users.has(selectedUser.id_str))) {
         setSelectedUser(currentUser)
@@ -363,7 +363,7 @@ function TargetUserSelectUI(props: { isAvailable: boolean }) {
 }
 
 function TargetOptionsUI() {
-  const { selectedMode, setSelectedMode } = React.useContext(TargetUserContext)
+  const { selectedMode, setSelectedMode, selectedUser } = React.useContext(TargetUserContext)
   const classes = useStylesForExpansionPanels()
   const localizedMode = i18n.getMessage(selectedMode)
   // const helpPageLanguage = i18n.getUILanguage() === 'ko' ? 'ko' : 'en'
@@ -374,6 +374,15 @@ function TargetOptionsUI() {
   //     rel="noopener noreferer"
   //     href={twitterAdvancedBlockOptionsHelpPageUrl}>*</a>
   // )
+  let shouldShowMassiveBlockWarning = false
+  if (selectedUser) {
+    if (selectedUser.friends_count >= MAX_USER_LIMIT) {
+      shouldShowMassiveBlockWarning = true
+    }
+    if (selectedUser.followers_count >= MAX_USER_LIMIT) {
+      shouldShowMassiveBlockWarning = true
+    }
+  }
   return (
     <M.ExpansionPanel defaultExpanded>
       <DenseExpansionPanelSummary expandIcon={<M.Icon>expand_more</M.Icon>}>
@@ -393,6 +402,11 @@ function TargetOptionsUI() {
             <div className="description">
               {i18n.getMessage('chainblock_description')} {i18n.getMessage('my_mutual_followers_wont_block')}
               <div className="wtf">{i18n.getMessage('wtf_twitter')}</div>
+              {shouldShowMassiveBlockWarning && (
+                <div className="massive-block-warning">
+                  {i18n.getMessage('chainblock_max_user_warning', MAX_USER_LIMIT.toLocaleString())}
+                </div>
+              )}
             </div>
           </TabPanel>
           <TabPanel value={selectedMode} index={'unchainblock'}>
@@ -506,7 +520,7 @@ async function getUserByNameWithCache(userName: string): Promise<TwitterUser> {
   return user
 }
 
-const BigExecuteChainBlockButton = MaterialUI.withStyles((theme) => ({
+const BigExecuteChainBlockButton = MaterialUI.withStyles(theme => ({
   root: {
     width: '100%',
     padding: '10px',
@@ -519,7 +533,7 @@ const BigExecuteChainBlockButton = MaterialUI.withStyles((theme) => ({
     },
   },
 }))(MaterialUI.Button)
-const BigExecuteUnChainBlockButton = MaterialUI.withStyles((theme) => ({
+const BigExecuteUnChainBlockButton = MaterialUI.withStyles(theme => ({
   root: {
     width: '100%',
     padding: '10px',

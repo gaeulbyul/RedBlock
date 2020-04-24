@@ -420,8 +420,13 @@
   "cant_chainblock_mutual_follower_is_zero": {
     "message": "This user doesn't have mutual-followers."
   },
-  "cant_chainblock_too_many_block": {
-    "message": "To prevent overuse, Red Block won't run Chainblock over 100K Users."
+  "chainblock_max_user_warning": {
+    "message": "To prevent overuse, Red Block will stop when session reaches over $count$ users.",
+    "placeholders": {
+      "count": {
+        "content": "$1"
+      }
+    }
   },
   "cant_chainblock_nobody_retweeted": {
     "message": "Nobody retweeted this tweet."

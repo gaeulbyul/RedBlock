@@ -262,6 +262,11 @@ input[type='radio'] {
   color: maroon;
 }
 
+.massive-block-warning {
+  font-size: smaller;
+  color: maroon;
+}
+
 .warning {
   margin: 0.3rem 0;
   padding: 0.3rem;

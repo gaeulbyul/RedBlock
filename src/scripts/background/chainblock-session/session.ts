@@ -3,6 +3,7 @@ import * as TwitterAPI from '../twitter-api.js'
 import * as i18n from '../../i18n.js'
 import { blockMultipleUsers, BlockAllResult } from '../block-all.js'
 import {
+  MAX_USER_LIMIT,
   EventEmitter,
   SessionStatus,
   copyFrozenObject,
@@ -15,7 +16,7 @@ export type SessionRequest = FollowerBlockSessionRequest | TweetReactionBlockSes
 
 type Limit = TwitterAPI.Limit
 
-const MAX_USER_LIMIT = 10_0000
+// const MAX_USER_LIMIT = 100000
 
 interface SessionEventEmitter {
   'mark-user': MarkUserParams
@@ -181,12 +182,16 @@ export default class ChainBlockSession {
     let stopped = false
     try {
       for await (const maybeUser of scraper) {
-        this.updateTotalCount(scraper)
-        this.sessionInfo.count.scraped = this.calculateScrapedCount()
         if (this.shouldStop) {
           stopped = true
           await blocker.flush()
           break
+        }
+        this.updateTotalCount(scraper)
+        this.sessionInfo.count.scraped = this.calculateScrapedCount()
+        if (this.sessionInfo.count.scraped >= MAX_USER_LIMIT) {
+          this.stop()
+          continue
         }
         if (!maybeUser.ok) {
           if (maybeUser.error instanceof TwitterAPI.RateLimitError) {
@@ -424,10 +429,6 @@ export function checkFollowerBlockTarget(target: FollowerBlockSessionRequest['ta
     return [false, i18n.getMessage('cant_chainblock_following_is_zero')]
   } else if (target.list === 'mutual-followers' && followers_count <= 0 && friends_count <= 0) {
     return [false, i18n.getMessage('cant_chainblock_mutual_follower_is_zero')]
-  }
-  const userCount = getFollowersCount(target.user, target.list) || 0
-  if (userCount > MAX_USER_LIMIT) {
-    return [false, i18n.getMessage('cant_chainblock_too_many_block')]
   }
   return [true, '']
 }

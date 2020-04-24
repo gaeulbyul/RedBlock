@@ -17,6 +17,14 @@ export const enum SessionStatus {
 }
 
 export const UI_UPDATE_DELAY = 250
+export const MAX_USER_LIMIT = 100000
+/* about MAX_USER_LIMIT:
+Increasing value makes Red Block's chainblock scrapes more user.
+However, I'm worried that Twitter may restrict user-block API futhermore.
+If it became reality, Red Block become completely unusable.
+( block_all API is LAST method for block massive users )
+So I don't recommends modify its value.
+*/
 
 export class EventEmitter<T> {
   protected events: EventStore = new Proxy(
@@ -39,7 +47,7 @@ export class EventEmitter<T> {
   emit<K extends keyof T>(eventName: string & K, eventHandlerParameter: T[K]) {
     const handlers = [...this.events[eventName], ...this.events['*']]
     // console.debug('EventEmitter: emit "%s" with %o', eventName, eventHandlerParameter)
-    handlers.forEach((handler) => handler(eventHandlerParameter))
+    handlers.forEach(handler => handler(eventHandlerParameter))
     return this
   }
 }
@@ -124,7 +132,7 @@ export function getUserNameFromURL(url: URL | Location | HTMLAnchorElement): str
 }
 
 export function sleep(time: number): Promise<void> {
-  return new Promise((resolve) => window.setTimeout(resolve, time))
+  return new Promise(resolve => window.setTimeout(resolve, time))
 }
 
 export function copyFrozenObject<T extends object>(obj: T): Readonly<T> {

@@ -420,8 +420,13 @@
   "cant_chainblock_mutual_follower_is_zero": {
     "message": "맞팔로워가 0명입니다."
   },
-  "cant_chainblock_too_many_block": {
-    "message": "오·남용을 막기 위해 10만명이 넘는 사용자를 대상으로 하는 체인블락은 제한합니다."
+  "chainblock_max_user_warning": {
+    "message": "오·남용을 막기 위해 $count$명 초과시 체인블락을 정지합니다.",
+    "placeholders": {
+      "count": {
+        "content": "$1"
+      }
+    }
   },
   "cant_chainblock_nobody_retweeted": {
     "message": "아무도 리트윗하지 않은 트윗입니다."
