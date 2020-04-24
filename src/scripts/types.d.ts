@@ -122,6 +122,11 @@ declare namespace RBMessages {
     verb: VerbSomething
   }
 
+  interface MarkManyUsersAsBlocked {
+    messageType: 'MarkManyUsersAsBlocked'
+    userIds: string[]
+  }
+
   interface PopupSwitchTab {
     messageType: 'PopupSwitchTab'
     page: PageEnum[keyof PageEnum]
@@ -148,6 +153,7 @@ declare namespace RBMessages {
 type RBMessage =
   | RBMessages.ChainBlockInfo
   | RBMessages.MarkUser
+  | RBMessages.MarkManyUsersAsBlocked
   | RBMessages.PopupSwitchTab
   | RBMessages.Alert
   | RBMessages.ConfirmChainBlock
@@ -156,6 +162,10 @@ type RBMessage =
 interface MarkUserParams {
   userId: string
   verb: VerbSomething
+}
+
+interface MarkManyUsersAsBlockedParams {
+  userIds: string[]
 }
 
 // ---- browser notification types ----

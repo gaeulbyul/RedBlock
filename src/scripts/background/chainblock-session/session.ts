@@ -20,6 +20,7 @@ type Limit = TwitterAPI.Limit
 
 interface SessionEventEmitter {
   'mark-user': MarkUserParams
+  'mark-many-users-as-blocked': MarkManyUsersAsBlockedParams
   'rate-limit': Limit
   'rate-limit-reset': null
   started: SessionInfo
@@ -170,14 +171,11 @@ export default class ChainBlockSession {
       if (!result) {
         return
       }
-      result.blocked.forEach(userId => {
-        incrementSuccess('Block')
-        this.eventEmitter.emit('mark-user', {
-          userId,
-          verb: 'Block',
-        })
+      this.eventEmitter.emit('mark-many-users-as-blocked', {
+        userIds: result.blocked,
       })
-      result.failed.forEach(() => incrementFailure())
+      this.sessionInfo.progress.success.Block += result.blocked.length
+      this.sessionInfo.progress.failure += result.failed.length
     }
     let stopped = false
     try {

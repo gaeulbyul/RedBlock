@@ -47,6 +47,24 @@ export default class ChainBlocker {
         .catch(() => {})
     })
   }
+  private async markManyUsersAsBlocked({ userIds }: MarkManyUsersAsBlockedParams) {
+    const tabs = await browser.tabs.query({
+      discarded: false,
+      url: ['https://twitter.com/*', 'https://mobile.twitter.com/*'],
+    })
+    tabs.forEach(tab => {
+      const id = tab.id
+      if (typeof id !== 'number') {
+        return
+      }
+      browser.tabs
+        .sendMessage<RBMessages.MarkManyUsersAsBlocked>(id, {
+          messageType: 'MarkManyUsersAsBlocked',
+          userIds,
+        })
+        .catch(() => {})
+    })
+  }
   private handleEvents(session: ChainBlockSession) {
     session.eventEmitter.on('started', () => {
       this.updateBadge()
@@ -67,6 +85,9 @@ export default class ChainBlocker {
     })
     session.eventEmitter.on('mark-user', params => {
       this.markUser(params)
+    })
+    session.eventEmitter.on('mark-many-users-as-blocked', ({ userIds }) => {
+      this.markManyUsersAsBlocked({ userIds })
     })
   }
   private updateBadge() {

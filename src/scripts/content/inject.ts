@@ -133,13 +133,23 @@ interface ReduxStore {
         // @ts-ignore
       }, rafTimeout)
     })
+    document.addEventListener('RedBlock->MarkManyUsersAsBlocked', event => {
+      const customEvent = event as CustomEvent<MarkManyUsersAsBlockedParams>
+      const rafTimeout = { timeout: 30000 }
+      window.requestAnimationFrame(() => {
+        for (const userId of customEvent.detail.userIds) {
+          markUser({ userId, verb: 'Block' })
+        }
+        // @ts-ignore
+      }, rafTimeout)
+    })
     console.debug('[RedBlock] page script: injected!')
   }
 
   function getUserFromTweetElement(elem: HTMLElement): TwitterUser | null {
     const tweetId = findTweetIdFromElement(elem)
     if (!tweetId) {
-      console.warn('failed to find tweet id from', elem)
+      // console.warn('failed to find tweet id from', elem)
       return null
     }
     const tweetEntity = getTweetEntityById(tweetId)

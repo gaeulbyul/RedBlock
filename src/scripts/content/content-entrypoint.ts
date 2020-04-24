@@ -28,6 +28,17 @@ function listenExtensionMessages(reactRoot: Element | null) {
           )
         }
         break
+      case 'MarkManyUsersAsBlocked':
+        if (reactRoot) {
+          document.dispatchEvent(
+            new CustomEvent<MarkManyUsersAsBlockedParams>('RedBlock->MarkManyUsersAsBlocked', {
+              detail: {
+                userIds: msg.userIds,
+              },
+            })
+          )
+        }
+        break
       case 'Alert':
         window.alert(msg.message)
         break
@@ -49,7 +60,7 @@ listenExtensionMessages(reactRoot)
 if (reactRoot && location.hostname !== 'tweetdeck.twitter.com') {
   injectScriptToPage('vendor/uuid.js')
   injectScriptToPage('scripts/content/inject.js')
-  document.addEventListener('RedBlock<-BlockUserById', (event) => {
+  document.addEventListener('RedBlock<-BlockUserById', event => {
     const customEvent = event as CustomEvent
     const { userId } = customEvent.detail
     browser.runtime.sendMessage<RBActions.BlockUserById>({
@@ -57,7 +68,7 @@ if (reactRoot && location.hostname !== 'tweetdeck.twitter.com') {
       userId,
     })
   })
-  document.addEventListener('RedBlock<-UnblockUserById', (event) => {
+  document.addEventListener('RedBlock<-UnblockUserById', event => {
     const customEvent = event as CustomEvent
     const { userId } = customEvent.detail
     browser.runtime.sendMessage<RBActions.UnblockUserById>({
