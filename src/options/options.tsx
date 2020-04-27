@@ -1,43 +1,42 @@
-// import * as Storage from '../scripts/background/storage.js'
+import * as Storage from '../scripts/background/storage.js'
+import * as i18n from '../scripts/i18n.js'
 
-// type RedBlockOptions = Storage.RedBlockStorage['options']
+type RedBlockOptions = Storage.RedBlockStorage['options']
 
 function OptionsApp() {
-  // const [options, setOptions] = React.useState<RedBlockOptions>(Storage.defaultOptions)
-  // React.useEffect(() => {
-  //   Storage.loadOptions().then(setOptions)
-  //   return Storage.onOptionsChanged(setOptions)
-  // }, [])
-  // // async function mutateOptions(newOptionsPart: Partial<RedBlockOptions>) {
-  //   const newOptions = { ...options, ...newOptionsPart }
-  //   await Storage.saveOptions(newOptions)
-  //   setOptions(newOptions)
-  // }
+  const [options, setOptions] = React.useState<RedBlockOptions>(Storage.defaultOptions)
+  React.useEffect(() => {
+    Storage.loadOptions().then(setOptions)
+    return Storage.onOptionsChanged(setOptions)
+  }, [])
+  async function mutateOptions(newOptionsPart: Partial<RedBlockOptions>) {
+    const newOptions = { ...options, ...newOptionsPart }
+    await Storage.saveOptions(newOptions)
+    setOptions(newOptions)
+  }
   return (
     <div>
       <fieldset>
-        <legend>실험적인 기능 / Experimental Features</legend>
-        <span>현재는 없습니다. / Not available.</span>
+        <legend>옵션 / Options</legend>
         <div className="option-item">
-          {/*
           <label className="field checkbox-field">
             <input
               type="checkbox"
-              checked={options.enableRailgun}
+              checked={options.removeSessionAfterComplete}
               onChange={() =>
                 mutateOptions({
-                  enableRailgun: !options.enableRailgun,
+                  removeSessionAfterComplete: !options.removeSessionAfterComplete,
                 })
               }
             />
-            <span>Railgun 모드</span>
+            <span>{i18n.getMessage('remove_session_after_complete')}</span>
           </label>
-          <div className="info-option">
-            <p>체인블락을 할 때 팔로워를 가져오는 API호출을 대폭 줄입니다.</p>
-            <p>단, 이미 차단한 유저수가 집계되지 않습니다.</p>
-          </div>
-       */}
         </div>
+      </fieldset>
+      <fieldset>
+        <legend>실험적인 기능 / Experimental Features</legend>
+        <span>현재는 없습니다. / Not available.</span>
+        <div className="option-item"></div>
       </fieldset>
     </div>
   )

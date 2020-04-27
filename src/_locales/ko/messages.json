@@ -442,5 +442,8 @@
   },
   "oneclick_block_mode": {
     "message": "원클릭 차단모드"
+  },
+  "remove_session_after_complete": {
+    "message": "세션 완료 후 자동으로 지우기"
   }
 }

@@ -53,7 +53,7 @@ export async function saveOptions(newOptions: RedBlockStorage['options']): Promi
 }
 
 export const defaultOptions: Readonly<RedBlockStorage['options']> = Object.freeze({
-  enableRailgun: false,
+  removeSessionAfterComplete: false,
 })
 
 export function onOptionsChanged(handler: (options: RedBlockStorage['options']) => void) {
@@ -82,7 +82,9 @@ export function onSavedUsersChanged(handler: (savedUsers: TwitterUserMap) => voi
 
 export interface RedBlockStorage {
   savedUsers: TwitterUser[]
-  options: {}
+  options: {
+    removeSessionAfterComplete: boolean
+  }
 }
 
 export type RedBlockStorageChanges = {

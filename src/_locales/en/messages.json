@@ -442,5 +442,8 @@
   },
   "oneclick_block_mode": {
     "message": "One-click block mode"
+  },
+  "remove_session_after_complete": {
+    "message": "Remove session after complete"
   }
 }

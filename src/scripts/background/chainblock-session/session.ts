@@ -249,8 +249,11 @@ export default class ChainBlockSession {
       throw error
     }
   }
-  public stop() {
+  public async stop() {
     this.shouldStop = true
+    return new Promise(resolve => {
+      this.eventEmitter.on('stopped', resolve)
+    })
   }
   private initSessionInfo() {
     return {

@@ -3,6 +3,7 @@ import * as TextGenerate from '../text-generate.js'
 import * as i18n from '../i18n.js'
 import { alert, notify, updateExtensionBadge } from './background.js'
 import ChainBlockSession from './chainblock-session/session.js'
+import { loadOptions } from './storage.js'
 
 export default class ChainBlocker {
   private readonly MAX_RUNNING_SESSIONS = 5
@@ -69,11 +70,16 @@ export default class ChainBlocker {
     session.eventEmitter.on('started', () => {
       this.updateBadge()
     })
-    session.eventEmitter.on('complete', info => {
+    session.eventEmitter.on('complete', async info => {
+      const { sessionId } = info
       const message = TextGenerate.chainBlockResultNotification(info)
       notify(message)
       this.startRemainingSessions()
       this.updateBadge()
+      const options = await loadOptions()
+      if (options.removeSessionAfterComplete) {
+        this.removeSession(sessionId)
+      }
     })
     session.eventEmitter.on('stopped', () => {
       this.startRemainingSessions()
@@ -110,6 +116,13 @@ export default class ChainBlocker {
         await session.start()
       }
     }
+  }
+  private removeSession(sessionId: string) {
+    const session = this.sessions.get(sessionId)!
+    if (isRunningStatus(session.getSessionInfo().status)) {
+      throw new Error(`attempted to remove running session! [id=${sessionId}]`)
+    }
+    this.sessions.delete(sessionId)
   }
   public add(request: SessionRequest) {
     const { target } = request
