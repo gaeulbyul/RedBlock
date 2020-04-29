@@ -1,6 +1,6 @@
 {
   "name": "red-block",
-  "version": "0.0.0-see-manifest-json",
+  "version": "0.0.0",
   "description": "Red Block",
   "main": "RedBlock/manifest.json",
   "repository": "https://github.com/gaeulbyul/RedBlock",
