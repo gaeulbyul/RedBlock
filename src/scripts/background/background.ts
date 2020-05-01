@@ -28,6 +28,10 @@ export async function alert(message: string) {
 
 export function updateExtensionBadge(sessions: SessionInfo[]) {
   const manifest = browser.runtime.getManifest()
+  if (typeof browser.browserAction.setBadgeText !== 'function') {
+    // 안드로이드용 Firefox에선 뱃지 관련 API를 사용할 수 없다.
+    return
+  }
   const runningSessionsCount = sessions.length
   // Chromium에선 setBadgeText의 text에 null을 허용하지 않음
   const text: string = runningSessionsCount ? runningSessionsCount.toString() : ''
