@@ -93,6 +93,7 @@ export function getUserNameFromURL(url: URL | Location | HTMLAnchorElement): str
     'hashtag',
     'home',
     'i',
+    'intent',
     'lists',
     'login',
     'logout',

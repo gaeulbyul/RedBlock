@@ -36,6 +36,15 @@
   "content_scripts": [
     {
       "matches": ["https://twitter.com/*", "https://mobile.twitter.com/*", "https://tweetdeck.twitter.com/*"],
+      "exclude_matches": [
+        "https://*.twitter.com/about",
+        "https://*.twitter.com/download",
+        "https://*.twitter.com/intent/*",
+        "https://*.twitter.com/privacy",
+        "https://*.twitter.com/tos",
+        "https://*.twitter.com/*/privacy",
+        "https://*.twitter.com/*/tos"
+      ],
       "css": ["styles/oneclick-block.css"],
       "js": ["vendor/browser-polyfill.min.js", "scripts/content/content-entrypoint.js"]
     }
