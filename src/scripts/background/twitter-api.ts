@@ -30,29 +30,12 @@ export async function getRateLimitStatus(): Promise<LimitStatus> {
   return resources
 }
 
-export async function blockUserById(user_id: string): Promise<boolean> {
-  const response = await requestAPI('post', '/blocks/create.json', {
-    user_id,
-    include_entities: false,
-    skip_status: true,
-  })
-  if (response.ok) {
-    return true
-  } else {
-    throw new APIFailError('error', response)
-  }
-}
-
 export async function blockUser(user: TwitterUser) {
   if (user.blocking) {
     return true
   }
-  return blockUserById(user.id_str)
-}
-
-export async function unblockUserById(user_id: string): Promise<boolean> {
-  const response = await requestAPI('post', '/blocks/destroy.json', {
-    user_id,
+  const response = await requestAPI('post', '/blocks/create.json', {
+    user_id: user.id_str,
     include_entities: false,
     skip_status: true,
   })
@@ -67,12 +50,10 @@ export async function unblockUser(user: TwitterUser) {
   if (!user.blocking) {
     return true
   }
-  return unblockUserById(user.id_str)
-}
-
-export async function muteUserById(user_id: string): Promise<boolean> {
-  const response = await requestAPI('post', '/mutes/users/create.json', {
-    user_id,
+  const response = await requestAPI('post', '/blocks/destroy.json', {
+    user_id: user.id_str,
+    include_entities: false,
+    skip_status: true,
   })
   if (response.ok) {
     return true
@@ -85,12 +66,8 @@ export async function muteUser(user: TwitterUser) {
   if (user.muting) {
     return true
   }
-  return muteUserById(user.id_str)
-}
-
-export async function unmuteUserById(user_id: string): Promise<boolean> {
-  const response = await requestAPI('post', '/mutes/users/destroy.json', {
-    user_id,
+  const response = await requestAPI('post', '/mutes/users/create.json', {
+    user_id: user.id_str,
   })
   if (response.ok) {
     return true
@@ -103,7 +80,14 @@ export async function unmuteUser(user: TwitterUser) {
   if (!user.muting) {
     return true
   }
-  return unmuteUserById(user.id_str)
+  const response = await requestAPI('post', '/mutes/users/destroy.json', {
+    user_id: user.id_str,
+  })
+  if (response.ok) {
+    return true
+  } else {
+    throw new APIFailError('error', response)
+  }
 }
 
 export async function getTweetById(tweetId: string): Promise<Tweet> {
@@ -225,7 +209,7 @@ export async function* lookupUsersByIds(userIds: string[]): AsyncIterableIterato
   const chunks = _.chunk(userIds, 100)
   for (const chunk of chunks) {
     const mutualUsers = await getMultipleUsersById(chunk)
-    yield* mutualUsers.map((user) => ({
+    yield* mutualUsers.map(user => ({
       ok: true as const,
       value: user,
     }))
@@ -285,7 +269,7 @@ export async function getSingleUserById(userId: string, actAsUserId = ''): Promi
 }
 
 export async function getFriendships(users: TwitterUser[]): Promise<FriendshipResponse> {
-  const userIds = users.map((user) => user.id_str)
+  const userIds = users.map(user => user.id_str)
   if (userIds.length === 0) {
     return []
   }
@@ -418,7 +402,7 @@ export function parseAuthMultiCookie(authMulti: string): MultiAccountCookies {
   const userTokenPairs = authMulti
     .replace(/^"|"$/g, '')
     .split('|')
-    .map((pair) => pair.split(':') as [string, string])
+    .map(pair => pair.split(':') as [string, string])
   return Object.fromEntries(userTokenPairs)
 }
 

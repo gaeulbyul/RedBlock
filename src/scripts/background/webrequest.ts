@@ -32,7 +32,7 @@ function initializeBlockAllRequestHeaderModifier() {
     urls: ['https://twitter.com/i/user/block_all'],
   }
   browser.webRequest.onBeforeSendHeaders.addListener(
-    (details) => {
+    details => {
       // console.debug('block_all api', details)
       const headers = details.requestHeaders!
       stripOrigin(headers)
@@ -80,7 +80,7 @@ function initializeTwitterAPIRequestHeaderModifier() {
     urls: ['https://api.twitter.com/*'],
   }
   browser.webRequest.onBeforeSendHeaders.addListener(
-    (details) => {
+    details => {
       // console.debug('block_all api', details)
       const headers = details.requestHeaders!
       stripOrigin(headers)

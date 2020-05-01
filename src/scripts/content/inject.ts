@@ -193,10 +193,15 @@ interface ReduxStore {
       event => {
         event.preventDefault()
         const userId = user.id_str
-        const detail = { userId }
         const blurme: HTMLElement = elem.closest('article[role=article]') || elem
         if (user.blocking) {
-          document.dispatchEvent(new CustomEvent('RedBlock<-UnblockUserById', { detail }))
+          document.dispatchEvent(
+            new CustomEvent<{ user: TwitterUser }>('RedBlock<-UnblockSingleUser', {
+              detail: {
+                user,
+              },
+            })
+          )
           user.blocking = false
           markUser({
             verb: 'UnBlock',
@@ -205,7 +210,13 @@ interface ReduxStore {
           blurme.removeAttribute('data-redblock-blocked-tweet')
           toastMessage(`[Red Block] Unblocked @${user.screen_name}.`)
         } else {
-          document.dispatchEvent(new CustomEvent('RedBlock<-BlockUserById', { detail }))
+          document.dispatchEvent(
+            new CustomEvent<{ user: TwitterUser }>('RedBlock<-BlockSingleUser', {
+              detail: {
+                user,
+              },
+            })
+          )
           user.blocking = true
           markUser({
             verb: 'Block',

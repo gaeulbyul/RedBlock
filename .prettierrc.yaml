@@ -1,5 +1,4 @@
-# es5 is default on v2.0
-# trailingComma: es5
+trailingComma: es5
 semi: false
 singleQuote: true
 printWidth: 120

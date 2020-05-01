@@ -205,6 +205,7 @@ export default class ChainBlockSession {
         this.handleRunning(this.sessionInfo, this.eventEmitter)
         const user = maybeUser.value
         const whatToDo = this.whatToDoGivenUser(this.request, user)
+        console.debug('whatToDo(req: %o / user: %o) = "%s"', this.request, user, whatToDo)
         if (whatToDo === 'Skip') {
           this.sessionInfo.progress.skipped++
           continue
@@ -394,16 +395,16 @@ class Blocker {
       return this.flush()
     }
   }
-  private async callAPIFromVerb(verb: VerbSomething, { id_str }: TwitterUser): Promise<boolean> {
+  private async callAPIFromVerb(verb: VerbSomething, user: TwitterUser): Promise<boolean> {
     switch (verb) {
       case 'Block':
-        return TwitterAPI.blockUserById(id_str)
+        return TwitterAPI.blockUser(user)
       case 'UnBlock':
-        return TwitterAPI.unblockUserById(id_str)
+        return TwitterAPI.unblockUser(user)
       case 'Mute':
-        return TwitterAPI.muteUserById(id_str)
+        return TwitterAPI.muteUser(user)
       case 'UnMute':
-        return TwitterAPI.unmuteUserById(id_str)
+        return TwitterAPI.unmuteUser(user)
     }
   }
 }

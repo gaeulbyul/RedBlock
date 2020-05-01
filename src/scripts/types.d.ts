@@ -84,14 +84,14 @@ declare namespace RBActions {
     actionType: 'RequestCleanup'
   }
 
-  interface BlockUserById {
-    actionType: 'BlockUserById'
-    userId: string
+  interface BlockSingleUser {
+    actionType: 'BlockSingleUser'
+    user: TwitterUser
   }
 
-  interface UnblockUserById {
-    actionType: 'UnblockUserById'
-    userId: string
+  interface UnblockSingleUser {
+    actionType: 'UnblockSingleUser'
+    user: TwitterUser
   }
 }
 
@@ -107,8 +107,8 @@ type RBAction =
   | RBActions.RemoveUserFromStorage
   | RBActions.RequestProgress
   | RBActions.RequestCleanup
-  | RBActions.BlockUserById
-  | RBActions.UnblockUserById
+  | RBActions.BlockSingleUser
+  | RBActions.UnblockSingleUser
 
 declare namespace RBMessages {
   interface ChainBlockInfo {
