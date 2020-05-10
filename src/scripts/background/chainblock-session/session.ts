@@ -167,10 +167,17 @@ export default class ChainBlockSession {
     }
     const incrementSuccess = (v: VerbSomething) => this.sessionInfo.progress.success[v]++
     const incrementFailure = () => this.sessionInfo.progress.failure++
-    const handleAfterMultiBlock = (result: void | BlockAllResult) => {
-      if (!result) {
-        return
-      }
+    blocker.onSuccess = (user, whatIDid) => {
+      incrementSuccess(whatIDid)
+      this.eventEmitter.emit('mark-user', {
+        userId: user.id_str,
+        verb: whatIDid,
+      })
+    }
+    blocker.onError = () => {
+      incrementFailure()
+    }
+    multiBlocker.onSuccess = result => {
       this.eventEmitter.emit('mark-many-users-as-blocked', {
         userIds: result.blocked,
       })
@@ -219,24 +226,13 @@ export default class ChainBlockSession {
         if (this.request.target.type === 'follower' && whatToDo === 'Block') {
           multiBlocker.add(user)
         } else {
-          const afterVerb = (result: boolean) => {
-            if (!result) {
-              return
-            }
-            incrementSuccess(whatToDo)
-            this.eventEmitter.emit('mark-user', {
-              userId: user.id_str,
-              verb: whatToDo,
-            })
-          }
-          const blockerPromise = blocker.create(whatToDo, user).then(afterVerb, () => incrementFailure())
-          blocker.add(blockerPromise)
+          blocker.add(whatToDo, user)
         }
-        await blocker.flushIfNeed()
-        await multiBlocker.flushIfNeeded().then(handleAfterMultiBlock)
+        await blocker.flushIfNeeded()
+        await multiBlocker.flushIfNeeded()
       }
       await blocker.flush()
-      await multiBlocker.flush().then(handleAfterMultiBlock)
+      await multiBlocker.flush()
       if (stopped) {
         this.sessionInfo.status = SessionStatus.Stopped
         this.eventEmitter.emit('stopped', this.getSessionInfo())
@@ -374,6 +370,7 @@ export default class ChainBlockSession {
 
 class BlockAllAPIBlocker {
   private readonly buffer: TwitterUser[] = []
+  public onSuccess = (_result: BlockAllResult) => {}
   public add(user: TwitterUser) {
     // console.debug('bmb[b=%d]: insert user:', this.buffer.size, user)
     this.buffer.push(user)
@@ -382,6 +379,7 @@ class BlockAllAPIBlocker {
     // console.info('flush start!')
     const result = await blockMultipleUsers(this.buffer.map(u => u.id_str)) // .catch(() => { })
     this.buffer.length = 0
+    this.onSuccess(result)
     // console.info('flush end!')
     return result
   }
@@ -396,13 +394,20 @@ class BlockAllAPIBlocker {
 class Blocker {
   private readonly BUFFER_SIZE = 150
   private readonly buffer: Promise<any>[] = []
+  public onSuccess = (_user: TwitterUser, _whatIDid: VerbSomething) => {}
+  public onError = (_user: TwitterUser, _error: any) => {}
   public get currentSize() {
     return this.buffer.length
   }
-  public create(verb: VerbSomething, user: TwitterUser) {
-    return this.callAPIFromVerb(verb, user)
-  }
-  public add(promise: Promise<any>) {
+  public add(verb: VerbSomething, user: TwitterUser) {
+    const promise = this.callAPIFromVerb(verb, user).then(
+      () => {
+        this.onSuccess(user, verb)
+      },
+      error => {
+        this.onError(user, error)
+      }
+    )
     this.buffer.push(promise)
     return promise
   }
@@ -410,7 +415,7 @@ class Blocker {
     await Promise.all(this.buffer).catch(() => {})
     this.buffer.length = 0
   }
-  public async flushIfNeed() {
+  public async flushIfNeeded() {
     if (this.currentSize >= this.BUFFER_SIZE) {
       return this.flush()
     }
