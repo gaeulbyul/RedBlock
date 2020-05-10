@@ -94,6 +94,9 @@
   "stop": {
     "message": "중지"
   },
+  "rewind": {
+    "message": "되감기"
+  },
   "block": {
     "message": "차단"
   },

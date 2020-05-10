@@ -71,6 +71,10 @@ async function stopChainBlock(sessionId: string) {
   chainblocker.stop(sessionId)
 }
 
+async function rewindChainBlock(sessionId: string) {
+  chainblocker.rewind(sessionId)
+}
+
 async function stopAllChainBlock() {
   chainblocker.stopAll()
 }
@@ -128,6 +132,9 @@ function handleExtensionMessage(message: RBAction, sender: browser.runtime.Messa
       break
     case 'StopAllChainBlock':
       stopAllChainBlock()
+      break
+    case 'RewindChainBlock':
+      rewindChainBlock(message.sessionId)
       break
     case 'RequestProgress':
       sendProgress()

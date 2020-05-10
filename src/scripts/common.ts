@@ -176,6 +176,11 @@ export function isRunningStatus(status: SessionStatus): boolean {
   return runningStatuses.includes(status)
 }
 
+export function isRewindableStatus(status: SessionStatus): boolean {
+  const rewindableStatus: SessionStatus[] = [SessionStatus.Completed, SessionStatus.Error, SessionStatus.Stopped]
+  return rewindableStatus.includes(status)
+}
+
 export function getLimitResetTime(limit: Limit): string {
   const timeZone = Intl.DateTimeFormat().resolvedOptions().timeZone
   const formatter = new Intl.DateTimeFormat('ko-KR', {

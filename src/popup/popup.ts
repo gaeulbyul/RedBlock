@@ -45,6 +45,13 @@ export async function stopAllChainBlock() {
   })
 }
 
+export async function rewindChainBlock(sessionId: string) {
+  return browser.runtime.sendMessage<RBActions.Rewind>({
+    actionType: 'RewindChainBlock',
+    sessionId,
+  })
+}
+
 export async function requestProgress() {
   return browser.runtime.sendMessage<RBActions.RequestProgress>({
     actionType: 'RequestProgress',

@@ -56,7 +56,7 @@ const DenseExpansionPanelSummary = MaterialUI.withStyles({
   expanded: {},
 })(MaterialUI.ExpansionPanelSummary)
 
-const BigExecuteChainBlockButton = MaterialUI.withStyles((theme) => ({
+const BigExecuteChainBlockButton = MaterialUI.withStyles(theme => ({
   root: {
     width: '100%',
     padding: '10px',

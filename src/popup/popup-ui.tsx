@@ -118,7 +118,7 @@ function PopupApp(props: PopupAppProps) {
       window.clearInterval(interval)
     }
   }, [])
-  const runningSessions = React.useMemo(() => sessions.filter((session) => isRunningStatus(session.status)), [sessions])
+  const runningSessions = React.useMemo(() => sessions.filter(session => isRunningStatus(session.status)), [sessions])
   const M = MaterialUI
   const runningSessionsTabIcon = (
     <M.Badge

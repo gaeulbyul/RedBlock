@@ -202,10 +202,10 @@ export default class ChainBlockSession {
             throw maybeUser.error
           }
         }
-        this.handleRunning(this.sessionInfo, this.eventEmitter)
+        this.handleRunning()
         const user = maybeUser.value
         const whatToDo = this.whatToDoGivenUser(this.request, user)
-        console.debug('whatToDo(req: %o / user: %o) = "%s"', this.request, user, whatToDo)
+        // console.debug('whatToDo(req: %o / user: %o) = "%s"', this.request, user, whatToDo)
         if (whatToDo === 'Skip') {
           this.sessionInfo.progress.skipped++
           continue
@@ -256,7 +256,26 @@ export default class ChainBlockSession {
       this.eventEmitter.on('stopped', resolve)
     })
   }
-  private initSessionInfo() {
+  public async rewind() {
+    this.resetCounts()
+    this.sessionInfo.status = SessionStatus.Initial
+  }
+  private resetCounts() {
+    this.sessionInfo.progress = {
+      already: 0,
+      success: {
+        Block: 0,
+        UnBlock: 0,
+        Mute: 0,
+        UnMute: 0,
+      },
+      failure: 0,
+      skipped: 0,
+      error: 0,
+    }
+    this.sessionInfo.count.scraped = 0
+  }
+  private initSessionInfo(): SessionInfo {
     return {
       sessionId: this.generateSessionId(),
       request: this.request,
@@ -299,7 +318,8 @@ export default class ChainBlockSession {
     sessionInfo.limit = limit
     eventEmitter.emit('rate-limit', limit)
   }
-  private handleRunning(sessionInfo: SessionInfo, eventEmitter: EventEmitter<SessionEventEmitter>) {
+  private handleRunning() {
+    const { sessionInfo, eventEmitter } = this
     if (sessionInfo.status === SessionStatus.Initial) {
       eventEmitter.emit('started', sessionInfo)
     }

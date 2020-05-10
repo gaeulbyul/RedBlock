@@ -1,5 +1,11 @@
-import { PageEnum, isRunningStatus, SessionStatus, getLimitResetTime } from '../../scripts/common.js'
-import { cleanupSessions, stopAllChainBlock, stopChainBlock } from '../popup.js'
+import {
+  PageEnum,
+  isRunningStatus,
+  isRewindableStatus,
+  SessionStatus,
+  getLimitResetTime,
+} from '../../scripts/common.js'
+import { cleanupSessions, stopAllChainBlock, stopChainBlock, rewindChainBlock } from '../popup.js'
 import { DialogContext, PageSwitchContext } from './contexts.js'
 import * as i18n from '../../scripts/i18n.js'
 
@@ -93,6 +99,10 @@ function ChainBlockSessionItem(props: { session: SessionInfo }) {
       }
       stopChainBlock(sessionId)
     }
+    function requestRewindChainBlock() {
+      rewindChainBlock(sessionId)
+    }
+    const rewindable = isRewindableStatus(status)
     let closeButtonText = i18n.getMessage('close')
     let closeButtonTitleText = i18n.getMessage('tooltip_close_session')
     if (isRunningStatus(status)) {
@@ -103,6 +113,9 @@ function ChainBlockSessionItem(props: { session: SessionInfo }) {
       <React.Fragment>
         <M.Button title={closeButtonTitleText} onClick={requestStopChainBlock}>
           {closeButtonText}
+        </M.Button>
+        <M.Button style={{ display: 'none' }} disabled={!rewindable} onClick={requestRewindChainBlock}>
+          {i18n.getMessage('rewind')}
         </M.Button>
         <M.IconButton className={classes.expand} onClick={toggleExpand}>
           <M.Icon>{expanded ? 'expand_less' : 'expand_more'}</M.Icon>
@@ -196,7 +209,7 @@ function ChainBlockSessionItem(props: { session: SessionInfo }) {
   )
 }
 
-const useStylesForFabButton = MaterialUI.makeStyles((theme) =>
+const useStylesForFabButton = MaterialUI.makeStyles(theme =>
   MaterialUI.createStyles({
     fab: {
       position: 'fixed',
@@ -240,7 +253,7 @@ export default function ChainBlockSessionsPage(props: { sessions: SessionInfo[] 
   function renderSessions() {
     return (
       <div className="chainblock-sessions">
-        {sessions.map((session) => (
+        {sessions.map(session => (
           <ChainBlockSessionItem session={session as SessionInfo} key={session.sessionId} />
         ))}
       </div>

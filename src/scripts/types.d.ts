@@ -58,6 +58,11 @@ declare namespace RBActions {
     actionType: 'StopAllChainBlock'
   }
 
+  interface Rewind {
+    actionType: 'RewindChainBlock'
+    sessionId: string
+  }
+
   interface ConnectToBackground {
     actionType: 'ConnectToBackground'
   }
@@ -101,6 +106,7 @@ type RBAction =
   | RBActions.StartTweetReactionChainBlock
   | RBActions.Stop
   | RBActions.StopAll
+  | RBActions.Rewind
   | RBActions.ConnectToBackground
   | RBActions.DisconnectToBackground
   | RBActions.InsertUserToStorage

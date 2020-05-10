@@ -1,4 +1,4 @@
-import { SessionStatus, isRunningStatus } from '../common.js'
+import { SessionStatus, isRunningStatus, isRewindableStatus } from '../common.js'
 import * as TextGenerate from '../text-generate.js'
 import * as i18n from '../i18n.js'
 import { alert, notify, updateExtensionBadge } from './background.js'
@@ -158,11 +158,9 @@ export default class ChainBlocker {
     if (count <= 0) {
       return
     }
-    const session = this.sessions.get(sessionId)
-    if (session) {
-      await session.start()
-      this.updateBadge()
-    }
+    const session = this.sessions.get(sessionId)!
+    await session.start()
+    this.updateBadge()
   }
   public async startAll() {
     const sessions = this.sessions.values()
@@ -179,6 +177,14 @@ export default class ChainBlocker {
     }
     await Promise.all(sessionPromises)
     this.updateBadge()
+  }
+  public async rewind(sessionId: string) {
+    const session = this.sessions.get(sessionId)!
+    if (isRewindableStatus(session.getSessionInfo().status)) {
+      session.rewind()
+      this.updateBadge()
+      await session.start()
+    }
   }
   public getAllSessionInfos(): SessionInfo[] {
     return Array.from(this.sessions.values()).map(ses => ses.getSessionInfo())

@@ -94,6 +94,9 @@
   "stop": {
     "message": "Stop"
   },
+  "rewind": {
+    "message": "Rewind"
+  },
   "block": {
     "message": "Block"
   },

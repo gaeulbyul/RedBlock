@@ -21,10 +21,10 @@ export function objToString(msg: DialogMessageObj): string {
   result += '-'.repeat(10)
   result += '\n'
   if (contentLines) {
-    contentLines.forEach((line) => (result += `${line}\n`))
+    contentLines.forEach(line => (result += `${line}\n`))
   }
   if (warningLines) {
-    warningLines.forEach((line) => (result += `${line}\n`))
+    warningLines.forEach(line => (result += `${line}\n`))
   }
   return result
 }
