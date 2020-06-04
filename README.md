@@ -9,9 +9,17 @@ Red Block is an extension for blocking users from Twitter. It is intended to rep
 
 ## 주의!
 
-Red Block은 강제 로그아웃 및 계정잠김 현상을 막기위해 기존 체인블락과 다른 API를 사용하고있습니다. 이 때문에 차단이 반영되지 않거나 늦게 반영되는 현상이 있습니다. 불편하시더라도 양해 바랍니다.
+2020/06:
 
-To avoid force-logout and account suspension, Red Block uses different API than twitter-block-chain. Unfortunately, It has another problem that Red Block doesn't block some users of may takes several minutes. Sorry for the inconvenience!
+트위터에서 2020년 6월을 기점으로 구버전 트위터를 종료함에 따라 이 API를 더 이상 사용할 수 없게 되었습니다.
+
+This API became unavailable because Twitter shutted down legacy Twitter website and there's no blocklist feature in current Twitter website.
+
+- - -
+
+~~Red Block은 강제 로그아웃 및 계정잠김 현상을 막기위해 기존 체인블락과 다른 API를 사용하고있습니다. 이 때문에 차단이 반영되지 않거나 늦게 반영되는 현상이 있습니다. 불편하시더라도 양해 바랍니다.~~
+
+~~To avoid force-logout and account suspension, Red Block uses different API than twitter-block-chain. Unfortunately, It has another problem that Red Block doesn't block some users of may takes several minutes. Sorry for the inconvenience!~~
 
 ## 기능
 
