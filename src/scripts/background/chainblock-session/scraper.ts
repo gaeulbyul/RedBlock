@@ -79,27 +79,6 @@ export class TweetReactedUserScraper implements UserScraper {
   }
 }
 
-interface ApiUsageCalculationResult {
-  ids: number
-  lists: number
-  prefer: 'lists' | 'ids'
-}
-
-export function calcApiUsage(
-  myFollowersCount: number,
-  myFollowingsCount: number,
-  targetCount: number
-): ApiUsageCalculationResult {
-  const { ceil } = Math
-  const ids = ceil(myFollowersCount / 5000) + ceil(myFollowingsCount / 5000) + ceil(targetCount / 5000)
-  const lists = ceil(targetCount / 200)
-  return {
-    ids,
-    lists,
-    prefer: ids < lists ? 'ids' : 'lists',
-  }
-}
-
 export function initScraper(request: SessionRequest): UserScraper {
   const { target } = request
   if (target.type === 'tweetReaction') {
