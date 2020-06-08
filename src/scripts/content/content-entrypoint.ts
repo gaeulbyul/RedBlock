@@ -44,7 +44,15 @@ function listenExtensionMessages(reactRoot: Element | null) {
         break
       case 'ConfirmChainBlock':
         if (window.confirm(msg.confirmMessage)) {
-          browser.runtime.sendMessage(msg.action)
+          browser.runtime.sendMessage<RBActions.Start>({
+            actionType: 'Start',
+            sessionId: msg.sessionId,
+          })
+        } else {
+          browser.runtime.sendMessage<RBActions.Cancel>({
+            actionType: 'Cancel',
+            sessionId: msg.sessionId,
+          })
         }
         break
       case 'ToggleOneClickBlockMode':

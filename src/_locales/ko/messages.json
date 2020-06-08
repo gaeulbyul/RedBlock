@@ -71,6 +71,9 @@
     }
   },
   "session_status_initial": {
+    "message": "승인대기 중"
+  },
+  "session_status_ready": {
     "message": "대기 중"
   },
   "session_status_completed": {

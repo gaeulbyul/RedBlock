@@ -3,12 +3,32 @@ import {
   FollowerBlockSessionRequest,
   TweetReactionBlockSessionRequest,
 } from './background/chainblock-session/session.js'
+import { SessionStatus } from './common.js'
 import * as i18n from './i18n.js'
 
 export interface DialogMessageObj {
   title: string
   contentLines?: string[]
   warningLines?: string[]
+}
+
+export function statusToString(status: SessionStatus): string {
+  switch (status) {
+    case SessionStatus.Initial:
+      return i18n.getMessage('session_status_initial')
+    case SessionStatus.Ready:
+      return i18n.getMessage('session_status_ready')
+    case SessionStatus.Completed:
+      return i18n.getMessage('session_status_completed')
+    case SessionStatus.Running:
+      return i18n.getMessage('session_status_running')
+    case SessionStatus.RateLimited:
+      return i18n.getMessage('session_status_rate_limited')
+    case SessionStatus.Stopped:
+      return i18n.getMessage('session_status_stopped')
+    case SessionStatus.Error:
+      return i18n.getMessage('session_status_error')
+  }
 }
 
 export function objToString(msg: DialogMessageObj): string {

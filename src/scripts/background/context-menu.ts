@@ -1,15 +1,10 @@
 import { getUserNameFromURL, getFollowersCount, getReactionsCount } from '../common.js'
-import * as TextGenerate from '../text-generate.js'
 import * as i18n from '../i18n.js'
-import { alert } from './background.js'
-import {
-  checkFollowerBlockTarget,
-  checkTweetReactionBlockTarget,
-  followerBlockDefaultOption,
-  tweetReactionBlockDefaultOption,
-} from './chainblock-session/session.js'
+import { followerBlockDefaultOption, tweetReactionBlockDefaultOption } from './chainblock-session/session.js'
 import { loadOptions, onOptionsChanged } from './storage.js'
 import { getSingleUserByName, getTweetById } from './twitter-api.js'
+import { createChainBlockSession, confirmSession } from './entrypoint.js'
+// import * as RequestSender from './request-sender.js'
 
 const urlPatterns = ['https://twitter.com/*', 'https://mobile.twitter.com/*']
 const documentUrlPatterns = ['https://twitter.com/*', 'https://mobile.twitter.com/*', 'https://tweetdeck.twitter.com/*']
@@ -32,21 +27,8 @@ async function sendFollowerChainBlockConfirm(tab: browser.tabs.Tab, userName: st
       count: getFollowersCount(user, followKind),
     },
   }
-  const [isOk, alertMessage] = checkFollowerBlockTarget(request.target)
-  if (!isOk) {
-    alert(alertMessage)
-    return
-  }
-  const confirmMessageObj = TextGenerate.generateFollowerBlockConfirmMessage(request)
-  const confirmMessage = TextGenerate.objToString(confirmMessageObj)
-  browser.tabs.sendMessage<RBMessages.ConfirmChainBlock>(tab.id!, {
-    messageType: 'ConfirmChainBlock',
-    confirmMessage,
-    action: {
-      actionType: 'StartFollowerChainBlock',
-      request,
-    },
-  })
+  const sessionId = await createChainBlockSession(request)
+  return confirmSession(tab, request, sessionId)
 }
 
 async function sendTweetReactionChainBlockConfirm(
@@ -68,21 +50,8 @@ async function sendTweetReactionChainBlockConfirm(
     },
   }
   request.target.count = getReactionsCount(request.target)
-  const [isOk, alertMessage] = checkTweetReactionBlockTarget(request.target)
-  if (!isOk) {
-    alert(alertMessage)
-    return
-  }
-  const confirmMessageObj = TextGenerate.generateTweetReactionBlockMessage(request)
-  const confirmMessage = TextGenerate.objToString(confirmMessageObj)
-  browser.tabs.sendMessage<RBMessages.ConfirmChainBlock>(tab.id!, {
-    messageType: 'ConfirmChainBlock',
-    confirmMessage,
-    action: {
-      actionType: 'StartTweetReactionChainBlock',
-      request,
-    },
-  })
+  const sessionId = await createChainBlockSession(request)
+  return confirmSession(tab, request, sessionId)
 }
 
 async function createContextMenu() {

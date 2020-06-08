@@ -3,7 +3,6 @@ import * as TwitterAPI from '../../scripts/background/twitter-api.js'
 import { TwitterUser } from '../../scripts/background/twitter-api.js'
 import { TwitterUserMap, getFollowersCount, MAX_USER_LIMIT } from '../../scripts/common.js'
 import * as i18n from '../../scripts/i18n.js'
-import * as TextGenerate from '../../scripts/text-generate.js'
 import { insertUserToStorage, removeUserFromStorage, startFollowerChainBlock } from '../popup.js'
 import { DialogContext, SnackBarContext } from './contexts.js'
 import { TabPanel } from './ui-common.js'
@@ -292,6 +291,8 @@ function TargetUserSelectUI(props: { isAvailable: boolean }) {
           message: {
             title: i18n.getMessage('failed_to_get_user_info', userName),
           },
+          callbackOnOk() {},
+          callbackOnCancel() {},
         })
         setSelectedUser(null)
         selectUserGroup('invalid')
@@ -450,7 +451,6 @@ function TargetUnChainBlockOptionsUI() {
 function TargetExecutionButtonUI(props: { isAvailable: boolean }) {
   const { isAvailable } = props
   const { selectedMode, selectedUser, targetList, targetOptions } = React.useContext(TargetUserContext)
-  const { openModal } = React.useContext(DialogContext)
   function onExecuteChainBlockButtonClicked() {
     const request: FollowerBlockSessionRequest = {
       purpose: 'chainblock',
@@ -462,13 +462,7 @@ function TargetExecutionButtonUI(props: { isAvailable: boolean }) {
       },
       options: targetOptions,
     }
-    openModal({
-      dialogType: 'confirm',
-      message: TextGenerate.generateFollowerBlockConfirmMessage(request),
-      callback() {
-        startFollowerChainBlock(request)
-      },
-    })
+    startFollowerChainBlock(request)
   }
   function onExecuteUnChainBlockButtonClicked() {
     const request: FollowerBlockSessionRequest = {
@@ -481,13 +475,7 @@ function TargetExecutionButtonUI(props: { isAvailable: boolean }) {
       },
       options: targetOptions,
     }
-    openModal({
-      dialogType: 'confirm',
-      message: TextGenerate.generateFollowerBlockConfirmMessage(request),
-      callback() {
-        startFollowerChainBlock(request)
-      },
-    })
+    startFollowerChainBlock(request)
   }
   return (
     <M.Box padding="10px">

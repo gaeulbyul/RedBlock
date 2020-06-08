@@ -1,13 +1,15 @@
 import * as TwitterAPI from '../scripts/background/twitter-api.js'
 import { getCurrentTab, getUserNameFromTab, getTweetIdFromTab, requestProgress } from './popup.js'
+
 import ChainBlockSessionsPage from './popup-ui/chainblock-sessions-page.js'
 import NewChainBlockPage from './popup-ui/new-chainblock-page.js'
 import NewTweetReactionBlockPage from './popup-ui/new-tweetreactionblock-page.js'
 import MiscPage from './popup-ui/misc-page.js'
-import { PageEnum, UI_UPDATE_DELAY, isRunningStatus } from '../scripts/common.js'
-import * as i18n from '../scripts/i18n.js'
 import { DialogContext, SnackBarContext, PageSwitchContext } from './popup-ui/contexts.js'
 import { RBDialog, TabPanel, DialogContent } from './popup-ui/ui-common.js'
+
+import { PageEnum, UI_UPDATE_DELAY, isRunningStatus } from '../scripts/common.js'
+import * as i18n from '../scripts/i18n.js'
 
 const popupMuiTheme = MaterialUI.createMuiTheme({
   palette: {
@@ -80,6 +82,24 @@ function PopupApp(props: PopupAppProps) {
   function closeMenu() {
     setMenuAnchorEl(null)
   }
+  function handleConfirm({ confirmMessage, sessionId }: RBMessages.ConfirmChainBlockInPopup) {
+    openModal({
+      dialogType: 'confirm',
+      message: confirmMessage,
+      callbackOnOk() {
+        return browser.runtime.sendMessage<RBActions.Start>({
+          actionType: 'Start',
+          sessionId,
+        })
+      },
+      callbackOnCancel() {
+        return browser.runtime.sendMessage<RBActions.Cancel>({
+          actionType: 'Cancel',
+          sessionId,
+        })
+      },
+    })
+  }
   React.useEffect(() => {
     const messageListener = (msgobj: any) => {
       if (typeof msgobj !== 'object') {
@@ -94,8 +114,10 @@ function PopupApp(props: PopupAppProps) {
           case 'PopupSwitchTab':
             setTabIndex(msg.page)
             break
+          case 'ConfirmChainBlockInPopup':
+            handleConfirm(msg)
+            break
           default:
-            console.debug('unknown message', msgobj)
             break
         }
         return

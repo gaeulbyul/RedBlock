@@ -1,12 +1,7 @@
-import {
-  PageEnum,
-  isRunningStatus,
-  isRewindableStatus,
-  SessionStatus,
-  getLimitResetTime,
-} from '../../scripts/common.js'
-import { cleanupSessions, stopAllChainBlock, stopChainBlock, rewindChainBlock } from '../popup.js'
+import { PageEnum, isRunningStatus, SessionStatus, getLimitResetTime } from '../../scripts/common.js'
+import { cleanupSessions, stopAllChainBlock, stopChainBlock } from '../popup.js'
 import { DialogContext, PageSwitchContext } from './contexts.js'
+import { statusToString } from '../../scripts/text-generate.js'
 import * as i18n from '../../scripts/i18n.js'
 
 const M = MaterialUI
@@ -71,18 +66,6 @@ function ChainBlockSessionItem(props: { session: SessionInfo }) {
   }
   const localizedPurpose = i18n.getMessage(purpose)
   const cardTitle = `${localizedPurpose} ${statusToString(session.status)}`
-  function statusToString(status: SessionStatus): string {
-    const statusMessageObj: { [key: number]: string } = {
-      [SessionStatus.Initial]: i18n.getMessage('session_status_initial'),
-      [SessionStatus.Completed]: i18n.getMessage('session_status_completed'),
-      [SessionStatus.Running]: i18n.getMessage('session_status_running'),
-      [SessionStatus.RateLimited]: i18n.getMessage('session_status_rate_limited'),
-      [SessionStatus.Stopped]: i18n.getMessage('session_status_stopped'),
-      [SessionStatus.Error]: i18n.getMessage('session_status_error'),
-    }
-    const statusMessage = statusMessageObj[status]
-    return statusMessage
-  }
   function renderControls({ sessionId, status }: SessionInfo) {
     function requestStopChainBlock() {
       if (isRunningStatus(status)) {
@@ -91,18 +74,22 @@ function ChainBlockSessionItem(props: { session: SessionInfo }) {
           message: {
             title: i18n.getMessage('confirm_session_stop_message'),
           },
-          callback() {
+          callbackOnOk() {
             stopChainBlock(sessionId)
           },
+          callbackOnCancel() {},
         })
         return
       }
       stopChainBlock(sessionId)
     }
-    function requestRewindChainBlock() {
-      rewindChainBlock(sessionId)
-    }
-    const rewindable = isRewindableStatus(status)
+    //function requestRewindChainBlock() {
+    //  rewindChainBlock(sessionId)
+    //}
+    //const rewindable = isRewindableStatus(status)
+    //<M.Button style={{ display: 'none' }} disabled={!rewindable} onClick={requestRewindChainBlock}>
+    //  {i18n.getMessage('rewind')}
+    //</M.Button>
     let closeButtonText = i18n.getMessage('close')
     let closeButtonTitleText = i18n.getMessage('tooltip_close_session')
     if (isRunningStatus(status)) {
@@ -114,9 +101,7 @@ function ChainBlockSessionItem(props: { session: SessionInfo }) {
         <M.Button title={closeButtonTitleText} onClick={requestStopChainBlock}>
           {closeButtonText}
         </M.Button>
-        <M.Button style={{ display: 'none' }} disabled={!rewindable} onClick={requestRewindChainBlock}>
-          {i18n.getMessage('rewind')}
-        </M.Button>
+
         <M.IconButton className={classes.expand} onClick={toggleExpand}>
           <M.Icon>{expanded ? 'expand_less' : 'expand_more'}</M.Icon>
         </M.IconButton>
@@ -234,7 +219,8 @@ export default function ChainBlockSessionsPage(props: { sessions: SessionInfo[] 
         message: {
           title: i18n.getMessage('confirm_all_stop'),
         },
-        callback: stopAllChainBlock,
+        callbackOnOk: stopAllChainBlock,
+        callbackOnCancel() {},
       })
     }
     return (
@@ -251,9 +237,10 @@ export default function ChainBlockSessionsPage(props: { sessions: SessionInfo[] 
     )
   }
   function renderSessions() {
+    const visibleSessions = sessions.filter(session => session.status !== SessionStatus.Initial)
     return (
       <div className="chainblock-sessions">
-        {sessions.map(session => (
+        {visibleSessions.map(session => (
           <ChainBlockSessionItem session={session as SessionInfo} key={session.sessionId} />
         ))}
       </div>

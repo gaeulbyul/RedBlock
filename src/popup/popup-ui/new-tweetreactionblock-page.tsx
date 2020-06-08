@@ -1,9 +1,7 @@
 // import * as Storage from '../../scripts/background/storage.js'
 import * as i18n from '../../scripts/i18n.js'
-import * as TextGenerate from '../../scripts/text-generate.js'
 import { getReactionsCount } from '../../scripts/common.js'
 import { startTweetReactionChainBlock } from '../popup.js'
-import { DialogContext } from './contexts.js'
 
 type SessionOptions = TweetReactionBlockSessionRequest['options']
 
@@ -219,7 +217,6 @@ function TargetOptionsUI() {
 
 function TargetExecutionButtonUI() {
   const { currentTweet, wantBlockRetweeters, wantBlockLikers, targetOptions } = React.useContext(TargetTweetContext)
-  const { openModal } = React.useContext(DialogContext)
   function onExecuteChainBlockButtonClicked() {
     if (!currentTweet) {
       throw new Error('트윗을 선택해주세요')
@@ -236,13 +233,7 @@ function TargetExecutionButtonUI() {
       options: targetOptions,
     }
     request.target.count = getReactionsCount(request.target)
-    openModal({
-      dialogType: 'confirm',
-      message: TextGenerate.generateTweetReactionBlockMessage(request),
-      callback() {
-        startTweetReactionChainBlock(request)
-      },
-    })
+    startTweetReactionChainBlock(request)
   }
   const blockButtonDisabled = !(wantBlockRetweeters || wantBlockLikers)
   return (

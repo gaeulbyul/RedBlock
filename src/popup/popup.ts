@@ -1,82 +1,18 @@
-import { alert } from '../scripts/background/background.js'
-import {
-  checkFollowerBlockTarget,
-  checkTweetReactionBlockTarget,
-} from '../scripts/background/chainblock-session/session.js'
-import { TwitterUser } from '../scripts/background/twitter-api.js'
 import { getUserNameFromURL } from '../scripts/common.js'
 
+export {
+  startFollowerChainBlock,
+  startTweetReactionChainBlock,
+  stopAllChainBlock,
+  stopChainBlock,
+  cancelChainBlock,
+  insertUserToStorage,
+  removeUserFromStorage,
+  requestProgress,
+  cleanupSessions,
+} from '../scripts/background/request-sender.js'
+
 type Tab = browser.tabs.Tab
-
-export async function startFollowerChainBlock(request: FollowerBlockSessionRequest) {
-  const [isOk, alertMessage] = checkFollowerBlockTarget(request.target)
-  if (!isOk) {
-    alert(alertMessage)
-    return
-  }
-  browser.runtime.sendMessage<RBActions.StartFollowerChainBlock>({
-    actionType: 'StartFollowerChainBlock',
-    request,
-  })
-}
-
-export async function startTweetReactionChainBlock(request: TweetReactionBlockSessionRequest) {
-  const [isOk, alertMessage] = checkTweetReactionBlockTarget(request.target)
-  if (!isOk) {
-    alert(alertMessage)
-    return
-  }
-  browser.runtime.sendMessage<RBActions.StartTweetReactionChainBlock>({
-    actionType: 'StartTweetReactionChainBlock',
-    request,
-  })
-}
-
-export async function stopChainBlock(sessionId: string) {
-  return browser.runtime.sendMessage<RBActions.Stop>({
-    actionType: 'StopChainBlock',
-    sessionId,
-  })
-}
-
-export async function stopAllChainBlock() {
-  return browser.runtime.sendMessage<RBActions.StopAll>({
-    actionType: 'StopAllChainBlock',
-  })
-}
-
-export async function rewindChainBlock(sessionId: string) {
-  return browser.runtime.sendMessage<RBActions.Rewind>({
-    actionType: 'RewindChainBlock',
-    sessionId,
-  })
-}
-
-export async function requestProgress() {
-  return browser.runtime.sendMessage<RBActions.RequestProgress>({
-    actionType: 'RequestProgress',
-  })
-}
-
-export async function cleanupSessions() {
-  return browser.runtime.sendMessage<RBActions.RequestCleanup>({
-    actionType: 'RequestCleanup',
-  })
-}
-
-export async function insertUserToStorage(user: TwitterUser) {
-  return browser.runtime.sendMessage<RBActions.InsertUserToStorage>({
-    actionType: 'InsertUserToStorage',
-    user,
-  })
-}
-
-export async function removeUserFromStorage(user: TwitterUser) {
-  return browser.runtime.sendMessage<RBActions.RemoveUserFromStorage>({
-    actionType: 'RemoveUserFromStorage',
-    user,
-  })
-}
 
 export async function toggleOneClickBlockMode(enabled: boolean) {
   const tab = await getCurrentTab()

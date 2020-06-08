@@ -71,6 +71,9 @@
     }
   },
   "session_status_initial": {
+    "message": "Waiting Confirm..."
+  },
+  "session_status_ready": {
     "message": "Waiting"
   },
   "session_status_completed": {

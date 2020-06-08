@@ -1,96 +1,109 @@
-import { PageEnum, UI_UPDATE_DELAY } from '../common.js'
+import { PageEnum } from '../common.js'
 import { alert } from './background.js'
-import ChainBlocker from './chainblock.js'
+import ChainBlocker, { SessionAddResult } from './chainblock.js'
 import * as Storage from './storage.js'
 import * as TwitterAPI from './twitter-api.js'
 import * as i18n from '../i18n.js'
+import * as TextGenerator from '../text-generate.js'
 import { initializeContextMenu } from './context-menu.js'
 import { initializeWebRequest } from './webrequest.js'
+import { checkFollowerBlockTarget, checkTweetReactionBlockTarget } from './chainblock-session/session.js'
 
 let storageQueue = Promise.resolve()
 const chainblocker = new ChainBlocker()
-const tabConnections = new Set<number>()
 
-export async function executeFollowerChainBlock(request: FollowerBlockSessionRequest) {
+export async function createChainBlockSession(request: SessionRequest) {
   const myself = await TwitterAPI.getMyself().catch(() => null)
   if (!myself) {
-    alert(i18n.getMessage('error_occured_check_login'))
-    return
+    throw new Error(i18n.getMessage('error_occured_check_login'))
   }
-  try {
-    const sessionId = chainblocker.add(request)
-    if (!sessionId) {
-      console.info('not added. skip')
-      return
-    }
-    chainblocker.start(sessionId)
-    browser.runtime
-      .sendMessage<RBMessages.PopupSwitchTab>({
-        messageType: 'PopupSwitchTab',
-        page: PageEnum.Sessions,
-      })
-      .catch(() => {}) // 우클릭 체인블락의 경우 팝업이 없음
-  } catch (err) {
-    if (err instanceof TwitterAPI.RateLimitError) {
-      alert(i18n.getMessage('error_rate_limited'))
-    } else {
-      throw err
+  let checkResult: [boolean, string]
+  switch (request.target.type) {
+    case 'follower':
+      checkResult = checkFollowerBlockTarget(request.target)
+      break
+    case 'tweetReaction':
+      checkResult = checkTweetReactionBlockTarget(request.target)
+      break
+  }
+  const [isOk, alertMessage] = checkResult
+  if (!isOk) {
+    throw new Error(alertMessage)
+  }
+  const [sessionId, addResult] = chainblocker.add(request)
+  if (!sessionId) {
+    switch (addResult) {
+      case SessionAddResult.AlreadyRunningOnSameTarget:
+        throw new Error(i18n.getMessage('already_running_to_same_target'))
+      default:
+        throw new Error('unreachable?')
     }
   }
+  chainblocker.prepare(sessionId)
+  return sessionId
 }
 
-export async function executeTweetReactionChainBlock(request: TweetReactionBlockSessionRequest) {
-  const myself = await TwitterAPI.getMyself().catch(() => null)
-  if (!myself) {
-    alert(i18n.getMessage('error_occured_check_login'))
-    return
+function generateConfirmMessage(request: SessionRequest) {
+  let confirmMessageObj: TextGenerator.DialogMessageObj
+  switch (request.target.type) {
+    case 'follower':
+      confirmMessageObj = TextGenerator.generateFollowerBlockConfirmMessage(request as FollowerBlockSessionRequest)
+      break
+    case 'tweetReaction':
+      confirmMessageObj = TextGenerator.generateTweetReactionBlockMessage(request as TweetReactionBlockSessionRequest)
+      break
   }
-  try {
-    const sessionId = chainblocker.add(request)
-    if (!sessionId) {
-      console.info('not added. skip')
-      return
-    }
-    chainblocker.start(sessionId)
-    browser.runtime
-      .sendMessage<RBMessages.PopupSwitchTab>({
-        messageType: 'PopupSwitchTab',
-        page: PageEnum.Sessions,
-      })
-      .catch(() => {}) // 우클릭 체인블락의 경우 팝업이 없음
-  } catch (err) {
-    if (err instanceof TwitterAPI.RateLimitError) {
-      alert(i18n.getMessage('error_rate_limited'))
-    } else {
-      throw err
-    }
-  }
+  return confirmMessageObj
 }
 
-async function stopChainBlock(sessionId: string) {
+export async function confirmSession(tab: browser.tabs.Tab, request: SessionRequest, sessionId: string) {
+  const confirmMessageObj = generateConfirmMessage(request)
+  const confirmMessage = TextGenerator.objToString(confirmMessageObj)
+  browser.tabs.sendMessage<RBMessages.ConfirmChainBlock>(tab!.id!, {
+    messageType: 'ConfirmChainBlock',
+    confirmMessage,
+    sessionId,
+  })
+}
+
+async function confirmSessionInPopup(request: SessionRequest, sessionId: string) {
+  const confirmMessage = generateConfirmMessage(request)
+  browser.runtime.sendMessage<RBMessages.ConfirmChainBlockInPopup>({
+    messageType: 'ConfirmChainBlockInPopup',
+    confirmMessage,
+    sessionId,
+  })
+}
+
+async function startSession(sessionId: string) {
+  browser.runtime
+    .sendMessage<RBMessages.PopupSwitchTab>({
+      messageType: 'PopupSwitchTab',
+      page: PageEnum.Sessions,
+    })
+    .catch(() => {}) // 우클릭 체인블락의 경우 팝업이 없음
+  return chainblocker.start(sessionId).catch(err => {
+    if (err instanceof TwitterAPI.RateLimitError) {
+      alert(i18n.getMessage('error_rate_limited'))
+    }
+    throw err
+  })
+}
+
+function cancelSession(sessionId: string) {
+  chainblocker.cancel(sessionId)
+}
+
+function stopChainBlock(sessionId: string) {
   chainblocker.stop(sessionId)
 }
 
-async function rewindChainBlock(sessionId: string) {
+function rewindChainBlock(sessionId: string) {
   chainblocker.rewind(sessionId)
 }
 
-async function stopAllChainBlock() {
+function stopAllChainBlock() {
   chainblocker.stopAll()
-}
-
-async function sendChainBlockerInfoToTabs() {
-  const infos = chainblocker.getAllSessionInfos().reverse()
-  for (const tabId of tabConnections) {
-    browser.tabs
-      .sendMessage<RBMessages.ChainBlockInfo>(tabId, {
-        messageType: 'ChainBlockInfo',
-        infos,
-      })
-      .catch(() => {
-        tabConnections.delete(tabId)
-      })
-  }
 }
 
 async function sendProgress() {
@@ -119,16 +132,28 @@ async function removeUserFromStorage(user: TwitterUser) {
   return storageQueue
 }
 
-function handleExtensionMessage(message: RBAction, sender: browser.runtime.MessageSender) {
+function handleExtensionMessage(message: RBAction, _sender: browser.runtime.MessageSender) {
   switch (message.actionType) {
-    case 'StartFollowerChainBlock':
-      executeFollowerChainBlock(message.request).then(sendChainBlockerInfoToTabs)
+    case 'CreateFollowerChainBlockSession':
+      createChainBlockSession(message.request).then(async sessionId => {
+        confirmSessionInPopup(message.request, sessionId)
+      })
       break
-    case 'StartTweetReactionChainBlock':
-      executeTweetReactionChainBlock(message.request).then(sendChainBlockerInfoToTabs)
+    case 'CreateTweetReactionChainBlockSession':
+      createChainBlockSession(message.request).then(async sessionId => {
+        confirmSessionInPopup(message.request, sessionId)
+      })
+      break
+    case 'Cancel':
+      cancelSession(message.sessionId)
+      sendProgress()
+      break
+    case 'Start':
+      startSession(message.sessionId).then(sendProgress)
       break
     case 'StopChainBlock':
-      stopChainBlock(message.sessionId).then(sendChainBlockerInfoToTabs)
+      stopChainBlock(message.sessionId)
+      sendProgress()
       break
     case 'StopAllChainBlock':
       stopAllChainBlock()
@@ -148,12 +173,6 @@ function handleExtensionMessage(message: RBAction, sender: browser.runtime.Messa
     case 'RemoveUserFromStorage':
       removeUserFromStorage(message.user)
       break
-    case 'ConnectToBackground':
-      sender.tab && tabConnections.add(sender.tab.id!)
-      break
-    case 'DisconnectToBackground':
-      sender.tab && tabConnections.delete(sender.tab.id!)
-      break
     case 'BlockSingleUser':
       TwitterAPI.blockUser(message.user)
       break
@@ -164,7 +183,6 @@ function handleExtensionMessage(message: RBAction, sender: browser.runtime.Messa
 }
 
 function initialize() {
-  window.setInterval(sendChainBlockerInfoToTabs, UI_UPDATE_DELAY)
   browser.runtime.onMessage.addListener(
     (msg: object, sender: browser.runtime.MessageSender, _sendResponse: (response: any) => Promise<void>): true => {
       if (!(typeof msg === 'object' && 'actionType' in msg)) {

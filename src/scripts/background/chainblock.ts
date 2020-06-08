@@ -1,9 +1,14 @@
 import { SessionStatus, isRunningStatus, isRewindableStatus } from '../common.js'
 import * as TextGenerate from '../text-generate.js'
 import * as i18n from '../i18n.js'
-import { alert, notify, updateExtensionBadge } from './background.js'
+import { notify, updateExtensionBadge } from './background.js'
 import ChainBlockSession from './chainblock-session/session.js'
 import { loadOptions } from './storage.js'
+
+export const enum SessionAddResult {
+  Ok,
+  AlreadyRunningOnSameTarget,
+}
 
 export default class ChainBlocker {
   private readonly MAX_RUNNING_SESSIONS = 5
@@ -112,7 +117,7 @@ export default class ChainBlocker {
         break
       }
       const sessionInfo = session.getSessionInfo()
-      if (sessionInfo.status === SessionStatus.Initial) {
+      if (sessionInfo.status === SessionStatus.Ready) {
         await session.start()
       }
     }
@@ -124,17 +129,16 @@ export default class ChainBlocker {
     }
     this.sessions.delete(sessionId)
   }
-  public add(request: SessionRequest) {
+  public add(request: SessionRequest): [string | null, SessionAddResult] {
     const { target } = request
     if (this.isAlreadyRunning(target)) {
-      alert(i18n.getMessage('already_running_to_same_target'))
-      return null
+      return [null, SessionAddResult.AlreadyRunningOnSameTarget]
     }
     const session = new ChainBlockSession(request)
     const sessionId = session.getSessionInfo().sessionId
     this.handleEvents(session)
     this.sessions.set(sessionId, session)
-    return sessionId
+    return [sessionId, SessionAddResult.Ok]
   }
   public stop(sessionId: string) {
     const session = this.sessions.get(sessionId)!
@@ -151,6 +155,15 @@ export default class ChainBlocker {
       }
       session.stop()
     }
+    this.updateBadge()
+  }
+  public async cancel(sessionId: string) {
+    this.sessions.delete(sessionId)
+    this.updateBadge()
+  }
+  public async prepare(sessionId: string) {
+    const session = this.sessions.get(sessionId)!
+    session.prepare()
     this.updateBadge()
   }
   public async start(sessionId: string) {
@@ -171,7 +184,7 @@ export default class ChainBlocker {
         break
       }
       const sessionInfo = session.getSessionInfo()
-      if (sessionInfo.status === SessionStatus.Initial) {
+      if (sessionInfo.status === SessionStatus.Ready) {
         sessionPromises.push(session.start().catch(() => {}))
       }
     }

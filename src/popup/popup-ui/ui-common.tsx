@@ -6,7 +6,8 @@ const M = MaterialUI
 export interface DialogContent {
   message: DialogMessageObj
   dialogType: 'confirm' | 'alert'
-  callback?: () => void
+  callbackOnOk: () => void
+  callbackOnCancel: () => void
 }
 
 export function RBDialog(props: { isOpen: boolean; content: DialogContent | null; closeModal: () => void }) {
@@ -14,10 +15,14 @@ export function RBDialog(props: { isOpen: boolean; content: DialogContent | null
   if (!content) {
     return <div></div>
   }
-  const { message, callback, dialogType } = content
+  const { message, callbackOnOk, callbackOnCancel, dialogType } = content
   const { title, contentLines, warningLines } = message
   function confirmOk() {
-    callback!()
+    callbackOnOk()
+    closeModal()
+  }
+  function refused() {
+    callbackOnCancel()
     closeModal()
   }
   function renderControls() {
@@ -28,7 +33,7 @@ export function RBDialog(props: { isOpen: boolean; content: DialogContent | null
             <M.Button onClick={confirmOk} color="primary">
               {i18n.getMessage('yes')}
             </M.Button>
-            <M.Button onClick={closeModal}>{i18n.getMessage('no')}</M.Button>
+            <M.Button onClick={refused}>{i18n.getMessage('no')}</M.Button>
           </React.Fragment>
         )
       case 'alert':

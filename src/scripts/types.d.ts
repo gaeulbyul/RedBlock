@@ -5,6 +5,7 @@ type FollowerBlockSessionRequest = import('./background/chainblock-session/sessi
 type TweetReactionBlockSessionRequest = import('./background/chainblock-session/session').TweetReactionBlockSessionRequest
 type TwitterUser = import('./background/twitter-api').TwitterUser
 type Tweet = import('./background/twitter-api').Tweet
+type DialogMessageObj = import('./text-generate').DialogMessageObj
 
 // ---- vendor modules ----
 declare var _: typeof import('lodash')
@@ -39,14 +40,24 @@ interface EitherLeft<E> {
 type Either<E, T> = EitherLeft<E> | EitherRight<T>
 
 declare namespace RBActions {
-  interface StartFollowerChainBlock {
-    actionType: 'StartFollowerChainBlock'
+  interface CreateFollowerChainBlockSession {
+    actionType: 'CreateFollowerChainBlockSession'
     request: FollowerBlockSessionRequest
   }
 
-  interface StartTweetReactionChainBlock {
-    actionType: 'StartTweetReactionChainBlock'
+  interface CreateTweetReactionChainBlockSession {
+    actionType: 'CreateTweetReactionChainBlockSession'
     request: TweetReactionBlockSessionRequest
+  }
+
+  interface Cancel {
+    actionType: 'Cancel'
+    sessionId: string
+  }
+
+  interface Start {
+    actionType: 'Start'
+    sessionId: string
   }
 
   interface Stop {
@@ -61,14 +72,6 @@ declare namespace RBActions {
   interface Rewind {
     actionType: 'RewindChainBlock'
     sessionId: string
-  }
-
-  interface ConnectToBackground {
-    actionType: 'ConnectToBackground'
-  }
-
-  interface DisconnectToBackground {
-    actionType: 'DisconnectToBackground'
   }
 
   interface InsertUserToStorage {
@@ -102,13 +105,13 @@ declare namespace RBActions {
 
 // background 측으로 보내는 메시지
 type RBAction =
-  | RBActions.StartFollowerChainBlock
-  | RBActions.StartTweetReactionChainBlock
+  | RBActions.CreateFollowerChainBlockSession
+  | RBActions.CreateTweetReactionChainBlockSession
+  | RBActions.Cancel
+  | RBActions.Start
   | RBActions.Stop
   | RBActions.StopAll
   | RBActions.Rewind
-  | RBActions.ConnectToBackground
-  | RBActions.DisconnectToBackground
   | RBActions.InsertUserToStorage
   | RBActions.RemoveUserFromStorage
   | RBActions.RequestProgress
@@ -143,10 +146,16 @@ declare namespace RBMessages {
     message: string
   }
 
+  interface ConfirmChainBlockInPopup {
+    messageType: 'ConfirmChainBlockInPopup'
+    confirmMessage: DialogMessageObj
+    sessionId: string
+  }
+
   interface ConfirmChainBlock {
     messageType: 'ConfirmChainBlock'
     confirmMessage: string
-    action: RBActions.StartFollowerChainBlock | RBActions.StartTweetReactionChainBlock
+    sessionId: string
   }
 
   interface ToggleOneClickBlockMode {
@@ -162,6 +171,7 @@ type RBMessage =
   | RBMessages.MarkManyUsersAsBlocked
   | RBMessages.PopupSwitchTab
   | RBMessages.Alert
+  | RBMessages.ConfirmChainBlockInPopup
   | RBMessages.ConfirmChainBlock
   | RBMessages.ToggleOneClickBlockMode
 

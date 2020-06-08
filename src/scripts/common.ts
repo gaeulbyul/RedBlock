@@ -8,7 +8,8 @@ export const enum PageEnum {
 }
 
 export const enum SessionStatus {
-  Initial,
+  Initial, // not confirmed yet
+  Ready, // confirmed, probably prefetching...
   Running,
   RateLimited,
   Completed,
@@ -172,7 +173,7 @@ export function getReactionsCount(target: TweetReactionBlockSessionRequest['targ
 }
 
 export function isRunningStatus(status: SessionStatus): boolean {
-  const runningStatuses = [SessionStatus.Initial, SessionStatus.Running, SessionStatus.RateLimited]
+  const runningStatuses = [SessionStatus.Ready, SessionStatus.Running, SessionStatus.RateLimited]
   return runningStatuses.includes(status)
 }
 

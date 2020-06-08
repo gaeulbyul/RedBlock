@@ -151,6 +151,15 @@ export default class ChainBlockSession {
         return thisTarget.tweet.id_str === givenTweet.id_str
     }
   }
+  public async prepare() {
+    if (this.sessionInfo.status !== SessionStatus.Initial) {
+      // 초기상태가 아니므로 별도의 준비는 안함
+      return
+    }
+    this.sessionInfo.status = SessionStatus.Ready
+    console.info('NOT IMPLEMENTED: session#prepare()')
+    // do actual prepare here
+  }
   public async start() {
     const scraper = Scraper.initScraper(this.request)
     const blocker = new Blocker()
@@ -254,7 +263,7 @@ export default class ChainBlockSession {
   }
   public async rewind() {
     this.resetCounts()
-    this.sessionInfo.status = SessionStatus.Initial
+    this.sessionInfo.status = SessionStatus.Ready
   }
   private resetCounts() {
     this.sessionInfo.progress = {
@@ -316,7 +325,7 @@ export default class ChainBlockSession {
   }
   private handleRunning() {
     const { sessionInfo, eventEmitter } = this
-    if (sessionInfo.status === SessionStatus.Initial) {
+    if (sessionInfo.status === SessionStatus.Ready) {
       eventEmitter.emit('started', sessionInfo)
     }
     if (sessionInfo.status === SessionStatus.RateLimited) {
