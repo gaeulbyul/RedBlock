@@ -8,7 +8,7 @@ import MiscPage from './popup-ui/misc-page.js'
 import { DialogContext, SnackBarContext, PageSwitchContext } from './popup-ui/contexts.js'
 import { RBDialog, TabPanel, DialogContent } from './popup-ui/ui-common.js'
 
-import { PageEnum, UI_UPDATE_DELAY, isRunningStatus } from '../scripts/common.js'
+import { PageEnum, UI_UPDATE_DELAY, isRunningSession } from '../scripts/common.js'
 import * as i18n from '../scripts/i18n.js'
 
 const popupMuiTheme = MaterialUI.createMuiTheme({
@@ -106,7 +106,10 @@ function PopupApp(props: PopupAppProps) {
         return
       }
       if ('messageType' in msgobj) {
-        const msg = msgobj as RBMessage
+        const msg = msgobj as RBMessageToPopup
+        if (msg.messageTo !== 'popup') {
+          return
+        }
         switch (msg.messageType) {
           case 'ChainBlockInfo':
             setSessions(msg.infos)
@@ -140,7 +143,7 @@ function PopupApp(props: PopupAppProps) {
       window.clearInterval(interval)
     }
   }, [])
-  const runningSessions = React.useMemo(() => sessions.filter(session => isRunningStatus(session.status)), [sessions])
+  const runningSessions = React.useMemo(() => sessions.filter(session => isRunningSession(session)), [sessions])
   const M = MaterialUI
   const runningSessionsTabIcon = (
     <M.Badge

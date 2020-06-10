@@ -1,9 +1,10 @@
+import { TargetCheckResult } from './background/chainblock.js'
 import {
   SessionInfo,
   FollowerBlockSessionRequest,
   TweetReactionBlockSessionRequest,
 } from './background/chainblock-session/session.js'
-import { SessionStatus } from './common.js'
+import { SessionStatus, getCountOfUsersToBlock } from './common.js'
 import * as i18n from './i18n.js'
 
 export interface DialogMessageObj {
@@ -16,8 +17,6 @@ export function statusToString(status: SessionStatus): string {
   switch (status) {
     case SessionStatus.Initial:
       return i18n.getMessage('session_status_initial')
-    case SessionStatus.Ready:
-      return i18n.getMessage('session_status_ready')
     case SessionStatus.Completed:
       return i18n.getMessage('session_status_completed')
     case SessionStatus.Running:
@@ -51,7 +50,7 @@ export function objToString(msg: DialogMessageObj): string {
 
 export function generateFollowerBlockConfirmMessage(request: FollowerBlockSessionRequest): DialogMessageObj {
   const { purpose } = request
-  const { user, count, list: targetList } = request.target
+  const { user, list: targetList } = request.target
   const { myFollowers, myFollowings } = request.options
   const targetUserName = user.screen_name
   let title = ''
@@ -63,6 +62,7 @@ export function generateFollowerBlockConfirmMessage(request: FollowerBlockSessio
       title = i18n.getMessage('confirm_follower_unchainblock_title', user.screen_name)
       break
   }
+  let count = getCountOfUsersToBlock(request) ?? '?'
   const contents = []
   const warnings = []
   switch (targetList) {
@@ -70,7 +70,7 @@ export function generateFollowerBlockConfirmMessage(request: FollowerBlockSessio
       contents.push(
         `${i18n.getMessage('target')}: ${i18n.getMessage('followers_with_targets_name_and_count', [
           targetUserName,
-          count!,
+          count,
         ])}`
       )
       break
@@ -78,7 +78,7 @@ export function generateFollowerBlockConfirmMessage(request: FollowerBlockSessio
       contents.push(
         `${i18n.getMessage('target')}: ${i18n.getMessage('followings_with_targets_name_and_count', [
           targetUserName,
-          count!,
+          count,
         ])}`
       )
       break
@@ -167,4 +167,29 @@ function tweetReactionBlockResultNotification(sessionInfo: SessionInfo<TweetReac
   message += `${i18n.getMessage('failed')}: ${failure}`
   message += ')'
   return message
+}
+
+export function checkResultToString(result: TargetCheckResult): string {
+  switch (result) {
+    case TargetCheckResult.Ok:
+      return ''
+    case TargetCheckResult.AlreadyRunningOnSameTarget:
+      return i18n.getMessage('already_running_to_same_target')
+    case TargetCheckResult.Protected:
+      return `\u{1f512} ${i18n.getMessage('cant_chainblock_to_protected')}`
+    case TargetCheckResult.NoFollowers:
+      return i18n.getMessage('cant_chainblock_follower_is_zero')
+    case TargetCheckResult.NoFollowings:
+      return i18n.getMessage('cant_chainblock_following_is_zero')
+    case TargetCheckResult.NoMutualFollowers:
+      return i18n.getMessage('cant_chainblock_mutual_follower_is_zero')
+    case TargetCheckResult.ChooseAtLeastRtOrLikes:
+      return i18n.getMessage('select_rt_or_like')
+    case TargetCheckResult.NobodyRetweetOrLiked:
+      return i18n.getMessage('cant_chainblock_nobody_retweet_or_like')
+    case TargetCheckResult.NobodyRetweeted:
+      return i18n.getMessage('cant_chainblock_nobody_retweeted')
+    case TargetCheckResult.NobodyLiked:
+      return i18n.getMessage('cant_chainblock_nobody_liked')
+  }
 }

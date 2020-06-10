@@ -1,4 +1,10 @@
-import { PageEnum, isRunningStatus, SessionStatus, getLimitResetTime } from '../../scripts/common.js'
+import {
+  PageEnum,
+  isRunningSession,
+  SessionStatus,
+  getLimitResetTime,
+  getCountOfUsersToBlock,
+} from '../../scripts/common.js'
 import { cleanupSessions, stopAllChainBlock, stopChainBlock } from '../popup.js'
 import { DialogContext, PageSwitchContext } from './contexts.js'
 import { statusToString } from '../../scripts/text-generate.js'
@@ -8,13 +14,14 @@ const M = MaterialUI
 const T = MaterialUI.Typography
 
 function calculatePercentage(session: SessionInfo): number | null {
-  const { status, count } = session
+  const { status } = session
+  const { scraped } = session.progress
   if (status === SessionStatus.Completed) {
     return 100
   }
-  const max = count.total
+  const max = session.progress.total ?? getCountOfUsersToBlock(session.request)
   if (typeof max === 'number') {
-    return Math.round((count.scraped / max) * 1000) / 10
+    return Math.round((scraped / max) * 1000) / 10
   } else {
     return null
   }
@@ -66,22 +73,22 @@ function ChainBlockSessionItem(props: { session: SessionInfo }) {
   }
   const localizedPurpose = i18n.getMessage(purpose)
   const cardTitle = `${localizedPurpose} ${statusToString(session.status)}`
-  function renderControls({ sessionId, status }: SessionInfo) {
+  function renderControls(sessionInfo: SessionInfo) {
     function requestStopChainBlock() {
-      if (isRunningStatus(status)) {
+      if (isRunningSession(sessionInfo)) {
         modalContext.openModal({
           dialogType: 'confirm',
           message: {
             title: i18n.getMessage('confirm_session_stop_message'),
           },
           callbackOnOk() {
-            stopChainBlock(sessionId)
+            stopChainBlock(sessionInfo.sessionId)
           },
           callbackOnCancel() {},
         })
         return
       }
-      stopChainBlock(sessionId)
+      stopChainBlock(sessionInfo.sessionId)
     }
     //function requestRewindChainBlock() {
     //  rewindChainBlock(sessionId)
@@ -92,7 +99,7 @@ function ChainBlockSessionItem(props: { session: SessionInfo }) {
     //</M.Button>
     let closeButtonText = i18n.getMessage('close')
     let closeButtonTitleText = i18n.getMessage('tooltip_close_session')
-    if (isRunningStatus(status)) {
+    if (isRunningSession(sessionInfo)) {
       closeButtonText = i18n.getMessage('stop')
       closeButtonTitleText = i18n.getMessage('tooltip_stop_session')
     }
@@ -237,7 +244,7 @@ export default function ChainBlockSessionsPage(props: { sessions: SessionInfo[] 
     )
   }
   function renderSessions() {
-    const visibleSessions = sessions.filter(session => session.status !== SessionStatus.Initial)
+    const visibleSessions = sessions.filter(session => session.confirmed)
     return (
       <div className="chainblock-sessions">
         {visibleSessions.map(session => (

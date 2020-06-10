@@ -1,13 +1,21 @@
-import { SessionStatus, isRunningStatus, isRewindableStatus } from '../common.js'
+import { SessionStatus, isRunningSession, isRewindableSession } from '../common.js'
 import * as TextGenerate from '../text-generate.js'
 import * as i18n from '../i18n.js'
 import { notify, updateExtensionBadge } from './background.js'
 import ChainBlockSession from './chainblock-session/session.js'
 import { loadOptions } from './storage.js'
 
-export const enum SessionAddResult {
+export const enum TargetCheckResult {
   Ok,
   AlreadyRunningOnSameTarget,
+  Protected,
+  NoFollowers,
+  NoFollowings,
+  NoMutualFollowers,
+  ChooseAtLeastRtOrLikes,
+  NobodyRetweetOrLiked,
+  NobodyRetweeted,
+  NobodyLiked,
 }
 
 export default class ChainBlocker {
@@ -23,17 +31,33 @@ export default class ChainBlocker {
   }
   private getCurrentRunningSessions() {
     const currentRunningSessions = Array.from(this.sessions.values()).filter(session =>
-      isRunningStatus(session.getSessionInfo().status)
+      isRunningSession(session.getSessionInfo())
     )
     return currentRunningSessions
   }
-  public isAlreadyRunning(target: SessionInfo['request']['target']): boolean {
-    for (const session of this.getCurrentRunningSessions()) {
-      if (session.isSameTarget(target)) {
-        return true
+  public checkTarget(request: SessionRequest): TargetCheckResult {
+    const { target } = request
+    const sameTargetSession = this.getSessionByTarget(target)
+    if (sameTargetSession) {
+      const sessionInfo = sameTargetSession.getSessionInfo()
+      if (isRunningSession(sessionInfo)) {
+        return TargetCheckResult.AlreadyRunningOnSameTarget
       }
     }
-    return false
+    switch (target.type) {
+      case 'follower':
+        return checkFollowerBlockTarget(target)
+      case 'tweetReaction':
+        return checkTweetReactionBlockTarget(target)
+    }
+  }
+  public getSessionByTarget(target: SessionInfo['request']['target']): ChainBlockSession | null {
+    for (const session of this.getCurrentRunningSessions()) {
+      if (session.isSameTarget(target)) {
+        return session
+      }
+    }
+    return null
   }
   private async markUser(params: MarkUserParams) {
     const tabs = await browser.tabs.query({
@@ -48,6 +72,7 @@ export default class ChainBlocker {
       browser.tabs
         .sendMessage<RBMessages.MarkUser>(id, {
           messageType: 'MarkUser',
+          messageTo: 'content',
           ...params,
         })
         .catch(() => {})
@@ -66,6 +91,7 @@ export default class ChainBlocker {
       browser.tabs
         .sendMessage<RBMessages.MarkManyUsersAsBlocked>(id, {
           messageType: 'MarkManyUsersAsBlocked',
+          messageTo: 'content',
           userIds,
         })
         .catch(() => {})
@@ -83,7 +109,7 @@ export default class ChainBlocker {
       this.updateBadge()
       const options = await loadOptions()
       if (options.removeSessionAfterComplete) {
-        this.removeSession(sessionId)
+        this.remove(sessionId)
       }
     })
     session.eventEmitter.on('stopped', () => {
@@ -117,34 +143,46 @@ export default class ChainBlocker {
         break
       }
       const sessionInfo = session.getSessionInfo()
-      if (sessionInfo.status === SessionStatus.Ready) {
+      if (!sessionInfo.confirmed) {
+        continue
+      }
+      if (sessionInfo.status === SessionStatus.Initial) {
         await session.start()
       }
     }
   }
-  private removeSession(sessionId: string) {
+  public remove(sessionId: string, isCancel = false) {
     const session = this.sessions.get(sessionId)!
-    if (isRunningStatus(session.getSessionInfo().status)) {
+    if (isRunningSession(session.getSessionInfo()) && !isCancel) {
       throw new Error(`attempted to remove running session! [id=${sessionId}]`)
     }
     this.sessions.delete(sessionId)
+    this.updateBadge()
   }
-  public add(request: SessionRequest): [string | null, SessionAddResult] {
+  private register(session: ChainBlockSession) {
+    this.handleEvents(session)
+    this.sessions.set(session.getSessionInfo().sessionId, session)
+  }
+  public add(request: SessionRequest): string {
     const { target } = request
-    if (this.isAlreadyRunning(target)) {
-      return [null, SessionAddResult.AlreadyRunningOnSameTarget]
+    // 만약 confirm대기 중인데 다시 요청하면 그 세션 다시 써도 될듯
+    const sameTargetSession = this.getSessionByTarget(target)
+    if (sameTargetSession) {
+      const sessionInfo = sameTargetSession.getSessionInfo()
+      if (isRunningSession(sessionInfo)) {
+        throw new Error('unreachable(attempting run already-running session)')
+      }
+      return sessionInfo.sessionId
     }
     const session = new ChainBlockSession(request)
+    this.register(session)
     const sessionId = session.getSessionInfo().sessionId
-    this.handleEvents(session)
-    this.sessions.set(sessionId, session)
-    return [sessionId, SessionAddResult.Ok]
+    return sessionId
   }
   public stop(sessionId: string) {
     const session = this.sessions.get(sessionId)!
     session.stop()
-    this.updateBadge()
-    this.sessions.delete(sessionId)
+    this.remove(sessionId)
   }
   public stopAll() {
     const sessions = this.sessions.values()
@@ -157,14 +195,14 @@ export default class ChainBlocker {
     }
     this.updateBadge()
   }
-  public async cancel(sessionId: string) {
-    this.sessions.delete(sessionId)
-    this.updateBadge()
-  }
   public async prepare(sessionId: string) {
     const session = this.sessions.get(sessionId)!
     session.prepare()
     this.updateBadge()
+  }
+  public setConfirmed(sessionId: string) {
+    const session = this.sessions.get(sessionId)!
+    session.setConfirmed()
   }
   public async start(sessionId: string) {
     const count = this.checkAvailableSessionsCount()
@@ -184,7 +222,10 @@ export default class ChainBlocker {
         break
       }
       const sessionInfo = session.getSessionInfo()
-      if (sessionInfo.status === SessionStatus.Ready) {
+      if (!sessionInfo.confirmed) {
+        continue
+      }
+      if (sessionInfo.status === SessionStatus.Initial) {
         sessionPromises.push(session.start().catch(() => {}))
       }
     }
@@ -193,7 +234,7 @@ export default class ChainBlocker {
   }
   public async rewind(sessionId: string) {
     const session = this.sessions.get(sessionId)!
-    if (isRewindableStatus(session.getSessionInfo().status)) {
+    if (isRewindableSession(session.getSessionInfo())) {
       session.rewind()
       this.updateBadge()
       await session.start()
@@ -206,11 +247,44 @@ export default class ChainBlocker {
     const sessions = this.sessions.values()
     for (const session of sessions) {
       const sessionInfo = session.getSessionInfo()
-      if (isRunningStatus(sessionInfo.status)) {
+      if (isRunningSession(sessionInfo)) {
         continue
       }
       this.sessions.delete(sessionInfo.sessionId)
     }
     this.updateBadge()
   }
+}
+
+function checkFollowerBlockTarget(target: FollowerBlockSessionRequest['target']): TargetCheckResult {
+  const { protected: isProtected, following, followers_count, friends_count } = target.user
+  if (isProtected && !following) {
+    return TargetCheckResult.Protected
+  }
+  if (target.list === 'followers' && followers_count <= 0) {
+    return TargetCheckResult.NoFollowers
+  } else if (target.list === 'friends' && friends_count <= 0) {
+    return TargetCheckResult.NoFollowings
+  } else if (target.list === 'mutual-followers' && followers_count <= 0 && friends_count <= 0) {
+    return TargetCheckResult.NoMutualFollowers
+  }
+  return TargetCheckResult.Ok
+}
+
+function checkTweetReactionBlockTarget(target: TweetReactionBlockSessionRequest['target']): TargetCheckResult {
+  if (!(target.blockRetweeters || target.blockLikers)) {
+    return TargetCheckResult.ChooseAtLeastRtOrLikes
+  }
+  const { retweet_count, favorite_count } = target.tweet
+  if (retweet_count <= 0 && favorite_count <= 0) {
+    return TargetCheckResult.NobodyRetweetOrLiked
+  }
+  const onlyWantBlockRetweetedUsers = target.blockRetweeters && !target.blockLikers
+  const onlyWantBlockLikedUsers = !target.blockRetweeters && target.blockLikers
+  if (onlyWantBlockRetweetedUsers && retweet_count <= 0) {
+    return TargetCheckResult.NobodyRetweeted
+  } else if (onlyWantBlockLikedUsers && favorite_count <= 0) {
+    return TargetCheckResult.NobodyLiked
+  }
+  return TargetCheckResult.Ok
 }

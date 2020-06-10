@@ -122,56 +122,64 @@ type RBAction =
 declare namespace RBMessages {
   interface ChainBlockInfo {
     messageType: 'ChainBlockInfo'
+    messageTo: 'popup'
     infos: SessionInfo[]
   }
 
   interface MarkUser {
     messageType: 'MarkUser'
+    messageTo: 'content'
     userId: string
     verb: VerbSomething
   }
 
   interface MarkManyUsersAsBlocked {
     messageType: 'MarkManyUsersAsBlocked'
+    messageTo: 'content'
     userIds: string[]
   }
 
   interface PopupSwitchTab {
     messageType: 'PopupSwitchTab'
+    messageTo: 'popup'
     page: PageEnum[keyof PageEnum]
   }
 
   interface Alert {
     messageType: 'Alert'
+    messageTo: 'content'
     message: string
   }
 
   interface ConfirmChainBlockInPopup {
     messageType: 'ConfirmChainBlockInPopup'
+    messageTo: 'popup'
     confirmMessage: DialogMessageObj
     sessionId: string
   }
 
   interface ConfirmChainBlock {
     messageType: 'ConfirmChainBlock'
+    messageTo: 'content'
     confirmMessage: string
     sessionId: string
   }
 
   interface ToggleOneClickBlockMode {
     messageType: 'ToggleOneClickBlockMode'
+    messageTo: 'content'
     enabled: boolean
   }
 }
 
+// popup페이지로 보내는 메시지
+type RBMessageToPopup = RBMessages.ConfirmChainBlockInPopup | RBMessages.PopupSwitchTab | RBMessages.ChainBlockInfo
+
 // content측으로 보내는 메시지
-type RBMessage =
-  | RBMessages.ChainBlockInfo
+type RBMessageToContent =
   | RBMessages.MarkUser
   | RBMessages.MarkManyUsersAsBlocked
-  | RBMessages.PopupSwitchTab
   | RBMessages.Alert
-  | RBMessages.ConfirmChainBlockInPopup
   | RBMessages.ConfirmChainBlock
   | RBMessages.ToggleOneClickBlockMode
 

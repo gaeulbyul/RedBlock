@@ -1,6 +1,5 @@
 // import * as Storage from '../../scripts/background/storage.js'
 import * as i18n from '../../scripts/i18n.js'
-import { getReactionsCount } from '../../scripts/common.js'
 import { startTweetReactionChainBlock } from '../popup.js'
 
 type SessionOptions = TweetReactionBlockSessionRequest['options']
@@ -228,11 +227,9 @@ function TargetExecutionButtonUI() {
         tweet: currentTweet,
         blockRetweeters: wantBlockRetweeters,
         blockLikers: wantBlockLikers,
-        count: 0,
       },
       options: targetOptions,
     }
-    request.target.count = getReactionsCount(request.target)
     startTweetReactionChainBlock(request)
   }
   const blockButtonDisabled = !(wantBlockRetweeters || wantBlockLikers)

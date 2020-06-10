@@ -22,6 +22,7 @@ export async function toggleOneClickBlockMode(enabled: boolean) {
   }
   return browser.tabs.sendMessage<RBMessages.ToggleOneClickBlockMode>(tabId, {
     messageType: 'ToggleOneClickBlockMode',
+    messageTo: 'content',
     enabled,
   })
 }

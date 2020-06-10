@@ -1,46 +1,41 @@
 import { PageEnum } from '../common.js'
-import { alert } from './background.js'
-import ChainBlocker, { SessionAddResult } from './chainblock.js'
+import { alertToCurrentTab } from './background.js'
+import ChainBlocker, { TargetCheckResult } from './chainblock.js'
 import * as Storage from './storage.js'
 import * as TwitterAPI from './twitter-api.js'
 import * as i18n from '../i18n.js'
 import * as TextGenerator from '../text-generate.js'
 import { initializeContextMenu } from './context-menu.js'
 import { initializeWebRequest } from './webrequest.js'
-import { checkFollowerBlockTarget, checkTweetReactionBlockTarget } from './chainblock-session/session.js'
+// import { checkFollowerBlockTarget, checkTweetReactionBlockTarget } from './chainblock-session/session.js'
 
 let storageQueue = Promise.resolve()
 const chainblocker = new ChainBlocker()
 
-export async function createChainBlockSession(request: SessionRequest) {
+// for debug
+Object.assign(window, {
+  chainblocker,
+})
+
+type SessionCreateResult = Either<TargetCheckResult, string>
+export async function createChainBlockSession(request: SessionRequest): Promise<SessionCreateResult> {
   const myself = await TwitterAPI.getMyself().catch(() => null)
   if (!myself) {
     throw new Error(i18n.getMessage('error_occured_check_login'))
   }
-  let checkResult: [boolean, string]
-  switch (request.target.type) {
-    case 'follower':
-      checkResult = checkFollowerBlockTarget(request.target)
-      break
-    case 'tweetReaction':
-      checkResult = checkTweetReactionBlockTarget(request.target)
-      break
-  }
-  const [isOk, alertMessage] = checkResult
-  if (!isOk) {
-    throw new Error(alertMessage)
-  }
-  const [sessionId, addResult] = chainblocker.add(request)
-  if (!sessionId) {
-    switch (addResult) {
-      case SessionAddResult.AlreadyRunningOnSameTarget:
-        throw new Error(i18n.getMessage('already_running_to_same_target'))
-      default:
-        throw new Error('unreachable?')
+  const checkResult = chainblocker.checkTarget(request)
+  if (checkResult !== TargetCheckResult.Ok) {
+    return {
+      ok: false,
+      error: checkResult,
     }
   }
+  const sessionId = chainblocker.add(request)
   chainblocker.prepare(sessionId)
-  return sessionId
+  return {
+    ok: true,
+    value: sessionId,
+  }
 }
 
 function generateConfirmMessage(request: SessionRequest) {
@@ -61,6 +56,7 @@ export async function confirmSession(tab: browser.tabs.Tab, request: SessionRequ
   const confirmMessage = TextGenerator.objToString(confirmMessageObj)
   browser.tabs.sendMessage<RBMessages.ConfirmChainBlock>(tab!.id!, {
     messageType: 'ConfirmChainBlock',
+    messageTo: 'content',
     confirmMessage,
     sessionId,
   })
@@ -70,6 +66,7 @@ async function confirmSessionInPopup(request: SessionRequest, sessionId: string)
   const confirmMessage = generateConfirmMessage(request)
   browser.runtime.sendMessage<RBMessages.ConfirmChainBlockInPopup>({
     messageType: 'ConfirmChainBlockInPopup',
+    messageTo: 'popup',
     confirmMessage,
     sessionId,
   })
@@ -79,19 +76,21 @@ async function startSession(sessionId: string) {
   browser.runtime
     .sendMessage<RBMessages.PopupSwitchTab>({
       messageType: 'PopupSwitchTab',
+      messageTo: 'popup',
       page: PageEnum.Sessions,
     })
     .catch(() => {}) // 우클릭 체인블락의 경우 팝업이 없음
+  chainblocker.setConfirmed(sessionId)
   return chainblocker.start(sessionId).catch(err => {
     if (err instanceof TwitterAPI.RateLimitError) {
-      alert(i18n.getMessage('error_rate_limited'))
+      alertToCurrentTab(i18n.getMessage('error_rate_limited'))
     }
     throw err
   })
 }
 
 function cancelSession(sessionId: string) {
-  chainblocker.cancel(sessionId)
+  chainblocker.remove(sessionId, true)
 }
 
 function stopChainBlock(sessionId: string) {
@@ -111,6 +110,7 @@ async function sendProgress() {
   return browser.runtime
     .sendMessage<RBMessages.ChainBlockInfo>({
       messageType: 'ChainBlockInfo',
+      messageTo: 'popup',
       infos,
     })
     .catch(() => {})
@@ -135,13 +135,17 @@ async function removeUserFromStorage(user: TwitterUser) {
 function handleExtensionMessage(message: RBAction, _sender: browser.runtime.MessageSender) {
   switch (message.actionType) {
     case 'CreateFollowerChainBlockSession':
-      createChainBlockSession(message.request).then(async sessionId => {
-        confirmSessionInPopup(message.request, sessionId)
+      createChainBlockSession(message.request).then(async result => {
+        if (result.ok) {
+          confirmSessionInPopup(message.request, result.value)
+        }
       })
       break
     case 'CreateTweetReactionChainBlockSession':
-      createChainBlockSession(message.request).then(async sessionId => {
-        confirmSessionInPopup(message.request, sessionId)
+      createChainBlockSession(message.request).then(async result => {
+        if (result.ok) {
+          confirmSessionInPopup(message.request, result.value)
+        }
       })
       break
     case 'Cancel':

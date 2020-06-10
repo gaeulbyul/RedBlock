@@ -8,8 +8,7 @@ export const enum PageEnum {
 }
 
 export const enum SessionStatus {
-  Initial, // not confirmed yet
-  Ready, // confirmed, probably prefetching...
+  Initial,
   Running,
   RateLimited,
   Completed,
@@ -172,12 +171,27 @@ export function getReactionsCount(target: TweetReactionBlockSessionRequest['targ
   return result
 }
 
-export function isRunningStatus(status: SessionStatus): boolean {
-  const runningStatuses = [SessionStatus.Ready, SessionStatus.Running, SessionStatus.RateLimited]
+export function getCountOfUsersToBlock({ target }: SessionRequest) {
+  switch (target.type) {
+    case 'follower':
+      return getFollowersCount(target.user, target.list)
+    case 'tweetReaction':
+      return getReactionsCount(target)
+  }
+}
+
+export function isRunningSession({ status, confirmed }: SessionInfo): boolean {
+  if (!confirmed) {
+    return false
+  }
+  const runningStatuses = [SessionStatus.Initial, SessionStatus.Running, SessionStatus.RateLimited]
   return runningStatuses.includes(status)
 }
 
-export function isRewindableStatus(status: SessionStatus): boolean {
+export function isRewindableSession({ status, confirmed }: SessionInfo): boolean {
+  if (!confirmed) {
+    return false
+  }
   const rewindableStatus: SessionStatus[] = [SessionStatus.Completed, SessionStatus.Error, SessionStatus.Stopped]
   return rewindableStatus.includes(status)
 }

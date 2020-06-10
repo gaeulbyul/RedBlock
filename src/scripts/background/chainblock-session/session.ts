@@ -1,15 +1,13 @@
 import * as Scraper from './scraper.js'
 import * as TwitterAPI from '../twitter-api.js'
-import * as i18n from '../../i18n.js'
 import { blockMultipleUsers, BlockAllResult } from '../block-all.js'
 import {
   MAX_USER_LIMIT,
   EventEmitter,
   SessionStatus,
   copyFrozenObject,
-  getFollowersCount,
-  getReactionsCount,
   sleep,
+  getCountOfUsersToBlock,
 } from '../../common.js'
 
 export type SessionRequest = FollowerBlockSessionRequest | TweetReactionBlockSessionRequest
@@ -35,7 +33,6 @@ export interface FollowerBlockSessionRequest {
     type: 'follower'
     user: TwitterUser
     list: FollowKind
-    count: number | null
   }
   options: {
     myFollowers: Verb
@@ -56,7 +53,6 @@ export interface TweetReactionBlockSessionRequest {
     // reaction: ReactionKind
     blockRetweeters: boolean
     blockLikers: boolean
-    count: number
   }
   options: {
     myFollowers: Verb
@@ -75,13 +71,10 @@ export interface SessionInfo<ReqT = SessionRequest> {
     already: number
     skipped: number
     error: number
-  }
-  count: {
     scraped: number
-    // totalCount: 맞팔로우 체인의 경우, 실행시작 시점에선 정확한 사용자 수를 알 수 없다.
-    // 따라서, null을 통해 '아직 알 수 없음'을 표현한다.
     total: number | null
   }
+  confirmed: boolean
   status: SessionStatus
   limit: Limit | null
 }
@@ -120,15 +113,6 @@ function extractRateLimit(limitStatuses: TwitterAPI.LimitStatus, apiKind: ApiKin
   }
 }
 
-function getCount({ target }: SessionRequest) {
-  switch (target.type) {
-    case 'follower':
-      return getFollowersCount(target.user, target.list)
-    case 'tweetReaction':
-      return getReactionsCount(target)
-  }
-}
-
 export default class ChainBlockSession {
   private readonly sessionInfo = this.initSessionInfo()
   private shouldStop = false
@@ -151,16 +135,21 @@ export default class ChainBlockSession {
         return thisTarget.tweet.id_str === givenTweet.id_str
     }
   }
+  public setConfirmed() {
+    this.sessionInfo.confirmed = true
+  }
   public async prepare() {
     if (this.sessionInfo.status !== SessionStatus.Initial) {
       // 초기상태가 아니므로 별도의 준비는 안함
       return
     }
-    this.sessionInfo.status = SessionStatus.Ready
     console.info('NOT IMPLEMENTED: session#prepare()')
     // do actual prepare here
   }
   public async start() {
+    if (!this.sessionInfo.confirmed) {
+      throw new Error('session not confirmed')
+    }
     const scraper = Scraper.initScraper(this.request)
     const blocker = new Blocker()
     const multiBlocker = new BlockAllAPIBlocker()
@@ -201,9 +190,8 @@ export default class ChainBlockSession {
           await blocker.flush()
           break
         }
-        this.updateTotalCount(scraper)
-        this.sessionInfo.count.scraped = this.calculateScrapedCount()
-        if (this.sessionInfo.count.scraped >= MAX_USER_LIMIT) {
+        this.sessionInfo.progress.scraped = this.calculateScrapedCount()
+        if (this.sessionInfo.progress.scraped >= MAX_USER_LIMIT) {
           this.stop()
           continue
         }
@@ -217,6 +205,9 @@ export default class ChainBlockSession {
           } else {
             throw maybeUser.error
           }
+        }
+        if (this.sessionInfo.progress.total === null) {
+          this.sessionInfo.progress.total = scraper.totalCount
         }
         this.handleRunning()
         const user = maybeUser.value
@@ -263,10 +254,10 @@ export default class ChainBlockSession {
   }
   public async rewind() {
     this.resetCounts()
-    this.sessionInfo.status = SessionStatus.Ready
+    this.sessionInfo.status = SessionStatus.Initial
   }
-  private resetCounts() {
-    this.sessionInfo.progress = {
+  private initProgress(): SessionInfo['progress'] {
+    return {
       already: 0,
       success: {
         Block: 0,
@@ -277,40 +268,25 @@ export default class ChainBlockSession {
       failure: 0,
       skipped: 0,
       error: 0,
+      scraped: 0,
+      total: getCountOfUsersToBlock(this.request),
     }
-    this.sessionInfo.count.scraped = 0
+  }
+  private resetCounts() {
+    this.sessionInfo.progress = this.initProgress()
   }
   private initSessionInfo(): SessionInfo {
     return {
       sessionId: this.generateSessionId(),
       request: this.request,
-      progress: {
-        already: 0,
-        success: {
-          Block: 0,
-          UnBlock: 0,
-          Mute: 0,
-          UnMute: 0,
-        },
-        failure: 0,
-        skipped: 0,
-        error: 0,
-      },
-      count: {
-        scraped: 0,
-        total: getCount(this.request),
-      },
+      progress: this.initProgress(),
       status: SessionStatus.Initial,
       limit: null,
+      confirmed: false,
     }
   }
   private generateSessionId(): string {
     return `session/${Date.now()}`
-  }
-  private updateTotalCount(scraper: Scraper.UserScraper) {
-    if (this.sessionInfo.count.total === null) {
-      this.sessionInfo.count.total = scraper.totalCount
-    }
   }
   private async handleRateLimit(
     sessionInfo: SessionInfo,
@@ -325,7 +301,7 @@ export default class ChainBlockSession {
   }
   private handleRunning() {
     const { sessionInfo, eventEmitter } = this
-    if (sessionInfo.status === SessionStatus.Ready) {
+    if (sessionInfo.status === SessionStatus.Initial) {
       eventEmitter.emit('started', sessionInfo)
     }
     if (sessionInfo.status === SessionStatus.RateLimited) {
@@ -341,6 +317,9 @@ export default class ChainBlockSession {
   private whatToDoGivenUser(request: SessionRequest, follower: TwitterUser): Verb {
     const { purpose, options, target } = request
     const { following, followed_by, follow_request_sent } = follower
+    if (!(typeof following === 'boolean' && typeof followed_by === 'boolean')) {
+      throw new Error('following/followed_by property missing?')
+    }
     const isMyFollowing = following || follow_request_sent
     const isMyFollower = followed_by
     const isMyMutualFollower = isMyFollower && isMyFollowing
@@ -453,36 +432,3 @@ export const tweetReactionBlockDefaultOption: Readonly<TweetReactionBlockSession
   myFollowers: 'Skip',
   myFollowings: 'Skip',
 })
-
-export function checkFollowerBlockTarget(target: FollowerBlockSessionRequest['target']): [boolean, string] {
-  const { protected: isProtected, following, followers_count, friends_count } = target.user
-  if (isProtected && !following) {
-    return [false, `\u{1f512} ${i18n.getMessage('cant_chainblock_to_protected')}`]
-  }
-  if (target.list === 'followers' && followers_count <= 0) {
-    return [false, i18n.getMessage('cant_chainblock_follower_is_zero')]
-  } else if (target.list === 'friends' && friends_count <= 0) {
-    return [false, i18n.getMessage('cant_chainblock_following_is_zero')]
-  } else if (target.list === 'mutual-followers' && followers_count <= 0 && friends_count <= 0) {
-    return [false, i18n.getMessage('cant_chainblock_mutual_follower_is_zero')]
-  }
-  return [true, '']
-}
-
-export function checkTweetReactionBlockTarget(target: TweetReactionBlockSessionRequest['target']): [boolean, string] {
-  if (!(target.blockRetweeters || target.blockLikers)) {
-    return [false, i18n.getMessage('select_rt_or_like')]
-  }
-  const { retweet_count, favorite_count } = target.tweet
-  if (retweet_count <= 0 && favorite_count <= 0) {
-    return [false, i18n.getMessage('cant_chainblock_nobody_retweet_or_like')]
-  }
-  const onlyWantBlockRetweetedUsers = target.blockRetweeters && !target.blockLikers
-  const onlyWantBlockLikedUsers = !target.blockRetweeters && target.blockLikers
-  if (onlyWantBlockRetweetedUsers && retweet_count <= 0) {
-    return [false, i18n.getMessage('cant_chainblock_nobody_retweeted')]
-  } else if (onlyWantBlockLikedUsers && favorite_count <= 0) {
-    return [false, i18n.getMessage('cant_chainblock_nobody_liked')]
-  }
-  return [true, '']
-}

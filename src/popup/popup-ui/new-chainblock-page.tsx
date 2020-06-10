@@ -1,7 +1,7 @@
 import * as Storage from '../../scripts/background/storage.js'
 import * as TwitterAPI from '../../scripts/background/twitter-api.js'
 import { TwitterUser } from '../../scripts/background/twitter-api.js'
-import { TwitterUserMap, getFollowersCount, MAX_USER_LIMIT } from '../../scripts/common.js'
+import { TwitterUserMap, MAX_USER_LIMIT } from '../../scripts/common.js'
 import * as i18n from '../../scripts/i18n.js'
 import { insertUserToStorage, removeUserFromStorage, startFollowerChainBlock } from '../popup.js'
 import { DialogContext, SnackBarContext } from './contexts.js'
@@ -458,7 +458,6 @@ function TargetExecutionButtonUI(props: { isAvailable: boolean }) {
         type: 'follower',
         user: selectedUser!,
         list: targetList,
-        count: getFollowersCount(selectedUser!, targetList),
       },
       options: targetOptions,
     }
@@ -471,7 +470,6 @@ function TargetExecutionButtonUI(props: { isAvailable: boolean }) {
         type: 'follower',
         user: selectedUser!,
         list: targetList,
-        count: getFollowersCount(selectedUser!, targetList),
       },
       options: targetOptions,
     }

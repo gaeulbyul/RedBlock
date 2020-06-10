@@ -10,7 +10,7 @@ export function notify(message: string): void {
   browser.notifications.create(null, notif)
 }
 
-export async function alert(message: string) {
+export async function alertToCurrentTab(message: string) {
   const currentTab = await browser.tabs
     .query({
       active: true,
@@ -22,6 +22,7 @@ export async function alert(message: string) {
   }
   browser.tabs.sendMessage<RBMessages.Alert>(currentTab.id!, {
     messageType: 'Alert',
+    messageTo: 'content',
     message,
   })
 }

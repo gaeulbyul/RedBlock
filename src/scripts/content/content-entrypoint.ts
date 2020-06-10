@@ -14,7 +14,10 @@ function listenExtensionMessages(reactRoot: Element | null) {
       console.debug('unknown msg?', msgobj)
       return
     }
-    const msg = msgobj as RBMessage
+    const msg = msgobj as RBMessageToContent
+    if (msg.messageTo !== 'content') {
+      return
+    }
     switch (msg.messageType) {
       case 'MarkUser':
         if (reactRoot) {
