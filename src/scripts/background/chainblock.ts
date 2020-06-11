@@ -243,15 +243,16 @@ export default class ChainBlocker {
   public getAllSessionInfos(): SessionInfo[] {
     return Array.from(this.sessions.values()).map(ses => ses.getSessionInfo())
   }
-  public cleanupSessions() {
-    const sessions = this.sessions.values()
-    for (const session of sessions) {
-      const sessionInfo = session.getSessionInfo()
-      if (isRunningSession(sessionInfo)) {
-        continue
-      }
-      this.sessions.delete(sessionInfo.sessionId)
-    }
+  public cleanupNotConfirmedSession() {
+    this.getAllSessionInfos()
+      .filter(session => !session.confirmed)
+      .forEach(session => this.remove(session.sessionId, true))
+    this.updateBadge()
+  }
+  public cleanupInactiveSessions() {
+    this.getAllSessionInfos()
+      .filter(session => !isRunningSession(session))
+      .forEach(session => this.remove(session.sessionId))
     this.updateBadge()
   }
 }

@@ -89,22 +89,6 @@ async function startSession(sessionId: string) {
   })
 }
 
-function cancelSession(sessionId: string) {
-  chainblocker.remove(sessionId, true)
-}
-
-function stopChainBlock(sessionId: string) {
-  chainblocker.stop(sessionId)
-}
-
-function rewindChainBlock(sessionId: string) {
-  chainblocker.rewind(sessionId)
-}
-
-function stopAllChainBlock() {
-  chainblocker.stopAll()
-}
-
 async function sendProgress() {
   const infos = chainblocker.getAllSessionInfos()
   return browser.runtime
@@ -114,10 +98,6 @@ async function sendProgress() {
       infos,
     })
     .catch(() => {})
-}
-
-async function cleanupSessions() {
-  chainblocker.cleanupSessions()
 }
 
 async function saveUserToStorage(user: TwitterUser) {
@@ -149,27 +129,34 @@ function handleExtensionMessage(message: RBAction, _sender: browser.runtime.Mess
       })
       break
     case 'Cancel':
-      cancelSession(message.sessionId)
+      chainblocker.remove(message.sessionId, true)
       sendProgress()
       break
     case 'Start':
       startSession(message.sessionId).then(sendProgress)
       break
     case 'StopChainBlock':
-      stopChainBlock(message.sessionId)
+      chainblocker.stop(message.sessionId)
       sendProgress()
       break
     case 'StopAllChainBlock':
-      stopAllChainBlock()
+      chainblocker.stopAll()
+      sendProgress()
       break
     case 'RewindChainBlock':
-      rewindChainBlock(message.sessionId)
+      chainblocker.rewind(message.sessionId)
       break
     case 'RequestProgress':
       sendProgress()
       break
     case 'RequestCleanup':
-      cleanupSessions()
+      switch (message.cleanupWhat) {
+        case 'inactive':
+          chainblocker.cleanupInactiveSessions()
+          break
+        case 'not-confirmed':
+          chainblocker.cleanupNotConfirmedSession()
+      }
       break
     case 'InsertUserToStorage':
       saveUserToStorage(message.user)

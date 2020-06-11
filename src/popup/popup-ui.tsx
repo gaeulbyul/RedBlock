@@ -239,6 +239,10 @@ function showVersionOnFooter() {
 }
 
 export async function initializeUI() {
+  browser.runtime.sendMessage<RBActions.RequestCleanup>({
+    actionType: 'RequestCleanup',
+    cleanupWhat: 'not-confirmed',
+  })
   const tab = await getCurrentTab()
   const isPopupOpenedAsTab = /\bistab=1\b/.test(location.search)
   const userName = tab ? getUserNameFromTab(tab) : null

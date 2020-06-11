@@ -90,6 +90,7 @@ declare namespace RBActions {
 
   interface RequestCleanup {
     actionType: 'RequestCleanup'
+    cleanupWhat: 'inactive' | 'not-confirmed'
   }
 
   interface BlockSingleUser {

@@ -45,9 +45,17 @@ export async function requestProgress() {
   })
 }
 
-export async function cleanupSessions() {
+export async function cleanupInactiveSessions() {
   return browser.runtime.sendMessage<RBActions.RequestCleanup>({
     actionType: 'RequestCleanup',
+    cleanupWhat: 'inactive',
+  })
+}
+
+export async function cleanupNotConfirmedSessions() {
+  return browser.runtime.sendMessage<RBActions.RequestCleanup>({
+    actionType: 'RequestCleanup',
+    cleanupWhat: 'not-confirmed',
   })
 }
 

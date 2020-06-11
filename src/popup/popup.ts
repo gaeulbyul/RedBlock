@@ -9,7 +9,7 @@ export {
   insertUserToStorage,
   removeUserFromStorage,
   requestProgress,
-  cleanupSessions,
+  cleanupInactiveSessions,
 } from '../scripts/background/request-sender.js'
 
 type Tab = browser.tabs.Tab

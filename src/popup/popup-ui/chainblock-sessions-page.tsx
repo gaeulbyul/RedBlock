@@ -5,7 +5,7 @@ import {
   getLimitResetTime,
   getCountOfUsersToBlock,
 } from '../../scripts/common.js'
-import { cleanupSessions, stopAllChainBlock, stopChainBlock } from '../popup.js'
+import { cleanupInactiveSessions, stopAllChainBlock, stopChainBlock } from '../popup.js'
 import { DialogContext, PageSwitchContext } from './contexts.js'
 import { statusToString } from '../../scripts/text-generate.js'
 import * as i18n from '../../scripts/i18n.js'
@@ -236,7 +236,7 @@ export default function ChainBlockSessionsPage(props: { sessions: SessionInfo[] 
           <M.Icon>highlight_off</M.Icon>
           {i18n.getMessage('stop_all')}
         </M.Button>
-        <M.Button onClick={cleanupSessions}>
+        <M.Button onClick={cleanupInactiveSessions}>
           <M.Icon>clear_all</M.Icon>
           {i18n.getMessage('cleanup_sessions')}
         </M.Button>
