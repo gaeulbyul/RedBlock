@@ -14,8 +14,6 @@ export type SessionRequest = FollowerBlockSessionRequest | TweetReactionBlockSes
 
 type Limit = TwitterAPI.Limit
 
-// const MAX_USER_LIMIT = 100000
-
 interface SessionEventEmitter {
   'mark-user': MarkUserParams
   'mark-many-users-as-blocked': MarkManyUsersAsBlockedParams
@@ -146,6 +144,9 @@ export default class ChainBlockSession {
     console.info('NOT IMPLEMENTED: session#prepare()')
     // do actual prepare here
   }
+  public async cancelPrepare() {
+    //
+  }
   public async start() {
     if (!this.sessionInfo.confirmed) {
       throw new Error('session not confirmed')
@@ -184,7 +185,7 @@ export default class ChainBlockSession {
     }
     let stopped = false
     try {
-      for await (const maybeUser of scraper) {
+      for await (const scraperResponse of scraper) {
         if (this.shouldStop) {
           stopped = true
           await blocker.flush()
@@ -195,41 +196,42 @@ export default class ChainBlockSession {
           this.stop()
           continue
         }
-        if (!maybeUser.ok) {
-          if (maybeUser.error instanceof TwitterAPI.RateLimitError) {
+        if (!scraperResponse.ok) {
+          if (scraperResponse.error instanceof TwitterAPI.RateLimitError) {
             this.handleRateLimit(this.sessionInfo, this.eventEmitter, apiKind)
             const second = 1000
             const minute = second * 60
             await sleep(1 * minute)
             continue
           } else {
-            throw maybeUser.error
+            throw scraperResponse.error
           }
         }
         if (this.sessionInfo.progress.total === null) {
           this.sessionInfo.progress.total = scraper.totalCount
         }
         this.handleRunning()
-        const user = maybeUser.value
-        const whatToDo = this.whatToDoGivenUser(this.request, user)
-        // console.debug('whatToDo(req: %o / user: %o) = "%s"', this.request, user, whatToDo)
-        if (whatToDo === 'Skip') {
-          this.sessionInfo.progress.skipped++
-          continue
-        } else if (whatToDo === 'AlreadyDone') {
-          this.sessionInfo.progress.already++
-          continue
+        for (const user of scraperResponse.value.users) {
+          const whatToDo = this.whatToDoGivenUser(this.request, user)
+          // console.debug('whatToDo(req: %o / user: %o) = "%s"', this.request, user, whatToDo)
+          if (whatToDo === 'Skip') {
+            this.sessionInfo.progress.skipped++
+            continue
+          } else if (whatToDo === 'AlreadyDone') {
+            this.sessionInfo.progress.already++
+            continue
+          }
+          // 트윗반응 체인블락은 수집할 수 있는 수가 적으므로
+          // 굳이 block_all API를 타지 않아도 안전할 듯.
+          // 따라서 팔로워 체인블락에만 block_all API를 사용한다.
+          if (this.request.target.type === 'follower' && whatToDo === 'Block') {
+            multiBlocker.add(user)
+          } else {
+            blocker.add(whatToDo, user)
+          }
+          await blocker.flushIfNeeded()
+          await multiBlocker.flushIfNeeded()
         }
-        // 트윗반응 체인블락은 수집할 수 있는 수가 적으므로
-        // 굳이 block_all API를 타지 않아도 안전할 듯.
-        // 따라서 팔로워 체인블락에만 block_all API를 사용한다.
-        if (this.request.target.type === 'follower' && whatToDo === 'Block') {
-          multiBlocker.add(user)
-        } else {
-          blocker.add(whatToDo, user)
-        }
-        await blocker.flushIfNeeded()
-        await multiBlocker.flushIfNeeded()
       }
       await blocker.flush()
       await multiBlocker.flush()

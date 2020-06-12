@@ -1,12 +1,12 @@
 export async function startFollowerChainBlock(request: FollowerBlockSessionRequest) {
-  browser.runtime.sendMessage<RBActions.CreateFollowerChainBlockSession>({
+  return browser.runtime.sendMessage<RBActions.CreateFollowerChainBlockSession>({
     actionType: 'CreateFollowerChainBlockSession',
     request,
   })
 }
 
 export async function startTweetReactionChainBlock(request: TweetReactionBlockSessionRequest) {
-  browser.runtime.sendMessage<RBActions.CreateTweetReactionChainBlockSession>({
+  return browser.runtime.sendMessage<RBActions.CreateTweetReactionChainBlockSession>({
     actionType: 'CreateTweetReactionChainBlockSession',
     request,
   })

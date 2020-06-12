@@ -151,11 +151,17 @@ export default class ChainBlocker {
       }
     }
   }
-  public remove(sessionId: string, isCancel = false) {
+  public remove(sessionId: string) {
     const session = this.sessions.get(sessionId)!
-    if (isRunningSession(session.getSessionInfo()) && !isCancel) {
+    if (isRunningSession(session.getSessionInfo())) {
       throw new Error(`attempted to remove running session! [id=${sessionId}]`)
     }
+    this.sessions.delete(sessionId)
+    this.updateBadge()
+  }
+  public cancel(sessionId: string) {
+    const session = this.sessions.get(sessionId)!
+    session.cancelPrepare()
     this.sessions.delete(sessionId)
     this.updateBadge()
   }
@@ -197,7 +203,7 @@ export default class ChainBlocker {
   }
   public async prepare(sessionId: string) {
     const session = this.sessions.get(sessionId)!
-    session.prepare()
+    await session.prepare()
     this.updateBadge()
   }
   public setConfirmed(sessionId: string) {
@@ -246,7 +252,7 @@ export default class ChainBlocker {
   public cleanupNotConfirmedSession() {
     this.getAllSessionInfos()
       .filter(session => !session.confirmed)
-      .forEach(session => this.remove(session.sessionId, true))
+      .forEach(session => this.cancel(session.sessionId))
     this.updateBadge()
   }
   public cleanupInactiveSessions() {

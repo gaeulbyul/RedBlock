@@ -1,6 +1,3 @@
-import { sleep, collectAsync, unwrap, wrapEither } from '../common.js'
-
-const DELAY = 200
 const BEARER_TOKEN = `AAAAAAAAAAAAAAAAAAAAANRILgAAAAAAnNwIzUejRCOuH5E6I8xnZz4puTs%3D1Zv7ttfk8LF81IUq16cHjhLTvJu4FA33AGWWjCpTnA`
 
 export class RateLimitError extends Error {
@@ -104,7 +101,7 @@ export async function getTweetById(tweetId: string): Promise<Tweet> {
   }
 }
 
-async function getFollowsIds(
+export async function getFollowsIds(
   followKind: FollowKind,
   user: TwitterUser,
   cursor = '-1',
@@ -124,33 +121,7 @@ async function getFollowsIds(
   return response.json() as Promise<UserIdsResponse>
 }
 
-export async function* getAllFollowsIds(
-  followKind: FollowKind,
-  user: TwitterUser,
-  actAsUserId = ''
-): AsyncIterableIterator<Either<Error, string>> {
-  let cursor = '-1'
-  while (true) {
-    try {
-      const json = await getFollowsIds(followKind, user, cursor, actAsUserId)
-      cursor = json.next_cursor_str
-      yield* json.ids.map(wrapEither)
-      if (cursor === '0') {
-        break
-      } else {
-        await sleep(DELAY)
-        continue
-      }
-    } catch (error) {
-      yield {
-        ok: false,
-        error,
-      }
-    }
-  }
-}
-
-async function getFollowsUserList(
+export async function getFollowsUserList(
   followKind: FollowKind,
   user: TwitterUser,
   cursor = '-1',
@@ -170,50 +141,6 @@ async function getFollowsUserList(
     actAsUserId
   )
   return response.json() as Promise<UserListResponse>
-}
-
-export async function* getAllFollowsUserList(
-  followKind: FollowKind,
-  user: TwitterUser,
-  actAsUserId = ''
-): AsyncIterableIterator<Either<Error, TwitterUser>> {
-  let cursor = '-1'
-  while (true) {
-    try {
-      const json = await getFollowsUserList(followKind, user, cursor, actAsUserId)
-      cursor = json.next_cursor_str
-      yield* json.users.map(wrapEither)
-      if (cursor === '0') {
-        break
-      } else {
-        await sleep(DELAY)
-        continue
-      }
-    } catch (error) {
-      yield {
-        ok: false,
-        error,
-      }
-    }
-  }
-}
-
-export async function getAllMutualFollowersIds(user: TwitterUser, actAsUserId = ''): Promise<string[]> {
-  const followingsIds = (await collectAsync(getAllFollowsIds('friends', user, actAsUserId))).map(unwrap)
-  const followersIds = (await collectAsync(getAllFollowsIds('followers', user, actAsUserId))).map(unwrap)
-  const mutualIds = _.intersection(followingsIds, followersIds)
-  return mutualIds
-}
-
-export async function* lookupUsersByIds(userIds: string[]): AsyncIterableIterator<Either<Error, TwitterUser>> {
-  const chunks = _.chunk(userIds, 100)
-  for (const chunk of chunks) {
-    const mutualUsers = await getMultipleUsersById(chunk)
-    yield* mutualUsers.map(user => ({
-      ok: true as const,
-      value: user,
-    }))
-  }
 }
 
 export async function getMultipleUsersById(userIds: string[]): Promise<TwitterUser[]> {
@@ -293,7 +220,11 @@ export async function getRelationship(sourceUser: TwitterUser, targetUser: Twitt
   return (await response.json()).relationship as Promise<Relationship>
 }
 
-async function getReactedUserList(reaction: ReactionKind, tweet: Tweet, cursor = '-1'): Promise<UserListResponse> {
+export async function getReactedUserList(
+  reaction: ReactionKind,
+  tweet: Tweet,
+  cursor = '-1'
+): Promise<UserListResponse> {
   let reactionPath = ''
   switch (reaction) {
     case 'retweeted':
@@ -312,31 +243,6 @@ async function getReactedUserList(reaction: ReactionKind, tweet: Tweet, cursor =
     return response.json() as Promise<UserListResponse>
   } else {
     throw new APIFailError('error', response)
-  }
-}
-
-export async function* getAllReactedUserList(
-  reaction: ReactionKind,
-  tweet: Tweet
-): AsyncIterableIterator<Either<Error, TwitterUser>> {
-  let cursor = '-1'
-  while (true) {
-    try {
-      const json = await getReactedUserList(reaction, tweet, cursor)
-      cursor = json.next_cursor_str
-      yield* json.users.map(wrapEither)
-      if (cursor === '0') {
-        break
-      } else {
-        await sleep(DELAY)
-        continue
-      }
-    } catch (error) {
-      yield {
-        ok: false,
-        error,
-      }
-    }
   }
 }
 
@@ -506,12 +412,12 @@ interface Relationship {
   }
 }
 
-interface UserListResponse {
+export interface UserListResponse {
   next_cursor_str: string
   users: TwitterUser[]
 }
 
-interface UserIdsResponse {
+export interface UserIdsResponse {
   next_cursor_str: string
   ids: string[]
 }

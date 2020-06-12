@@ -217,9 +217,35 @@ export function unwrap<T>(maybeValue: Either<Error, T>) {
   }
 }
 
-export function wrapEither<T>(value: T): EitherRight<T> {
+export function wrapEitherRight<T>(value: T): EitherRight<T> {
   return {
     ok: true,
     value,
+  }
+}
+
+/*
+function* resumableIterate<T>(generator: Generator<T>) {
+  while (true) {
+    let item = generator.next()
+    if (item.done) {
+      return item.value
+    } else {
+      yield item.value
+    }
+  }
+}
+*/
+
+// generator를 for-of loop등으로 iterate하는 도중 break를 걸면, 그 generator를 다시 iterate할 수 없더라.
+// 이를 해결하기 위해 while loop과 .next()로 수동으로 iterate하는 함수 만듦
+export async function* resumableAsyncIterate<T>(asyncGenerator: AsyncGenerator<T>) {
+  while (true) {
+    const item = await asyncGenerator.next()
+    if (item.done) {
+      return item.value
+    } else {
+      yield item.value
+    }
   }
 }

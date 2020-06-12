@@ -1,9 +1,10 @@
 import * as TwitterAPI from '../twitter-api.js'
+import * as UserScrapingAPI from '../user-scraping-api.js'
 import * as i18n from '../../i18n.js'
 import { getFollowersCount, getReactionsCount } from '../../common.js'
 import { SessionRequest } from './session.js'
 
-type ScrapedUsersIterator = AsyncIterableIterator<Either<Error, TwitterUser>>
+type ScrapedUsersIterator = AsyncIterableIterator<Either<Error, { users: TwitterUser[] }>>
 export interface UserScraper {
   totalCount: number | null
   [Symbol.asyncIterator](): ScrapedUsersIterator
@@ -16,7 +17,7 @@ export class SimpleScraper implements UserScraper {
     this.totalCount = getFollowersCount(user, followKind)!
   }
   public [Symbol.asyncIterator]() {
-    return TwitterAPI.getAllFollowsUserList(this.followKind, this.user)
+    return UserScrapingAPI.getAllFollowsUserList(this.followKind, this.user)
   }
 }
 
@@ -25,9 +26,9 @@ export class MutualFollowerScraper implements UserScraper {
   public totalCount: number | null = null
   constructor(private user: TwitterUser) {}
   public async *[Symbol.asyncIterator]() {
-    const mutualFollowersIds = await TwitterAPI.getAllMutualFollowersIds(this.user)
+    const mutualFollowersIds = await UserScrapingAPI.getAllMutualFollowersIds(this.user)
     this.totalCount = mutualFollowersIds.length
-    yield* TwitterAPI.lookupUsersByIds(mutualFollowersIds)
+    return UserScrapingAPI.lookupUsersByIds(mutualFollowersIds)
   }
 }
 
@@ -52,12 +53,12 @@ export class AntiBlockScraper implements UserScraper {
   public async *[Symbol.asyncIterator]() {
     const actAsUserId = await this.prepareActor()
     if (this.followKind === 'mutual-followers') {
-      const mutualFollowerIds = await TwitterAPI.getAllMutualFollowersIds(this.user, actAsUserId)
+      const mutualFollowerIds = await UserScrapingAPI.getAllMutualFollowersIds(this.user, actAsUserId)
       this.totalCount = mutualFollowerIds.length
-      yield* TwitterAPI.lookupUsersByIds(mutualFollowerIds)
+      return UserScrapingAPI.lookupUsersByIds(mutualFollowerIds)
     } else {
       this.totalCount = getFollowersCount(this.user, this.followKind)
-      yield* TwitterAPI.getAllFollowsUserList(this.followKind, this.user, actAsUserId)
+      return UserScrapingAPI.getAllFollowsUserList(this.followKind, this.user, { actAsUserId })
     }
   }
 }
@@ -71,10 +72,10 @@ export class TweetReactedUserScraper implements UserScraper {
   public async *[Symbol.asyncIterator]() {
     const { tweet, blockRetweeters, blockLikers } = this.target
     if (blockRetweeters) {
-      yield* TwitterAPI.getAllReactedUserList('retweeted', tweet)
+      yield* UserScrapingAPI.getAllReactedUserList('retweeted', tweet)
     }
     if (blockLikers) {
-      yield* TwitterAPI.getAllReactedUserList('liked', tweet)
+      yield* UserScrapingAPI.getAllReactedUserList('liked', tweet)
     }
   }
 }

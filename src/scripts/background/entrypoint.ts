@@ -31,24 +31,20 @@ export async function createChainBlockSession(request: SessionRequest): Promise<
     }
   }
   const sessionId = chainblocker.add(request)
-  chainblocker.prepare(sessionId)
+  chainblocker.prepare(sessionId).catch(() => {})
   return {
     ok: true,
     value: sessionId,
   }
 }
 
-function generateConfirmMessage(request: SessionRequest) {
-  let confirmMessageObj: TextGenerator.DialogMessageObj
+function generateConfirmMessage(request: SessionRequest): TextGenerator.DialogMessageObj {
   switch (request.target.type) {
     case 'follower':
-      confirmMessageObj = TextGenerator.generateFollowerBlockConfirmMessage(request as FollowerBlockSessionRequest)
-      break
+      return TextGenerator.generateFollowerBlockConfirmMessage(request as FollowerBlockSessionRequest)
     case 'tweetReaction':
-      confirmMessageObj = TextGenerator.generateTweetReactionBlockMessage(request as TweetReactionBlockSessionRequest)
-      break
+      return TextGenerator.generateTweetReactionBlockMessage(request as TweetReactionBlockSessionRequest)
   }
-  return confirmMessageObj
 }
 
 export async function confirmSession(tab: browser.tabs.Tab, request: SessionRequest, sessionId: string) {
@@ -129,7 +125,7 @@ function handleExtensionMessage(message: RBAction, _sender: browser.runtime.Mess
       })
       break
     case 'Cancel':
-      chainblocker.remove(message.sessionId, true)
+      chainblocker.cancel(message.sessionId)
       sendProgress()
       break
     case 'Start':
