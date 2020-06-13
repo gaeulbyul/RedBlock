@@ -239,7 +239,7 @@ function* resumableIterate<T>(generator: Generator<T>) {
 
 // generator를 for-of loop등으로 iterate하는 도중 break를 걸면, 그 generator를 다시 iterate할 수 없더라.
 // 이를 해결하기 위해 while loop과 .next()로 수동으로 iterate하는 함수 만듦
-export async function* resumableAsyncIterate<T>(asyncGenerator: AsyncGenerator<T>) {
+export async function* resumableAsyncIterate<T>(asyncGenerator: AsyncIterableIterator<T>) {
   while (true) {
     const item = await asyncGenerator.next()
     if (item.done) {

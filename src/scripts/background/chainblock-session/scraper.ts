@@ -1,40 +1,120 @@
 import * as TwitterAPI from '../twitter-api.js'
 import * as UserScrapingAPI from '../user-scraping-api.js'
 import * as i18n from '../../i18n.js'
-import { getFollowersCount, getReactionsCount } from '../../common.js'
+import { getFollowersCount, getReactionsCount, wrapEitherRight, resumableAsyncIterate } from '../../common.js'
 import { SessionRequest } from './session.js'
 
-type ScrapedUsersIterator = AsyncIterableIterator<Either<Error, { users: TwitterUser[] }>>
+interface UsersObject {
+  users: TwitterUser[]
+}
+
+type ScrapedUsersIterator = AsyncIterableIterator<Either<Error, UsersObject>>
 export interface UserScraper {
   totalCount: number | null
+  prepare(): Promise<void>
+  stopPrepare(): void
   [Symbol.asyncIterator](): ScrapedUsersIterator
 }
 
 // 단순 스크래퍼. 기존 체인블락 방식
 export class SimpleScraper implements UserScraper {
   public totalCount: number
-  constructor(private user: TwitterUser, private followKind: FollowKind) {
+  private readonly prefetchedUsers: TwitterUser[] = []
+  private prefetchShouldStop = false
+  private generator: AsyncIterableIterator<Either<Error, TwitterAPI.UserListResponse>>
+  constructor(user: TwitterUser, followKind: FollowKind) {
     this.totalCount = getFollowersCount(user, followKind)!
+    this.generator = UserScrapingAPI.getAllFollowsUserList(followKind, user, {})
   }
-  public [Symbol.asyncIterator]() {
-    return UserScrapingAPI.getAllFollowsUserList(this.followKind, this.user)
+  public async prepare() {
+    for await (const response of resumableAsyncIterate(this.generator)) {
+      if (!response.ok) {
+        console.error(response.error)
+        break
+      }
+      const responseData = response.value
+      const { users, next_cursor_str } = responseData
+      this.prefetchedUsers.push(...users)
+      if (this.prefetchShouldStop || next_cursor_str === '0') {
+        break
+      }
+    }
+  }
+  public stopPrepare() {
+    this.prefetchShouldStop = true
+  }
+  public async *[Symbol.asyncIterator]() {
+    yield wrapEitherRight({ users: this.prefetchedUsers })
+    yield* this.generator
+    // return UserScrapingAPI.getAllFollowsUserList(this.followKind, this.user)
   }
 }
 
 // 맞팔로우 스크래퍼
 export class MutualFollowerScraper implements UserScraper {
   public totalCount: number | null = null
-  constructor(private user: TwitterUser) {}
-  public async *[Symbol.asyncIterator]() {
+  private prefetchedUsers: TwitterUser[] = []
+  private prefetchShouldStop = false
+  private generator!: AsyncIterableIterator<Either<Error, UsersObject>>
+  public async prepare() {
     const mutualFollowersIds = await UserScrapingAPI.getAllMutualFollowersIds(this.user)
     this.totalCount = mutualFollowersIds.length
-    return UserScrapingAPI.lookupUsersByIds(mutualFollowersIds)
+    this.generator = UserScrapingAPI.lookupUsersByIds(mutualFollowersIds)
+    for await (const response of resumableAsyncIterate(this.generator)) {
+      if (!response.ok) {
+        console.error(response.error)
+        break
+      }
+      const responseData = response.value
+      const { users } = responseData
+      this.prefetchedUsers.push(...users)
+      if (this.prefetchShouldStop) {
+        break
+      }
+    }
+  }
+  public stopPrepare() {
+    this.prefetchShouldStop = true
+  }
+  constructor(private user: TwitterUser) {}
+  public async *[Symbol.asyncIterator]() {
+    yield wrapEitherRight({ users: this.prefetchedUsers })
+    yield* this.generator
   }
 }
 
 // 차단상대 대상 스크래퍼
 export class AntiBlockScraper implements UserScraper {
   public totalCount: number | null = null
+  private prefetchedUsers: TwitterUser[] = []
+  private prefetchShouldStop = false
+  private generator!: AsyncIterableIterator<Either<Error, UsersObject>>
+  public async prepare() {
+    const actAsUserId = await this.prepareActor()
+    if (this.followKind === 'mutual-followers') {
+      const mutualFollowerIds = await UserScrapingAPI.getAllMutualFollowersIds(this.user, actAsUserId)
+      this.totalCount = mutualFollowerIds.length
+      this.generator = UserScrapingAPI.lookupUsersByIds(mutualFollowerIds)
+    } else {
+      this.totalCount = getFollowersCount(this.user, this.followKind)
+      this.generator = UserScrapingAPI.getAllFollowsUserList(this.followKind, this.user, { actAsUserId })
+    }
+    for await (const response of resumableAsyncIterate(this.generator)) {
+      if (!response.ok) {
+        console.error(response.error)
+        break
+      }
+      const responseData = response.value
+      const { users } = responseData
+      this.prefetchedUsers.push(...users)
+      if (this.prefetchShouldStop) {
+        break
+      }
+    }
+  }
+  public stopPrepare() {
+    this.prefetchShouldStop = false
+  }
   constructor(private user: TwitterUser, private followKind: FollowKind) {}
   private async prepareActor() {
     const multiCookies = await TwitterAPI.getMultiAccountCookies()
@@ -51,32 +131,52 @@ export class AntiBlockScraper implements UserScraper {
     throw new Error(i18n.getMessage('cant_chainblock_to_blocked'))
   }
   public async *[Symbol.asyncIterator]() {
-    const actAsUserId = await this.prepareActor()
-    if (this.followKind === 'mutual-followers') {
-      const mutualFollowerIds = await UserScrapingAPI.getAllMutualFollowersIds(this.user, actAsUserId)
-      this.totalCount = mutualFollowerIds.length
-      return UserScrapingAPI.lookupUsersByIds(mutualFollowerIds)
-    } else {
-      this.totalCount = getFollowersCount(this.user, this.followKind)
-      return UserScrapingAPI.getAllFollowsUserList(this.followKind, this.user, { actAsUserId })
-    }
+    yield wrapEitherRight({ users: this.prefetchedUsers })
+    yield* this.generator
   }
 }
 
 // 트윗반응 유저 스크래퍼
 export class TweetReactedUserScraper implements UserScraper {
   public totalCount: number
+  private prefetchedUsers: TwitterUser[] = []
+  private prefetchShouldStop = false
+  private generator!: AsyncIterableIterator<Either<Error, TwitterAPI.UserListResponse>>
+  public async prepare() {
+    const { tweet, blockRetweeters, blockLikers } = this.target
+    async function* reactedUsers() {
+      if (blockRetweeters) {
+        yield* UserScrapingAPI.getAllReactedUserList('retweeted', tweet)
+      }
+      if (blockLikers) {
+        yield* UserScrapingAPI.getAllReactedUserList('liked', tweet)
+      }
+    }
+    this.generator = reactedUsers()
+    for await (const response of resumableAsyncIterate(this.generator)) {
+      if (!response.ok) {
+        console.error(response.error)
+        break
+      }
+      const responseData = response.value
+      const { users } = responseData
+      this.prefetchedUsers.push(...users)
+      // next_cursor_str이 존재하지만, 두 API에서 가져오므로 이걸 체크하여 정지하면
+      // 다음 API를 호출하지 않을 수 있다.
+      if (this.prefetchShouldStop) {
+        break
+      }
+    }
+  }
+  public stopPrepare() {
+    this.prefetchShouldStop = true
+  }
   constructor(private target: TweetReactionBlockSessionRequest['target']) {
     this.totalCount = getReactionsCount(target)
   }
   public async *[Symbol.asyncIterator]() {
-    const { tweet, blockRetweeters, blockLikers } = this.target
-    if (blockRetweeters) {
-      yield* UserScrapingAPI.getAllReactedUserList('retweeted', tweet)
-    }
-    if (blockLikers) {
-      yield* UserScrapingAPI.getAllReactedUserList('liked', tweet)
-    }
+    yield wrapEitherRight({ users: this.prefetchedUsers })
+    yield* this.generator
   }
 }
 

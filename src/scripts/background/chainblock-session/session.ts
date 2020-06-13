@@ -114,6 +114,8 @@ function extractRateLimit(limitStatuses: TwitterAPI.LimitStatus, apiKind: ApiKin
 export default class ChainBlockSession {
   private readonly sessionInfo = this.initSessionInfo()
   private shouldStop = false
+  private scraper = Scraper.initScraper(this.request)
+  private preparePromise = Promise.resolve()
   public readonly eventEmitter = new EventEmitter<SessionEventEmitter>()
   public constructor(private request: SessionRequest) {}
   public getSessionInfo() {
@@ -141,17 +143,15 @@ export default class ChainBlockSession {
       // 초기상태가 아니므로 별도의 준비는 안함
       return
     }
-    console.info('NOT IMPLEMENTED: session#prepare()')
-    // do actual prepare here
+    this.preparePromise = this.scraper.prepare()
   }
-  public async cancelPrepare() {
-    //
+  public cancelPrepare() {
+    this.scraper.stopPrepare()
   }
   public async start() {
     if (!this.sessionInfo.confirmed) {
       throw new Error('session not confirmed')
     }
-    const scraper = Scraper.initScraper(this.request)
     const blocker = new Blocker()
     const multiBlocker = new BlockAllAPIBlocker()
     const { target } = this.request
@@ -185,7 +185,9 @@ export default class ChainBlockSession {
     }
     let stopped = false
     try {
-      for await (const scraperResponse of scraper) {
+      this.scraper.stopPrepare()
+      await this.preparePromise
+      for await (const scraperResponse of this.scraper) {
         if (this.shouldStop) {
           stopped = true
           await blocker.flush()
@@ -208,7 +210,7 @@ export default class ChainBlockSession {
           }
         }
         if (this.sessionInfo.progress.total === null) {
-          this.sessionInfo.progress.total = scraper.totalCount
+          this.sessionInfo.progress.total = this.scraper.totalCount
         }
         this.handleRunning()
         for (const user of scraperResponse.value.users) {

@@ -2,7 +2,7 @@ import { sleep, collectAsync, unwrap, wrapEitherRight } from '../common.js'
 import { getFollowsIds, getFollowsUserList, getReactedUserList, getMultipleUsersById } from './twitter-api.js'
 import type { UserIdsResponse, UserListResponse } from './twitter-api.js'
 
-const DELAY = 200
+const DELAY = 100
 
 export interface AdditionalScraperParameter {
   actAsUserId?: string
@@ -83,13 +83,12 @@ export async function* getAllReactedUserList(
   }
 }
 
-export async function* lookupUsersByIds(userIds: string[]): AsyncIterableIterator<Either<Error, TwitterUser>> {
+export async function* lookupUsersByIds(
+  userIds: string[]
+): AsyncIterableIterator<Either<Error, { users: TwitterUser[] }>> {
   const chunks = _.chunk(userIds, 100)
   for (const chunk of chunks) {
     const mutualUsers = await getMultipleUsersById(chunk)
-    yield* mutualUsers.map(user => ({
-      ok: true as const,
-      value: user,
-    }))
+    yield wrapEitherRight({ users: mutualUsers })
   }
 }
