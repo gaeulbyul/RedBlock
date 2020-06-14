@@ -1,5 +1,6 @@
 import { PageEnum } from '../../scripts/common.js'
-import { DialogContent } from './ui-common.js'
+import type { DialogContent } from './ui-common.js'
+import { defaultOptions } from '../../scripts/background/storage.js'
 
 export const PageSwitchContext = React.createContext({
   switchPage(_tabIndex: PageEnum) {},
@@ -11,4 +12,8 @@ export const DialogContext = React.createContext({
 
 export const SnackBarContext = React.createContext({
   snack(_message: string) {},
+})
+
+export const RedBlockOptionsContext = React.createContext({
+  ...defaultOptions,
 })

@@ -169,7 +169,7 @@ export default class ChainBlocker {
     this.handleEvents(session)
     this.sessions.set(session.getSessionInfo().sessionId, session)
   }
-  public add(request: SessionRequest): string {
+  public async add(request: SessionRequest): Promise<string> {
     const { target } = request
     // 만약 confirm대기 중인데 다시 요청하면 그 세션 다시 써도 될듯
     const sameTargetSession = this.getSessionByTarget(target)
@@ -180,7 +180,8 @@ export default class ChainBlocker {
       }
       return sessionInfo.sessionId
     }
-    const session = new ChainBlockSession(request)
+    const redblockOptions = await loadOptions()
+    const session = new ChainBlockSession(request, redblockOptions)
     this.register(session)
     const sessionId = session.getSessionInfo().sessionId
     return sessionId

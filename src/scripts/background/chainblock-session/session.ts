@@ -9,6 +9,7 @@ import {
   sleep,
   getCountOfUsersToBlock,
 } from '../../common.js'
+import type { RedBlockStorage } from '../storage.js'
 
 export type SessionRequest = FollowerBlockSessionRequest | TweetReactionBlockSessionRequest
 
@@ -114,10 +115,10 @@ function extractRateLimit(limitStatuses: TwitterAPI.LimitStatus, apiKind: ApiKin
 export default class ChainBlockSession {
   private readonly sessionInfo = this.initSessionInfo()
   private shouldStop = false
-  private scraper = Scraper.initScraper(this.request)
+  private readonly scraper = Scraper.initScraper(this.request)
   private preparePromise = Promise.resolve()
   public readonly eventEmitter = new EventEmitter<SessionEventEmitter>()
-  public constructor(private request: SessionRequest) {}
+  public constructor(private request: SessionRequest, private options: RedBlockStorage['options']) {}
   public getSessionInfo() {
     return copyFrozenObject(this.sessionInfo)
   }
@@ -226,7 +227,9 @@ export default class ChainBlockSession {
           // 트윗반응 체인블락은 수집할 수 있는 수가 적으므로
           // 굳이 block_all API를 타지 않아도 안전할 듯.
           // 따라서 팔로워 체인블락에만 block_all API를 사용한다.
-          if (this.request.target.type === 'follower' && whatToDo === 'Block') {
+          const shouldUseMultiBlocker =
+            whatToDo === 'Block' && !this.options.useStandardBlockAPI && this.request.target.type === 'follower'
+          if (shouldUseMultiBlocker) {
             multiBlocker.add(user)
           } else {
             blocker.add(whatToDo, user)

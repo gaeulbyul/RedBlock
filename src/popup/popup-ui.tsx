@@ -1,13 +1,13 @@
 import * as TwitterAPI from '../scripts/background/twitter-api.js'
 import { getCurrentTab, getUserNameFromTab, getTweetIdFromTab, requestProgress } from './popup.js'
-
 import ChainBlockSessionsPage from './popup-ui/chainblock-sessions-page.js'
 import NewChainBlockPage from './popup-ui/new-chainblock-page.js'
 import NewTweetReactionBlockPage from './popup-ui/new-tweetreactionblock-page.js'
 import MiscPage from './popup-ui/misc-page.js'
-import { DialogContext, SnackBarContext, PageSwitchContext } from './popup-ui/contexts.js'
+import { DialogContext, SnackBarContext, PageSwitchContext, RedBlockOptionsContext } from './popup-ui/contexts.js'
 import { RBDialog, TabPanel, DialogContent } from './popup-ui/ui-common.js'
 
+import { RedBlockStorage, loadOptions } from '../scripts/background/storage.js'
 import { PageEnum, UI_UPDATE_DELAY, isRunningSession } from '../scripts/common.js'
 import * as i18n from '../scripts/i18n.js'
 
@@ -33,9 +33,10 @@ interface PopupAppProps {
   currentUser: TwitterAPI.TwitterUser | null
   currentTweet: TwitterAPI.Tweet | null
   popupAsTab: boolean
+  redblockOptions: RedBlockStorage['options']
 }
 function PopupApp(props: PopupAppProps) {
-  const { currentUser, currentTweet, popupAsTab } = props
+  const { currentUser, currentTweet, popupAsTab, redblockOptions } = props
   const [tabIndex, setTabIndex] = React.useState<PageEnum>(PageEnum.Sessions)
   const [sessions, setSessions] = React.useState<SessionInfo[]>([])
   const [modalOpened, setModalOpened] = React.useState(false)
@@ -161,55 +162,57 @@ function PopupApp(props: PopupAppProps) {
     <M.ThemeProvider theme={popupMuiTheme}>
       <SnackBarContext.Provider value={{ snack }}>
         <DialogContext.Provider value={{ openModal }}>
-          <PageSwitchContext.Provider value={{ switchPage }}>
-            <M.AppBar position="fixed">
-              <M.Toolbar variant="dense" className={classes.toolbar}>
-                <M.IconButton color="inherit" onClick={handleMenuButtonClick}>
-                  <M.Icon>menu</M.Icon>
-                </M.IconButton>
-                <M.Tabs value={tabIndex} onChange={(_ev, val) => setTabIndex(val)}>
-                  <M.Tooltip arrow title={`${i18n.getMessage('running_sessions')} (${runningSessions.length})`}>
-                    <M.Tab className={classes.tab} icon={runningSessionsTabIcon} />
-                  </M.Tooltip>
-                  <M.Tooltip arrow title={i18n.getMessage('new_follower_session')}>
-                    <M.Tab className={classes.tab} icon={<M.Icon>group</M.Icon>} />
-                  </M.Tooltip>
-                  <M.Tooltip arrow title={i18n.getMessage('new_tweetreaction_session')}>
-                    <M.Tab className={classes.tab} disabled={!currentTweet} icon={<M.Icon>repeat</M.Icon>} />
-                  </M.Tooltip>
-                  <M.Tooltip arrow title={i18n.getMessage('miscellaneous')}>
-                    <M.Tab className={classes.tab} icon={<M.Icon>build</M.Icon>} />
-                  </M.Tooltip>
-                </M.Tabs>
-              </M.Toolbar>
-            </M.AppBar>
-            <M.Menu keepMounted anchorEl={menuAnchorEl} open={Boolean(menuAnchorEl)} onClose={closeMenu}>
-              {!popupAsTab && (
-                <M.MenuItem onClick={handleOpenInTabClick}>
-                  <M.Icon>open_in_new</M.Icon> {i18n.getMessage('open_in_new_tab')}
+          <RedBlockOptionsContext.Provider value={redblockOptions}>
+            <PageSwitchContext.Provider value={{ switchPage }}>
+              <M.AppBar position="fixed">
+                <M.Toolbar variant="dense" className={classes.toolbar}>
+                  <M.IconButton color="inherit" onClick={handleMenuButtonClick}>
+                    <M.Icon>menu</M.Icon>
+                  </M.IconButton>
+                  <M.Tabs value={tabIndex} onChange={(_ev, val) => setTabIndex(val)}>
+                    <M.Tooltip arrow title={`${i18n.getMessage('running_sessions')} (${runningSessions.length})`}>
+                      <M.Tab className={classes.tab} icon={runningSessionsTabIcon} />
+                    </M.Tooltip>
+                    <M.Tooltip arrow title={i18n.getMessage('new_follower_session')}>
+                      <M.Tab className={classes.tab} icon={<M.Icon>group</M.Icon>} />
+                    </M.Tooltip>
+                    <M.Tooltip arrow title={i18n.getMessage('new_tweetreaction_session')}>
+                      <M.Tab className={classes.tab} disabled={!currentTweet} icon={<M.Icon>repeat</M.Icon>} />
+                    </M.Tooltip>
+                    <M.Tooltip arrow title={i18n.getMessage('miscellaneous')}>
+                      <M.Tab className={classes.tab} icon={<M.Icon>build</M.Icon>} />
+                    </M.Tooltip>
+                  </M.Tabs>
+                </M.Toolbar>
+              </M.AppBar>
+              <M.Menu keepMounted anchorEl={menuAnchorEl} open={Boolean(menuAnchorEl)} onClose={closeMenu}>
+                {!popupAsTab && (
+                  <M.MenuItem onClick={handleOpenInTabClick}>
+                    <M.Icon>open_in_new</M.Icon> {i18n.getMessage('open_in_new_tab')}
+                  </M.MenuItem>
+                )}
+                <M.MenuItem onClick={handleSettingsClick}>
+                  <M.Icon>settings</M.Icon> {i18n.getMessage('open_settings_ui')}
                 </M.MenuItem>
-              )}
-              <M.MenuItem onClick={handleSettingsClick}>
-                <M.Icon>settings</M.Icon> {i18n.getMessage('open_settings_ui')}
-              </M.MenuItem>
-            </M.Menu>
-            <div className="page">
-              <M.Container maxWidth="sm">
-                <TabPanel value={tabIndex} index={PageEnum.Sessions}>
-                  <ChainBlockSessionsPage sessions={sessions} />
-                </TabPanel>
-                <TabPanel value={tabIndex} index={PageEnum.NewSession}>
-                  <NewChainBlockPage currentUser={currentUser} />
-                </TabPanel>
-                <TabPanel value={tabIndex} index={PageEnum.NewTweetReactionBlock}>
-                  <NewTweetReactionBlockPage currentTweet={currentTweet} />
-                </TabPanel>
-                <TabPanel value={tabIndex} index={PageEnum.Utilities}>
-                  <MiscPage />
-                </TabPanel>
-              </M.Container>
-            </div>
-          </PageSwitchContext.Provider>
+              </M.Menu>
+              <div className="page">
+                <M.Container maxWidth="sm">
+                  <TabPanel value={tabIndex} index={PageEnum.Sessions}>
+                    <ChainBlockSessionsPage sessions={sessions} />
+                  </TabPanel>
+                  <TabPanel value={tabIndex} index={PageEnum.NewSession}>
+                    <NewChainBlockPage currentUser={currentUser} />
+                  </TabPanel>
+                  <TabPanel value={tabIndex} index={PageEnum.NewTweetReactionBlock}>
+                    <NewTweetReactionBlockPage currentTweet={currentTweet} />
+                  </TabPanel>
+                  <TabPanel value={tabIndex} index={PageEnum.Utilities}>
+                    <MiscPage />
+                  </TabPanel>
+                </M.Container>
+              </div>
+            </PageSwitchContext.Provider>
+          </RedBlockOptionsContext.Provider>
         </DialogContext.Provider>
       </SnackBarContext.Provider>
       <M.Snackbar
@@ -243,6 +246,7 @@ export async function initializeUI() {
     actionType: 'RequestCleanup',
     cleanupWhat: 'not-confirmed',
   })
+  const redblockOptions = await loadOptions()
   const tab = await getCurrentTab()
   const isPopupOpenedAsTab = /\bistab=1\b/.test(location.search)
   const userName = tab ? getUserNameFromTab(tab) : null
@@ -255,7 +259,14 @@ export async function initializeUI() {
   } else if (userName) {
     currentUser = await TwitterAPI.getSingleUserByName(userName)
   }
-  const app = <PopupApp currentUser={currentUser} currentTweet={currentTweet} popupAsTab={isPopupOpenedAsTab} />
+  const app = (
+    <PopupApp
+      currentUser={currentUser}
+      currentTweet={currentTweet}
+      popupAsTab={isPopupOpenedAsTab}
+      redblockOptions={redblockOptions}
+    />
+  )
   ReactDOM.render(app, appRoot)
   showVersionOnFooter()
   if (isPopupOpenedAsTab) {

@@ -448,5 +448,14 @@
   },
   "remove_session_after_complete": {
     "message": "세션 완료 후 자동으로 지우기"
+  },
+  "use_official_block_api": {
+    "message": "공식 차단API를 사용하기"
+  },
+  "use_official_block_api_description": {
+    "message": "유저를 차단할 때 트위터에서 공식적으로 제공하는 차단 API를 사용합니다."
+  },
+  "use_official_block_api_warning": {
+    "message": "주의: 차단횟수가 누적 500회를 넘으면 강제로그아웃이나 계정 일시정지 등의 현상이 나타날 수 있습니다."
   }
 }

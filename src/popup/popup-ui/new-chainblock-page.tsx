@@ -4,7 +4,7 @@ import { TwitterUser } from '../../scripts/background/twitter-api.js'
 import { TwitterUserMap, MAX_USER_LIMIT } from '../../scripts/common.js'
 import * as i18n from '../../scripts/i18n.js'
 import { insertUserToStorage, removeUserFromStorage, startFollowerChainBlock } from '../popup.js'
-import { DialogContext, SnackBarContext } from './contexts.js'
+import { DialogContext, SnackBarContext, RedBlockOptionsContext } from './contexts.js'
 import { TabPanel } from './ui-common.js'
 
 const M = MaterialUI
@@ -365,6 +365,7 @@ function TargetUserSelectUI(props: { isAvailable: boolean }) {
 
 function TargetOptionsUI() {
   const { selectedMode, setSelectedMode, selectedUser } = React.useContext(TargetUserContext)
+  const redblockOptions = React.useContext(RedBlockOptionsContext)
   const classes = useStylesForExpansionPanels()
   const localizedMode = i18n.getMessage(selectedMode)
   // const helpPageLanguage = i18n.getUILanguage() === 'ko' ? 'ko' : 'en'
@@ -384,6 +385,12 @@ function TargetOptionsUI() {
       shouldShowMassiveBlockWarning = true
     }
   }
+  let cautionOnMassiveBlock = ''
+  if (redblockOptions.useStandardBlockAPI) {
+    cautionOnMassiveBlock = i18n.getMessage('use_official_block_api_warning')
+  } else {
+    cautionOnMassiveBlock = i18n.getMessage('wtf_twitter')
+  }
   return (
     <M.ExpansionPanel defaultExpanded>
       <DenseExpansionPanelSummary expandIcon={<M.Icon>expand_more</M.Icon>}>
@@ -402,7 +409,7 @@ function TargetOptionsUI() {
             <TargetChainBlockOptionsUI />
             <div className="description">
               {i18n.getMessage('chainblock_description')} {i18n.getMessage('my_mutual_followers_wont_block')}
-              <div className="wtf">{i18n.getMessage('wtf_twitter')}</div>
+              <div className="wtf">{cautionOnMassiveBlock}</div>
               {shouldShowMassiveBlockWarning && (
                 <div className="massive-block-warning">
                   {i18n.getMessage('chainblock_max_user_warning', MAX_USER_LIMIT.toLocaleString())}

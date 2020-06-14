@@ -22,6 +22,26 @@ function OptionsApp() {
           <label className="field checkbox-field">
             <input
               type="checkbox"
+              checked={options.useStandardBlockAPI}
+              onChange={() =>
+                mutateOptions({
+                  useStandardBlockAPI: !options.useStandardBlockAPI,
+                })
+              }
+            />
+            <span>{i18n.getMessage('use_official_block_api')}</span>
+          </label>
+          <div className="info-option">
+            <p>{i18n.getMessage('use_official_block_api_description')}</p>
+            <div className="caution">
+              <p>{i18n.getMessage('use_official_block_api_warning')}</p>
+            </div>
+          </div>
+        </div>
+        <div className="option-item">
+          <label className="field checkbox-field">
+            <input
+              type="checkbox"
               checked={options.removeSessionAfterComplete}
               onChange={() =>
                 mutateOptions({
@@ -31,13 +51,16 @@ function OptionsApp() {
             />
             <span>{i18n.getMessage('remove_session_after_complete')}</span>
           </label>
+          <div className="info-option"></div>
         </div>
       </fieldset>
+      {/*
       <fieldset>
         <legend>실험적인 기능 / Experimental Features</legend>
-        <span>현재는 없습니다. / Not available.</span>
+        <span>현재는 없습니다. / Not available at the moment.</span>
         <div className="option-item"></div>
       </fieldset>
+      */}
     </div>
   )
 }

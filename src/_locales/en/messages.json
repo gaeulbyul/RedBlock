@@ -448,5 +448,14 @@
   },
   "remove_session_after_complete": {
     "message": "Remove session after complete"
+  },
+  "use_official_block_api": {
+    "message": "Use official block API"
+  },
+  "use_official_block_api_description": {
+    "message": "Red Block will use official block API when it blocks user."
+  },
+  "use_official_block_api_warning": {
+    "message": "Caution: Blocking over 500 users may cause force-logout or account suspension."
   }
 }

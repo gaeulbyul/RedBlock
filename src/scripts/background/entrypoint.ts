@@ -30,8 +30,10 @@ export async function createChainBlockSession(request: SessionRequest): Promise<
       error: checkResult,
     }
   }
-  const sessionId = chainblocker.add(request)
-  chainblocker.prepare(sessionId).catch(() => {})
+  const sessionId = await chainblocker.add(request)
+  chainblocker.prepare(sessionId).catch(err => {
+    console.error('error on prepare: ', err)
+  })
   return {
     ok: true,
     value: sessionId,
