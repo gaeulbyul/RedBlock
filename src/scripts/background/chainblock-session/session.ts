@@ -113,10 +113,11 @@ function extractRateLimit(limitStatuses: TwitterAPI.LimitStatus, apiKind: ApiKin
 }
 
 export default class ChainBlockSession {
-  private readonly sessionInfo = this.initSessionInfo()
   private shouldStop = false
-  private readonly scraper = Scraper.initScraper(this.request)
   private preparePromise = Promise.resolve()
+  private isPrepared = false
+  private readonly sessionInfo = this.initSessionInfo()
+  private readonly scraper = Scraper.initScraper(this.request)
   public readonly eventEmitter = new EventEmitter<SessionEventEmitter>()
   public constructor(private request: SessionRequest, private options: RedBlockStorage['options']) {}
   public getSessionInfo() {
@@ -140,11 +141,11 @@ export default class ChainBlockSession {
     this.sessionInfo.confirmed = true
   }
   public async prepare() {
-    if (this.sessionInfo.status !== SessionStatus.Initial) {
-      // 초기상태가 아니므로 별도의 준비는 안함
+    if (this.isPrepared) {
       return
     }
     this.preparePromise = this.scraper.prepare()
+    this.isPrepared = true
   }
   public cancelPrepare() {
     this.scraper.stopPrepare()
@@ -186,6 +187,9 @@ export default class ChainBlockSession {
     }
     let stopped = false
     try {
+      if (!this.isPrepared) {
+        this.prepare()
+      }
       this.scraper.stopPrepare()
       await this.preparePromise
       for await (const scraperResponse of this.scraper) {
