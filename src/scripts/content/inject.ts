@@ -84,6 +84,7 @@ interface ReduxStore {
       },
     })
   }
+
   function markUser({ userId, verb }: MarkUserParams) {
     const id = uuid.v1()
     const verbUpperCase = verb.toUpperCase()
@@ -143,106 +144,49 @@ interface ReduxStore {
         // @ts-ignore
       }, rafTimeout)
     })
+    document.addEventListener('RedBlock->ToastMessage', event => {
+      const customEvent = event as CustomEvent<string>
+      toastMessage(customEvent.detail)
+    })
     console.debug('[RedBlock] page script: injected!')
   }
 
-  function getUserFromTweetElement(elem: HTMLElement): TwitterUser | null {
+  function inspectTweetElement(elem: HTMLElement) {
     const tweetId = findTweetIdFromElement(elem)
     if (!tweetId) {
-      // console.warn('failed to find tweet id from', elem)
-      return null
+      return
     }
     const tweetEntity = getTweetEntityById(tweetId)
     if (!tweetEntity) {
-      return null
-    }
-    const user = getUserEntityById(tweetEntity.user)
-    return user
-  }
-
-  function addBlockButton(elem: HTMLElement, givenUser: TwitterUser | null = null) {
-    if (elem.querySelector('.redblock-btn')) {
       return
     }
-    const user = givenUser || getUserFromTweetElement(elem) || null
+    const user = getUserEntityById(tweetEntity.user)
     if (!user) {
       return
     }
     if (user.id_str === getMyselfUserId()) {
       return
     }
-    const skipCondition = user.following || user.followed_by
-    if (skipCondition) {
-      return
-    }
-    const btn = document.createElement('button')
-    btn.type = 'button'
-    // inject한 스크립트에선 확장기능의 i18n API 써먹기 너무 번거로워!
-    // 일단 영어로 뱉고 본다! (...)
-    if (user.blocking) {
-      btn.className = 'redblock-btn redblock-unblock-btn'
-      btn.textContent = 'Unblock'
-      btn.title = `[Red Block] Unblock @${user.screen_name}.`
-    } else {
-      btn.className = 'redblock-btn redblock-block-btn'
-      btn.textContent = 'Block'
-      btn.title = `[Red Block] Block @${user.screen_name}.`
-    }
-    btn.addEventListener(
-      'click',
-      event => {
-        event.preventDefault()
-        const userId = user.id_str
-        const blurme: HTMLElement = elem.closest('article[role=article]') || elem
-        if (user.blocking) {
-          document.dispatchEvent(
-            new CustomEvent<{ user: TwitterUser }>('RedBlock<-UnblockSingleUser', {
-              detail: {
-                user,
-              },
-            })
-          )
-          user.blocking = false
-          markUser({
-            verb: 'UnBlock',
-            userId,
-          })
-          blurme.removeAttribute('data-redblock-blocked-tweet')
-          toastMessage(`[Red Block] Unblocked @${user.screen_name}.`)
-        } else {
-          document.dispatchEvent(
-            new CustomEvent<{ user: TwitterUser }>('RedBlock<-BlockSingleUser', {
-              detail: {
-                user,
-              },
-            })
-          )
-          user.blocking = true
-          markUser({
-            verb: 'Block',
-            userId,
-          })
-          blurme.setAttribute('data-redblock-blocked-tweet', '1')
-          toastMessage(`[Red Block] Blocked @${user.screen_name}.`)
-        }
-        // 버튼을 다시 만든다. 이 땐 차단여부가 바뀌었으므로
-        // 차단대신 차단해제버튼이, 차단해제 대신 차단버튼이 나타난다.
-        btn.remove()
-        addBlockButton(elem, user)
-      },
-      { once: true }
+    const tweet = Object.assign({}, tweetEntity, {
+      user,
+    })
+
+    elem.dispatchEvent(
+      new CustomEvent<OneClickBlockableTweetElement>('RedBlock:onTweetElement', {
+        bubbles: true,
+        detail: {
+          tweet,
+          user,
+        },
+      })
     )
-    const caret = elem.querySelector('[data-testid=caret]')
-    if (caret) {
-      caret.before(btn)
-    }
   }
 
   function initializeOneClickBlockMode(reactRoot: Element) {
     new MutationObserver(mutations => {
       for (const elem of getAddedElementsFromMutations(mutations)) {
         const tweetElems = elem.querySelectorAll<HTMLElement>('[data-testid=tweet]')
-        tweetElems.forEach(elem => addBlockButton(elem))
+        tweetElems.forEach(elem => inspectTweetElement(elem))
       }
     }).observe(reactRoot, {
       subtree: true,

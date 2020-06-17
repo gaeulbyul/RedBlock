@@ -71,20 +71,4 @@ listenExtensionMessages(reactRoot)
 if (reactRoot && location.hostname !== 'tweetdeck.twitter.com') {
   injectScriptToPage('vendor/uuid.js')
   injectScriptToPage('scripts/content/inject.js')
-  document.addEventListener('RedBlock<-BlockSingleUser', event => {
-    const customEvent = event as CustomEvent<{ user: TwitterUser }>
-    const { user } = customEvent.detail
-    browser.runtime.sendMessage<RBActions.BlockSingleUser>({
-      actionType: 'BlockSingleUser',
-      user,
-    })
-  })
-  document.addEventListener('RedBlock<-UnblockSingleUser', event => {
-    const customEvent = event as CustomEvent<{ user: TwitterUser }>
-    const { user } = customEvent.detail
-    browser.runtime.sendMessage<RBActions.UnblockSingleUser>({
-      actionType: 'UnblockSingleUser',
-      user,
-    })
-  })
 }

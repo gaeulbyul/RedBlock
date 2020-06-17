@@ -193,6 +193,11 @@ interface MarkManyUsersAsBlockedParams {
   userIds: string[]
 }
 
+interface OneClickBlockableTweetElement {
+  user: TwitterUser
+  tweet: Tweet
+}
+
 // ---- browser notification types ----
 
 interface BrowserNotificationButton {
