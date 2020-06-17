@@ -9,6 +9,8 @@
 }
 
 body {
+  margin: 0;
+  padding: 0;
   font-size: var(--default-font-size);
   font-family: 'NanumGothic', 'Malgun Gothic', sans-serif;
   background-color: white;
@@ -29,76 +31,4 @@ fieldset {
 hr {
   border-top: 1px solid #ccc;
   border-bottom: 0;
-}
-
-kbd {
-  font-family: 'Consolas', monospace;
-}
-
-.option-item:not(:first-of-type) {
-  margin-top: 1em;
-}
-
-.field {
-  cursor: pointer;
-}
-
-.field input {
-  user-select: none;
-}
-
-.checkbox-field {
-  display: flex;
-}
-
-.checkbox-field input[type='checkbox'] + span {
-  flex-grow: 1;
-  margin-left: 0.3em;
-}
-
-.checkbox-field input[type='checkbox'] + span:hover {
-  text-decoration: underline;
-}
-
-.checkbox-field input[type='checkbox']:checked + span {
-  font-weight: bold;
-}
-
-.info-option {
-  margin: 0 2em;
-  font-size: small;
-}
-
-.info-option > p {
-  margin: 0.5em 0;
-}
-
-.info-option mark {
-  background-color: #fe0;
-  color: #000;
-}
-
-.info-option s {
-  opacity: 0.5;
-}
-
-.warning {
-  padding: 1em;
-  background-color: #ffc;
-  color: #330;
-}
-
-@media (prefers-color-scheme: dark) {
-  body {
-    background-color: #10171e;
-    color: white;
-  }
-
-  fieldset {
-    border: 1px solid #333;
-  }
-
-  hr {
-    border-top: 1px solid #333;
-  }
 }
