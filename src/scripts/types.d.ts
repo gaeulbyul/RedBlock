@@ -184,6 +184,8 @@ type RBMessageToContent =
   | RBMessages.ConfirmChainBlock
   | RBMessages.ToggleOneClickBlockMode
 
+// ---- content & inject ----
+
 interface MarkUserParams {
   userId: string
   verb: VerbSomething
@@ -193,9 +195,21 @@ interface MarkManyUsersAsBlockedParams {
   userIds: string[]
 }
 
+type TweetEntity = Tweet & {
+  user: string
+}
+
 interface OneClickBlockableTweetElement {
-  user: TwitterUser
   tweet: Tweet
+}
+
+// ---- 1click block related ----
+
+interface BadWordItem {
+  id: string
+  enabled: boolean
+  word: string
+  regexp: boolean
 }
 
 // ---- browser notification types ----

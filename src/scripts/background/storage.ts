@@ -65,7 +65,7 @@ export function onOptionsChanged(handler: (options: RedBlockStorage['options']) 
   }
   browser.storage.onChanged.addListener(listener)
   return () => {
-    browser.storage.onChanged.removeListener(listener as any)
+    browser.storage.onChanged.removeListener(listener)
   }
 }
 
@@ -77,8 +77,59 @@ export function onSavedUsersChanged(handler: (savedUsers: TwitterUserMap) => voi
   }
   browser.storage.onChanged.addListener(listener)
   return () => {
-    browser.storage.onChanged.removeListener(listener as any)
+    browser.storage.onChanged.removeListener(listener)
   }
+}
+
+export async function loadBadWords(): Promise<RedBlockStorage['badWords']> {
+  const { badWords } = ((await browser.storage.local.get('badWords')) as unknown) as RedBlockStorage
+  return badWords || []
+}
+
+export async function saveBadWords(badWords: RedBlockStorage['badWords']): Promise<BadWordItem[]> {
+  const storageObject = { badWords }
+  return browser.storage.local.set(storageObject as any).then(() => badWords)
+}
+
+export function onBadWordsChanged(handler: (badWords: BadWordItem[]) => void) {
+  function listener(changes: Partial<RedBlockStorageChanges>) {
+    if (changes.badWords) {
+      handler(changes.badWords.newValue)
+    }
+  }
+  browser.storage.onChanged.addListener(listener)
+  return () => {
+    browser.storage.onChanged.removeListener(listener)
+  }
+}
+
+export async function insertBadWord(word: string, regexp: boolean) {
+  const words = await loadBadWords()
+  const id = Date.now().toString()
+  words.push({
+    id,
+    enabled: true,
+    regexp,
+    word,
+  })
+  return saveBadWords(words)
+}
+
+export async function removeBadWord(wordId: string) {
+  const wordsBeforeRemove = await loadBadWords()
+  const words = wordsBeforeRemove.filter(bw => bw.id !== wordId)
+  return saveBadWords(words)
+}
+
+export async function editBadWord(wordIdToEdit: string, newBadWord: BadWordItem) {
+  const words = await loadBadWords()
+  const editedBadWords = words.map(word => {
+    if (word.id === wordIdToEdit) {
+      return newBadWord
+    }
+    return word
+  })
+  return saveBadWords(editedBadWords)
 }
 
 export interface RedBlockStorage {
@@ -87,6 +138,7 @@ export interface RedBlockStorage {
     useStandardBlockAPI: boolean
     removeSessionAfterComplete: boolean
   }
+  badWords: BadWordItem[]
 }
 
 export type RedBlockStorageChanges = {

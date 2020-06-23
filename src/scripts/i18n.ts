@@ -3,6 +3,7 @@ type SubstItem = number | string
 type Substitutions = SubstItem | SubstItem[] | undefined
 export type I18NMessageKeys = keyof I18NMessages
 
+// 주의: 이 코드를 수정하고나면 content scripts에 복사한 부분도 같이 수정할 것
 export function getMessage(key: string & I18NMessageKeys, substs: Substitutions = undefined) {
   if (Array.isArray(substs)) {
     return browser.i18n.getMessage(

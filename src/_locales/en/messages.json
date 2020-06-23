@@ -446,6 +446,54 @@
   "oneclick_block_mode": {
     "message": "One-click block mode"
   },
+  "block_xxx": {
+    "message": "Block @$username$",
+    "placeholders": {
+      "username": {
+        "content": "$1"
+      }
+    }
+  },
+  "blocked_xxx": {
+    "message": "Blocked @$username$.",
+    "placeholders": {
+      "username": {
+        "content": "$1"
+      }
+    }
+  },
+  "user_profile_contains": {
+    "message": "This user's profile contains word '$word$'.",
+    "placeholders": {
+      "word": {
+        "content": "$1"
+      }
+    }
+  },
+  "th_enable": {
+    "message": "Use"
+  },
+  "th_word": {
+    "message": "Word"
+  },
+  "th_options": {
+    "message": "Options"
+  },
+  "th_actions": {
+    "message": "Action"
+  },
+  "placeholder_word": {
+    "message": "Word to filter"
+  },
+  "regexp": {
+    "message": "RegExp"
+  },
+  "add_word_button": {
+    "message": "Add"
+  },
+  "sbs_description": {
+    "message": "Red Block Simple Block Suggestion: If user contains specifid words, Red Block will show oneclick-block button"
+  },
   "remove_session_after_complete": {
     "message": "Remove session after complete"
   },

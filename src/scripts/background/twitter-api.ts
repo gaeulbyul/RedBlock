@@ -361,6 +361,7 @@ export interface TwitterUser {
   created_at: string // datetime example: 'Sun Jun 29 05:52:09 +0000 2014'
   description: string
   profile_image_url_https: string
+  location: string
 }
 
 export type TwitterUserEntities = Record<string, TwitterUser>

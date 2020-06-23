@@ -446,6 +446,54 @@
   "oneclick_block_mode": {
     "message": "원클릭 차단모드"
   },
+  "block_xxx": {
+    "message": "@$username$을 차단하기",
+    "placeholders": {
+      "username": {
+        "content": "$1"
+      }
+    }
+  },
+  "blocked_xxx": {
+    "message": "@$username$을 차단했습니다.",
+    "placeholders": {
+      "username": {
+        "content": "$1"
+      }
+    }
+  },
+  "user_profile_contains": {
+    "message": "이 사용자의 프로필에 '$word$'이(가) 포함되어있습니다.",
+    "placeholders": {
+      "word": {
+        "content": "$1"
+      }
+    }
+  },
+  "th_enable": {
+    "message": "사용"
+  },
+  "th_word": {
+    "message": "단어"
+  },
+  "th_options": {
+    "message": "옵션"
+  },
+  "th_actions": {
+    "message": "동작"
+  },
+  "placeholder_word": {
+    "message": "여기에 단어 입력"
+  },
+  "regexp": {
+    "message": "정규식"
+  },
+  "add_word_button": {
+    "message": "단어 추가하기"
+  },
+  "sbs_description": {
+    "message": "Red Block 차단 추천기능: 트윗 작성자의 이름이나 프로필에 지정한 단어가 있으면 원클릭 차단버튼을 보여줍니다."
+  },
   "remove_session_after_complete": {
     "message": "세션 완료 후 자동으로 지우기"
   },

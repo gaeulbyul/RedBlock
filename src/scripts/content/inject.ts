@@ -1,7 +1,3 @@
-type TweetEntity = Tweet & {
-  user: string
-}
-
 interface ReduxStore {
   getState(): any
   dispatch(payload: { type: string; [key: string]: any }): any
@@ -172,17 +168,16 @@ interface ReduxStore {
     })
 
     elem.dispatchEvent(
-      new CustomEvent<OneClickBlockableTweetElement>('RedBlock:onTweetElement', {
+      new CustomEvent<OneClickBlockableTweetElement>('RedBlock<-OnTweetElement', {
         bubbles: true,
         detail: {
           tweet,
-          user,
         },
       })
     )
   }
 
-  function initializeOneClickBlockMode(reactRoot: Element) {
+  function initializeTweetElementInspecter(reactRoot: Element) {
     new MutationObserver(mutations => {
       for (const elem of getAddedElementsFromMutations(mutations)) {
         const tweetElems = elem.querySelectorAll<HTMLElement>('[data-testid=tweet]')
@@ -202,7 +197,7 @@ interface ReduxStore {
     if ('_reactRootContainer' in reactRoot) {
       console.debug('[RedBlock] inject')
       initializeListener()
-      initializeOneClickBlockMode(reactRoot)
+      initializeTweetElementInspecter(reactRoot)
     } else {
       console.debug('[RedBlock] waiting...')
       setTimeout(initialize, 500)
