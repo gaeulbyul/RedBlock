@@ -11,14 +11,12 @@ import {
 } from '../../common.js'
 import type { RedBlockStorage } from '../storage.js'
 
-export type SessionRequest = FollowerBlockSessionRequest | TweetReactionBlockSessionRequest
-
-type Limit = TwitterAPI.Limit
+export type SessionRequest = FollowerBlockSessionRequest | TweetReactionBlockSessionRequest | ImportBlockSessionRequest
 
 interface SessionEventEmitter {
   'mark-user': MarkUserParams
   'mark-many-users-as-blocked': MarkManyUsersAsBlockedParams
-  'rate-limit': Limit
+  'rate-limit': TwitterAPI.Limit
   'rate-limit-reset': null
   started: SessionInfo
   stopped: SessionInfo
@@ -59,6 +57,18 @@ export interface TweetReactionBlockSessionRequest {
   }
 }
 
+export interface ImportBlockSessionRequest {
+  purpose: ChainKind
+  target: {
+    type: 'import'
+    userIds: string[]
+  }
+  options: {
+    myFollowers: Verb
+    myFollowings: Verb
+  }
+}
+
 export interface SessionInfo<ReqT = SessionRequest> {
   sessionId: string
   request: ReqT
@@ -75,7 +85,7 @@ export interface SessionInfo<ReqT = SessionRequest> {
   }
   confirmed: boolean
   status: SessionStatus
-  limit: Limit | null
+  limit: TwitterAPI.Limit | null
 }
 
 function isAlreadyDone(follower: TwitterUser, verb: VerbSomething): boolean {
@@ -96,9 +106,9 @@ function isAlreadyDone(follower: TwitterUser, verb: VerbSomething): boolean {
 }
 
 // 더 나은 타입이름 없을까...
-type ApiKind = FollowKind | 'tweet-reactions'
+type ApiKind = FollowKind | 'tweet-reactions' | 'lookup-users'
 
-function extractRateLimit(limitStatuses: TwitterAPI.LimitStatus, apiKind: ApiKind): Limit {
+function extractRateLimit(limitStatuses: TwitterAPI.LimitStatus, apiKind: ApiKind): TwitterAPI.Limit {
   switch (apiKind) {
     case 'followers':
       return limitStatuses.followers['/followers/list']
@@ -108,7 +118,8 @@ function extractRateLimit(limitStatuses: TwitterAPI.LimitStatus, apiKind: ApiKin
       return limitStatuses.followers['/followers/list']
     case 'tweet-reactions':
       return limitStatuses.statuses['/statuses/retweeted_by']
-    // return limitStatuses.statuses['/statuses/favorited_by']
+    case 'lookup-users':
+      return limitStatuses.users['/users/lookup']
   }
 }
 
@@ -135,6 +146,8 @@ export default class ChainBlockSession {
       case 'tweetReaction':
         const givenTweet = (givenTarget as TweetReactionBlockSessionRequest['target']).tweet
         return thisTarget.tweet.id_str === givenTweet.id_str
+      case 'import':
+        return false
     }
   }
   public setConfirmed() {
@@ -164,6 +177,9 @@ export default class ChainBlockSession {
         break
       case 'tweetReaction':
         apiKind = 'tweet-reactions'
+        break
+      case 'import':
+        apiKind = 'lookup-users'
         break
     }
     const incrementSuccess = (v: VerbSomething) => this.sessionInfo.progress.success[v]++

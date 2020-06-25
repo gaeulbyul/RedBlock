@@ -46,6 +46,8 @@ function generateConfirmMessage(request: SessionRequest): TextGenerator.DialogMe
       return TextGenerator.generateFollowerBlockConfirmMessage(request as FollowerBlockSessionRequest)
     case 'tweetReaction':
       return TextGenerator.generateTweetReactionBlockMessage(request as TweetReactionBlockSessionRequest)
+    case 'import':
+      return TextGenerator.generateImportBlockMessage(request as ImportBlockSessionRequest)
   }
 }
 
@@ -113,13 +115,8 @@ async function removeUserFromStorage(user: TwitterUser) {
 function handleExtensionMessage(message: RBAction, _sender: browser.runtime.MessageSender) {
   switch (message.actionType) {
     case 'CreateFollowerChainBlockSession':
-      createChainBlockSession(message.request).then(async result => {
-        if (result.ok) {
-          confirmSessionInPopup(message.request, result.value)
-        }
-      })
-      break
     case 'CreateTweetReactionChainBlockSession':
+    case 'CreateImportChainBlockSession':
       createChainBlockSession(message.request).then(async result => {
         if (result.ok) {
           confirmSessionInPopup(message.request, result.value)

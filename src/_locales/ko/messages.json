@@ -440,6 +440,9 @@
   "cant_chainblock_nobody_retweet_or_like": {
     "message": "아무도 리트윗이나 마음에 들어하지 않은 트윗입니다."
   },
+  "cant_chainblock_empty_list": {
+    "message": "불러온 목록이 비어있거나 유저ID를 찾을 수 없습니다."
+  },
   "wtf_twitter": {
     "message": "주의: 현재 레드블락은 강제 로그아웃 현상을 피하기 위해 내부적으로 트위터의 고급차단 기능을 사용합니다. 다만 실제 유저차단이 안 되거나 다소 시간이 걸릴 수 있으니 양해 바랍니다."
   },

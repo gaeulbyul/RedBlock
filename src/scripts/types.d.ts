@@ -3,6 +3,7 @@ type SessionInfo = import('./background/chainblock-session/session').SessionInfo
 type SessionRequest = import('./background/chainblock-session/session').SessionRequest
 type FollowerBlockSessionRequest = import('./background/chainblock-session/session').FollowerBlockSessionRequest
 type TweetReactionBlockSessionRequest = import('./background/chainblock-session/session').TweetReactionBlockSessionRequest
+type ImportBlockSessionRequest = import('./background/chainblock-session/session').ImportBlockSessionRequest
 type TwitterUser = import('./background/twitter-api').TwitterUser
 type Tweet = import('./background/twitter-api').Tweet
 type DialogMessageObj = import('./text-generate').DialogMessageObj
@@ -48,6 +49,11 @@ declare namespace RBActions {
   interface CreateTweetReactionChainBlockSession {
     actionType: 'CreateTweetReactionChainBlockSession'
     request: TweetReactionBlockSessionRequest
+  }
+
+  interface CreateImportChainBlockSession {
+    actionType: 'CreateImportChainBlockSession'
+    request: ImportBlockSessionRequest
   }
 
   interface Cancel {
@@ -108,6 +114,7 @@ declare namespace RBActions {
 type RBAction =
   | RBActions.CreateFollowerChainBlockSession
   | RBActions.CreateTweetReactionChainBlockSession
+  | RBActions.CreateImportChainBlockSession
   | RBActions.Cancel
   | RBActions.Start
   | RBActions.Stop
@@ -214,6 +221,17 @@ interface BadWordItem {
   enabled: boolean
   word: string
   regexp: boolean
+}
+
+// ---- import chainblock ----
+
+interface ImportChainJson {
+  connection: string
+  connectionType: string // 'followers'
+  users: Array<{
+    id: string
+    name: string // actually, it is screen_name (but unused prop in tbc)
+  }>
 }
 
 // ---- browser notification types ----

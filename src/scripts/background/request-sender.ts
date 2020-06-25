@@ -12,6 +12,13 @@ export async function startTweetReactionChainBlock(request: TweetReactionBlockSe
   })
 }
 
+export async function startImportChainBlock(request: ImportBlockSessionRequest) {
+  return browser.runtime.sendMessage<RBActions.CreateImportChainBlockSession>({
+    actionType: 'CreateImportChainBlockSession',
+    request,
+  })
+}
+
 export async function cancelChainBlock(sessionId: string) {
   return browser.runtime.sendMessage<RBActions.Cancel>({
     actionType: 'Cancel',

@@ -16,6 +16,7 @@ export const enum TargetCheckResult {
   NobodyRetweetOrLiked,
   NobodyRetweeted,
   NobodyLiked,
+  EmptyList,
 }
 
 export default class ChainBlocker {
@@ -49,6 +50,8 @@ export default class ChainBlocker {
         return checkFollowerBlockTarget(target)
       case 'tweetReaction':
         return checkTweetReactionBlockTarget(target)
+      case 'import':
+        return checkImportBlockTarget(target)
     }
   }
   public getSessionByTarget(target: SessionInfo['request']['target']): ChainBlockSession | null {
@@ -293,6 +296,13 @@ function checkTweetReactionBlockTarget(target: TweetReactionBlockSessionRequest[
     return TargetCheckResult.NobodyRetweeted
   } else if (onlyWantBlockLikedUsers && favorite_count <= 0) {
     return TargetCheckResult.NobodyLiked
+  }
+  return TargetCheckResult.Ok
+}
+
+function checkImportBlockTarget(target: ImportBlockSessionRequest['target']): TargetCheckResult {
+  if (target.userIds.length <= 0) {
+    return TargetCheckResult.EmptyList
   }
   return TargetCheckResult.Ok
 }

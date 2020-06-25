@@ -17,7 +17,7 @@ export interface UserScraper {
 }
 
 // 단순 스크래퍼. 기존 체인블락 방식
-export class SimpleScraper implements UserScraper {
+class SimpleScraper implements UserScraper {
   public totalCount: number
   private readonly prefetchedUsers: TwitterUser[] = []
   private prefetchShouldStop = false
@@ -51,7 +51,7 @@ export class SimpleScraper implements UserScraper {
 }
 
 // 맞팔로우 스크래퍼
-export class MutualFollowerScraper implements UserScraper {
+class MutualFollowerScraper implements UserScraper {
   public totalCount: number | null = null
   private prefetchedUsers: TwitterUser[] = []
   private prefetchShouldStop = false
@@ -84,7 +84,7 @@ export class MutualFollowerScraper implements UserScraper {
 }
 
 // 차단상대 대상 스크래퍼
-export class AntiBlockScraper implements UserScraper {
+class AntiBlockScraper implements UserScraper {
   public totalCount: number | null = null
   private prefetchedUsers: TwitterUser[] = []
   private prefetchShouldStop = false
@@ -137,7 +137,7 @@ export class AntiBlockScraper implements UserScraper {
 }
 
 // 트윗반응 유저 스크래퍼
-export class TweetReactedUserScraper implements UserScraper {
+class TweetReactedUserScraper implements UserScraper {
   public totalCount: number
   private prefetchedUsers: TwitterUser[] = []
   private prefetchShouldStop = false
@@ -180,8 +180,42 @@ export class TweetReactedUserScraper implements UserScraper {
   }
 }
 
+class ImportUserScraper implements UserScraper {
+  public totalCount = this.userIds.length
+  private readonly prefetchedUsers: TwitterUser[] = []
+  private prefetchShouldStop = false
+  private generator: AsyncIterableIterator<Either<Error, UsersObject>>
+  constructor(private userIds: string[]) {
+    this.generator = UserScrapingAPI.lookupUsersByIds(userIds)
+  }
+  public async prepare() {
+    for await (const response of resumableAsyncIterate(this.generator)) {
+      if (!response.ok) {
+        console.error(response.error)
+        break
+      }
+      const responseData = response.value
+      const { users } = responseData
+      this.prefetchedUsers.push(...users)
+      if (this.prefetchShouldStop) {
+        break
+      }
+    }
+  }
+  public stopPrepare() {
+    this.prefetchShouldStop = true
+  }
+  public async *[Symbol.asyncIterator]() {
+    yield wrapEitherRight({ users: this.prefetchedUsers })
+    yield* this.generator
+  }
+}
+
 export function initScraper(request: SessionRequest): UserScraper {
   const { target } = request
+  if (target.type === 'import') {
+    return new ImportUserScraper(target.userIds)
+  }
   if (target.type === 'tweetReaction') {
     return new TweetReactedUserScraper(target)
   }

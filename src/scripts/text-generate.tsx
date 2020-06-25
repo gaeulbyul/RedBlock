@@ -122,6 +122,23 @@ export function generateTweetReactionBlockMessage(request: TweetReactionBlockSes
   }
 }
 
+export function generateImportBlockMessage(request: ImportBlockSessionRequest): DialogMessageObj {
+  // TODO: L10N-ME
+  const { myFollowers, myFollowings } = request.options
+  const warnings = []
+  if (myFollowers === 'Block') {
+    warnings.push(`\u26a0 ${i18n.getMessage('warning_maybe_you_block_your_followers')}`)
+  }
+  if (myFollowings === 'Block') {
+    warnings.push(`\u26a0 ${i18n.getMessage('warning_maybe_you_block_your_followings')}`)
+  }
+  return {
+    title: `Do you want block users from given list?`,
+    contentLines: [`length: ${request.target.userIds.length}`],
+    warningLines: warnings,
+  }
+}
+
 export function chainBlockResultNotification(sessionInfo: SessionInfo): string {
   const { target } = sessionInfo.request
   switch (target.type) {
@@ -129,6 +146,8 @@ export function chainBlockResultNotification(sessionInfo: SessionInfo): string {
       return followerBlockResultNotification(sessionInfo as SessionInfo<FollowerBlockSessionRequest>)
     case 'tweetReaction':
       return tweetReactionBlockResultNotification(sessionInfo as SessionInfo<TweetReactionBlockSessionRequest>)
+    case 'import':
+      return importBlockResultNotification(sessionInfo as SessionInfo<ImportBlockSessionRequest>)
   }
 }
 
@@ -169,6 +188,33 @@ function tweetReactionBlockResultNotification(sessionInfo: SessionInfo<TweetReac
   return message
 }
 
+function importBlockResultNotification(sessionInfo: SessionInfo<ImportBlockSessionRequest>) {
+  const { purpose } = sessionInfo.request
+  const { success, already, skipped, failure } = sessionInfo.progress
+  let localizedPurposeCompleted = ''
+  let howMany = ''
+  let howManyAlready = ''
+  switch (purpose) {
+    case 'chainblock':
+      howMany = i18n.getMessage('blocked_n_users', success.Block)
+      howManyAlready = `${i18n.getMessage('already_blocked')}: ${already}`
+      localizedPurposeCompleted = i18n.getMessage('chainblock_completed')
+      break
+    case 'unchainblock':
+      howMany = i18n.getMessage('unblocked_n_users', success.UnBlock)
+      howManyAlready = `${i18n.getMessage('already_unblocked')}: ${already}`
+      localizedPurposeCompleted = i18n.getMessage('unchainblock_completed')
+      break
+  }
+  let message = `${localizedPurposeCompleted} ${howMany}\n`
+  message += '('
+  message += `${howManyAlready}, `
+  message += `${i18n.getMessage('skipped')}: ${skipped}, `
+  message += `${i18n.getMessage('failed')}: ${failure}`
+  message += ')'
+  return message
+}
+
 export function checkResultToString(result: TargetCheckResult): string {
   switch (result) {
     case TargetCheckResult.Ok:
@@ -191,5 +237,7 @@ export function checkResultToString(result: TargetCheckResult): string {
       return i18n.getMessage('cant_chainblock_nobody_retweeted')
     case TargetCheckResult.NobodyLiked:
       return i18n.getMessage('cant_chainblock_nobody_liked')
+    case TargetCheckResult.EmptyList:
+      return i18n.getMessage('cant_chainblock_empty_list')
   }
 }

@@ -476,6 +476,9 @@ export interface LimitStatus {
     '/statuses/retweets/:id': Limit
     '/statuses/favorited_by': Limit
   }
+  users: {
+    '/users/lookup': Limit
+  }
 }
 
 export interface MultiAccountCookies {

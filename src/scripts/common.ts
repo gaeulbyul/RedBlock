@@ -177,6 +177,8 @@ export function getCountOfUsersToBlock({ target }: SessionRequest) {
       return getFollowersCount(target.user, target.list)
     case 'tweetReaction':
       return getReactionsCount(target)
+    case 'import':
+      return target.userIds.length
   }
 }
 

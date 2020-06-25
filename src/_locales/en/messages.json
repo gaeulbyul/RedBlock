@@ -440,6 +440,9 @@
   "cant_chainblock_nobody_retweet_or_like": {
     "message": "Nobody retweeted or liked this tweet."
   },
+  "cant_chainblock_empty_list": {
+    "message": "A list is empty or can't find any user ID."
+  },
   "wtf_twitter": {
     "message": "Warning: Red Block internally uses Twitter's advanced block options to avoid force-logout problems. Unfortunately, it has another problem that ChainBlock doesn't block some users or may takes several minutes. Sorry for the inconvenience!"
   },

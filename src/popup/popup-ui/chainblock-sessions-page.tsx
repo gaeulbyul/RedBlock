@@ -49,7 +49,7 @@ function ChainBlockSessionItem(props: { session: SessionInfo }) {
   }
   const isChainBlock = purpose === 'chainblock'
   const isUnchainBlock = purpose === 'unchainblock'
-  let user: TwitterUser
+  let user: TwitterUser | null
   let localizedTarget = ''
   switch (target.type) {
     case 'follower':
@@ -70,6 +70,9 @@ function ChainBlockSessionItem(props: { session: SessionInfo }) {
       user = target.tweet.user
       localizedTarget = i18n.getMessage('reacted_xxxs_tweet', user.screen_name)
       break
+    case 'import':
+      user = null
+      localizedTarget = 'From blocklist' // L10N-ME
   }
   const localizedPurpose = i18n.getMessage(purpose)
   const cardTitle = `${localizedPurpose} ${statusToString(session.status)}`
@@ -151,11 +154,24 @@ function ChainBlockSessionItem(props: { session: SessionInfo }) {
       </TableContainer>
     )
   }
-  let name = user.name
-  if (target.type === 'tweetReaction') {
-    name = `<${i18n.getMessage('tweet')}> ${name}`
+  function renderCardHeader(user: TwitterUser | null) {
+    if (user) {
+      return (
+        <M.CardHeader avatar={<M.Avatar src={biggerProfileImageUrl} />} title={cardTitle} subheader={localizedTarget} />
+      )
+    } else {
+      return <M.CardHeader title={cardTitle} subheader={localizedTarget} />
+    }
   }
-  const biggerProfileImageUrl = user.profile_image_url_https.replace('_normal', '_bigger')
+  let name = ''
+  let biggerProfileImageUrl = ''
+  if (user) {
+    name = user.name
+    biggerProfileImageUrl = user.profile_image_url_https.replace('_normal', '_bigger')
+    if (target.type === 'tweetReaction') {
+      name = `<${i18n.getMessage('tweet')}> ${name}`
+    }
+  }
   const percentage = calculatePercentage(session)
   const progressBar =
     typeof percentage === 'number' ? (
@@ -166,7 +182,7 @@ function ChainBlockSessionItem(props: { session: SessionInfo }) {
   const succProgress = session.progress.success
   return (
     <M.Card className={classes.card}>
-      <M.CardHeader avatar={<M.Avatar src={biggerProfileImageUrl} />} title={cardTitle} subheader={localizedTarget} />
+      {renderCardHeader(user)}
       <M.CardContent>
         {progressBar}
         <T>

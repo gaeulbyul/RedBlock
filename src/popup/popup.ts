@@ -3,6 +3,7 @@ import { getUserNameFromURL } from '../scripts/common.js'
 export {
   startFollowerChainBlock,
   startTweetReactionChainBlock,
+  startImportChainBlock,
   stopAllChainBlock,
   stopChainBlock,
   cancelChainBlock,
