@@ -29,14 +29,18 @@ function BadWordRow(props: {
   badWord: BadWordItem
   removeWordById: (wordId: string) => void
   editWordById: (wordId: string) => void
+  modifyAbilityOfWordById: (wordId: string, enabled: boolean) => void
 }) {
   const { TableCell, TableRow } = MaterialUI
   const classes = useStylesForRow()
-  const { badWord, removeWordById, editWordById } = props
+  const { badWord, removeWordById, editWordById, modifyAbilityOfWordById } = props
   return (
     <TableRow>
       <TableCell padding="checkbox">
-        <M.Checkbox checked={badWord.enabled} />
+        <M.Checkbox
+          checked={badWord.enabled}
+          onChange={(_event, checked) => modifyAbilityOfWordById(badWord.id, checked)}
+        />
       </TableCell>
       <TableCell>
         <span className={badWord.enabled ? '' : classes.striked}>{badWord.word}</span>
@@ -81,6 +85,21 @@ function BadwordsTable() {
   async function removeWordById(wordId: string) {
     return Storage.removeBadWord(wordId)
   }
+  async function modifyAbilityOfWordById(wordId: string, enabled: boolean) {
+    const wordToEdit = badWords.filter(bw => bw.id === wordId)[0]
+    const modified: BadWordItem = {
+      ...wordToEdit,
+      enabled,
+    }
+    return Storage.editBadWord(wordId, modified)
+  }
+  async function handleKeypressEvent(event: React.KeyboardEvent<HTMLInputElement>) {
+    if (event.key !== 'Enter') {
+      return
+    }
+    event.preventDefault()
+    insertWord()
+  }
   const classes = useStylesForTable()
   const sortedBadWords = _.sortBy(badWords, 'word')
   const { Table, TableHead, TableBody, TableCell, TableContainer, TableRow, TableFooter } = MaterialUI
@@ -111,6 +130,7 @@ function BadwordsTable() {
                 key={badWord.id}
                 editWordById={readyToEditWordById}
                 removeWordById={removeWordById}
+                modifyAbilityOfWordById={modifyAbilityOfWordById}
               />
             ))}
           </TableBody>
@@ -125,6 +145,7 @@ function BadwordsTable() {
                   placeholder={i18n.getMessage('placeholder_word')}
                   value={newBadWordWord}
                   onChange={event => setNewBadWordWord(event.target.value)}
+                  onKeyPress={handleKeypressEvent}
                 />
               </TableCell>
               <TableCell>
