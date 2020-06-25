@@ -203,6 +203,10 @@ interface OneClickBlockableTweetElement {
   tweet: Tweet
 }
 
+interface OneClickBlockableUserCellElement {
+  user: TwitterUser
+}
+
 // ---- 1click block related ----
 
 interface BadWordItem {

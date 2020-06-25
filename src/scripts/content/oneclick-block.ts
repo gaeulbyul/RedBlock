@@ -100,14 +100,7 @@ import { RedBlockStorage } from '../background/storage'
   //  })
   //}
 
-  function addBlockButton(elem: HTMLElement, user: TwitterUser) {
-    const userId = user.id_str
-    const caret = elem.querySelector('[data-testid=caret]')
-    if (!caret) {
-      console.warn('failed to find caret elem from: ', elem)
-      return
-    }
-    // elem.setAttribute('data-redblock-userid', userId)
+  function generateBlockButton(user: TwitterUser): HTMLButtonElement {
     const btn: HTMLButtonElement = document.createElement('button')
     btn.type = 'button'
     btn.className = 'redblock-btn redblock-block-btn'
@@ -121,17 +114,39 @@ import { RedBlockStorage } from '../background/storage'
     } else {
       btn.className += ' manual'
     }
-    caret.before(btn)
     btn.addEventListener('click', event => {
       event.preventDefault()
       blockUser(user)
       user.blocking = true
       markUser({
         verb: 'Block',
-        userId,
+        userId: user.id_str,
       })
       toastMessage(`[Red Block] ${i18nGetMessage('blocked_xxx', user.screen_name)}`)
     })
+    return btn
+  }
+
+  function addBlockButtonToTweetElem(elem: HTMLElement, user: TwitterUser) {
+    const caret = elem.querySelector('[data-testid=caret]')
+    if (!caret) {
+      console.warn('failed to find caret elem from: ', elem)
+      return
+    }
+    const btn = generateBlockButton(user)
+    btn.classList.add('redblock-btn-tweet')
+    caret.before(btn)
+  }
+
+  function addBlockButtonToUserCellElem(elem: HTMLElement, user: TwitterUser) {
+    const maybeUserNameElem = elem.querySelector('[dir=ltr] > span')
+    if (!maybeUserNameElem) {
+      console.warn('failed to find username elem from: ', elem)
+      return
+    }
+    const btn = generateBlockButton(user)
+    btn.classList.add('redblock-btn-usercell')
+    maybeUserNameElem.after(btn)
   }
 
   document.addEventListener('RedBlock<-OnTweetElement', event => {
@@ -142,6 +157,17 @@ import { RedBlockStorage } from '../background/storage'
     if (skipCondition) {
       return
     }
-    addBlockButton(elem, user)
+    addBlockButtonToTweetElem(elem, user)
+  })
+
+  document.addEventListener('RedBlock<-OnUserCellElement', event => {
+    const customEvent = event as CustomEvent<OneClickBlockableUserCellElement>
+    const elem = customEvent.target as HTMLElement
+    const { user } = customEvent.detail
+    const skipCondition = user.following || user.follow_request_sent || user.blocking
+    if (skipCondition) {
+      return
+    }
+    addBlockButtonToUserCellElem(elem, user)
   })
 }

@@ -189,6 +189,42 @@ interface ReduxStore {
     })
   }
 
+  function initializeUserCellElementInspecter(reactRoot: Element) {
+    function handleElem(elem: HTMLElement) {
+      const btn = elem.querySelector('[role=button][data-testid]')
+      if (!btn) {
+        return
+      }
+      const testid = btn.getAttribute('data-testid')
+      const maybeUserId = /^(\d+)-/.exec(testid || '')
+      if (!maybeUserId) {
+        console.warn('failed to find userId from ', elem)
+        return
+      }
+      const user = getUserEntityById(maybeUserId[1])
+      if (!user) {
+        return
+      }
+      elem.dispatchEvent(
+        new CustomEvent<OneClickBlockableUserCellElement>('RedBlock<-OnUserCellElement', {
+          bubbles: true,
+          detail: {
+            user,
+          },
+        })
+      )
+    }
+    new MutationObserver(mutations => {
+      for (const elem of getAddedElementsFromMutations(mutations)) {
+        const userCellElems = elem.querySelectorAll<HTMLElement>('[data-testid=UserCell]')
+        userCellElems.forEach(handleElem)
+      }
+    }).observe(reactRoot, {
+      subtree: true,
+      childList: true,
+    })
+  }
+
   function initialize() {
     const reactRoot = document.getElementById('react-root')
     if (!reactRoot) {
@@ -198,6 +234,7 @@ interface ReduxStore {
       console.debug('[RedBlock] inject')
       initializeListener()
       initializeTweetElementInspecter(reactRoot)
+      initializeUserCellElementInspecter(reactRoot)
     } else {
       console.debug('[RedBlock] waiting...')
       setTimeout(initialize, 500)
