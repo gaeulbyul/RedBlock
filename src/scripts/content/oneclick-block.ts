@@ -104,7 +104,7 @@ import { RedBlockStorage } from '../background/storage'
     const btn: HTMLButtonElement = document.createElement('button')
     btn.type = 'button'
     btn.className = 'redblock-btn redblock-block-btn'
-    btn.textContent = 'Block'
+    btn.textContent = i18nGetMessage('block')
     btn.title = `[Red Block] ${i18nGetMessage('block_xxx', user.screen_name)}`
     const badWordCheckResult = checkBadWordFromUserProfile(user)
     if (badWordCheckResult) {

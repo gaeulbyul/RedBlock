@@ -494,8 +494,11 @@
   "sbs_description": {
     "message": "Red Block 차단 추천기능: 트윗 작성자의 이름이나 프로필에 지정한 단어가 있으면 원클릭 차단버튼을 보여줍니다."
   },
+  "sbs_please_refresh": {
+    "message": "단어목록을 편집한 이후에는 열려있는 트위터를 새로고침 해주세요."
+  },
   "remove_session_after_complete": {
-    "message": "세션 완료 후 자동으로 지우기"
+    "message": "세션 완료 후 자동으로 목록에서 지우기"
   },
   "use_official_block_api": {
     "message": "공식 차단API를 사용하기"

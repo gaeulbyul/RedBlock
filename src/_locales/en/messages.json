@@ -494,6 +494,9 @@
   "sbs_description": {
     "message": "Red Block Simple Block Suggestion: If user contains specifid words, Red Block will show oneclick-block button"
   },
+  "sbs_please_refresh": {
+    "message": "Please refresh Twitter after editing words list."
+  },
   "remove_session_after_complete": {
     "message": "Remove session after complete"
   },

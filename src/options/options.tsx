@@ -14,7 +14,8 @@ const T = MaterialUI.Typography
 type RedBlockOptions = Storage.RedBlockStorage['options']
 
 const useStylesForTable = MaterialUI.makeStyles(_theme => ({
-  fullWidth: {
+  tablePaper: {
+    margin: '10px 0',
     width: '100%',
   },
 }))
@@ -104,7 +105,7 @@ function BadwordsTable() {
   const sortedBadWords = _.sortBy(badWords, 'word')
   const { Table, TableHead, TableBody, TableCell, TableContainer, TableRow, TableFooter } = MaterialUI
   return (
-    <M.Paper variant="outlined" className={classes.fullWidth}>
+    <M.Paper variant="outlined" className={classes.tablePaper}>
       <TableContainer>
         <Table size="small">
           <TableHead>
@@ -168,7 +169,10 @@ function BadwordsTable() {
               </TableCell>
             </TableRow>
             <TableRow>
-              <TableCell colSpan={4}>{i18n.getMessage('sbs_description')}</TableCell>
+              <TableCell colSpan={4}>
+                <p>{i18n.getMessage('sbs_description')} </p>
+                <p>{i18n.getMessage('sbs_please_refresh')}</p>
+              </TableCell>
             </TableRow>
           </TableFooter>
         </Table>
@@ -209,9 +213,9 @@ function OptionsApp() {
                     })
                   }
                   checked={options.useStandardBlockAPI}
-                  label={i18n.getMessage('use_official_block_api')}
+                  label={i18n.getMessage('use_official_block_api') + '⚠'}
                 />
-                <M.FormHelperText>{i18n.getMessage('use_official_block_api_warning')}</M.FormHelperText>
+                <M.FormHelperText>{'⚠ ' + i18n.getMessage('use_official_block_api_warning')}</M.FormHelperText>
                 <M.FormControlLabel
                   control={<M.Checkbox size="small" />}
                   onChange={() =>
