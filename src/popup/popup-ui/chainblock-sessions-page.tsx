@@ -72,7 +72,7 @@ function ChainBlockSessionItem(props: { session: SessionInfo }) {
       break
     case 'import':
       user = null
-      localizedTarget = 'From blocklist' // L10N-ME
+      localizedTarget = i18n.getMessage('from_imported_blocklist')
   }
   const localizedPurpose = i18n.getMessage(purpose)
   const cardTitle = `${localizedPurpose} ${statusToString(session.status)}`
@@ -160,7 +160,7 @@ function ChainBlockSessionItem(props: { session: SessionInfo }) {
         <M.CardHeader avatar={<M.Avatar src={biggerProfileImageUrl} />} title={cardTitle} subheader={localizedTarget} />
       )
     } else {
-      return <M.CardHeader title={cardTitle} subheader={localizedTarget} />
+      return <M.CardHeader avatar={<M.Icon>import_export</M.Icon>} title={cardTitle} subheader={localizedTarget} />
     }
   }
   let name = ''

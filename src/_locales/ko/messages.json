@@ -8,6 +8,9 @@
   "running_sessions": {
     "message": "실행중인 세션"
   },
+  "blocklist_page": {
+    "message": "차단목록"
+  },
   "miscellaneous": {
     "message": "기타 도구"
   },
@@ -69,6 +72,9 @@
         "content": "$1"
       }
     }
+  },
+  "from_imported_blocklist": {
+    "message": "차단목록에서"
   },
   "session_status_initial": {
     "message": "대기 중"
@@ -322,6 +328,24 @@
         "content": "$1"
       }
     }
+  },
+  "confirm_import_chainblock_title": {
+    "message": "정말로 해당 차단목록에 있는 유저를 차단하시겠습니까?"
+  },
+  "user_count": {
+    "message": "유저수"
+  },
+  "import": {
+    "message": "가져오기"
+  },
+  "import_blocklist": {
+    "message": "차단목록 가져오기"
+  },
+  "pick_file_first": {
+    "message": "가져올 차단목록 파일을 선택해주세요."
+  },
+  "blocklist_import_description": {
+    "message": "차단목록 파일을 가져와 사용자를 차단할 수 있습니다. 현재 CSV와 JSON(오리지널 체인블락의 export chain 차단목록)파일을 읽을 수 있습니다."
   },
   "select_rt_or_like": {
     "message": "'리트윗'이나 '마음에 들어요' 중 하나 이상을 선택해주세요."

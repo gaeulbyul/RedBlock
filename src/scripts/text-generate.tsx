@@ -123,7 +123,6 @@ export function generateTweetReactionBlockMessage(request: TweetReactionBlockSes
 }
 
 export function generateImportBlockMessage(request: ImportBlockSessionRequest): DialogMessageObj {
-  // TODO: L10N-ME
   const { myFollowers, myFollowings } = request.options
   const warnings = []
   if (myFollowers === 'Block') {
@@ -132,9 +131,10 @@ export function generateImportBlockMessage(request: ImportBlockSessionRequest): 
   if (myFollowings === 'Block') {
     warnings.push(`\u26a0 ${i18n.getMessage('warning_maybe_you_block_your_followings')}`)
   }
+  const usersCount = request.target.userIds.length
   return {
-    title: `Do you want block users from given list?`,
-    contentLines: [`length: ${request.target.userIds.length}`],
+    title: i18n.getMessage('confirm_import_chainblock_title'),
+    contentLines: [`${i18n.getMessage('user_count')}: ${usersCount}`],
     warningLines: warnings,
   }
 }

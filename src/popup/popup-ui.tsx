@@ -3,6 +3,7 @@ import { getCurrentTab, getUserNameFromTab, getTweetIdFromTab, requestProgress }
 import ChainBlockSessionsPage from './popup-ui/chainblock-sessions-page.js'
 import NewChainBlockPage from './popup-ui/new-chainblock-page.js'
 import NewTweetReactionBlockPage from './popup-ui/new-tweetreactionblock-page.js'
+import BlocklistPage from './popup-ui/blocklist-page.js'
 import MiscPage from './popup-ui/misc-page.js'
 import { DialogContext, SnackBarContext, PageSwitchContext, RedBlockOptionsContext } from './popup-ui/contexts.js'
 import { RBDialog, TabPanel, DialogContent } from './popup-ui/ui-common.js'
@@ -179,6 +180,9 @@ function PopupApp(props: PopupAppProps) {
                     <M.Tooltip arrow title={i18n.getMessage('new_tweetreaction_session')}>
                       <M.Tab className={classes.tab} disabled={!currentTweet} icon={<M.Icon>repeat</M.Icon>} />
                     </M.Tooltip>
+                    <M.Tooltip arrow title={i18n.getMessage('blocklist_page')}>
+                      <M.Tab className={classes.tab} icon={<M.Icon>list_alt</M.Icon>} />
+                    </M.Tooltip>
                     <M.Tooltip arrow title={i18n.getMessage('miscellaneous')}>
                       <M.Tab className={classes.tab} icon={<M.Icon>build</M.Icon>} />
                     </M.Tooltip>
@@ -205,6 +209,9 @@ function PopupApp(props: PopupAppProps) {
                   </TabPanel>
                   <TabPanel value={tabIndex} index={PageEnum.NewTweetReactionBlock}>
                     <NewTweetReactionBlockPage currentTweet={currentTweet} />
+                  </TabPanel>
+                  <TabPanel value={tabIndex} index={PageEnum.Blocklist}>
+                    <BlocklistPage />
                   </TabPanel>
                   <TabPanel value={tabIndex} index={PageEnum.Utilities}>
                     <MiscPage />

@@ -8,6 +8,9 @@
   "running_sessions": {
     "message": "Running"
   },
+  "blocklist_page": {
+    "message": "Blocklist"
+  },
   "miscellaneous": {
     "message": "Misc."
   },
@@ -69,6 +72,9 @@
         "content": "$1"
       }
     }
+  },
+  "from_imported_blocklist": {
+    "message": "From blocklist"
   },
   "session_status_initial": {
     "message": "Waiting..."
@@ -322,6 +328,24 @@
         "content": "$1"
       }
     }
+  },
+  "confirm_import_chainblock_title": {
+    "message": "Do you want to block users from imported list?"
+  },
+  "user_count": {
+    "message": "Users"
+  },
+  "import": {
+    "message": "Import"
+  },
+  "import_blocklist": {
+    "message": "Import blocklist"
+  },
+  "pick_file_first": {
+    "message": "Pick blocklist file first."
+  },
+  "blocklist_import_description": {
+    "message": "You can block users from blocklist file. Currently Red Block supports CSV file and JSON(from original Twitter Block Chain's export-chain feature)."
   },
   "select_rt_or_like": {
     "message": "Please select retweet and/or like"
