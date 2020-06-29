@@ -6,7 +6,7 @@ import NewTweetReactionBlockPage from './popup-ui/new-tweetreactionblock-page.js
 import BlocklistPage from './popup-ui/blocklist-page.js'
 import MiscPage from './popup-ui/misc-page.js'
 import { DialogContext, SnackBarContext, PageSwitchContext, RedBlockOptionsContext } from './popup-ui/contexts.js'
-import { RBDialog, TabPanel, DialogContent } from './popup-ui/ui-common.js'
+import { RBDialog, TabPanel, DialogContent, RedBlockUITheme } from './popup-ui/ui-common.js'
 
 import { RedBlockStorage, loadOptions } from '../scripts/background/storage.js'
 import { PageEnum, UI_UPDATE_DELAY, isRunningSession } from '../scripts/common.js'
@@ -39,17 +39,7 @@ function PopupApp(props: PopupAppProps) {
   const [snackBarOpen, setSnackBarOpen] = React.useState(false)
   const [menuAnchorEl, setMenuAnchorEl] = React.useState<HTMLElement | null>(null)
   const darkMode = MaterialUI.useMediaQuery('(prefers-color-scheme:dark)')
-  const theme = React.useMemo(
-    () =>
-      MaterialUI.createMuiTheme({
-        palette: {
-          type: darkMode ? 'dark' : 'light',
-          primary: MaterialUI.colors.pink,
-          secondary: darkMode ? MaterialUI.colors.lightBlue : MaterialUI.colors.indigo,
-        },
-      }),
-    [darkMode]
-  )
+  const theme = React.useMemo(() => RedBlockUITheme(darkMode), [darkMode])
   const classes = useStylesForAppBar()
   function openModal(content: DialogContent) {
     console.debug(content)

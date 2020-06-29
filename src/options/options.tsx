@@ -1,12 +1,6 @@
 import * as Storage from '../scripts/background/storage.js'
 import * as i18n from '../scripts/i18n.js'
-
-const optionsMuiTheme = MaterialUI.createMuiTheme({
-  palette: {
-    primary: MaterialUI.colors.pink,
-    secondary: MaterialUI.colors.indigo,
-  },
-})
+import { RedBlockUITheme } from '../popup/popup-ui/ui-common.js'
 
 const M = MaterialUI
 const T = MaterialUI.Typography
@@ -183,6 +177,8 @@ function BadwordsTable() {
 
 function OptionsApp() {
   const [options, setOptions] = React.useState<RedBlockOptions>(Storage.defaultOptions)
+  const darkMode = MaterialUI.useMediaQuery('(prefers-color-scheme:dark)')
+  const theme = React.useMemo(() => RedBlockUITheme(darkMode), [darkMode])
   React.useEffect(() => {
     Storage.loadOptions().then(setOptions)
     return Storage.onOptionsChanged(setOptions)
@@ -193,7 +189,7 @@ function OptionsApp() {
     setOptions(newOptions)
   }
   return (
-    <M.ThemeProvider theme={optionsMuiTheme}>
+    <M.ThemeProvider theme={theme}>
       <M.AppBar position="static">
         <M.Toolbar variant="dense">
           <T variant="h6">옵션 / Options</T>

@@ -8,13 +8,34 @@
   --default-font-size: 16px;
 }
 
+@media screen and (prefers-color-scheme: light) {
+  /* https://material-ui.com/customization/palette/#dark-mode */
+  :root {
+    --mui-color-text-primary: #000000de;
+    --mui-color-text-secondary: #0000008a;
+    --mui-color-text-disabled: #00000038;
+    --mui-color-background-default: #fafafa;
+    --mui-color-divider: #0000001f;
+  }
+}
+
+@media screen and (prefers-color-scheme: dark) {
+  :root {
+    --mui-color-text-primary: #fff;
+    --mui-color-text-secondary: #ffffffb3;
+    --mui-color-text-disabled: #ffffff80;
+    --mui-color-background-default: #303030;
+    --mui-color-divider: #ffffff1f;
+  }
+}
+
 body {
   margin: 0;
   padding: 0;
   font-size: var(--default-font-size);
   font-family: 'NanumGothic', 'Malgun Gothic', sans-serif;
-  background-color: white;
-  color: black;
+  background-color: var(--mui-color-background-default);
+  color: var(--mui-color-text-primary);
   line-height: 120%;
 }
 
@@ -23,12 +44,7 @@ a:visited {
   color: crimson;
 }
 
-fieldset {
-  border: 1px solid #ccc;
-  margin: 1em 0;
-}
-
 hr {
-  border-top: 1px solid #ccc;
+  border-top: 1px solid var(--mui-color-divider);
   border-bottom: 0;
 }

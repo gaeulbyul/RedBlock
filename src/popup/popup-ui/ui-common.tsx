@@ -10,6 +10,16 @@ export interface DialogContent {
   callbackOnCancel: () => void
 }
 
+export function RedBlockUITheme(darkMode: boolean) {
+  return MaterialUI.createMuiTheme({
+    palette: {
+      type: darkMode ? 'dark' : 'light',
+      primary: MaterialUI.colors.pink,
+      secondary: darkMode ? MaterialUI.colors.lightBlue : MaterialUI.colors.indigo,
+    },
+  })
+}
+
 export function RBDialog(props: { isOpen: boolean; content: DialogContent | null; closeModal: () => void }) {
   const { isOpen, content, closeModal } = props
   if (!content) {
