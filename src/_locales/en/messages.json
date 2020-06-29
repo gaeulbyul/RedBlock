@@ -535,5 +535,8 @@
   },
   "use_official_block_api_warning": {
     "message": "Caution: Blocking over 500 users may cause force-logout or account suspension."
+  },
+  "open_new_tab_for_file_picker": {
+    "message": "If the Red Block's UI closes while selecting a file, please open UI in tab."
   }
 }

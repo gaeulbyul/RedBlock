@@ -1,4 +1,5 @@
-import { SnackBarContext } from './contexts.js'
+﻿import { SnackBarContext } from './contexts.js'
+import { PageEnum } from '../popup.js'
 import * as i18n from '../../scripts/i18n.js'
 
 import { importBlocklist } from '../../scripts/background/blocklist-process.js'
@@ -6,18 +7,10 @@ import { importBlocklist } from '../../scripts/background/blocklist-process.js'
 const M = MaterialUI
 const T = MaterialUI.Typography
 
-//const useStylesForBlocklistImportUI = MaterialUI.makeStyles(() =>
-//  MaterialUI.createStyles({
-//    fullWidth: {
-//      width: '100%',
-//    },
-//  })
-//)
-
 export default function BlocklistPage() {
   const snackBarCtx = React.useContext(SnackBarContext)
   const [fileInput] = React.useState(React.createRef<HTMLInputElement>())
-  const onSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
+  async function onSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault()
     const files = fileInput.current!.files
     if (!(files && files.length > 0)) {
@@ -27,6 +20,14 @@ export default function BlocklistPage() {
     const file = files[0]
     const text = await file.text()
     importBlocklist(text)
+  }
+  async function openPopupUIInTab(event: React.MouseEvent<HTMLButtonElement, MouseEvent>) {
+    event.preventDefault()
+    browser.tabs.create({
+      active: true,
+      url: `/popup/popup.html?istab=1&page=${PageEnum.Blocklist}`,
+    })
+    window.close()
   }
   return (
     <M.ExpansionPanel defaultExpanded>
@@ -54,7 +55,15 @@ export default function BlocklistPage() {
               </M.Box>
             </M.FormControl>
           </form>
-          <div className="description">{i18n.getMessage('blocklist_import_description')}</div>
+          <div className="description">
+            <p>{i18n.getMessage('blocklist_import_description')}</p>
+            <div className="hide-on-tab">
+              <p style={{ fontWeight: 'bold' }}>⚠ {i18n.getMessage('open_new_tab_for_file_picker')}</p>
+              <M.Button type="button" variant="outlined" component="button" onClick={openPopupUIInTab}>
+                {i18n.getMessage('open_in_new_tab')}
+              </M.Button>
+            </div>
+          </div>
         </div>
       </M.ExpansionPanelDetails>
     </M.ExpansionPanel>

@@ -82,6 +82,11 @@ hr {
   margin-top: 55px;
 }
 
+.ui-popup .hide-on-popup,
+.ui-tab .hide-on-tab {
+  display: none;
+}
+
 .Mui-checked span.MuiFormControlLabel-label.MuiTypography-body1 {
   font-weight: bold;
 }

@@ -48,7 +48,6 @@ export async function importBlocklist(text: string) {
   if (!isValid) {
     throw new Error('error to parse blocklist')
   }
-  debugger
   startImportChainBlock({
     purpose: 'chainblock',
     target: {

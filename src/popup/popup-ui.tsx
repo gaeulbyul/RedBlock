@@ -29,11 +29,12 @@ interface PopupAppProps {
   currentUser: TwitterAPI.TwitterUser | null
   currentTweet: TwitterAPI.Tweet | null
   popupAsTab: boolean
+  initialPage: PageEnum
   redblockOptions: RedBlockStorage['options']
 }
 function PopupApp(props: PopupAppProps) {
-  const { currentUser, currentTweet, popupAsTab, redblockOptions } = props
-  const [tabIndex, setTabIndex] = React.useState<PageEnum>(PageEnum.Sessions)
+  const { currentUser, currentTweet, popupAsTab, initialPage, redblockOptions } = props
+  const [tabIndex, setTabIndex] = React.useState<PageEnum>(initialPage)
   const [sessions, setSessions] = React.useState<SessionInfo[]>([])
   const [modalOpened, setModalOpened] = React.useState(false)
   const [modalContent, setModalContent] = React.useState<DialogContent | null>(null)
@@ -253,6 +254,14 @@ export async function initializeUI() {
   const redblockOptions = await loadOptions()
   const tab = await getCurrentTab()
   const isPopupOpenedAsTab = /\bistab=1\b/.test(location.search)
+
+  let initialPage: PageEnum
+  const initialPageMatch = /\bpage=([0-4])\b/.exec(location.search)
+  if (initialPageMatch) {
+    initialPage = parseInt(initialPageMatch[1]) as PageEnum
+  } else {
+    initialPage = PageEnum.Sessions
+  }
   const userName = tab ? getUserNameFromTab(tab) : null
   const tweetId = tab ? getTweetIdFromTab(tab) : null
   const appRoot = document.getElementById('app')!
@@ -268,6 +277,7 @@ export async function initializeUI() {
       currentUser={currentUser}
       currentTweet={currentTweet}
       popupAsTab={isPopupOpenedAsTab}
+      initialPage={initialPage}
       redblockOptions={redblockOptions}
     />
   )

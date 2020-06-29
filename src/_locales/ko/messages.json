@@ -535,5 +535,8 @@
   },
   "use_official_block_api_warning": {
     "message": "주의: 차단횟수가 누적 500회를 넘으면 강제로그아웃이나 계정 일시정지 등의 현상이 나타날 수 있습니다."
+  },
+  "open_new_tab_for_file_picker": {
+    "message": "만약 파일을 선택하는 도중 레드블락의 UI가 닫힌다면, 팝업을 새 탭으로 열어서 다시 시도해보세요."
   }
 }
