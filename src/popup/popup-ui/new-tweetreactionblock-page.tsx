@@ -1,6 +1,6 @@
 // import * as Storage from '../../scripts/background/storage.js'
 import * as i18n from '../../scripts/i18n.js'
-import { startTweetReactionChainBlock } from '../popup.js'
+import { startTweetReactionChainBlock } from '../../scripts/background/request-sender.js'
 
 type SessionOptions = TweetReactionBlockSessionRequest['options']
 

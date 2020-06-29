@@ -1,19 +1,14 @@
 import { getUserNameFromURL } from '../scripts/common.js'
 
-export {
-  startFollowerChainBlock,
-  startTweetReactionChainBlock,
-  startImportChainBlock,
-  stopAllChainBlock,
-  stopChainBlock,
-  cancelChainBlock,
-  insertUserToStorage,
-  removeUserFromStorage,
-  requestProgress,
-  cleanupInactiveSessions,
-} from '../scripts/background/request-sender.js'
-
 type Tab = browser.tabs.Tab
+
+export const enum PageEnum {
+  Sessions = 0,
+  NewSession = 1,
+  NewTweetReactionBlock = 2,
+  Blocklist = 3,
+  Utilities = 4,
+}
 
 export async function toggleOneClickBlockMode(enabled: boolean) {
   const tab = await getCurrentTab()

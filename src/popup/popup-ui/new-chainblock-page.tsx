@@ -3,7 +3,11 @@ import * as TwitterAPI from '../../scripts/background/twitter-api.js'
 import { TwitterUser } from '../../scripts/background/twitter-api.js'
 import { TwitterUserMap, MAX_USER_LIMIT } from '../../scripts/common.js'
 import * as i18n from '../../scripts/i18n.js'
-import { insertUserToStorage, removeUserFromStorage, startFollowerChainBlock } from '../popup.js'
+import {
+  insertUserToStorage,
+  removeUserFromStorage,
+  startFollowerChainBlock,
+} from '../../scripts/background/request-sender.js'
 import { DialogContext, SnackBarContext, RedBlockOptionsContext } from './contexts.js'
 import { TabPanel } from './ui-common.js'
 

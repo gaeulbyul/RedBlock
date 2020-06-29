@@ -1,16 +1,18 @@
+import { requestProgress } from '../scripts/background/request-sender.js'
+import { loadOptions, RedBlockStorage } from '../scripts/background/storage.js'
 import * as TwitterAPI from '../scripts/background/twitter-api.js'
-import { getCurrentTab, getUserNameFromTab, getTweetIdFromTab, requestProgress } from './popup.js'
+import { isRunningSession, UI_UPDATE_DELAY } from '../scripts/common.js'
+import * as i18n from '../scripts/i18n.js'
+
+import BlocklistPage from './popup-ui/blocklist-page.js'
 import ChainBlockSessionsPage from './popup-ui/chainblock-sessions-page.js'
+import { DialogContext, PageSwitchContext, RedBlockOptionsContext, SnackBarContext } from './popup-ui/contexts.js'
+import MiscPage from './popup-ui/misc-page.js'
 import NewChainBlockPage from './popup-ui/new-chainblock-page.js'
 import NewTweetReactionBlockPage from './popup-ui/new-tweetreactionblock-page.js'
-import BlocklistPage from './popup-ui/blocklist-page.js'
-import MiscPage from './popup-ui/misc-page.js'
-import { DialogContext, SnackBarContext, PageSwitchContext, RedBlockOptionsContext } from './popup-ui/contexts.js'
-import { RBDialog, TabPanel, DialogContent, RedBlockUITheme } from './popup-ui/ui-common.js'
+import { DialogContent, RBDialog, RedBlockUITheme, TabPanel } from './popup-ui/ui-common.js'
 
-import { RedBlockStorage, loadOptions } from '../scripts/background/storage.js'
-import { PageEnum, UI_UPDATE_DELAY, isRunningSession } from '../scripts/common.js'
-import * as i18n from '../scripts/i18n.js'
+import { getCurrentTab, getTweetIdFromTab, getUserNameFromTab, PageEnum } from './popup.js'
 
 const useStylesForAppBar = MaterialUI.makeStyles(() =>
   MaterialUI.createStyles({

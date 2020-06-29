@@ -1,4 +1,4 @@
-import { PageEnum } from '../common.js'
+import { PageEnum } from '../../popup/popup.js'
 import { alertToCurrentTab } from './background.js'
 import ChainBlocker, { TargetCheckResult } from './chainblock.js'
 import * as Storage from './storage.js'

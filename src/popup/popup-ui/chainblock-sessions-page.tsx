@@ -1,11 +1,6 @@
-import {
-  PageEnum,
-  isRunningSession,
-  SessionStatus,
-  getLimitResetTime,
-  getCountOfUsersToBlock,
-} from '../../scripts/common.js'
-import { cleanupInactiveSessions, stopAllChainBlock, stopChainBlock } from '../popup.js'
+import { isRunningSession, SessionStatus, getLimitResetTime, getCountOfUsersToBlock } from '../../scripts/common.js'
+import { PageEnum } from '../popup.js'
+import { cleanupInactiveSessions, stopAllChainBlock, stopChainBlock } from '../../scripts/background/request-sender.js'
 import { DialogContext, PageSwitchContext } from './contexts.js'
 import { statusToString } from '../../scripts/text-generate.js'
 import * as i18n from '../../scripts/i18n.js'

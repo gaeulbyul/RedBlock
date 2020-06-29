@@ -1,4 +1,4 @@
-import { PageEnum } from '../../scripts/common.js'
+import { PageEnum } from '../popup.js'
 import type { DialogContent } from './ui-common.js'
 import { defaultOptions } from '../../scripts/background/storage.js'
 
