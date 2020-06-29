@@ -4,6 +4,15 @@ import * as i18n from '../../scripts/i18n.js'
 import { importBlocklist } from '../../scripts/background/blocklist-process.js'
 
 const M = MaterialUI
+const T = MaterialUI.Typography
+
+//const useStylesForBlocklistImportUI = MaterialUI.makeStyles(() =>
+//  MaterialUI.createStyles({
+//    fullWidth: {
+//      width: '100%',
+//    },
+//  })
+//)
 
 export default function BlocklistPage() {
   const snackBarCtx = React.useContext(SnackBarContext)
@@ -20,27 +29,34 @@ export default function BlocklistPage() {
     importBlocklist(text)
   }
   return (
-    <M.Box padding="10px">
-      <form onSubmit={onSubmit}>
-        <M.FormControl component="fieldset">
-          <M.FormLabel component="legend">{i18n.getMessage('import_blocklist')}</M.FormLabel>
-          <div>
-            <input
-              required
-              ref={fileInput}
-              id="input-file-to-import"
-              name="input-file"
-              type="file"
-              accept="text/plain,text/csv,application/json,.CSV"
-            />
-            <br />
-            <M.Button type="submit" variant="contained" color="primary" component="button">
-              {i18n.getMessage('import')}
-            </M.Button>
-          </div>
-        </M.FormControl>
-      </form>
-      <div className="description">{i18n.getMessage('blocklist_import_description')}</div>
-    </M.Box>
+    <M.ExpansionPanel defaultExpanded>
+      <M.ExpansionPanelSummary>
+        <T>{i18n.getMessage('import_blocklist')}</T>
+      </M.ExpansionPanelSummary>
+      <M.ExpansionPanelDetails>
+        <div style={{ width: '100%' }}>
+          <form onSubmit={onSubmit}>
+            <M.FormControl component="fieldset" fullWidth>
+              <M.Box display="flex" flexDirection="row" alignItems="center" justifyContent="space-between">
+                <M.Box flexGrow="1">
+                  <input
+                    required
+                    ref={fileInput}
+                    id="input-file-to-import"
+                    name="input-file"
+                    type="file"
+                    accept="text/plain,text/csv,application/json,.CSV"
+                  />
+                </M.Box>
+                <M.Button type="submit" variant="contained" color="primary" component="button">
+                  {i18n.getMessage('import')}
+                </M.Button>
+              </M.Box>
+            </M.FormControl>
+          </form>
+          <div className="description">{i18n.getMessage('blocklist_import_description')}</div>
+        </div>
+      </M.ExpansionPanelDetails>
+    </M.ExpansionPanel>
   )
 }

@@ -266,12 +266,11 @@ function TargetChainBlockOptionsUI() {
 
 function TargetUserSelectUI(props: { isAvailable: boolean }) {
   const { isAvailable } = props
-  const { currentUser, targetList, selectedUser, setSelectedUser, selectedMode } = React.useContext(TargetUserContext)
+  const { currentUser, targetList, selectedUser, setSelectedUser } = React.useContext(TargetUserContext)
   const { openModal } = React.useContext(DialogContext)
   const [savedUsers, setSavedUsers] = React.useState(new TwitterUserMap())
   const [selectedUserGroup, selectUserGroup] = React.useState<SelectUserGroup>('current')
   const [isLoading, setLoadingState] = React.useState(false)
-  const localizedMode = i18n.getMessage(selectedMode)
   async function changeUser(userName: string, group: SelectUserGroup) {
     const validUserNamePattern = /^[0-9a-z_]{1,15}$/i
     if (!validUserNamePattern.test(userName)) {
@@ -336,7 +335,7 @@ function TargetUserSelectUI(props: { isAvailable: boolean }) {
     <M.ExpansionPanel defaultExpanded>
       <DenseExpansionPanelSummary expandIcon={<M.Icon>expand_more</M.Icon>}>
         <T>
-          {i18n.getMessage('target')} ({localizedMode} / {targetSummary})
+          {i18n.getMessage('target')} ({targetSummary})
         </T>
       </DenseExpansionPanelSummary>
       <M.ExpansionPanelDetails className={classes.details}>
@@ -407,6 +406,7 @@ function TargetOptionsUI() {
           <M.Divider />
           <TabPanel value={selectedMode} index={'chainblock'}>
             <TargetChainBlockOptionsUI />
+            <M.Divider />
             <div className="description">
               {i18n.getMessage('chainblock_description')} {i18n.getMessage('my_mutual_followers_wont_block')}
               <div className="wtf">{cautionOnMassiveBlock}</div>

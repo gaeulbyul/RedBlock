@@ -12,13 +12,6 @@ import { RedBlockStorage, loadOptions } from '../scripts/background/storage.js'
 import { PageEnum, UI_UPDATE_DELAY, isRunningSession } from '../scripts/common.js'
 import * as i18n from '../scripts/i18n.js'
 
-const popupMuiTheme = MaterialUI.createMuiTheme({
-  palette: {
-    primary: MaterialUI.colors.pink,
-    secondary: MaterialUI.colors.indigo,
-  },
-})
-
 const useStylesForAppBar = MaterialUI.makeStyles(() =>
   MaterialUI.createStyles({
     toolbar: {
@@ -45,6 +38,18 @@ function PopupApp(props: PopupAppProps) {
   const [snackBarMessage, setSnackBarMessage] = React.useState('')
   const [snackBarOpen, setSnackBarOpen] = React.useState(false)
   const [menuAnchorEl, setMenuAnchorEl] = React.useState<HTMLElement | null>(null)
+  const darkMode = MaterialUI.useMediaQuery('(prefers-color-scheme:dark)')
+  const theme = React.useMemo(
+    () =>
+      MaterialUI.createMuiTheme({
+        palette: {
+          type: darkMode ? 'dark' : 'light',
+          primary: MaterialUI.colors.pink,
+          secondary: darkMode ? MaterialUI.colors.lightBlue : MaterialUI.colors.indigo,
+        },
+      }),
+    [darkMode]
+  )
   const classes = useStylesForAppBar()
   function openModal(content: DialogContent) {
     console.debug(content)
@@ -160,7 +165,7 @@ function PopupApp(props: PopupAppProps) {
     </M.Badge>
   )
   return (
-    <M.ThemeProvider theme={popupMuiTheme}>
+    <M.ThemeProvider theme={theme}>
       <SnackBarContext.Provider value={{ snack }}>
         <DialogContext.Provider value={{ openModal }}>
           <RedBlockOptionsContext.Provider value={redblockOptions}>

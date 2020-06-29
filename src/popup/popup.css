@@ -7,24 +7,26 @@
 :root {
   --default-font-size: 16px;
   --popup-width: 550px;
-  --rb-background-color: white;
-  --rb-text-color: black;
-  --rb-alt1-color: #333;
-  --rb-alt2-color: #666;
-  --rb-alt3-color: #999;
-  --rb-alt4-color: #ccc;
-  --rb-alt5-color: #fff;
 }
 
-@media screen and (prefer-color-scheme: dark) {
+@media screen and (prefers-color-scheme: light) {
+  /* https://material-ui.com/customization/palette/#dark-mode */
   :root {
-    --rb-background-color: #10171e;
-    --rb-text-color: white;
-    --rb-alt1-color: #ccc;
-    --rb-alt2-color: #999;
-    --rb-alt3-color: #666;
-    --rb-alt4-color: #333;
-    --rb-alt5-color: #000;
+    --mui-color-text-primary: #000000de;
+    --mui-color-text-secondary: #0000008a;
+    --mui-color-text-disabled: #00000038;
+    --mui-color-background-default: #fafafa;
+    --mui-color-divider: #0000001f;
+  }
+}
+
+@media screen and (prefers-color-scheme: dark) {
+  :root {
+    --mui-color-text-primary: #fff;
+    --mui-color-text-secondary: #ffffffb3;
+    --mui-color-text-disabled: #ffffff80;
+    --mui-color-background-default: #303030;
+    --mui-color-divider: #ffffff1f;
   }
 }
 
@@ -48,31 +50,13 @@ body {
   word-break: keep-all;
   font-size: var(--default-font-size);
   font-family: 'NanumGothic', 'Malgun Gothic', sans-serif;
-}
-
-body,
-.whole {
-  background-color: var(--rb-background-color);
-  color: var(--rb-text-color);
-}
-
-a,
-a:visited {
-  color: crimson;
+  background-color: var(--mui-color-background-default);
+  color: var(--mui-color-text-primary);
 }
 
 hr {
-  border-top: 1px solid var(--rb-alt4-color);
+  border-top: 1px solid;
   border-bottom: 0;
-}
-
-legend {
-  color: var(--rb-text-color);
-}
-
-input[type='checkbox'],
-input[type='radio'] {
-  margin: 0 0.2rem 0 0;
 }
 
 .ellipsis {
@@ -122,11 +106,10 @@ input[type='radio'] {
 .profile-right-info .nickname {
   font-size: larger;
   font-weight: bold;
-  color: var(--rb-alt1-color);
 }
 
 .profile-right-info .username a {
-  color: var(--rb-alt2-color);
+  color: inherit;
 }
 
 .profile-image {
@@ -140,107 +123,10 @@ input[type='radio'] {
 }
 
 .description {
-  margin: 5px 0;
-  padding: 5px 10px;
   word-break: keep-all;
-  border-radius: 5px;
-  line-height: 150%;
-  background-color: aliceblue;
-  color: navy;
-  font-size: 14px;
-}
-
-.description mark {
-  display: inline-block;
-  padding: 0 0.5rem;
-  background-color: gold;
-  color: black;
-  font-weight: bold;
-}
-
-@media screen and (prefer-color-scheme: dark) {
-  .description {
-    background-color: black;
-    color: white;
-  }
-}
-
-.menu-item {
-  width: 100%;
-  padding: 15px;
-  margin: 3px 0;
-  border-radius: 30px;
-  border: 1px solid gray;
-  font-size: larger;
-  background-color: var(--rb-background-color);
-  color: black;
-  cursor: pointer;
-}
-
-.menu-item:disabled {
-  opacity: 0.3;
-  cursor: not-allowed;
-}
-
-.menu-item.huge-button {
-  border: 0;
-  color: white;
-  font-weight: bold;
-  opacity: 0.7;
-  transition: opacity 300ms;
-}
-
-.menu-item.huge-button:focus,
-.menu-item.huge-button:hover {
-  opacity: 1;
-}
-
-.menu-item.huge-button:disabled {
-  filter: saturate(0%);
-}
-
-.menu-item.execute-chainblock {
-  background-color: crimson;
-  color: white;
-  box-shadow: 0 0 10px 5px #f063;
-}
-
-.menu-item.execute-unchainblock {
-  background-color: seagreen;
-  color: white;
-  box-shadow: 0 0 10px 5px #0903;
-}
-
-.chainblock-globalcontrols button:focus,
-.chainblock-globalcontrols button:hover {
-  background-color: #333;
-  color: white;
-}
-
-.chainblock-sessions .session {
-  border: 1px solid var(--rb-alt4-color);
-  border-radius: 5px;
   margin: 10px 0;
-  padding: 5px;
-}
-
-.chainblock-sessions .controls {
-  text-align: right;
-}
-
-.session-status {
-  font-size: smaller;
-}
-
-.detail-progress {
-  padding-left: 20px;
-  margin: 0;
   line-height: 150%;
-  list-style-type: square;
-}
-
-.chainblock-suggest-start {
-  text-align: center;
+  font-size: 14px;
 }
 
 .modal-content {
@@ -259,12 +145,10 @@ input[type='radio'] {
 
 .wtf {
   font-size: smaller;
-  color: maroon;
 }
 
 .massive-block-warning {
   font-size: smaller;
-  color: maroon;
 }
 
 .warning {
@@ -278,11 +162,7 @@ input[type='radio'] {
 
 footer.info {
   padding: 10px 20px;
-  border-top: 1px solid var(--rb-alt3-color);
+  border-top: 1px solid var(--mui-color-divider);
   text-align: right;
   font-size: small;
-}
-
-.current-version {
-  color: var(--rb-alt1-color);
 }
