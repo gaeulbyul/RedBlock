@@ -171,15 +171,21 @@ export default class ChainBlockSession {
     const multiBlocker = new BlockAllAPIBlocker()
     const { target } = this.request
     let apiKind: ApiKind
+    // 트윗반응 체인블락은 수집할 수 있는 수가 적으므로
+    // 굳이 block_all API를 타지 않아도 안전할 듯.
+    let blockMethod: 'standard-api' | 'block-all-api'
     switch (target.type) {
       case 'follower':
         apiKind = target.list
+        blockMethod = 'block-all-api'
         break
       case 'tweetReaction':
         apiKind = 'tweet-reactions'
+        blockMethod = 'standard-api'
         break
       case 'import':
         apiKind = 'lookup-users'
+        blockMethod = 'block-all-api'
         break
     }
     const incrementSuccess = (v: VerbSomething) => this.sessionInfo.progress.success[v]++
@@ -244,11 +250,8 @@ export default class ChainBlockSession {
             this.sessionInfo.progress.already++
             continue
           }
-          // 트윗반응 체인블락은 수집할 수 있는 수가 적으므로
-          // 굳이 block_all API를 타지 않아도 안전할 듯.
-          // 따라서 팔로워 체인블락에만 block_all API를 사용한다.
           const shouldUseMultiBlocker =
-            whatToDo === 'Block' && !this.options.useStandardBlockAPI && this.request.target.type === 'follower'
+            whatToDo === 'Block' && !this.options.useStandardBlockAPI && blockMethod === 'block-all-api'
           if (shouldUseMultiBlocker) {
             multiBlocker.add(user)
           } else {
