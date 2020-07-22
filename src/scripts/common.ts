@@ -219,6 +219,11 @@ export function wrapEitherRight<T>(value: T): EitherRight<T> {
   }
 }
 
+export function assertNever(shouldBeNever: never) {
+  console.error('triggered assertNever with: ', shouldBeNever)
+  throw new Error('unreachable: assertNever')
+}
+
 /*
 function* resumableIterate<T>(generator: Generator<T>) {
   while (true) {

@@ -7,6 +7,7 @@ import {
   insertUserToStorage,
   removeUserFromStorage,
   startFollowerChainBlock,
+  refreshSavedUsers,
 } from '../../scripts/background/request-sender.js'
 import { DialogContext, SnackBarContext, RedBlockOptionsContext } from './contexts.js'
 import { TabPanel } from './ui-common.js'
@@ -90,6 +91,10 @@ function TargetSavedUsers(props: {
       snackBarCtx.snack(i18n.getMessage('user_xxx_removed', selectedUser.screen_name))
     }
   }
+  async function requestRefreshSavedUsers() {
+    refreshSavedUsers()
+    snackBarCtx.snack(i18n.getMessage('refreshing_saved_users'))
+  }
   const sortedByName = (usersMap: TwitterUserMap): TwitterUser[] =>
     _.sortBy(usersMap.toUserArray(), user => user.screen_name.toLowerCase())
   const selectUserFromOption = (elem: EventTarget) => {
@@ -153,6 +158,9 @@ function TargetSavedUsers(props: {
             </M.Button>
             <M.Button disabled={selectedUserGroup !== 'saved'} onClick={removeUser} startIcon={<M.Icon>delete</M.Icon>}>
               {i18n.getMessage('remove')}
+            </M.Button>
+            <M.Button onClick={requestRefreshSavedUsers} startIcon={<M.Icon>refresh</M.Icon>}>
+              {i18n.getMessage('refresh')}
             </M.Button>
           </M.ButtonGroup>
         </M.Box>

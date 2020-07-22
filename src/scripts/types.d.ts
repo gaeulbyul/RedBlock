@@ -99,6 +99,10 @@ declare namespace RBActions {
     cleanupWhat: 'inactive' | 'not-confirmed'
   }
 
+  interface RefreshSavedUsers {
+    actionType: 'RefreshSavedUsers'
+  }
+
   interface BlockSingleUser {
     actionType: 'BlockSingleUser'
     user: TwitterUser
@@ -124,6 +128,7 @@ type RBAction =
   | RBActions.RemoveUserFromStorage
   | RBActions.RequestProgress
   | RBActions.RequestCleanup
+  | RBActions.RefreshSavedUsers
   | RBActions.BlockSingleUser
   | RBActions.UnblockSingleUser
 

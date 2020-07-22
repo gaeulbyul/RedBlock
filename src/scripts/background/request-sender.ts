@@ -79,3 +79,9 @@ export async function removeUserFromStorage(user: TwitterUser) {
     user,
   })
 }
+
+export async function refreshSavedUsers() {
+  return browser.runtime.sendMessage<RBActions.RefreshSavedUsers>({
+    actionType: 'RefreshSavedUsers',
+  })
+}

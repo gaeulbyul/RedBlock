@@ -5,8 +5,10 @@ import * as Storage from './storage.js'
 import * as TwitterAPI from './twitter-api.js'
 import * as i18n from '../i18n.js'
 import * as TextGenerator from '../text-generate.js'
+import { refreshSavedUsers } from './misc.js'
 import { initializeContextMenu } from './context-menu.js'
 import { initializeWebRequest } from './webrequest.js'
+import { assertNever } from '../common.js'
 // import { checkFollowerBlockTarget, checkTweetReactionBlockTarget } from './chainblock-session/session.js'
 
 let storageQueue = Promise.resolve()
@@ -164,6 +166,12 @@ function handleExtensionMessage(message: RBAction, _sender: browser.runtime.Mess
       break
     case 'UnblockSingleUser':
       TwitterAPI.unblockUser(message.user)
+      break
+    case 'RefreshSavedUsers':
+      refreshSavedUsers()
+      break
+    default:
+      assertNever(message)
       break
   }
 }

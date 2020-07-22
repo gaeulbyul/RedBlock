@@ -179,6 +179,9 @@
   "remove": {
     "message": "Remove"
   },
+  "refresh": {
+    "message": "Refresh"
+  },
   "user_not_selected": {
     "message": "Select target user to run Chainblock on"
   },
@@ -538,5 +541,8 @@
   },
   "open_new_tab_for_file_picker": {
     "message": "If the Red Block's UI closes while selecting a file, please open UI in tab."
+  },
+  "refreshing_saved_users": {
+    "message": "Refreshing saved user's profile data"
   }
 }
