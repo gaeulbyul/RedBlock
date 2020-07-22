@@ -73,7 +73,7 @@ function TargetSavedUsers(props: {
   currentUser: TwitterUser | null
   selectedUserGroup: SelectUserGroup
   savedUsers: TwitterUserMap
-  changeUser: (userName: string, group: SelectUserGroup) => Promise<void>
+  changeUser: (userId: string, userName: string, group: SelectUserGroup) => Promise<void>
 }) {
   const { currentUser, selectedUserGroup, savedUsers, changeUser } = props
   const snackBarCtx = React.useContext(SnackBarContext)
@@ -98,12 +98,13 @@ function TargetSavedUsers(props: {
     }
     const selectedOption = elem.selectedOptions[0]
     const group = selectedOption.getAttribute('data-group') as SelectUserGroup
+    const userId = selectedOption.getAttribute('data-userid')!
     const userName = selectedOption.getAttribute('data-username')!
-    changeUser(userName, group)
+    changeUser(userId, userName, group)
   }
-  const currentUserOption = ({ screen_name, name }: TwitterUser) => (
+  const currentUserOption = ({ id_str, screen_name, name }: TwitterUser) => (
     <optgroup label={i18n.getMessage('current_user')}>
-      <option value={`current/${screen_name}`} data-group="current" data-username={screen_name}>
+      <option value={`current/${id_str}`} data-group="current" data-userid={id_str} data-username={screen_name}>
         @{screen_name} &lt;{name}&gt;
       </option>
     </optgroup>
@@ -118,16 +119,22 @@ function TargetSavedUsers(props: {
           native
           id="target-user-select"
           fullWidth
-          value={selectedUser ? `${selectedUserGroup}/${selectedUser.screen_name}` : 'invalid/???'}
+          value={selectedUser ? `${selectedUserGroup}/${selectedUser.id_str}` : 'invalid/???'}
           onChange={({ target }) => selectUserFromOption(target)}
         >
-          <option value="invalid/???" data-group="invalid" data-username="???">
+          <option value="invalid/???" data-group="invalid" data-userid="???" data-username="???">
             {i18n.getMessage('user_not_selected')}
           </option>
           {currentUser && currentUserOption(currentUser)}
           <optgroup label={i18n.getMessage('saved_user')}>
-            {sortedByName(savedUsers).map(({ screen_name, name }, index) => (
-              <option key={index} value={'saved/' + screen_name} data-group="saved" data-username={screen_name}>
+            {sortedByName(savedUsers).map(({ id_str, screen_name, name }, index) => (
+              <option
+                key={index}
+                value={'saved/' + id_str}
+                data-group="saved"
+                data-userid={id_str}
+                data-username={screen_name}
+              >
                 @{screen_name} &lt;{name}&gt;
               </option>
             ))}
@@ -275,16 +282,15 @@ function TargetUserSelectUI(props: { isAvailable: boolean }) {
   const [savedUsers, setSavedUsers] = React.useState(new TwitterUserMap())
   const [selectedUserGroup, selectUserGroup] = React.useState<SelectUserGroup>('current')
   const [isLoading, setLoadingState] = React.useState(false)
-  async function changeUser(userName: string, group: SelectUserGroup) {
-    const validUserNamePattern = /^[0-9a-z_]{1,15}$/i
-    if (!validUserNamePattern.test(userName)) {
+  async function changeUser(userId: string, userName: string, group: SelectUserGroup) {
+    if (!/^\d+$/.test(userId)) {
       setSelectedUser(null)
       selectUserGroup('invalid')
       return
     }
     try {
       setLoadingState(true)
-      const newUser = await getUserByNameWithCache(userName).catch(() => null)
+      const newUser = await getUserByIdWithCache(userId).catch(() => null)
       if (newUser) {
         setSelectedUser(newUser)
         selectUserGroup(group)
@@ -506,14 +512,13 @@ function TargetExecutionButtonUI(props: { isAvailable: boolean }) {
   )
 }
 
-const userCache = new Map<string, TwitterUser>()
-async function getUserByNameWithCache(userName: string): Promise<TwitterUser> {
-  const key = userName.replace(/^@/, '').toLowerCase()
-  if (userCache.has(key)) {
-    return userCache.get(key)!
+const userCache = new TwitterUserMap()
+async function getUserByIdWithCache(userId: string): Promise<TwitterUser> {
+  if (userCache.has(userId)) {
+    return userCache.get(userId)!
   }
-  const user = await TwitterAPI.getSingleUserByName(key)
-  userCache.set(user.screen_name, user)
+  const user = await TwitterAPI.getSingleUserById(userId)
+  userCache.addUser(user)
   return user
 }
 
