@@ -2,6 +2,7 @@
 
 - Firefox: https://addons.mozilla.org/en-US/firefox/addon/red-block/
 - Chrome/Chromium: https://chrome.google.com/webstore/detail/red-block/knjpopecjigkkaddmoahjcfpbgedkibf
+- Edge: https://microsoftedge.microsoft.com/addons/detail/red-block/pfafjkemefoedhcdlhbniejjealpglbj
 
 Red Block(레드블락)은 트위터에서 특정 사용자의 팔로워를 일괄적으로 차단하는 [Twitter Block Chain](https://github.com/satsukitv/twitter-block-chain) (aka. 체인블락)이나 [BlockThemAll](https://github.com/u1-liquid/BlockThemAll)을 대체할 수 있는 웹 브라우저 확장기능입니다.
 
