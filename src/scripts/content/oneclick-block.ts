@@ -28,8 +28,8 @@ import { RedBlockStorage } from '../background/storage'
   }
 
   browser.storage.local.get('badWords').then(storage => {
-    const { badWords } = (storage as unknown) as RedBlockStorage
-    loadBadWords(badWords)
+    const { badWords } = (storage as unknown) as Partial<RedBlockStorage>
+    loadBadWords(badWords || [])
   })
 
   browser.storage.onChanged.addListener(changes => {
@@ -37,7 +37,7 @@ import { RedBlockStorage } from '../background/storage'
       return
     }
     const newBadWords = changes.badWords.newValue as BadWordItem[]
-    loadBadWords(newBadWords)
+    loadBadWords(newBadWords || [])
   })
 
   function checkBadWord(text: string): BadWordItem | null {
