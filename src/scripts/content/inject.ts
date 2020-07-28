@@ -7,7 +7,7 @@ interface ReduxStore {
 {
   let reduxStore: ReduxStore
   let myselfUserId = ''
-  function dig<T>(obj: () => T): T | null {
+  function dig(obj: () => unknown): unknown {
     try {
       return obj()
     } catch (err) {
@@ -106,16 +106,23 @@ interface ReduxStore {
     }
     // tweet-detail
     const parentReh = getReactEventHandlers(article.parentElement)
-    const maybeTweetId1 = dig<string>(() => parentReh.children.props.entry.entryId)
-    const maybeTweetId1Match = /^tweet-(\d+)$/.exec(maybeTweetId1 || '')
-    if (maybeTweetId1Match) {
-      return maybeTweetId1Match[1]
+    const maybeTweetId1 = dig(() => parentReh.children.props.entry.entryId)
+    if (typeof maybeTweetId1 === 'string') {
+      const maybeTweetId1Match = /^tweet-(\d+)$/.exec(maybeTweetId1 || '')
+      if (maybeTweetId1Match) {
+        return maybeTweetId1Match[1]
+      }
     }
-    // tweet from timeline
-    const maybeTweetId2 = dig<string>(() => parentReh.children[0].props.link.pathname)
-    const maybeTweetId2Match = /\/status\/(\d+)$/.exec(maybeTweetId2 || '')
-    if (maybeTweetId2Match) {
-      return maybeTweetId2Match[1]
+    const permalink = elem.querySelector('a[href^="/"][href*="/status/"')
+    if (!(permalink instanceof HTMLAnchorElement)) {
+      return null
+    }
+    const maybeTimeElem = permalink.children[0]
+    if (maybeTimeElem.tagName === 'TIME') {
+      const maybeTweetId2Match = /\/status\/(\d+)$/.exec(permalink.pathname)
+      if (maybeTweetId2Match) {
+        return maybeTweetId2Match[1]
+      }
     }
     // 신고한 트윗이나 안 보이는 트윗 등의 경우, 여기서 트윗 ID를 못 찾는다.
     return null
