@@ -2,7 +2,7 @@ import { getUserNameFromURL } from '../common.js'
 import * as i18n from '../i18n.js'
 import { followerBlockDefaultOption, tweetReactionBlockDefaultOption } from './chainblock-session/session.js'
 import { loadOptions, onOptionsChanged } from './storage.js'
-import { getSingleUserByName, getTweetById } from './twitter-api.js'
+import * as TwitterAPI from './twitter-api.js'
 import { createChainBlockSession, confirmSession } from './entrypoint.js'
 import { checkResultToString } from '../text-generate.js'
 import { alertToCurrentTab } from './background.js'
@@ -17,7 +17,11 @@ function getTweetIdFromUrl(url: URL) {
 }
 
 async function sendFollowerChainBlockConfirm(tab: browser.tabs.Tab, userName: string, followKind: FollowKind) {
-  const user = await getSingleUserByName(userName)
+  const myself = await TwitterAPI.getMyself().catch(() => null)
+  if (!myself) {
+    return alertToCurrentTab(i18n.getMessage('error_occured_check_login'))
+  }
+  const user = await TwitterAPI.getSingleUserByName(userName)
   const request: FollowerBlockSessionRequest = {
     purpose: 'chainblock',
     options: followerBlockDefaultOption,
@@ -42,7 +46,11 @@ async function sendTweetReactionChainBlockConfirm(
   blockRetweeters: boolean,
   blockLikers: boolean
 ) {
-  const tweet = await getTweetById(tweetId)
+  const myself = await TwitterAPI.getMyself().catch(() => null)
+  if (!myself) {
+    return alertToCurrentTab(i18n.getMessage('error_occured_check_login'))
+  }
+  const tweet = await TwitterAPI.getTweetById(tweetId)
   const request: TweetReactionBlockSessionRequest = {
     purpose: 'chainblock',
     options: tweetReactionBlockDefaultOption,

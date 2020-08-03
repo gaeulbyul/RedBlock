@@ -544,5 +544,8 @@
   },
   "refreshing_saved_users": {
     "message": "저장한 사용자 목록의 프로필정보를 갱신합니다."
+  },
+  "please_check_login": {
+    "message": "레드블락을 사용하시려면 트위터에 로그인해주세요."
   }
 }

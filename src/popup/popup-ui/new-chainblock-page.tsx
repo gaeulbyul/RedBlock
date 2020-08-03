@@ -9,8 +9,8 @@ import {
   startFollowerChainBlock,
   refreshSavedUsers,
 } from '../../scripts/background/request-sender.js'
-import { DialogContext, SnackBarContext, RedBlockOptionsContext } from './contexts.js'
-import { TabPanel } from './ui-common.js'
+import { DialogContext, SnackBarContext, RedBlockOptionsContext, LoginStatusContext } from './contexts.js'
+import { TabPanel, PleaseLoginBox } from './ui-common.js'
 
 const M = MaterialUI
 const T = MaterialUI.Typography
@@ -559,6 +559,7 @@ const BigExecuteUnChainBlockButton = MaterialUI.withStyles(theme => ({
 
 export default function NewChainBlockPage(props: { currentUser: TwitterUser | null }) {
   const { currentUser } = props
+  const { loggedIn } = React.useContext(LoginStatusContext)
   const [targetOptions, setTargetOptions] = React.useState<SessionOptions>({
     myFollowers: 'Skip',
     myFollowings: 'Skip',
@@ -573,6 +574,9 @@ export default function NewChainBlockPage(props: { currentUser: TwitterUser | nu
     setTargetOptions(newOptions)
   }
   const isAvailable = React.useMemo((): boolean => {
+    if (!loggedIn) {
+      return false
+    }
     if (!selectedUser) {
       return false
     }
@@ -602,8 +606,14 @@ export default function NewChainBlockPage(props: { currentUser: TwitterUser | nu
       >
         <div className="chainblock-target">
           <TargetUserSelectUI isAvailable={isAvailable} />
-          <TargetOptionsUI />
-          <TargetExecutionButtonUI isAvailable={isAvailable} />
+          {loggedIn ? (
+            <div>
+              <TargetOptionsUI />
+              <TargetExecutionButtonUI isAvailable={isAvailable} />
+            </div>
+          ) : (
+            <PleaseLoginBox />
+          )}
         </div>
       </TargetUserContext.Provider>
     </div>

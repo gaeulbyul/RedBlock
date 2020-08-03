@@ -17,3 +17,7 @@ export const SnackBarContext = React.createContext({
 export const RedBlockOptionsContext = React.createContext({
   ...defaultOptions,
 })
+
+export const LoginStatusContext = React.createContext({
+  loggedIn: false,
+})

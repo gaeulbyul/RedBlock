@@ -21,10 +21,6 @@ Object.assign(window, {
 
 type SessionCreateResult = Either<TargetCheckResult, string>
 export async function createChainBlockSession(request: SessionRequest): Promise<SessionCreateResult> {
-  const myself = await TwitterAPI.getMyself().catch(() => null)
-  if (!myself) {
-    throw new Error(i18n.getMessage('error_occured_check_login'))
-  }
   const checkResult = chainblocker.checkTarget(request)
   if (checkResult !== TargetCheckResult.Ok) {
     return {

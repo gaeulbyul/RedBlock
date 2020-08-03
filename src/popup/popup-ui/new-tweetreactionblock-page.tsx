@@ -1,6 +1,8 @@
 // import * as Storage from '../../scripts/background/storage.js'
 import * as i18n from '../../scripts/i18n.js'
+import { LoginStatusContext } from './contexts.js'
 import { startTweetReactionChainBlock } from '../../scripts/background/request-sender.js'
+import { PleaseLoginBox } from './ui-common.js'
 
 type SessionOptions = TweetReactionBlockSessionRequest['options']
 
@@ -246,6 +248,7 @@ function TargetExecutionButtonUI() {
 
 export default function NewTweetReactionBlockPage(props: { currentTweet: Tweet | null }) {
   const { currentTweet } = props
+  const { loggedIn } = React.useContext(LoginStatusContext)
   const [targetOptions, setTargetOptions] = React.useState<SessionOptions>({
     myFollowers: 'Skip',
     myFollowings: 'Skip',
@@ -274,8 +277,14 @@ export default function NewTweetReactionBlockPage(props: { currentTweet: Tweet |
       >
         <div className="chainblock-target">
           <TargetTweetOuterUI />
-          <TargetOptionsUI />
-          <TargetExecutionButtonUI />
+          {loggedIn ? (
+            <div>
+              <TargetOptionsUI />
+              <TargetExecutionButtonUI />
+            </div>
+          ) : (
+            <PleaseLoginBox />
+          )}
         </div>
       </TargetTweetContext.Provider>
     </div>

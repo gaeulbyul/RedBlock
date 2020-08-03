@@ -77,7 +77,6 @@ export function RBDialog(props: { isOpen: boolean; content: DialogContent | null
 // from https://material-ui.com/components/tabs/#SimpleTabs.tsx
 export function TabPanel(props: { children?: React.ReactNode; index: any; value: any }) {
   const { children, value, index } = props
-  const M = MaterialUI
   return (
     <M.Typography
       component="div"
@@ -88,5 +87,27 @@ export function TabPanel(props: { children?: React.ReactNode; index: any; value:
     >
       {value === index && <M.Box p={1}>{children}</M.Box>}
     </M.Typography>
+  )
+}
+
+export function PleaseLoginBox() {
+  return (
+    <M.Paper>
+      <M.Box padding="12px 16px">
+        <M.Typography component="div">{i18n.getMessage('please_check_login')}</M.Typography>
+        <M.Box marginTop="10px">
+          <a
+            rel="noopener noreferer"
+            target="_blank"
+            href="https://twitter.com/login"
+            style={{ textDecoration: 'none' }}
+          >
+            <M.Button variant="outlined" startIcon={<M.Icon>exit_to_app</M.Icon>}>
+              Login
+            </M.Button>
+          </a>
+        </M.Box>
+      </M.Box>
+    </M.Paper>
   )
 }

@@ -97,13 +97,17 @@ hr {
   margin-top: 5px;
 }
 
+.profile-image-area,
+.profile-right-area {
+  margin-top: 5px;
+}
+
 .profile-image-area {
   margin-right: 10px;
 }
 
 .profile-right-area {
   overflow: hidden;
-  margin-top: 5px;
   width: 100%;
   line-height: 150%;
 }

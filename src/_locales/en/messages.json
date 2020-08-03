@@ -544,5 +544,8 @@
   },
   "refreshing_saved_users": {
     "message": "Refreshing saved user's profile data"
+  },
+  "please_check_login": {
+    "message": "You need to be logged in Twitter to use Red Block."
   }
 }
