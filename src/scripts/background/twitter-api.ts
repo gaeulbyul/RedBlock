@@ -442,6 +442,11 @@ export interface Tweet {
   favorited: boolean
   retweeted: boolean
   is_quote_status: boolean
+  quoted_status?: Tweet
+  quoted_status_permalink?: {
+    // url, display
+    expanded: string
+  }
   in_reply_to_status_id_str?: string
   in_reply_to_user_id_str?: string
   in_reply_to_screen_name?: string

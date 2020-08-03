@@ -155,40 +155,69 @@ interface ReduxStore {
   }
 
   function inspectTweetElement(elem: HTMLElement) {
+    const myselfUserId = getMyselfUserId()
     const tweetId = findTweetIdFromElement(elem)
     if (!tweetId) {
-      return
+      return null
     }
     const tweetEntity = getTweetEntityById(tweetId)
     if (!tweetEntity) {
-      return
+      return null
     }
     const user = getUserEntityById(tweetEntity.user)
     if (!user) {
-      return
+      return null
     }
-    if (user.id_str === getMyselfUserId()) {
-      return
+    if (user.id_str === myselfUserId) {
+      return null
     }
-    const tweet = Object.assign({}, tweetEntity, {
+    let quotedTweet: Tweet | null = null
+    if (tweetEntity.is_quote_status) {
+      const quotedTweetEntity = getTweetEntityById(tweetEntity.quoted_status!)
+      if (quotedTweetEntity) {
+        const user = getUserEntityById(quotedTweetEntity.user)
+        if (user && user.id_str !== myselfUserId) {
+          quotedTweet = Object.assign({}, quotedTweetEntity, {
+            user,
+          })
+        }
+      }
+    }
+    const tweet: Tweet = Object.assign({}, tweetEntity, {
       user,
+      quoted_status: quotedTweet,
     })
-
-    elem.dispatchEvent(
-      new CustomEvent<OneClickBlockableTweetElement>('RedBlock<-OnTweetElement', {
-        bubbles: true,
-        detail: {
-          tweet,
-        },
-      })
-    )
+    return tweet
   }
 
   function initializeTweetElementInspecter(reactRoot: Element) {
     new MutationObserver(mutations => {
       for (const elem of getAddedElementsFromMutations(mutations)) {
         const tweetElems = elem.querySelectorAll<HTMLElement>('[data-testid=tweet]')
-        tweetElems.forEach(elem => inspectTweetElement(elem))
+        tweetElems.forEach(elem => {
+          const tweet = inspectTweetElement(elem)
+          if (!tweet) {
+            return
+          }
+          elem.dispatchEvent(
+            new CustomEvent<OneClickBlockableTweetElement>('RedBlock<-OnTweetElement', {
+              bubbles: true,
+              detail: {
+                tweet,
+              },
+            })
+          )
+          if (tweet.is_quote_status && tweet.quoted_status) {
+            elem.dispatchEvent(
+              new CustomEvent<OneClickBlockableTweetElement>('RedBlock<-OnQuotedTweetElement', {
+                bubbles: true,
+                detail: {
+                  tweet: tweet.quoted_status,
+                },
+              })
+            )
+          }
+        })
       }
     }).observe(reactRoot, {
       subtree: true,

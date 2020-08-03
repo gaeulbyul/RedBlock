@@ -207,8 +207,11 @@ interface MarkManyUsersAsBlockedParams {
   userIds: string[]
 }
 
+// 트위터의 Redux store에는 일부 속성에 실제 값 대신 id만 들어있음
+
 type TweetEntity = Tweet & {
   user: string
+  quoted_status?: string
 }
 
 interface OneClickBlockableTweetElement {
