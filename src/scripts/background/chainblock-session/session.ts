@@ -1,6 +1,5 @@
 import * as Scraper from './scraper.js'
 import * as TwitterAPI from '../twitter-api.js'
-import { blockMultipleUsers, BlockAllResult } from '../block-all.js'
 import {
   MAX_USER_LIMIT,
   EventEmitter,
@@ -9,6 +8,7 @@ import {
   sleep,
   getCountOfUsersToBlock,
 } from '../../common.js'
+import { BlockAllAPIBlocker, Blocker } from './blocker.js'
 import type { RedBlockStorage } from '../storage.js'
 
 export type SessionRequest = FollowerBlockSessionRequest | TweetReactionBlockSessionRequest | ImportBlockSessionRequest
@@ -383,72 +383,6 @@ export default class ChainBlockSession {
       return 'AlreadyDone'
     }
     return defaultVerb
-  }
-}
-
-class BlockAllAPIBlocker {
-  private readonly buffer: TwitterUser[] = []
-  public onSuccess = (_result: BlockAllResult) => {}
-  public add(user: TwitterUser) {
-    // console.debug('bmb[b=%d]: insert user:', this.buffer.size, user)
-    this.buffer.push(user)
-  }
-  public async flush() {
-    // console.info('flush start!')
-    const result = await blockMultipleUsers(this.buffer.map(u => u.id_str)) // .catch(() => { })
-    this.buffer.length = 0
-    this.onSuccess(result)
-    // console.info('flush end!')
-    return result
-  }
-  public async flushIfNeeded() {
-    if (this.buffer.length >= 800) {
-      return this.flush()
-    }
-    return
-  }
-}
-
-class Blocker {
-  private readonly BUFFER_SIZE = 150
-  private readonly buffer: Promise<any>[] = []
-  public onSuccess = (_user: TwitterUser, _whatIDid: VerbSomething) => {}
-  public onError = (_user: TwitterUser, _error: any) => {}
-  public get currentSize() {
-    return this.buffer.length
-  }
-  public add(verb: VerbSomething, user: TwitterUser) {
-    const promise = this.callAPIFromVerb(verb, user).then(
-      () => {
-        this.onSuccess(user, verb)
-      },
-      error => {
-        this.onError(user, error)
-      }
-    )
-    this.buffer.push(promise)
-    return promise
-  }
-  public async flush() {
-    await Promise.all(this.buffer).catch(() => {})
-    this.buffer.length = 0
-  }
-  public async flushIfNeeded() {
-    if (this.currentSize >= this.BUFFER_SIZE) {
-      return this.flush()
-    }
-  }
-  private async callAPIFromVerb(verb: VerbSomething, user: TwitterUser): Promise<boolean> {
-    switch (verb) {
-      case 'Block':
-        return TwitterAPI.blockUser(user)
-      case 'UnBlock':
-        return TwitterAPI.unblockUser(user)
-      case 'Mute':
-        return TwitterAPI.muteUser(user)
-      case 'UnMute':
-        return TwitterAPI.unmuteUser(user)
-    }
   }
 }
 
