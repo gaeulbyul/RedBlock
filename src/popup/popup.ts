@@ -39,21 +39,49 @@ export async function getCurrentTab(): Promise<Tab | null> {
 }
 
 export function getUserNameFromTab(tab: Tab): string | null {
-  if (!tab || !tab.url) {
+  if (!tab.url) {
     return null
   }
   const url = new URL(tab.url)
   return getUserNameFromURL(url)
 }
 
-export function getTweetIdFromTab(tab: Tab): string | null {
-  if (!tab || !tab.url) {
+// 트윗 신고화면에선 사용자 이름 대신 ID가 나타난다.
+export function getUserIdFromTab(tab: Tab): string | null {
+  if (!tab.url) {
     return null
   }
   const url = new URL(tab.url)
   if (!['twitter.com', 'mobile.twitter.com'].includes(url.host)) {
     return null
   }
-  const match = /\/status\/(\d+)/.exec(url.pathname)
-  return match && match[1]
+  const match1 = /^\/i\/report\/user\/(\d+)/.exec(url.pathname)
+  if (match1) {
+    return match1[1]
+  }
+  const reportedUserId = url.pathname.startsWith('/i/safety/report') ? url.searchParams.get('reported_user_id') : null
+  if (reportedUserId) {
+    return reportedUserId
+  }
+  return null
+}
+
+export function getTweetIdFromTab(tab: Tab): string | null {
+  if (!tab.url) {
+    return null
+  }
+  const url = new URL(tab.url)
+  if (!['twitter.com', 'mobile.twitter.com'].includes(url.host)) {
+    return null
+  }
+  const match1 = /\/status\/(\d+)/.exec(url.pathname)
+  if (match1) {
+    return match1[1]
+  }
+  // 신고화면에서
+  const reportedTweetId = url.pathname.startsWith('/i/safety/report') ? url.searchParams.get('reported_tweet_id') : null
+  if (reportedTweetId) {
+    return reportedTweetId
+  }
+  return null
 }

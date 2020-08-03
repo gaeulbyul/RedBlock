@@ -18,7 +18,7 @@ import NewChainBlockPage from './popup-ui/new-chainblock-page.js'
 import NewTweetReactionBlockPage from './popup-ui/new-tweetreactionblock-page.js'
 import { DialogContent, RBDialog, RedBlockUITheme, TabPanel } from './popup-ui/ui-common.js'
 
-import { getCurrentTab, getTweetIdFromTab, getUserNameFromTab, PageEnum } from './popup.js'
+import { getCurrentTab, getTweetIdFromTab, getUserNameFromTab, getUserIdFromTab, PageEnum } from './popup.js'
 
 const useStylesForAppBar = MaterialUI.makeStyles(() =>
   MaterialUI.createStyles({
@@ -255,6 +255,31 @@ function showVersionOnFooter() {
   footer.textContent = `${manifest.name} v${manifest.version}`
 }
 
+interface TabContext {
+  currentUser: TwitterUser | null
+  currentTweet: Tweet | null
+}
+
+async function getTabContext(): Promise<TabContext> {
+  const tab = await getCurrentTab()
+  const tweetId = tab ? getTweetIdFromTab(tab) : null
+  const userId = tab ? getUserIdFromTab(tab) : null
+  const userName = tab ? getUserNameFromTab(tab) : null
+  const currentTweet = await (tweetId ? TwitterAPI.getTweetById(tweetId) : null)
+  let currentUser: TwitterUser | null = null
+  if (currentTweet) {
+    currentUser = currentTweet.user
+  } else if (userName) {
+    currentUser = await TwitterAPI.getSingleUserByName(userName)
+  } else if (userId) {
+    currentUser = await TwitterAPI.getSingleUserById(userId)
+  }
+  return {
+    currentTweet,
+    currentUser,
+  }
+}
+
 export async function initializeUI() {
   browser.runtime.sendMessage<RBActions.RequestCleanup>({
     actionType: 'RequestCleanup',
@@ -273,17 +298,8 @@ export async function initializeUI() {
   } else {
     initialPage = PageEnum.Sessions
   }
-  const tab = await getCurrentTab()
-  const userName = tab ? getUserNameFromTab(tab) : null
-  const tweetId = tab ? getTweetIdFromTab(tab) : null
+  const { currentTweet, currentUser } = await getTabContext()
   const appRoot = document.getElementById('app')!
-  const currentTweet = await (tweetId ? TwitterAPI.getTweetById(tweetId) : null)
-  let currentUser: TwitterUser | null = null
-  if (currentTweet) {
-    currentUser = currentTweet.user
-  } else if (userName) {
-    currentUser = await TwitterAPI.getSingleUserByName(userName)
-  }
   const app = (
     <PopupApp
       loggedIn={await loggedIn}
