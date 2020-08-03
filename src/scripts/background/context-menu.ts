@@ -43,8 +43,7 @@ async function sendFollowerChainBlockConfirm(tab: browser.tabs.Tab, userName: st
 async function sendTweetReactionChainBlockConfirm(
   tab: browser.tabs.Tab,
   tweetId: string,
-  blockRetweeters: boolean,
-  blockLikers: boolean
+  { blockRetweeters, blockLikers }: { blockRetweeters: boolean; blockLikers: boolean }
 ) {
   const myself = await TwitterAPI.getMyself().catch(() => null)
   if (!myself) {
@@ -70,19 +69,19 @@ async function sendTweetReactionChainBlockConfirm(
   }
 }
 
+// 크롬에선 browser.menus 대신 비표준 이름(browser.contextMenus)을 쓴다.
+// 이를 파이어폭스와 맞추기 위해 이걸 함
+const menus = new Proxy<typeof browser.menus>({} as any, {
+  get(_target, name, receiver) {
+    const menu = Reflect.get(browser.menus || {}, name, receiver)
+    const ctxMenu = Reflect.get((browser as any).contextMenus || {}, name, receiver)
+    return menu || ctxMenu
+  },
+})
+
 async function createContextMenu() {
-  // 크롬에선 browser.menus 대신 비표준 이름(browser.contextMenus)을 쓴다.
-  // 이를 파이어폭스와 맞추기 위해 이걸 함
-  const menus = new Proxy<typeof browser.menus>({} as any, {
-    get(_target, name, receiver) {
-      const menu = Reflect.get(browser.menus || {}, name, receiver)
-      const ctxMenu = Reflect.get((browser as any).contextMenus || {}, name, receiver)
-      return menu || ctxMenu
-    },
-  })
-
   await menus.removeAll()
-
+  // 우클릭 - 유저
   menus.create({
     contexts: ['link'],
     documentUrlPatterns,
@@ -120,7 +119,7 @@ async function createContextMenu() {
   menus.create({
     type: 'separator',
   })
-
+  // 우클릭 - 트윗
   menus.create({
     contexts: ['link'],
     documentUrlPatterns,
@@ -129,7 +128,10 @@ async function createContextMenu() {
     onclick(clickEvent, tab) {
       const url = new URL(clickEvent.linkUrl!)
       const tweetId = getTweetIdFromUrl(url)!
-      sendTweetReactionChainBlockConfirm(tab, tweetId, true, false)
+      sendTweetReactionChainBlockConfirm(tab, tweetId, {
+        blockRetweeters: true,
+        blockLikers: false,
+      })
     },
   })
   menus.create({
@@ -140,7 +142,10 @@ async function createContextMenu() {
     onclick(clickEvent, tab) {
       const url = new URL(clickEvent.linkUrl!)
       const tweetId = getTweetIdFromUrl(url)!
-      sendTweetReactionChainBlockConfirm(tab, tweetId, false, true)
+      sendTweetReactionChainBlockConfirm(tab, tweetId, {
+        blockRetweeters: false,
+        blockLikers: true,
+      })
     },
   })
   menus.create({
@@ -151,7 +156,31 @@ async function createContextMenu() {
     onclick(clickEvent, tab) {
       const url = new URL(clickEvent.linkUrl!)
       const tweetId = getTweetIdFromUrl(url)!
-      sendTweetReactionChainBlockConfirm(tab, tweetId, true, true)
+      sendTweetReactionChainBlockConfirm(tab, tweetId, {
+        blockRetweeters: true,
+        blockLikers: true,
+      })
+    },
+  })
+  // 확장기능버튼
+  menus.create({
+    contexts: ['browser_action'],
+    documentUrlPatterns: tweetUrlPatterns,
+    title: i18n.getMessage('open_in_new_tab'),
+    onclick(_clickEvent, _tab) {
+      const url = browser.runtime.getURL('/popup/popup.html') + '?istab=1'
+      browser.tabs.create({
+        active: true,
+        url,
+      })
+    },
+  })
+  menus.create({
+    contexts: ['browser_action'],
+    documentUrlPatterns: tweetUrlPatterns,
+    title: i18n.getMessage('options'),
+    onclick(_clickEvent, _tab) {
+      browser.runtime.openOptionsPage()
     },
   })
 }
