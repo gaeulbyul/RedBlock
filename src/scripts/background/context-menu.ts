@@ -54,7 +54,7 @@ async function sendTweetReactionChainBlockConfirm(
     purpose: 'chainblock',
     options: tweetReactionBlockDefaultOption,
     target: {
-      type: 'tweetReaction',
+      type: 'tweet_reaction',
       blockRetweeters,
       blockLikers,
       tweet,

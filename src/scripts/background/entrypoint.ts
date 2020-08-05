@@ -1,6 +1,7 @@
 import { PageEnum } from '../../popup/popup.js'
 import { alertToCurrentTab } from './background.js'
-import ChainBlocker, { TargetCheckResult } from './chainblock.js'
+import ChainBlocker from './chainblock.js'
+import { TargetCheckResult } from './target-checker.js'
 import * as Storage from './storage.js'
 import * as TwitterAPI from './twitter-api.js'
 import * as i18n from '../i18n.js'
@@ -42,7 +43,7 @@ function generateConfirmMessage(request: SessionRequest): TextGenerator.DialogMe
   switch (request.target.type) {
     case 'follower':
       return TextGenerator.generateFollowerBlockConfirmMessage(request as FollowerBlockSessionRequest)
-    case 'tweetReaction':
+    case 'tweet_reaction':
       return TextGenerator.generateTweetReactionBlockMessage(request as TweetReactionBlockSessionRequest)
     case 'import':
       return TextGenerator.generateImportBlockMessage(request as ImportBlockSessionRequest)

@@ -43,7 +43,7 @@ export interface TweetReactionBlockSessionRequest {
   // 따라서, 언체인블락은 구현할 수 없다.
   purpose: 'chainblock'
   target: {
-    type: 'tweetReaction'
+    type: 'tweet_reaction'
     // author of tweet
     // user: TwitterUser
     tweet: Tweet
@@ -143,7 +143,7 @@ export default class ChainBlockSession {
       case 'follower':
         const givenUser = (givenTarget as FollowerBlockSessionRequest['target']).user
         return thisTarget.user.id_str === givenUser.id_str
-      case 'tweetReaction':
+      case 'tweet_reaction':
         const givenTweet = (givenTarget as TweetReactionBlockSessionRequest['target']).tweet
         return thisTarget.tweet.id_str === givenTweet.id_str
       case 'import':
@@ -179,7 +179,7 @@ export default class ChainBlockSession {
         apiKind = target.list
         blockMethod = 'block-all-api'
         break
-      case 'tweetReaction':
+      case 'tweet_reaction':
         apiKind = 'tweet-reactions'
         blockMethod = 'standard-api'
         break

@@ -1,4 +1,4 @@
-import { TargetCheckResult } from './background/chainblock.js'
+import { TargetCheckResult } from './background/target-checker.js'
 import {
   SessionInfo,
   FollowerBlockSessionRequest,
@@ -144,7 +144,7 @@ export function chainBlockResultNotification(sessionInfo: SessionInfo): string {
   switch (target.type) {
     case 'follower':
       return followerBlockResultNotification(sessionInfo as SessionInfo<FollowerBlockSessionRequest>)
-    case 'tweetReaction':
+    case 'tweet_reaction':
       return tweetReactionBlockResultNotification(sessionInfo as SessionInfo<TweetReactionBlockSessionRequest>)
     case 'import':
       return importBlockResultNotification(sessionInfo as SessionInfo<ImportBlockSessionRequest>)

@@ -61,7 +61,7 @@ function ChainBlockSessionItem(props: { session: SessionInfo }) {
           break
       }
       break
-    case 'tweetReaction':
+    case 'tweet_reaction':
       user = target.tweet.user
       localizedTarget = i18n.getMessage('reacted_xxxs_tweet', user.screen_name)
       break
@@ -163,7 +163,7 @@ function ChainBlockSessionItem(props: { session: SessionInfo }) {
   if (user) {
     name = user.name
     biggerProfileImageUrl = user.profile_image_url_https.replace('_normal', '_bigger')
-    if (target.type === 'tweetReaction') {
+    if (target.type === 'tweet_reaction') {
       name = `<${i18n.getMessage('tweet')}> ${name}`
     }
   }

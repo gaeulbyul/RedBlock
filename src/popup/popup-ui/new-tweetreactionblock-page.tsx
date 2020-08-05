@@ -225,7 +225,7 @@ function TargetExecutionButtonUI() {
     const request: TweetReactionBlockSessionRequest = {
       purpose: 'chainblock',
       target: {
-        type: 'tweetReaction',
+        type: 'tweet_reaction',
         tweet: currentTweet,
         blockRetweeters: wantBlockRetweeters,
         blockLikers: wantBlockLikers,

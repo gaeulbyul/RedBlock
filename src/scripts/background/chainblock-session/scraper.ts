@@ -229,7 +229,7 @@ export function initScraper(request: SessionRequest): UserScraper {
   if (target.type === 'import') {
     return new ImportUserScraper(target.userIds)
   }
-  if (target.type === 'tweetReaction') {
+  if (target.type === 'tweet_reaction') {
     return new TweetReactedUserScraper(target)
   }
   if (target.user.blocked_by) {

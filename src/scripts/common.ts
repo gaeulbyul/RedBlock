@@ -168,7 +168,7 @@ export function getCountOfUsersToBlock({ target }: SessionRequest) {
   switch (target.type) {
     case 'follower':
       return getFollowersCount(target.user, target.list)
-    case 'tweetReaction':
+    case 'tweet_reaction':
       return getReactionsCount(target)
     case 'import':
       return target.userIds.length
