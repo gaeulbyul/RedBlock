@@ -89,24 +89,37 @@ class AntiBlockScraper implements UserScraper {
   private prefetchedUsers: TwitterUser[] = []
   private prefetchShouldStop = false
   private generator!: AsyncIterableIterator<Either<Error, UsersObject>>
+  private async getMutualFollowersIds(actAsUserId: string) {
+    const mutualFollowerIds = await UserScrapingAPI.getAllMutualFollowersIds(this.user, actAsUserId)
+    return mutualFollowerIds
+  }
+  private async getFollowersIds(actAsUserId: string) {
+    const idsIterator = UserScrapingAPI.getAllFollowsIds(this.followKind, this.user, { actAsUserId })
+    const userIds: string[] = []
+    for await (const response of idsIterator) {
+      if (!response.ok) {
+        throw response.error
+      }
+      userIds.push(...response.value.ids)
+    }
+    return userIds
+  }
   public async prepare() {
+    let userIds: string[]
     const actAsUserId = await this.prepareActor()
     if (this.followKind === 'mutual-followers') {
-      const mutualFollowerIds = await UserScrapingAPI.getAllMutualFollowersIds(this.user, actAsUserId)
-      this.totalCount = mutualFollowerIds.length
-      this.generator = UserScrapingAPI.lookupUsersByIds(mutualFollowerIds)
+      userIds = await this.getMutualFollowersIds(actAsUserId)
     } else {
-      this.totalCount = getFollowersCount(this.user, this.followKind)
-      this.generator = UserScrapingAPI.getAllFollowsUserList(this.followKind, this.user, { actAsUserId })
+      userIds = await this.getFollowersIds(actAsUserId)
     }
+    this.totalCount = userIds.length
+    this.generator = UserScrapingAPI.lookupUsersByIds(userIds)
     for await (const response of resumableAsyncIterate(this.generator)) {
       if (!response.ok) {
         console.error(response.error)
         break
       }
-      const responseData = response.value
-      const { users } = responseData
-      this.prefetchedUsers.push(...users)
+      this.prefetchedUsers.push(...response.value.users)
       if (this.prefetchShouldStop) {
         break
       }
