@@ -348,7 +348,7 @@
     "message": "Pick blocklist file first."
   },
   "blocklist_import_description": {
-    "message": "You can block users from blocklist file. Currently Red Block supports CSV file and JSON(from original Twitter Block Chain's export-chain feature)."
+    "message": "You can block users from blocklist file. Currently Red Block supports CSV, JSON(from original Twitter Block Chain's export-chain feature), and JS(\"block.js\" from Twitter's archive)."
   },
   "select_rt_or_like": {
     "message": "Please select retweet and/or like"

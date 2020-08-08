@@ -48,6 +48,33 @@ function parseAsImportChainJson(text: string): Blocklist {
   return { userIds, duplicated, invalid }
 }
 
+function parseAsTwitterArchiveBlockJson(text: string): Blocklist {
+  const json = JSON.parse(text.replace(/^window\.YTD\.block\.part\d+ = /, ''))
+  if (!Array.isArray(json)) {
+    throw new Error('invalid file?')
+  }
+  const importedJson = json as TwitterArchiveBlockItem[]
+  const userIds = new Set<string>()
+  let duplicated = 0
+  let invalid = 0
+  for (const item of importedJson) {
+    const id = item.blocking.accountId
+    if (!/^\d+$/.test(id)) {
+      invalid++
+      continue
+    }
+    if (userIds.has(id)) {
+      duplicated++
+      continue
+    }
+    userIds.add(id)
+    if (userIds.size >= MAX_USER_LIMIT) {
+      break
+    }
+  }
+  return { userIds, duplicated, invalid }
+}
+
 function parseAsCsvBlocklist(text: string): Blocklist {
   const splitted = text.split('\n')
   const userIds = new Set<string>()
@@ -77,6 +104,8 @@ function parseAsCsvBlocklist(text: string): Blocklist {
 export function parse(text: string): Blocklist {
   if (text.startsWith('{')) {
     return parseAsImportChainJson(text)
+  } else if (/^window.YTD.block.part\d+ = /.test(text)) {
+    return parseAsTwitterArchiveBlockJson(text)
   } else {
     return parseAsCsvBlocklist(text)
   }

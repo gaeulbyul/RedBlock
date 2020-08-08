@@ -242,6 +242,13 @@ interface ImportChainJson {
   }>
 }
 
+interface TwitterArchiveBlockItem {
+  blocking: {
+    accountId: string
+    userLink: string
+  }
+}
+
 // ---- browser notification types ----
 
 interface BrowserNotificationButton {

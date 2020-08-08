@@ -59,7 +59,7 @@ export default function BlocklistPage() {
                       name="input-file"
                       type="file"
                       onChange={onChange}
-                      accept="text/plain,text/csv,application/json,.CSV"
+                      accept="text/plain,.txt,text/csv,.csv,application/json,.json,application/javascript,.js"
                     />
                   </M.Box>
                   <M.Button type="submit" variant="contained" color="primary" component="button" disabled={!loggedIn}>
