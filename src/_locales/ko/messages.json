@@ -547,5 +547,14 @@
   },
   "please_check_login": {
     "message": "레드블락을 사용하시려면 트위터에 로그인해주세요."
+  },
+  "user_ids_to_block": {
+    "message": "차단할 유저ID"
+  },
+  "duplicated": {
+    "message": "중복"
+  },
+  "invalid": {
+    "message": "잘못된 값"
   }
 }
