@@ -25,6 +25,10 @@
   text-decoration: underline;
 }
 
+.redblock-block-btn + .redblock-block-btn {
+  visibility: hidden;
+}
+
 .redblock-block-btn.manual {
   background-color: transparent;
   color: firebrick;

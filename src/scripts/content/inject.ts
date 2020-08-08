@@ -195,6 +195,9 @@ interface ReduxStore {
       for (const elem of getAddedElementsFromMutations(mutations)) {
         const tweetElems = elem.querySelectorAll<HTMLElement>('[data-testid=tweet]')
         tweetElems.forEach(elem => {
+          if (elem.querySelector('.redblock-btn')) {
+            return
+          }
           const tweet = inspectTweetElement(elem)
           if (!tweet) {
             return
@@ -227,6 +230,9 @@ interface ReduxStore {
 
   function initializeUserCellElementInspecter(reactRoot: Element) {
     function handleElem(elem: HTMLElement) {
+      if (elem.querySelector('.redblock-btn')) {
+        return
+      }
       const btn = elem.querySelector('[role=button][data-testid]')
       if (!btn) {
         return
