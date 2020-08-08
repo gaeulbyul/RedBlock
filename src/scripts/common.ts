@@ -46,17 +46,17 @@ export class EventEmitter<T> {
 }
 
 export class TwitterUserMap extends Map<string, TwitterUser> {
-  public addUser(user: TwitterUser, forceUpdate = false) {
-    const shouldUpdate = forceUpdate || !this.has(user.id_str)
-    if (shouldUpdate) {
-      this.set(user.id_str, user)
-    }
+  public addUser(user: TwitterUser) {
+    return this.set(user.id_str, user)
+  }
+  public hasUser(user: TwitterUser) {
+    return this.has(user.id_str)
   }
   public toUserArray(): TwitterUser[] {
     return Array.from(this.values())
   }
   public toUserObject(): TwitterUserEntities {
-    const usersObj: TwitterUserEntities = {}
+    const usersObj: TwitterUserEntities = Object.create(null)
     for (const [userId, user] of this) {
       usersObj[userId] = user
     }

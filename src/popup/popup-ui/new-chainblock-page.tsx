@@ -327,7 +327,7 @@ function TargetUserSelectUI(props: { isAvailable: boolean }) {
     loadUsers()
     return Storage.onSavedUsersChanged(async users => {
       await loadUsers()
-      if (!(selectedUser && users.has(selectedUser.id_str))) {
+      if (!(selectedUser && users.hasUser(selectedUser))) {
         setSelectedUser(currentUser)
         selectUserGroup('current')
       }
