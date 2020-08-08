@@ -265,14 +265,14 @@ async function getTabContext(): Promise<TabContext> {
   const tweetId = tab ? getTweetIdFromTab(tab) : null
   const userId = tab ? getUserIdFromTab(tab) : null
   const userName = tab ? getUserNameFromTab(tab) : null
-  const currentTweet = await (tweetId ? TwitterAPI.getTweetById(tweetId) : null)
+  const currentTweet = await (tweetId ? TwitterAPI.getTweetById(tweetId).catch(() => null) : null)
   let currentUser: TwitterUser | null = null
   if (currentTweet) {
     currentUser = currentTweet.user
   } else if (userName) {
-    currentUser = await TwitterAPI.getSingleUserByName(userName)
+    currentUser = await TwitterAPI.getSingleUserByName(userName).catch(() => null)
   } else if (userId) {
-    currentUser = await TwitterAPI.getSingleUserById(userId)
+    currentUser = await TwitterAPI.getSingleUserById(userId).catch(() => null)
   }
   return {
     currentTweet,
