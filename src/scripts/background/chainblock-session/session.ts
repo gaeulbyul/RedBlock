@@ -8,14 +8,12 @@ import {
   sleep,
   getCountOfUsersToBlock,
 } from '../../common.js'
-import { BlockAllAPIBlocker, Blocker } from './blocker.js'
-import type { RedBlockStorage } from '../storage.js'
+import { Blocker } from './blocker.js'
 
 export type SessionRequest = FollowerBlockSessionRequest | TweetReactionBlockSessionRequest | ImportBlockSessionRequest
 
 interface SessionEventEmitter {
   'mark-user': MarkUserParams
-  'mark-many-users-as-blocked': MarkManyUsersAsBlockedParams
   'rate-limit': TwitterAPI.Limit
   'rate-limit-reset': null
   started: SessionInfo
@@ -130,7 +128,7 @@ export default class ChainBlockSession {
   private readonly sessionInfo = this.initSessionInfo()
   private readonly scraper = Scraper.initScraper(this.request)
   public readonly eventEmitter = new EventEmitter<SessionEventEmitter>()
-  public constructor(private request: SessionRequest, private options: RedBlockStorage['options']) {}
+  public constructor(private request: SessionRequest) {}
   public getSessionInfo() {
     return copyFrozenObject(this.sessionInfo)
   }
@@ -168,24 +166,16 @@ export default class ChainBlockSession {
       throw new Error('session not confirmed')
     }
     const blocker = new Blocker()
-    const multiBlocker = new BlockAllAPIBlocker()
-    const { target } = this.request
     let apiKind: ApiKind
-    // 트윗반응 체인블락은 수집할 수 있는 수가 적으므로
-    // 굳이 block_all API를 타지 않아도 안전할 듯.
-    let blockMethod: 'standard-api' | 'block-all-api'
-    switch (target.type) {
+    switch (this.request.target.type) {
       case 'follower':
-        apiKind = target.list
-        blockMethod = 'block-all-api'
+        apiKind = this.request.target.list
         break
       case 'tweet_reaction':
         apiKind = 'tweet-reactions'
-        blockMethod = 'standard-api'
         break
       case 'import':
         apiKind = 'lookup-users'
-        blockMethod = 'block-all-api'
         break
     }
     const incrementSuccess = (v: VerbSomething) => this.sessionInfo.progress.success[v]++
@@ -199,13 +189,6 @@ export default class ChainBlockSession {
     }
     blocker.onError = () => {
       incrementFailure()
-    }
-    multiBlocker.onSuccess = result => {
-      this.eventEmitter.emit('mark-many-users-as-blocked', {
-        userIds: result.blocked,
-      })
-      this.sessionInfo.progress.success.Block += result.blocked.length
-      this.sessionInfo.progress.failure += result.failed.length
     }
     let stopped = false
     try {
@@ -250,19 +233,11 @@ export default class ChainBlockSession {
             this.sessionInfo.progress.already++
             continue
           }
-          const shouldUseMultiBlocker =
-            whatToDo === 'Block' && !this.options.useStandardBlockAPI && blockMethod === 'block-all-api'
-          if (shouldUseMultiBlocker) {
-            multiBlocker.add(user)
-          } else {
-            blocker.add(whatToDo, user)
-          }
+          blocker.add(whatToDo, user)
           await blocker.flushIfNeeded()
-          await multiBlocker.flushIfNeeded()
         }
       }
       await blocker.flush()
-      await multiBlocker.flush()
       if (stopped) {
         this.sessionInfo.status = SessionStatus.Stopped
         this.eventEmitter.emit('stopped', this.getSessionInfo())

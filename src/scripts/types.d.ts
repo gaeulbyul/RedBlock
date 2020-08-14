@@ -146,12 +146,6 @@ declare namespace RBMessages {
     verb: VerbSomething
   }
 
-  interface MarkManyUsersAsBlocked {
-    messageType: 'MarkManyUsersAsBlocked'
-    messageTo: 'content'
-    userIds: string[]
-  }
-
   interface PopupSwitchTab {
     messageType: 'PopupSwitchTab'
     messageTo: 'popup'
@@ -191,7 +185,6 @@ type RBMessageToPopup = RBMessages.ConfirmChainBlockInPopup | RBMessages.PopupSw
 // content측으로 보내는 메시지
 type RBMessageToContent =
   | RBMessages.MarkUser
-  | RBMessages.MarkManyUsersAsBlocked
   | RBMessages.Alert
   | RBMessages.ConfirmChainBlock
   | RBMessages.ToggleOneClickBlockMode

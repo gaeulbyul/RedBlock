@@ -31,17 +31,6 @@ function listenExtensionMessages(reactRoot: Element | null) {
           )
         }
         break
-      case 'MarkManyUsersAsBlocked':
-        if (reactRoot) {
-          document.dispatchEvent(
-            new CustomEvent<MarkManyUsersAsBlockedParams>('RedBlock->MarkManyUsersAsBlocked', {
-              detail: {
-                userIds: msg.userIds,
-              },
-            })
-          )
-        }
-        break
       case 'Alert':
         window.alert(msg.message)
         break

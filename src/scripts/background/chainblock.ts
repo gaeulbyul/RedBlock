@@ -73,25 +73,6 @@ export default class ChainBlocker {
         .catch(() => {})
     })
   }
-  private async markManyUsersAsBlocked({ userIds }: MarkManyUsersAsBlockedParams) {
-    const tabs = await browser.tabs.query({
-      discarded: false,
-      url: ['https://twitter.com/*', 'https://mobile.twitter.com/*'],
-    })
-    tabs.forEach(tab => {
-      const id = tab.id
-      if (typeof id !== 'number') {
-        return
-      }
-      browser.tabs
-        .sendMessage<RBMessages.MarkManyUsersAsBlocked>(id, {
-          messageType: 'MarkManyUsersAsBlocked',
-          messageTo: 'content',
-          userIds,
-        })
-        .catch(() => {})
-    })
-  }
   private handleEvents(session: ChainBlockSession) {
     session.eventEmitter.on('started', () => {
       this.updateBadge()
@@ -117,9 +98,6 @@ export default class ChainBlocker {
     })
     session.eventEmitter.on('mark-user', params => {
       this.markUser(params)
-    })
-    session.eventEmitter.on('mark-many-users-as-blocked', ({ userIds }) => {
-      this.markManyUsersAsBlocked({ userIds })
     })
   }
   private updateBadge() {
@@ -164,7 +142,7 @@ export default class ChainBlocker {
     this.handleEvents(session)
     this.sessions.set(session.getSessionInfo().sessionId, session)
   }
-  public async add(request: SessionRequest): Promise<string> {
+  public add(request: SessionRequest): string {
     const { target } = request
     // 만약 confirm대기 중인데 다시 요청하면 그 세션 다시 써도 될듯
     const sameTargetSession = this.getSessionByTarget(target)
@@ -175,8 +153,7 @@ export default class ChainBlocker {
       }
       return sessionInfo.sessionId
     }
-    const redblockOptions = await loadOptions()
-    const session = new ChainBlockSession(request, redblockOptions)
+    const session = new ChainBlockSession(request)
     this.register(session)
     const sessionId = session.getSessionInfo().sessionId
     return sessionId

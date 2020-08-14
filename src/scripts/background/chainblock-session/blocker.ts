@@ -1,43 +1,4 @@
 import * as TwitterAPI from '../twitter-api.js'
-import { blockMultipleUsers, BlockAllResult } from '../block-all.js'
-
-export class BlockAllAPIBlocker {
-  private readonly buffer: TwitterUser[] = []
-  public onSuccess = (_result: BlockAllResult) => {}
-  public add(user: TwitterUser) {
-    this.buffer.push(user)
-  }
-  public async flush() {
-    let result: BlockAllResult
-    if (this.buffer.length > 20) {
-      result = await blockMultipleUsers(this.buffer.map(u => u.id_str))
-    } else {
-      result = await this.flushWithStandardBlockApi()
-    }
-    this.buffer.length = 0
-    this.onSuccess(result)
-    return result
-  }
-  public async flushIfNeeded() {
-    if (this.buffer.length >= 800) {
-      return this.flush()
-    }
-    return
-  }
-  private async flushWithStandardBlockApi(): Promise<BlockAllResult> {
-    const blocked: string[] = []
-    const failed: string[] = []
-    for (const user of this.buffer) {
-      const blockResult = await TwitterAPI.blockUser(user).catch(() => false)
-      if (blockResult) {
-        blocked.push(user.id_str)
-      } else {
-        failed.push(user.id_str)
-      }
-    }
-    return { blocked, failed }
-  }
-}
 
 export class Blocker {
   private readonly BUFFER_SIZE = 150

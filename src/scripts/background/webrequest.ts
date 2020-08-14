@@ -1,5 +1,3 @@
-import * as BlockAllAPI from './block-all.js'
-// import { parseAuthMultiCookie } from './twitter-api.js'
 
 type HttpHeaders = browser.webRequest.HttpHeaders
 
@@ -25,43 +23,6 @@ function stripOrigin(headers: HttpHeaders) {
 
 function filterInvalidHeaders(headers: HttpHeaders): HttpHeaders {
   return headers.filter(({ name }) => name.length > 0)
-}
-
-function initializeBlockAllRequestHeaderModifier() {
-  const reqFilters = {
-    urls: ['https://twitter.com/i/user/block_all'],
-  }
-  browser.webRequest.onBeforeSendHeaders.addListener(
-    details => {
-      // console.debug('block_all api', details)
-      const headers = details.requestHeaders!
-      stripOrigin(headers)
-      for (let i = 0; i < headers.length; i++) {
-        const name = headers[i].name.toLowerCase()
-        const value = headers[i].value!
-        switch (name) {
-          case 'user-agent':
-            headers[i].value = BlockAllAPI.userAgent
-            break
-          case 'cookie':
-            headers[i].value = value
-              .replace(/\brweb_optin=(?:\S+?)\b/i, 'rweb_optin=off')
-              .replace(/\bcsrf_same_site_set=1;/i, '')
-            break
-        }
-      }
-      // in HTTP Headers, Referrer should be "Referer"
-      headers.push({
-        name: 'referer',
-        value: 'https://twitter.com/settings/imported_blocked',
-      })
-      return {
-        requestHeaders: headers,
-      }
-    },
-    reqFilters,
-    extraInfoSpec
-  )
 }
 
 function changeActor(cookies: string, _actAsUserId: string, actAsUserToken: string): string {
@@ -117,6 +78,5 @@ function initializeTwitterAPIRequestHeaderModifier() {
 }
 
 export function initializeWebRequest() {
-  initializeBlockAllRequestHeaderModifier()
   initializeTwitterAPIRequestHeaderModifier()
 }
