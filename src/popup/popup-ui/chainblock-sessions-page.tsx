@@ -1,7 +1,7 @@
 import { isRunningSession, SessionStatus, getLimitResetTime, getCountOfUsersToBlock } from '../../scripts/common.js'
 import { PageEnum } from '../popup.js'
 import { cleanupInactiveSessions, stopAllChainBlock, stopChainBlock } from '../../scripts/background/request-sender.js'
-import { DialogContext, PageSwitchContext } from './contexts.js'
+import { DialogContext, PageSwitchContext, BlockLimiterContext } from './contexts.js'
 import { statusToString } from '../../scripts/text-generate.js'
 import { BlockLimiterUI } from './ui-common.js'
 import * as i18n from '../../scripts/i18n.js'
@@ -223,10 +223,11 @@ const useStylesForFabButton = MaterialUI.makeStyles(theme =>
   })
 )
 
-export default function ChainBlockSessionsPage(props: { sessions: SessionInfo[]; limiterStatus: BlockLimiterStatus }) {
-  const { sessions, limiterStatus } = props
+export default function ChainBlockSessionsPage(props: { sessions: SessionInfo[] }) {
+  const { sessions } = props
   const modalContext = React.useContext(DialogContext)
   const pageSwitchCtx = React.useContext(PageSwitchContext)
+  const limiterStatus = React.useContext(BlockLimiterContext)
   const classes = useStylesForFabButton()
   function handleFabButtonClicked() {
     pageSwitchCtx.switchPage(PageEnum.NewSession)

@@ -1,12 +1,27 @@
 import type { BlockLimiter } from './block-limiter.js'
+import { notify } from './background.js'
+import * as i18n from '../i18n.js'
 
 type HttpHeaders = browser.webRequest.HttpHeaders
+
+const blockLimitReachedNotifyMessage = i18n.getMessage('notify_on_block_limit')
 
 const isFirefox = browser.runtime.getURL('/').startsWith('moz-extension://')
 const extraInfoSpec: any = ['requestHeaders', 'blocking']
 if (!isFirefox) {
   extraInfoSpec.push('extraHeaders')
 }
+
+const notifyAboutBlockLimitation = _.debounce(
+  () => {
+    notify(blockLimitReachedNotifyMessage)
+  },
+  5000,
+  {
+    leading: true,
+    trailing: false,
+  }
+)
 
 function stripOrigin(headers: HttpHeaders) {
   for (let i = 0; i < headers.length; i++) {
@@ -91,9 +106,11 @@ export function initializeBlockAPILimiter(limiter: BlockLimiter) {
         return { cancel: false }
       }
       const cancel = limiter.check() !== 'ok'
-      console.log('block limiter: [%d +1/%d] (cancel=%s)', limiter.count, limiter.max, cancel)
-      console.dir(details)
-      if (!cancel) {
+      // console.log('block limiter: [%d +1/%d] (cancel=%s)', limiter.count, limiter.max, cancel)
+      // console.dir(details)
+      if (cancel) {
+        notifyAboutBlockLimitation()
+      } else {
         limiter.increment()
       }
       return {

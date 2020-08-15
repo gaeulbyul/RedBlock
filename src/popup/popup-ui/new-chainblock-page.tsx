@@ -9,8 +9,8 @@ import {
   startFollowerChainBlock,
   refreshSavedUsers,
 } from '../../scripts/background/request-sender.js'
-import { DialogContext, SnackBarContext, LoginStatusContext } from './contexts.js'
-import { TabPanel, PleaseLoginBox } from './ui-common.js'
+import { DialogContext, SnackBarContext, LoginStatusContext, BlockLimiterContext } from './contexts.js'
+import { TabPanel, PleaseLoginBox, BlockLimiterUI } from './ui-common.js'
 
 const M = MaterialUI
 const T = MaterialUI.Typography
@@ -540,6 +540,7 @@ const BigExecuteUnChainBlockButton = MaterialUI.withStyles(theme => ({
 export default function NewChainBlockPage(props: { currentUser: TwitterUser | null }) {
   const { currentUser } = props
   const { loggedIn } = React.useContext(LoginStatusContext)
+  const limiterStatus = React.useContext(BlockLimiterContext)
   const [targetOptions, setTargetOptions] = React.useState<SessionOptions>({
     myFollowers: 'Skip',
     myFollowings: 'Skip',
@@ -553,8 +554,14 @@ export default function NewChainBlockPage(props: { currentUser: TwitterUser | nu
     const newOptions = { ...targetOptions, ...newOptionsPart }
     setTargetOptions(newOptions)
   }
+  const availableBlocks = React.useMemo((): number => {
+    return limiterStatus.max - limiterStatus.current
+  }, [limiterStatus])
   const isAvailable = React.useMemo((): boolean => {
     if (!loggedIn) {
+      return false
+    }
+    if (availableBlocks <= 0) {
       return false
     }
     if (!selectedUser) {
@@ -567,7 +574,7 @@ export default function NewChainBlockPage(props: { currentUser: TwitterUser | nu
       return false
     }
     return true
-  }, [selectedUser])
+  }, [loggedIn, selectedUser, availableBlocks])
   return (
     <div>
       <TargetUserContext.Provider
@@ -589,6 +596,7 @@ export default function NewChainBlockPage(props: { currentUser: TwitterUser | nu
           {loggedIn ? (
             <div>
               <TargetOptionsUI />
+              {availableBlocks <= 0 ? <BlockLimiterUI status={limiterStatus} /> : ''}
               <TargetExecutionButtonUI isAvailable={isAvailable} />
             </div>
           ) : (

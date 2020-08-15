@@ -1,6 +1,6 @@
 import { PageEnum } from '../popup.js'
-import type { DialogContent } from './ui-common.js'
 import { defaultOptions } from '../../scripts/background/storage.js'
+import type { DialogContent } from './ui-common.js'
 
 export const PageSwitchContext = React.createContext({
   switchPage(_tabIndex: PageEnum) {},
@@ -20,4 +20,9 @@ export const RedBlockOptionsContext = React.createContext({
 
 export const LoginStatusContext = React.createContext({
   loggedIn: false,
+})
+
+export const BlockLimiterContext = React.createContext<BlockLimiterStatus>({
+  current: 0,
+  max: 500,
 })

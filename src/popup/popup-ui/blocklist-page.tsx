@@ -1,5 +1,5 @@
-import { SnackBarContext, LoginStatusContext } from './contexts.js'
-import { PleaseLoginBox } from './ui-common.js'
+import { SnackBarContext, LoginStatusContext, BlockLimiterContext } from './contexts.js'
+import { PleaseLoginBox, BlockLimiterUI } from './ui-common.js'
 import { PageEnum } from '../popup.js'
 import * as i18n from '../../scripts/i18n.js'
 
@@ -11,8 +11,21 @@ const T = MaterialUI.Typography
 export default function BlocklistPage() {
   const { loggedIn } = React.useContext(LoginStatusContext)
   const snackBarCtx = React.useContext(SnackBarContext)
+  const limiterStatus = React.useContext(BlockLimiterContext)
   const [fileInput] = React.useState(React.createRef<HTMLInputElement>())
   const [blocklist, setBlocklist] = React.useState<Blocklist>(emptyBlocklist)
+  const availableBlocks = React.useMemo((): number => {
+    return limiterStatus.max - limiterStatus.current
+  }, [limiterStatus])
+  const isAvailable = React.useMemo((): boolean => {
+    if (!loggedIn) {
+      return false
+    }
+    if (availableBlocks <= 0) {
+      return false
+    }
+    return true
+  }, [loggedIn, availableBlocks])
   async function onChange(event: React.FormEvent<HTMLInputElement>) {
     event.preventDefault()
     const files = fileInput.current!.files
@@ -62,7 +75,13 @@ export default function BlocklistPage() {
                       accept="text/plain,.txt,text/csv,.csv,application/json,.json,application/javascript,.js"
                     />
                   </M.Box>
-                  <M.Button type="submit" variant="contained" color="primary" component="button" disabled={!loggedIn}>
+                  <M.Button
+                    type="submit"
+                    variant="contained"
+                    color="primary"
+                    component="button"
+                    disabled={!isAvailable}
+                  >
                     {i18n.getMessage('import')}
                   </M.Button>
                 </M.Box>
@@ -86,6 +105,7 @@ export default function BlocklistPage() {
         </M.ExpansionPanelDetails>
       </M.ExpansionPanel>
       {loggedIn ? '' : <PleaseLoginBox />}
+      {availableBlocks <= 0 ? <BlockLimiterUI status={limiterStatus} /> : ''}
     </div>
   )
 }

@@ -1,8 +1,8 @@
 // import * as Storage from '../../scripts/background/storage.js'
 import * as i18n from '../../scripts/i18n.js'
-import { LoginStatusContext } from './contexts.js'
+import { LoginStatusContext, BlockLimiterContext } from './contexts.js'
 import { startTweetReactionChainBlock } from '../../scripts/background/request-sender.js'
-import { PleaseLoginBox } from './ui-common.js'
+import { PleaseLoginBox, BlockLimiterUI } from './ui-common.js'
 
 type SessionOptions = TweetReactionBlockSessionRequest['options']
 
@@ -216,7 +216,8 @@ function TargetOptionsUI() {
   )
 }
 
-function TargetExecutionButtonUI() {
+function TargetExecutionButtonUI(props: { isAvailable: boolean }) {
+  const { isAvailable } = props
   const { currentTweet, wantBlockRetweeters, wantBlockLikers, targetOptions } = React.useContext(TargetTweetContext)
   function onExecuteChainBlockButtonClicked() {
     if (!currentTweet) {
@@ -234,7 +235,7 @@ function TargetExecutionButtonUI() {
     }
     startTweetReactionChainBlock(request)
   }
-  const blockButtonDisabled = !(wantBlockRetweeters || wantBlockLikers)
+  const blockButtonDisabled = !(isAvailable && (wantBlockRetweeters || wantBlockLikers))
   return (
     <M.Box padding="10px">
       <BigExecuteChainBlockButton disabled={blockButtonDisabled} onClick={onExecuteChainBlockButtonClicked}>
@@ -249,6 +250,7 @@ function TargetExecutionButtonUI() {
 export default function NewTweetReactionBlockPage(props: { currentTweet: Tweet | null }) {
   const { currentTweet } = props
   const { loggedIn } = React.useContext(LoginStatusContext)
+  const limiterStatus = React.useContext(BlockLimiterContext)
   const [targetOptions, setTargetOptions] = React.useState<SessionOptions>({
     myFollowers: 'Skip',
     myFollowings: 'Skip',
@@ -256,7 +258,18 @@ export default function NewTweetReactionBlockPage(props: { currentTweet: Tweet |
   // const [targetReaction, setTargetReaction] = React.useState<ReactionKind>('retweeted')
   const [wantBlockRetweeters, setWantBlockRetweeters] = React.useState<boolean>(false)
   const [wantBlockLikers, setWantBlockLikers] = React.useState<boolean>(false)
-
+  const availableBlocks = React.useMemo((): number => {
+    return limiterStatus.max - limiterStatus.current
+  }, [limiterStatus])
+  const isAvailable = React.useMemo((): boolean => {
+    if (!loggedIn) {
+      return false
+    }
+    if (availableBlocks <= 0) {
+      return false
+    }
+    return true
+  }, [loggedIn, availableBlocks])
   function mutateOptions(newOptionsPart: Partial<SessionOptions>) {
     const newOptions = { ...targetOptions, ...newOptionsPart }
     setTargetOptions(newOptions)
@@ -280,7 +293,8 @@ export default function NewTweetReactionBlockPage(props: { currentTweet: Tweet |
           {loggedIn ? (
             <div>
               <TargetOptionsUI />
-              <TargetExecutionButtonUI />
+              {availableBlocks <= 0 ? <BlockLimiterUI status={limiterStatus} /> : ''}
+              <TargetExecutionButtonUI isAvailable={isAvailable} />
             </div>
           ) : (
             <PleaseLoginBox />

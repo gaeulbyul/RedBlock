@@ -539,5 +539,8 @@
   },
   "invalid": {
     "message": "Invalid"
+  },
+  "notify_on_block_limit": {
+    "message": "To avoid problem(force-logout, account suspension), Red Block won't block over 500 users. If you want to reset counter, open Red Block's UI and press \"Reset\" button."
   }
 }
