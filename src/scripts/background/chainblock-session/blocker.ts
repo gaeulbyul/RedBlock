@@ -1,6 +1,6 @@
 import * as TwitterAPI from '../twitter-api.js'
 
-export class Blocker {
+export default class Blocker {
   private readonly BUFFER_SIZE = 150
   private readonly buffer: Promise<any>[] = []
   public onSuccess = (_user: TwitterUser, _whatIDid: VerbSomething) => {}

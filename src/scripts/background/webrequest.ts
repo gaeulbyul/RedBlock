@@ -1,4 +1,4 @@
-import type { BlockLimiter } from './block-limiter.js'
+import type BlockLimiter from './block-limiter.js'
 import { notify } from './background.js'
 import * as i18n from '../i18n.js'
 

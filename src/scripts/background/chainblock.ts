@@ -10,7 +10,7 @@ import {
 } from './target-checker.js'
 import ChainBlockSession from './chainblock-session/session.js'
 import { loadOptions } from './storage.js'
-import type { BlockLimiter } from './block-limiter.js'
+import type BlockLimiter from './block-limiter.js'
 
 export default class ChainBlocker {
   private readonly MAX_RUNNING_SESSIONS = 5

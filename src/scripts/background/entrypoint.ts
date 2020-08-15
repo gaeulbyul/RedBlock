@@ -9,7 +9,7 @@ import * as TextGenerator from '../text-generate.js'
 import { refreshSavedUsers } from './misc.js'
 import { initializeContextMenu } from './context-menu.js'
 import { initializeWebRequest, initializeBlockAPILimiter } from './webrequest.js'
-import { BlockLimiter } from './block-limiter.js'
+import BlockLimiter from './block-limiter.js'
 import { assertNever } from '../common.js'
 // import { checkFollowerBlockTarget, checkTweetReactionBlockTarget } from './chainblock-session/session.js'
 

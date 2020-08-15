@@ -1,8 +1,8 @@
 import * as Scraper from './scraper.js'
 import * as TwitterAPI from '../twitter-api.js'
 import { EventEmitter, SessionStatus, copyFrozenObject, sleep, getCountOfUsersToBlock } from '../../common.js'
-import { Blocker } from './blocker.js'
-import { BlockLimiter } from '../block-limiter.js'
+import Blocker from './blocker.js'
+import BlockLimiter from '../block-limiter.js'
 
 export type SessionRequest = FollowerBlockSessionRequest | TweetReactionBlockSessionRequest | ImportBlockSessionRequest
 

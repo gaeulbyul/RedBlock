@@ -1,7 +1,20 @@
-export class BlockLimiter {
+export default class BlockLimiter {
   public readonly max = 500
+  private expired() {
+    const timestamp = parseInt(localStorage.getItem('RedBlock BlockLimiterTimestamp') || '0', 10)
+    const diff = Date.now() - timestamp
+    const second = 1000
+    const minute = second * 60
+    const hour = minute * 60
+    const threshold = hour * 3 // 정확한 값은 불명
+    return diff > threshold
+  }
   public get count() {
-    return parseInt(localStorage.getItem('RedBlock BlockLimiterCount') || '0', 10)
+    if (this.expired()) {
+      return 0
+    } else {
+      return parseInt(localStorage.getItem('RedBlock BlockLimiterCount') || '0', 10)
+    }
   }
   public increment() {
     const count = this.count + 1
@@ -11,17 +24,7 @@ export class BlockLimiter {
   }
   public check(): 'ok' | 'danger' {
     const { count, max } = this
-    const timestamp = parseInt(localStorage.getItem('RedBlock BlockLimiterTimestamp') || '0', 10)
     if (count < max) {
-      return 'ok'
-    }
-    const diff = Date.now() - timestamp
-    const second = 1000
-    const minute = second * 60
-    const hour = minute * 60
-    const threshold = hour * 3
-    const maybeFine = diff > threshold
-    if (maybeFine) {
       return 'ok'
     } else {
       return 'danger'
@@ -29,6 +32,6 @@ export class BlockLimiter {
   }
   public reset() {
     localStorage.setItem('RedBlock BlockLimiterCount', '0')
-    return 0
+    localStorage.setItem('RedBlock BlockLimiterTimestamp', '0')
   }
 }
