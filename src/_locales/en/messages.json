@@ -450,14 +450,6 @@
   "cant_chainblock_mutual_follower_is_zero": {
     "message": "This user doesn't have mutual-followers."
   },
-  "chainblock_max_user_warning": {
-    "message": "To prevent overuse, Red Block will stop when session reaches over $count$ users.",
-    "placeholders": {
-      "count": {
-        "content": "$1"
-      }
-    }
-  },
   "cant_chainblock_nobody_retweeted": {
     "message": "Nobody retweeted this tweet."
   },
@@ -471,7 +463,7 @@
     "message": "A list is empty or can't find any user ID."
   },
   "wtf_twitter": {
-    "message": "Warning: Red Block internally uses Twitter's advanced block options to avoid force-logout problems. Unfortunately, it has another problem that ChainBlock doesn't block some users or may takes several minutes. Sorry for the inconvenience!"
+    "message": "Warning: To avoid problem(force-logout, account suspension), Red Block won't block over 500 users."
   },
   "oneclick_block_mode": {
     "message": "One-click block mode"
@@ -529,15 +521,6 @@
   },
   "remove_session_after_complete": {
     "message": "Remove session after complete"
-  },
-  "use_official_block_api": {
-    "message": "Use official block API"
-  },
-  "use_official_block_api_description": {
-    "message": "Red Block will use official block API when it blocks user."
-  },
-  "use_official_block_api_warning": {
-    "message": "Caution: Blocking over 500 users may cause force-logout or account suspension."
   },
   "open_new_tab_for_file_picker": {
     "message": "If the Red Block's UI closes while selecting a file, please open UI in tab."

@@ -1,3 +1,4 @@
+import type { BlockLimiter } from './block-limiter.js'
 
 type HttpHeaders = browser.webRequest.HttpHeaders
 
@@ -74,6 +75,33 @@ function initializeTwitterAPIRequestHeaderModifier() {
     },
     reqFilters,
     extraInfoSpec
+  )
+}
+
+export function initializeBlockAPILimiter(limiter: BlockLimiter) {
+  const reqFilters = {
+    urls: ['https://api.twitter.com/1.1/blocks/create.json'],
+  }
+  browser.webRequest.onBeforeRequest.addListener(
+    details => {
+      const { originUrl, method } = details
+      // Service Worker에서 실행한 건 안 쳐준다. (중복 카운팅 방지)
+      const shouldCount = originUrl !== 'https://twitter.com/sw.js' && method === 'POST'
+      if (!shouldCount) {
+        return { cancel: false }
+      }
+      const cancel = limiter.check() !== 'ok'
+      console.log('block limiter: [%d +1/%d] (cancel=%s)', limiter.count, limiter.max, cancel)
+      console.dir(details)
+      if (!cancel) {
+        limiter.increment()
+      }
+      return {
+        cancel,
+      }
+    },
+    reqFilters,
+    ['blocking']
   )
 }
 

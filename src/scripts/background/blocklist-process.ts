@@ -1,5 +1,4 @@
 import { startImportChainBlock } from './request-sender.js'
-import { MAX_USER_LIMIT } from '../common.js'
 
 export interface Blocklist {
   userIds: Set<string>
@@ -41,9 +40,6 @@ function parseAsImportChainJson(text: string): Blocklist {
       continue
     }
     userIds.add(id)
-    if (userIds.size >= MAX_USER_LIMIT) {
-      break
-    }
   }
   return { userIds, duplicated, invalid }
 }
@@ -68,9 +64,6 @@ function parseAsTwitterArchiveBlockJson(text: string): Blocklist {
       continue
     }
     userIds.add(id)
-    if (userIds.size >= MAX_USER_LIMIT) {
-      break
-    }
   }
   return { userIds, duplicated, invalid }
 }
@@ -94,9 +87,6 @@ function parseAsCsvBlocklist(text: string): Blocklist {
       continue
     }
     userIds.add(line)
-    if (userIds.size >= MAX_USER_LIMIT) {
-      break
-    }
   }
   return { userIds, duplicated, invalid }
 }

@@ -17,6 +17,7 @@
     --mui-color-text-disabled: #00000038;
     --mui-color-background-default: #fafafa;
     --mui-color-divider: #0000001f;
+    --warning-text-color: crimson;
   }
 }
 
@@ -27,6 +28,7 @@
     --mui-color-text-disabled: #ffffff80;
     --mui-color-background-default: #303030;
     --mui-color-divider: #ffffff1f;
+    --warning-text-color: yellow;
   }
 }
 
@@ -154,19 +156,7 @@ hr {
 
 .wtf {
   font-size: smaller;
-}
-
-.massive-block-warning {
-  font-size: smaller;
-}
-
-.warning {
-  margin: 0.3rem 0;
-  padding: 0.3rem;
-  border: 1px solid orange;
-  border-radius: 5px;
-  background-color: yellow;
-  font-weight: bold;
+  color: var(--warning-text-color);
 }
 
 footer.info {

@@ -1,14 +1,8 @@
 import * as Scraper from './scraper.js'
 import * as TwitterAPI from '../twitter-api.js'
-import {
-  MAX_USER_LIMIT,
-  EventEmitter,
-  SessionStatus,
-  copyFrozenObject,
-  sleep,
-  getCountOfUsersToBlock,
-} from '../../common.js'
+import { EventEmitter, SessionStatus, copyFrozenObject, sleep, getCountOfUsersToBlock } from '../../common.js'
 import { Blocker } from './blocker.js'
+import { BlockLimiter } from '../block-limiter.js'
 
 export type SessionRequest = FollowerBlockSessionRequest | TweetReactionBlockSessionRequest | ImportBlockSessionRequest
 
@@ -128,7 +122,7 @@ export default class ChainBlockSession {
   private readonly sessionInfo = this.initSessionInfo()
   private readonly scraper = Scraper.initScraper(this.request)
   public readonly eventEmitter = new EventEmitter<SessionEventEmitter>()
-  public constructor(private request: SessionRequest) {}
+  public constructor(private request: SessionRequest, private limiter: BlockLimiter) {}
   public getSessionInfo() {
     return copyFrozenObject(this.sessionInfo)
   }
@@ -204,7 +198,8 @@ export default class ChainBlockSession {
           break
         }
         this.sessionInfo.progress.scraped = this.calculateScrapedCount()
-        if (this.sessionInfo.progress.scraped >= MAX_USER_LIMIT) {
+        const blockLimitReached = this.limiter.check() !== 'ok'
+        if (blockLimitReached) {
           this.stop()
           continue
         }

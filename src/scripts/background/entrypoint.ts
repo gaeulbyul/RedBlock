@@ -8,12 +8,14 @@ import * as i18n from '../i18n.js'
 import * as TextGenerator from '../text-generate.js'
 import { refreshSavedUsers } from './misc.js'
 import { initializeContextMenu } from './context-menu.js'
-import { initializeWebRequest } from './webrequest.js'
+import { initializeWebRequest, initializeBlockAPILimiter } from './webrequest.js'
+import { BlockLimiter } from './block-limiter.js'
 import { assertNever } from '../common.js'
 // import { checkFollowerBlockTarget, checkTweetReactionBlockTarget } from './chainblock-session/session.js'
 
 let storageQueue = Promise.resolve()
-const chainblocker = new ChainBlocker()
+const blockLimiter = new BlockLimiter()
+const chainblocker = new ChainBlocker(blockLimiter)
 
 // for debug
 Object.assign(window, {
@@ -21,7 +23,7 @@ Object.assign(window, {
 })
 
 type SessionCreateResult = Either<TargetCheckResult, string>
-export async function createChainBlockSession(request: SessionRequest): Promise<SessionCreateResult> {
+export function createChainBlockSession(request: SessionRequest): SessionCreateResult {
   const checkResult = chainblocker.checkTarget(request)
   if (checkResult !== TargetCheckResult.Ok) {
     return {
@@ -29,7 +31,7 @@ export async function createChainBlockSession(request: SessionRequest): Promise<
       error: checkResult,
     }
   }
-  const sessionId = await chainblocker.add(request)
+  const sessionId = chainblocker.add(request)
   chainblocker.prepare(sessionId).catch(err => {
     console.error('error on prepare: ', err)
   })
@@ -89,12 +91,16 @@ async function startSession(sessionId: string) {
 }
 
 async function sendProgress() {
-  const infos = chainblocker.getAllSessionInfos()
+  const sessions = chainblocker.getAllSessionInfos()
   return browser.runtime
     .sendMessage<RBMessages.ChainBlockInfo>({
       messageType: 'ChainBlockInfo',
       messageTo: 'popup',
-      infos,
+      limiter: {
+        current: blockLimiter.count,
+        max: blockLimiter.max,
+      },
+      sessions,
     })
     .catch(() => {})
 }
@@ -116,11 +122,12 @@ function handleExtensionMessage(message: RBAction, _sender: browser.runtime.Mess
     case 'CreateFollowerChainBlockSession':
     case 'CreateTweetReactionChainBlockSession':
     case 'CreateImportChainBlockSession':
-      createChainBlockSession(message.request).then(async result => {
+      {
+        const result = createChainBlockSession(message.request)
         if (result.ok) {
           confirmSessionInPopup(message.request, result.value)
         }
-      })
+      }
       break
     case 'Cancel':
       chainblocker.cancel(message.sessionId)
@@ -167,6 +174,9 @@ function handleExtensionMessage(message: RBAction, _sender: browser.runtime.Mess
     case 'RefreshSavedUsers':
       refreshSavedUsers()
       break
+    case 'RequestResetCounter':
+      blockLimiter.reset()
+      break
     default:
       assertNever(message)
       break
@@ -186,6 +196,7 @@ function initialize() {
   )
   initializeContextMenu()
   initializeWebRequest()
+  initializeBlockAPILimiter(blockLimiter)
 }
 
 initialize()

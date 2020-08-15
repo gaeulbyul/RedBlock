@@ -3,6 +3,7 @@ import { PageEnum } from '../popup.js'
 import { cleanupInactiveSessions, stopAllChainBlock, stopChainBlock } from '../../scripts/background/request-sender.js'
 import { DialogContext, PageSwitchContext } from './contexts.js'
 import { statusToString } from '../../scripts/text-generate.js'
+import { BlockLimiterUI } from './ui-common.js'
 import * as i18n from '../../scripts/i18n.js'
 
 const M = MaterialUI
@@ -222,8 +223,8 @@ const useStylesForFabButton = MaterialUI.makeStyles(theme =>
   })
 )
 
-export default function ChainBlockSessionsPage(props: { sessions: SessionInfo[] }) {
-  const { sessions } = props
+export default function ChainBlockSessionsPage(props: { sessions: SessionInfo[]; limiterStatus: BlockLimiterStatus }) {
+  const { sessions, limiterStatus } = props
   const modalContext = React.useContext(DialogContext)
   const pageSwitchCtx = React.useContext(PageSwitchContext)
   const classes = useStylesForFabButton()
@@ -277,6 +278,7 @@ export default function ChainBlockSessionsPage(props: { sessions: SessionInfo[] 
     <div>
       {renderGlobalControls()}
       <hr />
+      <BlockLimiterUI status={limiterStatus} />
       {isSessionExist ? renderSessions() : renderEmptySessions()}
       <M.Tooltip placement="left" title={i18n.getMessage('new_follower_session')}>
         <M.Fab className={classes.fab} color="primary" onClick={handleFabButtonClicked}>

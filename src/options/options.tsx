@@ -205,17 +205,6 @@ function OptionsApp() {
                   control={<M.Checkbox size="small" />}
                   onChange={() =>
                     mutateOptions({
-                      useStandardBlockAPI: !options.useStandardBlockAPI,
-                    })
-                  }
-                  checked={options.useStandardBlockAPI}
-                  label={i18n.getMessage('use_official_block_api') + '⚠'}
-                />
-                <M.FormHelperText>{'⚠ ' + i18n.getMessage('use_official_block_api_warning')}</M.FormHelperText>
-                <M.FormControlLabel
-                  control={<M.Checkbox size="small" />}
-                  onChange={() =>
-                    mutateOptions({
                       removeSessionAfterComplete: !options.removeSessionAfterComplete,
                     })
                   }

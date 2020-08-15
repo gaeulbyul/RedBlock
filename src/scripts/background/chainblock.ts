@@ -10,11 +10,12 @@ import {
 } from './target-checker.js'
 import ChainBlockSession from './chainblock-session/session.js'
 import { loadOptions } from './storage.js'
+import type { BlockLimiter } from './block-limiter.js'
 
 export default class ChainBlocker {
   private readonly MAX_RUNNING_SESSIONS = 5
   private readonly sessions = new Map<string, ChainBlockSession>()
-  constructor() {}
+  constructor(private readonly limiter: BlockLimiter) {}
   public hasRunningSession(): boolean {
     if (this.sessions.size <= 0) {
       return false
@@ -153,7 +154,7 @@ export default class ChainBlocker {
       }
       return sessionInfo.sessionId
     }
-    const session = new ChainBlockSession(request)
+    const session = new ChainBlockSession(request, this.limiter)
     this.register(session)
     const sessionId = session.getSessionInfo().sessionId
     return sessionId

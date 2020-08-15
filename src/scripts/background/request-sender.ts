@@ -85,3 +85,9 @@ export async function refreshSavedUsers() {
     actionType: 'RefreshSavedUsers',
   })
 }
+
+export async function requestResetCounter() {
+  return browser.runtime.sendMessage<RBActions.RequestResetCounter>({
+    actionType: 'RequestResetCounter',
+  })
+}

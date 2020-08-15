@@ -43,6 +43,7 @@ function PopupApp(props: PopupAppProps) {
   const { loggedIn, currentUser, currentTweet, popupAsTab, initialPage, redblockOptions } = props
   const [tabIndex, setTabIndex] = React.useState<PageEnum>(initialPage)
   const [sessions, setSessions] = React.useState<SessionInfo[]>([])
+  const [limiterStatus, setLimiterStatus] = React.useState<BlockLimiterStatus>({ current: 0, max: 0 })
   const [modalOpened, setModalOpened] = React.useState(false)
   const [modalContent, setModalContent] = React.useState<DialogContent | null>(null)
   const [snackBarMessage, setSnackBarMessage] = React.useState('')
@@ -119,7 +120,8 @@ function PopupApp(props: PopupAppProps) {
         }
         switch (msg.messageType) {
           case 'ChainBlockInfo':
-            setSessions(msg.infos)
+            setSessions(msg.sessions)
+            setLimiterStatus(msg.limiter)
             break
           case 'PopupSwitchTab':
             setTabIndex(msg.page)
@@ -208,7 +210,7 @@ function PopupApp(props: PopupAppProps) {
                 <div className="page">
                   <M.Container maxWidth="sm">
                     <TabPanel value={tabIndex} index={PageEnum.Sessions}>
-                      <ChainBlockSessionsPage sessions={sessions} />
+                      <ChainBlockSessionsPage sessions={sessions} limiterStatus={limiterStatus} />
                     </TabPanel>
                     <TabPanel value={tabIndex} index={PageEnum.NewSession}>
                       <NewChainBlockPage currentUser={currentUser} />

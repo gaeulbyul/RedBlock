@@ -10,6 +10,7 @@ function deleteUnusedOptions(options: RedBlockStorage['options'] | null) {
   delete optionsAsAny.tweetReactionBasedChainBlock
   delete optionsAsAny.experimental_tweetReactionBasedChainBlock
   delete optionsAsAny.enableRailgun
+  delete optionsAsAny.useStandardBlockAPI
 }
 
 export async function loadUsers(): Promise<TwitterUserMap> {
@@ -53,7 +54,6 @@ export async function saveOptions(newOptions: RedBlockStorage['options']): Promi
 }
 
 export const defaultOptions: Readonly<RedBlockStorage['options']> = Object.freeze({
-  useStandardBlockAPI: false,
   removeSessionAfterComplete: false,
 })
 
@@ -135,7 +135,6 @@ export async function editBadWord(wordIdToEdit: string, newBadWord: BadWordItem)
 export interface RedBlockStorage {
   savedUsers: TwitterUser[]
   options: {
-    useStandardBlockAPI: boolean
     removeSessionAfterComplete: boolean
   }
   badWords: BadWordItem[]

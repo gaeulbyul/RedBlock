@@ -103,6 +103,10 @@ declare namespace RBActions {
     actionType: 'RefreshSavedUsers'
   }
 
+  interface RequestResetCounter {
+    actionType: 'RequestResetCounter'
+  }
+
   interface BlockSingleUser {
     actionType: 'BlockSingleUser'
     user: TwitterUser
@@ -129,6 +133,7 @@ type RBAction =
   | RBActions.RequestProgress
   | RBActions.RequestCleanup
   | RBActions.RefreshSavedUsers
+  | RBActions.RequestResetCounter
   | RBActions.BlockSingleUser
   | RBActions.UnblockSingleUser
 
@@ -136,7 +141,8 @@ declare namespace RBMessages {
   interface ChainBlockInfo {
     messageType: 'ChainBlockInfo'
     messageTo: 'popup'
-    infos: SessionInfo[]
+    sessions: SessionInfo[]
+    limiter: BlockLimiterStatus
   }
 
   interface MarkUser {
@@ -222,6 +228,13 @@ interface BadWordItem {
   enabled: boolean
   word: string
   regexp: boolean
+}
+
+// ㅡㅡ block limitation ㅡㅡ
+
+interface BlockLimiterStatus {
+  current: number
+  max: number
 }
 
 // ---- import chainblock ----

@@ -1,7 +1,9 @@
 import { DialogMessageObj } from '../../scripts/text-generate.js'
 import * as i18n from '../../scripts/i18n.js'
+import { requestResetCounter } from '../../scripts/background/request-sender.js'
 
 const M = MaterialUI
+const T = MaterialUI.Typography
 
 export interface DialogContent {
   message: DialogMessageObj
@@ -78,15 +80,9 @@ export function RBDialog(props: { isOpen: boolean; content: DialogContent | null
 export function TabPanel(props: { children?: React.ReactNode; index: any; value: any }) {
   const { children, value, index } = props
   return (
-    <M.Typography
-      component="div"
-      role="tabpanel"
-      hidden={value !== index}
-      id={`simple-tabpanel-${index}`}
-      aria-labelledby={`simple-tab-${index}`}
-    >
+    <T component="div" role="tabpanel" hidden={value !== index}>
       {value === index && <M.Box p={1}>{children}</M.Box>}
-    </M.Typography>
+    </T>
   )
 }
 
@@ -94,7 +90,7 @@ export function PleaseLoginBox() {
   return (
     <M.Paper>
       <M.Box padding="12px 16px">
-        <M.Typography component="div">{i18n.getMessage('please_check_login')}</M.Typography>
+        <T component="div">{i18n.getMessage('please_check_login')}</T>
         <M.Box marginTop="10px">
           <a
             rel="noopener noreferer"
@@ -107,6 +103,32 @@ export function PleaseLoginBox() {
             </M.Button>
           </a>
         </M.Box>
+      </M.Box>
+    </M.Paper>
+  )
+}
+
+export function BlockLimiterUI(props: { status: BlockLimiterStatus }) {
+  const { current, max } = props.status
+  function handleResetButtonClick(event: React.MouseEvent<HTMLButtonElement>) {
+    event.preventDefault()
+    requestResetCounter()
+  }
+  // L10N-ME
+  return (
+    <M.Paper>
+      <M.Box padding="12px 16px" display="flex" flexDirection="row">
+        <M.Box flexGrow="1">
+          <T component="div">
+            Block Counter: [{current} / {max}]
+          </T>
+          <T component="div" variant="body2">
+            {i18n.getMessage('wtf_twitter')}
+          </T>
+        </M.Box>
+        <M.Button type="button" variant="outlined" onClick={handleResetButtonClick}>
+          Reset
+        </M.Button>
       </M.Box>
     </M.Paper>
   )

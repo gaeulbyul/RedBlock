@@ -10,14 +10,6 @@ export const enum SessionStatus {
 }
 
 export const UI_UPDATE_DELAY = 250
-export const MAX_USER_LIMIT = 100000
-/* about MAX_USER_LIMIT:
-Increasing value makes Red Block's chainblock scrapes more user.
-However, I'm worried that Twitter may restrict user-block API futhermore.
-If it became reality, Red Block become completely unusable.
-( block_all API is LAST method for block massive users )
-So I don't recommends modify its value.
-*/
 
 export class EventEmitter<T> {
   protected events: EventStore = new Proxy(

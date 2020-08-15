@@ -1,7 +1,7 @@
 import * as Storage from '../../scripts/background/storage.js'
 import * as TwitterAPI from '../../scripts/background/twitter-api.js'
 import { TwitterUser } from '../../scripts/background/twitter-api.js'
-import { TwitterUserMap, MAX_USER_LIMIT } from '../../scripts/common.js'
+import { TwitterUserMap } from '../../scripts/common.js'
 import * as i18n from '../../scripts/i18n.js'
 import {
   insertUserToStorage,
@@ -9,7 +9,7 @@ import {
   startFollowerChainBlock,
   refreshSavedUsers,
 } from '../../scripts/background/request-sender.js'
-import { DialogContext, SnackBarContext, RedBlockOptionsContext, LoginStatusContext } from './contexts.js'
+import { DialogContext, SnackBarContext, LoginStatusContext } from './contexts.js'
 import { TabPanel, PleaseLoginBox } from './ui-common.js'
 
 const M = MaterialUI
@@ -381,8 +381,7 @@ function TargetUserSelectUI(props: { isAvailable: boolean }) {
 }
 
 function TargetOptionsUI() {
-  const { selectedMode, setSelectedMode, selectedUser } = React.useContext(TargetUserContext)
-  const redblockOptions = React.useContext(RedBlockOptionsContext)
+  const { selectedMode, setSelectedMode } = React.useContext(TargetUserContext)
   const classes = useStylesForExpansionPanels()
   const localizedMode = i18n.getMessage(selectedMode)
   // const helpPageLanguage = i18n.getUILanguage() === 'ko' ? 'ko' : 'en'
@@ -393,21 +392,7 @@ function TargetOptionsUI() {
   //     rel="noopener noreferer"
   //     href={twitterAdvancedBlockOptionsHelpPageUrl}>*</a>
   // )
-  let shouldShowMassiveBlockWarning = false
-  if (selectedUser) {
-    if (selectedUser.friends_count >= MAX_USER_LIMIT) {
-      shouldShowMassiveBlockWarning = true
-    }
-    if (selectedUser.followers_count >= MAX_USER_LIMIT) {
-      shouldShowMassiveBlockWarning = true
-    }
-  }
-  let cautionOnMassiveBlock = ''
-  if (redblockOptions.useStandardBlockAPI) {
-    cautionOnMassiveBlock = i18n.getMessage('use_official_block_api_warning')
-  } else {
-    cautionOnMassiveBlock = i18n.getMessage('wtf_twitter')
-  }
+  const cautionOnMassiveBlock = i18n.getMessage('wtf_twitter')
   return (
     <M.ExpansionPanel defaultExpanded>
       <DenseExpansionPanelSummary expandIcon={<M.Icon>expand_more</M.Icon>}>
@@ -428,11 +413,6 @@ function TargetOptionsUI() {
             <div className="description">
               {i18n.getMessage('chainblock_description')} {i18n.getMessage('my_mutual_followers_wont_block')}
               <div className="wtf">{cautionOnMassiveBlock}</div>
-              {shouldShowMassiveBlockWarning && (
-                <div className="massive-block-warning">
-                  {i18n.getMessage('chainblock_max_user_warning', MAX_USER_LIMIT.toLocaleString())}
-                </div>
-              )}
             </div>
           </TabPanel>
           <TabPanel value={selectedMode} index={'unchainblock'}>
