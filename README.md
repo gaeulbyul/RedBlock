@@ -8,11 +8,13 @@ Red Block(레드블락)은 트위터에서 특정 사용자의 팔로워를 일�
 
 Red Block is an extension for blocking users from Twitter. It is intended to replace [Twitter Block Chain](https://github.com/satsukitv/twitter-block-chain) or [BlockThemAll](https://github.com/u1-liquid/BlockThemAll).
 
-## 주의!
+## 주의!!
 
-Red Block은 강제 로그아웃 및 계정잠김 현상을 막기위해 기존 체인블락과 다른 API를 사용하고있습니다. 이 때문에 차단이 반영되지 않거나 늦게 반영되는 현상이 있습니다. 불편하시더라도 양해 바랍니다.
+(2020-08-16)
 
-To avoid force-logout and account suspension, Red Block uses different API than twitter-block-chain. Unfortunately, It has another problem that Red Block doesn't block some users of may takes several minutes. Sorry for the inconvenience!
+트위터에서 (레드블락이 내부적으로 사용했던) `block_all` API를 종료하게 되었습니다. 이 때문에 레드블락은 공식 차단API를 사용하게 되어 강제 로그아웃이나 계정정지 등의 문제가 발생할 가능성이 있습니다. 이러한 문제를 줄이고자 **레드블락은 500명 미만의 유저만 차단하는 제한을 두게 습니다.**
+
+Twitter discontinued `block_all` API that used by Red Block internally. So Red Block has to use its official block API that has known problems like force-logout and account suspension. To avoid this problem as possible, **Red Block will limit blocking over 500 users.**
 
 ## 기능
 
