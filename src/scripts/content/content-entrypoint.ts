@@ -1,3 +1,13 @@
+// 파이어폭스에서 CustomEvent의 detail 개체 전달용
+declare function cloneInto<T>(detail: T, view: Window | null): T
+function cloneDetail<T>(detail: T): T {
+  // typeof detail === 'object' && typeof cloneInto === 'function'
+  if (typeof detail + typeof cloneInto === 'objectfunction') {
+    return cloneInto(detail, document.defaultView)
+  }
+  return detail
+}
+
 function injectScriptToPage(path: string) {
   document.body
     .appendChild(
@@ -23,10 +33,10 @@ function listenExtensionMessages(reactRoot: Element | null) {
         if (reactRoot) {
           document.dispatchEvent(
             new CustomEvent<MarkUserParams>('RedBlock->MarkUser', {
-              detail: {
+              detail: cloneDetail({
                 userId: msg.userId,
                 verb: msg.verb,
-              },
+              }),
             })
           )
         }
