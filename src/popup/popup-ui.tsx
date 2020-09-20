@@ -36,12 +36,12 @@ interface PopupAppProps {
   loggedIn: boolean
   currentUser: TwitterAPI.TwitterUser | null
   currentTweet: TwitterAPI.Tweet | null
-  popupAsTab: boolean
+  isPopupOpenedInTab: boolean
   initialPage: PageEnum
   redblockOptions: RedBlockStorage['options']
 }
 function PopupApp(props: PopupAppProps) {
-  const { loggedIn, currentUser, currentTweet, popupAsTab, initialPage, redblockOptions } = props
+  const { loggedIn, currentUser, currentTweet, isPopupOpenedInTab, initialPage, redblockOptions } = props
   const [tabIndex, setTabIndex] = React.useState<PageEnum>(initialPage)
   const [sessions, setSessions] = React.useState<SessionInfo[]>([])
   const [limiterStatus, setLimiterStatus] = React.useState<BlockLimiterStatus>({ current: 0, max: 0 })
@@ -92,6 +92,12 @@ function PopupApp(props: PopupAppProps) {
     setMenuAnchorEl(null)
   }
   function handleConfirm({ confirmMessage, sessionId }: RBMessages.ConfirmChainBlockInPopup) {
+    if (isPopupOpenedInTab) {
+      // 레드블락 UI가 여려군데(팝업 + 탭)에 떠있는 상태에서
+      // 체인블락을 실행하면 탭에도 확인메시지가 나타나더라.
+      // 팝업에서만 메시지가 뜨게 함.
+      return
+    }
     openModal({
       dialogType: 'confirm',
       message: confirmMessage,
@@ -200,7 +206,7 @@ function PopupApp(props: PopupAppProps) {
                     </M.Toolbar>
                   </M.AppBar>
                   <M.Menu keepMounted anchorEl={menuAnchorEl} open={Boolean(menuAnchorEl)} onClose={closeMenu}>
-                    {!popupAsTab && (
+                    {!isPopupOpenedInTab && (
                       <M.MenuItem onClick={handleOpenInTabClick}>
                         <M.Icon>open_in_new</M.Icon> {i18n.getMessage('open_in_new_tab')}
                       </M.MenuItem>
@@ -295,7 +301,7 @@ export async function initializeUI() {
     () => true,
     () => false
   )
-  const isPopupOpenedAsTab = /\bistab=1\b/.test(location.search)
+  const isPopupOpenedInTab = /\bistab=1\b/.test(location.search)
   let initialPage: PageEnum
   const initialPageMatch = /\bpage=([0-4])\b/.exec(location.search)
   if (initialPageMatch) {
@@ -310,14 +316,14 @@ export async function initializeUI() {
       loggedIn={await loggedIn}
       currentUser={currentUser}
       currentTweet={currentTweet}
-      popupAsTab={isPopupOpenedAsTab}
+      isPopupOpenedInTab={isPopupOpenedInTab}
       initialPage={initialPage}
       redblockOptions={await redblockOptions}
     />
   )
   ReactDOM.render(app, appRoot)
   showVersionOnFooter()
-  if (isPopupOpenedAsTab) {
+  if (isPopupOpenedInTab) {
     document.body.classList.add('ui-tab')
   } else {
     document.body.classList.add('ui-popup')
