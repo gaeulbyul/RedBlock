@@ -31,7 +31,7 @@ async function sendFollowerChainBlockConfirm(tab: browser.tabs.Tab, userName: st
       user,
     },
   }
-  const result = await createChainBlockSession(request)
+  const result = createChainBlockSession(request)
   if (result.ok) {
     return confirmSession(tab, request, result.value)
   } else {
@@ -60,7 +60,7 @@ async function sendTweetReactionChainBlockConfirm(
       tweet,
     },
   }
-  const result = await createChainBlockSession(request)
+  const result = createChainBlockSession(request)
   if (result.ok) {
     return confirmSession(tab, request, result.value)
   } else {
