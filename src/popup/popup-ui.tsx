@@ -1,5 +1,5 @@
 import { requestProgress } from '../scripts/background/request-sender.js'
-import { loadOptions, RedBlockStorage } from '../scripts/background/storage.js'
+import { loadOptions } from '../scripts/background/storage.js'
 import * as TwitterAPI from '../scripts/background/twitter-api.js'
 import { isRunningSession, UI_UPDATE_DELAY } from '../scripts/common.js'
 import * as i18n from '../scripts/i18n.js'

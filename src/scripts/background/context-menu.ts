@@ -1,7 +1,6 @@
 import { getUserNameFromURL } from '../common.js'
 import * as i18n from '../i18n.js'
 import { followerBlockDefaultOption, tweetReactionBlockDefaultOption } from './chainblock-session/session.js'
-import { loadOptions, onOptionsChanged } from './storage.js'
 import * as TwitterAPI from './twitter-api.js'
 import { createChainBlockSession, confirmSession } from './entrypoint.js'
 import { checkResultToString } from '../text-generate.js'
@@ -186,6 +185,5 @@ async function createContextMenu() {
 }
 
 export function initializeContextMenu() {
-  loadOptions().then(createContextMenu)
-  onOptionsChanged(createContextMenu)
+  createContextMenu()
 }

@@ -1,5 +1,3 @@
-import { RedBlockStorage } from '../background/storage'
-
 {
   // Content scripts에선 ECMAScript Module import를 지원하지 않는다.
   // 그래서 복붙함...

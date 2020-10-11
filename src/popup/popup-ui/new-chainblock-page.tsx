@@ -319,15 +319,11 @@ function TargetUserSelectUI(props: { isAvailable: boolean }) {
     }
   }
   React.useEffect(() => {
-    async function loadUsers() {
-      const users = await Storage.loadUsers()
-      setSavedUsers(users)
-      return users
-    }
-    loadUsers()
-    return Storage.onSavedUsersChanged(async users => {
-      await loadUsers()
-      if (!(selectedUser && users.hasUser(selectedUser))) {
+    Storage.loadUsers().then(setSavedUsers)
+    return Storage.onStorageChanged('savedUsers', async users => {
+      const usersMap = TwitterUserMap.fromUsersArray(users)
+      setSavedUsers(usersMap)
+      if (!(selectedUser && usersMap.hasUser(selectedUser))) {
         setSelectedUser(currentUser)
         selectUserGroup('current')
       }

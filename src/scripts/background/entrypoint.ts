@@ -107,13 +107,13 @@ async function sendProgress() {
 
 async function saveUserToStorage(user: TwitterUser) {
   console.info('saving user', user)
-  storageQueue = storageQueue.then(() => Storage.insertSingleUserAndSave(user))
+  storageQueue = storageQueue.then(() => Storage.insertUser(user))
   return storageQueue
 }
 
 async function removeUserFromStorage(user: TwitterUser) {
   console.info('removing user', user)
-  storageQueue = storageQueue.then(() => Storage.removeSingleUserAndSave(user))
+  storageQueue = storageQueue.then(() => Storage.removeUser(user))
   return storageQueue
 }
 

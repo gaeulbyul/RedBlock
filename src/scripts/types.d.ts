@@ -230,7 +230,7 @@ interface BadWordItem {
   regexp: boolean
 }
 
-// ㅡㅡ block limitation ㅡㅡ
+// ---- block limitation ----
 
 interface BlockLimiterStatus {
   current: number

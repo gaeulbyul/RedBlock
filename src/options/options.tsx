@@ -5,7 +5,7 @@ import { RedBlockUITheme } from '../popup/popup-ui/ui-common.js'
 const M = MaterialUI
 const T = MaterialUI.Typography
 
-type RedBlockOptions = Storage.RedBlockStorage['options']
+type RedBlockOptions = RedBlockStorage['options']
 
 const useStylesForTable = MaterialUI.makeStyles(_theme => ({
   tablePaper: {
@@ -62,7 +62,7 @@ function BadwordsTable() {
   const [newBadWordWordInputRef] = React.useState(() => React.createRef<HTMLInputElement>())
   React.useEffect(() => {
     Storage.loadBadWords().then(setBadWords)
-    return Storage.onBadWordsChanged(setBadWords)
+    Storage.onStorageChanged('badWords', setBadWords)
   }, [])
   async function insertWord() {
     const newWord = newBadWordWord
@@ -181,7 +181,7 @@ function OptionsApp() {
   const theme = React.useMemo(() => RedBlockUITheme(darkMode), [darkMode])
   React.useEffect(() => {
     Storage.loadOptions().then(setOptions)
-    return Storage.onOptionsChanged(setOptions)
+    return Storage.onStorageChanged('options', setOptions)
   }, [])
   async function mutateOptions(newOptionsPart: Partial<RedBlockOptions>) {
     const newOptions = { ...options, ...newOptionsPart }
