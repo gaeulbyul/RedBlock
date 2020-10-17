@@ -133,11 +133,12 @@
   }
 
   function addBlockButtonToQuotedTweetElem(elem: HTMLElement, user: TwitterUser) {
-    const blockquote = elem.querySelector('[role=blockquote]')!
+    const article = elem.closest('article[role=article]')!
+    const blockquote = article.querySelector('div[role=link]')!
     const timestamp = blockquote.querySelector('time')!
     const btn = generateBlockButton(user)
     btn.classList.add('redblock-btn-tweet')
-    timestamp.before(btn)
+    timestamp.after(btn)
   }
 
   function addBlockButtonToUserCellElem(elem: HTMLElement, user: TwitterUser) {

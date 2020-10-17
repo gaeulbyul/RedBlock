@@ -7,17 +7,6 @@ interface ReduxStore {
 {
   let reduxStore: ReduxStore
   let myselfUserId = ''
-  function dig(obj: () => unknown): unknown {
-    try {
-      return obj()
-    } catch (err) {
-      if (err instanceof TypeError) {
-        return null
-      } else {
-        throw err
-      }
-    }
-  }
 
   function* getAddedElementsFromMutations(mutations: MutationRecord[]): IterableIterator<HTMLElement> {
     for (const mut of mutations) {
@@ -100,28 +89,20 @@ interface ReduxStore {
     if (!elem.matches('[data-testid=tweet]')) {
       throw new Error('unexpected non-tweet elem?')
     }
-    const article = elem.closest('article[role=article]')
-    if (!(article && article.parentElement)) {
-      throw new Error()
-    }
-    // tweet-detail
-    const parentReh = getReactEventHandlers(article.parentElement)
-    const maybeTweetId1 = dig(() => parentReh.children.props.entry.entryId)
-    if (typeof maybeTweetId1 === 'string') {
-      const maybeTweetId1Match = /^tweet-(\d+)$/.exec(maybeTweetId1 || '')
-      if (maybeTweetId1Match) {
-        return maybeTweetId1Match[1]
+    const article = elem.closest('article[role=article]')! as HTMLElement
+    const permalinks = article.querySelectorAll<HTMLAnchorElement>('a[href^="/"][href*="/status/"')
+    for (const plink of permalinks) {
+      const tweetIdMatch = /\/status\/(\d+)/.exec(plink.pathname)
+      const tweetId = tweetIdMatch![1]
+      const firstChild = plink.firstElementChild
+      if (firstChild?.tagName === 'TIME') {
+        return tweetId
       }
-    }
-    const permalink = elem.querySelector('a[href^="/"][href*="/status/"')
-    if (!(permalink instanceof HTMLAnchorElement)) {
-      return null
-    }
-    const maybeTimeElem = permalink.children[0]
-    if (maybeTimeElem.tagName === 'TIME') {
-      const maybeTweetId2Match = /\/status\/(\d+)$/.exec(permalink.pathname)
-      if (maybeTweetId2Match) {
-        return maybeTweetId2Match[1]
+      const viaLabel = article.querySelector(
+        'a[href="https://help.twitter.com/using-twitter/how-to-tweet#source-labels"]'
+      )
+      if (viaLabel?.parentElement!.contains(plink)) {
+        return tweetId
       }
     }
     // 신고한 트윗이나 안 보이는 트윗 등의 경우, 여기서 트윗 ID를 못 찾는다.
