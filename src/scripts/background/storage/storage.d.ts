@@ -4,7 +4,6 @@ interface RedBlockStorage {
     removeSessionAfterComplete: boolean
   }
   badWords: BadWordItem[]
-  reservedRequest: ReservedRequest[]
 }
 
 type RedBlockStorageChanges = {
