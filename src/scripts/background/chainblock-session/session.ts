@@ -1,7 +1,6 @@
 import * as Scraper from './scraper.js'
 import * as TwitterAPI from '../twitter-api.js'
 import { EventEmitter, SessionStatus, copyFrozenObject, sleep, getCountOfUsersToBlock } from '../../common.js'
-import Blocker from './blocker.js'
 import BlockLimiter from '../block-limiter.js'
 
 export type SessionRequest = FollowerBlockSessionRequest | TweetReactionBlockSessionRequest | ImportBlockSessionRequest
@@ -159,7 +158,6 @@ export default class ChainBlockSession {
     if (!this.sessionInfo.confirmed) {
       throw new Error('session not confirmed')
     }
-    const blocker = new Blocker()
     let apiKind: ApiKind
     switch (this.request.target.type) {
       case 'follower':
@@ -172,18 +170,6 @@ export default class ChainBlockSession {
         apiKind = 'lookup-users'
         break
     }
-    const incrementSuccess = (v: VerbSomething) => this.sessionInfo.progress.success[v]++
-    const incrementFailure = () => this.sessionInfo.progress.failure++
-    blocker.onSuccess = (user, whatIDid) => {
-      incrementSuccess(whatIDid)
-      this.eventEmitter.emit('mark-user', {
-        userId: user.id_str,
-        verb: whatIDid,
-      })
-    }
-    blocker.onError = () => {
-      incrementFailure()
-    }
     let stopped = false
     try {
       if (!this.isPrepared) {
@@ -194,7 +180,6 @@ export default class ChainBlockSession {
       for await (const scraperResponse of this.scraper) {
         if (this.shouldStop) {
           stopped = true
-          await blocker.flush()
           break
         }
         this.sessionInfo.progress.scraped = this.calculateScrapedCount()
@@ -218,9 +203,9 @@ export default class ChainBlockSession {
           this.sessionInfo.progress.total = this.scraper.totalCount
         }
         this.handleRunning()
+        let promisesBuffer: Promise<any>[] = []
         for (const user of scraperResponse.value.users) {
           const whatToDo = this.whatToDoGivenUser(this.request, user)
-          // console.debug('whatToDo(req: %o / user: %o) = "%s"', this.request, user, whatToDo)
           if (whatToDo === 'Skip') {
             this.sessionInfo.progress.skipped++
             continue
@@ -228,11 +213,40 @@ export default class ChainBlockSession {
             this.sessionInfo.progress.already++
             continue
           }
-          blocker.add(whatToDo, user)
-          await blocker.flushIfNeeded()
+          let promise: Promise<any>
+          switch (whatToDo) {
+            case 'Block':
+              promise = TwitterAPI.blockUser(user)
+              break
+            case 'Mute':
+              promise = TwitterAPI.muteUser(user)
+              break
+            case 'UnBlock':
+              promise = TwitterAPI.unblockUser(user)
+              break
+            case 'UnMute':
+              promise = TwitterAPI.unmuteUser(user)
+              break
+          }
+          promise = promise.then(result => {
+            if (result) {
+              this.sessionInfo.progress.success[whatToDo]++
+              this.eventEmitter.emit('mark-user', {
+                userId: user.id_str,
+                verb: whatToDo,
+              })
+            } else {
+              this.sessionInfo.progress.failure++
+            }
+          })
+          if (whatToDo === 'Block' || whatToDo === 'Mute') {
+            await promise
+          } else if (whatToDo === 'UnBlock' || whatToDo === 'UnMute') {
+            promisesBuffer.push(promise)
+          }
         }
+        await Promise.allSettled(promisesBuffer)
       }
-      await blocker.flush()
       if (stopped) {
         this.sessionInfo.status = SessionStatus.Stopped
         this.eventEmitter.emit('stopped', this.getSessionInfo())
