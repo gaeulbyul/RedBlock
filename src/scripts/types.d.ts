@@ -59,31 +59,31 @@ declare namespace RBMessageToBackground {
     request: ImportBlockSessionRequest
   }
 
-  interface Cancel {
-    messageType: 'Cancel'
+  interface CancelSession {
+    messageType: 'CancelSession'
     messageTo: 'background'
     sessionId: string
   }
 
-  interface Start {
-    messageType: 'Start'
+  interface StartSession {
+    messageType: 'StartSession'
     messageTo: 'background'
     sessionId: string
   }
 
-  interface Stop {
-    messageType: 'StopChainBlock'
+  interface StopSession {
+    messageType: 'StopSession'
     messageTo: 'background'
     sessionId: string
   }
 
-  interface StopAll {
-    messageType: 'StopAllChainBlock'
+  interface StopAllSessions {
+    messageType: 'StopAllSessions'
     messageTo: 'background'
   }
 
-  interface Rewind {
-    messageType: 'RewindChainBlock'
+  interface RewindSession {
+    messageType: 'RewindSession'
     messageTo: 'background'
     sessionId: string
   }
@@ -138,11 +138,11 @@ declare type RBMessageToBackgroundType =
   | RBMessageToBackground.CreateFollowerChainBlockSession
   | RBMessageToBackground.CreateTweetReactionChainBlockSession
   | RBMessageToBackground.CreateImportChainBlockSession
-  | RBMessageToBackground.Cancel
-  | RBMessageToBackground.Start
-  | RBMessageToBackground.Stop
-  | RBMessageToBackground.StopAll
-  | RBMessageToBackground.Rewind
+  | RBMessageToBackground.CancelSession
+  | RBMessageToBackground.StartSession
+  | RBMessageToBackground.StopSession
+  | RBMessageToBackground.StopAllSessions
+  | RBMessageToBackground.RewindSession
   | RBMessageToBackground.InsertUserToStorage
   | RBMessageToBackground.RemoveUserFromStorage
   | RBMessageToBackground.RequestProgress

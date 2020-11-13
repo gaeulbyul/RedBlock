@@ -129,22 +129,22 @@ function handleExtensionMessage(message: RBMessageToBackgroundType, _sender: bro
         }
       }
       break
-    case 'Cancel':
+    case 'CancelSession':
       chainblocker.cancel(message.sessionId)
       sendProgress()
       break
-    case 'Start':
+    case 'StartSession':
       startSession(message.sessionId).then(sendProgress)
       break
-    case 'StopChainBlock':
+    case 'StopSession':
       chainblocker.stop(message.sessionId)
       sendProgress()
       break
-    case 'StopAllChainBlock':
+    case 'StopAllSessions':
       chainblocker.stopAll()
       sendProgress()
       break
-    case 'RewindChainBlock':
+    case 'RewindSession':
       chainblocker.rewind(message.sessionId)
       break
     case 'RequestProgress':

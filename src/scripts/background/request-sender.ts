@@ -23,31 +23,31 @@ export async function startImportChainBlock(request: ImportBlockSessionRequest) 
 }
 
 export async function cancelChainBlock(sessionId: string) {
-  return browser.runtime.sendMessage<RBMessageToBackground.Cancel>({
-    messageType: 'Cancel',
+  return browser.runtime.sendMessage<RBMessageToBackground.CancelSession>({
+    messageType: 'CancelSession',
     messageTo: 'background',
     sessionId,
   })
 }
 
 export async function stopChainBlock(sessionId: string) {
-  return browser.runtime.sendMessage<RBMessageToBackground.Stop>({
-    messageType: 'StopChainBlock',
+  return browser.runtime.sendMessage<RBMessageToBackground.StopSession>({
+    messageType: 'StopSession',
     messageTo: 'background',
     sessionId,
   })
 }
 
 export async function stopAllChainBlock() {
-  return browser.runtime.sendMessage<RBMessageToBackground.StopAll>({
-    messageType: 'StopAllChainBlock',
+  return browser.runtime.sendMessage<RBMessageToBackground.StopAllSessions>({
+    messageType: 'StopAllSessions',
     messageTo: 'background',
   })
 }
 
 export async function rewindChainBlock(sessionId: string) {
-  return browser.runtime.sendMessage<RBMessageToBackground.Rewind>({
-    messageType: 'RewindChainBlock',
+  return browser.runtime.sendMessage<RBMessageToBackground.RewindSession>({
+    messageType: 'RewindSession',
     messageTo: 'background',
     sessionId,
   })

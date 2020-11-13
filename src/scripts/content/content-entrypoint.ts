@@ -46,14 +46,14 @@ function listenExtensionMessages(reactRoot: Element | null) {
         break
       case 'ConfirmChainBlock':
         if (window.confirm(msg.confirmMessage)) {
-          browser.runtime.sendMessage<RBMessageToBackground.Start>({
-            messageType: 'Start',
+          browser.runtime.sendMessage<RBMessageToBackground.StartSession>({
+            messageType: 'StartSession',
             messageTo: 'background',
             sessionId: msg.sessionId,
           })
         } else {
-          browser.runtime.sendMessage<RBMessageToBackground.Cancel>({
-            messageType: 'Cancel',
+          browser.runtime.sendMessage<RBMessageToBackground.CancelSession>({
+            messageType: 'CancelSession',
             messageTo: 'background',
             sessionId: msg.sessionId,
           })

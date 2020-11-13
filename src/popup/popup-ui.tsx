@@ -102,15 +102,15 @@ function PopupApp(props: PopupAppProps) {
       dialogType: 'confirm',
       message: confirmMessage,
       callbackOnOk() {
-        return browser.runtime.sendMessage<RBMessageToBackground.Start>({
-          messageType: 'Start',
+        return browser.runtime.sendMessage<RBMessageToBackground.StartSession>({
+          messageType: 'StartSession',
           messageTo: 'background',
           sessionId,
         })
       },
       callbackOnCancel() {
-        return browser.runtime.sendMessage<RBMessageToBackground.Cancel>({
-          messageType: 'Cancel',
+        return browser.runtime.sendMessage<RBMessageToBackground.CancelSession>({
+          messageType: 'CancelSession',
           messageTo: 'background',
           sessionId,
         })
