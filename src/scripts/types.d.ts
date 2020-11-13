@@ -22,9 +22,7 @@ type FollowKind = 'followers' | 'friends' | 'mutual-followers'
 type ChainKind = 'chainblock' | 'unchainblock'
 type ReactionKind = 'retweeted' | 'liked'
 
-type VerbSomething = 'Block' | 'UnBlock' | 'Mute' | 'UnMute'
-type VerbNothing = 'Skip' | 'AlreadyDone'
-type Verb = VerbSomething | VerbNothing
+type UserAction = 'Skip' | 'Block' | 'UnBlock' | 'Mute' | 'UnMute'
 
 type EventStore = Record<string, Function[]>
 
@@ -183,7 +181,7 @@ declare namespace RBMessageToContent {
     messageType: 'MarkUser'
     messageTo: 'content'
     userId: string
-    verb: VerbSomething
+    userAction: UserAction
   }
 
   interface Alert {
@@ -216,7 +214,7 @@ declare type RBMessageToContentType =
 
 interface MarkUserParams {
   userId: string
-  verb: VerbSomething
+  userAction: UserAction
 }
 
 interface MarkManyUsersAsBlockedParams {

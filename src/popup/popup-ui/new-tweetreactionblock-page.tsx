@@ -157,7 +157,7 @@ function TargetTweetOuterUI() {
 function TargetChainBlockOptionsUI() {
   const { targetOptions, mutateOptions } = React.useContext(TargetTweetContext)
   const { myFollowers, myFollowings } = targetOptions
-  const verbs: Array<[Verb, string]> = [
+  const userActions: Array<[UserAction, string]> = [
     ['Skip', i18n.getMessage('skip')],
     ['Mute', i18n.getMessage('do_mute')],
     ['Block', i18n.getMessage('do_block')],
@@ -167,13 +167,13 @@ function TargetChainBlockOptionsUI() {
       <M.FormControl component="fieldset">
         <M.FormLabel component="legend">{i18n.getMessage('my_followers')}</M.FormLabel>
         <M.RadioGroup row>
-          {verbs.map(([verb, vKor], index) => (
+          {userActions.map(([userAction, localizedAction], index) => (
             <M.FormControlLabel
               key={index}
               control={<M.Radio size="small" />}
-              checked={myFollowers === verb}
-              onChange={() => mutateOptions({ myFollowers: verb })}
-              label={vKor}
+              checked={myFollowers === userAction}
+              onChange={() => mutateOptions({ myFollowers: userAction })}
+              label={localizedAction}
             />
           ))}
         </M.RadioGroup>
@@ -182,13 +182,13 @@ function TargetChainBlockOptionsUI() {
       <M.FormControl component="fieldset">
         <M.FormLabel component="legend">{i18n.getMessage('my_followings')}</M.FormLabel>
         <M.RadioGroup row>
-          {verbs.map(([verb, vKor], index) => (
+          {userActions.map(([userAction, localizedAction], index) => (
             <M.FormControlLabel
               key={index}
               control={<M.Radio size="small" />}
-              checked={myFollowings === verb}
-              onChange={() => mutateOptions({ myFollowings: verb })}
-              label={vKor}
+              checked={myFollowings === userAction}
+              onChange={() => mutateOptions({ myFollowings: userAction })}
+              label={localizedAction}
             />
           ))}
         </M.RadioGroup>

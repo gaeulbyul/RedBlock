@@ -70,11 +70,11 @@ interface ReduxStore {
     })
   }
 
-  function markUser({ userId, verb }: MarkUserParams) {
+  function markUser({ userId, userAction }: MarkUserParams) {
     const id = uuid.v1()
-    const verbUpperCase = verb.toUpperCase()
+    const userActionUpperCase = userAction.toUpperCase()
     findReduxStore().dispatch({
-      type: `rweb/entities/users/${verbUpperCase}_REQUEST`,
+      type: `rweb/entities/users/${userActionUpperCase}_REQUEST`,
       optimist: {
         type: 'BEGIN',
         id,
@@ -123,7 +123,7 @@ interface ReduxStore {
       const rafTimeout = { timeout: 30000 }
       window.requestAnimationFrame(() => {
         for (const userId of customEvent.detail.userIds) {
-          markUser({ userId, verb: 'Block' })
+          markUser({ userId, userAction: 'Block' })
         }
         // @ts-ignore
       }, rafTimeout)

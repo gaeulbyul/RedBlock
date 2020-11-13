@@ -118,7 +118,7 @@
       blockUser(user)
       user.blocking = true
       markUser({
-        verb: 'Block',
+        userAction: 'Block',
         userId: user.id_str,
       })
       toastMessage(`[Red Block] ${i18nGetMessage('blocked_xxx', user.screen_name)}`)

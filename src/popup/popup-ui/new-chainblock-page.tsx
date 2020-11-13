@@ -243,7 +243,7 @@ function TargetUserProfileEmpty(props: { reason: 'invalid-user' | 'loading' }) {
 function TargetChainBlockOptionsUI() {
   const { targetOptions, mutateOptions } = React.useContext(TargetUserContext)
   const { myFollowers, myFollowings } = targetOptions
-  const verbs: Array<[Verb, string]> = [
+  const userActions: Array<[UserAction, string]> = [
     ['Skip', i18n.getMessage('skip')],
     ['Mute', i18n.getMessage('do_mute')],
     ['Block', i18n.getMessage('do_block')],
@@ -253,13 +253,13 @@ function TargetChainBlockOptionsUI() {
       <M.FormControl component="fieldset">
         <M.FormLabel component="legend">{i18n.getMessage('my_followers')}</M.FormLabel>
         <M.RadioGroup row>
-          {verbs.map(([verb, vKor], index) => (
+          {userActions.map(([action, localizedAction], index) => (
             <M.FormControlLabel
               key={index}
               control={<M.Radio size="small" />}
-              checked={myFollowers === verb}
-              onChange={() => mutateOptions({ myFollowers: verb })}
-              label={vKor}
+              checked={myFollowers === action}
+              onChange={() => mutateOptions({ myFollowers: action })}
+              label={localizedAction}
             />
           ))}
         </M.RadioGroup>
@@ -268,13 +268,13 @@ function TargetChainBlockOptionsUI() {
       <M.FormControl component="fieldset">
         <M.FormLabel component="legend">{i18n.getMessage('my_followings')}</M.FormLabel>
         <M.RadioGroup row>
-          {verbs.map(([verb, vKor], index) => (
+          {userActions.map(([action, localizedAction], index) => (
             <M.FormControlLabel
               key={index}
               control={<M.Radio size="small" />}
-              checked={myFollowings === verb}
-              onChange={() => mutateOptions({ myFollowings: verb })}
-              label={vKor}
+              checked={myFollowings === action}
+              onChange={() => mutateOptions({ myFollowings: action })}
+              label={localizedAction}
             />
           ))}
         </M.RadioGroup>
@@ -425,7 +425,7 @@ function TargetUnChainBlockOptionsUI() {
   // const { options, mutateOptions } = props
   const { targetOptions, mutateOptions } = React.useContext(TargetUserContext)
   const { mutualBlocked } = targetOptions
-  const verbs: Array<[Verb, string]> = [
+  const userActions: Array<[UserAction, string]> = [
     ['Skip', i18n.getMessage('skip')],
     ['UnBlock', i18n.getMessage('do_unblock')],
   ]
@@ -434,13 +434,13 @@ function TargetUnChainBlockOptionsUI() {
       <M.FormControl component="fieldset">
         <M.FormLabel component="legend">{i18n.getMessage('mutually_blocked')}</M.FormLabel>
         <M.RadioGroup row>
-          {verbs.map(([verb, vKor], index) => (
+          {userActions.map(([action, localizedAction], index) => (
             <M.FormControlLabel
               key={index}
               control={<M.Radio size="small" />}
-              checked={mutualBlocked === verb}
-              onChange={() => mutateOptions({ mutualBlocked: verb })}
-              label={vKor}
+              checked={mutualBlocked === action}
+              onChange={() => mutateOptions({ mutualBlocked: action })}
+              label={localizedAction}
             />
           ))}
         </M.RadioGroup>

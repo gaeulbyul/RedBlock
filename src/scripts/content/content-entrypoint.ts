@@ -35,7 +35,7 @@ function listenExtensionMessages(reactRoot: Element | null) {
             new CustomEvent<MarkUserParams>('RedBlock->MarkUser', {
               detail: cloneDetail({
                 userId: msg.userId,
-                verb: msg.verb,
+                userAction: msg.userAction,
               }),
             })
           )

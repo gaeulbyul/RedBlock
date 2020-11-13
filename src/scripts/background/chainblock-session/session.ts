@@ -23,9 +23,9 @@ export interface FollowerBlockSessionRequest {
     list: FollowKind
   }
   options: {
-    myFollowers: Verb
-    myFollowings: Verb
-    mutualBlocked: Verb
+    myFollowers: UserAction
+    myFollowings: UserAction
+    mutualBlocked: UserAction
   }
 }
 
@@ -43,8 +43,8 @@ export interface TweetReactionBlockSessionRequest {
     blockLikers: boolean
   }
   options: {
-    myFollowers: Verb
-    myFollowings: Verb
+    myFollowers: UserAction
+    myFollowings: UserAction
   }
 }
 
@@ -55,8 +55,8 @@ export interface ImportBlockSessionRequest {
     userIds: string[]
   }
   options: {
-    myFollowers: Verb
-    myFollowings: Verb
+    myFollowers: UserAction
+    myFollowings: UserAction
   }
 }
 
@@ -65,7 +65,7 @@ export interface SessionInfo<ReqT = SessionRequest> {
   request: ReqT
   progress: {
     success: {
-      [verb in VerbSomething]: number
+      [action in Exclude<UserAction, 'Skip'>]: number
     }
     failure: number
     already: number
@@ -79,18 +79,18 @@ export interface SessionInfo<ReqT = SessionRequest> {
   limit: TwitterAPI.Limit | null
 }
 
-function isAlreadyDone(follower: TwitterUser, verb: VerbSomething): boolean {
+function isAlreadyDone(follower: TwitterUser, action: UserAction): boolean {
   if (!('blocking' in follower && 'muting' in follower)) {
     return false
   }
   const { blocking, muting } = follower
-  if (blocking && verb === 'Block') {
+  if (blocking && action === 'Block') {
     return true
-  } else if (!blocking && verb === 'UnBlock') {
+  } else if (!blocking && action === 'UnBlock') {
     return true
-  } else if (muting && verb === 'Mute') {
+  } else if (muting && action === 'Mute') {
     return true
-  } else if (!muting && verb === 'UnMute') {
+  } else if (!muting && action === 'UnMute') {
     return true
   }
   return false
@@ -233,7 +233,7 @@ export default class ChainBlockSession {
               this.sessionInfo.progress.success[whatToDo]++
               this.eventEmitter.emit('mark-user', {
                 userId: user.id_str,
-                verb: whatToDo,
+                userAction: whatToDo,
               })
             } else {
               this.sessionInfo.progress.failure++
@@ -328,7 +328,7 @@ export default class ChainBlockSession {
     const { success, already, failure, error, skipped } = this.sessionInfo.progress
     return _.sum([...Object.values(success), already, failure, error, skipped])
   }
-  private whatToDoGivenUser(request: SessionRequest, follower: TwitterUser): Verb {
+  private whatToDoGivenUser(request: SessionRequest, follower: TwitterUser): UserAction | 'Skip' | 'AlreadyDone' {
     const { purpose, options, target } = request
     const { following, followed_by, follow_request_sent } = follower
     if (!(typeof following === 'boolean' && typeof followed_by === 'boolean')) {
@@ -354,19 +354,19 @@ export default class ChainBlockSession {
         return options.mutualBlocked
       }
     }
-    let defaultVerb: Verb
+    let defaultAction: UserAction
     switch (purpose) {
       case 'chainblock':
-        defaultVerb = 'Block'
+        defaultAction = 'Block'
         break
       case 'unchainblock':
-        defaultVerb = 'UnBlock'
+        defaultAction = 'UnBlock'
         break
     }
-    if (isAlreadyDone(follower, defaultVerb)) {
+    if (isAlreadyDone(follower, defaultAction)) {
       return 'AlreadyDone'
     }
-    return defaultVerb
+    return defaultAction
   }
 }
 
