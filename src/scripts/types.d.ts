@@ -40,104 +40,119 @@ interface EitherLeft<E> {
 
 type Either<E, T> = EitherLeft<E> | EitherRight<T>
 
-declare namespace RBActions {
+declare namespace RBMessageToBackground {
   interface CreateFollowerChainBlockSession {
-    actionType: 'CreateFollowerChainBlockSession'
+    messageType: 'CreateFollowerChainBlockSession'
+    messageTo: 'background'
     request: FollowerBlockSessionRequest
   }
 
   interface CreateTweetReactionChainBlockSession {
-    actionType: 'CreateTweetReactionChainBlockSession'
+    messageType: 'CreateTweetReactionChainBlockSession'
+    messageTo: 'background'
     request: TweetReactionBlockSessionRequest
   }
 
   interface CreateImportChainBlockSession {
-    actionType: 'CreateImportChainBlockSession'
+    messageType: 'CreateImportChainBlockSession'
+    messageTo: 'background'
     request: ImportBlockSessionRequest
   }
 
   interface Cancel {
-    actionType: 'Cancel'
+    messageType: 'Cancel'
+    messageTo: 'background'
     sessionId: string
   }
 
   interface Start {
-    actionType: 'Start'
+    messageType: 'Start'
+    messageTo: 'background'
     sessionId: string
   }
 
   interface Stop {
-    actionType: 'StopChainBlock'
+    messageType: 'StopChainBlock'
+    messageTo: 'background'
     sessionId: string
   }
 
   interface StopAll {
-    actionType: 'StopAllChainBlock'
+    messageType: 'StopAllChainBlock'
+    messageTo: 'background'
   }
 
   interface Rewind {
-    actionType: 'RewindChainBlock'
+    messageType: 'RewindChainBlock'
+    messageTo: 'background'
     sessionId: string
   }
 
   interface InsertUserToStorage {
-    actionType: 'InsertUserToStorage'
+    messageType: 'InsertUserToStorage'
+    messageTo: 'background'
     user: TwitterUser
   }
 
   interface RemoveUserFromStorage {
-    actionType: 'RemoveUserFromStorage'
+    messageType: 'RemoveUserFromStorage'
+    messageTo: 'background'
     user: TwitterUser
   }
 
   interface RequestProgress {
-    actionType: 'RequestProgress'
+    messageType: 'RequestProgress'
+    messageTo: 'background'
   }
 
   interface RequestCleanup {
-    actionType: 'RequestCleanup'
+    messageType: 'RequestCleanup'
+    messageTo: 'background'
     cleanupWhat: 'inactive' | 'not-confirmed'
   }
 
   interface RefreshSavedUsers {
-    actionType: 'RefreshSavedUsers'
+    messageType: 'RefreshSavedUsers'
+    messageTo: 'background'
   }
 
   interface RequestResetCounter {
-    actionType: 'RequestResetCounter'
+    messageType: 'RequestResetCounter'
+    messageTo: 'background'
   }
 
   interface BlockSingleUser {
-    actionType: 'BlockSingleUser'
+    messageType: 'BlockSingleUser'
+    messageTo: 'background'
     user: TwitterUser
   }
 
   interface UnblockSingleUser {
-    actionType: 'UnblockSingleUser'
+    messageType: 'UnblockSingleUser'
+    messageTo: 'background'
     user: TwitterUser
   }
 }
 
-// background 측으로 보내는 메시지
-type RBAction =
-  | RBActions.CreateFollowerChainBlockSession
-  | RBActions.CreateTweetReactionChainBlockSession
-  | RBActions.CreateImportChainBlockSession
-  | RBActions.Cancel
-  | RBActions.Start
-  | RBActions.Stop
-  | RBActions.StopAll
-  | RBActions.Rewind
-  | RBActions.InsertUserToStorage
-  | RBActions.RemoveUserFromStorage
-  | RBActions.RequestProgress
-  | RBActions.RequestCleanup
-  | RBActions.RefreshSavedUsers
-  | RBActions.RequestResetCounter
-  | RBActions.BlockSingleUser
-  | RBActions.UnblockSingleUser
+declare type RBMessageToBackgroundType =
+  | RBMessageToBackground.CreateFollowerChainBlockSession
+  | RBMessageToBackground.CreateTweetReactionChainBlockSession
+  | RBMessageToBackground.CreateImportChainBlockSession
+  | RBMessageToBackground.Cancel
+  | RBMessageToBackground.Start
+  | RBMessageToBackground.Stop
+  | RBMessageToBackground.StopAll
+  | RBMessageToBackground.Rewind
+  | RBMessageToBackground.InsertUserToStorage
+  | RBMessageToBackground.RemoveUserFromStorage
+  | RBMessageToBackground.RequestProgress
+  | RBMessageToBackground.RequestCleanup
+  | RBMessageToBackground.RefreshSavedUsers
+  | RBMessageToBackground.RequestResetCounter
+  | RBMessageToBackground.BlockSingleUser
+  | RBMessageToBackground.UnblockSingleUser
 
-declare namespace RBMessages {
+declare namespace RBMessageToPopup {
   interface ChainBlockInfo {
     messageType: 'ChainBlockInfo'
     messageTo: 'popup'
@@ -145,6 +160,25 @@ declare namespace RBMessages {
     limiter: BlockLimiterStatus
   }
 
+  interface PopupSwitchTab {
+    messageType: 'PopupSwitchTab'
+    messageTo: 'popup'
+    page: PageEnum[keyof PageEnum]
+  }
+  interface ConfirmChainBlockInPopup {
+    messageType: 'ConfirmChainBlockInPopup'
+    messageTo: 'popup'
+    confirmMessage: DialogMessageObj
+    sessionId: string
+  }
+}
+
+declare type RBMessageToPopupType =
+  | RBMessageToPopup.ChainBlockInfo
+  | RBMessageToPopup.PopupSwitchTab
+  | RBMessageToPopup.ConfirmChainBlockInPopup
+
+declare namespace RBMessageToContent {
   interface MarkUser {
     messageType: 'MarkUser'
     messageTo: 'content'
@@ -152,23 +186,10 @@ declare namespace RBMessages {
     verb: VerbSomething
   }
 
-  interface PopupSwitchTab {
-    messageType: 'PopupSwitchTab'
-    messageTo: 'popup'
-    page: PageEnum[keyof PageEnum]
-  }
-
   interface Alert {
     messageType: 'Alert'
     messageTo: 'content'
     message: string
-  }
-
-  interface ConfirmChainBlockInPopup {
-    messageType: 'ConfirmChainBlockInPopup'
-    messageTo: 'popup'
-    confirmMessage: DialogMessageObj
-    sessionId: string
   }
 
   interface ConfirmChainBlock {
@@ -185,15 +206,11 @@ declare namespace RBMessages {
   }
 }
 
-// popup페이지로 보내는 메시지
-type RBMessageToPopup = RBMessages.ConfirmChainBlockInPopup | RBMessages.PopupSwitchTab | RBMessages.ChainBlockInfo
-
-// content측으로 보내는 메시지
-type RBMessageToContent =
-  | RBMessages.MarkUser
-  | RBMessages.Alert
-  | RBMessages.ConfirmChainBlock
-  | RBMessages.ToggleOneClickBlockMode
+declare type RBMessageToContentType =
+  | RBMessageToContent.MarkUser
+  | RBMessageToContent.Alert
+  | RBMessageToContent.ConfirmChainBlock
+  | RBMessageToContent.ToggleOneClickBlockMode
 
 // ---- content & inject ----
 

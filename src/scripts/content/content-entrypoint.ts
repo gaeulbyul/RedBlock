@@ -24,7 +24,7 @@ function listenExtensionMessages(reactRoot: Element | null) {
       console.debug('unknown msg?', msgobj)
       return
     }
-    const msg = msgobj as RBMessageToContent
+    const msg = msgobj as RBMessageToContentType
     if (msg.messageTo !== 'content') {
       return
     }
@@ -46,13 +46,15 @@ function listenExtensionMessages(reactRoot: Element | null) {
         break
       case 'ConfirmChainBlock':
         if (window.confirm(msg.confirmMessage)) {
-          browser.runtime.sendMessage<RBActions.Start>({
-            actionType: 'Start',
+          browser.runtime.sendMessage<RBMessageToBackground.Start>({
+            messageType: 'Start',
+            messageTo: 'background',
             sessionId: msg.sessionId,
           })
         } else {
-          browser.runtime.sendMessage<RBActions.Cancel>({
-            actionType: 'Cancel',
+          browser.runtime.sendMessage<RBMessageToBackground.Cancel>({
+            messageType: 'Cancel',
+            messageTo: 'background',
             sessionId: msg.sessionId,
           })
         }

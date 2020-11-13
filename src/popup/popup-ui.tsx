@@ -91,7 +91,7 @@ function PopupApp(props: PopupAppProps) {
   function closeMenu() {
     setMenuAnchorEl(null)
   }
-  function handleConfirm({ confirmMessage, sessionId }: RBMessages.ConfirmChainBlockInPopup) {
+  function handleConfirm({ confirmMessage, sessionId }: RBMessageToPopup.ConfirmChainBlockInPopup) {
     if (isPopupOpenedInTab) {
       // 레드블락 UI가 여려군데(팝업 + 탭)에 떠있는 상태에서
       // 체인블락을 실행하면 탭에도 확인메시지가 나타나더라.
@@ -102,14 +102,16 @@ function PopupApp(props: PopupAppProps) {
       dialogType: 'confirm',
       message: confirmMessage,
       callbackOnOk() {
-        return browser.runtime.sendMessage<RBActions.Start>({
-          actionType: 'Start',
+        return browser.runtime.sendMessage<RBMessageToBackground.Start>({
+          messageType: 'Start',
+          messageTo: 'background',
           sessionId,
         })
       },
       callbackOnCancel() {
-        return browser.runtime.sendMessage<RBActions.Cancel>({
-          actionType: 'Cancel',
+        return browser.runtime.sendMessage<RBMessageToBackground.Cancel>({
+          messageType: 'Cancel',
+          messageTo: 'background',
           sessionId,
         })
       },
@@ -121,7 +123,7 @@ function PopupApp(props: PopupAppProps) {
         return
       }
       if ('messageType' in msgobj) {
-        const msg = msgobj as RBMessageToPopup
+        const msg = msgobj as RBMessageToPopupType
         if (msg.messageTo !== 'popup') {
           return
         }
@@ -139,10 +141,6 @@ function PopupApp(props: PopupAppProps) {
           default:
             break
         }
-        return
-      } else if ('actionType' in msgobj) {
-        // reach here if popup opened as tab
-        // silently ignore
         return
       } else {
         console.debug('unknown message', msgobj)
@@ -292,8 +290,9 @@ async function getTabContext(): Promise<TabContext> {
 }
 
 export async function initializeUI() {
-  browser.runtime.sendMessage<RBActions.RequestCleanup>({
-    actionType: 'RequestCleanup',
+  browser.runtime.sendMessage<RBMessageToBackground.RequestCleanup>({
+    messageType: 'RequestCleanup',
+    messageTo: 'background',
     cleanupWhat: 'not-confirmed',
   })
   const redblockOptions = loadOptions()

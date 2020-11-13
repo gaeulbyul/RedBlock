@@ -20,7 +20,7 @@ export async function alertToCurrentTab(message: string) {
   if (!currentTab) {
     return
   }
-  browser.tabs.sendMessage<RBMessages.Alert>(currentTab.id!, {
+  browser.tabs.sendMessage<RBMessageToContent.Alert>(currentTab.id!, {
     messageType: 'Alert',
     messageTo: 'content',
     message,

@@ -55,7 +55,7 @@ function generateConfirmMessage(request: SessionRequest): TextGenerator.DialogMe
 export async function confirmSession(tab: browser.tabs.Tab, request: SessionRequest, sessionId: string) {
   const confirmMessageObj = generateConfirmMessage(request)
   const confirmMessage = TextGenerator.objToString(confirmMessageObj)
-  browser.tabs.sendMessage<RBMessages.ConfirmChainBlock>(tab!.id!, {
+  browser.tabs.sendMessage<RBMessageToContent.ConfirmChainBlock>(tab!.id!, {
     messageType: 'ConfirmChainBlock',
     messageTo: 'content',
     confirmMessage,
@@ -65,7 +65,7 @@ export async function confirmSession(tab: browser.tabs.Tab, request: SessionRequ
 
 async function confirmSessionInPopup(request: SessionRequest, sessionId: string) {
   const confirmMessage = generateConfirmMessage(request)
-  browser.runtime.sendMessage<RBMessages.ConfirmChainBlockInPopup>({
+  browser.runtime.sendMessage<RBMessageToPopup.ConfirmChainBlockInPopup>({
     messageType: 'ConfirmChainBlockInPopup',
     messageTo: 'popup',
     confirmMessage,
@@ -75,7 +75,7 @@ async function confirmSessionInPopup(request: SessionRequest, sessionId: string)
 
 async function startSession(sessionId: string) {
   browser.runtime
-    .sendMessage<RBMessages.PopupSwitchTab>({
+    .sendMessage<RBMessageToPopup.PopupSwitchTab>({
       messageType: 'PopupSwitchTab',
       messageTo: 'popup',
       page: PageEnum.Sessions,
@@ -93,7 +93,7 @@ async function startSession(sessionId: string) {
 async function sendProgress() {
   const sessions = chainblocker.getAllSessionInfos()
   return browser.runtime
-    .sendMessage<RBMessages.ChainBlockInfo>({
+    .sendMessage<RBMessageToPopup.ChainBlockInfo>({
       messageType: 'ChainBlockInfo',
       messageTo: 'popup',
       limiter: {
@@ -117,8 +117,8 @@ async function removeUserFromStorage(user: TwitterUser) {
   return storageQueue
 }
 
-function handleExtensionMessage(message: RBAction, _sender: browser.runtime.MessageSender) {
-  switch (message.actionType) {
+function handleExtensionMessage(message: RBMessageToBackgroundType, _sender: browser.runtime.MessageSender) {
+  switch (message.messageType) {
     case 'CreateFollowerChainBlockSession':
     case 'CreateTweetReactionChainBlockSession':
     case 'CreateImportChainBlockSession':
@@ -190,7 +190,7 @@ function initialize() {
         console.debug('unknown msg?', msg)
         return true
       }
-      handleExtensionMessage(msg as RBAction, sender)
+      handleExtensionMessage(msg as RBMessageToBackgroundType, sender)
       return true
     }
   )

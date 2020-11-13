@@ -66,7 +66,7 @@ export default class ChainBlocker {
         return
       }
       browser.tabs
-        .sendMessage<RBMessages.MarkUser>(id, {
+        .sendMessage<RBMessageToContent.MarkUser>(id, {
           messageType: 'MarkUser',
           messageTo: 'content',
           ...params,

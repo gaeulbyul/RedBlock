@@ -85,8 +85,9 @@
   }
 
   async function blockUser(user: TwitterUser) {
-    return browser.runtime.sendMessage<RBActions.BlockSingleUser>({
-      actionType: 'BlockSingleUser',
+    return browser.runtime.sendMessage<RBMessageToBackground.BlockSingleUser>({
+      messageType: 'BlockSingleUser',
+      messageTo: 'background',
       user,
     })
   }
