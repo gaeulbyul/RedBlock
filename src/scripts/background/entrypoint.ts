@@ -32,9 +32,6 @@ export function createChainBlockSession(request: SessionRequest): SessionCreateR
     }
   }
   const sessionId = chainblocker.add(request)
-  chainblocker.prepare(sessionId).catch(err => {
-    console.error('error on prepare: ', err)
-  })
   return {
     ok: true,
     value: sessionId,
@@ -129,10 +126,6 @@ function handleExtensionMessage(message: RBMessageToBackgroundType, _sender: bro
         }
       }
       break
-    case 'CancelSession':
-      chainblocker.cancel(message.sessionId)
-      sendProgress()
-      break
     case 'StartSession':
       startSession(message.sessionId).then(sendProgress)
       break
@@ -155,8 +148,6 @@ function handleExtensionMessage(message: RBMessageToBackgroundType, _sender: bro
         case 'inactive':
           chainblocker.cleanupInactiveSessions()
           break
-        case 'not-confirmed':
-          chainblocker.cleanupNotConfirmedSession()
       }
       break
     case 'InsertUserToStorage':

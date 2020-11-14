@@ -133,12 +133,6 @@ export default class ChainBlocker {
     this.sessions.delete(sessionId)
     this.updateBadge()
   }
-  public cancel(sessionId: string) {
-    const session = this.sessions.get(sessionId)!
-    session.cancelPrepare()
-    this.sessions.delete(sessionId)
-    this.updateBadge()
-  }
   private register(session: ChainBlockSession) {
     this.handleEvents(session)
     this.sessions.set(session.getSessionInfo().sessionId, session)
@@ -173,11 +167,6 @@ export default class ChainBlocker {
       }
       session.stop()
     }
-    this.updateBadge()
-  }
-  public async prepare(sessionId: string) {
-    const session = this.sessions.get(sessionId)!
-    await session.prepare()
     this.updateBadge()
   }
   public setConfirmed(sessionId: string) {
@@ -222,12 +211,6 @@ export default class ChainBlocker {
   }
   public getAllSessionInfos(): SessionInfo[] {
     return Array.from(this.sessions.values()).map(ses => ses.getSessionInfo())
-  }
-  public cleanupNotConfirmedSession() {
-    this.getAllSessionInfos()
-      .filter(session => !session.confirmed)
-      .forEach(session => this.cancel(session.sessionId))
-    this.updateBadge()
   }
   public cleanupInactiveSessions() {
     this.getAllSessionInfos()

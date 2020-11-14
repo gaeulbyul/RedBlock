@@ -116,8 +116,6 @@ function extractRateLimit(limitStatuses: TwitterAPI.LimitStatus, apiKind: ApiKin
 
 export default class ChainBlockSession {
   private shouldStop = false
-  private preparePromise = Promise.resolve()
-  private isPrepared = false
   private readonly sessionInfo = this.initSessionInfo()
   private readonly scraper = Scraper.initScraper(this.request)
   public readonly eventEmitter = new EventEmitter<SessionEventEmitter>()
@@ -144,16 +142,6 @@ export default class ChainBlockSession {
   public setConfirmed() {
     this.sessionInfo.confirmed = true
   }
-  public async prepare() {
-    if (this.isPrepared) {
-      return
-    }
-    this.preparePromise = this.scraper.prepare()
-    this.isPrepared = true
-  }
-  public cancelPrepare() {
-    this.scraper.stopPrepare()
-  }
   public async start() {
     if (!this.sessionInfo.confirmed) {
       throw new Error('session not confirmed')
@@ -172,11 +160,6 @@ export default class ChainBlockSession {
     }
     let stopped = false
     try {
-      if (!this.isPrepared) {
-        this.prepare()
-      }
-      this.scraper.stopPrepare()
-      await this.preparePromise
       for await (const scraperResponse of this.scraper) {
         if (this.shouldStop) {
           stopped = true

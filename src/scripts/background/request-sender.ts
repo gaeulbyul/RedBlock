@@ -22,14 +22,6 @@ export async function startImportChainBlock(request: ImportBlockSessionRequest) 
   })
 }
 
-export async function cancelChainBlock(sessionId: string) {
-  return browser.runtime.sendMessage<RBMessageToBackground.CancelSession>({
-    messageType: 'CancelSession',
-    messageTo: 'background',
-    sessionId,
-  })
-}
-
 export async function stopChainBlock(sessionId: string) {
   return browser.runtime.sendMessage<RBMessageToBackground.StopSession>({
     messageType: 'StopSession',

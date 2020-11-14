@@ -51,12 +51,6 @@ function listenExtensionMessages(reactRoot: Element | null) {
             messageTo: 'background',
             sessionId: msg.sessionId,
           })
-        } else {
-          browser.runtime.sendMessage<RBMessageToBackground.CancelSession>({
-            messageType: 'CancelSession',
-            messageTo: 'background',
-            sessionId: msg.sessionId,
-          })
         }
         break
       case 'ToggleOneClickBlockMode':

@@ -57,12 +57,6 @@ declare namespace RBMessageToBackground {
     request: ImportBlockSessionRequest
   }
 
-  interface CancelSession {
-    messageType: 'CancelSession'
-    messageTo: 'background'
-    sessionId: string
-  }
-
   interface StartSession {
     messageType: 'StartSession'
     messageTo: 'background'
@@ -136,7 +130,6 @@ declare type RBMessageToBackgroundType =
   | RBMessageToBackground.CreateFollowerChainBlockSession
   | RBMessageToBackground.CreateTweetReactionChainBlockSession
   | RBMessageToBackground.CreateImportChainBlockSession
-  | RBMessageToBackground.CancelSession
   | RBMessageToBackground.StartSession
   | RBMessageToBackground.StopSession
   | RBMessageToBackground.StopAllSessions

@@ -108,13 +108,7 @@ function PopupApp(props: PopupAppProps) {
           sessionId,
         })
       },
-      callbackOnCancel() {
-        return browser.runtime.sendMessage<RBMessageToBackground.CancelSession>({
-          messageType: 'CancelSession',
-          messageTo: 'background',
-          sessionId,
-        })
-      },
+      callbackOnCancel() {},
     })
   }
   React.useEffect(() => {
