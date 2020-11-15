@@ -21,6 +21,19 @@ import { DialogContent, RBDialog, RedBlockUITheme, TabPanel } from './popup-ui/u
 
 import { getCurrentTab, getTweetIdFromTab, getUserNameFromTab, getUserIdFromTab, PageEnum } from './popup.js'
 
+function checkMessage(msg: object): msg is RBMessageToPopupType {
+  if (msg == null) {
+    return false
+  }
+  if (!('messageTo' in msg)) {
+    return false
+  }
+  if ((msg as any).messageTo !== 'popup') {
+    return false
+  }
+  return true
+}
+
 const useStylesForAppBar = MaterialUI.makeStyles(() =>
   MaterialUI.createStyles({
     toolbar: {
@@ -40,6 +53,7 @@ interface PopupAppProps {
   initialPage: PageEnum
   redblockOptions: RedBlockStorage['options']
 }
+
 function PopupApp(props: PopupAppProps) {
   const { loggedIn, currentUser, currentTweet, isPopupOpenedInTab, initialPage, redblockOptions } = props
   const [tabIndex, setTabIndex] = React.useState<PageEnum>(initialPage)
@@ -112,33 +126,24 @@ function PopupApp(props: PopupAppProps) {
     })
   }
   React.useEffect(() => {
-    const messageListener = (msgobj: any) => {
-      if (typeof msgobj !== 'object') {
+    const messageListener = (msg: object) => {
+      if (!checkMessage(msg)) {
+        console.debug('unknown message?', msg)
         return
       }
-      if ('messageType' in msgobj) {
-        const msg = msgobj as RBMessageToPopupType
-        if (msg.messageTo !== 'popup') {
-          return
-        }
-        switch (msg.messageType) {
-          case 'ChainBlockInfo':
-            setSessions(msg.sessions)
-            setLimiterStatus(msg.limiter)
-            break
-          case 'PopupSwitchTab':
-            setTabIndex(msg.page)
-            break
-          case 'ConfirmChainBlockInPopup':
-            handleConfirm(msg)
-            break
-          default:
-            break
-        }
-        return
-      } else {
-        console.debug('unknown message', msgobj)
-        return
+      switch (msg.messageType) {
+        case 'ChainBlockInfo':
+          setSessions(msg.sessions)
+          setLimiterStatus(msg.limiter)
+          break
+        case 'PopupSwitchTab':
+          setTabIndex(msg.page)
+          break
+        case 'ConfirmChainBlockInPopup':
+          handleConfirm(msg)
+          break
+        default:
+          break
       }
     }
     browser.runtime.onMessage.addListener(messageListener)

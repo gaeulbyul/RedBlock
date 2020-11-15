@@ -174,14 +174,27 @@ function handleExtensionMessage(message: RBMessageToBackgroundType, _sender: bro
   }
 }
 
+function checkMessage(msg: object): msg is RBMessageToBackgroundType {
+  if (msg == null) {
+    return false
+  }
+  if (!('messageTo' in msg)) {
+    return false
+  }
+  if ((msg as any).messageTo !== 'background') {
+    return false
+  }
+  return true
+}
+
 function initialize() {
   browser.runtime.onMessage.addListener(
     (msg: object, sender: browser.runtime.MessageSender, _sendResponse: (response: any) => Promise<void>): true => {
-      if (!(typeof msg === 'object' && 'actionType' in msg)) {
+      if (checkMessage(msg)) {
+        handleExtensionMessage(msg, sender)
+      } else {
         console.debug('unknown msg?', msg)
-        return true
       }
-      handleExtensionMessage(msg as RBMessageToBackgroundType, sender)
       return true
     }
   )

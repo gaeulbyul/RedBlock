@@ -18,14 +18,23 @@ function injectScriptToPage(path: string) {
     .remove()
 }
 
+function checkMessage(msg: object): msg is RBMessageToContentType {
+  if (msg == null) {
+    return false
+  }
+  if (!('messageTo' in msg)) {
+    return false
+  }
+  if ((msg as any).messageTo !== 'content') {
+    return false
+  }
+  return true
+}
+
 function listenExtensionMessages(reactRoot: Element | null) {
-  browser.runtime.onMessage.addListener((msgobj: any) => {
-    if (!(typeof msgobj === 'object' && 'messageType' in msgobj)) {
-      console.debug('unknown msg?', msgobj)
-      return
-    }
-    const msg = msgobj as RBMessageToContentType
-    if (msg.messageTo !== 'content') {
+  browser.runtime.onMessage.addListener((msg: object) => {
+    if (!checkMessage(msg)) {
+      console.debug('unknown msg?', msg)
       return
     }
     switch (msg.messageType) {
