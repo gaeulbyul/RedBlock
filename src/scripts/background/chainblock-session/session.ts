@@ -166,11 +166,6 @@ export default class ChainBlockSession {
           break
         }
         this.sessionInfo.progress.scraped = this.calculateScrapedCount()
-        const blockLimitReached = this.limiter.check() !== 'ok'
-        if (blockLimitReached) {
-          this.stop()
-          continue
-        }
         if (!scraperResponse.ok) {
           if (scraperResponse.error instanceof TwitterAPI.RateLimitError) {
             this.handleRateLimit(this.sessionInfo, this.eventEmitter, apiKind)
@@ -188,6 +183,11 @@ export default class ChainBlockSession {
         this.handleRunning()
         let promisesBuffer: Promise<any>[] = []
         for (const user of scraperResponse.value.users) {
+          const blockLimitReached = this.limiter.check() !== 'ok'
+          if (blockLimitReached) {
+            this.stop()
+            break
+          }
           const whatToDo = this.whatToDoGivenUser(this.request, user)
           if (whatToDo === 'Skip') {
             this.sessionInfo.progress.skipped++
