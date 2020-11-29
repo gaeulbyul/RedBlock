@@ -35,6 +35,9 @@
   "like": {
     "message": "Like"
   },
+  "mentioned": {
+    "message": "Mentioned Users"
+  },
   "chainblock": {
     "message": "Chainblock"
   },
@@ -438,6 +441,9 @@
   "run_retweeters_and_likers_chainblock_to_this_tweet": {
     "message": "Run Chainblock on users who retweeted or liked this tweet"
   },
+  "run_mentioned_users_chainblock_to_this_tweet": {
+    "message": "Run Chainblock on users who mentioned on this tweet"
+  },
   "already_running_to_same_target": {
     "message": "Already running on the same target."
   },
@@ -450,14 +456,8 @@
   "cant_chainblock_mutual_follower_is_zero": {
     "message": "This user doesn't have mutual-followers."
   },
-  "cant_chainblock_nobody_retweeted": {
-    "message": "Nobody retweeted this tweet."
-  },
-  "cant_chainblock_nobody_liked": {
-    "message": "Nobody liked this tweet."
-  },
-  "cant_chainblock_nobody_retweet_or_like": {
-    "message": "Nobody retweeted or liked this tweet."
+  "cant_chainblock_nobody_will_blocked": {
+    "message": "There's no user to block on this tweet."
   },
   "cant_chainblock_empty_list": {
     "message": "A list is empty or can't find any user ID."
@@ -531,8 +531,8 @@
   "please_check_login": {
     "message": "You need to be logged in Twitter to use Red Block."
   },
-  "user_ids_to_block": {
-    "message": "User IDs to block"
+  "block_target": {
+    "message": "Users to block"
   },
   "duplicated": {
     "message": "Duplicated"

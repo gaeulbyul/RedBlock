@@ -12,6 +12,8 @@ const TargetTweetContext = React.createContext<{
   setWantBlockRetweeters: (b: boolean) => void
   wantBlockLikers: boolean
   setWantBlockLikers: (b: boolean) => void
+  wantBlockMentionedUsers: boolean
+  setWantBlockMentionedUsers: (b: boolean) => void
   targetOptions: SessionOptions
   setTargetOptions: (options: SessionOptions) => void
   mutateOptions: (optionsPart: Partial<SessionOptions>) => void
@@ -21,6 +23,8 @@ const TargetTweetContext = React.createContext<{
   setWantBlockRetweeters: () => {},
   wantBlockLikers: false,
   setWantBlockLikers: () => {},
+  wantBlockMentionedUsers: false,
+  setWantBlockMentionedUsers: () => {},
   targetOptions: {
     myFollowers: 'Skip',
     myFollowings: 'Skip',
@@ -73,14 +77,21 @@ const BigExecuteChainBlockButton = MaterialUI.withStyles(theme => ({
 }))(MaterialUI.Button)
 
 function TargetTweetUI(props: { tweet: Tweet }) {
-  const { wantBlockRetweeters, setWantBlockRetweeters, wantBlockLikers, setWantBlockLikers } = React.useContext(
-    TargetTweetContext
-  )
+  const {
+    wantBlockRetweeters,
+    setWantBlockRetweeters,
+    wantBlockLikers,
+    setWantBlockLikers,
+    wantBlockMentionedUsers,
+    setWantBlockMentionedUsers,
+  } = React.useContext(TargetTweetContext)
   const { tweet } = props
   const user = tweet.user
   const biggerProfileImageUrl = user.profile_image_url_https.replace('_normal', '_bigger')
+  const mentions = tweet.entities.user_mentions || []
   const nobodyRetweeted = tweet.retweet_count <= 0
   const nobodyLiked = tweet.favorite_count <= 0
+  const nobodyMentioned = mentions.length <= 0
   return (
     <div className="target-user-info">
       <div className="profile-image-area">
@@ -104,7 +115,8 @@ function TargetTweetUI(props: { tweet: Tweet }) {
         </div>
         <div className="profile-right-targettweet">
           <div>
-            <small>{tweet.text}</small>
+            <span>트윗 내용:</span>
+            <blockquote className="tweet-content">{tweet.full_text}</blockquote>
           </div>
           <M.FormGroup row>
             <M.FormControlLabel
@@ -120,6 +132,13 @@ function TargetTweetUI(props: { tweet: Tweet }) {
               checked={wantBlockLikers}
               disabled={nobodyLiked}
               label={`${i18n.getMessage('like')} (${tweet.favorite_count.toLocaleString()})`}
+            />
+            <M.FormControlLabel
+              control={<M.Checkbox size="small" />}
+              onChange={() => setWantBlockMentionedUsers(!wantBlockMentionedUsers)}
+              checked={wantBlockMentionedUsers}
+              disabled={nobodyMentioned}
+              label={`${i18n.getMessage('mentioned')} (${mentions.length.toLocaleString()})`}
             />
           </M.FormGroup>
         </div>
@@ -218,7 +237,13 @@ function TargetOptionsUI() {
 
 function TargetExecutionButtonUI(props: { isAvailable: boolean }) {
   const { isAvailable } = props
-  const { currentTweet, wantBlockRetweeters, wantBlockLikers, targetOptions } = React.useContext(TargetTweetContext)
+  const {
+    currentTweet,
+    wantBlockRetweeters,
+    wantBlockLikers,
+    wantBlockMentionedUsers,
+    targetOptions,
+  } = React.useContext(TargetTweetContext)
   function onExecuteChainBlockButtonClicked() {
     if (!currentTweet) {
       throw new Error('트윗을 선택해주세요')
@@ -230,12 +255,13 @@ function TargetExecutionButtonUI(props: { isAvailable: boolean }) {
         tweet: currentTweet,
         blockRetweeters: wantBlockRetweeters,
         blockLikers: wantBlockLikers,
+        blockMentionedUsers: wantBlockMentionedUsers,
       },
       options: targetOptions,
     }
     startTweetReactionChainBlock(request)
   }
-  const blockButtonDisabled = !(isAvailable && (wantBlockRetweeters || wantBlockLikers))
+  const blockButtonDisabled = !(isAvailable && (wantBlockRetweeters || wantBlockLikers || wantBlockMentionedUsers))
   return (
     <M.Box padding="10px">
       <BigExecuteChainBlockButton disabled={blockButtonDisabled} onClick={onExecuteChainBlockButtonClicked}>
@@ -255,9 +281,9 @@ export default function NewTweetReactionBlockPage(props: { currentTweet: Tweet |
     myFollowers: 'Skip',
     myFollowings: 'Skip',
   })
-  // const [targetReaction, setTargetReaction] = React.useState<ReactionKind>('retweeted')
   const [wantBlockRetweeters, setWantBlockRetweeters] = React.useState<boolean>(false)
   const [wantBlockLikers, setWantBlockLikers] = React.useState<boolean>(false)
+  const [wantBlockMentionedUsers, setWantBlockMentionedUsers] = React.useState<boolean>(false)
   const availableBlocks = React.useMemo((): number => {
     return limiterStatus.max - limiterStatus.current
   }, [limiterStatus])
@@ -283,6 +309,8 @@ export default function NewTweetReactionBlockPage(props: { currentTweet: Tweet |
           setWantBlockRetweeters,
           wantBlockLikers,
           setWantBlockLikers,
+          wantBlockMentionedUsers,
+          setWantBlockMentionedUsers,
           targetOptions,
           setTargetOptions,
           mutateOptions,

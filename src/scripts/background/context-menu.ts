@@ -42,7 +42,15 @@ async function sendFollowerChainBlockConfirm(tab: browser.tabs.Tab, userName: st
 async function sendTweetReactionChainBlockConfirm(
   tab: browser.tabs.Tab,
   tweetId: string,
-  { blockRetweeters, blockLikers }: { blockRetweeters: boolean; blockLikers: boolean }
+  {
+    blockRetweeters,
+    blockLikers,
+    blockMentionedUsers,
+  }: {
+    blockRetweeters: boolean
+    blockLikers: boolean
+    blockMentionedUsers: boolean
+  }
 ) {
   const myself = await TwitterAPI.getMyself().catch(() => null)
   if (!myself) {
@@ -56,6 +64,7 @@ async function sendTweetReactionChainBlockConfirm(
       type: 'tweet_reaction',
       blockRetweeters,
       blockLikers,
+      blockMentionedUsers,
       tweet,
     },
   }
@@ -130,6 +139,7 @@ async function createContextMenu() {
       sendTweetReactionChainBlockConfirm(tab, tweetId, {
         blockRetweeters: true,
         blockLikers: false,
+        blockMentionedUsers: false,
       })
     },
   })
@@ -144,6 +154,7 @@ async function createContextMenu() {
       sendTweetReactionChainBlockConfirm(tab, tweetId, {
         blockRetweeters: false,
         blockLikers: true,
+        blockMentionedUsers: false,
       })
     },
   })
@@ -158,6 +169,22 @@ async function createContextMenu() {
       sendTweetReactionChainBlockConfirm(tab, tweetId, {
         blockRetweeters: true,
         blockLikers: true,
+        blockMentionedUsers: false,
+      })
+    },
+  })
+  menus.create({
+    contexts: ['link'],
+    documentUrlPatterns,
+    targetUrlPatterns: tweetUrlPatterns,
+    title: i18n.getMessage('run_mentioned_users_chainblock_to_this_tweet'),
+    onclick(clickEvent, tab) {
+      const url = new URL(clickEvent.linkUrl!)
+      const tweetId = getTweetIdFromUrl(url)!
+      sendTweetReactionChainBlockConfirm(tab, tweetId, {
+        blockRetweeters: false,
+        blockLikers: false,
+        blockMentionedUsers: true,
       })
     },
   })

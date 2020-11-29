@@ -41,6 +41,7 @@ export interface TweetReactionBlockSessionRequest {
     // reaction: ReactionKind
     blockRetweeters: boolean
     blockLikers: boolean
+    blockMentionedUsers: boolean
   }
   options: {
     myFollowers: UserAction
@@ -146,6 +147,10 @@ export default class ChainBlockSession {
     if (!this.sessionInfo.confirmed) {
       throw new Error('session not confirmed')
     }
+    const $$DBG$$_noApiCall = localStorage.getItem('RedBlock FakeAPI') === 'true'
+    if ($$DBG$$_noApiCall) {
+      console.warn("WARNING: RedBlock FakeAPI mode detected! won't call actual api")
+    }
     let apiKind: ApiKind
     switch (this.request.target.type) {
       case 'follower':
@@ -189,6 +194,7 @@ export default class ChainBlockSession {
             break
           }
           const whatToDo = this.whatToDoGivenUser(this.request, user)
+          console.debug('user %o => %s', user, whatToDo)
           if (whatToDo === 'Skip') {
             this.sessionInfo.progress.skipped++
             continue
@@ -196,20 +202,24 @@ export default class ChainBlockSession {
             this.sessionInfo.progress.already++
             continue
           }
-          let promise: Promise<any>
-          switch (whatToDo) {
-            case 'Block':
-              promise = TwitterAPI.blockUser(user)
-              break
-            case 'Mute':
-              promise = TwitterAPI.muteUser(user)
-              break
-            case 'UnBlock':
-              promise = TwitterAPI.unblockUser(user)
-              break
-            case 'UnMute':
-              promise = TwitterAPI.unmuteUser(user)
-              break
+          let promise: Promise<boolean>
+          if ($$DBG$$_noApiCall) {
+            promise = Promise.resolve(true)
+          } else {
+            switch (whatToDo) {
+              case 'Block':
+                promise = TwitterAPI.blockUser(user)
+                break
+              case 'Mute':
+                promise = TwitterAPI.muteUser(user)
+                break
+              case 'UnBlock':
+                promise = TwitterAPI.unblockUser(user)
+                break
+              case 'UnMute':
+                promise = TwitterAPI.unmuteUser(user)
+                break
+            }
           }
           promise = promise.then(result => {
             if (result) {
@@ -221,6 +231,7 @@ export default class ChainBlockSession {
             } else {
               this.sessionInfo.progress.failure++
             }
+            return result
           })
           if (whatToDo === 'Block' || whatToDo === 'Mute') {
             await promise

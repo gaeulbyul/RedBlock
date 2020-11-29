@@ -90,12 +90,16 @@ class TweetReactedUserScraper implements UserScraper {
     this.totalCount = getReactionsCount(target)
   }
   public async *[Symbol.asyncIterator]() {
-    const { tweet, blockRetweeters, blockLikers } = this.target
+    const { tweet, blockRetweeters, blockLikers, blockMentionedUsers } = this.target
     if (blockRetweeters) {
       yield* UserScrapingAPI.getAllReactedUserList('retweeted', tweet)
     }
     if (blockLikers) {
       yield* UserScrapingAPI.getAllReactedUserList('liked', tweet)
+    }
+    if (blockMentionedUsers) {
+      const mentions = tweet.entities.user_mentions || []
+      yield* UserScrapingAPI.lookupUsersByIds(mentions.map(e => e.id_str))
     }
   }
 }

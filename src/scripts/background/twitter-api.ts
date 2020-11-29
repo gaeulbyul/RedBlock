@@ -90,7 +90,14 @@ export async function unmuteUser(user: TwitterUser) {
 export async function getTweetById(tweetId: string): Promise<Tweet> {
   const response = await requestAPI('get', '/statuses/show.json', {
     id: tweetId,
-    include_entities: false,
+    // 2020-11-28
+    // - include_entities:
+    // 멘션한 유저 체인블락 기능을 구현하기 위해
+    // entities 속성이 필요하다
+    // - tweet_mode: 'extended'
+    // 트윗이 길면 텍스트 뿐만 아니라 멘션한 유저도 적게 가져오더라.
+    include_entities: true,
+    tweet_mode: 'extended',
     include_ext_alt_text: false,
     include_card_uri: false,
   })
@@ -427,7 +434,8 @@ export interface Tweet {
   id_str: string
   // conversation_id_str: string
   user: TwitterUser
-  text: string
+  // 트윗이 140자 넘으면 얘가 undefined로 나오더라.
+  // text: string
   full_text: string
   lang: string
   source: string
@@ -450,6 +458,15 @@ export interface Tweet {
   in_reply_to_status_id_str?: string
   in_reply_to_user_id_str?: string
   in_reply_to_screen_name?: string
+  entities: {
+    user_mentions?: UserMentionEntity[]
+  }
+}
+
+interface UserMentionEntity {
+  id_str: string
+  name: string
+  screen_name: string
 }
 
 export interface Limit {

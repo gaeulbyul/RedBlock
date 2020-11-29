@@ -100,7 +100,7 @@ export function generateFollowerBlockConfirmMessage(request: FollowerBlockSessio
 }
 
 export function generateTweetReactionBlockMessage(request: TweetReactionBlockSessionRequest): DialogMessageObj {
-  const { tweet, blockRetweeters, blockLikers } = request.target
+  const { tweet, blockRetweeters, blockLikers, blockMentionedUsers } = request.target
   const { myFollowers, myFollowings } = request.options
   const authorName = tweet.user.screen_name
   const title = i18n.getMessage('confirm_reacted_chainblock_title', authorName)
@@ -112,9 +112,18 @@ export function generateTweetReactionBlockMessage(request: TweetReactionBlockSes
   if (myFollowings === 'Block') {
     warnings.push(`\u26a0 ${i18n.getMessage('warning_maybe_you_block_your_followings')}`)
   }
-  contents.push(`${i18n.getMessage('retweet')}: ${blockRetweeters ? 'O' : 'X'}`)
-  contents.push(`${i18n.getMessage('like')}: ${blockLikers ? 'O' : 'X'}`)
-  contents.push(`${i18n.getMessage('tweet_contents')}: ${tweet.text}`)
+  const targets = []
+  if (blockRetweeters) {
+    targets.push(i18n.getMessage('retweet'))
+  }
+  if (blockLikers) {
+    targets.push(i18n.getMessage('like'))
+  }
+  if (blockMentionedUsers) {
+    targets.push(i18n.getMessage('mentioned'))
+  }
+  contents.push(`${i18n.getMessage('block_target')}: ${targets.join(', ')}`)
+  // contents.push(`${i18n.getMessage('tweet_contents')}: ${tweet.full_text}`)
   return {
     title,
     contentLines: contents,
@@ -229,14 +238,10 @@ export function checkResultToString(result: TargetCheckResult): string {
       return i18n.getMessage('cant_chainblock_following_is_zero')
     case TargetCheckResult.NoMutualFollowers:
       return i18n.getMessage('cant_chainblock_mutual_follower_is_zero')
-    case TargetCheckResult.ChooseAtLeastRtOrLikes:
+    case TargetCheckResult.ChooseAtLeastOneOfReaction:
       return i18n.getMessage('select_rt_or_like')
-    case TargetCheckResult.NobodyRetweetOrLiked:
-      return i18n.getMessage('cant_chainblock_nobody_retweet_or_like')
-    case TargetCheckResult.NobodyRetweeted:
-      return i18n.getMessage('cant_chainblock_nobody_retweeted')
-    case TargetCheckResult.NobodyLiked:
-      return i18n.getMessage('cant_chainblock_nobody_liked')
+    case TargetCheckResult.NobodyWillBlocked:
+      return i18n.getMessage('cant_chainblock_nobody_will_blocked')
     case TargetCheckResult.EmptyList:
       return i18n.getMessage('cant_chainblock_empty_list')
   }

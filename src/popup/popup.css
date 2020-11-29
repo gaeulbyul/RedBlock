@@ -123,6 +123,15 @@ hr {
   color: inherit;
 }
 
+.profile-right-targettweet .tweet-content {
+  border-left: 2px solid var(--mui-color-divider);
+  padding-left: 5px;
+  line-height: 130%;
+  margin: 0;
+  font-size: 12px;
+  color: var(--mui-color-text-secondary);
+}
+
 .profile-image {
   width: 60px;
   max-width: 60px;

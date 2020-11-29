@@ -35,6 +35,9 @@
   "like": {
     "message": "마음에 들어요"
   },
+  "mentioned": {
+    "message": "멘션한 유저"
+  },
   "chainblock": {
     "message": "체인블락"
   },
@@ -438,6 +441,9 @@
   "run_retweeters_and_likers_chainblock_to_this_tweet": {
     "message": "이 트윗을 리트윗하거나 마음에 들어한 유저에게 체인블락 실행"
   },
+  "run_mentioned_users_chainblock_to_this_tweet": {
+    "message": "이 트윗이 멘션한 유저에게 체인블락 실행"
+  },
   "already_running_to_same_target": {
     "message": "이미 같은 대상에게 (언)체인블락이 실행중입니다."
   },
@@ -450,14 +456,8 @@
   "cant_chainblock_mutual_follower_is_zero": {
     "message": "맞팔로워가 0명입니다."
   },
-  "cant_chainblock_nobody_retweeted": {
-    "message": "아무도 리트윗하지 않은 트윗입니다."
-  },
-  "cant_chainblock_nobody_liked": {
-    "message": "아무도 마음에 들어하지 않은 트윗입니다."
-  },
-  "cant_chainblock_nobody_retweet_or_like": {
-    "message": "아무도 리트윗이나 마음에 들어하지 않은 트윗입니다."
+  "cant_chainblock_nobody_will_blocked": {
+    "message": "이 트윗에 차단할 유저가 없습니다."
   },
   "cant_chainblock_empty_list": {
     "message": "불러온 목록이 비어있거나 유저ID를 찾을 수 없습니다."
@@ -531,8 +531,8 @@
   "please_check_login": {
     "message": "레드블락을 사용하시려면 트위터에 로그인해주세요."
   },
-  "user_ids_to_block": {
-    "message": "차단할 유저ID"
+  "block_target": {
+    "message": "차단할 대상"
   },
   "duplicated": {
     "message": "중복"

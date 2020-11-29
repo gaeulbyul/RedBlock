@@ -5,10 +5,8 @@ export const enum TargetCheckResult {
   NoFollowers,
   NoFollowings,
   NoMutualFollowers,
-  ChooseAtLeastRtOrLikes,
-  NobodyRetweetOrLiked,
-  NobodyRetweeted,
-  NobodyLiked,
+  ChooseAtLeastOneOfReaction,
+  NobodyWillBlocked,
   EmptyList,
 }
 
@@ -21,26 +19,31 @@ export function checkFollowerBlockTarget(target: FollowerBlockSessionRequest['ta
     return TargetCheckResult.NoFollowers
   } else if (target.list === 'friends' && friends_count <= 0) {
     return TargetCheckResult.NoFollowings
-  } else if (target.list === 'mutual-followers' && followers_count <= 0 && friends_count <= 0) {
+  } else if (target.list === 'mutual-followers' && (followers_count <= 0 || friends_count <= 0)) {
     return TargetCheckResult.NoMutualFollowers
   }
   return TargetCheckResult.Ok
 }
 
 export function checkTweetReactionBlockTarget(target: TweetReactionBlockSessionRequest['target']): TargetCheckResult {
-  if (!(target.blockRetweeters || target.blockLikers)) {
-    return TargetCheckResult.ChooseAtLeastRtOrLikes
+  const { blockRetweeters, blockLikers, blockMentionedUsers } = target
+  const mentions = target.tweet.entities.user_mentions || []
+  if (!(blockRetweeters || blockLikers || blockMentionedUsers)) {
+    return TargetCheckResult.ChooseAtLeastOneOfReaction
   }
   const { retweet_count, favorite_count } = target.tweet
-  if (retweet_count <= 0 && favorite_count <= 0) {
-    return TargetCheckResult.NobodyRetweetOrLiked
+  let totalCountToBlock = 0
+  if (blockRetweeters) {
+    totalCountToBlock += retweet_count
   }
-  const onlyWantBlockRetweetedUsers = target.blockRetweeters && !target.blockLikers
-  const onlyWantBlockLikedUsers = !target.blockRetweeters && target.blockLikers
-  if (onlyWantBlockRetweetedUsers && retweet_count <= 0) {
-    return TargetCheckResult.NobodyRetweeted
-  } else if (onlyWantBlockLikedUsers && favorite_count <= 0) {
-    return TargetCheckResult.NobodyLiked
+  if (blockLikers) {
+    totalCountToBlock += favorite_count
+  }
+  if (blockMentionedUsers) {
+    totalCountToBlock += mentions.length
+  }
+  if (totalCountToBlock <= 0) {
+    return TargetCheckResult.NobodyWillBlocked
   }
   return TargetCheckResult.Ok
 }
