@@ -16,7 +16,7 @@ interface SessionEventEmitter {
 }
 
 export interface FollowerBlockSessionRequest {
-  purpose: ChainKind
+  purpose: Purpose
   target: {
     type: 'follower'
     user: TwitterUser
@@ -50,7 +50,7 @@ export interface TweetReactionBlockSessionRequest {
 }
 
 export interface ImportBlockSessionRequest {
-  purpose: ChainKind
+  purpose: Purpose
   target: {
     type: 'import'
     userIds: string[]

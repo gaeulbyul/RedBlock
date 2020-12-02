@@ -6,11 +6,11 @@ type Tab = browser.tabs.Tab
 // 아래의 값을 변경할 때,
 // popup-ui.tsx의 initialPageMatch 정규식 부분도 수정할 것.
 export const enum PageEnum {
-  Sessions = 0,
-  NewSession = 1,
-  NewTweetReactionBlock = 2,
-  Blocklist = 3,
-  Utilities = 4,
+  Sessions,
+  NewSession,
+  NewTweetReactionBlock,
+  Blocklist,
+  Utilities,
 }
 
 export async function toggleOneClickBlockMode(enabled: boolean) {

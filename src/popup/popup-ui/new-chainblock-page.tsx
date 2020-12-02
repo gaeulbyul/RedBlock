@@ -51,8 +51,8 @@ const TargetUserContext = React.createContext<{
   targetOptions: SessionOptions
   setTargetOptions: (options: SessionOptions) => void
   mutateOptions: (optionsPart: Partial<SessionOptions>) => void
-  selectedMode: ChainKind
-  setSelectedMode: (ck: ChainKind) => void
+  purpose: Purpose
+  setPurpose: (ck: Purpose) => void
 }>({
   currentUser: null,
   selectedUser: null,
@@ -66,8 +66,8 @@ const TargetUserContext = React.createContext<{
   },
   setTargetOptions: () => {},
   mutateOptions: () => {},
-  selectedMode: 'chainblock',
-  setSelectedMode: () => {},
+  purpose: 'chainblock',
+  setPurpose: () => {},
 })
 
 function TargetSavedUsers(props: {
@@ -377,33 +377,24 @@ function TargetUserSelectUI(props: { isAvailable: boolean }) {
 }
 
 function TargetOptionsUI() {
-  const { selectedMode, setSelectedMode } = React.useContext(TargetUserContext)
+  const { purpose, setPurpose } = React.useContext(TargetUserContext)
   const classes = useStylesForExpansionPanels()
-  const localizedMode = i18n.getMessage(selectedMode)
-  // const helpPageLanguage = i18n.getUILanguage() === 'ko' ? 'ko' : 'en'
-  // const twitterAdvancedBlockOptionsHelpPageUrl = `https://help.twitter.com/${helpPageLanguage}/using-twitter/advanced-twitter-block-options`
-  // const pleaseReturnOurChainBlock = (
-  //   <a
-  //     target="_blank"
-  //     rel="noopener noreferer"
-  //     href={twitterAdvancedBlockOptionsHelpPageUrl}>*</a>
-  // )
   const cautionOnMassiveBlock = i18n.getMessage('wtf_twitter')
   return (
     <M.ExpansionPanel defaultExpanded>
       <DenseExpansionPanelSummary expandIcon={<M.Icon>expand_more</M.Icon>}>
         <T>
-          {i18n.getMessage('options')} ({localizedMode})
+          {i18n.getMessage('options')} ({i18n.getMessage(purpose)})
         </T>
       </DenseExpansionPanelSummary>
       <M.ExpansionPanelDetails className={classes.details}>
         <div style={{ width: '100%' }}>
-          <M.Tabs value={selectedMode} onChange={(_ev, val) => setSelectedMode(val)}>
+          <M.Tabs value={purpose} onChange={(_ev, val) => setPurpose(val)}>
             <M.Tab value={'chainblock'} label={`\u{1f6d1} ${i18n.getMessage('chainblock')}`} />
             <M.Tab value={'unchainblock'} label={`\u{1f49a} ${i18n.getMessage('unchainblock')}`} />
           </M.Tabs>
           <M.Divider />
-          <TabPanel value={selectedMode} index={'chainblock'}>
+          <TabPanel value={purpose} index={'chainblock'}>
             <TargetChainBlockOptionsUI />
             <M.Divider />
             <div className="description">
@@ -411,7 +402,7 @@ function TargetOptionsUI() {
               <div className="wtf">{cautionOnMassiveBlock}</div>
             </div>
           </TabPanel>
-          <TabPanel value={selectedMode} index={'unchainblock'}>
+          <TabPanel value={purpose} index={'unchainblock'}>
             <TargetUnChainBlockOptionsUI />
             <div className="description">{i18n.getMessage('unchainblock_description')}</div>
           </TabPanel>
@@ -451,7 +442,7 @@ function TargetUnChainBlockOptionsUI() {
 
 function TargetExecutionButtonUI(props: { isAvailable: boolean }) {
   const { isAvailable } = props
-  const { selectedMode, selectedUser, targetList, targetOptions } = React.useContext(TargetUserContext)
+  const { purpose, selectedUser, targetList, targetOptions } = React.useContext(TargetUserContext)
   function onExecuteChainBlockButtonClicked() {
     const request: FollowerBlockSessionRequest = {
       purpose: 'chainblock',
@@ -478,14 +469,14 @@ function TargetExecutionButtonUI(props: { isAvailable: boolean }) {
   }
   return (
     <M.Box padding="10px">
-      {selectedMode === 'chainblock' && (
+      {purpose === 'chainblock' && (
         <BigExecuteChainBlockButton disabled={!isAvailable} onClick={onExecuteChainBlockButtonClicked}>
           <span>
             {'\u{1f6d1}'} {i18n.getMessage('execute_chainblock')}
           </span>
         </BigExecuteChainBlockButton>
       )}
-      {selectedMode === 'unchainblock' && (
+      {purpose === 'unchainblock' && (
         <BigExecuteUnChainBlockButton disabled={!isAvailable} onClick={onExecuteUnChainBlockButtonClicked}>
           <span>
             {'\u{1f49a}'} {i18n.getMessage('execute_unchainblock')}
@@ -545,7 +536,7 @@ export default function NewChainBlockPage(props: { currentUser: TwitterUser | nu
   const [selectedUser, setSelectedUser] = React.useState<TwitterUser | null>(currentUser)
   const [targetList, setTargetList] = React.useState<FollowKind>('followers')
   const firstMode = selectedUser && selectedUser.following ? 'unchainblock' : 'chainblock'
-  const [selectedMode, setSelectedMode] = React.useState<ChainKind>(firstMode)
+  const [purpose, setPurpose] = React.useState<Purpose>(firstMode)
   function mutateOptions(newOptionsPart: Partial<SessionOptions>) {
     const newOptions = { ...targetOptions, ...newOptionsPart }
     setTargetOptions(newOptions)
@@ -583,8 +574,8 @@ export default function NewChainBlockPage(props: { currentUser: TwitterUser | nu
           targetOptions,
           setTargetOptions,
           mutateOptions,
-          selectedMode,
-          setSelectedMode,
+          purpose,
+          setPurpose,
         }}
       >
         <div className="chainblock-target">
