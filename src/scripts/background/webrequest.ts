@@ -4,14 +4,16 @@ import * as i18n from '../i18n.js'
 
 type HttpHeaders = browser.webRequest.HttpHeaders
 
-const blockLimitReachedNotifyMessage = i18n.getMessage('notify_on_block_limit')
-
-const isFirefox = browser.runtime.getURL('/').startsWith('moz-extension://')
 const extraInfoSpec: any = ['requestHeaders', 'blocking']
-if (!isFirefox) {
-  extraInfoSpec.push('extraHeaders')
-}
+try {
+  // @ts-ignore
+  const requireExtraHeadersSpec = browser.webRequest.OnBeforeSendHeadersOptions.hasOwnProperty('EXTRA_HEADERS')
+  if (requireExtraHeadersSpec) {
+    extraInfoSpec.push('extraHeaders')
+  }
+} catch (e) {}
 
+const blockLimitReachedNotifyMessage = i18n.getMessage('notify_on_block_limit')
 const notifyAboutBlockLimitation = _.debounce(
   () => {
     notify(blockLimitReachedNotifyMessage)
@@ -41,15 +43,37 @@ function filterInvalidHeaders(headers: HttpHeaders): HttpHeaders {
   return headers.filter(({ name }) => name.length > 0)
 }
 
-function changeActor(cookies: string, _actAsUserId: string, actAsUserToken: string): string {
-  const authTokenPattern = /\bauth_token=([0-9a-f]+)\b/
+function changeActor(cookies: string, actAsUserId: string, actAsUserToken: string): string {
+  const authTokenPattern = /\bauth_token=([0-9a-f]+)\b/g
   const authTokenMatch = authTokenPattern.exec(cookies)
-  authTokenPattern.lastIndex = 0
   if (!authTokenMatch) {
     return cookies
   }
-  const newCookie = cookies.replace(new RegExp(authTokenPattern, 'g'), `auth_token=${actAsUserToken}`)
+  authTokenPattern.lastIndex = 0
+  const newCookie = cookies
+    .replace(authTokenPattern, `auth_token=${actAsUserToken}`)
+    .replace(/\btwid=u=%3D([0-9]+)\b/g, `twid=u%3D${actAsUserId}`)
   return newCookie
+}
+
+function extractActAsUserIdAndToken(headers: HttpHeaders): { actAsUserId: string; actAsUserToken: string } | null {
+  let actAsUserId = ''
+  let actAsUserToken = ''
+  for (const { name, value } of headers) {
+    if (!value) {
+      continue
+    }
+    if (name === 'x-act-as-user-id') {
+      actAsUserId = value
+    } else if (name === 'x-act-as-user-token') {
+      actAsUserToken = value
+    }
+  }
+  if (actAsUserId && actAsUserToken) {
+    return { actAsUserId, actAsUserToken }
+  } else {
+    return null
+  }
 }
 
 function initializeTwitterAPIRequestHeaderModifier() {
@@ -61,15 +85,9 @@ function initializeTwitterAPIRequestHeaderModifier() {
       // console.debug('block_all api', details)
       const headers = details.requestHeaders!
       stripOrigin(headers)
-      const actAsUserId = headers
-        .filter(({ name }) => name === 'x-act-as-user-id')
-        .map(({ value }) => value)
-        .pop()
-      const actAsUserToken = headers
-        .filter(({ name }) => name === 'x-act-as-user-token')
-        .map(({ value }) => value)
-        .pop()
-      if (actAsUserId && actAsUserToken) {
+      const actAs = extractActAsUserIdAndToken(headers)
+      if (actAs) {
+        const { actAsUserId, actAsUserToken } = actAs
         for (let i = 0; i < headers.length; i++) {
           const name = headers[i].name.toLowerCase()
           const value = headers[i].value!
