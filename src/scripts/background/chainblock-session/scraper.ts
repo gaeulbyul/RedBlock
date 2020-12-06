@@ -17,20 +17,22 @@ export interface UserScraper {
 // 단순 스크래퍼. 기존 체인블락 방식
 class SimpleScraper implements UserScraper {
   public totalCount: number
-  constructor(private user: TwitterUser, private followKind: FollowKind) {
+  constructor(private request: FollowerBlockSessionRequest) {
+    const { user, list: followKind } = this.request.target
     this.totalCount = getFollowersCount(user, followKind)!
   }
   public [Symbol.asyncIterator]() {
-    return UserScrapingAPI.getAllFollowsUserList(this.followKind, this.user)
+    const { user, list: followKind } = this.request.target
+    return UserScrapingAPI.getAllFollowsUserList(followKind, user)
   }
 }
 
 // 맞팔로우 스크래퍼
 class MutualFollowerScraper implements UserScraper {
   public totalCount: number | null = null
-  public constructor(private user: TwitterUser) {}
+  public constructor(private request: FollowerBlockSessionRequest) {}
   public async *[Symbol.asyncIterator]() {
-    const mutualFollowersIds = await UserScrapingAPI.getAllMutualFollowersIds(this.user)
+    const mutualFollowersIds = await UserScrapingAPI.getAllMutualFollowersIds(this.request.target.user)
     this.totalCount = mutualFollowersIds.length
     yield* UserScrapingAPI.lookupUsersByIds(mutualFollowersIds)
   }
@@ -39,13 +41,14 @@ class MutualFollowerScraper implements UserScraper {
 // 차단상대 대상 스크래퍼
 class AntiBlockScraper implements UserScraper {
   public totalCount: number | null = null
-  constructor(private user: TwitterUser, private followKind: FollowKind) {}
+  constructor(private request: FollowerBlockSessionRequest) {}
   private async getMutualFollowersIds(actAsUserId: string) {
-    const mutualFollowerIds = await UserScrapingAPI.getAllMutualFollowersIds(this.user, actAsUserId)
+    const mutualFollowerIds = await UserScrapingAPI.getAllMutualFollowersIds(this.request.target.user, actAsUserId)
     return mutualFollowerIds
   }
   private async getFollowersIds(actAsUserId: string) {
-    const idsIterator = UserScrapingAPI.getAllFollowsIds(this.followKind, this.user, { actAsUserId })
+    const { user, list: followKind } = this.request.target
+    const idsIterator = UserScrapingAPI.getAllFollowsIds(followKind, user, { actAsUserId })
     const userIds: string[] = []
     for await (const response of idsIterator) {
       if (!response.ok) {
@@ -60,7 +63,7 @@ class AntiBlockScraper implements UserScraper {
     if (multiCookies) {
       const actorUserIds = Object.keys(multiCookies)
       for (const actorId of actorUserIds) {
-        const target = await TwitterAPI.getSingleUserById(this.user.id_str, actorId).catch(() => null)
+        const target = await TwitterAPI.getSingleUserById(this.request.target.user.id_str, actorId).catch(() => null)
         if (target && !target.blocked_by) {
           return actorId
         }
@@ -69,9 +72,10 @@ class AntiBlockScraper implements UserScraper {
     throw new Error(i18n.getMessage('cant_chainblock_to_blocked'))
   }
   private async fetchFollowersIds(): Promise<string[]> {
+    const { list: followKind } = this.request.target
     let userIds: string[]
     const actAsUserId = await this.prepareActor()
-    if (this.followKind === 'mutual-followers') {
+    if (followKind === 'mutual-followers') {
       userIds = await this.getMutualFollowersIds(actAsUserId)
     } else {
       userIds = await this.getFollowersIds(actAsUserId)
@@ -88,11 +92,11 @@ class AntiBlockScraper implements UserScraper {
 // 트윗반응 유저 스크래퍼
 class TweetReactedUserScraper implements UserScraper {
   public totalCount: number
-  constructor(private target: TweetReactionBlockSessionRequest['target']) {
-    this.totalCount = getReactionsCount(target)
+  constructor(private request: TweetReactionBlockSessionRequest) {
+    this.totalCount = getReactionsCount(request.target)
   }
   public async *[Symbol.asyncIterator]() {
-    const { tweet, blockRetweeters, blockLikers, blockMentionedUsers } = this.target
+    const { tweet, blockRetweeters, blockLikers, blockMentionedUsers } = this.request.target
     if (blockRetweeters) {
       yield* UserScrapingAPI.getAllReactedUserList('retweeted', tweet)
     }
@@ -107,26 +111,26 @@ class TweetReactedUserScraper implements UserScraper {
 }
 
 class ImportUserScraper implements UserScraper {
-  public totalCount = this.userIds.length
-  constructor(private userIds: string[]) {}
+  public totalCount = this.request.target.userIds.length
+  constructor(private request: ImportBlockSessionRequest) {}
   public [Symbol.asyncIterator]() {
-    return UserScrapingAPI.lookupUsersByIds(this.userIds)
+    return UserScrapingAPI.lookupUsersByIds(this.request.target.userIds)
   }
 }
 
 export function initScraper(request: SessionRequest): UserScraper {
   const { target } = request
   if (target.type === 'import') {
-    return new ImportUserScraper(target.userIds)
+    return new ImportUserScraper(request as ImportBlockSessionRequest)
   }
   if (target.type === 'tweet_reaction') {
-    return new TweetReactedUserScraper(target)
+    return new TweetReactedUserScraper(request as TweetReactionBlockSessionRequest)
   }
   if (target.user.blocked_by) {
-    return new AntiBlockScraper(target.user, target.list)
+    return new AntiBlockScraper(request as FollowerBlockSessionRequest)
   }
   if (target.list === 'mutual-followers') {
-    return new MutualFollowerScraper(target.user)
+    return new MutualFollowerScraper(request as FollowerBlockSessionRequest)
   }
-  return new SimpleScraper(target.user, target.list)
+  return new SimpleScraper(request as FollowerBlockSessionRequest)
 }
