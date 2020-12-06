@@ -57,11 +57,13 @@ class AntiBlockScraper implements UserScraper {
   }
   private async prepareActor() {
     const multiCookies = await TwitterAPI.getMultiAccountCookies()
-    const actorUserIds = Object.keys(multiCookies)
-    for (const actorId of actorUserIds) {
-      const target = await TwitterAPI.getSingleUserById(this.user.id_str, actorId).catch(() => null)
-      if (target && !target.blocked_by) {
-        return actorId
+    if (multiCookies) {
+      const actorUserIds = Object.keys(multiCookies)
+      for (const actorId of actorUserIds) {
+        const target = await TwitterAPI.getSingleUserById(this.user.id_str, actorId).catch(() => null)
+        if (target && !target.blocked_by) {
+          return actorId
+        }
       }
     }
     throw new Error(i18n.getMessage('cant_chainblock_to_blocked'))

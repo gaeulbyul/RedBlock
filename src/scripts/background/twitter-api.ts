@@ -272,10 +272,9 @@ async function generateTwitterAPIOptions(obj: RequestInit, actAsUserId: string):
   headers.set('x-twitter-active-user', 'yes')
   headers.set('x-twitter-auth-type', 'OAuth2Session')
   if (actAsUserId) {
-    const multiCookies = await getMultiAccountCookies()
-    const token = multiCookies[actAsUserId]
-    headers.set('x-act-as-user-id', actAsUserId)
-    headers.set('x-act-as-user-token', token)
+    const extraCookies = await generateCookiesForAltAccountRequest(actAsUserId)
+    const encodedExtraCookies = new URLSearchParams((extraCookies as unknown) as Record<string, string>)
+    headers.set('x-act-as-cookies', encodedExtraCookies.toString())
   }
   const result: RequestInit = {
     method: 'get',
@@ -298,16 +297,51 @@ function setDefaultParams(params: URLSearchParams): void {
   params.set('include_can_dm', '1')
 }
 
-export async function getMultiAccountCookies(): Promise<MultiAccountCookies> {
+export async function getMultiAccountCookies(): Promise<MultiAccountCookies | null> {
   const url = 'https://twitter.com'
   const authMultiCookie = await browser.cookies.get({
     url,
     name: 'auth_multi',
   })
   if (!authMultiCookie) {
-    return {}
+    return null
   }
   return parseAuthMultiCookie(authMultiCookie.value)
+}
+
+async function generateCookiesForAltAccountRequest(actAsUserId: string): Promise<ActAsExtraCookies> {
+  const url = 'https://twitter.com'
+  const authMultiCookie = await getMultiAccountCookies()
+  if (!authMultiCookie) {
+    throw new Error('auth_multi cookie unavailable. this feature requires logged in with two or more account.')
+  }
+  const authTokenCookie = await browser.cookies
+    .get({
+      url,
+      name: 'auth_token',
+    })
+    .then(coo => coo!.value)
+  const twidCookie = await browser.cookies
+    .get({
+      url,
+      name: 'twid',
+    })
+    .then(coo => /u%3D([0-9]+)\b/.exec(coo!.value)![1])
+  const actAsUserToken = authMultiCookie![actAsUserId]
+  // 새로 만들 auth_multi 쿠키엔 현재 계정인 twid를 넣고...
+  // actAsUser가 될 유저를 뺀다.
+  authMultiCookie[twidCookie] = authTokenCookie
+  delete authMultiCookie[actAsUserId]
+  const newAuthMultiCookie = Object.entries(authMultiCookie)
+    .map(([key, value]) => `${key}:${value}`)
+    .join('|')
+  const newCookies = {
+    auth_token: actAsUserToken,
+    twid: `u%3D${actAsUserId}`,
+    // auth_multi에서 "큰 따옴표"에 주의
+    auth_multi: `"${newAuthMultiCookie}"`,
+  }
+  return newCookies
 }
 
 export function parseAuthMultiCookie(authMulti: string): MultiAccountCookies {
@@ -505,4 +539,10 @@ export interface LimitStatus {
 
 export interface MultiAccountCookies {
   [userId: string]: string
+}
+
+export interface ActAsExtraCookies {
+  auth_token: string
+  auth_multi: string
+  twid: string
 }

@@ -1,4 +1,5 @@
 import type BlockLimiter from './block-limiter.js'
+import type { ActAsExtraCookies } from './twitter-api.js'
 import { notify } from './background.js'
 import * as i18n from '../i18n.js'
 
@@ -43,37 +44,21 @@ function filterInvalidHeaders(headers: HttpHeaders): HttpHeaders {
   return headers.filter(({ name }) => name.length > 0)
 }
 
-function changeActor(cookies: string, actAsUserId: string, actAsUserToken: string): string {
-  const authTokenPattern = /\bauth_token=([0-9a-f]+)\b/g
-  const authTokenMatch = authTokenPattern.exec(cookies)
-  if (!authTokenMatch) {
-    return cookies
-  }
-  authTokenPattern.lastIndex = 0
-  const newCookie = cookies
-    .replace(authTokenPattern, `auth_token=${actAsUserToken}`)
-    .replace(/\btwid=u=%3D([0-9]+)\b/g, `twid=u%3D${actAsUserId}`)
-  return newCookie
+function changeActor(cookies: string, { auth_token, auth_multi, twid }: ActAsExtraCookies): string {
+  return cookies
+    .replace(/\bauth_token=\S+\b/g, `auth_token=${auth_token}`)
+    .replace(/\bauth_multi="\S+"/g, `auth_multi=${auth_multi}`)
+    .replace(/\btwid=\S+\b/g, `twid=${twid}`)
 }
 
-function extractActAsUserIdAndToken(headers: HttpHeaders): { actAsUserId: string; actAsUserToken: string } | null {
-  let actAsUserId = ''
-  let actAsUserToken = ''
-  for (const { name, value } of headers) {
-    if (!value) {
-      continue
-    }
-    if (name === 'x-act-as-user-id') {
-      actAsUserId = value
-    } else if (name === 'x-act-as-user-token') {
-      actAsUserToken = value
-    }
-  }
-  if (actAsUserId && actAsUserToken) {
-    return { actAsUserId, actAsUserToken }
-  } else {
+function extractActAsCookies(headers: HttpHeaders): ActAsExtraCookies | null {
+  const actAsCookiesHeader = headers.find(({ name }) => name === 'x-act-as-cookies')
+  if (!actAsCookiesHeader) {
     return null
   }
+  const params = new URLSearchParams(actAsCookiesHeader.value)
+  const decoded = Object.fromEntries(params.entries())
+  return (decoded as unknown) as ActAsExtraCookies
 }
 
 function initializeTwitterAPIRequestHeaderModifier() {
@@ -85,19 +70,17 @@ function initializeTwitterAPIRequestHeaderModifier() {
       // console.debug('block_all api', details)
       const headers = details.requestHeaders!
       stripOrigin(headers)
-      const actAs = extractActAsUserIdAndToken(headers)
-      if (actAs) {
-        const { actAsUserId, actAsUserToken } = actAs
+      const actAsCookies = extractActAsCookies(headers)
+      if (actAsCookies) {
         for (let i = 0; i < headers.length; i++) {
           const name = headers[i].name.toLowerCase()
           const value = headers[i].value!
           switch (name) {
-            case 'x-act-as-user-id':
-            case 'x-act-as-user-token':
+            case 'x-act-as-cookies':
               headers[i].name = ''
               break
             case 'cookie':
-              headers[i].value = changeActor(value, actAsUserId, actAsUserToken)
+              headers[i].value = changeActor(value, actAsCookies)
               break
           }
         }
