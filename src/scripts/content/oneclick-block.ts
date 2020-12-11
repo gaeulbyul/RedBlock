@@ -59,7 +59,11 @@
     return null
   }
 
-  function checkBadWordFromUserProfile({ description, name, screen_name }: TwitterUser): BadWordItem | null {
+  function checkBadWordFromUserProfile({
+    description,
+    name,
+    screen_name,
+  }: TwitterUser): BadWordItem | null {
     const textsToFind = [description, name, screen_name]
     for (const text of textsToFind) {
       const bw = checkBadWord(text)

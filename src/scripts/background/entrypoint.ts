@@ -41,15 +41,23 @@ export function createChainBlockSession(request: SessionRequest): SessionCreateR
 function generateConfirmMessage(request: SessionRequest): TextGenerator.DialogMessageObj {
   switch (request.target.type) {
     case 'follower':
-      return TextGenerator.generateFollowerBlockConfirmMessage(request as FollowerBlockSessionRequest)
+      return TextGenerator.generateFollowerBlockConfirmMessage(
+        request as FollowerBlockSessionRequest
+      )
     case 'tweet_reaction':
-      return TextGenerator.generateTweetReactionBlockMessage(request as TweetReactionBlockSessionRequest)
+      return TextGenerator.generateTweetReactionBlockMessage(
+        request as TweetReactionBlockSessionRequest
+      )
     case 'import':
       return TextGenerator.generateImportBlockMessage(request as ImportBlockSessionRequest)
   }
 }
 
-export async function confirmSession(tab: browser.tabs.Tab, request: SessionRequest, sessionId: string) {
+export async function confirmSession(
+  tab: browser.tabs.Tab,
+  request: SessionRequest,
+  sessionId: string
+) {
   const confirmMessageObj = generateConfirmMessage(request)
   const confirmMessage = TextGenerator.objToString(confirmMessageObj)
   browser.tabs.sendMessage<RBMessageToContent.ConfirmChainBlock>(tab!.id!, {
@@ -114,7 +122,10 @@ async function removeUserFromStorage(user: TwitterUser) {
   return storageQueue
 }
 
-function handleExtensionMessage(message: RBMessageToBackgroundType, _sender: browser.runtime.MessageSender) {
+function handleExtensionMessage(
+  message: RBMessageToBackgroundType,
+  _sender: browser.runtime.MessageSender
+) {
   switch (message.messageType) {
     case 'CreateFollowerChainBlockSession':
     case 'CreateTweetReactionChainBlockSession':
@@ -189,7 +200,11 @@ function checkMessage(msg: object): msg is RBMessageToBackgroundType {
 
 function initialize() {
   browser.runtime.onMessage.addListener(
-    (msg: object, sender: browser.runtime.MessageSender, _sendResponse: (response: any) => Promise<void>): true => {
+    (
+      msg: object,
+      sender: browser.runtime.MessageSender,
+      _sendResponse: (response: any) => Promise<void>
+    ): true => {
       if (checkMessage(msg)) {
         handleExtensionMessage(msg, sender)
       } else {

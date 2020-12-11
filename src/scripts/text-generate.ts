@@ -48,7 +48,9 @@ export function objToString(msg: DialogMessageObj): string {
   return result
 }
 
-export function generateFollowerBlockConfirmMessage(request: FollowerBlockSessionRequest): DialogMessageObj {
+export function generateFollowerBlockConfirmMessage(
+  request: FollowerBlockSessionRequest
+): DialogMessageObj {
   const { purpose } = request
   const { user, list: targetList } = request.target
   const { myFollowers, myFollowings } = request.options
@@ -83,7 +85,12 @@ export function generateFollowerBlockConfirmMessage(request: FollowerBlockSessio
       )
       break
     case 'mutual-followers':
-      contents.push(`${i18n.getMessage('target')}: ${i18n.getMessage('mutual_followers_of_xxx', targetUserName)}`)
+      contents.push(
+        `${i18n.getMessage('target')}: ${i18n.getMessage(
+          'mutual_followers_of_xxx',
+          targetUserName
+        )}`
+      )
       break
   }
   if (myFollowers === 'Block') {
@@ -99,7 +106,9 @@ export function generateFollowerBlockConfirmMessage(request: FollowerBlockSessio
   }
 }
 
-export function generateTweetReactionBlockMessage(request: TweetReactionBlockSessionRequest): DialogMessageObj {
+export function generateTweetReactionBlockMessage(
+  request: TweetReactionBlockSessionRequest
+): DialogMessageObj {
   const { tweet, blockRetweeters, blockLikers, blockMentionedUsers } = request.target
   const { myFollowers, myFollowings } = request.options
   const authorName = tweet.user.screen_name
@@ -152,9 +161,13 @@ export function chainBlockResultNotification(sessionInfo: SessionInfo): string {
   const { target } = sessionInfo.request
   switch (target.type) {
     case 'follower':
-      return followerBlockResultNotification(sessionInfo as SessionInfo<FollowerBlockSessionRequest>)
+      return followerBlockResultNotification(
+        sessionInfo as SessionInfo<FollowerBlockSessionRequest>
+      )
     case 'tweet_reaction':
-      return tweetReactionBlockResultNotification(sessionInfo as SessionInfo<TweetReactionBlockSessionRequest>)
+      return tweetReactionBlockResultNotification(
+        sessionInfo as SessionInfo<TweetReactionBlockSessionRequest>
+      )
     case 'import':
       return importBlockResultNotification(sessionInfo as SessionInfo<ImportBlockSessionRequest>)
   }
@@ -187,9 +200,14 @@ function followerBlockResultNotification(sessionInfo: SessionInfo<FollowerBlockS
   return message
 }
 
-function tweetReactionBlockResultNotification(sessionInfo: SessionInfo<TweetReactionBlockSessionRequest>) {
+function tweetReactionBlockResultNotification(
+  sessionInfo: SessionInfo<TweetReactionBlockSessionRequest>
+) {
   const { success, skipped, failure } = sessionInfo.progress
-  let message = `${i18n.getMessage('chainblock_completed')} ${i18n.getMessage('blocked_n_users', success.Block)}.\n`
+  let message = `${i18n.getMessage('chainblock_completed')} ${i18n.getMessage(
+    'blocked_n_users',
+    success.Block
+  )}.\n`
   message += '('
   message += `${i18n.getMessage('skipped')}: ${skipped}, `
   message += `${i18n.getMessage('failed')}: ${failure}`

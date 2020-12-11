@@ -22,7 +22,11 @@ export function RedBlockUITheme(darkMode: boolean) {
   })
 }
 
-export function RBDialog(props: { isOpen: boolean; content: DialogContent | null; closeModal: () => void }) {
+export function RBDialog(props: {
+  isOpen: boolean
+  content: DialogContent | null
+  closeModal: () => void
+}) {
   const { isOpen, content, closeModal } = props
   if (!content) {
     return <div></div>
@@ -63,7 +67,10 @@ export function RBDialog(props: { isOpen: boolean; content: DialogContent | null
     <Dialog open={isOpen}>
       <DialogTitle>{title}</DialogTitle>
       <DialogContent>
-        {contentLines && contentLines.map((line, index) => <DialogContentText key={index}>{line}</DialogContentText>)}
+        {contentLines &&
+          contentLines.map((line, index) => (
+            <DialogContentText key={index}>{line}</DialogContentText>
+          ))}
         {warningLines &&
           warningLines.map((line, index) => (
             <DialogContentText key={index} color="error">

@@ -9,7 +9,12 @@ import {
   startFollowerChainBlock,
   refreshSavedUsers,
 } from '../../scripts/background/request-sender.js'
-import { DialogContext, SnackBarContext, LoginStatusContext, BlockLimiterContext } from './contexts.js'
+import {
+  DialogContext,
+  SnackBarContext,
+  LoginStatusContext,
+  BlockLimiterContext,
+} from './contexts.js'
 import { TabPanel, PleaseLoginBox, BlockLimiterUI } from './ui-common.js'
 
 const M = MaterialUI
@@ -110,7 +115,12 @@ function TargetSavedUsers(props: {
   }
   const currentUserOption = ({ id_str, screen_name, name }: TwitterUser) => (
     <optgroup label={i18n.getMessage('current_user')}>
-      <option value={`current/${id_str}`} data-group="current" data-userid={id_str} data-username={screen_name}>
+      <option
+        value={`current/${id_str}`}
+        data-group="current"
+        data-userid={id_str}
+        data-username={screen_name}
+      >
         @{screen_name} &lt;{name}&gt;
       </option>
     </optgroup>
@@ -157,7 +167,11 @@ function TargetSavedUsers(props: {
             >
               {i18n.getMessage('add')}
             </M.Button>
-            <M.Button disabled={selectedUserGroup !== 'saved'} onClick={removeUser} startIcon={<M.Icon>delete</M.Icon>}>
+            <M.Button
+              disabled={selectedUserGroup !== 'saved'}
+              onClick={removeUser}
+              startIcon={<M.Icon>delete</M.Icon>}
+            >
               {i18n.getMessage('remove')}
             </M.Button>
             <M.Button onClick={requestRefreshSavedUsers} startIcon={<M.Icon>refresh</M.Icon>}>
@@ -190,7 +204,11 @@ function TargetUserProfile(props: { isAvailable: boolean }) {
   return (
     <div className="target-user-info">
       <div className="profile-image-area">
-        <img alt={i18n.getMessage('profile_image')} className="profile-image" src={biggerProfileImageUrl} />
+        <img
+          alt={i18n.getMessage('profile_image')}
+          className="profile-image"
+          src={biggerProfileImageUrl}
+        />
       </div>
       <div className="profile-right-area">
         <div className="profile-right-info">
@@ -307,7 +325,9 @@ function TargetChainBlockOptionsUI() {
 
 function TargetUserSelectUI(props: { isAvailable: boolean }) {
   const { isAvailable } = props
-  const { currentUser, targetList, selectedUser, setSelectedUser } = React.useContext(TargetUserContext)
+  const { currentUser, targetList, selectedUser, setSelectedUser } = React.useContext(
+    TargetUserContext
+  )
   const { openModal } = React.useContext(DialogContext)
   const [savedUsers, setSavedUsers] = React.useState(new TwitterUserMap())
   const [selectedUserGroup, selectUserGroup] = React.useState<SelectUserGroup>('current')
@@ -420,7 +440,8 @@ function TargetOptionsUI() {
             <TargetChainBlockOptionsUI />
             <M.Divider />
             <div className="description">
-              {i18n.getMessage('chainblock_description')} {i18n.getMessage('my_mutual_followers_wont_block')}
+              {i18n.getMessage('chainblock_description')}{' '}
+              {i18n.getMessage('my_mutual_followers_wont_block')}
               <div className="wtf">{cautionOnMassiveBlock}</div>
             </div>
           </TabPanel>
@@ -492,14 +513,20 @@ function TargetExecutionButtonUI(props: { isAvailable: boolean }) {
   return (
     <M.Box padding="10px">
       {purpose === 'chainblock' && (
-        <BigExecuteChainBlockButton disabled={!isAvailable} onClick={onExecuteChainBlockButtonClicked}>
+        <BigExecuteChainBlockButton
+          disabled={!isAvailable}
+          onClick={onExecuteChainBlockButtonClicked}
+        >
           <span>
             {'\u{1f6d1}'} {i18n.getMessage('execute_chainblock')}
           </span>
         </BigExecuteChainBlockButton>
       )}
       {purpose === 'unchainblock' && (
-        <BigExecuteUnChainBlockButton disabled={!isAvailable} onClick={onExecuteUnChainBlockButtonClicked}>
+        <BigExecuteUnChainBlockButton
+          disabled={!isAvailable}
+          onClick={onExecuteUnChainBlockButtonClicked}
+        >
           <span>
             {'\u{1f49a}'} {i18n.getMessage('execute_unchainblock')}
           </span>

@@ -36,7 +36,11 @@
 
   "content_scripts": [
     {
-      "matches": ["https://twitter.com/*", "https://mobile.twitter.com/*", "https://tweetdeck.twitter.com/*"],
+      "matches": [
+        "https://twitter.com/*",
+        "https://mobile.twitter.com/*",
+        "https://tweetdeck.twitter.com/*"
+      ],
       "exclude_matches": [
         "https://*.twitter.com/about",
         "https://*.twitter.com/download",

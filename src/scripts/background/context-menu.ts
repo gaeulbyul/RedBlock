@@ -1,13 +1,20 @@
 import { getUserNameFromURL } from '../common.js'
 import * as i18n from '../i18n.js'
-import { followerBlockDefaultOption, tweetReactionBlockDefaultOption } from './chainblock-session/session.js'
+import {
+  followerBlockDefaultOption,
+  tweetReactionBlockDefaultOption,
+} from './chainblock-session/session.js'
 import * as TwitterAPI from './twitter-api.js'
 import { createChainBlockSession, confirmSession } from './entrypoint.js'
 import { checkResultToString } from '../text-generate.js'
 import { alertToCurrentTab } from './background.js'
 
 const urlPatterns = ['https://twitter.com/*', 'https://mobile.twitter.com/*']
-const documentUrlPatterns = ['https://twitter.com/*', 'https://mobile.twitter.com/*', 'https://tweetdeck.twitter.com/*']
+const documentUrlPatterns = [
+  'https://twitter.com/*',
+  'https://mobile.twitter.com/*',
+  'https://tweetdeck.twitter.com/*',
+]
 const tweetUrlPatterns = ['https://twitter.com/*/status/*', 'https://mobile.twitter.com/*/status/*']
 
 function getTweetIdFromUrl(url: URL) {
@@ -15,7 +22,11 @@ function getTweetIdFromUrl(url: URL) {
   return match && match[1]
 }
 
-async function sendFollowerChainBlockConfirm(tab: browser.tabs.Tab, userName: string, followKind: FollowKind) {
+async function sendFollowerChainBlockConfirm(
+  tab: browser.tabs.Tab,
+  userName: string,
+  followKind: FollowKind
+) {
   const myself = await TwitterAPI.getMyself().catch(() => null)
   if (!myself) {
     return alertToCurrentTab(i18n.getMessage('error_occured_check_login'))

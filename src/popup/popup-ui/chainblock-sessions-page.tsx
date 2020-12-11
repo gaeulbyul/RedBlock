@@ -1,6 +1,15 @@
-import { isRunningSession, SessionStatus, getLimitResetTime, getCountOfUsersToBlock } from '../../scripts/common.js'
+import {
+  isRunningSession,
+  SessionStatus,
+  getLimitResetTime,
+  getCountOfUsersToBlock,
+} from '../../scripts/common.js'
 import { PageEnum } from '../popup.js'
-import { cleanupInactiveSessions, stopAllChainBlock, stopChainBlock } from '../../scripts/background/request-sender.js'
+import {
+  cleanupInactiveSessions,
+  stopAllChainBlock,
+  stopChainBlock,
+} from '../../scripts/background/request-sender.js'
 import { DialogContext, PageSwitchContext, BlockLimiterContext } from './contexts.js'
 import { statusToString } from '../../scripts/text-generate.js'
 import { BlockLimiterUI } from './ui-common.js'
@@ -156,10 +165,20 @@ function ChainBlockSessionItem(props: { session: SessionInfo }) {
   function renderCardHeader(user: TwitterUser | null) {
     if (user) {
       return (
-        <M.CardHeader avatar={<M.Avatar src={biggerProfileImageUrl} />} title={cardTitle} subheader={localizedTarget} />
+        <M.CardHeader
+          avatar={<M.Avatar src={biggerProfileImageUrl} />}
+          title={cardTitle}
+          subheader={localizedTarget}
+        />
       )
     } else {
-      return <M.CardHeader avatar={<M.Icon>import_export</M.Icon>} title={cardTitle} subheader={localizedTarget} />
+      return (
+        <M.CardHeader
+          avatar={<M.Icon>import_export</M.Icon>}
+          title={cardTitle}
+          subheader={localizedTarget}
+        />
+      )
     }
   }
   let name = ''

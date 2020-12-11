@@ -8,7 +8,9 @@ type HttpHeaders = browser.webRequest.HttpHeaders
 const extraInfoSpec: any = ['requestHeaders', 'blocking']
 try {
   // @ts-ignore
-  const requireExtraHeadersSpec = browser.webRequest.OnBeforeSendHeadersOptions.hasOwnProperty('EXTRA_HEADERS')
+  const requireExtraHeadersSpec = browser.webRequest.OnBeforeSendHeadersOptions.hasOwnProperty(
+    'EXTRA_HEADERS'
+  )
   if (requireExtraHeadersSpec) {
     extraInfoSpec.push('extraHeaders')
   }

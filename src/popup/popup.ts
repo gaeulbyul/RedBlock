@@ -59,7 +59,9 @@ export function getUserIdFromTab(tab: Tab): string | null {
   if (match1) {
     return match1[1]
   }
-  const reportedUserId = url.pathname.startsWith('/i/safety/report') ? url.searchParams.get('reported_user_id') : null
+  const reportedUserId = url.pathname.startsWith('/i/safety/report')
+    ? url.searchParams.get('reported_user_id')
+    : null
   if (reportedUserId) {
     return reportedUserId
   }
@@ -79,7 +81,9 @@ export function getTweetIdFromTab(tab: Tab): string | null {
     return match1[1]
   }
   // 신고화면에서
-  const reportedTweetId = url.pathname.startsWith('/i/safety/report') ? url.searchParams.get('reported_tweet_id') : null
+  const reportedTweetId = url.pathname.startsWith('/i/safety/report')
+    ? url.searchParams.get('reported_tweet_id')
+    : null
   if (reportedTweetId) {
     return reportedTweetId
   }

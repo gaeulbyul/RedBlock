@@ -102,7 +102,9 @@ export default class ChainBlocker {
     })
   }
   private updateBadge() {
-    const runningSessions = this.getCurrentRunningSessions().map(session => session.getSessionInfo())
+    const runningSessions = this.getCurrentRunningSessions().map(session =>
+      session.getSessionInfo()
+    )
     console.debug('updateExtensionBadge(%o)', runningSessions)
     updateExtensionBadge(runningSessions)
   }

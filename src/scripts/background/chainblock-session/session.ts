@@ -1,9 +1,18 @@
 import * as Scraper from './scraper.js'
 import * as TwitterAPI from '../twitter-api.js'
-import { EventEmitter, SessionStatus, copyFrozenObject, sleep, getCountOfUsersToBlock } from '../../common.js'
+import {
+  EventEmitter,
+  SessionStatus,
+  copyFrozenObject,
+  sleep,
+  getCountOfUsersToBlock,
+} from '../../common.js'
 import BlockLimiter from '../block-limiter.js'
 
-export type SessionRequest = FollowerBlockSessionRequest | TweetReactionBlockSessionRequest | ImportBlockSessionRequest
+export type SessionRequest =
+  | FollowerBlockSessionRequest
+  | TweetReactionBlockSessionRequest
+  | ImportBlockSessionRequest
 
 interface SessionEventEmitter {
   'mark-user': MarkUserParams
@@ -103,7 +112,10 @@ function isAlreadyDone(follower: TwitterUser, action: UserAction): boolean {
 // 더 나은 타입이름 없을까...
 type ApiKind = FollowKind | 'tweet-reactions' | 'lookup-users'
 
-function extractRateLimit(limitStatuses: TwitterAPI.LimitStatus, apiKind: ApiKind): TwitterAPI.Limit {
+function extractRateLimit(
+  limitStatuses: TwitterAPI.LimitStatus,
+  apiKind: ApiKind
+): TwitterAPI.Limit {
   switch (apiKind) {
     case 'followers':
       return limitStatuses.followers['/followers/list']
@@ -330,7 +342,10 @@ export default class ChainBlockSession {
     const { success, already, failure, error, skipped } = this.sessionInfo.progress
     return _.sum([...Object.values(success), already, failure, error, skipped])
   }
-  private whatToDoGivenUser(request: SessionRequest, follower: TwitterUser): UserAction | 'Skip' | 'AlreadyDone' {
+  private whatToDoGivenUser(
+    request: SessionRequest,
+    follower: TwitterUser
+  ): UserAction | 'Skip' | 'AlreadyDone' {
     const { purpose, options, target } = request
     const { following, followed_by, follow_request_sent } = follower
     if (!(typeof following === 'boolean' && typeof followed_by === 'boolean')) {
@@ -372,14 +387,18 @@ export default class ChainBlockSession {
   }
 }
 
-export const followerBlockDefaultOption: Readonly<FollowerBlockSessionRequest['options']> = Object.freeze({
+export const followerBlockDefaultOption: Readonly<
+  FollowerBlockSessionRequest['options']
+> = Object.freeze({
   myFollowers: 'Skip',
   myFollowings: 'Skip',
   mutualBlocked: 'Skip',
   includeUsersInBio: 'never',
 })
 
-export const tweetReactionBlockDefaultOption: Readonly<TweetReactionBlockSessionRequest['options']> = Object.freeze({
+export const tweetReactionBlockDefaultOption: Readonly<
+  TweetReactionBlockSessionRequest['options']
+> = Object.freeze({
   myFollowers: 'Skip',
   myFollowings: 'Skip',
   includeUsersInBio: 'never',

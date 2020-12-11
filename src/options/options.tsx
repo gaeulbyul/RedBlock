@@ -41,7 +41,11 @@ function BadWordRow(props: {
         <span className={badWord.enabled ? '' : classes.striked}>{badWord.word}</span>
       </TableCell>
       <TableCell>
-        {badWord.regexp ? <M.Chip size="small" label="정규식" /> : <M.Chip size="small" label="단어" />}
+        {badWord.regexp ? (
+          <M.Chip size="small" label="정규식" />
+        ) : (
+          <M.Chip size="small" label="단어" />
+        )}
       </TableCell>
       <TableCell>
         <M.Button variant="outlined" onClick={_event => editWordById(badWord.id)}>
@@ -97,7 +101,15 @@ function BadwordsTable() {
   }
   const classes = useStylesForTable()
   const sortedBadWords = _.sortBy(badWords, 'word')
-  const { Table, TableHead, TableBody, TableCell, TableContainer, TableRow, TableFooter } = MaterialUI
+  const {
+    Table,
+    TableHead,
+    TableBody,
+    TableCell,
+    TableContainer,
+    TableRow,
+    TableFooter,
+  } = MaterialUI
   return (
     <M.Paper variant="outlined" className={classes.tablePaper}>
       <TableContainer>

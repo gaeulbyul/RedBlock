@@ -96,7 +96,11 @@ function TargetTweetUI(props: { tweet: Tweet }) {
   return (
     <div className="target-user-info">
       <div className="profile-image-area">
-        <img alt={i18n.getMessage('profile_image')} className="profile-image" src={biggerProfileImageUrl} />
+        <img
+          alt={i18n.getMessage('profile_image')}
+          className="profile-image"
+          src={biggerProfileImageUrl}
+        />
       </div>
       <div className="profile-right-area">
         <div className="profile-right-info">
@@ -228,7 +232,8 @@ function TargetOptionsUI() {
         <div style={{ width: '100%' }}>
           <TargetChainBlockOptionsUI />
           <div className="description">
-            {i18n.getMessage('chainblock_description')} {i18n.getMessage('my_mutual_followers_wont_block')}
+            {i18n.getMessage('chainblock_description')}{' '}
+            {i18n.getMessage('my_mutual_followers_wont_block')}
           </div>
         </div>
       </M.ExpansionPanelDetails>
@@ -262,10 +267,16 @@ function TargetExecutionButtonUI(props: { isAvailable: boolean }) {
     }
     startTweetReactionChainBlock(request)
   }
-  const blockButtonDisabled = !(isAvailable && (wantBlockRetweeters || wantBlockLikers || wantBlockMentionedUsers))
+  const blockButtonDisabled = !(
+    isAvailable &&
+    (wantBlockRetweeters || wantBlockLikers || wantBlockMentionedUsers)
+  )
   return (
     <M.Box padding="10px">
-      <BigExecuteChainBlockButton disabled={blockButtonDisabled} onClick={onExecuteChainBlockButtonClicked}>
+      <BigExecuteChainBlockButton
+        disabled={blockButtonDisabled}
+        onClick={onExecuteChainBlockButtonClicked}
+      >
         <span>
           {'\u{1f6d1}'} {i18n.getMessage('execute_chainblock')}
         </span>

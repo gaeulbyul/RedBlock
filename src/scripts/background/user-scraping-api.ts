@@ -56,7 +56,10 @@ export async function* getAllFollowsUserList(
   }
 }
 
-export async function getAllMutualFollowersIds(user: TwitterUser, actAsUserId = ''): Promise<string[]> {
+export async function getAllMutualFollowersIds(
+  user: TwitterUser,
+  actAsUserId = ''
+): Promise<string[]> {
   const followingsIds = (await collectAsync(getAllFollowsIds('friends', user, { actAsUserId })))
     .map(unwrap)
     .map(resp => resp.ids)

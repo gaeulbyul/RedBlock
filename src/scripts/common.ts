@@ -60,7 +60,9 @@ export class TwitterUserMap extends Map<string, TwitterUser> {
   public map<T>(fn: (user: TwitterUser, index: number, array: TwitterUser[]) => T): T[] {
     return this.toUserArray().map(fn)
   }
-  public filter(fn: (user: TwitterUser, index: number, array: TwitterUser[]) => boolean): TwitterUserMap {
+  public filter(
+    fn: (user: TwitterUser, index: number, array: TwitterUser[]) => boolean
+  ): TwitterUserMap {
     return TwitterUserMap.fromUsersArray(this.toUserArray().filter(fn))
   }
 }
@@ -183,7 +185,11 @@ export function isRewindableSession({ status, confirmed }: SessionInfo): boolean
   if (!confirmed) {
     return false
   }
-  const rewindableStatus: SessionStatus[] = [SessionStatus.Completed, SessionStatus.Error, SessionStatus.Stopped]
+  const rewindableStatus: SessionStatus[] = [
+    SessionStatus.Completed,
+    SessionStatus.Error,
+    SessionStatus.Stopped,
+  ]
   return rewindableStatus.includes(status)
 }
 

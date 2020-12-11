@@ -217,7 +217,10 @@ export async function getFriendships(users: TwitterUser[]): Promise<FriendshipRe
   return response.json() as Promise<FriendshipResponse>
 }
 
-export async function getRelationship(sourceUser: TwitterUser, targetUser: TwitterUser): Promise<Relationship> {
+export async function getRelationship(
+  sourceUser: TwitterUser,
+  targetUser: TwitterUser
+): Promise<Relationship> {
   const source_id = sourceUser.id_str
   const target_id = targetUser.id_str
   const response = await requestAPI('get', '/friendships/show.json', {
@@ -264,7 +267,10 @@ async function getCsrfTokenFromCookies(): Promise<string> {
   return csrfTokenCookie.value
 }
 
-async function generateTwitterAPIOptions(obj: RequestInit, actAsUserId: string): Promise<RequestInit> {
+async function generateTwitterAPIOptions(
+  obj: RequestInit,
+  actAsUserId: string
+): Promise<RequestInit> {
   const csrfToken = await getCsrfTokenFromCookies()
   const headers = new Headers()
   headers.set('authorization', `Bearer ${BEARER_TOKEN}`)
@@ -273,7 +279,9 @@ async function generateTwitterAPIOptions(obj: RequestInit, actAsUserId: string):
   headers.set('x-twitter-auth-type', 'OAuth2Session')
   if (actAsUserId) {
     const extraCookies = await generateCookiesForAltAccountRequest(actAsUserId)
-    const encodedExtraCookies = new URLSearchParams((extraCookies as unknown) as Record<string, string>)
+    const encodedExtraCookies = new URLSearchParams(
+      (extraCookies as unknown) as Record<string, string>
+    )
     headers.set('x-act-as-cookies', encodedExtraCookies.toString())
   }
   const result: RequestInit = {
@@ -309,11 +317,15 @@ export async function getMultiAccountCookies(): Promise<MultiAccountCookies | nu
   return parseAuthMultiCookie(authMultiCookie.value)
 }
 
-async function generateCookiesForAltAccountRequest(actAsUserId: string): Promise<ActAsExtraCookies> {
+async function generateCookiesForAltAccountRequest(
+  actAsUserId: string
+): Promise<ActAsExtraCookies> {
   const url = 'https://twitter.com'
   const authMultiCookie = await getMultiAccountCookies()
   if (!authMultiCookie) {
-    throw new Error('auth_multi cookie unavailable. this feature requires logged in with two or more account.')
+    throw new Error(
+      'auth_multi cookie unavailable. this feature requires logged in with two or more account.'
+    )
   }
   const authTokenCookie = await browser.cookies
     .get({

@@ -19,7 +19,13 @@ import NewChainBlockPage from './popup-ui/new-chainblock-page.js'
 import NewTweetReactionBlockPage from './popup-ui/new-tweetreactionblock-page.js'
 import { DialogContent, RBDialog, RedBlockUITheme, TabPanel } from './popup-ui/ui-common.js'
 
-import { getCurrentTab, getTweetIdFromTab, getUserNameFromTab, getUserIdFromTab, PageEnum } from './popup.js'
+import {
+  getCurrentTab,
+  getTweetIdFromTab,
+  getUserNameFromTab,
+  getUserIdFromTab,
+  PageEnum,
+} from './popup.js'
 
 function checkMessage(msg: object): msg is RBMessageToPopupType {
   if (msg == null) {
@@ -55,10 +61,20 @@ interface PopupAppProps {
 }
 
 function PopupApp(props: PopupAppProps) {
-  const { loggedIn, currentUser, currentTweet, isPopupOpenedInTab, initialPage, redblockOptions } = props
+  const {
+    loggedIn,
+    currentUser,
+    currentTweet,
+    isPopupOpenedInTab,
+    initialPage,
+    redblockOptions,
+  } = props
   const [tabIndex, setTabIndex] = React.useState<PageEnum>(initialPage)
   const [sessions, setSessions] = React.useState<SessionInfo[]>([])
-  const [limiterStatus, setLimiterStatus] = React.useState<BlockLimiterStatus>({ current: 0, max: 0 })
+  const [limiterStatus, setLimiterStatus] = React.useState<BlockLimiterStatus>({
+    current: 0,
+    max: 0,
+  })
   const [modalOpened, setModalOpened] = React.useState(false)
   const [modalContent, setModalContent] = React.useState<DialogContent | null>(null)
   const [snackBarMessage, setSnackBarMessage] = React.useState('')
@@ -156,7 +172,10 @@ function PopupApp(props: PopupAppProps) {
       window.clearInterval(interval)
     }
   }, [])
-  const runningSessions = React.useMemo(() => sessions.filter(session => isRunningSession(session)), [sessions])
+  const runningSessions = React.useMemo(
+    () => sessions.filter(session => isRunningSession(session)),
+    [sessions]
+  )
   const M = MaterialUI
   const runningSessionsTabIcon = (
     <M.Badge
@@ -184,14 +203,23 @@ function PopupApp(props: PopupAppProps) {
                         <M.Icon>menu</M.Icon>
                       </M.IconButton>
                       <M.Tabs value={tabIndex} onChange={(_ev, val) => setTabIndex(val)}>
-                        <M.Tooltip arrow title={`${i18n.getMessage('running_sessions')} (${runningSessions.length})`}>
+                        <M.Tooltip
+                          arrow
+                          title={`${i18n.getMessage('running_sessions')} (${
+                            runningSessions.length
+                          })`}
+                        >
                           <M.Tab className={classes.tab} icon={runningSessionsTabIcon} />
                         </M.Tooltip>
                         <M.Tooltip arrow title={i18n.getMessage('new_follower_session')}>
                           <M.Tab className={classes.tab} icon={<M.Icon>group</M.Icon>} />
                         </M.Tooltip>
                         <M.Tooltip arrow title={i18n.getMessage('new_tweetreaction_session')}>
-                          <M.Tab className={classes.tab} disabled={!currentTweet} icon={<M.Icon>repeat</M.Icon>} />
+                          <M.Tab
+                            className={classes.tab}
+                            disabled={!currentTweet}
+                            icon={<M.Icon>repeat</M.Icon>}
+                          />
                         </M.Tooltip>
                         <M.Tooltip arrow title={i18n.getMessage('blocklist_page')}>
                           <M.Tab className={classes.tab} icon={<M.Icon>list_alt</M.Icon>} />
@@ -202,7 +230,12 @@ function PopupApp(props: PopupAppProps) {
                       </M.Tabs>
                     </M.Toolbar>
                   </M.AppBar>
-                  <M.Menu keepMounted anchorEl={menuAnchorEl} open={Boolean(menuAnchorEl)} onClose={closeMenu}>
+                  <M.Menu
+                    keepMounted
+                    anchorEl={menuAnchorEl}
+                    open={Boolean(menuAnchorEl)}
+                    onClose={closeMenu}
+                  >
                     {!isPopupOpenedInTab && (
                       <M.MenuItem onClick={handleOpenInTabClick}>
                         <M.Icon>open_in_new</M.Icon> {i18n.getMessage('open_in_new_tab')}
@@ -247,7 +280,12 @@ function PopupApp(props: PopupAppProps) {
         autoHideDuration={5000}
         message={snackBarMessage}
         action={
-          <M.IconButton size="small" aria-label="close" color="inherit" onClick={handleSnackBarClose}>
+          <M.IconButton
+            size="small"
+            aria-label="close"
+            color="inherit"
+            onClick={handleSnackBarClose}
+          >
             <M.Icon fontSize="small">close</M.Icon>
           </M.IconButton>
         }

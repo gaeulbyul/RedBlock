@@ -10,7 +10,9 @@ export const enum TargetCheckResult {
   EmptyList,
 }
 
-export function checkFollowerBlockTarget(target: FollowerBlockSessionRequest['target']): TargetCheckResult {
+export function checkFollowerBlockTarget(
+  target: FollowerBlockSessionRequest['target']
+): TargetCheckResult {
   const { protected: isProtected, following, followers_count, friends_count } = target.user
   if (isProtected && !following) {
     return TargetCheckResult.Protected
@@ -25,7 +27,9 @@ export function checkFollowerBlockTarget(target: FollowerBlockSessionRequest['ta
   return TargetCheckResult.Ok
 }
 
-export function checkTweetReactionBlockTarget(target: TweetReactionBlockSessionRequest['target']): TargetCheckResult {
+export function checkTweetReactionBlockTarget(
+  target: TweetReactionBlockSessionRequest['target']
+): TargetCheckResult {
   const { blockRetweeters, blockLikers, blockMentionedUsers } = target
   const mentions = target.tweet.entities.user_mentions || []
   if (!(blockRetweeters || blockLikers || blockMentionedUsers)) {
@@ -48,7 +52,9 @@ export function checkTweetReactionBlockTarget(target: TweetReactionBlockSessionR
   return TargetCheckResult.Ok
 }
 
-export function checkImportBlockTarget(target: ImportBlockSessionRequest['target']): TargetCheckResult {
+export function checkImportBlockTarget(
+  target: ImportBlockSessionRequest['target']
+): TargetCheckResult {
   if (target.userIds.length <= 0) {
     return TargetCheckResult.EmptyList
   }

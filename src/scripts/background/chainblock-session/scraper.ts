@@ -30,7 +30,9 @@ class MutualFollowerScraper implements UserScraper {
   public totalCount: number | null = null
   public constructor(private request: FollowerBlockSessionRequest) {}
   public async *[Symbol.asyncIterator]() {
-    const mutualFollowersIds = await UserScrapingAPI.getAllMutualFollowersIds(this.request.target.user)
+    const mutualFollowersIds = await UserScrapingAPI.getAllMutualFollowersIds(
+      this.request.target.user
+    )
     this.totalCount = mutualFollowersIds.length
     let scraper: ScrapedUsersIterator = UserScrapingAPI.lookupUsersByIds(mutualFollowersIds)
     scraper = ExtraScraper.scrapeUsersOnBio(scraper, this.request.options.includeUsersInBio)
@@ -43,7 +45,10 @@ class AntiBlockScraper implements UserScraper {
   public totalCount: number | null = null
   constructor(private request: FollowerBlockSessionRequest) {}
   private async getMutualFollowersIds(actAsUserId: string) {
-    const mutualFollowerIds = await UserScrapingAPI.getAllMutualFollowersIds(this.request.target.user, actAsUserId)
+    const mutualFollowerIds = await UserScrapingAPI.getAllMutualFollowersIds(
+      this.request.target.user,
+      actAsUserId
+    )
     return mutualFollowerIds
   }
   private async getFollowersIds(actAsUserId: string) {
@@ -63,7 +68,10 @@ class AntiBlockScraper implements UserScraper {
     if (multiCookies) {
       const actorUserIds = Object.keys(multiCookies)
       for (const actorId of actorUserIds) {
-        const target = await TwitterAPI.getSingleUserById(this.request.target.user.id_str, actorId).catch(() => null)
+        const target = await TwitterAPI.getSingleUserById(
+          this.request.target.user.id_str,
+          actorId
+        ).catch(() => null)
         if (target && !target.blocked_by) {
           return actorId
         }
@@ -124,7 +132,9 @@ class ImportUserScraper implements UserScraper {
   public totalCount = this.request.target.userIds.length
   constructor(private request: ImportBlockSessionRequest) {}
   public async *[Symbol.asyncIterator]() {
-    let scraper: ScrapedUsersIterator = UserScrapingAPI.lookupUsersByIds(this.request.target.userIds)
+    let scraper: ScrapedUsersIterator = UserScrapingAPI.lookupUsersByIds(
+      this.request.target.userIds
+    )
     scraper = ExtraScraper.scrapeUsersOnBio(scraper, this.request.options.includeUsersInBio)
     yield* scraper
   }

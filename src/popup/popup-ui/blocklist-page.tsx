@@ -3,7 +3,12 @@ import { PleaseLoginBox, BlockLimiterUI } from './ui-common.js'
 import { PageEnum } from '../popup.js'
 import * as i18n from '../../scripts/i18n.js'
 
-import { Blocklist, emptyBlocklist, importBlocklist, parse } from '../../scripts/background/blocklist-process.js'
+import {
+  Blocklist,
+  emptyBlocklist,
+  importBlocklist,
+  parse,
+} from '../../scripts/background/blocklist-process.js'
 
 const M = MaterialUI
 const T = MaterialUI.Typography
@@ -63,7 +68,12 @@ export default function BlocklistPage() {
           <div style={{ width: '100%' }}>
             <form onSubmit={onSubmit}>
               <M.FormControl component="fieldset" fullWidth>
-                <M.Box display="flex" flexDirection="row" alignItems="center" justifyContent="space-between">
+                <M.Box
+                  display="flex"
+                  flexDirection="row"
+                  alignItems="center"
+                  justifyContent="space-between"
+                >
                   <M.Box flexGrow="1">
                     <input
                       required
@@ -91,12 +101,20 @@ export default function BlocklistPage() {
               {/* L10N-ME */}
               <p>
                 차단할 유저ID: <strong>{blocklist.userIds.size.toLocaleString()}</strong>개 / 중복:{' '}
-                {blocklist.duplicated.toLocaleString()} / 값이 잘못됨: {blocklist.invalid.toLocaleString()}
+                {blocklist.duplicated.toLocaleString()} / 값이 잘못됨:{' '}
+                {blocklist.invalid.toLocaleString()}
               </p>
               <p>{i18n.getMessage('blocklist_import_description')}</p>
               <div className="hide-on-tab">
-                <p style={{ fontWeight: 'bold' }}>⚠ {i18n.getMessage('open_new_tab_for_file_picker')}</p>
-                <M.Button type="button" variant="outlined" component="button" onClick={openPopupUIInTab}>
+                <p style={{ fontWeight: 'bold' }}>
+                  ⚠ {i18n.getMessage('open_new_tab_for_file_picker')}
+                </p>
+                <M.Button
+                  type="button"
+                  variant="outlined"
+                  component="button"
+                  onClick={openPopupUIInTab}
+                >
                   {i18n.getMessage('open_in_new_tab')}
                 </M.Button>
               </div>
