@@ -63,6 +63,7 @@ const TargetUserContext = React.createContext<{
     myFollowers: 'Skip',
     myFollowings: 'Skip',
     mutualBlocked: 'Skip',
+    includeUsersInBio: 'never',
   },
   setTargetOptions: () => {},
   mutateOptions: () => {},
@@ -242,11 +243,17 @@ function TargetUserProfileEmpty(props: { reason: 'invalid-user' | 'loading' }) {
 
 function TargetChainBlockOptionsUI() {
   const { targetOptions, mutateOptions } = React.useContext(TargetUserContext)
-  const { myFollowers, myFollowings } = targetOptions
+  const { myFollowers, myFollowings, includeUsersInBio } = targetOptions
   const userActions: Array<[UserAction, string]> = [
     ['Skip', i18n.getMessage('skip')],
     ['Mute', i18n.getMessage('do_mute')],
     ['Block', i18n.getMessage('do_block')],
+  ]
+  // L10N-ME
+  const bioBlockModes: Array<[BioBlockMode, string]> = [
+    ['never', '사용안함'],
+    ['all', '사용'],
+    ['smart', '스마트모드'],
   ]
   return (
     <React.Fragment>
@@ -275,6 +282,21 @@ function TargetChainBlockOptionsUI() {
               checked={myFollowings === action}
               onChange={() => mutateOptions({ myFollowings: action })}
               label={localizedAction}
+            />
+          ))}
+        </M.RadioGroup>
+      </M.FormControl>
+      <br />
+      <M.FormControl>
+        <M.FormLabel component="legend">BioBlock &#x1F9EA;</M.FormLabel>
+        <M.RadioGroup row>
+          {bioBlockModes.map(([mode, localizedMode], index) => (
+            <M.FormControlLabel
+              key={index}
+              control={<M.Radio size="small" />}
+              checked={includeUsersInBio === mode}
+              onChange={() => mutateOptions({ includeUsersInBio: mode })}
+              label={localizedMode}
             />
           ))}
         </M.RadioGroup>
@@ -532,6 +554,7 @@ export default function NewChainBlockPage(props: { currentUser: TwitterUser | nu
     myFollowers: 'Skip',
     myFollowings: 'Skip',
     mutualBlocked: 'Skip',
+    includeUsersInBio: 'never',
   })
   const [selectedUser, setSelectedUser] = React.useState<TwitterUser | null>(currentUser)
   const [targetList, setTargetList] = React.useState<FollowKind>('followers')

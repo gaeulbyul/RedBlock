@@ -28,6 +28,7 @@ const TargetTweetContext = React.createContext<{
   targetOptions: {
     myFollowers: 'Skip',
     myFollowings: 'Skip',
+    includeUsersInBio: 'never',
   },
   setTargetOptions: () => {},
   mutateOptions: () => {},
@@ -280,6 +281,7 @@ export default function NewTweetReactionBlockPage(props: { currentTweet: Tweet |
   const [targetOptions, setTargetOptions] = React.useState<SessionOptions>({
     myFollowers: 'Skip',
     myFollowings: 'Skip',
+    includeUsersInBio: 'never',
   })
   const [wantBlockRetweeters, setWantBlockRetweeters] = React.useState<boolean>(false)
   const [wantBlockLikers, setWantBlockLikers] = React.useState<boolean>(false)

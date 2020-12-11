@@ -17,7 +17,10 @@ function calculatePercentage(session: SessionInfo): number | null {
   }
   const max = session.progress.total ?? getCountOfUsersToBlock(session.request)
   if (typeof max === 'number') {
-    return Math.round((scraped / max) * 1000) / 10
+    // Math.min : bioBlock모드로 인해 total보다 더 많은 유저를 수집할 수도 있다.
+    // 100%가 안 넘도록 함
+    // TODO: 근데 제대로 계산할 수 있었음 좋겠다.
+    return Math.min(100, Math.round((scraped / max) * 1000) / 10)
   } else {
     return null
   }

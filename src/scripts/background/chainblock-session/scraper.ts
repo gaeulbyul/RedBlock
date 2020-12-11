@@ -1,14 +1,10 @@
 import * as TwitterAPI from '../twitter-api.js'
 import * as UserScrapingAPI from '../user-scraping-api.js'
 import * as i18n from '../../i18n.js'
+import * as ExtraScraper from './extra-scraper.js'
 import { getFollowersCount, getReactionsCount } from '../../common.js'
 import { SessionRequest } from './session.js'
 
-interface UsersObject {
-  users: TwitterUser[]
-}
-
-type ScrapedUsersIterator = AsyncIterableIterator<Either<Error, UsersObject>>
 export interface UserScraper {
   totalCount: number | null
   [Symbol.asyncIterator](): ScrapedUsersIterator
@@ -21,9 +17,11 @@ class SimpleScraper implements UserScraper {
     const { user, list: followKind } = this.request.target
     this.totalCount = getFollowersCount(user, followKind)!
   }
-  public [Symbol.asyncIterator]() {
+  public async *[Symbol.asyncIterator]() {
     const { user, list: followKind } = this.request.target
-    return UserScrapingAPI.getAllFollowsUserList(followKind, user)
+    let scraper: ScrapedUsersIterator = UserScrapingAPI.getAllFollowsUserList(followKind, user)
+    scraper = ExtraScraper.scrapeUsersOnBio(scraper, this.request.options.includeUsersInBio)
+    yield* scraper
   }
 }
 
@@ -34,7 +32,9 @@ class MutualFollowerScraper implements UserScraper {
   public async *[Symbol.asyncIterator]() {
     const mutualFollowersIds = await UserScrapingAPI.getAllMutualFollowersIds(this.request.target.user)
     this.totalCount = mutualFollowersIds.length
-    yield* UserScrapingAPI.lookupUsersByIds(mutualFollowersIds)
+    let scraper: ScrapedUsersIterator = UserScrapingAPI.lookupUsersByIds(mutualFollowersIds)
+    scraper = ExtraScraper.scrapeUsersOnBio(scraper, this.request.options.includeUsersInBio)
+    yield* scraper
   }
 }
 
@@ -85,7 +85,9 @@ class AntiBlockScraper implements UserScraper {
   }
   public async *[Symbol.asyncIterator]() {
     const userIds = await this.fetchFollowersIds()
-    yield* UserScrapingAPI.lookupUsersByIds(userIds)
+    let scraper: ScrapedUsersIterator = UserScrapingAPI.lookupUsersByIds(userIds)
+    scraper = ExtraScraper.scrapeUsersOnBio(scraper, this.request.options.includeUsersInBio)
+    yield* scraper
   }
 }
 
@@ -97,15 +99,23 @@ class TweetReactedUserScraper implements UserScraper {
   }
   public async *[Symbol.asyncIterator]() {
     const { tweet, blockRetweeters, blockLikers, blockMentionedUsers } = this.request.target
+    let scraper: ScrapedUsersIterator
     if (blockRetweeters) {
-      yield* UserScrapingAPI.getAllReactedUserList('retweeted', tweet)
+      scraper = UserScrapingAPI.getAllReactedUserList('retweeted', tweet)
+      scraper = ExtraScraper.scrapeUsersOnBio(scraper, this.request.options.includeUsersInBio)
+      yield* scraper
     }
     if (blockLikers) {
-      yield* UserScrapingAPI.getAllReactedUserList('liked', tweet)
+      scraper = UserScrapingAPI.getAllReactedUserList('liked', tweet)
+      scraper = ExtraScraper.scrapeUsersOnBio(scraper, this.request.options.includeUsersInBio)
+      yield* scraper
     }
     if (blockMentionedUsers) {
       const mentions = tweet.entities.user_mentions || []
-      yield* UserScrapingAPI.lookupUsersByIds(mentions.map(e => e.id_str))
+      const mentionedUserIds = mentions.map(e => e.id_str)
+      scraper = UserScrapingAPI.lookupUsersByIds(mentionedUserIds)
+      scraper = ExtraScraper.scrapeUsersOnBio(scraper, this.request.options.includeUsersInBio)
+      yield* scraper
     }
   }
 }
@@ -113,8 +123,10 @@ class TweetReactedUserScraper implements UserScraper {
 class ImportUserScraper implements UserScraper {
   public totalCount = this.request.target.userIds.length
   constructor(private request: ImportBlockSessionRequest) {}
-  public [Symbol.asyncIterator]() {
-    return UserScrapingAPI.lookupUsersByIds(this.request.target.userIds)
+  public async *[Symbol.asyncIterator]() {
+    let scraper: ScrapedUsersIterator = UserScrapingAPI.lookupUsersByIds(this.request.target.userIds)
+    scraper = ExtraScraper.scrapeUsersOnBio(scraper, this.request.options.includeUsersInBio)
+    yield* scraper
   }
 }
 

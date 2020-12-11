@@ -1,5 +1,11 @@
 import { sleep, collectAsync, unwrap, wrapEitherRight } from '../common.js'
-import { getFollowsIds, getFollowsUserList, getReactedUserList, getMultipleUsersById } from './twitter-api.js'
+import {
+  getFollowsIds,
+  getFollowsUserList,
+  getReactedUserList,
+  getMultipleUsersById,
+  getMultipleUsersByName,
+} from './twitter-api.js'
 import type { UserIdsResponse, UserListResponse } from './twitter-api.js'
 
 const DELAY = 100
@@ -89,6 +95,16 @@ export async function* lookupUsersByIds(
   const chunks = _.chunk(userIds, 100)
   for (const chunk of chunks) {
     const mutualUsers = await getMultipleUsersById(chunk)
+    yield wrapEitherRight({ users: mutualUsers })
+  }
+}
+
+export async function* lookupUsersByNames(
+  userNames: string[]
+): AsyncIterableIterator<Either<Error, { users: TwitterUser[] }>> {
+  const chunks = _.chunk(userNames, 100)
+  for (const chunk of chunks) {
+    const mutualUsers = await getMultipleUsersByName(chunk)
     yield wrapEitherRight({ users: mutualUsers })
   }
 }

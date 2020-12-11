@@ -13,6 +13,9 @@ declare var _: typeof import('lodash')
 declare var React: typeof import('react')
 declare var ReactDOM: typeof import('react-dom')
 declare var MaterialUI: typeof import('@material-ui/core')
+declare namespace twttr {
+  export const txt: typeof import('twitter-text')
+}
 
 declare namespace uuid {
   function v1(): string
@@ -23,6 +26,7 @@ type Purpose = 'chainblock' | 'unchainblock'
 type ReactionKind = 'retweeted' | 'liked'
 
 type UserAction = 'Skip' | 'Block' | 'UnBlock' | 'Mute' | 'UnMute'
+type BioBlockMode = 'never' | 'all' | 'smart'
 
 type EventStore = Record<string, Function[]>
 

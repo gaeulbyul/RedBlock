@@ -114,6 +114,7 @@ export async function importBlocklist(userIds: Set<string>) {
     options: {
       myFollowers: 'Skip',
       myFollowings: 'Skip',
+      includeUsersInBio: 'never',
     },
   })
 }

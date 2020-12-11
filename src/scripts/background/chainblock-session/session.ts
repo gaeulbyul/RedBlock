@@ -26,6 +26,7 @@ export interface FollowerBlockSessionRequest {
     myFollowers: UserAction
     myFollowings: UserAction
     mutualBlocked: UserAction
+    includeUsersInBio: BioBlockMode
   }
 }
 
@@ -46,6 +47,7 @@ export interface TweetReactionBlockSessionRequest {
   options: {
     myFollowers: UserAction
     myFollowings: UserAction
+    includeUsersInBio: BioBlockMode
   }
 }
 
@@ -58,6 +60,7 @@ export interface ImportBlockSessionRequest {
   options: {
     myFollowers: UserAction
     myFollowings: UserAction
+    includeUsersInBio: BioBlockMode
   }
 }
 
@@ -165,6 +168,7 @@ export default class ChainBlockSession {
     }
     let stopped = false
     try {
+      const scrapedUserIds = new Set<string>()
       for await (const scraperResponse of this.scraper) {
         if (this.shouldStop) {
           stopped = true
@@ -188,6 +192,10 @@ export default class ChainBlockSession {
         this.handleRunning()
         let promisesBuffer: Promise<any>[] = []
         for (const user of scraperResponse.value.users) {
+          if (scrapedUserIds.has(user.id_str)) {
+            continue
+          }
+          scrapedUserIds.add(user.id_str)
           const blockLimitReached = this.limiter.check() !== 'ok'
           if (blockLimitReached) {
             this.stop()
@@ -368,9 +376,11 @@ export const followerBlockDefaultOption: Readonly<FollowerBlockSessionRequest['o
   myFollowers: 'Skip',
   myFollowings: 'Skip',
   mutualBlocked: 'Skip',
+  includeUsersInBio: 'never',
 })
 
 export const tweetReactionBlockDefaultOption: Readonly<TweetReactionBlockSessionRequest['options']> = Object.freeze({
   myFollowers: 'Skip',
   myFollowings: 'Skip',
+  includeUsersInBio: 'never',
 })
