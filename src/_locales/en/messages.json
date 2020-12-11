@@ -531,6 +531,9 @@
   "please_check_login": {
     "message": "You need to be logged in Twitter to use Red Block."
   },
+  "block_counter": {
+    "message": "Block counter"
+  },
   "block_target": {
     "message": "Users to block"
   },
@@ -542,5 +545,17 @@
   },
   "notify_on_block_limit": {
     "message": "To avoid problem(force-logout, account suspension), Red Block won't block over 500 users. If you want to reset counter, open Red Block's UI and press \"Reset\" button."
+  },
+  "bioblock_never": {
+    "message": "Disable"
+  },
+  "bioblock_all": {
+    "message": "Enable (All)"
+  },
+  "bioblock_smart": {
+    "message": "Enable (Smart)"
+  },
+  "bioblock_description": {
+    "message": "When Red Block block a user, It also block other accounts that mentioned in user's profile."
   }
 }

@@ -121,13 +121,12 @@ export function BlockLimiterUI(props: { status: BlockLimiterStatus }) {
     event.preventDefault()
     requestResetCounter()
   }
-  // L10N-ME
   return (
     <M.Paper>
       <M.Box padding="12px 16px" display="flex" flexDirection="row">
         <M.Box flexGrow="1">
           <T component="div">
-            Block Counter: [{current} / {max}]
+            {i18n.getMessage('block_counter')}: [{current} / {max}]
           </T>
           <T component="div" variant="body2">
             {i18n.getMessage('wtf_twitter')}
@@ -139,4 +138,14 @@ export function BlockLimiterUI(props: { status: BlockLimiterStatus }) {
       </M.Box>
     </M.Paper>
   )
+}
+
+export const descriptionOfBioBlock: DialogContent = {
+  dialogType: 'alert',
+  callbackOnCancel() {},
+  callbackOnOk() {},
+  message: {
+    title: 'BioBlock',
+    contentLines: [i18n.getMessage('bioblock_description')],
+  },
 }

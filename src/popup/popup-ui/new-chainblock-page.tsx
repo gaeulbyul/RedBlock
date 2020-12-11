@@ -267,11 +267,10 @@ function TargetChainBlockOptionsUI() {
     ['Mute', i18n.getMessage('do_mute')],
     ['Block', i18n.getMessage('do_block')],
   ]
-  // L10N-ME
   const bioBlockModes: Array<[BioBlockMode, string]> = [
-    ['never', '사용안함'],
-    ['all', '사용'],
-    ['smart', '스마트모드'],
+    ['never', i18n.getMessage('bioblock_never')],
+    ['all', i18n.getMessage('bioblock_all')],
+    ['smart', i18n.getMessage('bioblock_smart')],
   ]
   return (
     <React.Fragment>

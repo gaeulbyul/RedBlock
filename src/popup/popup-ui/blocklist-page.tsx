@@ -58,6 +58,21 @@ export default function BlocklistPage() {
     })
     window.close()
   }
+  const usersToBlock = (
+    <span>
+      {i18n.getMessage('block_target')}: <strong>{blocklist.userIds.size.toLocaleString()}</strong>
+    </span>
+  )
+  const duplicatedUsers = (
+    <span>
+      {i18n.getMessage('duplicated')}: {blocklist.duplicated.toLocaleString()}
+    </span>
+  )
+  const invalidUsers = (
+    <span>
+      {i18n.getMessage('invalid')}: {blocklist.invalid.toLocaleString()}
+    </span>
+  )
   return (
     <div>
       <M.ExpansionPanel defaultExpanded>
@@ -98,11 +113,8 @@ export default function BlocklistPage() {
               </M.FormControl>
             </form>
             <div className="description">
-              {/* L10N-ME */}
               <p>
-                차단할 유저ID: <strong>{blocklist.userIds.size.toLocaleString()}</strong>개 / 중복:{' '}
-                {blocklist.duplicated.toLocaleString()} / 값이 잘못됨:{' '}
-                {blocklist.invalid.toLocaleString()}
+                {usersToBlock} / {duplicatedUsers} / {invalidUsers}
               </p>
               <p>{i18n.getMessage('blocklist_import_description')}</p>
               <div className="hide-on-tab">

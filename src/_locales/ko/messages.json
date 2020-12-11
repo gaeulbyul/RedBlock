@@ -531,6 +531,9 @@
   "please_check_login": {
     "message": "레드블락을 사용하시려면 트위터에 로그인해주세요."
   },
+  "block_counter": {
+    "message": "차단 횟수"
+  },
   "block_target": {
     "message": "차단할 대상"
   },
@@ -542,5 +545,17 @@
   },
   "notify_on_block_limit": {
     "message": "강제 로그아웃등의 문제를 막기 위해 유저 차단을 500회 미만으로 제한합니다. 차단횟수를 초기화하시려면 레드블락 UI에서 Reset 버튼을 눌러주세요."
+  },
+  "bioblock_never": {
+    "message": "사용 안함"
+  },
+  "bioblock_all": {
+    "message": "사용 (모두 포함)"
+  },
+  "bioblock_smart": {
+    "message": "사용 (스마트모드)"
+  },
+  "bioblock_description": {
+    "message": "레드블락이 유저를 차단할 때, 해당 유저의 프로필에 있는 다른 계정도 같이 차단합니다."
   }
 }
