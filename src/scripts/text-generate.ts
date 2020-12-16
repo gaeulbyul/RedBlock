@@ -262,5 +262,7 @@ export function checkResultToString(result: TargetCheckResult): string {
       return i18n.getMessage('cant_chainblock_nobody_will_blocked')
     case TargetCheckResult.EmptyList:
       return i18n.getMessage('cant_chainblock_empty_list')
+    case TargetCheckResult.TheyBlocksYou:
+      return i18n.getMessage('cant_chainblock_to_blocked')
   }
 }

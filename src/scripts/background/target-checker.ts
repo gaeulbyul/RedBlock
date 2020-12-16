@@ -8,14 +8,24 @@ export const enum TargetCheckResult {
   ChooseAtLeastOneOfReaction,
   NobodyWillBlocked,
   EmptyList,
+  TheyBlocksYou,
 }
 
 export function checkFollowerBlockTarget(
   target: FollowerBlockSessionRequest['target']
 ): TargetCheckResult {
-  const { protected: isProtected, following, followers_count, friends_count } = target.user
+  const {
+    protected: isProtected,
+    blocked_by,
+    following,
+    followers_count,
+    friends_count,
+  } = target.user
   if (isProtected && !following) {
     return TargetCheckResult.Protected
+  }
+  if (blocked_by) {
+    return TargetCheckResult.TheyBlocksYou
   }
   if (target.list === 'followers' && followers_count <= 0) {
     return TargetCheckResult.NoFollowers

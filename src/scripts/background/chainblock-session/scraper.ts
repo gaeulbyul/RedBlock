@@ -41,6 +41,7 @@ class MutualFollowerScraper implements UserScraper {
 }
 
 // 차단상대 대상 스크래퍼
+/*
 class AntiBlockScraper implements UserScraper {
   public totalCount: number | null = null
   constructor(private request: FollowerBlockSessionRequest) {}
@@ -98,6 +99,7 @@ class AntiBlockScraper implements UserScraper {
     yield* scraper
   }
 }
+*/
 
 // 트윗반응 유저 스크래퍼
 class TweetReactedUserScraper implements UserScraper {
@@ -149,7 +151,8 @@ export function initScraper(request: SessionRequest): UserScraper {
     return new TweetReactedUserScraper(request as TweetReactionBlockSessionRequest)
   }
   if (target.user.blocked_by) {
-    return new AntiBlockScraper(request as FollowerBlockSessionRequest)
+    // 작동X
+    // return new AntiBlockScraper(request as FollowerBlockSessionRequest)
   }
   if (target.list === 'mutual-followers') {
     return new MutualFollowerScraper(request as FollowerBlockSessionRequest)
