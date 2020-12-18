@@ -97,3 +97,11 @@ export async function requestResetCounter() {
     messageTo: 'background',
   })
 }
+
+export async function downloadFromExportSession(sessionId: string) {
+  return browser.runtime.sendMessage<RBMessageToBackground.DownloadFromExportSession>({
+    messageType: 'DownloadFromExportSession',
+    messageTo: 'background',
+    sessionId,
+  })
+}

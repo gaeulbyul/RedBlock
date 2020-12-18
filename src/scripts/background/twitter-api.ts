@@ -15,7 +15,7 @@ export class APIFailError extends Error {
 export async function getMyself(): Promise<TwitterUser> {
   const response = await requestAPI('get', '/account/verify_credentials.json')
   if (response.ok) {
-    return response.json() as Promise<TwitterUser>
+    return response.json()
   } else {
     throw new APIFailError('error', response)
   }
@@ -102,7 +102,7 @@ export async function getTweetById(tweetId: string): Promise<Tweet> {
     include_card_uri: false,
   })
   if (response.ok) {
-    return response.json() as Promise<Tweet>
+    return response.json()
   } else {
     throw new APIFailError('error', response)
   }
@@ -125,7 +125,7 @@ export async function getFollowsIds(
     },
     actAsUserId
   )
-  return response.json() as Promise<UserIdsResponse>
+  return response.json()
 }
 
 export async function getFollowsUserList(
@@ -146,7 +146,7 @@ export async function getFollowsUserList(
     },
     actAsUserId
   )
-  return response.json() as Promise<UserListResponse>
+  return response.json()
 }
 
 export async function getMultipleUsersById(userIds: string[]): Promise<TwitterUser[]> {
@@ -160,7 +160,7 @@ export async function getMultipleUsersById(userIds: string[]): Promise<TwitterUs
   const response = await requestAPI('get', '/users/lookup.json', {
     user_id: joinedIds,
   })
-  return response.json() as Promise<TwitterUser[]>
+  return response.json()
 }
 
 export async function getMultipleUsersByName(userNames: string[]): Promise<TwitterUser[]> {
@@ -174,7 +174,7 @@ export async function getMultipleUsersByName(userNames: string[]): Promise<Twitt
   const response = await requestAPI('get', '/users/lookup.json', {
     screen_name: joinedNames,
   })
-  return response.json() as Promise<TwitterUser[]>
+  return response.json()
 }
 
 export async function getSingleUserByName(userName: string): Promise<TwitterUser> {
@@ -184,7 +184,7 @@ export async function getSingleUserByName(userName: string): Promise<TwitterUser
     skip_status: true,
     include_entities: false,
   })
-  return response.json() as Promise<TwitterUser>
+  return response.json()
 }
 
 export async function getSingleUserById(userId: string, actAsUserId = ''): Promise<TwitterUser> {
@@ -198,7 +198,7 @@ export async function getSingleUserById(userId: string, actAsUserId = ''): Promi
     },
     actAsUserId
   )
-  return response.json() as Promise<TwitterUser>
+  return response.json()
 }
 
 export async function getFriendships(users: TwitterUser[]): Promise<FriendshipResponse> {
@@ -213,7 +213,7 @@ export async function getFriendships(users: TwitterUser[]): Promise<FriendshipRe
   const response = await requestAPI('get', '/friendships/lookup.json', {
     user_id: joinedIds,
   })
-  return response.json() as Promise<FriendshipResponse>
+  return response.json()
 }
 
 export async function getRelationship(
@@ -226,7 +226,7 @@ export async function getRelationship(
     source_id,
     target_id,
   })
-  return (await response.json()).relationship as Promise<Relationship>
+  return (await response.json()).relationship
 }
 
 export async function getReactedUserList(
@@ -249,7 +249,21 @@ export async function getReactedUserList(
     cursor,
   })
   if (response.ok) {
-    return response.json() as Promise<UserListResponse>
+    return response.json()
+  } else {
+    throw new APIFailError('error', response)
+  }
+}
+
+export async function getRetweetersIds(tweet: Tweet): Promise<UserIdsResponse> {
+  const response = await requestAPI('get', '/statuses/retweeters/ids.json', {
+    id: tweet.id_str,
+    count: 100,
+    // cursor: <- 한 번 요청에 최대치(100명)을 가져올 수 있으므로 굳이 cursor를 쓰는 의미가 없다.
+    stringify_ids: true,
+  })
+  if (response.ok) {
+    return response.json()
   } else {
     throw new APIFailError('error', response)
   }

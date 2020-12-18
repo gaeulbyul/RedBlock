@@ -21,6 +21,7 @@
     "cookies",
     "contextMenus",
     "tabs",
+    "downloads",
     "webRequest",
     "webRequestBlocking"
   ],

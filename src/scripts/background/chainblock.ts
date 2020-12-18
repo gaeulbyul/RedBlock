@@ -1,20 +1,22 @@
 import { SessionStatus, isRunningSession, isRewindableSession } from '../common.js'
 import * as TextGenerate from '../text-generate.js'
 import * as i18n from '../i18n.js'
-import { notify, updateExtensionBadge } from './background.js'
+import { alertToCurrentTab, notify, updateExtensionBadge } from './background.js'
 import {
   TargetCheckResult,
   checkImportBlockTarget,
   checkFollowerBlockTarget,
   checkTweetReactionBlockTarget,
+  isSameTarget,
 } from './target-checker.js'
-import ChainBlockSession from './chainblock-session/session.js'
+import { ChainBlockSession, ExportSession } from './chainblock-session/session.js'
 import { loadOptions } from './storage.js'
 import type BlockLimiter from './block-limiter.js'
+import { exportBlocklist } from './blocklist-process.js'
 
 export default class ChainBlocker {
   private readonly MAX_RUNNING_SESSIONS = 5
-  private readonly sessions = new Map<string, ChainBlockSession>()
+  private readonly sessions = new Map<string, Session>()
   constructor(private readonly limiter: BlockLimiter) {}
   public hasRunningSession(): boolean {
     if (this.sessions.size <= 0) {
@@ -47,9 +49,9 @@ export default class ChainBlocker {
         return checkImportBlockTarget(target)
     }
   }
-  public getSessionByTarget(target: SessionInfo['request']['target']): ChainBlockSession | null {
+  public getSessionByTarget(target: SessionInfo['request']['target']): Session | null {
     for (const session of this.getCurrentRunningSessions()) {
-      if (session.isSameTarget(target)) {
+      if (isSameTarget(session.getSessionInfo().request.target, target)) {
         return session
       }
     }
@@ -74,7 +76,7 @@ export default class ChainBlocker {
         .catch(() => {})
     })
   }
-  private handleEvents(session: ChainBlockSession) {
+  private handleEvents(session: Session) {
     session.eventEmitter.on('started', () => {
       this.updateBadge()
     })
@@ -85,7 +87,7 @@ export default class ChainBlocker {
       this.startRemainingSessions()
       this.updateBadge()
       const options = await loadOptions()
-      if (options.removeSessionAfterComplete) {
+      if (options.removeSessionAfterComplete && info.request.purpose !== 'export') {
         this.remove(sessionId)
       }
     })
@@ -135,9 +137,16 @@ export default class ChainBlocker {
     this.sessions.delete(sessionId)
     this.updateBadge()
   }
-  private register(session: ChainBlockSession) {
+  private register(session: Session) {
     this.handleEvents(session)
     this.sessions.set(session.getSessionInfo().sessionId, session)
+  }
+  private createSession(request: SessionRequest) {
+    if (request.purpose === 'export') {
+      return new ExportSession(request as ExportableSessionRequest)
+    } else {
+      return new ChainBlockSession(request, this.limiter)
+    }
   }
   public add(request: SessionRequest): string {
     const { target } = request
@@ -150,7 +159,7 @@ export default class ChainBlocker {
       }
       return sessionInfo.sessionId
     }
-    const session = new ChainBlockSession(request, this.limiter)
+    const session = this.createSession(request)
     this.register(session)
     const sessionId = session.getSessionInfo().sessionId
     return sessionId
@@ -215,9 +224,32 @@ export default class ChainBlocker {
     return Array.from(this.sessions.values()).map(ses => ses.getSessionInfo())
   }
   public cleanupInactiveSessions() {
-    this.getAllSessionInfos()
-      .filter(session => !isRunningSession(session))
-      .forEach(session => this.remove(session.sessionId))
+    for (const [, session] of this.sessions) {
+      const sessionInfo = session.getSessionInfo()
+      if (isRunningSession(sessionInfo)) {
+        continue
+      }
+      if (sessionInfo.request.purpose === 'export') {
+        const exportSession = session as ExportSession
+        if (!exportSession.downloaded) {
+          continue
+        }
+      }
+      this.remove(sessionInfo.sessionId)
+    }
     this.updateBadge()
+  }
+  public downloadFileFromExportSession(sessionId: string) {
+    const session = this.sessions.get(sessionId)! as ExportSession
+    if (session.getSessionInfo().request.purpose !== 'export') {
+      throw new Error('unreachable - this session is not export-session')
+    }
+    const exportResult = session.getExportResult()
+    if (exportResult.userIds.size > 0) {
+      exportBlocklist(exportResult)
+      session.downloaded = true
+    } else {
+      alertToCurrentTab(i18n.getMessage('blocklist_is_empty'))
+    }
   }
 }

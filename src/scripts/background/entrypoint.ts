@@ -179,6 +179,9 @@ function handleExtensionMessage(
     case 'RequestResetCounter':
       blockLimiter.reset()
       break
+    case 'DownloadFromExportSession':
+      chainblocker.downloadFileFromExportSession(message.sessionId)
+      break
     default:
       assertNever(message)
       break

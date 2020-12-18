@@ -1,3 +1,5 @@
+/// <reference path="./chainblock-session.d.ts" />
+
 import * as UserScrapingAPI from '../user-scraping-api.js'
 // import * as TwitterAPI from '../twitter-api.js'
 

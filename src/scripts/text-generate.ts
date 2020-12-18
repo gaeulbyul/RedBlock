@@ -1,9 +1,4 @@
 import { TargetCheckResult } from './background/target-checker.js'
-import {
-  SessionInfo,
-  FollowerBlockSessionRequest,
-  TweetReactionBlockSessionRequest,
-} from './background/chainblock-session/session.js'
 import { SessionStatus, getCountOfUsersToBlock } from './common.js'
 import * as i18n from './i18n.js'
 
@@ -55,7 +50,7 @@ export function generateFollowerBlockConfirmMessage(
   const { user, list: targetList } = request.target
   const { myFollowers, myFollowings } = request.options
   const targetUserName = user.screen_name
-  let title = ''
+  let title: string
   switch (purpose) {
     case 'chainblock':
       title = i18n.getMessage('confirm_follower_chainblock_title', user.screen_name)
@@ -63,6 +58,8 @@ export function generateFollowerBlockConfirmMessage(
     case 'unchainblock':
       title = i18n.getMessage('confirm_follower_unchainblock_title', user.screen_name)
       break
+    case 'export':
+      title = i18n.getMessage('confirm_follower_export_title', user.screen_name)
   }
   let count = getCountOfUsersToBlock(request) ?? '?'
   const contents = []
@@ -175,10 +172,10 @@ export function chainBlockResultNotification(sessionInfo: SessionInfo): string {
 
 function followerBlockResultNotification(sessionInfo: SessionInfo<FollowerBlockSessionRequest>) {
   const { purpose } = sessionInfo.request
-  const { success, already, skipped, failure } = sessionInfo.progress
-  let localizedPurposeCompleted = ''
-  let howMany = ''
-  let howManyAlready = ''
+  const { success, already, skipped, failure, scraped } = sessionInfo.progress
+  let localizedPurposeCompleted: string
+  let howMany: string
+  let howManyAlready: string
   switch (purpose) {
     case 'chainblock':
       howMany = i18n.getMessage('blocked_n_users', success.Block)
@@ -190,28 +187,39 @@ function followerBlockResultNotification(sessionInfo: SessionInfo<FollowerBlockS
       howManyAlready = `${i18n.getMessage('already_unblocked')}: ${already}`
       localizedPurposeCompleted = i18n.getMessage('unchainblock_completed')
       break
+    case 'export':
+      howMany = i18n.getMessage('exported_n_users', scraped)
+      howManyAlready = ''
+      localizedPurposeCompleted = i18n.getMessage('export_completed')
+      break
   }
   let message = `${localizedPurposeCompleted} ${howMany}\n`
-  message += '('
-  message += `${howManyAlready}, `
-  message += `${i18n.getMessage('skipped')}: ${skipped}, `
-  message += `${i18n.getMessage('failed')}: ${failure}`
-  message += ')'
+  if (purpose !== 'export') {
+    message += '('
+    message += `${howManyAlready}, `
+    message += `${i18n.getMessage('skipped')}: ${skipped}, `
+    message += `${i18n.getMessage('failed')}: ${failure}`
+    message += ')'
+  }
+
   return message
 }
 
 function tweetReactionBlockResultNotification(
   sessionInfo: SessionInfo<TweetReactionBlockSessionRequest>
 ) {
+  const { purpose } = sessionInfo.request
   const { success, skipped, failure } = sessionInfo.progress
   let message = `${i18n.getMessage('chainblock_completed')} ${i18n.getMessage(
     'blocked_n_users',
     success.Block
   )}.\n`
-  message += '('
-  message += `${i18n.getMessage('skipped')}: ${skipped}, `
-  message += `${i18n.getMessage('failed')}: ${failure}`
-  message += ')'
+  if (purpose !== 'export') {
+    message += '('
+    message += `${i18n.getMessage('skipped')}: ${skipped}, `
+    message += `${i18n.getMessage('failed')}: ${failure}`
+    message += ')'
+  }
   return message
 }
 

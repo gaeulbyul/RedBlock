@@ -577,5 +577,42 @@
   },
   "skip_inactive_users_description": {
     "message": "Inactivity will be determined from last tweeted time or account creation time. Note that protected user won't skip because there's no way to determine last tweeted time."
+  },
+  "export": {
+    "message": "Export"
+  },
+  "export_completed": {
+    "message": "Export completed!"
+  },
+  "exported_n_users": {
+    "message": "Exported $count$ users.",
+    "placeholders": {
+      "count": {
+        "content": "$1"
+      }
+    }
+  },
+  "confirm_follower_export_title": {
+    "message": "Do you want to export user lists from @$username$?",
+    "placeholders": {
+      "username": {
+        "content": "$1"
+      }
+    }
+  },
+  "export_followers_description": {
+    "message": "Generate & export blocklist file from user's followings/followers."
+  },
+  "export_tweetreaction_description": {
+    "message": "Generate & export blocklist file from tweet's retweeters/likers."
+  },
+  "save": {
+    "message": "Save"
+  },
+  "save_button_description": {
+    "message": "Save exported blocklist file"
+  },
+  "blocklist_is_empty": {
+    "message": "Blocklist is empty."
   }
 }

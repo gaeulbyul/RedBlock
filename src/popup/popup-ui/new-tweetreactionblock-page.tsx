@@ -3,6 +3,7 @@ import * as i18n from '../../scripts/i18n.js'
 import { LoginStatusContext, BlockLimiterContext } from './contexts.js'
 import { startTweetReactionChainBlock } from '../../scripts/background/request-sender.js'
 import {
+  TabPanel,
   PleaseLoginBox,
   BlockLimiterUI,
   TwitterUserProfile,
@@ -10,6 +11,7 @@ import {
 } from './ui-common.js'
 
 type SessionOptions = TweetReactionBlockSessionRequest['options']
+type SessionPurpose = TweetReactionBlockSessionRequest['purpose']
 
 const TargetTweetContext = React.createContext<{
   currentTweet: Tweet | null
@@ -19,44 +21,61 @@ const TargetTweetContext = React.createContext<{
   setWantBlockLikers: (b: boolean) => void
   wantBlockMentionedUsers: boolean
   setWantBlockMentionedUsers: (b: boolean) => void
+  purpose: SessionPurpose
+  setPurpose: (purpose: SessionPurpose) => void
   targetOptions: SessionOptions
   setTargetOptions: (options: SessionOptions) => void
   mutateOptions: (optionsPart: Partial<SessionOptions>) => void
 }>({
   currentTweet: null,
   wantBlockRetweeters: false,
-  setWantBlockRetweeters: () => {},
+  setWantBlockRetweeters() {},
   wantBlockLikers: false,
-  setWantBlockLikers: () => {},
+  setWantBlockLikers() {},
   wantBlockMentionedUsers: false,
-  setWantBlockMentionedUsers: () => {},
+  setWantBlockMentionedUsers() {},
+  purpose: 'chainblock',
+  setPurpose() {},
   targetOptions: {
     myFollowers: 'Skip',
     myFollowings: 'Skip',
     includeUsersInBio: 'never',
   },
-  setTargetOptions: () => {},
-  mutateOptions: () => {},
+  setTargetOptions() {},
+  mutateOptions() {},
 })
 
 const M = MaterialUI
 
-const BigExecuteChainBlockButton = MaterialUI.withStyles(theme => ({
+const BigBaseButton = MaterialUI.withStyles(() => ({
   root: {
     width: '100%',
     padding: '10px',
     fontSize: 'larger',
+  },
+}))(MaterialUI.Button)
+
+const BigExecuteChainBlockButton = MaterialUI.withStyles(theme => ({
+  root: {
     backgroundColor: MaterialUI.colors.red[700],
     color: theme.palette.getContrastText(MaterialUI.colors.red[700]),
-    '&:disabled': {
-      opacity: '.5',
-    },
     '&:hover': {
       backgroundColor: MaterialUI.colors.red[500],
       color: theme.palette.getContrastText(MaterialUI.colors.red[500]),
     },
   },
-}))(MaterialUI.Button)
+}))(BigBaseButton)
+
+const BigExportButton = MaterialUI.withStyles(theme => ({
+  root: {
+    backgroundColor: MaterialUI.colors.blueGrey[700],
+    color: theme.palette.getContrastText(MaterialUI.colors.blueGrey[700]),
+    '&:hover': {
+      backgroundColor: MaterialUI.colors.blueGrey[500],
+      color: theme.palette.getContrastText(MaterialUI.colors.blueGrey[500]),
+    },
+  },
+}))(BigBaseButton)
 
 function TargetTweetUI(props: { tweet: Tweet }) {
   const {
@@ -192,14 +211,26 @@ function TargetChainBlockOptionsUI() {
 }
 
 function TargetOptionsUI() {
+  const { purpose, setPurpose } = React.useContext(TargetTweetContext)
+  const summary = `${i18n.getMessage('options')} (${i18n.getMessage(purpose)})`
   return (
-    <DenseExpansionPanel summary={i18n.getMessage('options')} defaultExpanded>
+    <DenseExpansionPanel summary={summary} defaultExpanded>
       <div style={{ width: '100%' }}>
-        <TargetChainBlockOptionsUI />
-        <div className="description">
-          {i18n.getMessage('chainblock_description')}{' '}
-          {i18n.getMessage('my_mutual_followers_wont_block')}
-        </div>
+        <M.Tabs value={purpose} onChange={(_ev, val) => setPurpose(val)}>
+          <M.Tab value={'chainblock'} label={`\u{1f6d1} ${i18n.getMessage('chainblock')}`} />
+          <M.Tab value={'export'} label={`\u{1f4be} ${i18n.getMessage('export')}`} />
+        </M.Tabs>
+        <M.Divider />
+        <TabPanel value={purpose} index={'chainblock'}>
+          <TargetChainBlockOptionsUI />
+          <div className="description">
+            {i18n.getMessage('chainblock_description')}{' '}
+            {i18n.getMessage('my_mutual_followers_wont_block')}
+          </div>
+        </TabPanel>
+        <TabPanel value={purpose} index={'export'}>
+          <div className="description">{i18n.getMessage('export_tweetreaction_description')}</div>
+        </TabPanel>
       </div>
     </DenseExpansionPanel>
   )
@@ -212,14 +243,16 @@ function TargetExecutionButtonUI(props: { isAvailable: boolean }) {
     wantBlockRetweeters,
     wantBlockLikers,
     wantBlockMentionedUsers,
+    purpose,
     targetOptions,
   } = React.useContext(TargetTweetContext)
-  function onExecuteChainBlockButtonClicked() {
+  function executeSession(purpose: SessionPurpose) {
     if (!currentTweet) {
+      // unreachable?
       throw new Error('트윗을 선택해주세요')
     }
-    const request: TweetReactionBlockSessionRequest = {
-      purpose: 'chainblock',
+    startTweetReactionChainBlock({
+      purpose,
       target: {
         type: 'tweet_reaction',
         tweet: currentTweet,
@@ -228,25 +261,38 @@ function TargetExecutionButtonUI(props: { isAvailable: boolean }) {
         blockMentionedUsers: wantBlockMentionedUsers,
       },
       options: targetOptions,
-    }
-    startTweetReactionChainBlock(request)
+    })
   }
   const blockButtonDisabled = !(
     isAvailable &&
     (wantBlockRetweeters || wantBlockLikers || wantBlockMentionedUsers)
   )
-  return (
-    <M.Box padding="10px">
-      <BigExecuteChainBlockButton
-        disabled={blockButtonDisabled}
-        onClick={onExecuteChainBlockButtonClicked}
-      >
-        <span>
-          {'\u{1f6d1}'} {i18n.getMessage('execute_chainblock')}
-        </span>
-      </BigExecuteChainBlockButton>
-    </M.Box>
-  )
+  const exportButtonDisabled = !(wantBlockRetweeters || wantBlockLikers || wantBlockMentionedUsers)
+  let bigButton: React.ReactNode
+  switch (purpose) {
+    case 'chainblock':
+      bigButton = (
+        <BigExecuteChainBlockButton
+          disabled={blockButtonDisabled}
+          onClick={() => executeSession('chainblock')}
+        >
+          <span>
+            {'\u{1f6d1}'} {i18n.getMessage('execute_chainblock')}
+          </span>
+        </BigExecuteChainBlockButton>
+      )
+      break
+    case 'export':
+      bigButton = (
+        <BigExportButton disabled={exportButtonDisabled} onClick={() => executeSession('export')}>
+          <span>
+            {'\u{1f4be}'} {i18n.getMessage('export')}
+          </span>
+        </BigExportButton>
+      )
+      break
+  }
+  return <M.Box>{bigButton}</M.Box>
 }
 
 export default function NewTweetReactionBlockPage(props: { currentTweet: Tweet | null }) {
@@ -261,6 +307,7 @@ export default function NewTweetReactionBlockPage(props: { currentTweet: Tweet |
   const [wantBlockRetweeters, setWantBlockRetweeters] = React.useState<boolean>(false)
   const [wantBlockLikers, setWantBlockLikers] = React.useState<boolean>(false)
   const [wantBlockMentionedUsers, setWantBlockMentionedUsers] = React.useState<boolean>(false)
+  const [purpose, setPurpose] = React.useState<SessionPurpose>('chainblock')
   const availableBlocks = React.useMemo((): number => {
     return limiterStatus.max - limiterStatus.current
   }, [limiterStatus])
@@ -288,6 +335,8 @@ export default function NewTweetReactionBlockPage(props: { currentTweet: Tweet |
           setWantBlockLikers,
           wantBlockMentionedUsers,
           setWantBlockMentionedUsers,
+          purpose,
+          setPurpose,
           targetOptions,
           setTargetOptions,
           mutateOptions,

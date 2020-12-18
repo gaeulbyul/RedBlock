@@ -1,9 +1,4 @@
 type PageEnum = typeof import('../popup/popup').PageEnum
-type SessionInfo = import('./background/chainblock-session/session').SessionInfo
-type SessionRequest = import('./background/chainblock-session/session').SessionRequest
-type FollowerBlockSessionRequest = import('./background/chainblock-session/session').FollowerBlockSessionRequest
-type TweetReactionBlockSessionRequest = import('./background/chainblock-session/session').TweetReactionBlockSessionRequest
-type ImportBlockSessionRequest = import('./background/chainblock-session/session').ImportBlockSessionRequest
 type TwitterUser = import('./background/twitter-api').TwitterUser
 type Tweet = import('./background/twitter-api').Tweet
 type DialogMessageObj = import('./text-generate').DialogMessageObj
@@ -24,7 +19,7 @@ declare namespace uuid {
 }
 
 type FollowKind = 'followers' | 'friends' | 'mutual-followers'
-type Purpose = 'chainblock' | 'unchainblock'
+type Purpose = 'chainblock' | 'unchainblock' | 'export'
 type ReactionKind = 'retweeted' | 'liked'
 
 type UserAction = 'Skip' | 'Block' | 'UnBlock' | 'Mute' | 'UnMute'
@@ -43,6 +38,14 @@ interface EitherLeft<E> {
 }
 
 type Either<E, T> = EitherLeft<E> | EitherRight<T>
+
+interface UsersObject {
+  users: TwitterUser[]
+}
+
+interface UserIdsObject {
+  ids: string[]
+}
 
 declare namespace RBMessageToBackground {
   interface CreateFollowerChainBlockSession {
@@ -130,6 +133,12 @@ declare namespace RBMessageToBackground {
     messageTo: 'background'
     user: TwitterUser
   }
+
+  interface DownloadFromExportSession {
+    messageType: 'DownloadFromExportSession'
+    messageTo: 'background'
+    sessionId: string
+  }
 }
 
 declare type RBMessageToBackgroundType =
@@ -148,6 +157,7 @@ declare type RBMessageToBackgroundType =
   | RBMessageToBackground.RequestResetCounter
   | RBMessageToBackground.BlockSingleUser
   | RBMessageToBackground.UnblockSingleUser
+  | RBMessageToBackground.DownloadFromExportSession
 
 declare namespace RBMessageToPopup {
   interface ChainBlockInfo {

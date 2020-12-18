@@ -577,5 +577,42 @@
   },
   "skip_inactive_users_description": {
     "message": "미사용여부는 마지막 트윗의 작성일이나 계정 생성일을 기준으로 하여 판단합니다. 단, 프로텍트가 걸린 계정은 마지막 트윗 작성일을 알아내지 못하므로 건너뛰지 않습니다."
+  },
+  "export": {
+    "message": "목록 만들기"
+  },
+  "export_completed": {
+    "message": "목록 만들기 완료!"
+  },
+  "exported_n_users": {
+    "message": "$count$명이 들어있는 목록을 만들었습니다.",
+    "placeholders": {
+      "count": {
+        "content": "$1"
+      }
+    }
+  },
+  "confirm_follower_export_title": {
+    "message": "@$username$에서 유저목록을 만드시겠습니까?",
+    "placeholders": {
+      "username": {
+        "content": "$1"
+      }
+    }
+  },
+  "export_followers_description": {
+    "message": "유저의 팔로잉/팔로워목록을 통해 차단목록 파일을 만들어냅니다."
+  },
+  "export_tweetreaction_description": {
+    "message": "트윗을 리트윗하거나 마음에 들어한 유저의 목록을 파일로 만들어냅니다."
+  },
+  "save": {
+    "message": "저장하기"
+  },
+  "save_button_description": {
+    "message": "만들어낸 차단목록 파일을 저장합니다."
+  },
+  "blocklist_is_empty": {
+    "message": "만들어낸 차단목록이 비어있습니다."
   }
 }

@@ -9,6 +9,7 @@ import {
   cleanupInactiveSessions,
   stopAllChainBlock,
   stopChainBlock,
+  downloadFromExportSession,
 } from '../../scripts/background/request-sender.js'
 import { DialogContext, PageSwitchContext, BlockLimiterContext } from './contexts.js'
 import { statusToString } from '../../scripts/text-generate.js'
@@ -46,17 +47,16 @@ const useStylesForSessionItem = MaterialUI.makeStyles(() =>
   })
 )
 
-function ChainBlockSessionItem(props: { session: SessionInfo }) {
-  const { session } = props
-  const { purpose, target } = session.request
+function ChainBlockSessionItem(props: { sessionInfo: SessionInfo }) {
+  const { sessionInfo } = props
+  const { sessionId } = sessionInfo
+  const { purpose, target } = sessionInfo.request
   const modalContext = React.useContext(DialogContext)
   const classes = useStylesForSessionItem()
   const [expanded, setExpanded] = React.useState(false)
   function toggleExpand() {
     setExpanded(!expanded)
   }
-  const isChainBlock = purpose === 'chainblock'
-  const isUnchainBlock = purpose === 'unchainblock'
   let user: TwitterUser | null
   let localizedTarget = ''
   switch (target.type) {
@@ -83,8 +83,8 @@ function ChainBlockSessionItem(props: { session: SessionInfo }) {
       localizedTarget = i18n.getMessage('from_imported_blocklist')
   }
   const localizedPurpose = i18n.getMessage(purpose)
-  const cardTitle = `${localizedPurpose} ${statusToString(session.status)}`
-  function renderControls(sessionInfo: SessionInfo) {
+  const cardTitle = `${localizedPurpose} ${statusToString(sessionInfo.status)}`
+  function renderControls() {
     function requestStopChainBlock() {
       if (isRunningSession(sessionInfo)) {
         modalContext.openModal({
@@ -93,13 +93,13 @@ function ChainBlockSessionItem(props: { session: SessionInfo }) {
             title: i18n.getMessage('confirm_session_stop_message'),
           },
           callbackOnOk() {
-            stopChainBlock(sessionInfo.sessionId)
+            stopChainBlock(sessionId)
           },
           callbackOnCancel() {},
         })
         return
       }
-      stopChainBlock(sessionInfo.sessionId)
+      stopChainBlock(sessionId)
     }
     //function requestRewindChainBlock() {
     //  rewindChainBlock(sessionId)
@@ -108,6 +108,36 @@ function ChainBlockSessionItem(props: { session: SessionInfo }) {
     //<M.Button style={{ display: 'none' }} disabled={!rewindable} onClick={requestRewindChainBlock}>
     //  {i18n.getMessage('rewind')}
     //</M.Button>
+    function downloadBlocklist() {
+      if (sessionInfo.progress.scraped > 0) {
+        downloadFromExportSession(sessionInfo.sessionId)
+      } else {
+        modalContext.openModal({
+          dialogType: 'alert',
+          message: {
+            title: i18n.getMessage('blocklist_is_empty'),
+          },
+          callbackOnOk() {},
+          callbackOnCancel() {},
+        })
+      }
+    }
+    let downloadButton: React.ReactNode
+    if (purpose === 'export') {
+      const disabled = sessionInfo.progress.scraped <= 0
+      downloadButton = (
+        <M.Button
+          title={i18n.getMessage('save_button_description')}
+          onClick={downloadBlocklist}
+          variant="contained"
+          disabled={disabled}
+        >
+          {i18n.getMessage('save')}
+        </M.Button>
+      )
+    } else {
+      downloadButton = ''
+    }
     let closeButtonText = i18n.getMessage('close')
     let closeButtonTitleText = i18n.getMessage('tooltip_close_session')
     if (isRunningSession(sessionInfo)) {
@@ -116,17 +146,18 @@ function ChainBlockSessionItem(props: { session: SessionInfo }) {
     }
     return (
       <React.Fragment>
+        {downloadButton}
         <M.Button title={closeButtonTitleText} onClick={requestStopChainBlock}>
           {closeButtonText}
         </M.Button>
-
         <M.IconButton className={classes.expand} onClick={toggleExpand}>
           <M.Icon>{expanded ? 'expand_less' : 'expand_more'}</M.Icon>
         </M.IconButton>
       </React.Fragment>
     )
   }
-  function renderTable({ progress: p }: SessionInfo) {
+  function renderTable() {
+    const { progress: p } = sessionInfo
     const { TableContainer, Table, TableBody, TableRow: Row, TableCell: Cell } = MaterialUI
     const { success: s } = p
     return (
@@ -190,46 +221,45 @@ function ChainBlockSessionItem(props: { session: SessionInfo }) {
       name = `<${i18n.getMessage('tweet')}> ${name}`
     }
   }
-  const percentage = calculatePercentage(session)
+  const percentage = calculatePercentage(sessionInfo)
   const progressBar =
     typeof percentage === 'number' ? (
       <M.LinearProgress variant="determinate" value={percentage} />
     ) : (
       <M.LinearProgress variant="indeterminate" />
     )
-  const succProgress = session.progress.success
+  const succProgress = sessionInfo.progress.success
+  let shortProgress: string
+  switch (purpose) {
+    case 'chainblock':
+      shortProgress = `${i18n.getMessage('block')}: ${succProgress.Block.toLocaleString()}`
+      break
+    case 'unchainblock':
+      shortProgress = `${i18n.getMessage('unblock')}: ${succProgress.UnBlock.toLocaleString()}`
+      break
+    case 'export':
+      shortProgress = `${i18n.getMessage(
+        'export'
+      )}: ${sessionInfo.progress.scraped.toLocaleString()}`
+  }
   return (
     <M.Card className={classes.card}>
       {renderCardHeader(user)}
       <M.CardContent>
         {progressBar}
         <T>
-          <span>
-            {i18n.getMessage('status')}: {statusToString(session.status)}
-          </span>
-          {isChainBlock && (
-            <span>
-              {' '}
-              / {i18n.getMessage('block')}: {succProgress.Block.toLocaleString()}
-            </span>
-          )}
-          {isUnchainBlock && (
-            <span>
-              {' '}
-              / {i18n.getMessage('unblock')}: {succProgress.UnBlock.toLocaleString()}
-            </span>
-          )}
+          {i18n.getMessage('status')}: {statusToString(sessionInfo.status)} / {shortProgress}
         </T>
-        {session.limit && (
+        {sessionInfo.limit && (
           <T color="textSecondary">
-            {i18n.getMessage('rate_limit_reset_time')} (±5m): {getLimitResetTime(session.limit)}
+            {i18n.getMessage('rate_limit_reset_time')} (±5m): {getLimitResetTime(sessionInfo.limit)}
           </T>
         )}
       </M.CardContent>
       <M.Divider variant="middle" />
-      <M.CardActions disableSpacing>{renderControls(session)}</M.CardActions>
+      <M.CardActions disableSpacing>{renderControls()}</M.CardActions>
       <M.Collapse in={expanded} unmountOnExit>
-        <M.CardContent>{renderTable(session)}</M.CardContent>
+        <M.CardContent>{renderTable()}</M.CardContent>
       </M.Collapse>
     </M.Card>
   )
@@ -283,7 +313,7 @@ export default function ChainBlockSessionsPage(props: { sessions: SessionInfo[] 
     return (
       <div className="chainblock-sessions">
         {visibleSessions.map(session => (
-          <ChainBlockSessionItem session={session as SessionInfo} key={session.sessionId} />
+          <ChainBlockSessionItem sessionInfo={session} key={session.sessionId} />
         ))}
       </div>
     )

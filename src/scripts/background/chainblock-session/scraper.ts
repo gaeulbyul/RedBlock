@@ -4,7 +4,6 @@
 import * as UserScrapingAPI from '../user-scraping-api.js'
 import * as ExtraScraper from './extra-scraper.js'
 import { getFollowersCount, getReactionsCount } from '../../common.js'
-import { SessionRequest } from './session.js'
 
 export interface UserScraper {
   totalCount: number | null

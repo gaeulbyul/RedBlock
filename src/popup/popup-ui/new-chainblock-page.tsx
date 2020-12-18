@@ -42,19 +42,19 @@ const TargetUserContext = React.createContext<{
 }>({
   currentUser: null,
   selectedUser: null,
-  setSelectedUser: () => {},
+  setSelectedUser() {},
   targetList: 'followers',
-  setTargetList: () => {},
+  setTargetList() {},
   targetOptions: {
     myFollowers: 'Skip',
     myFollowings: 'Skip',
     mutualBlocked: 'Skip',
     includeUsersInBio: 'never',
   },
-  setTargetOptions: () => {},
-  mutateOptions: () => {},
+  setTargetOptions() {},
+  mutateOptions() {},
   purpose: 'chainblock',
-  setPurpose: () => {},
+  setPurpose() {},
 })
 
 function TargetSavedUsers(props: {
@@ -368,36 +368,6 @@ function TargetUserSelectUI(props: { isAvailable: boolean }) {
   )
 }
 
-function TargetOptionsUI() {
-  const { purpose, setPurpose } = React.useContext(TargetUserContext)
-  const cautionOnMassiveBlock = i18n.getMessage('wtf_twitter')
-  const summary = `${i18n.getMessage('options')} (${i18n.getMessage(purpose)})`
-  return (
-    <DenseExpansionPanel summary={summary} defaultExpanded>
-      <div style={{ width: '100%' }}>
-        <M.Tabs value={purpose} onChange={(_ev, val) => setPurpose(val)}>
-          <M.Tab value={'chainblock'} label={`\u{1f6d1} ${i18n.getMessage('chainblock')}`} />
-          <M.Tab value={'unchainblock'} label={`\u{1f49a} ${i18n.getMessage('unchainblock')}`} />
-        </M.Tabs>
-        <M.Divider />
-        <TabPanel value={purpose} index={'chainblock'}>
-          <TargetChainBlockOptionsUI />
-          <M.Divider />
-          <div className="description">
-            {i18n.getMessage('chainblock_description')}{' '}
-            {i18n.getMessage('my_mutual_followers_wont_block')}
-            <div className="wtf">{cautionOnMassiveBlock}</div>
-          </div>
-        </TabPanel>
-        <TabPanel value={purpose} index={'unchainblock'}>
-          <TargetUnChainBlockOptionsUI />
-          <div className="description">{i18n.getMessage('unchainblock_description')}</div>
-        </TabPanel>
-      </div>
-    </DenseExpansionPanel>
-  )
-}
-
 function TargetUnChainBlockOptionsUI() {
   // const { options, mutateOptions } = props
   const { targetOptions, mutateOptions } = React.useContext(TargetUserContext)
@@ -426,56 +396,37 @@ function TargetUnChainBlockOptionsUI() {
   )
 }
 
-function TargetExecutionButtonUI(props: { isAvailable: boolean }) {
-  const { isAvailable } = props
-  const { purpose, selectedUser, targetList, targetOptions } = React.useContext(TargetUserContext)
-  function onExecuteChainBlockButtonClicked() {
-    const request: FollowerBlockSessionRequest = {
-      purpose: 'chainblock',
-      target: {
-        type: 'follower',
-        user: selectedUser!,
-        list: targetList,
-      },
-      options: targetOptions,
-    }
-    startFollowerChainBlock(request)
-  }
-  function onExecuteUnChainBlockButtonClicked() {
-    const request: FollowerBlockSessionRequest = {
-      purpose: 'unchainblock',
-      target: {
-        type: 'follower',
-        user: selectedUser!,
-        list: targetList,
-      },
-      options: targetOptions,
-    }
-    startFollowerChainBlock(request)
-  }
+function TargetOptionsUI() {
+  const { purpose, setPurpose } = React.useContext(TargetUserContext)
+  const cautionOnMassiveBlock = i18n.getMessage('wtf_twitter')
+  const summary = `${i18n.getMessage('options')} (${i18n.getMessage(purpose)})`
   return (
-    <M.Box padding="10px">
-      {purpose === 'chainblock' && (
-        <BigExecuteChainBlockButton
-          disabled={!isAvailable}
-          onClick={onExecuteChainBlockButtonClicked}
-        >
-          <span>
-            {'\u{1f6d1}'} {i18n.getMessage('execute_chainblock')}
-          </span>
-        </BigExecuteChainBlockButton>
-      )}
-      {purpose === 'unchainblock' && (
-        <BigExecuteUnChainBlockButton
-          disabled={!isAvailable}
-          onClick={onExecuteUnChainBlockButtonClicked}
-        >
-          <span>
-            {'\u{1f49a}'} {i18n.getMessage('execute_unchainblock')}
-          </span>
-        </BigExecuteUnChainBlockButton>
-      )}
-    </M.Box>
+    <DenseExpansionPanel summary={summary} defaultExpanded>
+      <div style={{ width: '100%' }}>
+        <M.Tabs value={purpose} onChange={(_ev, val) => setPurpose(val)}>
+          <M.Tab value={'chainblock'} label={`\u{1f6d1} ${i18n.getMessage('chainblock')}`} />
+          <M.Tab value={'unchainblock'} label={`\u{1f49a} ${i18n.getMessage('unchainblock')}`} />
+          <M.Tab value={'export'} label={`\u{1f4be} ${i18n.getMessage('export')}`} />
+        </M.Tabs>
+        <M.Divider />
+        <TabPanel value={purpose} index={'chainblock'}>
+          <TargetChainBlockOptionsUI />
+          <M.Divider />
+          <div className="description">
+            {i18n.getMessage('chainblock_description')}{' '}
+            {i18n.getMessage('my_mutual_followers_wont_block')}
+            <div className="wtf">{cautionOnMassiveBlock}</div>
+          </div>
+        </TabPanel>
+        <TabPanel value={purpose} index={'unchainblock'}>
+          <TargetUnChainBlockOptionsUI />
+          <div className="description">{i18n.getMessage('unchainblock_description')}</div>
+        </TabPanel>
+        <TabPanel value={purpose} index={'export'}>
+          <div className="description">{i18n.getMessage('export_followers_description')}</div>
+        </TabPanel>
+      </div>
+    </DenseExpansionPanel>
   )
 }
 
@@ -489,11 +440,16 @@ async function getUserByIdWithCache(userId: string): Promise<TwitterUser> {
   return user
 }
 
-const BigExecuteChainBlockButton = MaterialUI.withStyles(theme => ({
+const BigBaseButton = MaterialUI.withStyles(() => ({
   root: {
     width: '100%',
     padding: '10px',
     fontSize: 'larger',
+  },
+}))(MaterialUI.Button)
+
+const BigExecuteChainBlockButton = MaterialUI.withStyles(theme => ({
+  root: {
     backgroundColor: MaterialUI.colors.red[700],
     color: theme.palette.getContrastText(MaterialUI.colors.red[700]),
     '&:hover': {
@@ -501,12 +457,10 @@ const BigExecuteChainBlockButton = MaterialUI.withStyles(theme => ({
       color: theme.palette.getContrastText(MaterialUI.colors.red[500]),
     },
   },
-}))(MaterialUI.Button)
+}))(BigBaseButton)
+
 const BigExecuteUnChainBlockButton = MaterialUI.withStyles(theme => ({
   root: {
-    width: '100%',
-    padding: '10px',
-    fontSize: 'larger',
     backgroundColor: MaterialUI.colors.green[700],
     color: theme.palette.getContrastText(MaterialUI.colors.green[700]),
     '&:hover': {
@@ -514,7 +468,74 @@ const BigExecuteUnChainBlockButton = MaterialUI.withStyles(theme => ({
       color: theme.palette.getContrastText(MaterialUI.colors.green[500]),
     },
   },
-}))(MaterialUI.Button)
+}))(BigBaseButton)
+
+const BigExportButton = MaterialUI.withStyles(theme => ({
+  root: {
+    backgroundColor: MaterialUI.colors.blueGrey[700],
+    color: theme.palette.getContrastText(MaterialUI.colors.blueGrey[700]),
+    '&:hover': {
+      backgroundColor: MaterialUI.colors.blueGrey[500],
+      color: theme.palette.getContrastText(MaterialUI.colors.blueGrey[500]),
+    },
+  },
+}))(BigBaseButton)
+
+function TargetExecutionButtonUI(props: { isAvailable: boolean }) {
+  const { isAvailable } = props
+  const { purpose, selectedUser, targetList, targetOptions: options } = React.useContext(
+    TargetUserContext
+  )
+  const target: FollowerBlockSessionRequest['target'] = {
+    type: 'follower',
+    user: selectedUser!,
+    list: targetList,
+  }
+  function executeSession(purpose: Purpose) {
+    startFollowerChainBlock({
+      purpose,
+      target,
+      options,
+    })
+  }
+  let bigButton: React.ReactNode
+  switch (purpose) {
+    case 'chainblock':
+      bigButton = (
+        <BigExecuteChainBlockButton
+          disabled={!isAvailable}
+          onClick={() => executeSession('chainblock')}
+        >
+          <span>
+            {'\u{1f6d1}'} {i18n.getMessage('execute_chainblock')}
+          </span>
+        </BigExecuteChainBlockButton>
+      )
+      break
+    case 'unchainblock':
+      bigButton = (
+        <BigExecuteUnChainBlockButton
+          disabled={!isAvailable}
+          onClick={() => executeSession('unchainblock')}
+        >
+          <span>
+            {'\u{1f49a}'} {i18n.getMessage('execute_unchainblock')}
+          </span>
+        </BigExecuteUnChainBlockButton>
+      )
+      break
+    case 'export':
+      bigButton = (
+        <BigExportButton disabled={!isAvailable} onClick={() => executeSession('export')}>
+          <span>
+            {'\u{1f4be}'} {i18n.getMessage('export')}
+          </span>
+        </BigExportButton>
+      )
+      break
+  }
+  return <M.Box>{bigButton}</M.Box>
+}
 
 export default function NewChainBlockPage(props: { currentUser: TwitterUser | null }) {
   const { currentUser } = props
@@ -541,7 +562,7 @@ export default function NewChainBlockPage(props: { currentUser: TwitterUser | nu
     if (!loggedIn) {
       return false
     }
-    if (availableBlocks <= 0) {
+    if (availableBlocks <= 0 && purpose === 'chainblock') {
       return false
     }
     if (!selectedUser) {

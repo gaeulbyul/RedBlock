@@ -118,3 +118,20 @@ export async function importBlocklist(userIds: Set<string>) {
     },
   })
 }
+
+export async function exportBlocklist({ filename, userIds }: ExportResult) {
+  if (userIds.size <= 0) {
+    throw new Error('userlist is empty')
+  }
+  const csv = Array.from(userIds).join('\n')
+  const csvFile = new File([csv], filename, { type: 'text/csv' })
+  let objectUrl = URL.createObjectURL(csvFile)
+  await browser.downloads
+    .download({
+      url: objectUrl,
+      filename,
+    })
+    .finally(() => {
+      URL.revokeObjectURL(objectUrl)
+    })
+}

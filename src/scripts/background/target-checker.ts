@@ -70,3 +70,19 @@ export function checkImportBlockTarget(
   }
   return TargetCheckResult.Ok
 }
+
+export function isSameTarget(target1: SessionRequest['target'], target2: SessionRequest['target']) {
+  if (target1.type !== target2.type) {
+    return false
+  }
+  switch (target1.type) {
+    case 'follower':
+      const givenUser = (target2 as FollowerBlockSessionRequest['target']).user
+      return target1.user.id_str === givenUser.id_str
+    case 'tweet_reaction':
+      const givenTweet = (target2 as TweetReactionBlockSessionRequest['target']).tweet
+      return target1.tweet.id_str === givenTweet.id_str
+    case 'import':
+      return false
+  }
+}
