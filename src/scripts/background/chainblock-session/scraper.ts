@@ -1,6 +1,7 @@
-import * as TwitterAPI from '../twitter-api.js'
+// import * as TwitterAPI from '../twitter-api.js'
+// import * as i18n from '../../i18n.js'
+// 위 import는 AntiblockScraper에서 사용하던 거
 import * as UserScrapingAPI from '../user-scraping-api.js'
-import * as i18n from '../../i18n.js'
 import * as ExtraScraper from './extra-scraper.js'
 import { getFollowersCount, getReactionsCount } from '../../common.js'
 import { SessionRequest } from './session.js'
