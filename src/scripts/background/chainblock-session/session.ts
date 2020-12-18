@@ -207,6 +207,10 @@ export default class ChainBlockSession {
         this.handleRunning()
         let promisesBuffer: Promise<any>[] = []
         for (const user of scraperResponse.value.users) {
+          if (this.shouldStop) {
+            stopped = true
+            break
+          }
           if (scrapedUserIds.has(user.id_str)) {
             continue
           }
