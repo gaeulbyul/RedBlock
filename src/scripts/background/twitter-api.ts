@@ -139,9 +139,8 @@ export async function getFollowsUserList(
     `/${followKind}/list.json`,
     {
       user_id: user.id_str,
-      // screen_name: userName,
       count: 200,
-      skip_status: true,
+      skip_status: false,
       include_user_entities: false,
       cursor,
     },
@@ -415,6 +414,7 @@ export interface TwitterUser {
   description: string
   profile_image_url_https: string
   location: string
+  status?: Tweet
 }
 
 export type TwitterUserEntities = Record<string, TwitterUser>

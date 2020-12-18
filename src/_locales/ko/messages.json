@@ -557,5 +557,25 @@
   },
   "bioblock_description": {
     "message": "레드블락이 유저를 차단할 때, 해당 유저의 프로필에 있는 다른 계정도 같이 차단합니다."
+  },
+  "dont_skip": {
+    "message": "건너뛰지 않음"
+  },
+  "one_year": {
+    "message": "1 년"
+  },
+  "n_years": {
+    "message": "$year$ 년",
+    "placeholders": {
+      "year": {
+        "content": "$1"
+      }
+    }
+  },
+  "skip_inactive_users": {
+    "message": "미사용 계정 건너뛰기"
+  },
+  "skip_inactive_users_description": {
+    "message": "미사용여부는 마지막 트윗의 작성일이나 계정 생성일을 기준으로 하여 판단합니다. 단, 프로텍트가 걸린 계정은 마지막 트윗 작성일을 알아내지 못하므로 건너뛰지 않습니다."
   }
 }

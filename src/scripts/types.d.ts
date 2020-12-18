@@ -16,6 +16,8 @@ declare var MaterialUI: typeof import('@material-ui/core')
 declare namespace twttr {
   export const txt: typeof import('twitter-text')
 }
+declare var dayjs: typeof import('dayjs')
+declare type Dayjs = import('dayjs').Dayjs
 
 declare namespace uuid {
   function v1(): string

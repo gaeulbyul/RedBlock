@@ -8,6 +8,7 @@ import {
   getCountOfUsersToBlock,
 } from '../../common.js'
 import BlockLimiter from '../block-limiter.js'
+import { loadOptions } from '../storage.js'
 
 export type SessionRequest =
   | FollowerBlockSessionRequest
@@ -132,6 +133,7 @@ function extractRateLimit(
 
 export default class ChainBlockSession {
   private shouldStop = false
+  private readonly now = dayjs()
   private readonly sessionInfo = this.initSessionInfo()
   private readonly scraper = Scraper.initScraper(this.request)
   public readonly eventEmitter = new EventEmitter<SessionEventEmitter>()
@@ -166,6 +168,7 @@ export default class ChainBlockSession {
     if ($$DBG$$_noApiCall) {
       console.warn("WARNING: RedBlock FakeAPI mode detected! won't call actual api")
     }
+    const redblockOptions = await loadOptions()
     let apiKind: ApiKind
     switch (this.request.target.type) {
       case 'follower':
@@ -213,7 +216,11 @@ export default class ChainBlockSession {
             this.stop()
             break
           }
-          const whatToDo = this.whatToDoGivenUser(this.request, user)
+          const whatToDo = this.whatToDoGivenUser(
+            this.request,
+            user,
+            redblockOptions.skipInactiveUser
+          )
           console.debug('user %o => %s', user, whatToDo)
           if (whatToDo === 'Skip') {
             this.sessionInfo.progress.skipped++
@@ -344,12 +351,17 @@ export default class ChainBlockSession {
   }
   private whatToDoGivenUser(
     request: SessionRequest,
-    follower: TwitterUser
+    follower: TwitterUser,
+    inactivePeriod: InactivePeriod
   ): UserAction | 'Skip' | 'AlreadyDone' {
     const { purpose, options, target } = request
     const { following, followed_by, follow_request_sent } = follower
     if (!(typeof following === 'boolean' && typeof followed_by === 'boolean')) {
       throw new Error('following/followed_by property missing?')
+    }
+    const userActivity = this.checkUserInactivity(follower, inactivePeriod)
+    if (userActivity === 'inactive') {
+      return 'Skip'
     }
     const isMyFollowing = following || follow_request_sent
     const isMyFollower = followed_by
@@ -384,6 +396,40 @@ export default class ChainBlockSession {
       return 'AlreadyDone'
     }
     return defaultAction
+  }
+  private checkUserInactivity(
+    follower: TwitterUser,
+    inactivePeriod: InactivePeriod
+  ): 'active' | 'inactive' {
+    if (inactivePeriod === 'never') {
+      // 체크하지 않기로 했으므로 무조건 active
+      return 'active'
+    }
+    if (follower.protected) {
+      // 프로텍트걸린 계정의 경우 마지막으로 작성한 트윗의 정보를 가져올 수 없다.
+      // 체크할 수 없으므로 active로 취급
+      return 'active'
+    }
+    const { now } = this
+    let before: Dayjs
+    switch (inactivePeriod) {
+      case '1y':
+      case '2y':
+      case '3y':
+        before = now.subtract(parseInt(inactivePeriod.charAt(0), 10), 'y')
+        break
+    }
+    const lastTweet = follower.status
+    let isInactive: boolean
+    if (lastTweet) {
+      const lastTweetDatetime = dayjs(lastTweet.created_at, 'MMM DD HH:mm:ss ZZ YYYY')
+      isInactive = lastTweetDatetime.isBefore(before)
+    } else {
+      // 작성한 트윗이 없다면 계정생성일을 기준으로 판단한다.
+      const accountCreatedDatetime = dayjs(follower.created_at)
+      isInactive = accountCreatedDatetime.isBefore(before)
+    }
+    return isInactive ? 'inactive' : 'active'
   }
 }
 

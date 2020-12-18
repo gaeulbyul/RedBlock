@@ -557,5 +557,25 @@
   },
   "bioblock_description": {
     "message": "When Red Block block a user, It also block other accounts that mentioned in user's profile."
+  },
+  "dont_skip": {
+    "message": "Don't skip"
+  },
+  "one_year": {
+    "message": "1 year"
+  },
+  "n_years": {
+    "message": "$year$ years",
+    "placeholders": {
+      "year": {
+        "content": "$1"
+      }
+    }
+  },
+  "skip_inactive_users": {
+    "message": "Skip inactive users"
+  },
+  "skip_inactive_users_description": {
+    "message": "Inactivity will be determined from last tweeted time or account creation time. Note that protected user won't skip because there's no way to determine last tweeted time."
   }
 }
