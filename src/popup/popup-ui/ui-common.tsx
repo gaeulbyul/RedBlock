@@ -115,6 +115,47 @@ export function PleaseLoginBox() {
   )
 }
 
+const DenseExpansionPanelSummary = MaterialUI.withStyles({
+  root: {
+    minHeight: 16,
+    '&$expanded': {
+      minHeight: 16,
+    },
+  },
+  content: {
+    '&$expanded': {
+      margin: 0,
+    },
+  },
+  expanded: {},
+})(MaterialUI.ExpansionPanelSummary)
+
+const useStylesForExpansionPanels = MaterialUI.makeStyles(() =>
+  MaterialUI.createStyles({
+    details: {
+      padding: '8px 16px',
+    },
+  })
+)
+
+export function DenseExpansionPanel(props: {
+  summary: string
+  children: React.ReactNode
+  defaultExpanded?: boolean
+}) {
+  const classes = useStylesForExpansionPanels()
+  return (
+    <M.ExpansionPanel defaultExpanded={props.defaultExpanded}>
+      <DenseExpansionPanelSummary expandIcon={<M.Icon>expand_more</M.Icon>}>
+        <T>{props.summary}</T>
+      </DenseExpansionPanelSummary>
+      <M.ExpansionPanelDetails className={classes.details}>
+        {props.children}
+      </M.ExpansionPanelDetails>
+    </M.ExpansionPanel>
+  )
+}
+
 export function BlockLimiterUI(props: { status: BlockLimiterStatus }) {
   const { current, max } = props.status
   function handleResetButtonClick(event: React.MouseEvent<HTMLButtonElement>) {
@@ -122,12 +163,9 @@ export function BlockLimiterUI(props: { status: BlockLimiterStatus }) {
     requestResetCounter()
   }
   return (
-    <M.Paper>
-      <M.Box padding="12px 16px" display="flex" flexDirection="row">
+    <DenseExpansionPanel summary={`${i18n.getMessage('block_counter')}: [${current} / ${max}]`}>
+      <M.Box display="flex" flexDirection="row">
         <M.Box flexGrow="1">
-          <T component="div">
-            {i18n.getMessage('block_counter')}: [{current} / {max}]
-          </T>
           <T component="div" variant="body2">
             {i18n.getMessage('wtf_twitter')}
           </T>
@@ -136,7 +174,41 @@ export function BlockLimiterUI(props: { status: BlockLimiterStatus }) {
           Reset
         </M.Button>
       </M.Box>
-    </M.Paper>
+    </DenseExpansionPanel>
+  )
+}
+
+export function TwitterUserProfile(props: { user: TwitterUser; children: React.ReactNode }) {
+  const { user } = props
+  const biggerProfileImageUrl = user.profile_image_url_https.replace('_normal', '_bigger')
+  return (
+    <div className="target-user-info">
+      <div className="profile-image-area">
+        <img
+          alt={i18n.getMessage('profile_image')}
+          className="profile-image"
+          src={biggerProfileImageUrl}
+        />
+      </div>
+      <div className="profile-right-area">
+        <div className="profile-right-info">
+          <div className="nickname" title={user.name}>
+            {user.name}
+          </div>
+          <div className="username">
+            <a
+              target="_blank"
+              rel="noopener noreferer"
+              href={`https://twitter.com/${user.screen_name}`}
+              title={i18n.getMessage('go_to_url', `https://twitter.com/${user.screen_name}`)}
+            >
+              @{user.screen_name}
+            </a>
+          </div>
+        </div>
+        {props.children}
+      </div>
+    </div>
   )
 }
 

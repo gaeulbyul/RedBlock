@@ -2,7 +2,12 @@
 import * as i18n from '../../scripts/i18n.js'
 import { LoginStatusContext, BlockLimiterContext } from './contexts.js'
 import { startTweetReactionChainBlock } from '../../scripts/background/request-sender.js'
-import { PleaseLoginBox, BlockLimiterUI } from './ui-common.js'
+import {
+  PleaseLoginBox,
+  BlockLimiterUI,
+  TwitterUserProfile,
+  DenseExpansionPanel,
+} from './ui-common.js'
 
 type SessionOptions = TweetReactionBlockSessionRequest['options']
 
@@ -35,30 +40,6 @@ const TargetTweetContext = React.createContext<{
 })
 
 const M = MaterialUI
-const T = MaterialUI.Typography
-
-const useStylesForExpansionPanels = MaterialUI.makeStyles(() =>
-  MaterialUI.createStyles({
-    details: {
-      padding: '8px 16px',
-    },
-  })
-)
-
-const DenseExpansionPanelSummary = MaterialUI.withStyles({
-  root: {
-    minHeight: 16,
-    '&$expanded': {
-      minHeight: 16,
-    },
-  },
-  content: {
-    '&$expanded': {
-      margin: 0,
-    },
-  },
-  expanded: {},
-})(MaterialUI.ExpansionPanelSummary)
 
 const BigExecuteChainBlockButton = MaterialUI.withStyles(theme => ({
   root: {
@@ -87,68 +68,42 @@ function TargetTweetUI(props: { tweet: Tweet }) {
     setWantBlockMentionedUsers,
   } = React.useContext(TargetTweetContext)
   const { tweet } = props
-  const user = tweet.user
-  const biggerProfileImageUrl = user.profile_image_url_https.replace('_normal', '_bigger')
   const mentions = tweet.entities.user_mentions || []
   const nobodyRetweeted = tweet.retweet_count <= 0
   const nobodyLiked = tweet.favorite_count <= 0
   const nobodyMentioned = mentions.length <= 0
   return (
-    <div className="target-user-info">
-      <div className="profile-image-area">
-        <img
-          alt={i18n.getMessage('profile_image')}
-          className="profile-image"
-          src={biggerProfileImageUrl}
-        />
-      </div>
-      <div className="profile-right-area">
-        <div className="profile-right-info">
-          <div className="nickname" title={user.name}>
-            {user.name}
-          </div>
-          <div className="username">
-            <a
-              target="_blank"
-              rel="noopener noreferer"
-              href={`https://twitter.com/${user.screen_name}`}
-              title={i18n.getMessage('go_to_url', `https://twitter.com/${user.screen_name}`)}
-            >
-              @{user.screen_name}
-            </a>
-          </div>
+    <TwitterUserProfile user={tweet.user}>
+      <div className="profile-right-targettweet">
+        <div>
+          <span>트윗 내용:</span>
+          <blockquote className="tweet-content">{tweet.full_text}</blockquote>
         </div>
-        <div className="profile-right-targettweet">
-          <div>
-            <span>트윗 내용:</span>
-            <blockquote className="tweet-content">{tweet.full_text}</blockquote>
-          </div>
-          <M.FormGroup row>
-            <M.FormControlLabel
-              control={<M.Checkbox size="small" />}
-              onChange={() => setWantBlockRetweeters(!wantBlockRetweeters)}
-              checked={wantBlockRetweeters}
-              disabled={nobodyRetweeted}
-              label={`${i18n.getMessage('retweet')} (${tweet.retweet_count.toLocaleString()})`}
-            />
-            <M.FormControlLabel
-              control={<M.Checkbox size="small" />}
-              onChange={() => setWantBlockLikers(!wantBlockLikers)}
-              checked={wantBlockLikers}
-              disabled={nobodyLiked}
-              label={`${i18n.getMessage('like')} (${tweet.favorite_count.toLocaleString()})`}
-            />
-            <M.FormControlLabel
-              control={<M.Checkbox size="small" />}
-              onChange={() => setWantBlockMentionedUsers(!wantBlockMentionedUsers)}
-              checked={wantBlockMentionedUsers}
-              disabled={nobodyMentioned}
-              label={`${i18n.getMessage('mentioned')} (${mentions.length.toLocaleString()})`}
-            />
-          </M.FormGroup>
-        </div>
+        <M.FormGroup row>
+          <M.FormControlLabel
+            control={<M.Checkbox size="small" />}
+            onChange={() => setWantBlockRetweeters(!wantBlockRetweeters)}
+            checked={wantBlockRetweeters}
+            disabled={nobodyRetweeted}
+            label={`${i18n.getMessage('retweet')} (${tweet.retweet_count.toLocaleString()})`}
+          />
+          <M.FormControlLabel
+            control={<M.Checkbox size="small" />}
+            onChange={() => setWantBlockLikers(!wantBlockLikers)}
+            checked={wantBlockLikers}
+            disabled={nobodyLiked}
+            label={`${i18n.getMessage('like')} (${tweet.favorite_count.toLocaleString()})`}
+          />
+          <M.FormControlLabel
+            control={<M.Checkbox size="small" />}
+            onChange={() => setWantBlockMentionedUsers(!wantBlockMentionedUsers)}
+            checked={wantBlockMentionedUsers}
+            disabled={nobodyMentioned}
+            label={`${i18n.getMessage('mentioned')} (${mentions.length.toLocaleString()})`}
+          />
+        </M.FormGroup>
       </div>
-    </div>
+    </TwitterUserProfile>
   )
 }
 
@@ -157,24 +112,19 @@ function TargetTweetOuterUI() {
   if (!currentTweet) {
     throw new Error()
   }
-  const classes = useStylesForExpansionPanels()
   const userName = currentTweet.user.screen_name
-  const targetSummary = `(${i18n.getMessage('reacted_xxxs_tweet', userName)})`
+  const targetSummary = `${i18n.getMessage('target')} (${i18n.getMessage(
+    'reacted_xxxs_tweet',
+    userName
+  )})`
   return (
-    <M.ExpansionPanel defaultExpanded>
-      <DenseExpansionPanelSummary expandIcon={<M.Icon>expand_more</M.Icon>}>
-        <T>
-          {i18n.getMessage('target')} {targetSummary}
-        </T>
-      </DenseExpansionPanelSummary>
-      <M.ExpansionPanelDetails className={classes.details}>
-        <div style={{ width: '100%' }}>
-          <M.FormControl component="fieldset" fullWidth>
-            <TargetTweetUI tweet={currentTweet} />
-          </M.FormControl>
-        </div>
-      </M.ExpansionPanelDetails>
-    </M.ExpansionPanel>
+    <DenseExpansionPanel summary={targetSummary} defaultExpanded>
+      <div style={{ width: '100%' }}>
+        <M.FormControl component="fieldset" fullWidth>
+          <TargetTweetUI tweet={currentTweet} />
+        </M.FormControl>
+      </div>
+    </DenseExpansionPanel>
   )
 }
 
@@ -242,22 +192,16 @@ function TargetChainBlockOptionsUI() {
 }
 
 function TargetOptionsUI() {
-  const classes = useStylesForExpansionPanels()
   return (
-    <M.ExpansionPanel defaultExpanded>
-      <DenseExpansionPanelSummary expandIcon={<M.Icon>expand_more</M.Icon>}>
-        <T>{i18n.getMessage('options')}</T>
-      </DenseExpansionPanelSummary>
-      <M.ExpansionPanelDetails className={classes.details}>
-        <div style={{ width: '100%' }}>
-          <TargetChainBlockOptionsUI />
-          <div className="description">
-            {i18n.getMessage('chainblock_description')}{' '}
-            {i18n.getMessage('my_mutual_followers_wont_block')}
-          </div>
+    <DenseExpansionPanel summary={i18n.getMessage('options')} defaultExpanded>
+      <div style={{ width: '100%' }}>
+        <TargetChainBlockOptionsUI />
+        <div className="description">
+          {i18n.getMessage('chainblock_description')}{' '}
+          {i18n.getMessage('my_mutual_followers_wont_block')}
         </div>
-      </M.ExpansionPanelDetails>
-    </M.ExpansionPanel>
+      </div>
+    </DenseExpansionPanel>
   )
 }
 

@@ -290,17 +290,22 @@ export default function ChainBlockSessionsPage(props: { sessions: SessionInfo[] 
   }
   function renderEmptySessions() {
     return (
-      <div className="chainblock-suggest-start">
-        {i18n.getMessage('session_is_empty')}
-        {i18n.getMessage('press_plus_to_start_new_session')}
-      </div>
+      <M.Box display="flex" flexDirection="column" justifyContent="center" padding="12px 16px">
+        <M.Box display="flex" justifyContent="center">
+          <M.Icon color="disabled" style={{ fontSize: '100pt' }}>
+            pause_circle_filled_icon
+          </M.Icon>
+        </M.Box>
+        <M.Box display="flex" justifyContent="center">
+          {i18n.getMessage('session_is_empty')} {i18n.getMessage('press_plus_to_start_new_session')}
+        </M.Box>
+      </M.Box>
     )
   }
   const isSessionExist = sessions.length > 0
   return (
     <div>
-      {renderGlobalControls()}
-      <hr />
+      <M.Box marginBottom="15px">{renderGlobalControls()}</M.Box>
       <BlockLimiterUI status={limiterStatus} />
       {isSessionExist ? renderSessions() : renderEmptySessions()}
       <M.Tooltip placement="left" title={i18n.getMessage('new_follower_session')}>

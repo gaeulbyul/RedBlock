@@ -15,38 +15,19 @@ import {
   LoginStatusContext,
   BlockLimiterContext,
 } from './contexts.js'
-import { TabPanel, PleaseLoginBox, BlockLimiterUI } from './ui-common.js'
+import {
+  TabPanel,
+  PleaseLoginBox,
+  BlockLimiterUI,
+  TwitterUserProfile,
+  DenseExpansionPanel,
+} from './ui-common.js'
 
 const M = MaterialUI
-const T = MaterialUI.Typography
 
 type SessionOptions = FollowerBlockSessionRequest['options']
 type SelectUserGroup = 'invalid' | 'current' | 'saved'
 
-const useStylesForExpansionPanels = MaterialUI.makeStyles(() =>
-  MaterialUI.createStyles({
-    details: {
-      padding: '8px 16px',
-    },
-  })
-)
-
-const DenseExpansionPanelSummary = MaterialUI.withStyles({
-  root: {
-    minHeight: 16,
-    '&$expanded': {
-      minHeight: 16,
-    },
-  },
-  content: {
-    '&$expanded': {
-      margin: 0,
-    },
-  },
-  expanded: {},
-})(MaterialUI.ExpansionPanelSummary)
-
-// const SelectedUserContext = React.createContext<TwitterUser | null>(null)
 const TargetUserContext = React.createContext<{
   currentUser: TwitterUser | null
   selectedUser: TwitterUser | null
@@ -189,7 +170,6 @@ function TargetUserProfile(props: { isAvailable: boolean }) {
   const { selectedUser, targetList, setTargetList } = React.useContext(TargetUserContext)
   // selectedUser가 null일 땐 이 컴포넌트를 렌더링하지 않으므로
   const user = selectedUser!
-  const biggerProfileImageUrl = user.profile_image_url_https.replace('_normal', '_bigger')
   function radio(fk: FollowKind, label: string) {
     return (
       <M.FormControlLabel
@@ -202,30 +182,8 @@ function TargetUserProfile(props: { isAvailable: boolean }) {
     )
   }
   return (
-    <div className="target-user-info">
-      <div className="profile-image-area">
-        <img
-          alt={i18n.getMessage('profile_image')}
-          className="profile-image"
-          src={biggerProfileImageUrl}
-        />
-      </div>
-      <div className="profile-right-area">
-        <div className="profile-right-info">
-          <div className="nickname" title={user.name}>
-            {user.name}
-          </div>
-          <div className="username">
-            <a
-              target="_blank"
-              rel="noopener noreferer"
-              href={`https://twitter.com/${user.screen_name}`}
-              title={i18n.getMessage('go_to_url', `https://twitter.com/${user.screen_name}`)}
-            >
-              @{user.screen_name}
-            </a>
-          </div>
-        </div>
+    <TwitterUserProfile user={user}>
+      <div className="target-user-info">
         {isAvailable || (
           <div className="profile-blocked">
             {user.protected && `\u{1f512} ${i18n.getMessage('cant_chainblock_to_protected')}`}
@@ -239,7 +197,7 @@ function TargetUserProfile(props: { isAvailable: boolean }) {
           </M.RadioGroup>
         </div>
       </div>
-    </div>
+    </TwitterUserProfile>
   )
 }
 
@@ -370,7 +328,6 @@ function TargetUserSelectUI(props: { isAvailable: boolean }) {
       }
     })
   }, [])
-  const classes = useStylesForExpansionPanels()
   let targetSummary = ''
   if (selectedUser) {
     const userName = selectedUser.screen_name
@@ -386,71 +343,58 @@ function TargetUserSelectUI(props: { isAvailable: boolean }) {
         break
     }
   }
+  targetSummary = `${i18n.getMessage('target')} (${targetSummary})`
   return (
-    <M.ExpansionPanel defaultExpanded>
-      <DenseExpansionPanelSummary expandIcon={<M.Icon>expand_more</M.Icon>}>
-        <T>
-          {i18n.getMessage('target')} ({targetSummary})
-        </T>
-      </DenseExpansionPanelSummary>
-      <M.ExpansionPanelDetails className={classes.details}>
-        <div style={{ width: '100%' }}>
-          <M.FormControl component="fieldset" fullWidth>
-            <TargetSavedUsers
-              currentUser={currentUser}
-              selectedUserGroup={selectedUserGroup}
-              savedUsers={savedUsers}
-              changeUser={changeUser}
-            />
-            <M.Divider />
-            {isLoading ? (
-              <TargetUserProfileEmpty reason="loading" />
-            ) : selectedUser ? (
-              <TargetUserProfile isAvailable={isAvailable} />
-            ) : (
-              <TargetUserProfileEmpty reason="invalid-user" />
-            )}
-          </M.FormControl>
-        </div>
-      </M.ExpansionPanelDetails>
-    </M.ExpansionPanel>
+    <DenseExpansionPanel summary={targetSummary} defaultExpanded>
+      <div style={{ width: '100%' }}>
+        <M.FormControl component="fieldset" fullWidth>
+          <TargetSavedUsers
+            currentUser={currentUser}
+            selectedUserGroup={selectedUserGroup}
+            savedUsers={savedUsers}
+            changeUser={changeUser}
+          />
+          <M.Divider />
+          {isLoading ? (
+            <TargetUserProfileEmpty reason="loading" />
+          ) : selectedUser ? (
+            <TargetUserProfile isAvailable={isAvailable} />
+          ) : (
+            <TargetUserProfileEmpty reason="invalid-user" />
+          )}
+        </M.FormControl>
+      </div>
+    </DenseExpansionPanel>
   )
 }
 
 function TargetOptionsUI() {
   const { purpose, setPurpose } = React.useContext(TargetUserContext)
-  const classes = useStylesForExpansionPanels()
   const cautionOnMassiveBlock = i18n.getMessage('wtf_twitter')
+  const summary = `${i18n.getMessage('options')} (${i18n.getMessage(purpose)})`
   return (
-    <M.ExpansionPanel defaultExpanded>
-      <DenseExpansionPanelSummary expandIcon={<M.Icon>expand_more</M.Icon>}>
-        <T>
-          {i18n.getMessage('options')} ({i18n.getMessage(purpose)})
-        </T>
-      </DenseExpansionPanelSummary>
-      <M.ExpansionPanelDetails className={classes.details}>
-        <div style={{ width: '100%' }}>
-          <M.Tabs value={purpose} onChange={(_ev, val) => setPurpose(val)}>
-            <M.Tab value={'chainblock'} label={`\u{1f6d1} ${i18n.getMessage('chainblock')}`} />
-            <M.Tab value={'unchainblock'} label={`\u{1f49a} ${i18n.getMessage('unchainblock')}`} />
-          </M.Tabs>
+    <DenseExpansionPanel summary={summary} defaultExpanded>
+      <div style={{ width: '100%' }}>
+        <M.Tabs value={purpose} onChange={(_ev, val) => setPurpose(val)}>
+          <M.Tab value={'chainblock'} label={`\u{1f6d1} ${i18n.getMessage('chainblock')}`} />
+          <M.Tab value={'unchainblock'} label={`\u{1f49a} ${i18n.getMessage('unchainblock')}`} />
+        </M.Tabs>
+        <M.Divider />
+        <TabPanel value={purpose} index={'chainblock'}>
+          <TargetChainBlockOptionsUI />
           <M.Divider />
-          <TabPanel value={purpose} index={'chainblock'}>
-            <TargetChainBlockOptionsUI />
-            <M.Divider />
-            <div className="description">
-              {i18n.getMessage('chainblock_description')}{' '}
-              {i18n.getMessage('my_mutual_followers_wont_block')}
-              <div className="wtf">{cautionOnMassiveBlock}</div>
-            </div>
-          </TabPanel>
-          <TabPanel value={purpose} index={'unchainblock'}>
-            <TargetUnChainBlockOptionsUI />
-            <div className="description">{i18n.getMessage('unchainblock_description')}</div>
-          </TabPanel>
-        </div>
-      </M.ExpansionPanelDetails>
-    </M.ExpansionPanel>
+          <div className="description">
+            {i18n.getMessage('chainblock_description')}{' '}
+            {i18n.getMessage('my_mutual_followers_wont_block')}
+            <div className="wtf">{cautionOnMassiveBlock}</div>
+          </div>
+        </TabPanel>
+        <TabPanel value={purpose} index={'unchainblock'}>
+          <TargetUnChainBlockOptionsUI />
+          <div className="description">{i18n.getMessage('unchainblock_description')}</div>
+        </TabPanel>
+      </div>
+    </DenseExpansionPanel>
   )
 }
 
