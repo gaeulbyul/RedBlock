@@ -8,8 +8,8 @@ const T = MaterialUI.Typography
 export interface DialogContent {
   message: DialogMessageObj
   dialogType: 'confirm' | 'alert'
-  callbackOnOk: () => void
-  callbackOnCancel: () => void
+  callbackOnOk?: () => void
+  callbackOnCancel?: () => void
 }
 
 export function RedBlockUITheme(darkMode: boolean) {
@@ -34,11 +34,15 @@ export function RBDialog(props: {
   const { message, callbackOnOk, callbackOnCancel, dialogType } = content
   const { title, contentLines, warningLines } = message
   function confirmOk() {
-    callbackOnOk()
+    if (typeof callbackOnOk === 'function') {
+      callbackOnOk()
+    }
     closeModal()
   }
   function refused() {
-    callbackOnCancel()
+    if (typeof callbackOnCancel === 'function') {
+      callbackOnCancel()
+    }
     closeModal()
   }
   function renderControls() {
@@ -214,8 +218,6 @@ export function TwitterUserProfile(props: { user: TwitterUser; children: React.R
 
 export const descriptionOfBioBlock: DialogContent = {
   dialogType: 'alert',
-  callbackOnCancel() {},
-  callbackOnOk() {},
   message: {
     title: 'BioBlock',
     contentLines: [i18n.getMessage('bioblock_description')],

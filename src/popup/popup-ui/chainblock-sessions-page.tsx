@@ -54,6 +54,7 @@ function ChainBlockSessionItem(props: { sessionInfo: SessionInfo }) {
   const modalContext = React.useContext(DialogContext)
   const classes = useStylesForSessionItem()
   const [expanded, setExpanded] = React.useState(false)
+  const [downloadButtonClicked, setDownloadButtonClicked] = React.useState(false)
   function toggleExpand() {
     setExpanded(!expanded)
   }
@@ -95,11 +96,23 @@ function ChainBlockSessionItem(props: { sessionInfo: SessionInfo }) {
           callbackOnOk() {
             stopChainBlock(sessionId)
           },
-          callbackOnCancel() {},
         })
         return
       }
-      stopChainBlock(sessionId)
+      if (purpose === 'export' && !downloadButtonClicked) {
+        modalContext.openModal({
+          dialogType: 'confirm',
+          message: {
+            title: i18n.getMessage('confirm_closing_export_session_notyet_save'),
+          },
+          callbackOnOk() {
+            stopChainBlock(sessionId)
+          },
+        })
+        return
+      } else {
+        stopChainBlock(sessionId)
+      }
     }
     //function requestRewindChainBlock() {
     //  rewindChainBlock(sessionId)
@@ -117,10 +130,9 @@ function ChainBlockSessionItem(props: { sessionInfo: SessionInfo }) {
           message: {
             title: i18n.getMessage('blocklist_is_empty'),
           },
-          callbackOnOk() {},
-          callbackOnCancel() {},
         })
       }
+      setDownloadButtonClicked(true)
     }
     let downloadButton: React.ReactNode
     if (purpose === 'export') {
@@ -292,7 +304,6 @@ export default function ChainBlockSessionsPage(props: { sessions: SessionInfo[] 
           title: i18n.getMessage('confirm_all_stop'),
         },
         callbackOnOk: stopAllChainBlock,
-        callbackOnCancel() {},
       })
     }
     return (

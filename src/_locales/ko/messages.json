@@ -614,5 +614,8 @@
   },
   "blocklist_is_empty": {
     "message": "만들어낸 차단목록이 비어있습니다."
+  },
+  "confirm_closing_export_session_notyet_save": {
+    "message": "만들어낸 차단목록을 아직 저장하지 않았습니다. 그래도 이 세션을 닫으시겠습니까?"
   }
 }

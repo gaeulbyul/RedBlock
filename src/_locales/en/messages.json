@@ -614,5 +614,8 @@
   },
   "blocklist_is_empty": {
     "message": "Blocklist is empty."
+  },
+  "confirm_closing_export_session_notyet_save": {
+    "message": "Looks like you don't saved blocklist file yet. Are you sure to close this session?"
   }
 }

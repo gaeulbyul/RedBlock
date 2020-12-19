@@ -138,7 +138,6 @@ function PopupApp(props: PopupAppProps) {
           sessionId,
         })
       },
-      callbackOnCancel() {},
     })
   }
   React.useEffect(() => {

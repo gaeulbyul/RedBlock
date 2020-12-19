@@ -307,8 +307,6 @@ function TargetUserSelectUI(props: { isAvailable: boolean }) {
           message: {
             title: i18n.getMessage('failed_to_get_user_info', userName),
           },
-          callbackOnOk() {},
-          callbackOnCancel() {},
         })
         setSelectedUser(null)
         selectUserGroup('invalid')
