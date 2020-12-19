@@ -275,6 +275,7 @@ export class ExportSession extends BaseSession {
     try {
       const scrapedUserIds = this.exportResult.userIds
       for await (const scraperResponse of this.scraper) {
+        // NOTE: 사이즈 올리게 되면 번역파일도 수정할것
         if (this.shouldStop || scrapedUserIds.size > 100000) {
           stopped = this.shouldStop
           break

@@ -601,7 +601,7 @@
     }
   },
   "export_followers_description": {
-    "message": "유저의 팔로잉/팔로워목록을 통해 차단목록 파일을 만들어냅니다."
+    "message": "유저의 팔로잉/팔로워목록을 통해 차단목록 파일을 만들어냅니다. (100,000명까지)"
   },
   "export_tweetreaction_description": {
     "message": "트윗을 리트윗하거나 마음에 들어한 유저의 목록을 파일로 만들어냅니다."
