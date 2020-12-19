@@ -13,12 +13,78 @@ import {
 const M = MaterialUI
 const T = MaterialUI.Typography
 
+type SessionOptions = ImportBlockSessionRequest['options']
+
+const ImportOptionsContext = React.createContext<{
+  targetOptions: SessionOptions
+  mutateOptions: (optionsPart: Partial<SessionOptions>) => void
+}>({
+  targetOptions: {
+    myFollowers: 'Skip',
+    myFollowings: 'Skip',
+    includeUsersInBio: 'never',
+  },
+  mutateOptions() {},
+})
+
+function ImportOptionsUI() {
+  const { targetOptions, mutateOptions } = React.useContext(ImportOptionsContext)
+  const { myFollowers, myFollowings } = targetOptions
+  const userActions: Array<[UserAction, string]> = [
+    ['Skip', i18n.getMessage('skip')],
+    ['Mute', i18n.getMessage('do_mute')],
+    ['Block', i18n.getMessage('do_block')],
+  ]
+  return (
+    <React.Fragment>
+      <M.FormControl component="fieldset">
+        <M.FormLabel component="legend">{i18n.getMessage('my_followers')}</M.FormLabel>
+        <M.RadioGroup row>
+          {userActions.map(([userAction, localizedAction], index) => (
+            <M.FormControlLabel
+              key={index}
+              control={<M.Radio size="small" />}
+              checked={myFollowers === userAction}
+              onChange={() => mutateOptions({ myFollowers: userAction })}
+              label={localizedAction}
+            />
+          ))}
+        </M.RadioGroup>
+      </M.FormControl>
+      <br />
+      <M.FormControl component="fieldset">
+        <M.FormLabel component="legend">{i18n.getMessage('my_followings')}</M.FormLabel>
+        <M.RadioGroup row>
+          {userActions.map(([userAction, localizedAction], index) => (
+            <M.FormControlLabel
+              key={index}
+              control={<M.Radio size="small" />}
+              checked={myFollowings === userAction}
+              onChange={() => mutateOptions({ myFollowings: userAction })}
+              label={localizedAction}
+            />
+          ))}
+        </M.RadioGroup>
+      </M.FormControl>
+    </React.Fragment>
+  )
+}
+
 export default function BlocklistPage() {
   const { loggedIn } = React.useContext(LoginStatusContext)
   const snackBarCtx = React.useContext(SnackBarContext)
   const limiterStatus = React.useContext(BlockLimiterContext)
   const [fileInput] = React.useState(React.createRef<HTMLInputElement>())
   const [blocklist, setBlocklist] = React.useState<Blocklist>(emptyBlocklist)
+  const [targetOptions, setTargetOptions] = React.useState<SessionOptions>({
+    myFollowers: 'Skip',
+    myFollowings: 'Skip',
+    includeUsersInBio: 'never',
+  })
+  function mutateOptions(newOptionsPart: Partial<SessionOptions>) {
+    const newOptions = { ...targetOptions, ...newOptionsPart }
+    setTargetOptions(newOptions)
+  }
   const availableBlocks = React.useMemo((): number => {
     return limiterStatus.max - limiterStatus.current
   }, [limiterStatus])
@@ -49,7 +115,15 @@ export default function BlocklistPage() {
       snackBarCtx.snack(i18n.getMessage('cant_chainblock_empty_list'))
       return
     }
-    importBlocklist(blocklist.userIds)
+    const userIds = Array.from(blocklist.userIds)
+    importBlocklist({
+      purpose: 'chainblock',
+      target: {
+        type: 'import',
+        userIds,
+      },
+      options: targetOptions,
+    })
   }
   async function openPopupUIInTab(event: React.MouseEvent<HTMLButtonElement, MouseEvent>) {
     event.preventDefault()
@@ -81,58 +155,66 @@ export default function BlocklistPage() {
           <T>{i18n.getMessage('import_blocklist')}</T>
         </M.ExpansionPanelSummary>
         <M.ExpansionPanelDetails>
-          <div style={{ width: '100%' }}>
-            <form onSubmit={onSubmit}>
-              <M.FormControl component="fieldset" fullWidth>
-                <M.Box
-                  display="flex"
-                  flexDirection="row"
-                  alignItems="center"
-                  justifyContent="space-between"
-                >
-                  <M.Box flexGrow="1">
-                    <input
-                      required
-                      ref={fileInput}
-                      id="input-file-to-import"
-                      name="input-file"
-                      type="file"
-                      onChange={onChange}
-                      accept="text/plain,.txt,text/csv,.csv,application/json,.json,application/javascript,.js"
-                    />
-                  </M.Box>
-                  <M.Button
-                    type="submit"
-                    variant="contained"
-                    color="primary"
-                    component="button"
-                    disabled={!isAvailable}
+          <ImportOptionsContext.Provider
+            value={{
+              targetOptions,
+              mutateOptions,
+            }}
+          >
+            <div style={{ width: '100%' }}>
+              <form onSubmit={onSubmit}>
+                <M.FormControl component="fieldset" fullWidth>
+                  <M.Box
+                    display="flex"
+                    flexDirection="row"
+                    alignItems="center"
+                    justifyContent="space-between"
                   >
-                    {i18n.getMessage('import')}
-                  </M.Button>
-                </M.Box>
-              </M.FormControl>
-            </form>
-            <div className="description">
-              <p>
-                {usersToBlock} / {duplicatedUsers} / {invalidUsers}
-              </p>
-              <p>{i18n.getMessage('blocklist_import_description')}</p>
-              <div className="hide-on-tab">
-                <p style={{ fontWeight: 'bold' }}>
-                  ⚠ {i18n.getMessage('open_new_tab_for_file_picker')}
+                    <M.Box flexGrow="1">
+                      <input
+                        required
+                        ref={fileInput}
+                        id="input-file-to-import"
+                        name="input-file"
+                        type="file"
+                        onChange={onChange}
+                        accept="text/plain,.txt,text/csv,.csv,application/json,.json,application/javascript,.js"
+                      />
+                    </M.Box>
+                    <M.Button
+                      type="submit"
+                      variant="contained"
+                      color="primary"
+                      component="button"
+                      disabled={!isAvailable}
+                    >
+                      {i18n.getMessage('import')}
+                    </M.Button>
+                  </M.Box>
+                </M.FormControl>
+              </form>
+              <ImportOptionsUI />
+              <div className="description">
+                <p>
+                  {usersToBlock} / {duplicatedUsers} / {invalidUsers}
                 </p>
-                <M.Button
-                  type="button"
-                  variant="outlined"
-                  component="button"
-                  onClick={openPopupUIInTab}
-                >
-                  {i18n.getMessage('open_in_new_tab')}
-                </M.Button>
+                <p>{i18n.getMessage('blocklist_import_description')}</p>
+                <div className="hide-on-tab">
+                  <p style={{ fontWeight: 'bold' }}>
+                    ⚠ {i18n.getMessage('open_new_tab_for_file_picker')}
+                  </p>
+                  <M.Button
+                    type="button"
+                    variant="outlined"
+                    component="button"
+                    onClick={openPopupUIInTab}
+                  >
+                    {i18n.getMessage('open_in_new_tab')}
+                  </M.Button>
+                </div>
               </div>
             </div>
-          </div>
+          </ImportOptionsContext.Provider>
         </M.ExpansionPanelDetails>
       </M.ExpansionPanel>
       {loggedIn ? '' : <PleaseLoginBox />}

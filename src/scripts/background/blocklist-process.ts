@@ -101,22 +101,8 @@ export function parse(text: string): Blocklist {
   }
 }
 
-export async function importBlocklist(userIds: Set<string>) {
-  if (userIds.size <= 0) {
-    throw new Error('empty file')
-  }
-  startImportChainBlock({
-    purpose: 'chainblock',
-    target: {
-      type: 'import',
-      userIds: Array.from(userIds),
-    },
-    options: {
-      myFollowers: 'Skip',
-      myFollowings: 'Skip',
-      includeUsersInBio: 'never',
-    },
-  })
+export async function importBlocklist(request: ImportBlockSessionRequest) {
+  startImportChainBlock(request)
 }
 
 export async function exportBlocklist({ filename, userIds }: ExportResult) {
