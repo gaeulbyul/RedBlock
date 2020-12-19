@@ -36,6 +36,7 @@ export default function BlocklistPage() {
     const files = fileInput.current!.files
     if (!(files && files.length > 0)) {
       snackBarCtx.snack(i18n.getMessage('pick_file_first'))
+      setBlocklist(emptyBlocklist)
       return
     }
     const file = files[0]
