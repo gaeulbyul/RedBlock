@@ -91,7 +91,7 @@ function parseAsCsvBlocklist(text: string): Blocklist {
   return { userIds, duplicated, invalid }
 }
 
-export function parse(text: string): Blocklist {
+export function parseBlocklist(text: string): Blocklist {
   if (text.startsWith('{')) {
     return parseAsImportChainJson(text)
   } else if (/^window.YTD.block.part\d+ = /.test(text)) {
@@ -120,4 +120,17 @@ export async function exportBlocklist({ filename, userIds }: ExportResult) {
     .finally(() => {
       URL.revokeObjectURL(objectUrl)
     })
+}
+
+export function concatBlockList(list1: Blocklist, list2: Blocklist): Blocklist {
+  const userIds = new Set([...list1.userIds, ...list2.userIds])
+  // 두 목록에 중복이 없다면 총 갯수가 totalIfNoDuplicate 만큼 나와야하지만
+  // 실제 갯수는 totalActually 만큼 있다.
+  // Set에는 중복값이 안 들어가니 이 크기차이인 duplicatedBetweenTwoList 를 중복 갯수로 볼 수 있다.
+  const totalIfNoDuplicate = list1.userIds.size + list2.userIds.size
+  const totalActually = userIds.size
+  const duplicatedBetweenTwoList = totalIfNoDuplicate - totalActually
+  const duplicated = list1.duplicated + list2.duplicated + duplicatedBetweenTwoList
+  const invalid = list1.invalid + list2.invalid
+  return { userIds, duplicated, invalid }
 }

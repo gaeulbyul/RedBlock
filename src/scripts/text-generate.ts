@@ -148,7 +148,7 @@ export function generateImportBlockConfirmMessage(
   if (myFollowings === 'Block') {
     warnings.push(`\u26a0 ${i18n.getMessage('warning_maybe_you_block_your_followings')}`)
   }
-  const usersCount = request.target.userIds.length
+  const usersCount = request.target.userIds.length.toLocaleString()
   return {
     title: i18n.getMessage('confirm_import_chainblock_title'),
     contentLines: [`${i18n.getMessage('user_count')}: ${usersCount}`],

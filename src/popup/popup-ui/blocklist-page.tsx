@@ -13,7 +13,8 @@ import {
   Blocklist,
   emptyBlocklist,
   importBlocklist,
-  parse,
+  parseBlocklist,
+  concatBlockList,
 } from '../../scripts/background/blocklist-process.js'
 
 const M = MaterialUI
@@ -112,9 +113,11 @@ export default function BlocklistPage() {
       setBlocklist(emptyBlocklist)
       return
     }
-    const file = files[0]
-    const text = await file.text()
-    setBlocklist(parse(text))
+    const texts = await Promise.all(Array.from(files).map(file => file.text()))
+    const blocklist = texts
+      .map(parseBlocklist)
+      .reduce((list1, list2) => concatBlockList(list1, list2))
+    setBlocklist(blocklist)
   }
   async function onSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault()
@@ -191,6 +194,7 @@ export default function BlocklistPage() {
                         name="input-file"
                         type="file"
                         onChange={onChange}
+                        multiple
                         accept="text/plain,.txt,text/csv,.csv,application/json,.json,application/javascript,.js"
                       />
                     </M.Box>
