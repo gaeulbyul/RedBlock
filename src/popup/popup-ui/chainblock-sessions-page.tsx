@@ -331,12 +331,12 @@ export default function ChainBlockSessionsPage(props: { sessions: SessionInfo[] 
   function renderEmptySessions() {
     return (
       <M.Box display="flex" flexDirection="column" justifyContent="center" padding="12px 16px">
-        <M.Box display="flex" justifyContent="center">
-          <M.Icon color="disabled" style={{ fontSize: '100pt' }}>
+        <M.Box display="flex" justifyContent="center" padding="10px">
+          <M.Icon color="disabled" style={{ fontSize: '120pt' }}>
             pause_circle_filled_icon
           </M.Icon>
         </M.Box>
-        <M.Box display="flex" justifyContent="center">
+        <M.Box display="flex" justifyContent="center" textAlign="center">
           {i18n.getMessage('session_is_empty')} {i18n.getMessage('press_plus_to_start_new_session')}
         </M.Box>
       </M.Box>

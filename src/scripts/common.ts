@@ -9,7 +9,7 @@ export const enum SessionStatus {
   Error,
 }
 
-export const UI_UPDATE_DELAY = 250
+export const UI_UPDATE_DELAY = 750
 
 export class EventEmitter<T> {
   protected events: EventStore = new Proxy(
