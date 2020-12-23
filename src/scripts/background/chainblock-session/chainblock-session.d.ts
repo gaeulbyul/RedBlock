@@ -70,7 +70,6 @@ interface SessionInfo<ReqT = SessionRequest> {
     scraped: number
     total: number | null
   }
-  confirmed: boolean
   status: import('../../common').SessionStatus
   limit: import('../twitter-api').Limit | null
 }

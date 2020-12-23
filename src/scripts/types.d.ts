@@ -48,22 +48,10 @@ interface UserIdsObject {
 }
 
 declare namespace RBMessageToBackground {
-  interface CreateFollowerChainBlockSession {
-    messageType: 'CreateFollowerChainBlockSession'
+  interface CreateChainBlockSession {
+    messageType: 'CreateChainBlockSession'
     messageTo: 'background'
-    request: FollowerBlockSessionRequest
-  }
-
-  interface CreateTweetReactionChainBlockSession {
-    messageType: 'CreateTweetReactionChainBlockSession'
-    messageTo: 'background'
-    request: TweetReactionBlockSessionRequest
-  }
-
-  interface CreateImportChainBlockSession {
-    messageType: 'CreateImportChainBlockSession'
-    messageTo: 'background'
-    request: ImportBlockSessionRequest
+    request: SessionRequest
   }
 
   interface StartSession {
@@ -109,7 +97,7 @@ declare namespace RBMessageToBackground {
   interface RequestCleanup {
     messageType: 'RequestCleanup'
     messageTo: 'background'
-    cleanupWhat: 'inactive' | 'not-confirmed'
+    cleanupWhat: 'inactive'
   }
 
   interface RefreshSavedUsers {
@@ -142,10 +130,8 @@ declare namespace RBMessageToBackground {
 }
 
 declare type RBMessageToBackgroundType =
-  | RBMessageToBackground.CreateFollowerChainBlockSession
-  | RBMessageToBackground.CreateTweetReactionChainBlockSession
-  | RBMessageToBackground.CreateImportChainBlockSession
-  | RBMessageToBackground.StartSession
+  | RBMessageToBackground.CreateChainBlockSession
+  // | RBMessageToBackground.StartSession
   | RBMessageToBackground.StopSession
   | RBMessageToBackground.StopAllSessions
   | RBMessageToBackground.RewindSession
@@ -172,18 +158,11 @@ declare namespace RBMessageToPopup {
     messageTo: 'popup'
     page: PageEnum[keyof PageEnum]
   }
-  interface ConfirmChainBlockInPopup {
-    messageType: 'ConfirmChainBlockInPopup'
-    messageTo: 'popup'
-    confirmMessage: DialogMessageObj
-    sessionId: string
-  }
 }
 
 declare type RBMessageToPopupType =
   | RBMessageToPopup.ChainBlockInfo
   | RBMessageToPopup.PopupSwitchTab
-  | RBMessageToPopup.ConfirmChainBlockInPopup
 
 declare namespace RBMessageToContent {
   interface MarkUser {
@@ -203,7 +182,8 @@ declare namespace RBMessageToContent {
     messageType: 'ConfirmChainBlock'
     messageTo: 'content'
     confirmMessage: string
-    sessionId: string
+    request: SessionRequest
+    // sessionId: string
   }
 
   interface ToggleOneClickBlockMode {

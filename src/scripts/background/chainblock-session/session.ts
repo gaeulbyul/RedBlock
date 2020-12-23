@@ -50,9 +50,6 @@ abstract class BaseSession {
   public getSessionInfo() {
     return copyFrozenObject(this.sessionInfo)
   }
-  public setConfirmed() {
-    this.sessionInfo.confirmed = true
-  }
   public async stop() {
     this.shouldStop = true
     return new Promise(resolve => {
@@ -89,7 +86,6 @@ abstract class BaseSession {
       progress: this.initProgress(),
       status: SessionStatus.Initial,
       limit: null,
-      confirmed: false,
     }
   }
   protected generateSessionId(): string {
@@ -134,9 +130,6 @@ export class ChainBlockSession extends BaseSession {
     super(request)
   }
   public async start() {
-    if (!this.sessionInfo.confirmed) {
-      throw new Error('session not confirmed')
-    }
     const DBG_dontActuallyCallAPI = localStorage.getItem('RedBlock FakeAPI') === 'true'
     if (DBG_dontActuallyCallAPI) {
       console.warn("WARNING: RedBlock FakeAPI mode detected! won't call actual api")
@@ -268,9 +261,6 @@ export class ExportSession extends BaseSession {
     return this.exportResult
   }
   public async start() {
-    if (!this.sessionInfo.confirmed) {
-      throw new Error('session not confirmed')
-    }
     let stopped = false
     try {
       const scrapedUserIds = this.exportResult.userIds

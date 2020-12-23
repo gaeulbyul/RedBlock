@@ -1,7 +1,13 @@
-import { SnackBarContext, LoginStatusContext, BlockLimiterContext } from './contexts.js'
+import {
+  SnackBarContext,
+  LoginStatusContext,
+  BlockLimiterContext,
+  DialogContext,
+} from './contexts.js'
 import { PleaseLoginBox, BlockLimiterUI } from './ui-common.js'
 import { PageEnum } from '../popup.js'
 import * as i18n from '../../scripts/i18n.js'
+import { generateImportBlockConfirmMessage } from '../../scripts/text-generate.js'
 
 import {
   Blocklist,
@@ -74,6 +80,7 @@ export default function BlocklistPage() {
   const { loggedIn } = React.useContext(LoginStatusContext)
   const snackBarCtx = React.useContext(SnackBarContext)
   const limiterStatus = React.useContext(BlockLimiterContext)
+  const { openModal } = React.useContext(DialogContext)
   const [fileInput] = React.useState(React.createRef<HTMLInputElement>())
   const [blocklist, setBlocklist] = React.useState<Blocklist>(emptyBlocklist)
   const [targetOptions, setTargetOptions] = React.useState<SessionOptions>({
@@ -115,14 +122,20 @@ export default function BlocklistPage() {
       snackBarCtx.snack(i18n.getMessage('cant_chainblock_empty_list'))
       return
     }
-    const userIds = Array.from(blocklist.userIds)
-    importBlocklist({
+    const request: ImportBlockSessionRequest = {
       purpose: 'chainblock',
       target: {
         type: 'import',
-        userIds,
+        userIds: Array.from(blocklist.userIds),
       },
       options: targetOptions,
+    }
+    openModal({
+      dialogType: 'confirm',
+      message: generateImportBlockConfirmMessage(request),
+      callbackOnOk() {
+        importBlocklist(request)
+      },
     })
   }
   async function openPopupUIInTab(event: React.MouseEvent<HTMLButtonElement, MouseEvent>) {

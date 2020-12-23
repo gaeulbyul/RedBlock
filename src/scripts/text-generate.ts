@@ -103,7 +103,7 @@ export function generateFollowerBlockConfirmMessage(
   }
 }
 
-export function generateTweetReactionBlockMessage(
+export function generateTweetReactionBlockConfirmMessage(
   request: TweetReactionBlockSessionRequest
 ): DialogMessageObj {
   const { tweet, blockRetweeters, blockLikers, blockMentionedUsers } = request.target
@@ -137,7 +137,9 @@ export function generateTweetReactionBlockMessage(
   }
 }
 
-export function generateImportBlockMessage(request: ImportBlockSessionRequest): DialogMessageObj {
+export function generateImportBlockConfirmMessage(
+  request: ImportBlockSessionRequest
+): DialogMessageObj {
   const { myFollowers, myFollowings } = request.options
   const warnings = []
   if (myFollowers === 'Block') {
@@ -151,6 +153,17 @@ export function generateImportBlockMessage(request: ImportBlockSessionRequest): 
     title: i18n.getMessage('confirm_import_chainblock_title'),
     contentLines: [`${i18n.getMessage('user_count')}: ${usersCount}`],
     warningLines: warnings,
+  }
+}
+
+export function generateConfirmMessage(request: SessionRequest): DialogMessageObj {
+  switch (request.target.type) {
+    case 'follower':
+      return generateFollowerBlockConfirmMessage(request as FollowerBlockSessionRequest)
+    case 'tweet_reaction':
+      return generateTweetReactionBlockConfirmMessage(request as TweetReactionBlockSessionRequest)
+    case 'import':
+      return generateImportBlockConfirmMessage(request as ImportBlockSessionRequest)
   }
 }
 

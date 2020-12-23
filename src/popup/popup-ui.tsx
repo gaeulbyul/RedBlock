@@ -121,25 +121,6 @@ function PopupApp(props: PopupAppProps) {
   function closeMenu() {
     setMenuAnchorEl(null)
   }
-  function handleConfirm({ confirmMessage, sessionId }: RBMessageToPopup.ConfirmChainBlockInPopup) {
-    if (isPopupOpenedInTab) {
-      // 레드블락 UI가 여려군데(팝업 + 탭)에 떠있는 상태에서
-      // 체인블락을 실행하면 탭에도 확인메시지가 나타나더라.
-      // 팝업에서만 메시지가 뜨게 함.
-      return
-    }
-    openModal({
-      dialogType: 'confirm',
-      message: confirmMessage,
-      callbackOnOk() {
-        return browser.runtime.sendMessage<RBMessageToBackground.StartSession>({
-          messageType: 'StartSession',
-          messageTo: 'background',
-          sessionId,
-        })
-      },
-    })
-  }
   React.useEffect(() => {
     const messageListener = (msg: object) => {
       if (!checkMessage(msg)) {
@@ -154,21 +135,14 @@ function PopupApp(props: PopupAppProps) {
         case 'PopupSwitchTab':
           setTabIndex(msg.page)
           break
-        case 'ConfirmChainBlockInPopup':
-          handleConfirm(msg)
-          break
         default:
           break
       }
     }
     browser.runtime.onMessage.addListener(messageListener)
-    const interval = window.setInterval(() => {
-      requestProgress().catch(() => {})
-    }, UI_UPDATE_DELAY)
     // clean-up
     return () => {
       browser.runtime.onMessage.removeListener(messageListener)
-      window.clearInterval(interval)
     }
   }, [])
   const runningSessions = React.useMemo(
@@ -326,11 +300,6 @@ async function getTabContext(): Promise<TabContext> {
 }
 
 export async function initializeUI() {
-  browser.runtime.sendMessage<RBMessageToBackground.RequestCleanup>({
-    messageType: 'RequestCleanup',
-    messageTo: 'background',
-    cleanupWhat: 'not-confirmed',
-  })
   const redblockOptions = loadOptions()
   const loggedIn = TwitterAPI.getMyself().then(
     () => true,
@@ -363,6 +332,9 @@ export async function initializeUI() {
   } else {
     document.body.classList.add('ui-popup')
   }
+  window.setInterval(() => {
+    requestProgress().catch(() => {})
+  }, UI_UPDATE_DELAY)
 }
 
 initializeUI()

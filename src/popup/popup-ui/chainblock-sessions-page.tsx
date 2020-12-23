@@ -320,10 +320,9 @@ export default function ChainBlockSessionsPage(props: { sessions: SessionInfo[] 
     )
   }
   function renderSessions() {
-    const visibleSessions = sessions.filter(session => session.confirmed)
     return (
       <div className="chainblock-sessions">
-        {visibleSessions.map(session => (
+        {sessions.map(session => (
           <ChainBlockSessionItem sessionInfo={session} key={session.sessionId} />
         ))}
       </div>

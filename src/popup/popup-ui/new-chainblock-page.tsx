@@ -3,6 +3,7 @@ import * as TwitterAPI from '../../scripts/background/twitter-api.js'
 import { TwitterUser } from '../../scripts/background/twitter-api.js'
 import { TwitterUserMap } from '../../scripts/common.js'
 import * as i18n from '../../scripts/i18n.js'
+import * as TextGenerate from '../../scripts/text-generate.js'
 import {
   insertUserToStorage,
   removeUserFromStorage,
@@ -484,16 +485,24 @@ function TargetExecutionButtonUI(props: { isAvailable: boolean }) {
   const { purpose, selectedUser, targetList, targetOptions: options } = React.useContext(
     TargetUserContext
   )
+  const { openModal } = React.useContext(DialogContext)
   const target: FollowerBlockSessionRequest['target'] = {
     type: 'follower',
     user: selectedUser!,
     list: targetList,
   }
   function executeSession(purpose: Purpose) {
-    startFollowerChainBlock({
+    const request: FollowerBlockSessionRequest = {
       purpose,
       target,
       options,
+    }
+    openModal({
+      dialogType: 'confirm',
+      message: TextGenerate.generateFollowerBlockConfirmMessage(request),
+      callbackOnOk() {
+        startFollowerChainBlock(request)
+      },
     })
   }
   let bigButton: React.ReactNode

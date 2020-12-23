@@ -1,6 +1,7 @@
 // import * as Storage from '../../scripts/background/storage.js'
 import * as i18n from '../../scripts/i18n.js'
-import { LoginStatusContext, BlockLimiterContext } from './contexts.js'
+import * as TextGenerate from '../../scripts/text-generate.js'
+import { LoginStatusContext, BlockLimiterContext, DialogContext } from './contexts.js'
 import { startTweetReactionChainBlock } from '../../scripts/background/request-sender.js'
 import {
   TabPanel,
@@ -246,13 +247,15 @@ function TargetExecutionButtonUI(props: { isAvailable: boolean }) {
     purpose,
     targetOptions,
   } = React.useContext(TargetTweetContext)
+  const { openModal } = React.useContext(DialogContext)
   function executeSession(purpose: SessionPurpose) {
     if (!currentTweet) {
       // unreachable?
       throw new Error('트윗을 선택해주세요')
     }
-    startTweetReactionChainBlock({
+    const request: TweetReactionBlockSessionRequest = {
       purpose,
+      options: targetOptions,
       target: {
         type: 'tweet_reaction',
         tweet: currentTweet,
@@ -260,7 +263,13 @@ function TargetExecutionButtonUI(props: { isAvailable: boolean }) {
         blockLikers: wantBlockLikers,
         blockMentionedUsers: wantBlockMentionedUsers,
       },
-      options: targetOptions,
+    }
+    openModal({
+      dialogType: 'confirm',
+      message: TextGenerate.generateTweetReactionBlockConfirmMessage(request),
+      callbackOnOk() {
+        startTweetReactionChainBlock(request)
+      },
     })
   }
   const blockButtonDisabled = !(

@@ -173,18 +173,12 @@ export function getCountOfUsersToBlock({ target }: SessionRequest) {
   }
 }
 
-export function isRunningSession({ status, confirmed }: SessionInfo): boolean {
-  if (!confirmed) {
-    return false
-  }
+export function isRunningSession({ status }: SessionInfo): boolean {
   const runningStatuses = [SessionStatus.Initial, SessionStatus.Running, SessionStatus.RateLimited]
   return runningStatuses.includes(status)
 }
 
-export function isRewindableSession({ status, confirmed }: SessionInfo): boolean {
-  if (!confirmed) {
-    return false
-  }
+export function isRewindableSession({ status }: SessionInfo): boolean {
   const rewindableStatus: SessionStatus[] = [
     SessionStatus.Completed,
     SessionStatus.Error,

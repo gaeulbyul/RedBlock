@@ -31,8 +31,7 @@ export default class ChainBlocker {
     )
     return currentRunningSessions
   }
-  public checkTarget(request: SessionRequest): TargetCheckResult {
-    const { target } = request
+  public checkTarget(target: SessionRequest['target']): TargetCheckResult {
     const sameTargetSession = this.getSessionByTarget(target)
     if (sameTargetSession) {
       const sessionInfo = sameTargetSession.getSessionInfo()
@@ -49,7 +48,7 @@ export default class ChainBlocker {
         return checkImportBlockTarget(target)
     }
   }
-  public getSessionByTarget(target: SessionInfo['request']['target']): Session | null {
+  private getSessionByTarget(target: SessionInfo['request']['target']): Session | null {
     for (const session of this.getCurrentRunningSessions()) {
       if (isSameTarget(session.getSessionInfo().request.target, target)) {
         return session
@@ -121,9 +120,6 @@ export default class ChainBlocker {
         break
       }
       const sessionInfo = session.getSessionInfo()
-      if (!sessionInfo.confirmed) {
-        continue
-      }
       if (sessionInfo.status === SessionStatus.Initial) {
         await session.start()
       }
@@ -137,32 +133,36 @@ export default class ChainBlocker {
     this.sessions.delete(sessionId)
     this.updateBadge()
   }
-  private register(session: Session) {
+  private createSession(request: SessionRequest) {
+    let session: Session
+    switch (request.purpose) {
+      case 'chainblock':
+      case 'unchainblock':
+        session = new ChainBlockSession(request, this.limiter)
+        break
+      case 'export':
+        session = new ExportSession(request as ExportableSessionRequest)
+        break
+    }
     this.handleEvents(session)
     this.sessions.set(session.getSessionInfo().sessionId, session)
+    return session
   }
-  private createSession(request: SessionRequest) {
-    if (request.purpose === 'export') {
-      return new ExportSession(request as ExportableSessionRequest)
-    } else {
-      return new ChainBlockSession(request, this.limiter)
-    }
-  }
-  public add(request: SessionRequest): string {
+  public add(request: SessionRequest): Either<TargetCheckResult, string> {
     const { target } = request
-    // 만약 confirm대기 중인데 다시 요청하면 그 세션 다시 써도 될듯
-    const sameTargetSession = this.getSessionByTarget(target)
-    if (sameTargetSession) {
-      const sessionInfo = sameTargetSession.getSessionInfo()
-      if (isRunningSession(sessionInfo)) {
-        throw new Error('unreachable(attempting run already-running session)')
+    const isValidTarget = this.checkTarget(target)
+    if (isValidTarget !== TargetCheckResult.Ok) {
+      return {
+        ok: false,
+        error: isValidTarget,
       }
-      return sessionInfo.sessionId
     }
     const session = this.createSession(request)
-    this.register(session)
     const sessionId = session.getSessionInfo().sessionId
-    return sessionId
+    return {
+      ok: true,
+      value: sessionId,
+    }
   }
   public stop(sessionId: string) {
     const session = this.sessions.get(sessionId)!
@@ -179,10 +179,6 @@ export default class ChainBlocker {
       session.stop()
     }
     this.updateBadge()
-  }
-  public setConfirmed(sessionId: string) {
-    const session = this.sessions.get(sessionId)!
-    session.setConfirmed()
   }
   public async start(sessionId: string) {
     const count = this.checkAvailableSessionsCount()
@@ -202,9 +198,6 @@ export default class ChainBlocker {
         break
       }
       const sessionInfo = session.getSessionInfo()
-      if (!sessionInfo.confirmed) {
-        continue
-      }
       if (sessionInfo.status === SessionStatus.Initial) {
         sessionPromises.push(session.start().catch(() => {}))
       }
