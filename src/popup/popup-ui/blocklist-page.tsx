@@ -4,7 +4,7 @@ import {
   BlockLimiterContext,
   DialogContext,
 } from './contexts.js'
-import { PleaseLoginBox, BlockLimiterUI } from './ui-common.js'
+import { PleaseLoginBox, BlockLimiterUI, BigExecuteChainBlockButton } from './ui-common.js'
 import { PageEnum } from '../popup.js'
 import * as i18n from '../../scripts/i18n.js'
 import { generateImportBlockConfirmMessage } from '../../scripts/text-generate.js'
@@ -72,6 +72,7 @@ export default function BlocklistPage() {
     blocklist,
     setBlocklist,
     targetOptions,
+    setTargetOptions,
     nameOfSelectedFiles,
     setNameOfSelectedFiles,
   } = React.useContext(ImportChainBlockPageStatesContext)
@@ -126,6 +127,16 @@ export default function BlocklistPage() {
       },
     })
   }
+  function onReset(event: React.FormEvent<HTMLFormElement>) {
+    event.preventDefault()
+    setBlocklist(emptyBlocklist)
+    setNameOfSelectedFiles([])
+    setTargetOptions({
+      myFollowers: 'Skip',
+      myFollowings: 'Skip',
+      includeUsersInBio: 'never',
+    })
+  }
   async function openPopupUIInTab(event: React.MouseEvent<HTMLButtonElement, MouseEvent>) {
     event.preventDefault()
     browser.tabs.create({
@@ -158,7 +169,7 @@ export default function BlocklistPage() {
         </M.ExpansionPanelSummary>
         <M.ExpansionPanelDetails>
           <div style={{ width: '100%' }}>
-            <form onSubmit={onSubmit}>
+            <form onSubmit={onSubmit} onReset={onReset}>
               <input
                 required
                 ref={fileInput}
@@ -182,50 +193,49 @@ export default function BlocklistPage() {
                       {i18n.getMessage('select_files')}
                     </M.Button>
                   </label>
-                  <M.Button
-                    type="submit"
-                    variant="contained"
-                    color="primary"
-                    component="button"
-                    disabled={!isAvailable}
-                  >
-                    {i18n.getMessage('import')}
+                  <M.Button variant="outlined" type="reset">
+                    Reset
                   </M.Button>
                 </M.Box>
               </M.FormControl>
-            </form>
-            <div className="description">
-              <p>
-                {usersToBlock} / {duplicatedUsers} / {invalidUsers}
-              </p>
-              {nameOfSelectedFiles.length > 0 && (
-                <React.Fragment>
-                  <span>{i18n.getMessage('selected_files')}:</span>
-                  <ul className="list-of-files">
-                    {nameOfSelectedFiles.map((name, index) => (
-                      <li key={index}>{name}</li>
-                    ))}
-                  </ul>
-                </React.Fragment>
-              )}
-            </div>
-            <ImportOptionsUI />
-            <div className="description">
-              <p>{i18n.getMessage('blocklist_import_description')}</p>
-              <div className="hide-on-tab">
-                <p style={{ fontWeight: 'bold' }}>
-                  ⚠ {i18n.getMessage('open_new_tab_for_file_picker')}
+              <div className="description">
+                <p>
+                  {usersToBlock} / {duplicatedUsers} / {invalidUsers}
                 </p>
-                <M.Button
-                  type="button"
-                  variant="outlined"
-                  component="button"
-                  onClick={openPopupUIInTab}
-                >
-                  {i18n.getMessage('open_in_new_tab')}
-                </M.Button>
+                {nameOfSelectedFiles.length > 0 && (
+                  <React.Fragment>
+                    <span>{i18n.getMessage('selected_files')}:</span>
+                    <ul className="list-of-files">
+                      {nameOfSelectedFiles.map((name, index) => (
+                        <li key={index}>{name}</li>
+                      ))}
+                    </ul>
+                  </React.Fragment>
+                )}
               </div>
-            </div>
+              <ImportOptionsUI />
+              <div className="description">
+                <p>{i18n.getMessage('blocklist_import_description')}</p>
+                <div className="hide-on-tab">
+                  <p style={{ fontWeight: 'bold' }}>
+                    ⚠ {i18n.getMessage('open_new_tab_for_file_picker')}
+                  </p>
+                  <M.Button
+                    type="button"
+                    variant="outlined"
+                    component="button"
+                    onClick={openPopupUIInTab}
+                  >
+                    {i18n.getMessage('open_in_new_tab')}
+                  </M.Button>
+                </div>
+              </div>
+              <BigExecuteChainBlockButton type="submit" disabled={!isAvailable}>
+                <span>
+                  {'\u{1f6d1}'} {i18n.getMessage('execute_chainblock')}
+                </span>
+              </BigExecuteChainBlockButton>
+            </form>
           </div>
         </M.ExpansionPanelDetails>
       </M.ExpansionPanel>

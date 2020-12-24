@@ -22,6 +22,9 @@ import {
   BlockLimiterUI,
   TwitterUserProfile,
   DenseExpansionPanel,
+  BigExecuteChainBlockButton,
+  BigExecuteUnChainBlockButton,
+  BigExportButton,
 } from './ui-common.js'
 import { FollowerChainBlockPageStatesContext } from './ui-states.js'
 
@@ -411,47 +414,6 @@ async function getUserByIdWithCache(userId: string): Promise<TwitterUser> {
   userCache.addUser(user)
   return user
 }
-
-const BigBaseButton = MaterialUI.withStyles(() => ({
-  root: {
-    width: '100%',
-    padding: '10px',
-    fontSize: 'larger',
-  },
-}))(MaterialUI.Button)
-
-const BigExecuteChainBlockButton = MaterialUI.withStyles(theme => ({
-  root: {
-    backgroundColor: MaterialUI.colors.red[700],
-    color: theme.palette.getContrastText(MaterialUI.colors.red[700]),
-    '&:hover': {
-      backgroundColor: MaterialUI.colors.red[500],
-      color: theme.palette.getContrastText(MaterialUI.colors.red[500]),
-    },
-  },
-}))(BigBaseButton)
-
-const BigExecuteUnChainBlockButton = MaterialUI.withStyles(theme => ({
-  root: {
-    backgroundColor: MaterialUI.colors.green[700],
-    color: theme.palette.getContrastText(MaterialUI.colors.green[700]),
-    '&:hover': {
-      backgroundColor: MaterialUI.colors.green[500],
-      color: theme.palette.getContrastText(MaterialUI.colors.green[500]),
-    },
-  },
-}))(BigBaseButton)
-
-const BigExportButton = MaterialUI.withStyles(theme => ({
-  root: {
-    backgroundColor: MaterialUI.colors.blueGrey[700],
-    color: theme.palette.getContrastText(MaterialUI.colors.blueGrey[700]),
-    '&:hover': {
-      backgroundColor: MaterialUI.colors.blueGrey[500],
-      color: theme.palette.getContrastText(MaterialUI.colors.blueGrey[500]),
-    },
-  },
-}))(BigBaseButton)
 
 function TargetExecutionButtonUI(props: { isAvailable: boolean }) {
   const { isAvailable } = props

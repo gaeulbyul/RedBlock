@@ -30,6 +30,7 @@ interface TweetReactionChainBlockPageStates {
 
 interface ImportChainBlockPageStates {
   targetOptions: ImportBlockSessionRequest['options']
+  setTargetOptions: (options: ImportBlockSessionRequest['options']) => void
   mutateOptions: (optionsPart: Partial<ImportBlockSessionRequest['options']>) => void
   blocklist: Blocklist
   setBlocklist: (blocklist: Blocklist) => void
@@ -84,6 +85,7 @@ export const ImportChainBlockPageStatesContext = React.createContext<ImportChain
     myFollowings: 'Skip',
     includeUsersInBio: 'never',
   },
+  setTargetOptions() {},
   mutateOptions() {},
   blocklist: Object.assign({}, emptyBlocklist),
   setBlocklist() {},
@@ -188,6 +190,7 @@ export function ImportChainBlockPageStatesProvider(props: { children: React.Reac
     <ImportChainBlockPageStatesContext.Provider
       value={{
         targetOptions,
+        setTargetOptions,
         mutateOptions,
         blocklist,
         setBlocklist,

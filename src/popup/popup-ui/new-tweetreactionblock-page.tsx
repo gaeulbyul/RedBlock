@@ -9,40 +9,12 @@ import {
   BlockLimiterUI,
   TwitterUserProfile,
   DenseExpansionPanel,
+  BigExecuteChainBlockButton,
+  BigExportButton,
 } from './ui-common.js'
 import { TweetReactionChainBlockPageStatesContext } from './ui-states.js'
 
 const M = MaterialUI
-
-const BigBaseButton = MaterialUI.withStyles(() => ({
-  root: {
-    width: '100%',
-    padding: '10px',
-    fontSize: 'larger',
-  },
-}))(MaterialUI.Button)
-
-const BigExecuteChainBlockButton = MaterialUI.withStyles(theme => ({
-  root: {
-    backgroundColor: MaterialUI.colors.red[700],
-    color: theme.palette.getContrastText(MaterialUI.colors.red[700]),
-    '&:hover': {
-      backgroundColor: MaterialUI.colors.red[500],
-      color: theme.palette.getContrastText(MaterialUI.colors.red[500]),
-    },
-  },
-}))(BigBaseButton)
-
-const BigExportButton = MaterialUI.withStyles(theme => ({
-  root: {
-    backgroundColor: MaterialUI.colors.blueGrey[700],
-    color: theme.palette.getContrastText(MaterialUI.colors.blueGrey[700]),
-    '&:hover': {
-      backgroundColor: MaterialUI.colors.blueGrey[500],
-      color: theme.palette.getContrastText(MaterialUI.colors.blueGrey[500]),
-    },
-  },
-}))(BigBaseButton)
 
 function TargetTweetUI(props: { tweet: Tweet }) {
   const {
