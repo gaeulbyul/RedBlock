@@ -23,40 +23,11 @@ import {
   TwitterUserProfile,
   DenseExpansionPanel,
 } from './ui-common.js'
+import { FollowerChainBlockPageStatesContext } from './ui-states.js'
 
 const M = MaterialUI
 
-type SessionOptions = FollowerBlockSessionRequest['options']
 type SelectUserGroup = 'invalid' | 'current' | 'saved'
-
-const TargetUserContext = React.createContext<{
-  currentUser: TwitterUser | null
-  selectedUser: TwitterUser | null
-  setSelectedUser: (maybeUser: TwitterUser | null) => void
-  targetList: FollowKind
-  setTargetList: (fk: FollowKind) => void
-  targetOptions: SessionOptions
-  setTargetOptions: (options: SessionOptions) => void
-  mutateOptions: (optionsPart: Partial<SessionOptions>) => void
-  purpose: Purpose
-  setPurpose: (ck: Purpose) => void
-}>({
-  currentUser: null,
-  selectedUser: null,
-  setSelectedUser() {},
-  targetList: 'followers',
-  setTargetList() {},
-  targetOptions: {
-    myFollowers: 'Skip',
-    myFollowings: 'Skip',
-    mutualBlocked: 'Skip',
-    includeUsersInBio: 'never',
-  },
-  setTargetOptions() {},
-  mutateOptions() {},
-  purpose: 'chainblock',
-  setPurpose() {},
-})
 
 function TargetSavedUsers(props: {
   currentUser: TwitterUser | null
@@ -66,7 +37,7 @@ function TargetSavedUsers(props: {
 }) {
   const { currentUser, selectedUserGroup, savedUsers, changeUser } = props
   const snackBarCtx = React.useContext(SnackBarContext)
-  const { selectedUser } = React.useContext(TargetUserContext)
+  const { selectedUser } = React.useContext(FollowerChainBlockPageStatesContext)
   async function insertUser() {
     if (selectedUser) {
       insertUserToStorage(selectedUser)
@@ -168,7 +139,9 @@ function TargetSavedUsers(props: {
 
 function TargetUserProfile(props: { isAvailable: boolean }) {
   const { isAvailable } = props
-  const { selectedUser, targetList, setTargetList } = React.useContext(TargetUserContext)
+  const { selectedUser, targetList, setTargetList } = React.useContext(
+    FollowerChainBlockPageStatesContext
+  )
   // selectedUser가 null일 땐 이 컴포넌트를 렌더링하지 않으므로
   const user = selectedUser!
   function radio(fk: FollowKind, label: string) {
@@ -219,7 +192,7 @@ function TargetUserProfileEmpty(props: { reason: 'invalid-user' | 'loading' }) {
 }
 
 function TargetChainBlockOptionsUI() {
-  const { targetOptions, mutateOptions } = React.useContext(TargetUserContext)
+  const { targetOptions, mutateOptions } = React.useContext(FollowerChainBlockPageStatesContext)
   const { myFollowers, myFollowings, includeUsersInBio } = targetOptions
   const userActions: Array<[UserAction, string]> = [
     ['Skip', i18n.getMessage('skip')],
@@ -284,7 +257,7 @@ function TargetChainBlockOptionsUI() {
 function TargetUserSelectUI(props: { isAvailable: boolean }) {
   const { isAvailable } = props
   const { currentUser, targetList, selectedUser, setSelectedUser } = React.useContext(
-    TargetUserContext
+    FollowerChainBlockPageStatesContext
   )
   const { openModal } = React.useContext(DialogContext)
   const [savedUsers, setSavedUsers] = React.useState(new TwitterUserMap())
@@ -369,7 +342,7 @@ function TargetUserSelectUI(props: { isAvailable: boolean }) {
 
 function TargetUnChainBlockOptionsUI() {
   // const { options, mutateOptions } = props
-  const { targetOptions, mutateOptions } = React.useContext(TargetUserContext)
+  const { targetOptions, mutateOptions } = React.useContext(FollowerChainBlockPageStatesContext)
   const { mutualBlocked } = targetOptions
   const userActions: Array<[UserAction, string]> = [
     ['Skip', i18n.getMessage('skip')],
@@ -396,7 +369,7 @@ function TargetUnChainBlockOptionsUI() {
 }
 
 function TargetOptionsUI() {
-  const { purpose, setPurpose } = React.useContext(TargetUserContext)
+  const { purpose, setPurpose } = React.useContext(FollowerChainBlockPageStatesContext)
   const cautionOnMassiveBlock = i18n.getMessage('wtf_twitter')
   const summary = `${i18n.getMessage('options')} (${i18n.getMessage(purpose)})`
   return (
@@ -483,7 +456,7 @@ const BigExportButton = MaterialUI.withStyles(theme => ({
 function TargetExecutionButtonUI(props: { isAvailable: boolean }) {
   const { isAvailable } = props
   const { purpose, selectedUser, targetList, targetOptions: options } = React.useContext(
-    TargetUserContext
+    FollowerChainBlockPageStatesContext
   )
   const { openModal } = React.useContext(DialogContext)
   const target: FollowerBlockSessionRequest['target'] = {
@@ -544,24 +517,10 @@ function TargetExecutionButtonUI(props: { isAvailable: boolean }) {
   return <M.Box>{bigButton}</M.Box>
 }
 
-export default function NewChainBlockPage(props: { currentUser: TwitterUser | null }) {
-  const { currentUser } = props
+export default function NewChainBlockPage() {
+  const { purpose, selectedUser } = React.useContext(FollowerChainBlockPageStatesContext)
   const { loggedIn } = React.useContext(LoginStatusContext)
   const limiterStatus = React.useContext(BlockLimiterContext)
-  const [targetOptions, setTargetOptions] = React.useState<SessionOptions>({
-    myFollowers: 'Skip',
-    myFollowings: 'Skip',
-    mutualBlocked: 'Skip',
-    includeUsersInBio: 'never',
-  })
-  const [selectedUser, setSelectedUser] = React.useState<TwitterUser | null>(currentUser)
-  const [targetList, setTargetList] = React.useState<FollowKind>('followers')
-  const firstMode = selectedUser && selectedUser.following ? 'unchainblock' : 'chainblock'
-  const [purpose, setPurpose] = React.useState<Purpose>(firstMode)
-  function mutateOptions(newOptionsPart: Partial<SessionOptions>) {
-    const newOptions = { ...targetOptions, ...newOptionsPart }
-    setTargetOptions(newOptions)
-  }
   const availableBlocks = React.useMemo((): number => {
     return limiterStatus.max - limiterStatus.current
   }, [limiterStatus])
@@ -585,33 +544,16 @@ export default function NewChainBlockPage(props: { currentUser: TwitterUser | nu
   }, [loggedIn, selectedUser, availableBlocks])
   return (
     <div>
-      <TargetUserContext.Provider
-        value={{
-          currentUser,
-          selectedUser,
-          setSelectedUser,
-          targetList,
-          setTargetList,
-          targetOptions,
-          setTargetOptions,
-          mutateOptions,
-          purpose,
-          setPurpose,
-        }}
-      >
-        <div className="chainblock-target">
-          <TargetUserSelectUI isAvailable={isAvailable} />
-          {loggedIn ? (
-            <div>
-              <TargetOptionsUI />
-              {availableBlocks <= 0 ? <BlockLimiterUI status={limiterStatus} /> : ''}
-              <TargetExecutionButtonUI isAvailable={isAvailable} />
-            </div>
-          ) : (
-            <PleaseLoginBox />
-          )}
+      <TargetUserSelectUI isAvailable={isAvailable} />
+      {loggedIn ? (
+        <div>
+          <TargetOptionsUI />
+          {availableBlocks <= 0 ? <BlockLimiterUI status={limiterStatus} /> : ''}
+          <TargetExecutionButtonUI isAvailable={isAvailable} />
         </div>
-      </TargetUserContext.Provider>
+      ) : (
+        <PleaseLoginBox />
+      )}
     </div>
   )
 }

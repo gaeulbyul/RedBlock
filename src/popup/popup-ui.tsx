@@ -14,6 +14,11 @@ import {
   LoginStatusContext,
   BlockLimiterContext,
 } from './popup-ui/contexts.js'
+import {
+  FollowerChainBlockPageStatesProvider,
+  TweetReactionChainBlockPageStatesProvider,
+  ImportChainBlockPageStatesProvider,
+} from './popup-ui/ui-states.js'
 import MiscPage from './popup-ui/misc-page.js'
 import NewChainBlockPage from './popup-ui/new-chainblock-page.js'
 import NewTweetReactionBlockPage from './popup-ui/new-tweetreactionblock-page.js'
@@ -223,15 +228,21 @@ function PopupApp(props: PopupAppProps) {
                       <TabPanel value={tabIndex} index={PageEnum.Sessions}>
                         <ChainBlockSessionsPage sessions={sessions} />
                       </TabPanel>
-                      <TabPanel value={tabIndex} index={PageEnum.NewSession}>
-                        <NewChainBlockPage currentUser={currentUser} />
-                      </TabPanel>
-                      <TabPanel value={tabIndex} index={PageEnum.NewTweetReactionBlock}>
-                        <NewTweetReactionBlockPage currentTweet={currentTweet} />
-                      </TabPanel>
-                      <TabPanel value={tabIndex} index={PageEnum.Blocklist}>
-                        <BlocklistPage />
-                      </TabPanel>
+                      <FollowerChainBlockPageStatesProvider initialUser={currentUser}>
+                        <TabPanel value={tabIndex} index={PageEnum.NewSession}>
+                          <NewChainBlockPage />
+                        </TabPanel>
+                      </FollowerChainBlockPageStatesProvider>
+                      <TweetReactionChainBlockPageStatesProvider initialTweet={currentTweet}>
+                        <TabPanel value={tabIndex} index={PageEnum.NewTweetReactionBlock}>
+                          <NewTweetReactionBlockPage />
+                        </TabPanel>
+                      </TweetReactionChainBlockPageStatesProvider>
+                      <ImportChainBlockPageStatesProvider>
+                        <TabPanel value={tabIndex} index={PageEnum.Blocklist}>
+                          <BlocklistPage />
+                        </TabPanel>
+                      </ImportChainBlockPageStatesProvider>
                       <TabPanel value={tabIndex} index={PageEnum.Utilities}>
                         <MiscPage />
                       </TabPanel>

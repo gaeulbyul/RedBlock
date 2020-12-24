@@ -10,32 +10,18 @@ import * as i18n from '../../scripts/i18n.js'
 import { generateImportBlockConfirmMessage } from '../../scripts/text-generate.js'
 
 import {
-  Blocklist,
   emptyBlocklist,
   importBlocklist,
   parseBlocklist,
   concatBlockList,
 } from '../../scripts/background/blocklist-process.js'
+import { ImportChainBlockPageStatesContext } from './ui-states.js'
 
 const M = MaterialUI
 const T = MaterialUI.Typography
 
-type SessionOptions = ImportBlockSessionRequest['options']
-
-const ImportOptionsContext = React.createContext<{
-  targetOptions: SessionOptions
-  mutateOptions: (optionsPart: Partial<SessionOptions>) => void
-}>({
-  targetOptions: {
-    myFollowers: 'Skip',
-    myFollowings: 'Skip',
-    includeUsersInBio: 'never',
-  },
-  mutateOptions() {},
-})
-
 function ImportOptionsUI() {
-  const { targetOptions, mutateOptions } = React.useContext(ImportOptionsContext)
+  const { targetOptions, mutateOptions } = React.useContext(ImportChainBlockPageStatesContext)
   const { myFollowers, myFollowings } = targetOptions
   const userActions: Array<[UserAction, string]> = [
     ['Skip', i18n.getMessage('skip')],
@@ -82,17 +68,10 @@ export default function BlocklistPage() {
   const snackBarCtx = React.useContext(SnackBarContext)
   const limiterStatus = React.useContext(BlockLimiterContext)
   const { openModal } = React.useContext(DialogContext)
+  const { blocklist, setBlocklist, targetOptions } = React.useContext(
+    ImportChainBlockPageStatesContext
+  )
   const [fileInput] = React.useState(React.createRef<HTMLInputElement>())
-  const [blocklist, setBlocklist] = React.useState<Blocklist>(emptyBlocklist)
-  const [targetOptions, setTargetOptions] = React.useState<SessionOptions>({
-    myFollowers: 'Skip',
-    myFollowings: 'Skip',
-    includeUsersInBio: 'never',
-  })
-  function mutateOptions(newOptionsPart: Partial<SessionOptions>) {
-    const newOptions = { ...targetOptions, ...newOptionsPart }
-    setTargetOptions(newOptions)
-  }
   const availableBlocks = React.useMemo((): number => {
     return limiterStatus.max - limiterStatus.current
   }, [limiterStatus])
@@ -171,67 +150,60 @@ export default function BlocklistPage() {
           <T>{i18n.getMessage('import_blocklist')}</T>
         </M.ExpansionPanelSummary>
         <M.ExpansionPanelDetails>
-          <ImportOptionsContext.Provider
-            value={{
-              targetOptions,
-              mutateOptions,
-            }}
-          >
-            <div style={{ width: '100%' }}>
-              <form onSubmit={onSubmit}>
-                <M.FormControl component="fieldset" fullWidth>
-                  <M.Box
-                    display="flex"
-                    flexDirection="row"
-                    alignItems="center"
-                    justifyContent="space-between"
-                  >
-                    <M.Box flexGrow="1">
-                      <input
-                        required
-                        ref={fileInput}
-                        id="input-file-to-import"
-                        name="input-file"
-                        type="file"
-                        onChange={onChange}
-                        multiple
-                        accept="text/plain,.txt,text/csv,.csv,application/json,.json,application/javascript,.js"
-                      />
-                    </M.Box>
-                    <M.Button
-                      type="submit"
-                      variant="contained"
-                      color="primary"
-                      component="button"
-                      disabled={!isAvailable}
-                    >
-                      {i18n.getMessage('import')}
-                    </M.Button>
+          <div style={{ width: '100%' }}>
+            <form onSubmit={onSubmit}>
+              <M.FormControl component="fieldset" fullWidth>
+                <M.Box
+                  display="flex"
+                  flexDirection="row"
+                  alignItems="center"
+                  justifyContent="space-between"
+                >
+                  <M.Box flexGrow="1">
+                    <input
+                      required
+                      ref={fileInput}
+                      id="input-file-to-import"
+                      name="input-file"
+                      type="file"
+                      onChange={onChange}
+                      multiple
+                      accept="text/plain,.txt,text/csv,.csv,application/json,.json,application/javascript,.js"
+                    />
                   </M.Box>
-                </M.FormControl>
-              </form>
-              <ImportOptionsUI />
-              <div className="description">
-                <p>
-                  {usersToBlock} / {duplicatedUsers} / {invalidUsers}
-                </p>
-                <p>{i18n.getMessage('blocklist_import_description')}</p>
-                <div className="hide-on-tab">
-                  <p style={{ fontWeight: 'bold' }}>
-                    ⚠ {i18n.getMessage('open_new_tab_for_file_picker')}
-                  </p>
                   <M.Button
-                    type="button"
-                    variant="outlined"
+                    type="submit"
+                    variant="contained"
+                    color="primary"
                     component="button"
-                    onClick={openPopupUIInTab}
+                    disabled={!isAvailable}
                   >
-                    {i18n.getMessage('open_in_new_tab')}
+                    {i18n.getMessage('import')}
                   </M.Button>
-                </div>
+                </M.Box>
+              </M.FormControl>
+            </form>
+            <ImportOptionsUI />
+            <div className="description">
+              <p>
+                {usersToBlock} / {duplicatedUsers} / {invalidUsers}
+              </p>
+              <p>{i18n.getMessage('blocklist_import_description')}</p>
+              <div className="hide-on-tab">
+                <p style={{ fontWeight: 'bold' }}>
+                  ⚠ {i18n.getMessage('open_new_tab_for_file_picker')}
+                </p>
+                <M.Button
+                  type="button"
+                  variant="outlined"
+                  component="button"
+                  onClick={openPopupUIInTab}
+                >
+                  {i18n.getMessage('open_in_new_tab')}
+                </M.Button>
               </div>
             </div>
-          </ImportOptionsContext.Provider>
+          </div>
         </M.ExpansionPanelDetails>
       </M.ExpansionPanel>
       {loggedIn ? '' : <PleaseLoginBox />}
