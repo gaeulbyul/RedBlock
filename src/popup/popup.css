@@ -149,6 +149,12 @@ hr {
   font-size: 14px;
 }
 
+.list-of-files {
+  list-style-type: square;
+  padding-inline-start: 1rem;
+  margin: 5px 0;
+}
+
 .modal-content {
   display: flex;
   flex-direction: column;

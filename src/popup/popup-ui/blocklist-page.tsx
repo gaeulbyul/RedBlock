@@ -68,9 +68,13 @@ export default function BlocklistPage() {
   const snackBarCtx = React.useContext(SnackBarContext)
   const limiterStatus = React.useContext(BlockLimiterContext)
   const { openModal } = React.useContext(DialogContext)
-  const { blocklist, setBlocklist, targetOptions } = React.useContext(
-    ImportChainBlockPageStatesContext
-  )
+  const {
+    blocklist,
+    setBlocklist,
+    targetOptions,
+    nameOfSelectedFiles,
+    setNameOfSelectedFiles,
+  } = React.useContext(ImportChainBlockPageStatesContext)
   const [fileInput] = React.useState(React.createRef<HTMLInputElement>())
   const availableBlocks = React.useMemo((): number => {
     return limiterStatus.max - limiterStatus.current
@@ -92,7 +96,9 @@ export default function BlocklistPage() {
       setBlocklist(emptyBlocklist)
       return
     }
-    const texts = await Promise.all(Array.from(files).map(file => file.text()))
+    const filesArray = Array.from(files)
+    setNameOfSelectedFiles(filesArray.map(file => file.name))
+    const texts = await Promise.all(filesArray.map(file => file.text()))
     const blocklist = texts
       .map(parseBlocklist)
       .reduce((list1, list2) => concatBlockList(list1, list2))
@@ -130,7 +136,8 @@ export default function BlocklistPage() {
   }
   const usersToBlock = (
     <span>
-      {i18n.getMessage('block_target')}: <strong>{blocklist.userIds.size.toLocaleString()}</strong>
+      {i18n.getMessage('count_of_users')}:{' '}
+      <strong>{blocklist.userIds.size.toLocaleString()}</strong>
     </span>
   )
   const duplicatedUsers = (
@@ -152,6 +159,17 @@ export default function BlocklistPage() {
         <M.ExpansionPanelDetails>
           <div style={{ width: '100%' }}>
             <form onSubmit={onSubmit}>
+              <input
+                required
+                ref={fileInput}
+                id="input-file-to-import"
+                name="input-file"
+                type="file"
+                onChange={onChange}
+                multiple
+                style={{ display: 'none' }}
+                accept="text/plain,.txt,text/csv,.csv,application/json,.json,application/javascript,.js"
+              />
               <M.FormControl component="fieldset" fullWidth>
                 <M.Box
                   display="flex"
@@ -159,18 +177,11 @@ export default function BlocklistPage() {
                   alignItems="center"
                   justifyContent="space-between"
                 >
-                  <M.Box flexGrow="1">
-                    <input
-                      required
-                      ref={fileInput}
-                      id="input-file-to-import"
-                      name="input-file"
-                      type="file"
-                      onChange={onChange}
-                      multiple
-                      accept="text/plain,.txt,text/csv,.csv,application/json,.json,application/javascript,.js"
-                    />
-                  </M.Box>
+                  <label htmlFor="input-file-to-import">
+                    <M.Button variant="contained" component="span">
+                      {i18n.getMessage('select_files')}
+                    </M.Button>
+                  </label>
                   <M.Button
                     type="submit"
                     variant="contained"
@@ -183,11 +194,23 @@ export default function BlocklistPage() {
                 </M.Box>
               </M.FormControl>
             </form>
-            <ImportOptionsUI />
             <div className="description">
               <p>
                 {usersToBlock} / {duplicatedUsers} / {invalidUsers}
               </p>
+              {nameOfSelectedFiles.length > 0 && (
+                <React.Fragment>
+                  <span>{i18n.getMessage('selected_files')}:</span>
+                  <ul className="list-of-files">
+                    {nameOfSelectedFiles.map((name, index) => (
+                      <li key={index}>{name}</li>
+                    ))}
+                  </ul>
+                </React.Fragment>
+              )}
+            </div>
+            <ImportOptionsUI />
+            <div className="description">
               <p>{i18n.getMessage('blocklist_import_description')}</p>
               <div className="hide-on-tab">
                 <p style={{ fontWeight: 'bold' }}>

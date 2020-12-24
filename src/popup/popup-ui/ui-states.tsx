@@ -33,6 +33,8 @@ interface ImportChainBlockPageStates {
   mutateOptions: (optionsPart: Partial<ImportBlockSessionRequest['options']>) => void
   blocklist: Blocklist
   setBlocklist: (blocklist: Blocklist) => void
+  nameOfSelectedFiles: string[]
+  setNameOfSelectedFiles: (nameOfSelectedFiles: string[]) => void
 }
 
 export const FollowerChainBlockPageStatesContext = React.createContext<
@@ -85,6 +87,8 @@ export const ImportChainBlockPageStatesContext = React.createContext<ImportChain
   mutateOptions() {},
   blocklist: Object.assign({}, emptyBlocklist),
   setBlocklist() {},
+  nameOfSelectedFiles: [],
+  setNameOfSelectedFiles() {},
 })
 
 export function FollowerChainBlockPageStatesProvider(props: {
@@ -170,6 +174,7 @@ export function TweetReactionChainBlockPageStatesProvider(props: {
 
 export function ImportChainBlockPageStatesProvider(props: { children: React.ReactNode }) {
   const [blocklist, setBlocklist] = React.useState<Blocklist>(emptyBlocklist)
+  const [nameOfSelectedFiles, setNameOfSelectedFiles] = React.useState<string[]>([])
   const [targetOptions, setTargetOptions] = React.useState<ImportBlockSessionRequest['options']>({
     myFollowers: 'Skip',
     myFollowings: 'Skip',
@@ -186,6 +191,8 @@ export function ImportChainBlockPageStatesProvider(props: { children: React.Reac
         mutateOptions,
         blocklist,
         setBlocklist,
+        nameOfSelectedFiles,
+        setNameOfSelectedFiles,
       }}
     >
       {props.children}
