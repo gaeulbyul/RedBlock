@@ -378,7 +378,7 @@ function TargetOptionsUI() {
   return (
     <DenseExpansionPanel summary={summary} defaultExpanded>
       <div style={{ width: '100%' }}>
-        <M.Tabs value={purpose} onChange={(_ev, val) => setPurpose(val)}>
+        <M.Tabs variant="fullWidth" value={purpose} onChange={(_ev, val) => setPurpose(val)}>
           <M.Tab value={'chainblock'} label={`\u{1f6d1} ${i18n.getMessage('chainblock')}`} />
           <M.Tab value={'unchainblock'} label={`\u{1f49a} ${i18n.getMessage('unchainblock')}`} />
           <M.Tab value={'export'} label={`\u{1f4be} ${i18n.getMessage('export')}`} />
