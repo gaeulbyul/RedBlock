@@ -1,7 +1,11 @@
 import { Blocklist, emptyBlocklist } from '../../scripts/background/blocklist-process.js'
 
+export type SelectUserGroup = 'invalid' | 'current' | 'saved'
+
 interface FollowerChainBlockPageStates {
   currentUser: TwitterUser | null
+  selectedUserGroup: SelectUserGroup
+  setSelectedUserGroup: (group: SelectUserGroup) => void
   selectedUser: TwitterUser | null
   setSelectedUser: (maybeUser: TwitterUser | null) => void
   targetList: FollowKind
@@ -42,6 +46,8 @@ export const FollowerChainBlockPageStatesContext = React.createContext<
   FollowerChainBlockPageStates
 >({
   currentUser: null,
+  selectedUserGroup: 'current',
+  setSelectedUserGroup() {},
   selectedUser: null,
   setSelectedUser() {},
   targetList: 'followers',
@@ -103,6 +109,7 @@ export function FollowerChainBlockPageStatesProvider(props: {
     mutualBlocked: 'Skip',
     includeUsersInBio: 'never',
   })
+  const [selectedUserGroup, setSelectedUserGroup] = React.useState<SelectUserGroup>('current')
   const [selectedUser, setSelectedUser] = React.useState<TwitterUser | null>(props.initialUser)
   const [targetList, setTargetList] = React.useState<FollowKind>('followers')
   const firstMode = selectedUser && selectedUser.following ? 'unchainblock' : 'chainblock'
@@ -115,6 +122,8 @@ export function FollowerChainBlockPageStatesProvider(props: {
     <FollowerChainBlockPageStatesContext.Provider
       value={{
         currentUser: props.initialUser,
+        selectedUserGroup,
+        setSelectedUserGroup,
         selectedUser,
         setSelectedUser,
         targetList,

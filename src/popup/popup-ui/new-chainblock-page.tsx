@@ -26,11 +26,9 @@ import {
   BigExecuteUnChainBlockButton,
   BigExportButton,
 } from './ui-common.js'
-import { FollowerChainBlockPageStatesContext } from './ui-states.js'
+import { SelectUserGroup, FollowerChainBlockPageStatesContext } from './ui-states.js'
 
 const M = MaterialUI
-
-type SelectUserGroup = 'invalid' | 'current' | 'saved'
 
 function TargetSavedUsers(props: {
   currentUser: TwitterUser | null
@@ -259,17 +257,21 @@ function TargetChainBlockOptionsUI() {
 
 function TargetUserSelectUI(props: { isAvailable: boolean }) {
   const { isAvailable } = props
-  const { currentUser, targetList, selectedUser, setSelectedUser } = React.useContext(
-    FollowerChainBlockPageStatesContext
-  )
+  const {
+    currentUser,
+    targetList,
+    selectedUserGroup,
+    setSelectedUserGroup,
+    selectedUser,
+    setSelectedUser,
+  } = React.useContext(FollowerChainBlockPageStatesContext)
   const { openModal } = React.useContext(DialogContext)
   const [savedUsers, setSavedUsers] = React.useState(new TwitterUserMap())
-  const [selectedUserGroup, selectUserGroup] = React.useState<SelectUserGroup>('current')
   const [isLoading, setLoadingState] = React.useState(false)
   async function changeUser(userId: string, userName: string, group: SelectUserGroup) {
     if (!/^\d+$/.test(userId)) {
       setSelectedUser(null)
-      selectUserGroup('invalid')
+      setSelectedUserGroup('invalid')
       return
     }
     try {
@@ -277,7 +279,7 @@ function TargetUserSelectUI(props: { isAvailable: boolean }) {
       const newUser = await getUserByIdWithCache(userId).catch(() => null)
       if (newUser) {
         setSelectedUser(newUser)
-        selectUserGroup(group)
+        setSelectedUserGroup(group)
       } else {
         openModal({
           dialogType: 'alert',
@@ -286,7 +288,7 @@ function TargetUserSelectUI(props: { isAvailable: boolean }) {
           },
         })
         setSelectedUser(null)
-        selectUserGroup('invalid')
+        setSelectedUserGroup('invalid')
       }
     } finally {
       setLoadingState(false)
@@ -299,7 +301,7 @@ function TargetUserSelectUI(props: { isAvailable: boolean }) {
       setSavedUsers(usersMap)
       if (!(selectedUser && usersMap.hasUser(selectedUser))) {
         setSelectedUser(currentUser)
-        selectUserGroup('current')
+        setSelectedUserGroup('current')
       }
     })
   }, [])
