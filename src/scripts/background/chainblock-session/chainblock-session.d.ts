@@ -29,7 +29,8 @@ interface FollowerBlockSessionRequest {
 interface TweetReactionBlockSessionRequest {
   // 이미 차단한 사용자의 RT/마음은 확인할 수 없다.
   // 따라서, 언체인블락은 구현할 수 없다.
-  purpose: Exclude<Purpose, 'unchainblock'>
+  // 또한 프로텍트팔로워 역시 확인할 수 없으므로
+  purpose: Exclude<Purpose, 'unchainblock' | 'selfchainblock'>
   target: {
     type: 'tweet_reaction'
     // author of tweet
@@ -49,7 +50,7 @@ interface TweetReactionBlockSessionRequest {
 }
 
 interface ImportBlockSessionRequest {
-  purpose: Exclude<Purpose, 'export'>
+  purpose: Exclude<Purpose, 'export' | 'selfchainblock'>
   target: {
     type: 'import'
     userIds: string[]
