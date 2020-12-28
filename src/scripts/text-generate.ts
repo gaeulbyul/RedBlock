@@ -43,8 +43,7 @@ export function objToString(msg: DialogMessageObj): string {
   return result
 }
 
-// TODO: 밑에 3 함수들 export 빼고 대신 generateConfirmMessage를 통해 사용하도록
-export function generateFollowerBlockConfirmMessage(
+function generateFollowerBlockConfirmMessage(
   request: FollowerBlockSessionRequest
 ): DialogMessageObj {
   const { purpose } = request
@@ -108,7 +107,7 @@ export function generateFollowerBlockConfirmMessage(
   }
 }
 
-export function generateTweetReactionBlockConfirmMessage(
+function generateTweetReactionBlockConfirmMessage(
   request: TweetReactionBlockSessionRequest
 ): DialogMessageObj {
   const { tweet, blockRetweeters, blockLikers, blockMentionedUsers } = request.target
@@ -142,9 +141,7 @@ export function generateTweetReactionBlockConfirmMessage(
   }
 }
 
-export function generateImportBlockConfirmMessage(
-  request: ImportBlockSessionRequest
-): DialogMessageObj {
+function generateImportBlockConfirmMessage(request: ImportBlockSessionRequest): DialogMessageObj {
   const { myFollowers, myFollowings } = request.options
   const warnings = []
   if (myFollowers === 'Block') {

@@ -7,7 +7,7 @@ import * as TextGenerate from '../../scripts/text-generate.js'
 import {
   insertUserToStorage,
   removeUserFromStorage,
-  startFollowerChainBlock,
+  startNewChainBlockSession,
   refreshSavedUsers,
 } from '../../scripts/background/request-sender.js'
 import { DialogContext, SnackBarContext, MyselfContext, BlockLimiterContext } from './contexts.js'
@@ -485,9 +485,9 @@ function TargetExecutionButtonUI(props: { isAvailable: boolean }) {
     }
     openModal({
       dialogType: 'confirm',
-      message: TextGenerate.generateFollowerBlockConfirmMessage(request),
+      message: TextGenerate.generateConfirmMessage(request),
       callbackOnOk() {
-        startFollowerChainBlock(request)
+        startNewChainBlockSession<FollowerBlockSessionRequest>(request)
       },
     })
   }

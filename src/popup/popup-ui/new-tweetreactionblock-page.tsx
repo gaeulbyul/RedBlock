@@ -2,7 +2,7 @@
 import * as i18n from '../../scripts/i18n.js'
 import * as TextGenerate from '../../scripts/text-generate.js'
 import { MyselfContext, BlockLimiterContext, DialogContext, SnackBarContext } from './contexts.js'
-import { startTweetReactionChainBlock } from '../../scripts/background/request-sender.js'
+import { startNewChainBlockSession } from '../../scripts/background/request-sender.js'
 import {
   TabPanel,
   PleaseLoginBox,
@@ -213,9 +213,9 @@ function TargetExecutionButtonUI(props: { isAvailable: boolean }) {
     }
     openModal({
       dialogType: 'confirm',
-      message: TextGenerate.generateTweetReactionBlockConfirmMessage(request),
+      message: TextGenerate.generateConfirmMessage(request),
       callbackOnOk() {
-        startTweetReactionChainBlock(request)
+        startNewChainBlockSession<TweetReactionBlockSessionRequest>(request)
       },
     })
   }

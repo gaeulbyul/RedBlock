@@ -1,21 +1,4 @@
-// TODO: 하나로 합치기?
-export async function startFollowerChainBlock(request: FollowerBlockSessionRequest) {
-  return browser.runtime.sendMessage<RBMessageToBackground.CreateChainBlockSession>({
-    messageType: 'CreateChainBlockSession',
-    messageTo: 'background',
-    request,
-  })
-}
-
-export async function startTweetReactionChainBlock(request: TweetReactionBlockSessionRequest) {
-  return browser.runtime.sendMessage<RBMessageToBackground.CreateChainBlockSession>({
-    messageType: 'CreateChainBlockSession',
-    messageTo: 'background',
-    request,
-  })
-}
-
-export async function startImportChainBlock(request: ImportBlockSessionRequest) {
+export async function startNewChainBlockSession<T extends SessionRequest>(request: T) {
   return browser.runtime.sendMessage<RBMessageToBackground.CreateChainBlockSession>({
     messageType: 'CreateChainBlockSession',
     messageTo: 'background',

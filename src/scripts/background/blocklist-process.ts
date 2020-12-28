@@ -1,5 +1,3 @@
-import { startImportChainBlock } from './request-sender.js'
-
 export interface Blocklist {
   userIds: Set<string>
   duplicated: number
@@ -99,10 +97,6 @@ export function parseBlocklist(text: string): Blocklist {
   } else {
     return parseAsCsvBlocklist(text)
   }
-}
-
-export async function importBlocklist(request: ImportBlockSessionRequest) {
-  startImportChainBlock(request)
 }
 
 export async function exportBlocklist({ filename, userIds }: ExportResult) {

@@ -2,12 +2,11 @@ import { SnackBarContext, MyselfContext, BlockLimiterContext, DialogContext } fr
 import { PleaseLoginBox, BlockLimiterUI, BigExecuteChainBlockButton } from './ui-common.js'
 import { PageEnum } from '../popup.js'
 import * as i18n from '../../scripts/i18n.js'
-import { generateImportBlockConfirmMessage } from '../../scripts/text-generate.js'
+import { generateConfirmMessage } from '../../scripts/text-generate.js'
 import * as TwitterAPI from '../../scripts/background/twitter-api.js'
-
+import { startNewChainBlockSession } from '../../scripts/background/request-sender.js'
 import {
   emptyBlocklist,
-  importBlocklist,
   parseBlocklist,
   concatBlockList,
 } from '../../scripts/background/blocklist-process.js'
@@ -121,9 +120,9 @@ export default function BlocklistPage() {
     }
     openModal({
       dialogType: 'confirm',
-      message: generateImportBlockConfirmMessage(request),
+      message: generateConfirmMessage(request),
       callbackOnOk() {
-        importBlocklist(request)
+        startNewChainBlockSession<ImportBlockSessionRequest>(request)
       },
     })
   }
