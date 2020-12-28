@@ -26,15 +26,21 @@ import { SelectUserGroup, FollowerChainBlockPageStatesContext } from './ui-state
 
 const M = MaterialUI
 
-function TargetSavedUsers(props: {
-  currentUser: TwitterUser | null
-  selectedUserGroup: SelectUserGroup
-  savedUsers: TwitterUserMap
-  changeUser: (userId: string, userName: string, group: SelectUserGroup) => Promise<void>
-}) {
-  const { currentUser, selectedUserGroup, savedUsers, changeUser } = props
+interface UserSelectorContextType {
+  changeSelectedUser(userId: string, userName: string, group: SelectUserGroup): void
+}
+const UserSelectorContext = React.createContext<UserSelectorContextType>({
+  changeSelectedUser() {},
+})
+
+function TargetSavedUsers(props: { savedUsers: TwitterUserMap }) {
+  const { savedUsers } = props
   const snackBarCtx = React.useContext(SnackBarContext)
-  const { selectedUser } = React.useContext(FollowerChainBlockPageStatesContext)
+  const { changeSelectedUser } = React.useContext(UserSelectorContext)
+  const { currentUser, selectedUserGroup, selectedUser } = React.useContext(
+    FollowerChainBlockPageStatesContext
+  )
+  const myself = React.useContext(MyselfContext)
   async function insertUser() {
     if (selectedUser) {
       insertUserToStorage(selectedUser)
@@ -61,7 +67,7 @@ function TargetSavedUsers(props: {
     const group = selectedOption.getAttribute('data-group') as SelectUserGroup
     const userId = selectedOption.getAttribute('data-userid')!
     const userName = selectedOption.getAttribute('data-username')!
-    changeUser(userId, userName, group)
+    changeSelectedUser(userId, userName, group)
   }
   const currentUserOption = ({ id_str, screen_name, name }: TwitterUser) => (
     <optgroup label={i18n.getMessage('current_user')}>
@@ -75,6 +81,20 @@ function TargetSavedUsers(props: {
       </option>
     </optgroup>
   )
+  function UserOptionItem(props: { user: TwitterUser; optgroup: SelectUserGroup; label?: string }) {
+    const { user, optgroup } = props
+    const label = props.label || `@${user.screen_name} <${user.name}>`
+    return (
+      <option
+        value={`${optgroup}/${user.id_str}`}
+        data-group={optgroup}
+        data-userid={user.id_str}
+        data-username={user.screen_name}
+      >
+        {label}
+      </option>
+    )
+  }
   return (
     <div style={{ width: '100%' }}>
       <M.FormControl fullWidth>
@@ -93,18 +113,17 @@ function TargetSavedUsers(props: {
           </option>
           {currentUser && currentUserOption(currentUser)}
           <optgroup label={i18n.getMessage('saved_user')}>
-            {sortedByName(savedUsers).map(({ id_str, screen_name, name }, index) => (
-              <option
-                key={index}
-                value={'saved/' + id_str}
-                data-group="saved"
-                data-userid={id_str}
-                data-username={screen_name}
-              >
-                @{screen_name} &lt;{name}&gt;
-              </option>
+            {sortedByName(savedUsers).map((user, index) => (
+              <UserOptionItem key={index} user={user} optgroup="saved" />
             ))}
           </optgroup>
+          {myself ? (
+            <optgroup label={i18n.getMessage('selfchainblock')}>
+              <UserOptionItem user={myself} optgroup="self" />
+            </optgroup>
+          ) : (
+            ''
+          )}
         </M.Select>
       </M.FormControl>
       {selectedUser && (
@@ -262,7 +281,6 @@ function TargetUserSelectUI(props: { isAvailable: boolean }) {
   const {
     currentUser,
     targetList,
-    selectedUserGroup,
     setSelectedUserGroup,
     selectedUser,
     setSelectedUser,
@@ -272,7 +290,7 @@ function TargetUserSelectUI(props: { isAvailable: boolean }) {
   const myself = React.useContext(MyselfContext)
   const [savedUsers, setSavedUsers] = React.useState(new TwitterUserMap())
   const [isLoading, setLoadingState] = React.useState(false)
-  async function changeUser(userId: string, userName: string, group: SelectUserGroup) {
+  async function changeSelectedUser(userId: string, userName: string, group: SelectUserGroup) {
     if (!/^\d+$/.test(userId)) {
       setSelectedUser(null)
       setSelectedUserGroup('invalid')
@@ -337,12 +355,9 @@ function TargetUserSelectUI(props: { isAvailable: boolean }) {
     <DenseExpansionPanel summary={targetSummary} defaultExpanded>
       <div style={{ width: '100%' }}>
         <M.FormControl component="fieldset" fullWidth>
-          <TargetSavedUsers
-            currentUser={currentUser}
-            selectedUserGroup={selectedUserGroup}
-            savedUsers={savedUsers}
-            changeUser={changeUser}
-          />
+          <UserSelectorContext.Provider value={{ changeSelectedUser }}>
+            <TargetSavedUsers savedUsers={savedUsers} />
+          </UserSelectorContext.Provider>
           <M.Divider />
           {isLoading ? (
             <TargetUserProfileEmpty reason="loading" />

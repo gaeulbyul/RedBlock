@@ -2,7 +2,7 @@ import { Blocklist, emptyBlocklist } from '../../scripts/background/blocklist-pr
 import { determineInitialPurpose } from './ui-common.js'
 import { MyselfContext } from './contexts.js'
 
-export type SelectUserGroup = 'invalid' | 'current' | 'saved'
+export type SelectUserGroup = 'invalid' | 'current' | 'saved' | 'self'
 
 interface FollowerChainBlockPageStates {
   currentUser: TwitterUser | null
