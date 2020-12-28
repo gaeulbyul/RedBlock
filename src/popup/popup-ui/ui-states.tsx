@@ -7,41 +7,41 @@ export type SelectUserGroup = 'invalid' | 'current' | 'saved' | 'self'
 interface FollowerChainBlockPageStates {
   currentUser: TwitterUser | null
   selectedUserGroup: SelectUserGroup
-  setSelectedUserGroup: (group: SelectUserGroup) => void
+  setSelectedUserGroup(group: SelectUserGroup): void
   selectedUser: TwitterUser | null
-  setSelectedUser: (maybeUser: TwitterUser | null) => void
+  setSelectedUser(maybeUser: TwitterUser | null): void
   targetList: FollowKind
-  setTargetList: (fk: FollowKind) => void
+  setTargetList(fk: FollowKind): void
   targetOptions: FollowerBlockSessionRequest['options']
-  setTargetOptions: (options: FollowerBlockSessionRequest['options']) => void
-  mutateOptions: (optionsPart: Partial<FollowerBlockSessionRequest['options']>) => void
+  setTargetOptions(options: FollowerBlockSessionRequest['options']): void
+  mutateOptions(optionsPart: Partial<FollowerBlockSessionRequest['options']>): void
   purpose: Purpose
-  setPurpose: (ck: Purpose) => void
+  setPurpose(ck: Purpose): void
 }
 
 interface TweetReactionChainBlockPageStates {
   currentTweet: Tweet | null
   wantBlockRetweeters: boolean
-  setWantBlockRetweeters: (b: boolean) => void
+  setWantBlockRetweeters(b: boolean): void
   wantBlockLikers: boolean
-  setWantBlockLikers: (b: boolean) => void
+  setWantBlockLikers(b: boolean): void
   wantBlockMentionedUsers: boolean
-  setWantBlockMentionedUsers: (b: boolean) => void
+  setWantBlockMentionedUsers(b: boolean): void
   purpose: TweetReactionBlockSessionRequest['purpose']
-  setPurpose: (purpose: TweetReactionBlockSessionRequest['purpose']) => void
+  setPurpose(purpose: TweetReactionBlockSessionRequest['purpose']): void
   targetOptions: TweetReactionBlockSessionRequest['options']
-  setTargetOptions: (options: TweetReactionBlockSessionRequest['options']) => void
-  mutateOptions: (optionsPart: Partial<TweetReactionBlockSessionRequest['options']>) => void
+  setTargetOptions(options: TweetReactionBlockSessionRequest['options']): void
+  mutateOptions(optionsPart: Partial<TweetReactionBlockSessionRequest['options']>): void
 }
 
 interface ImportChainBlockPageStates {
   targetOptions: ImportBlockSessionRequest['options']
-  setTargetOptions: (options: ImportBlockSessionRequest['options']) => void
-  mutateOptions: (optionsPart: Partial<ImportBlockSessionRequest['options']>) => void
+  setTargetOptions(options: ImportBlockSessionRequest['options']): void
+  mutateOptions(optionsPart: Partial<ImportBlockSessionRequest['options']>): void
   blocklist: Blocklist
-  setBlocklist: (blocklist: Blocklist) => void
+  setBlocklist(blocklist: Blocklist): void
   nameOfSelectedFiles: string[]
-  setNameOfSelectedFiles: (nameOfSelectedFiles: string[]) => void
+  setNameOfSelectedFiles(nameOfSelectedFiles: string[]): void
 }
 
 export const FollowerChainBlockPageStatesContext = React.createContext<

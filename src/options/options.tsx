@@ -20,9 +20,9 @@ const useStylesForRow = MaterialUI.makeStyles(_theme => ({
 
 function BadWordRow(props: {
   badWord: BadWordItem
-  removeWordById: (wordId: string) => void
-  editWordById: (wordId: string) => void
-  modifyAbilityOfWordById: (wordId: string, enabled: boolean) => void
+  removeWordById(wordId: string): void
+  editWordById(wordId: string): void
+  modifyAbilityOfWordById(wordId: string, enabled: boolean): void
 }) {
   const { TableCell, TableRow } = MaterialUI
   const classes = useStylesForRow()

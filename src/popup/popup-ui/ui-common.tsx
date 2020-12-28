@@ -8,8 +8,8 @@ const T = MaterialUI.Typography
 export interface DialogContent {
   message: DialogMessageObj
   dialogType: 'confirm' | 'alert'
-  callbackOnOk?: () => void
-  callbackOnCancel?: () => void
+  callbackOnOk?(): void
+  callbackOnCancel?(): void
 }
 
 export function RedBlockUITheme(darkMode: boolean) {
@@ -25,7 +25,7 @@ export function RedBlockUITheme(darkMode: boolean) {
 export function RBDialog(props: {
   isOpen: boolean
   content: DialogContent | null
-  closeModal: () => void
+  closeModal(): void
 }) {
   const { isOpen, content, closeModal } = props
   if (!content) {
