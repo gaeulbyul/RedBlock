@@ -44,6 +44,9 @@
   "unchainblock": {
     "message": "언체인블락"
   },
+  "selfchainblock": {
+    "message": "셀프 체인블락"
+  },
   "followers_of_xxx": {
     "message": "@$username$의 팔로워",
     "placeholders": {
@@ -308,6 +311,9 @@
   "unchainblock_description": {
     "message": "설정한 옵션에 따라 유저를 모두 차단해제합니다."
   },
+  "selfchainblock_description": {
+    "message": "셀프 체인블락은 나와 맞팔로우하지 않은 *프로텍트 팔로워만* 차단하며, 이외의 유저는 차단하지 않습니다."
+  },
   "my_mutual_followers_wont_block": {
     "message": "단, 내 맞팔로워는 위 옵션과 무관하게 차단이나 뮤트를 하지 않습니다."
   },
@@ -337,6 +343,9 @@
   },
   "confirm_import_chainblock_title": {
     "message": "정말로 해당 차단목록에 있는 유저를 차단하시겠습니까?"
+  },
+  "confirm_selfchainblock_title": {
+    "message": "프로텍트 팔로워를 차단하시겠습니까?"
   },
   "user_count": {
     "message": "유저수"
@@ -408,6 +417,9 @@
   "unchainblock_completed": {
     "message": "언체인블락 완료!"
   },
+  "selfchainblock_completed": {
+    "message": "셀프 체인블락 완료!"
+  },
   "yes": {
     "message": "네"
   },
@@ -461,6 +473,12 @@
   },
   "cant_chainblock_empty_list": {
     "message": "불러온 목록이 비어있거나 유저ID를 찾을 수 없습니다."
+  },
+  "cant_chainblock_to_yourself": {
+    "message": "나 자신에게 체인블락을 할 수 없습니다."
+  },
+  "cant_selfchainblock_to_others": {
+    "message": "다른 유저에게 셀프 체인블락을 할 수 없습니다."
   },
   "wtf_twitter": {
     "message": "⚠️ 강제 로그아웃이나 계정정지 등의 문제를 피하기 위해 누적 차단횟수를 500회 미만으로 제한하고 있습니다."

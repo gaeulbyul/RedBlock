@@ -198,6 +198,25 @@ export function getLimitResetTime(limit: Limit): string {
   return formatter.format(datetime)
 }
 
+// 주의! 리턴타입 바꾸기 전에 .startsWith('invalid') 로 짠 부분에 영향가지 않는지 체크할 것
+export function checkUserIdBeforeSelfChainBlock({
+  purpose,
+  myselfId,
+  givenUserId,
+}: {
+  purpose: Purpose
+  myselfId: string
+  givenUserId: string
+}): 'self' | 'other' | 'invalid self' | 'invalid other' /* 주의 */ {
+  if (purpose === 'selfchainblock') {
+    // 셀프 체인블락의 타겟은 오직 나 자신이어야하고,
+    return myselfId === givenUserId ? 'self' : 'invalid self'
+  } else {
+    // 반대로 체인/언체인블락 타겟은 나 자신이어선 안된다.
+    return myselfId !== givenUserId ? 'other' : 'invalid other'
+  }
+}
+
 export function unwrap<T>(maybeValue: Either<Error, T>) {
   if (maybeValue.ok) {
     return maybeValue.value

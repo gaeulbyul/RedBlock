@@ -29,7 +29,6 @@ function calculatePercentage(session: SessionInfo): number | null {
   if (typeof max === 'number') {
     // Math.min : bioBlock모드로 인해 total보다 더 많은 유저를 수집할 수도 있다.
     // 100%가 안 넘도록 함
-    // TODO: 근데 제대로 계산할 수 있었음 좋겠다.
     return Math.min(100, Math.round((scraped / max) * 1000) / 10)
   } else {
     return null
@@ -82,6 +81,7 @@ function ChainBlockSessionItem(props: { sessionInfo: SessionInfo }) {
     case 'import':
       user = null
       localizedTarget = i18n.getMessage('from_imported_blocklist')
+      break
   }
   const localizedPurpose = i18n.getMessage(purpose)
   const cardTitle = `${localizedPurpose} ${statusToString(sessionInfo.status)}`
@@ -253,6 +253,10 @@ function ChainBlockSessionItem(props: { sessionInfo: SessionInfo }) {
       shortProgress = `${i18n.getMessage(
         'export'
       )}: ${sessionInfo.progress.scraped.toLocaleString()}`
+      break
+    case 'selfchainblock':
+      shortProgress = `${i18n.getMessage('block')}: ${succProgress.Block.toLocaleString()}`
+      break
   }
   return (
     <M.Card className={classes.card}>

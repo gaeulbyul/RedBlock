@@ -7,6 +7,9 @@ type ExportableSessionRequest = FollowerBlockSessionRequest | TweetReactionBlock
 
 type Session = import('./session').ChainBlockSession | import('./session').ExportSession
 
+// NOTE: myself: TwitterUser는 셀프 체인블락 구현하면서 넣은 것
+// 자신에게 일반 체인블락걸면 안 되므로 체크용으로 넣어둠
+// TODO: 언체인블락 분리 (적어도 options만큼이라도)
 interface FollowerBlockSessionRequest {
   purpose: Purpose
   target: {
@@ -20,6 +23,7 @@ interface FollowerBlockSessionRequest {
     mutualBlocked: UserAction
     includeUsersInBio: BioBlockMode
   }
+  myself: TwitterUser
 }
 
 interface TweetReactionBlockSessionRequest {
@@ -41,6 +45,7 @@ interface TweetReactionBlockSessionRequest {
     myFollowings: UserAction
     includeUsersInBio: BioBlockMode
   }
+  myself: TwitterUser
 }
 
 interface ImportBlockSessionRequest {
@@ -54,6 +59,7 @@ interface ImportBlockSessionRequest {
     myFollowings: UserAction
     includeUsersInBio: BioBlockMode
   }
+  myself: TwitterUser
 }
 
 interface SessionInfo<ReqT = SessionRequest> {

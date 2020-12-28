@@ -43,6 +43,7 @@ export function objToString(msg: DialogMessageObj): string {
   return result
 }
 
+// TODO: 밑에 3 함수들 export 빼고 대신 generateConfirmMessage를 통해 사용하도록
 export function generateFollowerBlockConfirmMessage(
   request: FollowerBlockSessionRequest
 ): DialogMessageObj {
@@ -60,6 +61,10 @@ export function generateFollowerBlockConfirmMessage(
       break
     case 'export':
       title = i18n.getMessage('confirm_follower_export_title', user.screen_name)
+      break
+    case 'selfchainblock':
+      title = i18n.getMessage('confirm_selfchainblock_title')
+      break
   }
   let count = getCountOfUsersToBlock(request) ?? '?'
   const contents = []
@@ -156,7 +161,16 @@ export function generateImportBlockConfirmMessage(
   }
 }
 
+function generateSelfChainblockConfirmMessage(): DialogMessageObj {
+  return {
+    title: i18n.getMessage('confirm_selfchainblock_title'),
+  }
+}
+
 export function generateConfirmMessage(request: SessionRequest): DialogMessageObj {
+  if (request.purpose === 'selfchainblock') {
+    return generateSelfChainblockConfirmMessage()
+  }
   switch (request.target.type) {
     case 'follower':
       return generateFollowerBlockConfirmMessage(request as FollowerBlockSessionRequest)
@@ -205,9 +219,14 @@ function followerBlockResultNotification(sessionInfo: SessionInfo<FollowerBlockS
       howManyAlready = ''
       localizedPurposeCompleted = i18n.getMessage('export_completed')
       break
+    case 'selfchainblock':
+      howMany = i18n.getMessage('blocked_n_users', success.Block)
+      howManyAlready = ''
+      localizedPurposeCompleted = i18n.getMessage('selfchainblock_completed')
+      break
   }
   let message = `${localizedPurposeCompleted} ${howMany}\n`
-  if (purpose !== 'export') {
+  if (howManyAlready) {
     message += '('
     message += `${howManyAlready}, `
     message += `${i18n.getMessage('skipped')}: ${skipped}, `
@@ -285,5 +304,9 @@ export function checkResultToString(result: TargetCheckResult): string {
       return i18n.getMessage('cant_chainblock_empty_list')
     case TargetCheckResult.TheyBlocksYou:
       return i18n.getMessage('cant_chainblock_to_blocked')
+    case TargetCheckResult.CantChainBlockYourself:
+      return i18n.getMessage('cant_chainblock_to_yourself')
+    case TargetCheckResult.CantSelfChainBlockToOther:
+      return i18n.getMessage('cant_selfchainblock_to_others')
   }
 }

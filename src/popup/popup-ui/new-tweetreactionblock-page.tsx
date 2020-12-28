@@ -1,7 +1,7 @@
 // import * as Storage from '../../scripts/background/storage.js'
 import * as i18n from '../../scripts/i18n.js'
 import * as TextGenerate from '../../scripts/text-generate.js'
-import { LoginStatusContext, BlockLimiterContext, DialogContext } from './contexts.js'
+import { MyselfContext, BlockLimiterContext, DialogContext, SnackBarContext } from './contexts.js'
 import { startTweetReactionChainBlock } from '../../scripts/background/request-sender.js'
 import {
   TabPanel,
@@ -188,10 +188,16 @@ function TargetExecutionButtonUI(props: { isAvailable: boolean }) {
     targetOptions,
   } = React.useContext(TweetReactionChainBlockPageStatesContext)
   const { openModal } = React.useContext(DialogContext)
+  const snackBarCtx = React.useContext(SnackBarContext)
+  const myself = React.useContext(MyselfContext)
   function executeSession(purpose: TweetReactionBlockSessionRequest['purpose']) {
     if (!currentTweet) {
       // unreachable?
       throw new Error('트윗을 선택해주세요')
+    }
+    if (!myself) {
+      snackBarCtx.snack(i18n.getMessage('error_occured_check_login'))
+      return
     }
     const request: TweetReactionBlockSessionRequest = {
       purpose,
@@ -203,6 +209,7 @@ function TargetExecutionButtonUI(props: { isAvailable: boolean }) {
         blockLikers: wantBlockLikers,
         blockMentionedUsers: wantBlockMentionedUsers,
       },
+      myself,
     }
     openModal({
       dialogType: 'confirm',
@@ -245,28 +252,26 @@ function TargetExecutionButtonUI(props: { isAvailable: boolean }) {
 }
 
 export default function NewTweetReactionBlockPage() {
-  const { loggedIn } = React.useContext(LoginStatusContext)
+  const myself = React.useContext(MyselfContext)
   const limiterStatus = React.useContext(BlockLimiterContext)
-  const availableBlocks = React.useMemo((): number => {
-    return limiterStatus.max - limiterStatus.current
-  }, [limiterStatus])
-  const isAvailable = React.useMemo((): boolean => {
-    if (!loggedIn) {
+  const availableBlocks = limiterStatus.max - limiterStatus.current
+  function isAvailable() {
+    if (!myself) {
       return false
     }
     if (availableBlocks <= 0) {
       return false
     }
     return true
-  }, [loggedIn, availableBlocks])
+  }
   return (
     <div>
       <TargetTweetOuterUI />
-      {loggedIn ? (
+      {myself ? (
         <div>
           <TargetOptionsUI />
           {availableBlocks <= 0 ? <BlockLimiterUI status={limiterStatus} /> : ''}
-          <TargetExecutionButtonUI isAvailable={isAvailable} />
+          <TargetExecutionButtonUI isAvailable={isAvailable()} />
         </div>
       ) : (
         <PleaseLoginBox />

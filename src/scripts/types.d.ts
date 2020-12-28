@@ -19,7 +19,7 @@ declare namespace uuid {
 }
 
 type FollowKind = 'followers' | 'friends' | 'mutual-followers'
-type Purpose = 'chainblock' | 'unchainblock' | 'export'
+type Purpose = 'chainblock' | 'unchainblock' | 'export' | 'selfchainblock'
 type ReactionKind = 'retweeted' | 'liked'
 
 type UserAction = 'Skip' | 'Block' | 'UnBlock' | 'Mute' | 'UnMute'

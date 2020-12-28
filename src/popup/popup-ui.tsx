@@ -11,7 +11,7 @@ import {
   PageSwitchContext,
   RedBlockOptionsContext,
   SnackBarContext,
-  LoginStatusContext,
+  MyselfContext,
   BlockLimiterContext,
 } from './popup-ui/contexts.js'
 import {
@@ -57,7 +57,7 @@ const useStylesForAppBar = MaterialUI.makeStyles(() =>
 )
 
 interface PopupAppProps {
-  loggedIn: boolean
+  myself: TwitterAPI.TwitterUser | null
   currentUser: TwitterAPI.TwitterUser | null
   currentTweet: TwitterAPI.Tweet | null
   isPopupOpenedInTab: boolean
@@ -67,7 +67,7 @@ interface PopupAppProps {
 
 function PopupApp(props: PopupAppProps) {
   const {
-    loggedIn,
+    myself,
     currentUser,
     currentTweet,
     isPopupOpenedInTab,
@@ -150,10 +150,7 @@ function PopupApp(props: PopupAppProps) {
       browser.runtime.onMessage.removeListener(messageListener)
     }
   }, [])
-  const runningSessions = React.useMemo(
-    () => sessions.filter(session => isRunningSession(session)),
-    [sessions]
-  )
+  const runningSessions = sessions.filter(session => isRunningSession(session))
   const M = MaterialUI
   const runningSessionsTabIcon = (
     <M.Badge
@@ -171,7 +168,7 @@ function PopupApp(props: PopupAppProps) {
     <M.ThemeProvider theme={theme}>
       <SnackBarContext.Provider value={{ snack }}>
         <DialogContext.Provider value={{ openModal }}>
-          <LoginStatusContext.Provider value={{ loggedIn }}>
+          <MyselfContext.Provider value={myself}>
             <RedBlockOptionsContext.Provider value={redblockOptions}>
               <BlockLimiterContext.Provider value={limiterStatus}>
                 <PageSwitchContext.Provider value={{ switchPage }}>
@@ -251,7 +248,7 @@ function PopupApp(props: PopupAppProps) {
                 </PageSwitchContext.Provider>
               </BlockLimiterContext.Provider>
             </RedBlockOptionsContext.Provider>
-          </LoginStatusContext.Provider>
+          </MyselfContext.Provider>
         </DialogContext.Provider>
       </SnackBarContext.Provider>
       <M.Snackbar
@@ -312,10 +309,7 @@ async function getTabContext(): Promise<TabContext> {
 
 export async function initializeUI() {
   const redblockOptions = loadOptions()
-  const loggedIn = TwitterAPI.getMyself().then(
-    () => true,
-    () => false
-  )
+  const myself = TwitterAPI.getMyself().catch(() => null)
   const isPopupOpenedInTab = /\bistab=1\b/.test(location.search)
   let initialPage: PageEnum
   const initialPageMatch = /\bpage=([0-4])\b/.exec(location.search)
@@ -328,7 +322,7 @@ export async function initializeUI() {
   const appRoot = document.getElementById('app')!
   const app = (
     <PopupApp
-      loggedIn={await loggedIn}
+      myself={await myself}
       currentUser={currentUser}
       currentTweet={currentTweet}
       isPopupOpenedInTab={isPopupOpenedInTab}

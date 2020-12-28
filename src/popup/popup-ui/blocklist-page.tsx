@@ -1,13 +1,9 @@
-import {
-  SnackBarContext,
-  LoginStatusContext,
-  BlockLimiterContext,
-  DialogContext,
-} from './contexts.js'
+import { SnackBarContext, MyselfContext, BlockLimiterContext, DialogContext } from './contexts.js'
 import { PleaseLoginBox, BlockLimiterUI, BigExecuteChainBlockButton } from './ui-common.js'
 import { PageEnum } from '../popup.js'
 import * as i18n from '../../scripts/i18n.js'
 import { generateImportBlockConfirmMessage } from '../../scripts/text-generate.js'
+import * as TwitterAPI from '../../scripts/background/twitter-api.js'
 
 import {
   emptyBlocklist,
@@ -64,7 +60,7 @@ function ImportOptionsUI() {
 }
 
 export default function BlocklistPage() {
-  const { loggedIn } = React.useContext(LoginStatusContext)
+  const myself = React.useContext(MyselfContext)
   const snackBarCtx = React.useContext(SnackBarContext)
   const limiterStatus = React.useContext(BlockLimiterContext)
   const { openModal } = React.useContext(DialogContext)
@@ -77,18 +73,16 @@ export default function BlocklistPage() {
     setNameOfSelectedFiles,
   } = React.useContext(ImportChainBlockPageStatesContext)
   const [fileInput] = React.useState(React.createRef<HTMLInputElement>())
-  const availableBlocks = React.useMemo((): number => {
-    return limiterStatus.max - limiterStatus.current
-  }, [limiterStatus])
-  const isAvailable = React.useMemo((): boolean => {
-    if (!loggedIn) {
+  const availableBlocks = limiterStatus.max - limiterStatus.current
+  function isAvailable() {
+    if (!myself) {
       return false
     }
     if (availableBlocks <= 0) {
       return false
     }
     return true
-  }, [loggedIn, availableBlocks])
+  }
   async function onChange(event: React.FormEvent<HTMLInputElement>) {
     event.preventDefault()
     const files = fileInput.current!.files
@@ -111,6 +105,11 @@ export default function BlocklistPage() {
       snackBarCtx.snack(i18n.getMessage('cant_chainblock_empty_list'))
       return
     }
+    const myself = await TwitterAPI.getMyself().catch(() => null)
+    if (!myself) {
+      snackBarCtx.snack(i18n.getMessage('error_occured_check_login'))
+      return
+    }
     const request: ImportBlockSessionRequest = {
       purpose: 'chainblock',
       target: {
@@ -118,6 +117,7 @@ export default function BlocklistPage() {
         userIds: Array.from(blocklist.userIds),
       },
       options: targetOptions,
+      myself,
     }
     openModal({
       dialogType: 'confirm',
@@ -239,7 +239,7 @@ export default function BlocklistPage() {
           </div>
         </M.ExpansionPanelDetails>
       </M.ExpansionPanel>
-      {loggedIn ? '' : <PleaseLoginBox />}
+      {myself ? '' : <PleaseLoginBox />}
       {availableBlocks <= 0 ? <BlockLimiterUI status={limiterStatus} /> : ''}
     </div>
   )

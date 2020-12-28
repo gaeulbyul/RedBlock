@@ -264,3 +264,31 @@ export const BigExportButton = MaterialUI.withStyles(theme => ({
     },
   },
 }))(BigBaseButton)
+
+export const BigExecuteSelfChainBlockButton = MaterialUI.withStyles(theme => ({
+  root: {
+    backgroundColor: MaterialUI.colors.pink[700],
+    color: theme.palette.getContrastText(MaterialUI.colors.pink[700]),
+    '&:hover': {
+      backgroundColor: MaterialUI.colors.pink[500],
+      color: theme.palette.getContrastText(MaterialUI.colors.pink[500]),
+    },
+  },
+}))(BigBaseButton)
+
+export function determineInitialPurpose(
+  myself: TwitterUser | null,
+  givenUser: TwitterUser | null
+): Purpose {
+  if (!(myself && givenUser)) {
+    console.warn('both null?')
+    return 'chainblock'
+  }
+  if (myself.id_str === givenUser.id_str) {
+    return 'selfchainblock'
+  }
+  if (givenUser.following) {
+    return 'unchainblock'
+  }
+  return 'chainblock'
+}

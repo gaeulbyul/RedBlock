@@ -175,6 +175,8 @@ export class ChainBlockSession extends BaseSession {
             this.stop()
             break
           }
+          // TODO: skipInactiveUser를 redblockoptions에서 꺼내오지말고
+          // 세션 시작할 때 options에 집어넣어서 보내자.
           const whatToDo = whatToDoGivenUser(
             this.request,
             user,
@@ -343,6 +345,9 @@ function whatToDoGivenUser(
   now: Dayjs,
   inactivePeriod: InactivePeriod
 ): UserAction | 'Skip' | 'AlreadyDone' {
+  if (request.purpose === 'selfchainblock') {
+    return isProtectedFollower(follower) ? 'Block' : 'Skip'
+  }
   const { purpose, options, target } = request
   const { following, followed_by, follow_request_sent } = follower
   if (!(typeof following === 'boolean' && typeof followed_by === 'boolean')) {
@@ -386,6 +391,14 @@ function whatToDoGivenUser(
     return 'AlreadyDone'
   }
   return defaultAction
+}
+
+function isProtectedFollower(follower: TwitterUser) {
+  const { following, followed_by } = follower
+  if (follower.protected && followed_by && !following) {
+    return true
+  }
+  return false
 }
 
 function checkUserInactivity(

@@ -1,3 +1,5 @@
+import { checkUserIdBeforeSelfChainBlock } from '../common.js'
+
 export const enum TargetCheckResult {
   Ok,
   AlreadyRunningOnSameTarget,
@@ -9,6 +11,8 @@ export const enum TargetCheckResult {
   NobodyWillBlocked,
   EmptyList,
   TheyBlocksYou,
+  CantChainBlockYourself,
+  CantSelfChainBlockToOther,
 }
 
 export function checkFollowerBlockTarget(
@@ -84,5 +88,22 @@ export function isSameTarget(target1: SessionRequest['target'], target2: Session
       return target1.tweet.id_str === givenTweet.id_str
     case 'import':
       return false
+  }
+}
+
+export function checkSelfChainBlockTarget(request: FollowerBlockSessionRequest): TargetCheckResult {
+  const validity = checkUserIdBeforeSelfChainBlock({
+    purpose: request.purpose,
+    myselfId: request.myself.id_str,
+    givenUserId: request.target.user.id_str,
+  })
+  switch (validity) {
+    case 'self':
+    case 'other':
+      return TargetCheckResult.Ok
+    case 'invalid self':
+      return TargetCheckResult.CantSelfChainBlockToOther
+    case 'invalid other':
+      return TargetCheckResult.CantChainBlockYourself
   }
 }

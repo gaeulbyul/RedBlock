@@ -54,8 +54,9 @@ async function confirmFollowerChainBlockRequest(
       list: followKind,
       user,
     },
+    myself,
   }
-  const checkResult = chainblocker.checkTarget(request.target)
+  const checkResult = chainblocker.checkTarget(request)
   if (checkResult === TargetCheckResult.Ok) {
     return sendConfirmToTab(tab, request)
   } else {
@@ -87,8 +88,9 @@ async function confirmTweetReactionChainBlockRequest(
       tweet,
       ...whoToBlock,
     },
+    myself,
   }
-  const checkResult = chainblocker.checkTarget(request.target)
+  const checkResult = chainblocker.checkTarget(request)
   if (checkResult === TargetCheckResult.Ok) {
     return sendConfirmToTab(tab, request)
   } else {

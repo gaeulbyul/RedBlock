@@ -1,4 +1,6 @@
 import { Blocklist, emptyBlocklist } from '../../scripts/background/blocklist-process.js'
+import { determineInitialPurpose } from './ui-common.js'
+import { MyselfContext } from './contexts.js'
 
 export type SelectUserGroup = 'invalid' | 'current' | 'saved'
 
@@ -109,11 +111,12 @@ export function FollowerChainBlockPageStatesProvider(props: {
     mutualBlocked: 'Skip',
     includeUsersInBio: 'never',
   })
+  const myself = React.useContext(MyselfContext)
   const [selectedUserGroup, setSelectedUserGroup] = React.useState<SelectUserGroup>('current')
   const [selectedUser, setSelectedUser] = React.useState<TwitterUser | null>(props.initialUser)
   const [targetList, setTargetList] = React.useState<FollowKind>('followers')
-  const firstMode = selectedUser && selectedUser.following ? 'unchainblock' : 'chainblock'
-  const [purpose, setPurpose] = React.useState<Purpose>(firstMode)
+  const initialPurpose = determineInitialPurpose(myself, selectedUser)
+  const [purpose, setPurpose] = React.useState<Purpose>(initialPurpose)
   function mutateOptions(newOptionsPart: Partial<FollowerBlockSessionRequest['options']>) {
     const newOptions = { ...targetOptions, ...newOptionsPart }
     setTargetOptions(newOptions)

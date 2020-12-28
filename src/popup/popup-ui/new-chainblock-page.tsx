@@ -1,7 +1,7 @@
 import * as Storage from '../../scripts/background/storage.js'
 import * as TwitterAPI from '../../scripts/background/twitter-api.js'
 import { TwitterUser } from '../../scripts/background/twitter-api.js'
-import { TwitterUserMap } from '../../scripts/common.js'
+import { TwitterUserMap, checkUserIdBeforeSelfChainBlock } from '../../scripts/common.js'
 import * as i18n from '../../scripts/i18n.js'
 import * as TextGenerate from '../../scripts/text-generate.js'
 import {
@@ -10,12 +10,7 @@ import {
   startFollowerChainBlock,
   refreshSavedUsers,
 } from '../../scripts/background/request-sender.js'
-import {
-  DialogContext,
-  SnackBarContext,
-  LoginStatusContext,
-  BlockLimiterContext,
-} from './contexts.js'
+import { DialogContext, SnackBarContext, MyselfContext, BlockLimiterContext } from './contexts.js'
 import {
   TabPanel,
   PleaseLoginBox,
@@ -25,6 +20,7 @@ import {
   BigExecuteChainBlockButton,
   BigExecuteUnChainBlockButton,
   BigExportButton,
+  BigExecuteSelfChainBlockButton,
 } from './ui-common.js'
 import { SelectUserGroup, FollowerChainBlockPageStatesContext } from './ui-states.js'
 
@@ -145,6 +141,8 @@ function TargetUserProfile(props: { isAvailable: boolean }) {
   )
   // selectedUser가 null일 땐 이 컴포넌트를 렌더링하지 않으므로
   const user = selectedUser!
+  const myself = React.useContext(MyselfContext)
+  const selectedMyself = myself && user.id_str === myself.id_str
   function radio(fk: FollowKind, label: string) {
     return (
       <M.FormControlLabel
@@ -158,20 +156,24 @@ function TargetUserProfile(props: { isAvailable: boolean }) {
   }
   return (
     <TwitterUserProfile user={user}>
-      <div className="target-user-info">
-        {isAvailable || (
-          <div className="profile-blocked">
-            {user.protected && `\u{1f512} ${i18n.getMessage('cant_chainblock_to_protected')}`}
+      {selectedMyself ? (
+        ''
+      ) : (
+        <div className="target-user-info">
+          {isAvailable || (
+            <div className="profile-blocked">
+              {user.protected && `\u{1f512} ${i18n.getMessage('cant_chainblock_to_protected')}`}
+            </div>
+          )}
+          <div className="profile-right-targetlist">
+            <M.RadioGroup row>
+              {radio('followers', i18n.formatFollowsCount('followers', user.followers_count))}
+              {radio('friends', i18n.formatFollowsCount('friends', user.friends_count))}
+              {radio('mutual-followers', i18n.getMessage('mutual_followers'))}
+            </M.RadioGroup>
           </div>
-        )}
-        <div className="profile-right-targetlist">
-          <M.RadioGroup row>
-            {radio('followers', i18n.formatFollowsCount('followers', user.followers_count))}
-            {radio('friends', i18n.formatFollowsCount('friends', user.friends_count))}
-            {radio('mutual-followers', i18n.getMessage('mutual_followers'))}
-          </M.RadioGroup>
         </div>
-      </div>
+      )}
     </TwitterUserProfile>
   )
 }
@@ -264,8 +266,10 @@ function TargetUserSelectUI(props: { isAvailable: boolean }) {
     setSelectedUserGroup,
     selectedUser,
     setSelectedUser,
+    setPurpose,
   } = React.useContext(FollowerChainBlockPageStatesContext)
   const { openModal } = React.useContext(DialogContext)
+  const myself = React.useContext(MyselfContext)
   const [savedUsers, setSavedUsers] = React.useState(new TwitterUserMap())
   const [isLoading, setLoadingState] = React.useState(false)
   async function changeUser(userId: string, userName: string, group: SelectUserGroup) {
@@ -280,7 +284,15 @@ function TargetUserSelectUI(props: { isAvailable: boolean }) {
       if (newUser) {
         setSelectedUser(newUser)
         setSelectedUserGroup(group)
+        if (myself) {
+          if (newUser.id_str === myself.id_str) {
+            setPurpose('selfchainblock')
+          } else {
+            setPurpose('chainblock')
+          }
+        }
       } else {
+        // TODO: 유저를 가져오는 데 실패하면 해당 유저를 지운다?
         openModal({
           dialogType: 'alert',
           message: {
@@ -373,36 +385,51 @@ function TargetUnChainBlockOptionsUI() {
   )
 }
 
-function TargetOptionsUI() {
-  const { purpose, setPurpose } = React.useContext(FollowerChainBlockPageStatesContext)
+function TargetOptionsUIMyself() {
+  return (
+    <div style={{ width: '100%' }}>
+      <div className="description">{i18n.getMessage('selfchainblock_description')}</div>
+    </div>
+  )
+}
+
+function TargetOptionsUIOthers() {
   const cautionOnMassiveBlock = i18n.getMessage('wtf_twitter')
+  const { purpose, setPurpose } = React.useContext(FollowerChainBlockPageStatesContext)
+  return (
+    <div style={{ width: '100%' }}>
+      <M.Tabs variant="fullWidth" value={purpose} onChange={(_ev, val) => setPurpose(val)}>
+        <M.Tab value={'chainblock'} label={`\u{1f6d1} ${i18n.getMessage('chainblock')}`} />
+        <M.Tab value={'unchainblock'} label={`\u{1f49a} ${i18n.getMessage('unchainblock')}`} />
+        <M.Tab value={'export'} label={`\u{1f4be} ${i18n.getMessage('export')}`} />
+      </M.Tabs>
+      <M.Divider />
+      <TabPanel value={purpose} index={'chainblock'}>
+        <TargetChainBlockOptionsUI />
+        <M.Divider />
+        <div className="description">
+          {i18n.getMessage('chainblock_description')}{' '}
+          {i18n.getMessage('my_mutual_followers_wont_block')}
+          <div className="wtf">{cautionOnMassiveBlock}</div>
+        </div>
+      </TabPanel>
+      <TabPanel value={purpose} index={'unchainblock'}>
+        <TargetUnChainBlockOptionsUI />
+        <div className="description">{i18n.getMessage('unchainblock_description')}</div>
+      </TabPanel>
+      <TabPanel value={purpose} index={'export'}>
+        <div className="description">{i18n.getMessage('export_followers_description')}</div>
+      </TabPanel>
+    </div>
+  )
+}
+
+function TargetOptionsUI() {
+  const { purpose } = React.useContext(FollowerChainBlockPageStatesContext)
   const summary = `${i18n.getMessage('options')} (${i18n.getMessage(purpose)})`
   return (
     <DenseExpansionPanel summary={summary} defaultExpanded>
-      <div style={{ width: '100%' }}>
-        <M.Tabs variant="fullWidth" value={purpose} onChange={(_ev, val) => setPurpose(val)}>
-          <M.Tab value={'chainblock'} label={`\u{1f6d1} ${i18n.getMessage('chainblock')}`} />
-          <M.Tab value={'unchainblock'} label={`\u{1f49a} ${i18n.getMessage('unchainblock')}`} />
-          <M.Tab value={'export'} label={`\u{1f4be} ${i18n.getMessage('export')}`} />
-        </M.Tabs>
-        <M.Divider />
-        <TabPanel value={purpose} index={'chainblock'}>
-          <TargetChainBlockOptionsUI />
-          <M.Divider />
-          <div className="description">
-            {i18n.getMessage('chainblock_description')}{' '}
-            {i18n.getMessage('my_mutual_followers_wont_block')}
-            <div className="wtf">{cautionOnMassiveBlock}</div>
-          </div>
-        </TabPanel>
-        <TabPanel value={purpose} index={'unchainblock'}>
-          <TargetUnChainBlockOptionsUI />
-          <div className="description">{i18n.getMessage('unchainblock_description')}</div>
-        </TabPanel>
-        <TabPanel value={purpose} index={'export'}>
-          <div className="description">{i18n.getMessage('export_followers_description')}</div>
-        </TabPanel>
-      </div>
+      {purpose === 'selfchainblock' ? <TargetOptionsUIMyself /> : <TargetOptionsUIOthers />}
     </DenseExpansionPanel>
   )
 }
@@ -423,16 +450,23 @@ function TargetExecutionButtonUI(props: { isAvailable: boolean }) {
     FollowerChainBlockPageStatesContext
   )
   const { openModal } = React.useContext(DialogContext)
+  const snackBarCtx = React.useContext(SnackBarContext)
+  const myself = React.useContext(MyselfContext)
   const target: FollowerBlockSessionRequest['target'] = {
     type: 'follower',
     user: selectedUser!,
     list: targetList,
   }
   function executeSession(purpose: Purpose) {
+    if (!myself) {
+      snackBarCtx.snack(i18n.getMessage('error_occured_check_login'))
+      return
+    }
     const request: FollowerBlockSessionRequest = {
       purpose,
       target,
       options,
+      myself,
     }
     openModal({
       dialogType: 'confirm',
@@ -477,26 +511,47 @@ function TargetExecutionButtonUI(props: { isAvailable: boolean }) {
         </BigExportButton>
       )
       break
+    case 'selfchainblock':
+      bigButton = (
+        <BigExecuteSelfChainBlockButton
+          disabled={!isAvailable}
+          onClick={() => executeSession('selfchainblock')}
+        >
+          <span>
+            {'\u{1f513}'} {i18n.getMessage('selfchainblock')}
+          </span>
+        </BigExecuteSelfChainBlockButton>
+      )
   }
   return <M.Box>{bigButton}</M.Box>
 }
 
 export default function NewChainBlockPage() {
   const { purpose, selectedUser } = React.useContext(FollowerChainBlockPageStatesContext)
-  const { loggedIn } = React.useContext(LoginStatusContext)
+  const myself = React.useContext(MyselfContext)
   const limiterStatus = React.useContext(BlockLimiterContext)
-  const availableBlocks = React.useMemo((): number => {
-    return limiterStatus.max - limiterStatus.current
-  }, [limiterStatus])
-  const isAvailable = React.useMemo((): boolean => {
-    if (!loggedIn) {
+  const availableBlocks = limiterStatus.max - limiterStatus.current
+  function isAvailable() {
+    if (!myself) {
       return false
     }
-    if (availableBlocks <= 0 && purpose === 'chainblock') {
+    if (availableBlocks <= 0 && (purpose === 'chainblock' || purpose === 'selfchainblock')) {
       return false
     }
     if (!selectedUser) {
       return false
+    }
+    const selfvalid = checkUserIdBeforeSelfChainBlock({
+      purpose,
+      myselfId: myself.id_str,
+      givenUserId: selectedUser.id_str,
+    })
+    if (selfvalid.startsWith('invalid')) {
+      return false
+    }
+    // 셀프 체인블락은 이하의 체크가 필요없음
+    if (selfvalid === 'self') {
+      return true
     }
     if (selectedUser.following) {
       return true
@@ -505,15 +560,15 @@ export default function NewChainBlockPage() {
       return false
     }
     return true
-  }, [loggedIn, selectedUser, availableBlocks])
+  }
   return (
     <div>
-      <TargetUserSelectUI isAvailable={isAvailable} />
-      {loggedIn ? (
+      <TargetUserSelectUI isAvailable={isAvailable()} />
+      {myself ? (
         <div>
           <TargetOptionsUI />
           {availableBlocks <= 0 ? <BlockLimiterUI status={limiterStatus} /> : ''}
-          <TargetExecutionButtonUI isAvailable={isAvailable} />
+          <TargetExecutionButtonUI isAvailable={isAvailable()} />
         </div>
       ) : (
         <PleaseLoginBox />
