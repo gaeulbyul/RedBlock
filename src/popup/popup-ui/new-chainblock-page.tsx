@@ -21,6 +21,7 @@ import {
   BigExecuteUnChainBlockButton,
   BigExportButton,
   BigExecuteLockPickerButton,
+  WhatIsBioBlock,
 } from './ui-common.js'
 import { SelectUserGroup, FollowerChainBlockPageStatesContext } from './ui-states.js'
 
@@ -259,7 +260,9 @@ function TargetChainBlockOptionsUI() {
       </M.FormControl>
       <br />
       <M.FormControl>
-        <M.FormLabel component="legend">BioBlock &#x1F9EA;</M.FormLabel>
+        <M.FormLabel component="legend">
+          BioBlock &#x1F9EA; <WhatIsBioBlock />
+        </M.FormLabel>
         <M.RadioGroup row>
           {bioBlockModes.map(([mode, localizedMode], index) => (
             <M.FormControlLabel

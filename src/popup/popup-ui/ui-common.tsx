@@ -1,6 +1,7 @@
 import { DialogMessageObj } from '../../scripts/text-generate.js'
 import * as i18n from '../../scripts/i18n.js'
 import { requestResetCounter } from '../../scripts/background/request-sender.js'
+import { DialogContext } from './contexts.js'
 
 const M = MaterialUI
 const T = MaterialUI.Typography
@@ -216,12 +217,23 @@ export function TwitterUserProfile(props: { user: TwitterUser; children: React.R
   )
 }
 
-export const descriptionOfBioBlock: DialogContent = {
-  dialogType: 'alert',
-  message: {
-    title: 'BioBlock',
-    contentLines: [i18n.getMessage('bioblock_description')],
-  },
+export function WhatIsBioBlock() {
+  const { openModal } = React.useContext(DialogContext)
+  function handleClick(event: React.MouseEvent) {
+    event.preventDefault()
+    openModal({
+      dialogType: 'alert',
+      message: {
+        title: 'BioBlock',
+        contentLines: [`BioBlock: ${i18n.getMessage('bioblock_description')}`],
+      },
+    })
+  }
+  return (
+    <M.IconButton size="small" onClick={handleClick}>
+      <M.Icon>help_outline</M.Icon>
+    </M.IconButton>
+  )
 }
 
 const BigBaseButton = MaterialUI.withStyles(() => ({
