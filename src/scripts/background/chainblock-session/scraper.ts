@@ -142,6 +142,18 @@ class ImportUserScraper implements UserScraper {
   }
 }
 
+class UserSearchScraper implements UserScraper {
+  public totalCount = null
+  constructor(private request: UserSearchBlockSessionRequest) {}
+  public async *[Symbol.asyncIterator]() {
+    let scraper: ScrapedUsersIterator = UserScrapingAPI.getUserSearchResults(
+      this.request.target.query
+    )
+    scraper = ExtraScraper.scrapeUsersOnBio(scraper, this.request.options.includeUsersInBio)
+    yield* scraper
+  }
+}
+
 export function initScraper(request: SessionRequest): UserScraper {
   const { target } = request
   if (target.type === 'import') {
@@ -149,6 +161,9 @@ export function initScraper(request: SessionRequest): UserScraper {
   }
   if (target.type === 'tweet_reaction') {
     return new TweetReactedUserScraper(request as TweetReactionBlockSessionRequest)
+  }
+  if (target.type === 'user_search') {
+    return new UserSearchScraper(request as UserSearchBlockSessionRequest)
   }
   if (target.user.blocked_by) {
     // 작동X

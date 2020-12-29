@@ -47,6 +47,9 @@
   "lockpicker": {
     "message": "Block protected followers"
   },
+  "query": {
+    "message": "Query"
+  },
   "followers_of_xxx": {
     "message": "@$username$'s followers",
     "placeholders": {
@@ -81,6 +84,9 @@
   },
   "from_imported_blocklist": {
     "message": "From blocklist"
+  },
+  "from_user_search_result": {
+    "message": "From user search result"
   },
   "session_status_initial": {
     "message": "Waiting..."
@@ -346,6 +352,9 @@
   },
   "confirm_lockpicker_title": {
     "message": "Do you want to block protected followers?"
+  },
+  "confirm_search_chainblock_title": {
+    "message": "Do you want to block users from search result?"
   },
   "user_count": {
     "message": "Users"

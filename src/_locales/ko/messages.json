@@ -47,6 +47,9 @@
   "lockpicker": {
     "message": "프로텍트 팔로워 차단"
   },
+  "query": {
+    "message": "검색어"
+  },
   "followers_of_xxx": {
     "message": "@$username$의 팔로워",
     "placeholders": {
@@ -81,6 +84,9 @@
   },
   "from_imported_blocklist": {
     "message": "차단목록에서"
+  },
+  "from_user_search_result": {
+    "message": "유저 검색결과에서"
   },
   "session_status_initial": {
     "message": "대기 중"
@@ -346,6 +352,9 @@
   },
   "confirm_lockpicker_title": {
     "message": "프로텍트 팔로워를 차단하시겠습니까?"
+  },
+  "confirm_search_chainblock_title": {
+    "message": "정말로 해당 유저 검색결과에 나온 유저를 차단하시겠습니까?"
   },
   "user_count": {
     "message": "유저수"

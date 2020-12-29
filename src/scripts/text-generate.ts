@@ -164,6 +164,25 @@ function generateLockPickerConfirmMessage(): DialogMessageObj {
   }
 }
 
+function generateUserSearchBlockConfirmMessage(
+  request: UserSearchBlockSessionRequest
+): DialogMessageObj {
+  const { myFollowers, myFollowings } = request.options
+  const targetDescription = `${i18n.getMessage('query')}: '${request.target.query}'`
+  const warningLines = []
+  if (myFollowers === 'Block') {
+    warningLines.push(`\u26a0 ${i18n.getMessage('warning_maybe_you_block_your_followers')}`)
+  }
+  if (myFollowings === 'Block') {
+    warningLines.push(`\u26a0 ${i18n.getMessage('warning_maybe_you_block_your_followings')}`)
+  }
+  return {
+    title: i18n.getMessage('confirm_search_chainblock_title'),
+    contentLines: [targetDescription],
+    warningLines,
+  }
+}
+
 export function generateConfirmMessage(request: SessionRequest): DialogMessageObj {
   if (request.purpose === 'lockpicker') {
     return generateLockPickerConfirmMessage()
@@ -175,6 +194,8 @@ export function generateConfirmMessage(request: SessionRequest): DialogMessageOb
       return generateTweetReactionBlockConfirmMessage(request as TweetReactionBlockSessionRequest)
     case 'import':
       return generateImportBlockConfirmMessage(request as ImportBlockSessionRequest)
+    case 'user_search':
+      return generateUserSearchBlockConfirmMessage(request as UserSearchBlockSessionRequest)
   }
 }
 
@@ -191,9 +212,14 @@ export function chainBlockResultNotification(sessionInfo: SessionInfo): string {
       )
     case 'import':
       return importBlockResultNotification(sessionInfo as SessionInfo<ImportBlockSessionRequest>)
+    case 'user_search':
+      return userSearchBlockResultNotification(
+        sessionInfo as SessionInfo<UserSearchBlockSessionRequest>
+      )
   }
 }
 
+// TODO: ���� �ߺ� ����. �� ��ƶ�.
 function followerBlockResultNotification(sessionInfo: SessionInfo<FollowerBlockSessionRequest>) {
   const { purpose } = sessionInfo.request
   const { success, already, skipped, failure, scraped } = sessionInfo.progress
@@ -230,7 +256,6 @@ function followerBlockResultNotification(sessionInfo: SessionInfo<FollowerBlockS
     message += `${i18n.getMessage('failed')}: ${failure}`
     message += ')'
   }
-
   return message
 }
 
@@ -276,6 +301,38 @@ function importBlockResultNotification(sessionInfo: SessionInfo<ImportBlockSessi
   message += `${i18n.getMessage('skipped')}: ${skipped}, `
   message += `${i18n.getMessage('failed')}: ${failure}`
   message += ')'
+  return message
+}
+
+function userSearchBlockResultNotification(
+  sessionInfo: SessionInfo<UserSearchBlockSessionRequest>
+) {
+  const { purpose } = sessionInfo.request
+  const { success, already, skipped, failure } = sessionInfo.progress
+  let localizedPurposeCompleted: string
+  let howMany: string
+  let howManyAlready: string
+  switch (purpose) {
+    case 'chainblock':
+      howMany = i18n.getMessage('blocked_n_users', success.Block)
+      howManyAlready = `${i18n.getMessage('already_blocked')}: ${already}`
+      localizedPurposeCompleted = i18n.getMessage('chainblock_completed')
+      break
+    case 'unchainblock':
+      howMany = i18n.getMessage('unblocked_n_users', success.UnBlock)
+      howManyAlready = `${i18n.getMessage('already_unblocked')}: ${already}`
+      localizedPurposeCompleted = i18n.getMessage('unchainblock_completed')
+      break
+  }
+  let message = `${localizedPurposeCompleted} ${howMany}\n`
+  if (howManyAlready) {
+    message += '('
+    message += `${howManyAlready}, `
+    message += `${i18n.getMessage('skipped')}: ${skipped}, `
+    message += `${i18n.getMessage('failed')}: ${failure}`
+    message += ')'
+  }
+
   return message
 }
 

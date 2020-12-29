@@ -2,6 +2,7 @@ type SessionRequest =
   | FollowerBlockSessionRequest
   | TweetReactionBlockSessionRequest
   | ImportBlockSessionRequest
+  | UserSearchBlockSessionRequest
 
 type ExportableSessionRequest = FollowerBlockSessionRequest | TweetReactionBlockSessionRequest
 
@@ -63,6 +64,21 @@ interface ImportBlockSessionRequest {
   myself: TwitterUser
 }
 
+interface UserSearchBlockSessionRequest {
+  // TODO: export는 나중으로 미루자
+  purpose: Exclude<Purpose, 'export' | 'lockpicker'>
+  target: {
+    type: 'user_search'
+    query: string
+  }
+  options: {
+    myFollowers: UserAction
+    myFollowings: UserAction
+    includeUsersInBio: BioBlockMode
+  }
+  myself: TwitterUser
+}
+
 interface SessionInfo<ReqT = SessionRequest> {
   sessionId: string
   request: ReqT
@@ -87,5 +103,4 @@ interface ExportResult {
 }
 
 type ScrapedUsersIterator = AsyncIterableIterator<Either<Error, UsersObject>>
-
 type ScrapedUserIdsIterator = AsyncIterableIterator<Either<Error, UserIdsObject>>

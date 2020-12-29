@@ -82,6 +82,10 @@ function ChainBlockSessionItem(props: { sessionInfo: SessionInfo }) {
       user = null
       localizedTarget = i18n.getMessage('from_imported_blocklist')
       break
+    case 'user_search':
+      user = null
+      localizedTarget = i18n.getMessage('from_user_search_result')
+      break
   }
   const localizedPurpose = i18n.getMessage(purpose)
   const cardTitle = `${localizedPurpose} ${statusToString(sessionInfo.status)}`

@@ -68,6 +68,9 @@ export default class ChainBlocker {
         return checkTweetReactionBlockTarget(target)
       case 'import':
         return checkImportBlockTarget(target)
+      case 'user_search':
+        // 검색체인블락의 경우 중복실행 아니면 더 체크할 부분 없을...걸?
+        return TargetCheckResult.Ok
     }
   }
   private getSessionByTarget(target: SessionInfo['request']['target']): Session | null {

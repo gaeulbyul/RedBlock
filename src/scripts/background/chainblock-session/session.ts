@@ -22,7 +22,7 @@ interface SessionEventEmitter {
 }
 
 // 더 나은 타입이름 없을까...
-type ApiKind = FollowKind | 'tweet-reactions' | 'lookup-users'
+type ApiKind = FollowKind | 'tweet-reactions' | 'lookup-users' | 'search'
 
 function extractRateLimit(
   limitStatuses: TwitterAPI.LimitStatus,
@@ -39,6 +39,8 @@ function extractRateLimit(
       return limitStatuses.statuses['/statuses/retweeted_by']
     case 'lookup-users':
       return limitStatuses.users['/users/lookup']
+    case 'search':
+      return limitStatuses.search['/search/adaptive']
   }
 }
 
@@ -103,6 +105,9 @@ abstract class BaseSession {
         break
       case 'import':
         apiKind = 'lookup-users'
+        break
+      case 'user_search':
+        apiKind = 'search'
         break
     }
     sessionInfo.status = SessionStatus.RateLimited
@@ -220,6 +225,7 @@ export class ChainBlockSession extends BaseSession {
             } else {
               this.sessionInfo.progress.failure++
             }
+            this.sessionInfo.progress.scraped = this.calculateScrapedCount()
             return result
           })
           if (whatToDo === 'Block' || whatToDo === 'Mute') {
@@ -316,6 +322,7 @@ export class ExportSession extends BaseSession {
         break
       case 'tweet_reaction':
         targetStr = `tweet-${target.tweet.user.screen_name}-${target.tweet.id_str}`
+        break
     }
     const datetime = now.format('YYYY-MM-DD_HHmmss')
     return `blocklist-${targetStr}[${datetime}].csv`

@@ -162,7 +162,7 @@ export function getReactionsCount(target: TweetReactionBlockSessionRequest['targ
   return result
 }
 
-export function getCountOfUsersToBlock({ target }: SessionRequest) {
+export function getCountOfUsersToBlock({ target }: SessionRequest): number | null {
   switch (target.type) {
     case 'follower':
       return getFollowersCount(target.user, target.list)
@@ -170,6 +170,8 @@ export function getCountOfUsersToBlock({ target }: SessionRequest) {
       return getReactionsCount(target)
     case 'import':
       return target.userIds.length
+    case 'user_search':
+      return null
   }
 }
 
