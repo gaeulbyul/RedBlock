@@ -1,4 +1,4 @@
-import { checkUserIdBeforeSelfChainBlock } from '../common.js'
+import { checkUserIdBeforeLockPicker } from '../common.js'
 
 export const enum TargetCheckResult {
   Ok,
@@ -12,7 +12,7 @@ export const enum TargetCheckResult {
   EmptyList,
   TheyBlocksYou,
   CantChainBlockYourself,
-  CantSelfChainBlockToOther,
+  CantLockPickerToOther,
 }
 
 export function checkFollowerBlockTarget(
@@ -91,8 +91,8 @@ export function isSameTarget(target1: SessionRequest['target'], target2: Session
   }
 }
 
-export function checkSelfChainBlockTarget(request: FollowerBlockSessionRequest): TargetCheckResult {
-  const validity = checkUserIdBeforeSelfChainBlock({
+export function checkLockPickerTarget(request: FollowerBlockSessionRequest): TargetCheckResult {
+  const validity = checkUserIdBeforeLockPicker({
     purpose: request.purpose,
     myselfId: request.myself.id_str,
     givenUserId: request.target.user.id_str,
@@ -102,7 +102,7 @@ export function checkSelfChainBlockTarget(request: FollowerBlockSessionRequest):
     case 'other':
       return TargetCheckResult.Ok
     case 'invalid self':
-      return TargetCheckResult.CantSelfChainBlockToOther
+      return TargetCheckResult.CantLockPickerToOther
     case 'invalid other':
       return TargetCheckResult.CantChainBlockYourself
   }

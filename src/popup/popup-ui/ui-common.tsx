@@ -265,7 +265,7 @@ export const BigExportButton = MaterialUI.withStyles(theme => ({
   },
 }))(BigBaseButton)
 
-export const BigExecuteSelfChainBlockButton = MaterialUI.withStyles(theme => ({
+export const BigExecuteLockPickerButton = MaterialUI.withStyles(theme => ({
   root: {
     backgroundColor: MaterialUI.colors.pink[700],
     color: theme.palette.getContrastText(MaterialUI.colors.pink[700]),
@@ -285,7 +285,7 @@ export function determineInitialPurpose(
     return 'chainblock'
   }
   if (myself.id_str === givenUser.id_str) {
-    return 'selfchainblock'
+    return 'lockpicker'
   }
   if (givenUser.following) {
     return 'unchainblock'

@@ -2,7 +2,7 @@ import {
   SessionStatus,
   isRunningSession,
   isRewindableSession,
-  checkUserIdBeforeSelfChainBlock,
+  checkUserIdBeforeLockPicker,
 } from '../common.js'
 import * as TextGenerate from '../text-generate.js'
 import * as i18n from '../i18n.js'
@@ -47,17 +47,17 @@ export default class ChainBlocker {
     }
     if (request.target.type === 'follower') {
       const targetUser = (target as FollowerBlockSessionRequest['target']).user
-      const isValidSelfChainBlock = checkUserIdBeforeSelfChainBlock({
+      const isValidLockPicker = checkUserIdBeforeLockPicker({
         purpose,
         myselfId: myself.id_str,
         givenUserId: targetUser.id_str,
       })
-      if (isValidSelfChainBlock.startsWith('invalid')) {
-        throw new Error('셀프 체인블락 오폭방지 작동')
+      if (isValidLockPicker.startsWith('invalid')) {
+        throw new Error('락피커 오폭방지 작동')
       }
     }
-    if (request.purpose === 'selfchainblock') {
-      // 중복실행여부 및 셀프체인블락 타겟검증 테스트를 통과하면 더 이상 체크할 확인은 없다.
+    if (request.purpose === 'lockpicker') {
+      // 중복실행여부 및 락피커 타겟검증 테스트를 통과하면 더 이상 체크할 확인은 없다.
       // (checkFollowerBlockTarget은 target이 상대방일 경우를 상정하며 만든 함수임)
       return TargetCheckResult.Ok
     }
@@ -160,7 +160,7 @@ export default class ChainBlocker {
     switch (request.purpose) {
       case 'chainblock':
       case 'unchainblock':
-      case 'selfchainblock':
+      case 'lockpicker':
         session = new ChainBlockSession(request, this.limiter)
         break
       case 'export':

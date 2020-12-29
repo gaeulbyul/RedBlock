@@ -1,7 +1,7 @@
 import * as Storage from '../../scripts/background/storage.js'
 import * as TwitterAPI from '../../scripts/background/twitter-api.js'
 import { TwitterUser } from '../../scripts/background/twitter-api.js'
-import { TwitterUserMap, checkUserIdBeforeSelfChainBlock } from '../../scripts/common.js'
+import { TwitterUserMap, checkUserIdBeforeLockPicker } from '../../scripts/common.js'
 import * as i18n from '../../scripts/i18n.js'
 import * as TextGenerate from '../../scripts/text-generate.js'
 import {
@@ -20,7 +20,7 @@ import {
   BigExecuteChainBlockButton,
   BigExecuteUnChainBlockButton,
   BigExportButton,
-  BigExecuteSelfChainBlockButton,
+  BigExecuteLockPickerButton,
 } from './ui-common.js'
 import { SelectUserGroup, FollowerChainBlockPageStatesContext } from './ui-states.js'
 
@@ -118,7 +118,7 @@ function TargetSavedUsers(props: { savedUsers: TwitterUserMap }) {
             ))}
           </optgroup>
           {myself ? (
-            <optgroup label={i18n.getMessage('selfchainblock')}>
+            <optgroup label={i18n.getMessage('lockpicker')}>
               <UserOptionItem user={myself} optgroup="self" />
             </optgroup>
           ) : (
@@ -304,7 +304,7 @@ function TargetUserSelectUI(props: { isAvailable: boolean }) {
         setSelectedUserGroup(group)
         if (myself) {
           if (newUser.id_str === myself.id_str) {
-            setPurpose('selfchainblock')
+            setPurpose('lockpicker')
           } else {
             setPurpose('chainblock')
           }
@@ -403,7 +403,7 @@ function TargetUnChainBlockOptionsUI() {
 function TargetOptionsUIMyself() {
   return (
     <div style={{ width: '100%' }}>
-      <div className="description">{i18n.getMessage('selfchainblock_description')}</div>
+      <div className="description">{i18n.getMessage('lockpicker_description')}</div>
     </div>
   )
 }
@@ -444,7 +444,7 @@ function TargetOptionsUI() {
   const summary = `${i18n.getMessage('options')} (${i18n.getMessage(purpose)})`
   return (
     <DenseExpansionPanel summary={summary} defaultExpanded>
-      {purpose === 'selfchainblock' ? <TargetOptionsUIMyself /> : <TargetOptionsUIOthers />}
+      {purpose === 'lockpicker' ? <TargetOptionsUIMyself /> : <TargetOptionsUIOthers />}
     </DenseExpansionPanel>
   )
 }
@@ -526,16 +526,16 @@ function TargetExecutionButtonUI(props: { isAvailable: boolean }) {
         </BigExportButton>
       )
       break
-    case 'selfchainblock':
+    case 'lockpicker':
       bigButton = (
-        <BigExecuteSelfChainBlockButton
+        <BigExecuteLockPickerButton
           disabled={!isAvailable}
-          onClick={() => executeSession('selfchainblock')}
+          onClick={() => executeSession('lockpicker')}
         >
           <span>
-            {'\u{1f513}'} {i18n.getMessage('selfchainblock')}
+            {'\u{1f513}'} {i18n.getMessage('lockpicker')}
           </span>
-        </BigExecuteSelfChainBlockButton>
+        </BigExecuteLockPickerButton>
       )
   }
   return <M.Box>{bigButton}</M.Box>
@@ -550,13 +550,13 @@ export default function NewChainBlockPage() {
     if (!myself) {
       return false
     }
-    if (availableBlocks <= 0 && (purpose === 'chainblock' || purpose === 'selfchainblock')) {
+    if (availableBlocks <= 0 && (purpose === 'chainblock' || purpose === 'lockpicker')) {
       return false
     }
     if (!selectedUser) {
       return false
     }
-    const selfvalid = checkUserIdBeforeSelfChainBlock({
+    const selfvalid = checkUserIdBeforeLockPicker({
       purpose,
       myselfId: myself.id_str,
       givenUserId: selectedUser.id_str,
@@ -564,7 +564,7 @@ export default function NewChainBlockPage() {
     if (selfvalid.startsWith('invalid')) {
       return false
     }
-    // 셀프 체인블락은 이하의 체크가 필요없음
+    // 락피커은 이하의 체크가 필요없음
     if (selfvalid === 'self') {
       return true
     }

@@ -44,8 +44,8 @@
   "unchainblock": {
     "message": "Unchainblock"
   },
-  "selfchainblock": {
-    "message": "Self-Chainblock"
+  "lockpicker": {
+    "message": "Block protected followers"
   },
   "followers_of_xxx": {
     "message": "@$username$'s followers",
@@ -311,8 +311,8 @@
   "unchainblock_description": {
     "message": "Unblocks all users according to the options you set."
   },
-  "selfchainblock_description": {
-    "message": "Self-chainblock will block *only* protected followers who doesn't follow back to you, and nobody else will be blocked."
+  "lockpicker_description": {
+    "message": "Unlike Chainblock, it will block *only* protected followers who doesn't follow back to you, and nobody else will be blocked."
   },
   "my_mutual_followers_wont_block": {
     "message": "Your mutual-followers won't be blocked to prevent muting/blocking your friends."
@@ -344,7 +344,7 @@
   "confirm_import_chainblock_title": {
     "message": "Do you want to block users from imported list?"
   },
-  "confirm_selfchainblock_title": {
+  "confirm_lockpicker_title": {
     "message": "Do you want to block protected followers?"
   },
   "user_count": {
@@ -417,8 +417,8 @@
   "unchainblock_completed": {
     "message": "Unchainblock completed!"
   },
-  "selfchainblock_completed": {
-    "message": "Self-Chainblock completed!"
+  "lockpicker_completed": {
+    "message": "Blocking protected follower completed!"
   },
   "yes": {
     "message": "Yes"
@@ -477,8 +477,8 @@
   "cant_chainblock_to_yourself": {
     "message": "You can't run chainblock to yourself."
   },
-  "cant_selfchainblock_to_others": {
-    "message": "You can't run self-chainblock to other user."
+  "cant_lockpicker_to_others": {
+    "message": "You can't run protected-follower-chainblock to other user."
   },
   "wtf_twitter": {
     "message": "⚠️ To avoid problem(force-logout, account suspension), Red Block won't block over 500 users."

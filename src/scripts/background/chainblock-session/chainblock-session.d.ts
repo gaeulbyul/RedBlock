@@ -7,7 +7,7 @@ type ExportableSessionRequest = FollowerBlockSessionRequest | TweetReactionBlock
 
 type Session = import('./session').ChainBlockSession | import('./session').ExportSession
 
-// NOTE: myself: TwitterUser는 셀프 체인블락 구현하면서 넣은 것
+// NOTE: myself: TwitterUser는 락피커 구현하면서 넣은 것
 // 자신에게 일반 체인블락걸면 안 되므로 체크용으로 넣어둠
 // TODO: 언체인블락 분리 (적어도 options만큼이라도)
 interface FollowerBlockSessionRequest {
@@ -30,7 +30,7 @@ interface TweetReactionBlockSessionRequest {
   // 이미 차단한 사용자의 RT/마음은 확인할 수 없다.
   // 따라서, 언체인블락은 구현할 수 없다.
   // 또한 프로텍트팔로워 역시 확인할 수 없으므로
-  purpose: Exclude<Purpose, 'unchainblock' | 'selfchainblock'>
+  purpose: Exclude<Purpose, 'unchainblock' | 'lockpicker'>
   target: {
     type: 'tweet_reaction'
     // author of tweet
@@ -50,7 +50,7 @@ interface TweetReactionBlockSessionRequest {
 }
 
 interface ImportBlockSessionRequest {
-  purpose: Exclude<Purpose, 'export' | 'selfchainblock'>
+  purpose: Exclude<Purpose, 'export' | 'lockpicker'>
   target: {
     type: 'import'
     userIds: string[]

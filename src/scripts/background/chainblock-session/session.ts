@@ -345,7 +345,7 @@ function whatToDoGivenUser(
   now: Dayjs,
   inactivePeriod: InactivePeriod
 ): UserAction | 'Skip' | 'AlreadyDone' {
-  if (request.purpose === 'selfchainblock') {
+  if (request.purpose === 'lockpicker') {
     return isProtectedFollower(follower) ? 'Block' : 'Skip'
   }
   const { purpose, options, target } = request

@@ -61,8 +61,8 @@ function generateFollowerBlockConfirmMessage(
     case 'export':
       title = i18n.getMessage('confirm_follower_export_title', user.screen_name)
       break
-    case 'selfchainblock':
-      title = i18n.getMessage('confirm_selfchainblock_title')
+    case 'lockpicker':
+      title = i18n.getMessage('confirm_lockpicker_title')
       break
   }
   let count = getCountOfUsersToBlock(request) ?? '?'
@@ -158,15 +158,15 @@ function generateImportBlockConfirmMessage(request: ImportBlockSessionRequest): 
   }
 }
 
-function generateSelfChainblockConfirmMessage(): DialogMessageObj {
+function generateLockPickerConfirmMessage(): DialogMessageObj {
   return {
-    title: i18n.getMessage('confirm_selfchainblock_title'),
+    title: i18n.getMessage('confirm_lockpicker_title'),
   }
 }
 
 export function generateConfirmMessage(request: SessionRequest): DialogMessageObj {
-  if (request.purpose === 'selfchainblock') {
-    return generateSelfChainblockConfirmMessage()
+  if (request.purpose === 'lockpicker') {
+    return generateLockPickerConfirmMessage()
   }
   switch (request.target.type) {
     case 'follower':
@@ -216,10 +216,10 @@ function followerBlockResultNotification(sessionInfo: SessionInfo<FollowerBlockS
       howManyAlready = ''
       localizedPurposeCompleted = i18n.getMessage('export_completed')
       break
-    case 'selfchainblock':
+    case 'lockpicker':
       howMany = i18n.getMessage('blocked_n_users', success.Block)
       howManyAlready = ''
-      localizedPurposeCompleted = i18n.getMessage('selfchainblock_completed')
+      localizedPurposeCompleted = i18n.getMessage('lockpicker_completed')
       break
   }
   let message = `${localizedPurposeCompleted} ${howMany}\n`
@@ -303,7 +303,7 @@ export function checkResultToString(result: TargetCheckResult): string {
       return i18n.getMessage('cant_chainblock_to_blocked')
     case TargetCheckResult.CantChainBlockYourself:
       return i18n.getMessage('cant_chainblock_to_yourself')
-    case TargetCheckResult.CantSelfChainBlockToOther:
-      return i18n.getMessage('cant_selfchainblock_to_others')
+    case TargetCheckResult.CantLockPickerToOther:
+      return i18n.getMessage('cant_lockpicker_to_others')
   }
 }

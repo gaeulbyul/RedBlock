@@ -254,7 +254,7 @@ function ChainBlockSessionItem(props: { sessionInfo: SessionInfo }) {
         'export'
       )}: ${sessionInfo.progress.scraped.toLocaleString()}`
       break
-    case 'selfchainblock':
+    case 'lockpicker':
       shortProgress = `${i18n.getMessage('block')}: ${succProgress.Block.toLocaleString()}`
       break
   }
