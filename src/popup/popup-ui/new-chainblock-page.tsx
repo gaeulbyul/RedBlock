@@ -412,7 +412,6 @@ function TargetOptionsUIMyself() {
 }
 
 function TargetOptionsUIOthers() {
-  const cautionOnMassiveBlock = i18n.getMessage('wtf_twitter')
   const { purpose, setPurpose } = React.useContext(FollowerChainBlockPageStatesContext)
   return (
     <div style={{ width: '100%' }}>
@@ -428,7 +427,7 @@ function TargetOptionsUIOthers() {
         <div className="description">
           {i18n.getMessage('chainblock_description')}{' '}
           {i18n.getMessage('my_mutual_followers_wont_block')}
-          <div className="wtf">{cautionOnMassiveBlock}</div>
+          <div className="wtf">{i18n.getMessage('wtf_twitter') /* massive block warning */}</div>
         </div>
       </TabPanel>
       <TabPanel value={purpose} index={'unchainblock'}>

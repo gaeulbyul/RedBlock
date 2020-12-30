@@ -18,10 +18,12 @@ import {
   FollowerChainBlockPageStatesProvider,
   TweetReactionChainBlockPageStatesProvider,
   ImportChainBlockPageStatesProvider,
+  UserSearchChainBlockPageStatesProvider,
 } from './popup-ui/ui-states.js'
 import MiscPage from './popup-ui/misc-page.js'
 import NewChainBlockPage from './popup-ui/new-chainblock-page.js'
 import NewTweetReactionBlockPage from './popup-ui/new-tweetreactionblock-page.js'
+import NewSearchChainBlockPage from './popup-ui/new-searchblock-page.js'
 import { DialogContent, RBDialog, RedBlockUITheme, TabPanel } from './popup-ui/ui-common.js'
 
 import {
@@ -29,6 +31,7 @@ import {
   getTweetIdFromTab,
   getUserNameFromTab,
   getUserIdFromTab,
+  getCurrentSearchQueryFromTab,
   PageEnum,
 } from './popup.js'
 
@@ -60,6 +63,7 @@ interface PopupAppProps {
   myself: TwitterAPI.TwitterUser | null
   currentUser: TwitterAPI.TwitterUser | null
   currentTweet: TwitterAPI.Tweet | null
+  currentSearchQuery: string | null
   isPopupOpenedInTab: boolean
   initialPage: PageEnum
   redblockOptions: RedBlockStorage['options']
@@ -70,6 +74,7 @@ function PopupApp(props: PopupAppProps) {
     myself,
     currentUser,
     currentTweet,
+    currentSearchQuery,
     isPopupOpenedInTab,
     initialPage,
     redblockOptions,
@@ -196,6 +201,13 @@ function PopupApp(props: PopupAppProps) {
                             icon={<M.Icon>repeat</M.Icon>}
                           />
                         </M.Tooltip>
+                        <M.Tooltip arrow title={i18n.getMessage('new_searchblock_session')}>
+                          <M.Tab
+                            className={classes.tab}
+                            disabled={!currentSearchQuery}
+                            icon={<M.Icon>search</M.Icon>}
+                          />
+                        </M.Tooltip>
                         <M.Tooltip arrow title={i18n.getMessage('blocklist_page')}>
                           <M.Tab className={classes.tab} icon={<M.Icon>list_alt</M.Icon>} />
                         </M.Tooltip>
@@ -235,6 +247,13 @@ function PopupApp(props: PopupAppProps) {
                           <NewTweetReactionBlockPage />
                         </TabPanel>
                       </TweetReactionChainBlockPageStatesProvider>
+                      <UserSearchChainBlockPageStatesProvider
+                        currentSearchQuery={currentSearchQuery}
+                      >
+                        <TabPanel value={tabIndex} index={PageEnum.NewSearchChainBlock}>
+                          <NewSearchChainBlockPage />
+                        </TabPanel>
+                      </UserSearchChainBlockPageStatesProvider>
                       <ImportChainBlockPageStatesProvider>
                         <TabPanel value={tabIndex} index={PageEnum.Blocklist}>
                           <BlocklistPage />
@@ -285,13 +304,21 @@ function showVersionOnFooter() {
 interface TabContext {
   currentUser: TwitterUser | null
   currentTweet: Tweet | null
+  currentSearchQuery: string | null
 }
 
 async function getTabContext(): Promise<TabContext> {
   const tab = await getCurrentTab()
-  const tweetId = tab ? getTweetIdFromTab(tab) : null
-  const userId = tab ? getUserIdFromTab(tab) : null
-  const userName = tab ? getUserNameFromTab(tab) : null
+  if (!tab) {
+    return {
+      currentUser: null,
+      currentTweet: null,
+      currentSearchQuery: null,
+    }
+  }
+  const tweetId = getTweetIdFromTab(tab)
+  const userId = getUserIdFromTab(tab)
+  const userName = getUserNameFromTab(tab)
   const currentTweet = await (tweetId ? TwitterAPI.getTweetById(tweetId).catch(() => null) : null)
   let currentUser: TwitterUser | null = null
   if (currentTweet) {
@@ -301,9 +328,11 @@ async function getTabContext(): Promise<TabContext> {
   } else if (userId) {
     currentUser = await TwitterAPI.getSingleUserById(userId).catch(() => null)
   }
+  const currentSearchQuery = getCurrentSearchQueryFromTab(tab)
   return {
     currentTweet,
     currentUser,
+    currentSearchQuery,
   }
 }
 
@@ -312,19 +341,20 @@ export async function initializeUI() {
   const myself = TwitterAPI.getMyself().catch(() => null)
   const isPopupOpenedInTab = /\bistab=1\b/.test(location.search)
   let initialPage: PageEnum
-  const initialPageMatch = /\bpage=([0-4])\b/.exec(location.search)
+  const initialPageMatch = /\bpage=([0-5])\b/.exec(location.search)
   if (initialPageMatch) {
     initialPage = parseInt(initialPageMatch[1]) as PageEnum
   } else {
     initialPage = PageEnum.Sessions
   }
-  const { currentTweet, currentUser } = await getTabContext()
+  const { currentTweet, currentUser, currentSearchQuery } = await getTabContext()
   const appRoot = document.getElementById('app')!
   const app = (
     <PopupApp
       myself={await myself}
       currentUser={currentUser}
       currentTweet={currentTweet}
+      currentSearchQuery={currentSearchQuery}
       isPopupOpenedInTab={isPopupOpenedInTab}
       initialPage={initialPage}
       redblockOptions={await redblockOptions}

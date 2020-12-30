@@ -5,6 +5,9 @@
   "new_tweetreaction_session": {
     "message": "New Session (Tweet Reactions)"
   },
+  "new_searchblock_session": {
+    "message": "New Session (User Search)"
+  },
   "running_sessions": {
     "message": "Running"
   },
@@ -364,6 +367,9 @@
   },
   "import_blocklist": {
     "message": "Import blocklist"
+  },
+  "usersearch_chainblock": {
+    "message": "User search result Chainblock"
   },
   "pick_file_first": {
     "message": "Pick blocklist file first."

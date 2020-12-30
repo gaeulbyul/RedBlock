@@ -15,7 +15,7 @@ interface FollowerChainBlockPageStates {
   targetOptions: FollowerBlockSessionRequest['options']
   setTargetOptions(options: FollowerBlockSessionRequest['options']): void
   mutateOptions(optionsPart: Partial<FollowerBlockSessionRequest['options']>): void
-  purpose: Purpose
+  purpose: FollowerBlockSessionRequest['purpose']
   setPurpose(ck: Purpose): void
 }
 
@@ -42,6 +42,15 @@ interface ImportChainBlockPageStates {
   setBlocklist(blocklist: Blocklist): void
   nameOfSelectedFiles: string[]
   setNameOfSelectedFiles(nameOfSelectedFiles: string[]): void
+}
+
+interface UserSearchChainBlockPageStates {
+  searchQuery: string | null
+  targetOptions: UserSearchBlockSessionRequest['options']
+  setTargetOptions(options: UserSearchBlockSessionRequest['options']): void
+  mutateOptions(optionsPart: Partial<UserSearchBlockSessionRequest['options']>): void
+  purpose: UserSearchBlockSessionRequest['purpose']
+  setPurpose(purpose: UserSearchBlockSessionRequest['purpose']): void
 }
 
 export const FollowerChainBlockPageStatesContext = React.createContext<
@@ -101,6 +110,22 @@ export const ImportChainBlockPageStatesContext = React.createContext<ImportChain
   setNameOfSelectedFiles() {},
 })
 
+export const UserSearchChainBlockPageStatesContext = React.createContext<
+  UserSearchChainBlockPageStates
+>({
+  searchQuery: null,
+  targetOptions: {
+    myFollowers: 'Skip',
+    myFollowings: 'Skip',
+    mutualBlocked: 'Skip',
+    includeUsersInBio: 'never',
+  },
+  setTargetOptions() {},
+  mutateOptions() {},
+  purpose: 'chainblock',
+  setPurpose() {},
+})
+
 export function FollowerChainBlockPageStatesProvider(props: {
   children: React.ReactNode
   initialUser: TwitterUser | null
@@ -116,7 +141,9 @@ export function FollowerChainBlockPageStatesProvider(props: {
   const [selectedUser, setSelectedUser] = React.useState<TwitterUser | null>(props.initialUser)
   const [targetList, setTargetList] = React.useState<FollowKind>('followers')
   const initialPurpose = determineInitialPurpose(myself, selectedUser)
-  const [purpose, setPurpose] = React.useState<Purpose>(initialPurpose)
+  const [purpose, setPurpose] = React.useState<FollowerBlockSessionRequest['purpose']>(
+    initialPurpose
+  )
   function mutateOptions(newOptionsPart: Partial<FollowerBlockSessionRequest['options']>) {
     const newOptions = { ...targetOptions, ...newOptionsPart }
     setTargetOptions(newOptions)
@@ -212,5 +239,40 @@ export function ImportChainBlockPageStatesProvider(props: { children: React.Reac
     >
       {props.children}
     </ImportChainBlockPageStatesContext.Provider>
+  )
+}
+
+export function UserSearchChainBlockPageStatesProvider(props: {
+  children: React.ReactNode
+  currentSearchQuery: string | null
+}) {
+  const [purpose, setPurpose] = React.useState<UserSearchBlockSessionRequest['purpose']>(
+    'chainblock'
+  )
+  const [targetOptions, setTargetOptions] = React.useState<
+    UserSearchBlockSessionRequest['options']
+  >({
+    myFollowers: 'Skip',
+    myFollowings: 'Skip',
+    mutualBlocked: 'Skip',
+    includeUsersInBio: 'never',
+  })
+  function mutateOptions(newOptionsPart: Partial<UserSearchBlockSessionRequest['options']>) {
+    const newOptions = { ...targetOptions, ...newOptionsPart }
+    setTargetOptions(newOptions)
+  }
+  return (
+    <UserSearchChainBlockPageStatesContext.Provider
+      value={{
+        searchQuery: props.currentSearchQuery,
+        targetOptions,
+        setTargetOptions,
+        mutateOptions,
+        purpose,
+        setPurpose,
+      }}
+    >
+      {props.children}
+    </UserSearchChainBlockPageStatesContext.Provider>
   )
 }

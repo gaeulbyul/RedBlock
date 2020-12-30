@@ -5,6 +5,9 @@
   "new_tweetreaction_session": {
     "message": "새 세션 (트윗반응)"
   },
+  "new_searchblock_session": {
+    "message": "새 세션 (유저 검색결과)"
+  },
   "running_sessions": {
     "message": "실행중인 세션"
   },
@@ -364,6 +367,9 @@
   },
   "import_blocklist": {
     "message": "차단목록 가져오기"
+  },
+  "usersearch_chainblock": {
+    "message": "유저 검색결과 체인블락"
   },
   "pick_file_first": {
     "message": "가져올 차단목록 파일을 선택해주세요."

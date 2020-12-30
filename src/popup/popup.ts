@@ -9,6 +9,7 @@ export const enum PageEnum {
   Sessions,
   NewSession,
   NewTweetReactionBlock,
+  NewSearchChainBlock,
   Blocklist,
   Utilities,
 }
@@ -44,6 +45,23 @@ export function getUserNameFromTab(tab: Tab): string | null {
   }
   const url = new URL(tab.url)
   return getUserNameFromURL(url)
+}
+
+export function getCurrentSearchQueryFromTab(tab: Tab): string | null {
+  if (!tab.url) {
+    return null
+  }
+  const url = new URL(tab.url)
+  if (!['twitter.com', 'mobile.twitter.com'].includes(url.hostname)) {
+    return null
+  }
+  if (url.pathname !== '/search') {
+    return null
+  }
+  if (url.searchParams.get('f') !== 'user') {
+    return null
+  }
+  return url.searchParams.get('q') || null
 }
 
 // 트윗 신고화면에선 사용자 이름 대신 ID가 나타난다.

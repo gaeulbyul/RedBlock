@@ -74,6 +74,7 @@ interface UserSearchBlockSessionRequest {
   options: {
     myFollowers: UserAction
     myFollowings: UserAction
+    mutualBlocked: UserAction
     includeUsersInBio: BioBlockMode
   }
   myself: TwitterUser
