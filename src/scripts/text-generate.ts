@@ -219,7 +219,6 @@ export function chainBlockResultNotification(sessionInfo: SessionInfo): string {
   }
 }
 
-// TODO: ���� �ߺ� ����. �� ��ƶ�.
 function followerBlockResultNotification(sessionInfo: SessionInfo<FollowerBlockSessionRequest>) {
   const { purpose } = sessionInfo.request
   const { success, already, skipped, failure, scraped } = sessionInfo.progress

@@ -2,8 +2,6 @@ import { Blocklist, emptyBlocklist } from '../../scripts/background/blocklist-pr
 import { determineInitialPurpose } from '../popup.js'
 import { MyselfContext } from './contexts.js'
 
-// TODO: ���ǿɼ��� �⺻���� session.ts ���� import�ؼ�����?
-
 export type SelectUserGroup = 'invalid' | 'current' | 'saved' | 'self'
 
 interface PurposeContextType {
