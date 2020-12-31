@@ -4,7 +4,6 @@ import * as TextGenerate from '../../scripts/text-generate.js'
 import { MyselfContext, BlockLimiterContext, UIContext } from './contexts.js'
 import { startNewChainBlockSession } from '../../scripts/background/request-sender.js'
 import {
-  TabPanel,
   PleaseLoginBox,
   BlockLimiterUI,
   TwitterUserProfile,
@@ -12,6 +11,7 @@ import {
   BigExecuteChainBlockButton,
   BigExportButton,
   WhatIsBioBlock,
+  ChainBlockOptionsUI,
 } from './components.js'
 import { TweetReactionChainBlockPageStatesContext, PurposeContext } from './ui-states.js'
 
@@ -155,27 +155,15 @@ function TargetChainBlockOptionsUI() {
 }
 
 function TargetOptionsUI() {
-  const { purpose, setPurpose } = React.useContext(PurposeContext)
+  const { purpose } = React.useContext(PurposeContext)
   const summary = `${i18n.getMessage('options')} (${i18n.getMessage(purpose)})`
+  // <TargetChainBlockOptionsUI />
   return (
     <DenseExpansionPanel summary={summary} defaultExpanded>
-      <div style={{ width: '100%' }}>
-        <M.Tabs variant="fullWidth" value={purpose} onChange={(_ev, val) => setPurpose(val)}>
-          <M.Tab value={'chainblock'} label={`\u{1f6d1} ${i18n.getMessage('chainblock')}`} />
-          <M.Tab value={'export'} label={`\u{1f4be} ${i18n.getMessage('export')}`} />
-        </M.Tabs>
-        <M.Divider />
-        <TabPanel value={purpose} index={'chainblock'}>
-          <TargetChainBlockOptionsUI />
-          <div className="description">
-            {i18n.getMessage('chainblock_description')}{' '}
-            {i18n.getMessage('my_mutual_followers_wont_block')}
-          </div>
-        </TabPanel>
-        <TabPanel value={purpose} index={'export'}>
-          <div className="description">{i18n.getMessage('export_tweetreaction_description')}</div>
-        </TabPanel>
-      </div>
+      <ChainBlockOptionsUI
+        {...{ TargetChainBlockOptionsUI }}
+        TargetUnChainBlockOptionsUI={() => <div />}
+      />
     </DenseExpansionPanel>
   )
 }

@@ -9,13 +9,13 @@ import {
   PleaseLoginBox,
   BlockLimiterUI,
   WhatIsBioBlock,
-  TabPanel,
+  ChainBlockOptionsUI,
 } from './components.js'
 
 const M = MaterialUI
 const T = MaterialUI.Typography
 
-function TargetSearchChainBlockOptionsUI() {
+function TargetChainBlockOptionsUI() {
   const { targetOptions, mutateOptions } = React.useContext(UserSearchChainBlockPageStatesContext)
   const { myFollowers, myFollowings, includeUsersInBio } = targetOptions
   const userActions: Array<[UserAction, string]> = [
@@ -80,7 +80,7 @@ function TargetSearchChainBlockOptionsUI() {
   )
 }
 
-function TargetSearchUnChainBlockOptionsUI() {
+function TargetUnChainBlockOptionsUI() {
   // const { options, mutateOptions } = props
   const { targetOptions, mutateOptions } = React.useContext(UserSearchChainBlockPageStatesContext)
   const { mutualBlocked } = targetOptions
@@ -183,7 +183,6 @@ export default function NewSearchChainBlockPage() {
     return true
   }
   const { searchQuery } = React.useContext(UserSearchChainBlockPageStatesContext)
-  const { purpose, setPurpose } = React.useContext(PurposeContext)
   return (
     <div>
       <M.ExpansionPanel defaultExpanded>
@@ -201,29 +200,9 @@ export default function NewSearchChainBlockPage() {
                   </T>
                 </M.Box>
               </M.Paper>
-              <M.Tabs variant="fullWidth" value={purpose} onChange={(_ev, val) => setPurpose(val)}>
-                <M.Tab value={'chainblock'} label={`\u{1f6d1} ${i18n.getMessage('chainblock')}`} />
-                <M.Tab
-                  value={'unchainblock'}
-                  label={`\u{1f49a} ${i18n.getMessage('unchainblock')}`}
-                />
-              </M.Tabs>
-              <M.Divider />
-              <TabPanel value={purpose} index={'chainblock'}>
-                <TargetSearchChainBlockOptionsUI />
-                <M.Divider />
-                <div className="description">
-                  {i18n.getMessage('chainblock_description')}{' '}
-                  {i18n.getMessage('my_mutual_followers_wont_block')}
-                  <div className="wtf">
-                    {i18n.getMessage('wtf_twitter') /* massive block warning */}
-                  </div>
-                </div>
-              </TabPanel>
-              <TabPanel value={purpose} index={'unchainblock'}>
-                <TargetSearchUnChainBlockOptionsUI />
-                <div className="description">{i18n.getMessage('unchainblock_description')}</div>
-              </TabPanel>
+              <ChainBlockOptionsUI
+                {...{ TargetChainBlockOptionsUI, TargetUnChainBlockOptionsUI }}
+              />
               <BlockLimiterUI />
               <TargetExecutionButtonUI isAvailable={isAvailable()} />
             </div>

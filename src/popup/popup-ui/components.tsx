@@ -301,6 +301,12 @@ export function ChainBlockOptionsUI(props: {
   const unchainblockable = availablePurposes.includes('unchainblock')
   const exportable = availablePurposes.includes('export')
   const lockpickable = availablePurposes.includes('lockpicker')
+  if (chainblockable && !TargetChainBlockOptionsUI) {
+    throw new Error('TargetChainBlockOptionsUI is missing')
+  }
+  if (unchainblockable && !TargetUnChainBlockOptionsUI) {
+    throw new Error('TargetUnChainBlockOptionsUI is missing')
+  }
   return (
     <div style={{ width: '100%' }}>
       <M.Tabs

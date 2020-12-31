@@ -1,5 +1,10 @@
 import { UIContext, MyselfContext, BlockLimiterContext } from './contexts.js'
-import { PleaseLoginBox, BlockLimiterUI, BigExecuteChainBlockButton } from './components.js'
+import {
+  PleaseLoginBox,
+  BlockLimiterUI,
+  BigExecuteChainBlockButton,
+  ChainBlockOptionsUI,
+} from './components.js'
 import { PageEnum } from '../popup.js'
 import * as i18n from '../../scripts/i18n.js'
 import { generateConfirmMessage } from '../../scripts/text-generate.js'
@@ -10,7 +15,7 @@ import {
   parseBlocklist,
   concatBlockList,
 } from '../../scripts/background/blocklist-process.js'
-import { ImportChainBlockPageStatesContext } from './ui-states.js'
+import { ImportChainBlockPageStatesContext, PurposeContext } from './ui-states.js'
 
 const M = MaterialUI
 const T = MaterialUI.Typography
@@ -63,6 +68,7 @@ export default function BlocklistPage() {
   const uiContext = React.useContext(UIContext)
   const limiterStatus = React.useContext(BlockLimiterContext)
   const { openDialog } = React.useContext(UIContext)
+  const purpose = React.useContext(PurposeContext).purpose as ImportBlockSessionRequest['purpose']
   const {
     blocklist,
     setBlocklist,
@@ -109,7 +115,7 @@ export default function BlocklistPage() {
       return
     }
     const request: ImportBlockSessionRequest = {
-      purpose: 'chainblock',
+      purpose,
       target: {
         type: 'import',
         userIds: Array.from(blocklist.userIds),
@@ -211,7 +217,10 @@ export default function BlocklistPage() {
                   </React.Fragment>
                 )}
               </div>
-              <ImportOptionsUI />
+              <ChainBlockOptionsUI
+                TargetChainBlockOptionsUI={ImportOptionsUI}
+                TargetUnChainBlockOptionsUI={() => <span>TODO</span>}
+              />
               <div className="description">
                 <p>{i18n.getMessage('blocklist_import_description')}</p>
                 <div className="hide-on-tab">

@@ -23,11 +23,19 @@ function PurposeContextProvider(props: {
 }) {
   const { children, initialPurpose, availablePurposes } = props
   const [purpose, setPurpose] = React.useState(initialPurpose)
+  if (!availablePurposes.includes(purpose)) {
+    throw new Error(`invalid purpose: "${purpose}" is not in [${availablePurposes}]`)
+  }
+  function setPurposeWithCheck(newPurpose: Purpose) {
+    if (availablePurposes.includes(newPurpose)) {
+      setPurpose(newPurpose)
+    }
+  }
   return (
     <PurposeContext.Provider
       value={{
         purpose,
-        setPurpose,
+        setPurpose: setPurposeWithCheck,
         availablePurposes,
       }}
     >
@@ -211,6 +219,7 @@ export function TweetReactionChainBlockPageStatesProvider(props: {
     const newOptions = { ...targetOptions, ...newOptionsPart }
     setTargetOptions(newOptions)
   }
+  const availablePurposes: TweetReactionBlockSessionRequest['purpose'][] = ['chainblock', 'export']
   return (
     <TweetReactionChainBlockPageStatesContext.Provider
       value={{
@@ -226,7 +235,9 @@ export function TweetReactionChainBlockPageStatesProvider(props: {
         mutateOptions,
       }}
     >
-      {props.children}
+      <PurposeContextProvider initialPurpose="chainblock" availablePurposes={availablePurposes}>
+        {props.children}
+      </PurposeContextProvider>
     </TweetReactionChainBlockPageStatesContext.Provider>
   )
 }
@@ -243,6 +254,7 @@ export function ImportChainBlockPageStatesProvider(props: { children: React.Reac
     const newOptions = { ...targetOptions, ...newOptionsPart }
     setTargetOptions(newOptions)
   }
+  const availablePurposes: ImportBlockSessionRequest['purpose'][] = ['chainblock', 'unchainblock']
   return (
     <ImportChainBlockPageStatesContext.Provider
       value={{
@@ -255,7 +267,9 @@ export function ImportChainBlockPageStatesProvider(props: { children: React.Reac
         setNameOfSelectedFiles,
       }}
     >
-      {props.children}
+      <PurposeContextProvider initialPurpose="chainblock" availablePurposes={availablePurposes}>
+        {props.children}
+      </PurposeContextProvider>
     </ImportChainBlockPageStatesContext.Provider>
   )
 }
@@ -276,6 +290,10 @@ export function UserSearchChainBlockPageStatesProvider(props: {
     const newOptions = { ...targetOptions, ...newOptionsPart }
     setTargetOptions(newOptions)
   }
+  const availablePurposes: UserSearchBlockSessionRequest['purpose'][] = [
+    'chainblock',
+    'unchainblock',
+  ]
   return (
     <UserSearchChainBlockPageStatesContext.Provider
       value={{
@@ -285,7 +303,9 @@ export function UserSearchChainBlockPageStatesProvider(props: {
         mutateOptions,
       }}
     >
-      {props.children}
+      <PurposeContextProvider initialPurpose="chainblock" availablePurposes={availablePurposes}>
+        {props.children}
+      </PurposeContextProvider>
     </UserSearchChainBlockPageStatesContext.Provider>
   )
 }
