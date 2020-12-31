@@ -327,7 +327,7 @@ export default function ChainBlockSessionsPage(props: { sessions: SessionInfo[] 
   }
   function renderSessions() {
     return (
-      <div className="chainblock-sessions">
+      <div>
         {sessions.map(session => (
           <ChainBlockSessionItem sessionInfo={session} key={session.sessionId} />
         ))}

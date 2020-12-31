@@ -181,17 +181,15 @@ function TargetUserProfile(props: { isAvailable: boolean }) {
       ) : (
         <div className="target-user-info">
           {isAvailable || (
-            <div className="profile-blocked">
+            <div>
               {user.protected && `\u{1f512} ${i18n.getMessage('cant_chainblock_to_protected')}`}
             </div>
           )}
-          <div className="profile-right-targetlist">
-            <M.RadioGroup row>
-              {radio('followers', i18n.formatFollowsCount('followers', user.followers_count))}
-              {radio('friends', i18n.formatFollowsCount('friends', user.friends_count))}
-              {radio('mutual-followers', i18n.getMessage('mutual_followers'))}
-            </M.RadioGroup>
-          </div>
+          <M.RadioGroup row>
+            {radio('followers', i18n.formatFollowsCount('followers', user.followers_count))}
+            {radio('friends', i18n.formatFollowsCount('friends', user.friends_count))}
+            {radio('mutual-followers', i18n.getMessage('mutual_followers'))}
+          </M.RadioGroup>
         </div>
       )}
     </TwitterUserProfile>
