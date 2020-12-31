@@ -1,9 +1,6 @@
 import { getUserNameFromURL } from '../common.js'
 import * as i18n from '../i18n.js'
-import {
-  followerBlockDefaultOption,
-  tweetReactionBlockDefaultOption,
-} from './chainblock-session/session.js'
+import { defaultSessionOptions } from './chainblock-session/session.js'
 import * as TwitterAPI from './twitter-api.js'
 import type ChainBlocker from './chainblock.js'
 import { TargetCheckResult } from './target-checker.js'
@@ -48,7 +45,7 @@ async function confirmFollowerChainBlockRequest(
   const user = await TwitterAPI.getSingleUserByName(userName)
   const request: FollowerBlockSessionRequest = {
     purpose: 'chainblock',
-    options: followerBlockDefaultOption,
+    options: defaultSessionOptions,
     target: {
       type: 'follower',
       list: followKind,
@@ -82,7 +79,7 @@ async function confirmTweetReactionChainBlockRequest(
   const tweet = await TwitterAPI.getTweetById(tweetId)
   const request: TweetReactionBlockSessionRequest = {
     purpose: 'chainblock',
-    options: tweetReactionBlockDefaultOption,
+    options: defaultSessionOptions,
     target: {
       type: 'tweet_reaction',
       tweet,

@@ -1,3 +1,4 @@
+import { defaultSessionOptions } from '../../scripts/background/chainblock-session/session.js'
 import { UIContext, MyselfContext, BlockLimiterContext } from './contexts.js'
 import {
   DenseExpansionPanel,
@@ -102,13 +103,7 @@ export default function BlocklistPage() {
     event.preventDefault()
     setBlocklist(emptyBlocklist)
     setNameOfSelectedFiles([])
-    mutateOptions({
-      // TODO 기본값을 다른 데에서 import 해서 갖고오기?
-      myFollowers: 'Skip',
-      myFollowings: 'Skip',
-      mutualBlocked: 'Skip',
-      includeUsersInBio: 'never',
-    })
+    mutateOptions(defaultSessionOptions)
   }
   async function openPopupUIInTab(event: React.MouseEvent<HTMLButtonElement, MouseEvent>) {
     event.preventDefault()

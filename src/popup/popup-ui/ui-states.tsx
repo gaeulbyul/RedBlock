@@ -1,3 +1,4 @@
+import { defaultSessionOptions } from '../../scripts/background/chainblock-session/session.js'
 import { Blocklist, emptyBlocklist } from '../../scripts/background/blocklist-process.js'
 import { determineInitialPurpose } from '../popup.js'
 import { MyselfContext } from './contexts.js'
@@ -50,22 +51,12 @@ interface SessionOptionsContextType {
 }
 
 export const SessionOptionsContext = React.createContext<SessionOptionsContextType>({
-  targetOptions: {
-    myFollowers: 'Skip',
-    myFollowings: 'Skip',
-    mutualBlocked: 'Skip',
-    includeUsersInBio: 'never',
-  },
+  targetOptions: defaultSessionOptions,
   mutateOptions() {},
 })
 
 function SessionOptionsContextProvider(props: { children: React.ReactNode }) {
-  const [targetOptions, setTargetOptions] = React.useState<SessionOptions>({
-    myFollowers: 'Skip',
-    myFollowings: 'Skip',
-    mutualBlocked: 'Skip',
-    includeUsersInBio: 'never',
-  })
+  const [targetOptions, setTargetOptions] = React.useState<SessionOptions>(defaultSessionOptions)
   function mutateOptions(newOptionsPart: Partial<SessionOptions>) {
     const newOptions = { ...targetOptions, ...newOptionsPart }
     setTargetOptions(newOptions)

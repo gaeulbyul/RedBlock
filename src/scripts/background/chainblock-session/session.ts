@@ -443,17 +443,8 @@ function checkUserInactivity(
   return isInactive ? 'inactive' : 'active'
 }
 
-export const followerBlockDefaultOption: Readonly<
+export const defaultSessionOptions: Readonly<
   FollowerBlockSessionRequest['options']
-> = Object.freeze({
-  myFollowers: 'Skip',
-  myFollowings: 'Skip',
-  mutualBlocked: 'Skip',
-  includeUsersInBio: 'never',
-})
-
-export const tweetReactionBlockDefaultOption: Readonly<
-  TweetReactionBlockSessionRequest['options']
 > = Object.freeze({
   myFollowers: 'Skip',
   myFollowings: 'Skip',
