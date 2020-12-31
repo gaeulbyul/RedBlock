@@ -457,5 +457,6 @@ export const tweetReactionBlockDefaultOption: Readonly<
 > = Object.freeze({
   myFollowers: 'Skip',
   myFollowings: 'Skip',
+  mutualBlocked: 'Skip',
   includeUsersInBio: 'never',
 })

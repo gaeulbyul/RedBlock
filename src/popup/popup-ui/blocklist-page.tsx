@@ -15,13 +15,17 @@ import {
   parseBlocklist,
   concatBlockList,
 } from '../../scripts/background/blocklist-process.js'
-import { ImportChainBlockPageStatesContext, PurposeContext } from './ui-states.js'
+import {
+  ImportChainBlockPageStatesContext,
+  PurposeContext,
+  SessionOptionsContext,
+} from './ui-states.js'
 
 const M = MaterialUI
 const T = MaterialUI.Typography
 
 function ImportOptionsUI() {
-  const { targetOptions, mutateOptions } = React.useContext(ImportChainBlockPageStatesContext)
+  const { targetOptions, mutateOptions } = React.useContext(SessionOptionsContext)
   const { myFollowers, myFollowings } = targetOptions
   const userActions: Array<[UserAction, string]> = [
     ['Skip', i18n.getMessage('skip')],
@@ -69,14 +73,10 @@ export default function BlocklistPage() {
   const limiterStatus = React.useContext(BlockLimiterContext)
   const { openDialog } = React.useContext(UIContext)
   const purpose = React.useContext(PurposeContext).purpose as ImportBlockSessionRequest['purpose']
-  const {
-    blocklist,
-    setBlocklist,
-    targetOptions,
-    setTargetOptions,
-    nameOfSelectedFiles,
-    setNameOfSelectedFiles,
-  } = React.useContext(ImportChainBlockPageStatesContext)
+  const { targetOptions, mutateOptions } = React.useContext(SessionOptionsContext)
+  const { blocklist, setBlocklist, nameOfSelectedFiles, setNameOfSelectedFiles } = React.useContext(
+    ImportChainBlockPageStatesContext
+  )
   const [fileInput] = React.useState(React.createRef<HTMLInputElement>())
   function isAvailable() {
     if (!myself) {
@@ -135,9 +135,11 @@ export default function BlocklistPage() {
     event.preventDefault()
     setBlocklist(emptyBlocklist)
     setNameOfSelectedFiles([])
-    setTargetOptions({
+    mutateOptions({
+      // TODO 기본값을 다른 데에서 import 해서 갖고오기?
       myFollowers: 'Skip',
       myFollowings: 'Skip',
+      mutualBlocked: 'Skip',
       includeUsersInBio: 'never',
     })
   }

@@ -13,7 +13,11 @@ import {
   WhatIsBioBlock,
   ChainBlockPurposeUI,
 } from './components.js'
-import { TweetReactionChainBlockPageStatesContext, PurposeContext } from './ui-states.js'
+import {
+  TweetReactionChainBlockPageStatesContext,
+  PurposeContext,
+  SessionOptionsContext,
+} from './ui-states.js'
 
 const M = MaterialUI
 
@@ -88,9 +92,7 @@ function TargetTweetOuterUI() {
 }
 
 function TargetChainBlockOptionsUI() {
-  const { targetOptions, mutateOptions } = React.useContext(
-    TweetReactionChainBlockPageStatesContext
-  )
+  const { targetOptions, mutateOptions } = React.useContext(SessionOptionsContext)
   const { myFollowers, myFollowings, includeUsersInBio } = targetOptions
   const userActions: Array<[UserAction, string]> = [
     ['Skip', i18n.getMessage('skip')],
@@ -175,8 +177,8 @@ function TargetExecutionButtonUI(props: { isAvailable: boolean }) {
     wantBlockRetweeters,
     wantBlockLikers,
     wantBlockMentionedUsers,
-    targetOptions,
   } = React.useContext(TweetReactionChainBlockPageStatesContext)
+  const { targetOptions } = React.useContext(SessionOptionsContext)
   const { purpose } = React.useContext(PurposeContext)
   const { openDialog } = React.useContext(UIContext)
   const uiContext = React.useContext(UIContext)

@@ -27,6 +27,7 @@ import {
   SelectUserGroup,
   FollowerChainBlockPageStatesContext,
   PurposeContext,
+  SessionOptionsContext,
 } from './ui-states.js'
 
 const M = MaterialUI
@@ -217,7 +218,7 @@ function TargetUserProfileEmpty(props: { reason: 'invalid-user' | 'loading' }) {
 }
 
 function TargetChainBlockOptionsUI() {
-  const { targetOptions, mutateOptions } = React.useContext(FollowerChainBlockPageStatesContext)
+  const { targetOptions, mutateOptions } = React.useContext(SessionOptionsContext)
   const { myFollowers, myFollowings, includeUsersInBio } = targetOptions
   const userActions: Array<[UserAction, string]> = [
     ['Skip', i18n.getMessage('skip')],
@@ -379,7 +380,7 @@ function TargetUserSelectUI(props: { isAvailable: boolean }) {
 
 function TargetUnChainBlockOptionsUI() {
   // const { options, mutateOptions } = props
-  const { targetOptions, mutateOptions } = React.useContext(FollowerChainBlockPageStatesContext)
+  const { targetOptions, mutateOptions } = React.useContext(SessionOptionsContext)
   const { mutualBlocked } = targetOptions
   const userActions: Array<[UserAction, string]> = [
     ['Skip', i18n.getMessage('skip')],
@@ -427,9 +428,8 @@ async function getUserByIdWithCache(userId: string): Promise<TwitterUser> {
 
 function TargetExecutionButtonUI(props: { isAvailable: boolean }) {
   const { isAvailable } = props
-  const { selectedUser, targetList, targetOptions: options } = React.useContext(
-    FollowerChainBlockPageStatesContext
-  )
+  const { selectedUser, targetList } = React.useContext(FollowerChainBlockPageStatesContext)
+  const { targetOptions } = React.useContext(SessionOptionsContext)
   const { purpose } = React.useContext(PurposeContext)
   const { openDialog } = React.useContext(UIContext)
   const uiContext = React.useContext(UIContext)
@@ -447,7 +447,7 @@ function TargetExecutionButtonUI(props: { isAvailable: boolean }) {
     const request: FollowerBlockSessionRequest = {
       purpose,
       target,
-      options,
+      options: targetOptions,
       myself,
     }
     openDialog({

@@ -2,7 +2,11 @@ import * as i18n from '../../scripts/i18n.js'
 import * as TextGenerate from '../../scripts/text-generate.js'
 import { startNewChainBlockSession } from '../../scripts/background/request-sender.js'
 import { MyselfContext, BlockLimiterContext, UIContext } from './contexts.js'
-import { UserSearchChainBlockPageStatesContext, PurposeContext } from './ui-states.js'
+import {
+  UserSearchChainBlockPageStatesContext,
+  PurposeContext,
+  SessionOptionsContext,
+} from './ui-states.js'
 import {
   BigExecuteChainBlockButton,
   BigExecuteUnChainBlockButton,
@@ -16,7 +20,7 @@ const M = MaterialUI
 const T = MaterialUI.Typography
 
 function TargetChainBlockOptionsUI() {
-  const { targetOptions, mutateOptions } = React.useContext(UserSearchChainBlockPageStatesContext)
+  const { targetOptions, mutateOptions } = React.useContext(SessionOptionsContext)
   const { myFollowers, myFollowings, includeUsersInBio } = targetOptions
   const userActions: Array<[UserAction, string]> = [
     ['Skip', i18n.getMessage('skip')],
@@ -82,7 +86,7 @@ function TargetChainBlockOptionsUI() {
 
 function TargetUnChainBlockOptionsUI() {
   // const { options, mutateOptions } = props
-  const { targetOptions, mutateOptions } = React.useContext(UserSearchChainBlockPageStatesContext)
+  const { targetOptions, mutateOptions } = React.useContext(SessionOptionsContext)
   const { mutualBlocked } = targetOptions
   const userActions: Array<[UserAction, string]> = [
     ['Skip', i18n.getMessage('skip')],
@@ -110,7 +114,8 @@ function TargetUnChainBlockOptionsUI() {
 
 function TargetExecutionButtonUI(props: { isAvailable: boolean }) {
   const { isAvailable } = props
-  const { searchQuery, targetOptions } = React.useContext(UserSearchChainBlockPageStatesContext)
+  const { searchQuery } = React.useContext(UserSearchChainBlockPageStatesContext)
+  const { targetOptions } = React.useContext(SessionOptionsContext)
   const { purpose } = React.useContext(PurposeContext)
   const { openDialog } = React.useContext(UIContext)
   const uiContext = React.useContext(UIContext)

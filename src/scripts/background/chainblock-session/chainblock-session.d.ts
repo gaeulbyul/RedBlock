@@ -8,9 +8,16 @@ type ExportableSessionRequest = FollowerBlockSessionRequest | TweetReactionBlock
 
 type Session = import('./session').ChainBlockSession | import('./session').ExportSession
 
+// TODO: 언체인블락 분리 (적어도 options만큼이라도)
+interface SessionOptions {
+  myFollowers: UserAction
+  myFollowings: UserAction
+  mutualBlocked: UserAction
+  includeUsersInBio: BioBlockMode
+}
+
 // NOTE: myself: TwitterUser는 락피커 구현하면서 넣은 것
 // 자신에게 일반 체인블락걸면 안 되므로 체크용으로 넣어둠
-// TODO: 언체인블락 분리 (적어도 options만큼이라도)
 interface FollowerBlockSessionRequest {
   purpose: Purpose
   target: {
@@ -18,12 +25,7 @@ interface FollowerBlockSessionRequest {
     user: TwitterUser
     list: FollowKind
   }
-  options: {
-    myFollowers: UserAction
-    myFollowings: UserAction
-    mutualBlocked: UserAction
-    includeUsersInBio: BioBlockMode
-  }
+  options: SessionOptions
   myself: TwitterUser
 }
 
@@ -42,11 +44,7 @@ interface TweetReactionBlockSessionRequest {
     blockLikers: boolean
     blockMentionedUsers: boolean
   }
-  options: {
-    myFollowers: UserAction
-    myFollowings: UserAction
-    includeUsersInBio: BioBlockMode
-  }
+  options: SessionOptions
   myself: TwitterUser
 }
 
@@ -56,11 +54,7 @@ interface ImportBlockSessionRequest {
     type: 'import'
     userIds: string[]
   }
-  options: {
-    myFollowers: UserAction
-    myFollowings: UserAction
-    includeUsersInBio: BioBlockMode
-  }
+  options: SessionOptions
   myself: TwitterUser
 }
 
@@ -71,12 +65,7 @@ interface UserSearchBlockSessionRequest {
     type: 'user_search'
     query: string
   }
-  options: {
-    myFollowers: UserAction
-    myFollowings: UserAction
-    mutualBlocked: UserAction
-    includeUsersInBio: BioBlockMode
-  }
+  options: SessionOptions
   myself: TwitterUser
 }
 
