@@ -1,7 +1,7 @@
 import * as i18n from '../../scripts/i18n.js'
 import * as TextGenerate from '../../scripts/text-generate.js'
 import { startNewChainBlockSession } from '../../scripts/background/request-sender.js'
-import { MyselfContext, BlockLimiterContext, DialogContext, SnackBarContext } from './contexts.js'
+import { MyselfContext, BlockLimiterContext, UIContext } from './contexts.js'
 import { UserSearchChainBlockPageStatesContext } from './ui-states.js'
 import {
   BigExecuteChainBlockButton,
@@ -113,12 +113,12 @@ function TargetExecutionButtonUI(props: { isAvailable: boolean }) {
   const { purpose, searchQuery, targetOptions } = React.useContext(
     UserSearchChainBlockPageStatesContext
   )
-  const { openModal } = React.useContext(DialogContext)
-  const snackBarCtx = React.useContext(SnackBarContext)
+  const { openDialog } = React.useContext(UIContext)
+  const uiContext = React.useContext(UIContext)
   const myself = React.useContext(MyselfContext)
   function executeSession(purpose: UserSearchBlockSessionRequest['purpose']) {
     if (!myself) {
-      snackBarCtx.snack(i18n.getMessage('error_occured_check_login'))
+      uiContext.openSnackBar(i18n.getMessage('error_occured_check_login'))
       return
     }
     if (!searchQuery) {
@@ -133,7 +133,7 @@ function TargetExecutionButtonUI(props: { isAvailable: boolean }) {
       },
       myself,
     }
-    openModal({
+    openDialog({
       dialogType: 'confirm',
       message: TextGenerate.generateConfirmMessage(request),
       callbackOnOk() {

@@ -1,7 +1,7 @@
 // import * as Storage from '../../scripts/background/storage.js'
 import * as i18n from '../../scripts/i18n.js'
 import * as TextGenerate from '../../scripts/text-generate.js'
-import { MyselfContext, BlockLimiterContext, DialogContext, SnackBarContext } from './contexts.js'
+import { MyselfContext, BlockLimiterContext, UIContext } from './contexts.js'
 import { startNewChainBlockSession } from '../../scripts/background/request-sender.js'
 import {
   TabPanel,
@@ -190,8 +190,8 @@ function TargetExecutionButtonUI(props: { isAvailable: boolean }) {
     purpose,
     targetOptions,
   } = React.useContext(TweetReactionChainBlockPageStatesContext)
-  const { openModal } = React.useContext(DialogContext)
-  const snackBarCtx = React.useContext(SnackBarContext)
+  const { openDialog } = React.useContext(UIContext)
+  const uiContext = React.useContext(UIContext)
   const myself = React.useContext(MyselfContext)
   function executeSession(purpose: TweetReactionBlockSessionRequest['purpose']) {
     if (!currentTweet) {
@@ -199,7 +199,7 @@ function TargetExecutionButtonUI(props: { isAvailable: boolean }) {
       throw new Error('트윗을 선택해주세요')
     }
     if (!myself) {
-      snackBarCtx.snack(i18n.getMessage('error_occured_check_login'))
+      uiContext.openSnackBar(i18n.getMessage('error_occured_check_login'))
       return
     }
     const request: TweetReactionBlockSessionRequest = {
@@ -214,7 +214,7 @@ function TargetExecutionButtonUI(props: { isAvailable: boolean }) {
       },
       myself,
     }
-    openModal({
+    openDialog({
       dialogType: 'confirm',
       message: TextGenerate.generateConfirmMessage(request),
       callbackOnOk() {

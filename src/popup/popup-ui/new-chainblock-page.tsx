@@ -10,7 +10,7 @@ import {
   startNewChainBlockSession,
   refreshSavedUsers,
 } from '../../scripts/background/request-sender.js'
-import { DialogContext, SnackBarContext, MyselfContext, BlockLimiterContext } from './contexts.js'
+import { UIContext, MyselfContext, BlockLimiterContext } from './contexts.js'
 import {
   TabPanel,
   PleaseLoginBox,
@@ -36,7 +36,7 @@ const UserSelectorContext = React.createContext<UserSelectorContextType>({
 
 function TargetSavedUsers(props: { savedUsers: TwitterUserMap }) {
   const { savedUsers } = props
-  const snackBarCtx = React.useContext(SnackBarContext)
+  const uiContext = React.useContext(UIContext)
   const { changeSelectedUser } = React.useContext(UserSelectorContext)
   const { currentUser, selectedUserGroup, selectedUser } = React.useContext(
     FollowerChainBlockPageStatesContext
@@ -45,18 +45,18 @@ function TargetSavedUsers(props: { savedUsers: TwitterUserMap }) {
   async function insertUser() {
     if (selectedUser) {
       insertUserToStorage(selectedUser)
-      snackBarCtx.snack(i18n.getMessage('user_xxx_added', selectedUser.screen_name))
+      uiContext.openSnackBar(i18n.getMessage('user_xxx_added', selectedUser.screen_name))
     }
   }
   async function removeUser() {
     if (selectedUser) {
       removeUserFromStorage(selectedUser)
-      snackBarCtx.snack(i18n.getMessage('user_xxx_removed', selectedUser.screen_name))
+      uiContext.openSnackBar(i18n.getMessage('user_xxx_removed', selectedUser.screen_name))
     }
   }
   async function requestRefreshSavedUsers() {
     refreshSavedUsers()
-    snackBarCtx.snack(i18n.getMessage('refreshing_saved_users'))
+    uiContext.openSnackBar(i18n.getMessage('refreshing_saved_users'))
   }
   const sortedByName = (usersMap: TwitterUserMap): TwitterUser[] =>
     _.sortBy(usersMap.toUserArray(), user => user.screen_name.toLowerCase())
@@ -289,7 +289,7 @@ function TargetUserSelectUI(props: { isAvailable: boolean }) {
     setSelectedUser,
     setPurpose,
   } = React.useContext(FollowerChainBlockPageStatesContext)
-  const { openModal } = React.useContext(DialogContext)
+  const { openDialog } = React.useContext(UIContext)
   const myself = React.useContext(MyselfContext)
   const [savedUsers, setSavedUsers] = React.useState(new TwitterUserMap())
   const [isLoading, setLoadingState] = React.useState(false)
@@ -314,7 +314,7 @@ function TargetUserSelectUI(props: { isAvailable: boolean }) {
         }
       } else {
         // TODO: 유저를 가져오는 데 실패하면 해당 유저를 지운다?
-        openModal({
+        openDialog({
           dialogType: 'alert',
           message: {
             title: i18n.getMessage('failed_to_get_user_info', userName),
@@ -466,8 +466,8 @@ function TargetExecutionButtonUI(props: { isAvailable: boolean }) {
   const { purpose, selectedUser, targetList, targetOptions: options } = React.useContext(
     FollowerChainBlockPageStatesContext
   )
-  const { openModal } = React.useContext(DialogContext)
-  const snackBarCtx = React.useContext(SnackBarContext)
+  const { openDialog } = React.useContext(UIContext)
+  const uiContext = React.useContext(UIContext)
   const myself = React.useContext(MyselfContext)
   const target: FollowerBlockSessionRequest['target'] = {
     type: 'follower',
@@ -476,7 +476,7 @@ function TargetExecutionButtonUI(props: { isAvailable: boolean }) {
   }
   function executeSession(purpose: Purpose) {
     if (!myself) {
-      snackBarCtx.snack(i18n.getMessage('error_occured_check_login'))
+      uiContext.openSnackBar(i18n.getMessage('error_occured_check_login'))
       return
     }
     const request: FollowerBlockSessionRequest = {
@@ -485,7 +485,7 @@ function TargetExecutionButtonUI(props: { isAvailable: boolean }) {
       options,
       myself,
     }
-    openModal({
+    openDialog({
       dialogType: 'confirm',
       message: TextGenerate.generateConfirmMessage(request),
       callbackOnOk() {

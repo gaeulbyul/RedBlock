@@ -7,10 +7,8 @@ import * as i18n from '../scripts/i18n.js'
 import BlocklistPage from './popup-ui/blocklist-page.js'
 import ChainBlockSessionsPage from './popup-ui/chainblock-sessions-page.js'
 import {
-  DialogContext,
-  PageSwitchContext,
+  UIContext,
   RedBlockOptionsContext,
-  SnackBarContext,
   MyselfContext,
   BlockLimiterContext,
 } from './popup-ui/contexts.js'
@@ -93,7 +91,7 @@ function PopupApp(props: PopupAppProps) {
   const darkMode = MaterialUI.useMediaQuery('(prefers-color-scheme:dark)')
   const theme = React.useMemo(() => RedBlockUITheme(darkMode), [darkMode])
   const classes = useStylesForAppBar()
-  function openModal(content: DialogContent) {
+  function openDialog(content: DialogContent) {
     console.debug(content)
     setModalOpened(true)
     setModalContent(content)
@@ -104,7 +102,7 @@ function PopupApp(props: PopupAppProps) {
   function switchPage(page: PageEnum) {
     setTabIndex(page)
   }
-  function snack(message: string) {
+  function openSnackBar(message: string) {
     setSnackBarMessage(message)
     setSnackBarOpen(true)
   }
@@ -171,105 +169,97 @@ function PopupApp(props: PopupAppProps) {
   )
   return (
     <M.ThemeProvider theme={theme}>
-      <SnackBarContext.Provider value={{ snack }}>
-        <DialogContext.Provider value={{ openModal }}>
-          <MyselfContext.Provider value={myself}>
-            <RedBlockOptionsContext.Provider value={redblockOptions}>
-              <BlockLimiterContext.Provider value={limiterStatus}>
-                <PageSwitchContext.Provider value={{ switchPage }}>
-                  <M.AppBar position="fixed">
-                    <M.Toolbar variant="dense" className={classes.toolbar}>
-                      <M.IconButton color="inherit" onClick={handleMenuButtonClick}>
-                        <M.Icon>menu</M.Icon>
-                      </M.IconButton>
-                      <M.Tabs value={tabIndex} onChange={(_ev, val) => setTabIndex(val)}>
-                        <M.Tooltip
-                          arrow
-                          title={`${i18n.getMessage('running_sessions')} (${
-                            runningSessions.length
-                          })`}
-                        >
-                          <M.Tab className={classes.tab} icon={runningSessionsTabIcon} />
-                        </M.Tooltip>
-                        <M.Tooltip arrow title={i18n.getMessage('new_follower_session')}>
-                          <M.Tab className={classes.tab} icon={<M.Icon>group</M.Icon>} />
-                        </M.Tooltip>
-                        <M.Tooltip arrow title={i18n.getMessage('new_tweetreaction_session')}>
-                          <M.Tab
-                            className={classes.tab}
-                            disabled={!currentTweet}
-                            icon={<M.Icon>repeat</M.Icon>}
-                          />
-                        </M.Tooltip>
-                        <M.Tooltip arrow title={i18n.getMessage('new_searchblock_session')}>
-                          <M.Tab
-                            className={classes.tab}
-                            disabled={!currentSearchQuery}
-                            icon={<M.Icon>search</M.Icon>}
-                          />
-                        </M.Tooltip>
-                        <M.Tooltip arrow title={i18n.getMessage('blocklist_page')}>
-                          <M.Tab className={classes.tab} icon={<M.Icon>list_alt</M.Icon>} />
-                        </M.Tooltip>
-                        <M.Tooltip arrow title={i18n.getMessage('miscellaneous')}>
-                          <M.Tab className={classes.tab} icon={<M.Icon>build</M.Icon>} />
-                        </M.Tooltip>
-                      </M.Tabs>
-                    </M.Toolbar>
-                  </M.AppBar>
-                  <M.Menu
-                    keepMounted
-                    anchorEl={menuAnchorEl}
-                    open={Boolean(menuAnchorEl)}
-                    onClose={closeMenu}
-                  >
-                    {!isPopupOpenedInTab && (
-                      <M.MenuItem onClick={handleOpenInTabClick}>
-                        <M.Icon>open_in_new</M.Icon> {i18n.getMessage('open_in_new_tab')}
-                      </M.MenuItem>
-                    )}
-                    <M.MenuItem onClick={handleSettingsClick}>
-                      <M.Icon>settings</M.Icon> {i18n.getMessage('open_settings_ui')}
-                    </M.MenuItem>
-                  </M.Menu>
-                  <div className="page">
-                    <M.Container maxWidth="sm">
-                      <TabPanel value={tabIndex} index={PageEnum.Sessions}>
-                        <ChainBlockSessionsPage sessions={sessions} />
-                      </TabPanel>
-                      <FollowerChainBlockPageStatesProvider initialUser={currentUser}>
-                        <TabPanel value={tabIndex} index={PageEnum.NewSession}>
-                          <NewChainBlockPage />
-                        </TabPanel>
-                      </FollowerChainBlockPageStatesProvider>
-                      <TweetReactionChainBlockPageStatesProvider initialTweet={currentTweet}>
-                        <TabPanel value={tabIndex} index={PageEnum.NewTweetReactionBlock}>
-                          <NewTweetReactionBlockPage />
-                        </TabPanel>
-                      </TweetReactionChainBlockPageStatesProvider>
-                      <UserSearchChainBlockPageStatesProvider
-                        currentSearchQuery={currentSearchQuery}
-                      >
-                        <TabPanel value={tabIndex} index={PageEnum.NewSearchChainBlock}>
-                          <NewSearchChainBlockPage />
-                        </TabPanel>
-                      </UserSearchChainBlockPageStatesProvider>
-                      <ImportChainBlockPageStatesProvider>
-                        <TabPanel value={tabIndex} index={PageEnum.Blocklist}>
-                          <BlocklistPage />
-                        </TabPanel>
-                      </ImportChainBlockPageStatesProvider>
-                      <TabPanel value={tabIndex} index={PageEnum.Utilities}>
-                        <MiscPage />
-                      </TabPanel>
-                    </M.Container>
-                  </div>
-                </PageSwitchContext.Provider>
-              </BlockLimiterContext.Provider>
-            </RedBlockOptionsContext.Provider>
-          </MyselfContext.Provider>
-        </DialogContext.Provider>
-      </SnackBarContext.Provider>
+      <UIContext.Provider value={{ openDialog, openSnackBar, switchPage }}>
+        <MyselfContext.Provider value={myself}>
+          <RedBlockOptionsContext.Provider value={redblockOptions}>
+            <BlockLimiterContext.Provider value={limiterStatus}>
+              <M.AppBar position="fixed">
+                <M.Toolbar variant="dense" className={classes.toolbar}>
+                  <M.IconButton color="inherit" onClick={handleMenuButtonClick}>
+                    <M.Icon>menu</M.Icon>
+                  </M.IconButton>
+                  <M.Tabs value={tabIndex} onChange={(_ev, val) => setTabIndex(val)}>
+                    <M.Tooltip
+                      arrow
+                      title={`${i18n.getMessage('running_sessions')} (${runningSessions.length})`}
+                    >
+                      <M.Tab className={classes.tab} icon={runningSessionsTabIcon} />
+                    </M.Tooltip>
+                    <M.Tooltip arrow title={i18n.getMessage('new_follower_session')}>
+                      <M.Tab className={classes.tab} icon={<M.Icon>group</M.Icon>} />
+                    </M.Tooltip>
+                    <M.Tooltip arrow title={i18n.getMessage('new_tweetreaction_session')}>
+                      <M.Tab
+                        className={classes.tab}
+                        disabled={!currentTweet}
+                        icon={<M.Icon>repeat</M.Icon>}
+                      />
+                    </M.Tooltip>
+                    <M.Tooltip arrow title={i18n.getMessage('new_searchblock_session')}>
+                      <M.Tab
+                        className={classes.tab}
+                        disabled={!currentSearchQuery}
+                        icon={<M.Icon>search</M.Icon>}
+                      />
+                    </M.Tooltip>
+                    <M.Tooltip arrow title={i18n.getMessage('blocklist_page')}>
+                      <M.Tab className={classes.tab} icon={<M.Icon>list_alt</M.Icon>} />
+                    </M.Tooltip>
+                    <M.Tooltip arrow title={i18n.getMessage('miscellaneous')}>
+                      <M.Tab className={classes.tab} icon={<M.Icon>build</M.Icon>} />
+                    </M.Tooltip>
+                  </M.Tabs>
+                </M.Toolbar>
+              </M.AppBar>
+              <M.Menu
+                keepMounted
+                anchorEl={menuAnchorEl}
+                open={Boolean(menuAnchorEl)}
+                onClose={closeMenu}
+              >
+                {!isPopupOpenedInTab && (
+                  <M.MenuItem onClick={handleOpenInTabClick}>
+                    <M.Icon>open_in_new</M.Icon> {i18n.getMessage('open_in_new_tab')}
+                  </M.MenuItem>
+                )}
+                <M.MenuItem onClick={handleSettingsClick}>
+                  <M.Icon>settings</M.Icon> {i18n.getMessage('open_settings_ui')}
+                </M.MenuItem>
+              </M.Menu>
+              <div className="page">
+                <M.Container maxWidth="sm">
+                  <TabPanel value={tabIndex} index={PageEnum.Sessions}>
+                    <ChainBlockSessionsPage sessions={sessions} />
+                  </TabPanel>
+                  <FollowerChainBlockPageStatesProvider initialUser={currentUser}>
+                    <TabPanel value={tabIndex} index={PageEnum.NewSession}>
+                      <NewChainBlockPage />
+                    </TabPanel>
+                  </FollowerChainBlockPageStatesProvider>
+                  <TweetReactionChainBlockPageStatesProvider initialTweet={currentTweet}>
+                    <TabPanel value={tabIndex} index={PageEnum.NewTweetReactionBlock}>
+                      <NewTweetReactionBlockPage />
+                    </TabPanel>
+                  </TweetReactionChainBlockPageStatesProvider>
+                  <UserSearchChainBlockPageStatesProvider currentSearchQuery={currentSearchQuery}>
+                    <TabPanel value={tabIndex} index={PageEnum.NewSearchChainBlock}>
+                      <NewSearchChainBlockPage />
+                    </TabPanel>
+                  </UserSearchChainBlockPageStatesProvider>
+                  <ImportChainBlockPageStatesProvider>
+                    <TabPanel value={tabIndex} index={PageEnum.Blocklist}>
+                      <BlocklistPage />
+                    </TabPanel>
+                  </ImportChainBlockPageStatesProvider>
+                  <TabPanel value={tabIndex} index={PageEnum.Utilities}>
+                    <MiscPage />
+                  </TabPanel>
+                </M.Container>
+              </div>
+            </BlockLimiterContext.Provider>
+          </RedBlockOptionsContext.Provider>
+        </MyselfContext.Provider>
+      </UIContext.Provider>
       <M.Snackbar
         anchorOrigin={{
           horizontal: 'center',

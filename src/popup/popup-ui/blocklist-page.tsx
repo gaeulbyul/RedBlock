@@ -1,4 +1,4 @@
-import { SnackBarContext, MyselfContext, BlockLimiterContext, DialogContext } from './contexts.js'
+import { UIContext, MyselfContext, BlockLimiterContext } from './contexts.js'
 import { PleaseLoginBox, BlockLimiterUI, BigExecuteChainBlockButton } from './ui-common.js'
 import { PageEnum } from '../popup.js'
 import * as i18n from '../../scripts/i18n.js'
@@ -60,9 +60,9 @@ function ImportOptionsUI() {
 
 export default function BlocklistPage() {
   const myself = React.useContext(MyselfContext)
-  const snackBarCtx = React.useContext(SnackBarContext)
+  const uiContext = React.useContext(UIContext)
   const limiterStatus = React.useContext(BlockLimiterContext)
-  const { openModal } = React.useContext(DialogContext)
+  const { openDialog } = React.useContext(UIContext)
   const {
     blocklist,
     setBlocklist,
@@ -86,7 +86,7 @@ export default function BlocklistPage() {
     event.preventDefault()
     const files = fileInput.current!.files
     if (!(files && files.length > 0)) {
-      snackBarCtx.snack(i18n.getMessage('pick_file_first'))
+      uiContext.openSnackBar(i18n.getMessage('pick_file_first'))
       setBlocklist(emptyBlocklist)
       return
     }
@@ -101,12 +101,12 @@ export default function BlocklistPage() {
   async function onSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault()
     if (blocklist.userIds.size <= 0) {
-      snackBarCtx.snack(i18n.getMessage('cant_chainblock_empty_list'))
+      uiContext.openSnackBar(i18n.getMessage('cant_chainblock_empty_list'))
       return
     }
     const myself = await TwitterAPI.getMyself().catch(() => null)
     if (!myself) {
-      snackBarCtx.snack(i18n.getMessage('error_occured_check_login'))
+      uiContext.openSnackBar(i18n.getMessage('error_occured_check_login'))
       return
     }
     const request: ImportBlockSessionRequest = {
@@ -118,7 +118,7 @@ export default function BlocklistPage() {
       options: targetOptions,
       myself,
     }
-    openModal({
+    openDialog({
       dialogType: 'confirm',
       message: generateConfirmMessage(request),
       callbackOnOk() {

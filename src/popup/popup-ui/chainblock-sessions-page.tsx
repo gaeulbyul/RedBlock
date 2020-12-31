@@ -11,7 +11,7 @@ import {
   stopChainBlock,
   downloadFromExportSession,
 } from '../../scripts/background/request-sender.js'
-import { DialogContext, PageSwitchContext, BlockLimiterContext } from './contexts.js'
+import { UIContext, BlockLimiterContext } from './contexts.js'
 import { statusToString } from '../../scripts/text-generate.js'
 import { BlockLimiterUI } from './ui-common.js'
 import * as i18n from '../../scripts/i18n.js'
@@ -50,7 +50,7 @@ function ChainBlockSessionItem(props: { sessionInfo: SessionInfo }) {
   const { sessionInfo } = props
   const { sessionId } = sessionInfo
   const { purpose, target } = sessionInfo.request
-  const modalContext = React.useContext(DialogContext)
+  const uiContext = React.useContext(UIContext)
   const classes = useStylesForSessionItem()
   const [expanded, setExpanded] = React.useState(false)
   const [downloadButtonClicked, setDownloadButtonClicked] = React.useState(false)
@@ -92,7 +92,7 @@ function ChainBlockSessionItem(props: { sessionInfo: SessionInfo }) {
   function renderControls() {
     function requestStopChainBlock() {
       if (isRunningSession(sessionInfo)) {
-        modalContext.openModal({
+        uiContext.openDialog({
           dialogType: 'confirm',
           message: {
             title: i18n.getMessage('confirm_session_stop_message'),
@@ -104,7 +104,7 @@ function ChainBlockSessionItem(props: { sessionInfo: SessionInfo }) {
         return
       }
       if (purpose === 'export' && !downloadButtonClicked) {
-        modalContext.openModal({
+        uiContext.openDialog({
           dialogType: 'confirm',
           message: {
             title: i18n.getMessage('confirm_closing_export_session_notyet_save'),
@@ -129,7 +129,7 @@ function ChainBlockSessionItem(props: { sessionInfo: SessionInfo }) {
       if (sessionInfo.progress.scraped > 0) {
         downloadFromExportSession(sessionInfo.sessionId)
       } else {
-        modalContext.openModal({
+        uiContext.openDialog({
           dialogType: 'alert',
           message: {
             title: i18n.getMessage('blocklist_is_empty'),
@@ -297,16 +297,15 @@ const useStylesForFabButton = MaterialUI.makeStyles(theme =>
 
 export default function ChainBlockSessionsPage(props: { sessions: SessionInfo[] }) {
   const { sessions } = props
-  const modalContext = React.useContext(DialogContext)
-  const pageSwitchCtx = React.useContext(PageSwitchContext)
+  const uiContext = React.useContext(UIContext)
   const limiterStatus = React.useContext(BlockLimiterContext)
   const classes = useStylesForFabButton()
   function handleFabButtonClicked() {
-    pageSwitchCtx.switchPage(PageEnum.NewSession)
+    uiContext.switchPage(PageEnum.NewSession)
   }
   function renderGlobalControls() {
     function requestStopAllChainBlock() {
-      modalContext.openModal({
+      uiContext.openDialog({
         dialogType: 'confirm',
         message: {
           title: i18n.getMessage('confirm_all_stop'),

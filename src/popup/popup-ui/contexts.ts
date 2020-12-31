@@ -3,16 +3,10 @@ import { defaultOptions } from '../../scripts/background/storage.js'
 import type { DialogContent } from './ui-common.js'
 import type { TwitterUser } from '../../scripts/background/twitter-api.js'
 
-export const PageSwitchContext = React.createContext({
+export const UIContext = React.createContext({
+  openDialog(_content: DialogContent) {},
+  openSnackBar(_message: string) {},
   switchPage(_tabIndex: PageEnum) {},
-})
-
-export const DialogContext = React.createContext({
-  openModal(_content: DialogContent) {},
-})
-
-export const SnackBarContext = React.createContext({
-  snack(_message: string) {},
 })
 
 export const RedBlockOptionsContext = React.createContext({

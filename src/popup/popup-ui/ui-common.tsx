@@ -1,7 +1,7 @@
 import { DialogMessageObj } from '../../scripts/text-generate.js'
 import * as i18n from '../../scripts/i18n.js'
 import { requestResetCounter } from '../../scripts/background/request-sender.js'
-import { DialogContext } from './contexts.js'
+import { UIContext } from './contexts.js'
 
 const M = MaterialUI
 const T = MaterialUI.Typography
@@ -218,10 +218,10 @@ export function TwitterUserProfile(props: { user: TwitterUser; children: React.R
 }
 
 export function WhatIsBioBlock() {
-  const { openModal } = React.useContext(DialogContext)
+  const { openDialog } = React.useContext(UIContext)
   function handleClick(event: React.MouseEvent) {
     event.preventDefault()
-    openModal({
+    openDialog({
       dialogType: 'alert',
       message: {
         title: 'BioBlock',
