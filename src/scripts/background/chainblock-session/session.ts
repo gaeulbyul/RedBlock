@@ -9,7 +9,6 @@ import {
   getCountOfUsersToBlock,
 } from '../../common.js'
 import BlockLimiter from '../block-limiter.js'
-import { loadOptions } from '../storage.js'
 
 interface SessionEventEmitter {
   'mark-user': MarkUserParams
@@ -139,7 +138,6 @@ export class ChainBlockSession extends BaseSession {
     if (DBG_dontActuallyCallAPI) {
       console.warn("WARNING: RedBlock FakeAPI mode detected! won't call actual api")
     }
-    const redblockOptions = await loadOptions()
     const now = dayjs()
     let stopped = false
     try {
@@ -180,14 +178,7 @@ export class ChainBlockSession extends BaseSession {
             this.stop()
             break
           }
-          // TODO: skipInactiveUser를 redblockoptions에서 꺼내오지말고
-          // 세션 시작할 때 options에 집어넣어서 보내자.
-          const whatToDo = whatToDoGivenUser(
-            this.request,
-            user,
-            now,
-            redblockOptions.skipInactiveUser
-          )
+          const whatToDo = whatToDoGivenUser(this.request, user, now)
           console.debug('user %o => %s', user, whatToDo)
           if (whatToDo === 'Skip') {
             this.sessionInfo.progress.skipped++
@@ -349,8 +340,7 @@ function isAlreadyDone(follower: TwitterUser, action: UserAction): boolean {
 function whatToDoGivenUser(
   request: SessionRequest,
   follower: TwitterUser,
-  now: Dayjs,
-  inactivePeriod: InactivePeriod
+  now: Dayjs
 ): UserAction | 'Skip' | 'AlreadyDone' {
   if (request.purpose === 'lockpicker') {
     return isProtectedFollower(follower) ? 'Block' : 'Skip'
@@ -360,7 +350,7 @@ function whatToDoGivenUser(
   if (!(typeof following === 'boolean' && typeof followed_by === 'boolean')) {
     throw new Error('following/followed_by property missing?')
   }
-  if (checkUserInactivity(follower, now, inactivePeriod) === 'inactive') {
+  if (checkUserInactivity(follower, now, options.skipInactiveUser) === 'inactive') {
     return 'Skip'
   }
   const isMyFollowing = following || follow_request_sent
@@ -443,11 +433,10 @@ function checkUserInactivity(
   return isInactive ? 'inactive' : 'active'
 }
 
-export const defaultSessionOptions: Readonly<
-  FollowerBlockSessionRequest['options']
-> = Object.freeze({
+export const defaultSessionOptions: Readonly<SessionOptions> = Object.freeze({
   myFollowers: 'Skip',
   myFollowings: 'Skip',
   mutualBlocked: 'Skip',
   includeUsersInBio: 'never',
+  skipInactiveUser: 'never',
 })

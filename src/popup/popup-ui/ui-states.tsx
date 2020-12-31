@@ -1,7 +1,7 @@
 import { defaultSessionOptions } from '../../scripts/background/chainblock-session/session.js'
 import { Blocklist, emptyBlocklist } from '../../scripts/background/blocklist-process.js'
 import { determineInitialPurpose } from '../popup.js'
-import { MyselfContext } from './contexts.js'
+import { RedBlockOptionsContext, MyselfContext } from './contexts.js'
 
 export type SelectUserGroup = 'invalid' | 'current' | 'saved' | 'self'
 
@@ -25,7 +25,8 @@ function PurposeContextProvider(props: {
   const { children, initialPurpose, availablePurposes } = props
   const [purpose, setPurpose] = React.useState(initialPurpose)
   if (!availablePurposes.includes(purpose)) {
-    throw new Error(`invalid purpose: "${purpose}" is not in [${availablePurposes}]`)
+    console.error('invalid purpose: "%s" is not in %o', purpose, availablePurposes)
+    throw new Error('invalid purpose')
   }
   function setPurposeWithCheck(newPurpose: Purpose) {
     if (availablePurposes.includes(newPurpose)) {
@@ -56,7 +57,11 @@ export const SessionOptionsContext = React.createContext<SessionOptionsContextTy
 })
 
 function SessionOptionsContextProvider(props: { children: React.ReactNode }) {
-  const [targetOptions, setTargetOptions] = React.useState<SessionOptions>(defaultSessionOptions)
+  const { skipInactiveUser } = React.useContext(RedBlockOptionsContext)
+  const [targetOptions, setTargetOptions] = React.useState<SessionOptions>({
+    ...defaultSessionOptions,
+    skipInactiveUser,
+  })
   function mutateOptions(newOptionsPart: Partial<SessionOptions>) {
     const newOptions = { ...targetOptions, ...newOptionsPart }
     setTargetOptions(newOptions)

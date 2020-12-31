@@ -14,6 +14,7 @@ interface SessionOptions {
   myFollowings: UserAction
   mutualBlocked: UserAction
   includeUsersInBio: BioBlockMode
+  skipInactiveUser: InactivePeriod
 }
 
 // NOTE: myself: TwitterUser는 락피커 구현하면서 넣은 것
