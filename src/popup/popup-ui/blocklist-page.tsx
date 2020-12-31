@@ -1,5 +1,5 @@
 import { UIContext, MyselfContext, BlockLimiterContext } from './contexts.js'
-import { PleaseLoginBox, BlockLimiterUI, BigExecuteChainBlockButton } from './ui-common.js'
+import { PleaseLoginBox, BlockLimiterUI, BigExecuteChainBlockButton } from './components.js'
 import { PageEnum } from '../popup.js'
 import * as i18n from '../../scripts/i18n.js'
 import { generateConfirmMessage } from '../../scripts/text-generate.js'

@@ -12,7 +12,7 @@ import {
   BigExecuteChainBlockButton,
   BigExportButton,
   WhatIsBioBlock,
-} from './ui-common.js'
+} from './components.js'
 import { TweetReactionChainBlockPageStatesContext } from './ui-states.js'
 
 const M = MaterialUI

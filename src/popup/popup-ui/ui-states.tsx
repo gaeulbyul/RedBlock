@@ -1,5 +1,5 @@
 import { Blocklist, emptyBlocklist } from '../../scripts/background/blocklist-process.js'
-import { determineInitialPurpose } from './ui-common.js'
+import { determineInitialPurpose } from './components.js'
 import { MyselfContext } from './contexts.js'
 
 export type SelectUserGroup = 'invalid' | 'current' | 'saved' | 'self'

@@ -1,6 +1,6 @@
 import { PageEnum } from '../popup.js'
 import { defaultOptions } from '../../scripts/background/storage.js'
-import type { DialogContent } from './ui-common.js'
+import type { DialogContent } from './components.js'
 import type { TwitterUser } from '../../scripts/background/twitter-api.js'
 
 export const UIContext = React.createContext({

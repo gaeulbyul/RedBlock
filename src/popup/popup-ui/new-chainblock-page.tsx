@@ -22,7 +22,7 @@ import {
   BigExportButton,
   BigExecuteLockPickerButton,
   WhatIsBioBlock,
-} from './ui-common.js'
+} from './components.js'
 import { SelectUserGroup, FollowerChainBlockPageStatesContext } from './ui-states.js'
 
 const M = MaterialUI

@@ -22,7 +22,7 @@ import MiscPage from './popup-ui/misc-page.js'
 import NewChainBlockPage from './popup-ui/new-chainblock-page.js'
 import NewTweetReactionBlockPage from './popup-ui/new-tweetreactionblock-page.js'
 import NewSearchChainBlockPage from './popup-ui/new-searchblock-page.js'
-import { DialogContent, RBDialog, RedBlockUITheme, TabPanel } from './popup-ui/ui-common.js'
+import { DialogContent, RBDialog, RedBlockUITheme, TabPanel } from './popup-ui/components.js'
 
 import {
   getCurrentTab,

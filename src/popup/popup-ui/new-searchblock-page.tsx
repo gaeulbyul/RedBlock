@@ -10,7 +10,7 @@ import {
   BlockLimiterUI,
   WhatIsBioBlock,
   TabPanel,
-} from './ui-common.js'
+} from './components.js'
 
 const M = MaterialUI
 const T = MaterialUI.Typography

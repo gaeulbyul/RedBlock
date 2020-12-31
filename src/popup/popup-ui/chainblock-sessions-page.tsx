@@ -13,7 +13,7 @@ import {
 } from '../../scripts/background/request-sender.js'
 import { UIContext } from './contexts.js'
 import { statusToString } from '../../scripts/text-generate.js'
-import { BlockLimiterUI } from './ui-common.js'
+import { BlockLimiterUI } from './components.js'
 import * as i18n from '../../scripts/i18n.js'
 
 const M = MaterialUI
