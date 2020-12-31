@@ -2,7 +2,7 @@ import * as i18n from '../../scripts/i18n.js'
 import * as TextGenerate from '../../scripts/text-generate.js'
 import { startNewChainBlockSession } from '../../scripts/background/request-sender.js'
 import { MyselfContext, BlockLimiterContext, UIContext } from './contexts.js'
-import { UserSearchChainBlockPageStatesContext } from './ui-states.js'
+import { UserSearchChainBlockPageStatesContext, PurposeContext } from './ui-states.js'
 import {
   BigExecuteChainBlockButton,
   BigExecuteUnChainBlockButton,
@@ -110,9 +110,8 @@ function TargetSearchUnChainBlockOptionsUI() {
 
 function TargetExecutionButtonUI(props: { isAvailable: boolean }) {
   const { isAvailable } = props
-  const { purpose, searchQuery, targetOptions } = React.useContext(
-    UserSearchChainBlockPageStatesContext
-  )
+  const { searchQuery, targetOptions } = React.useContext(UserSearchChainBlockPageStatesContext)
+  const { purpose } = React.useContext(PurposeContext)
   const { openDialog } = React.useContext(UIContext)
   const uiContext = React.useContext(UIContext)
   const myself = React.useContext(MyselfContext)
@@ -183,9 +182,8 @@ export default function NewSearchChainBlockPage() {
     }
     return true
   }
-  const { searchQuery, purpose, setPurpose } = React.useContext(
-    UserSearchChainBlockPageStatesContext
-  )
+  const { searchQuery } = React.useContext(UserSearchChainBlockPageStatesContext)
+  const { purpose, setPurpose } = React.useContext(PurposeContext)
   return (
     <div>
       <M.ExpansionPanel defaultExpanded>

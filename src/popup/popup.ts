@@ -107,3 +107,20 @@ export function getTweetIdFromTab(tab: Tab): string | null {
   }
   return null
 }
+
+export function determineInitialPurpose(
+  myself: TwitterUser | null,
+  givenUser: TwitterUser | null
+): Purpose {
+  if (!(myself && givenUser)) {
+    console.warn('both null?')
+    return 'chainblock'
+  }
+  if (myself.id_str === givenUser.id_str) {
+    return 'lockpicker'
+  }
+  if (givenUser.following) {
+    return 'unchainblock'
+  }
+  return 'chainblock'
+}

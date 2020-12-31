@@ -12,7 +12,6 @@ import {
 } from '../../scripts/background/request-sender.js'
 import { UIContext, MyselfContext, BlockLimiterContext } from './contexts.js'
 import {
-  TabPanel,
   PleaseLoginBox,
   BlockLimiterUI,
   TwitterUserProfile,
@@ -22,8 +21,13 @@ import {
   BigExportButton,
   BigExecuteLockPickerButton,
   WhatIsBioBlock,
+  ChainBlockOptionsUI,
 } from './components.js'
-import { SelectUserGroup, FollowerChainBlockPageStatesContext } from './ui-states.js'
+import {
+  SelectUserGroup,
+  FollowerChainBlockPageStatesContext,
+  PurposeContext,
+} from './ui-states.js'
 
 const M = MaterialUI
 
@@ -285,8 +289,8 @@ function TargetUserSelectUI(props: { isAvailable: boolean }) {
     setSelectedUserGroup,
     selectedUser,
     setSelectedUser,
-    setPurpose,
   } = React.useContext(FollowerChainBlockPageStatesContext)
+  const { setPurpose } = React.useContext(PurposeContext)
   const { openDialog } = React.useContext(UIContext)
   const myself = React.useContext(MyselfContext)
   const [savedUsers, setSavedUsers] = React.useState(new TwitterUserMap())
@@ -401,50 +405,12 @@ function TargetUnChainBlockOptionsUI() {
   )
 }
 
-function TargetOptionsUIMyself() {
-  return (
-    <div style={{ width: '100%' }}>
-      <div className="description">{i18n.getMessage('lockpicker_description')}</div>
-    </div>
-  )
-}
-
-function TargetOptionsUIOthers() {
-  const { purpose, setPurpose } = React.useContext(FollowerChainBlockPageStatesContext)
-  return (
-    <div style={{ width: '100%' }}>
-      <M.Tabs variant="fullWidth" value={purpose} onChange={(_ev, val) => setPurpose(val)}>
-        <M.Tab value={'chainblock'} label={`\u{1f6d1} ${i18n.getMessage('chainblock')}`} />
-        <M.Tab value={'unchainblock'} label={`\u{1f49a} ${i18n.getMessage('unchainblock')}`} />
-        <M.Tab value={'export'} label={`\u{1f4be} ${i18n.getMessage('export')}`} />
-      </M.Tabs>
-      <M.Divider />
-      <TabPanel value={purpose} index={'chainblock'}>
-        <TargetChainBlockOptionsUI />
-        <M.Divider />
-        <div className="description">
-          {i18n.getMessage('chainblock_description')}{' '}
-          {i18n.getMessage('my_mutual_followers_wont_block')}
-          <div className="wtf">{i18n.getMessage('wtf_twitter') /* massive block warning */}</div>
-        </div>
-      </TabPanel>
-      <TabPanel value={purpose} index={'unchainblock'}>
-        <TargetUnChainBlockOptionsUI />
-        <div className="description">{i18n.getMessage('unchainblock_description')}</div>
-      </TabPanel>
-      <TabPanel value={purpose} index={'export'}>
-        <div className="description">{i18n.getMessage('export_followers_description')}</div>
-      </TabPanel>
-    </div>
-  )
-}
-
 function TargetOptionsUI() {
-  const { purpose } = React.useContext(FollowerChainBlockPageStatesContext)
+  const { purpose } = React.useContext(PurposeContext)
   const summary = `${i18n.getMessage('options')} (${i18n.getMessage(purpose)})`
   return (
     <DenseExpansionPanel summary={summary} defaultExpanded>
-      {purpose === 'lockpicker' ? <TargetOptionsUIMyself /> : <TargetOptionsUIOthers />}
+      <ChainBlockOptionsUI {...{ TargetChainBlockOptionsUI, TargetUnChainBlockOptionsUI }} />
     </DenseExpansionPanel>
   )
 }
@@ -461,9 +427,10 @@ async function getUserByIdWithCache(userId: string): Promise<TwitterUser> {
 
 function TargetExecutionButtonUI(props: { isAvailable: boolean }) {
   const { isAvailable } = props
-  const { purpose, selectedUser, targetList, targetOptions: options } = React.useContext(
+  const { selectedUser, targetList, targetOptions: options } = React.useContext(
     FollowerChainBlockPageStatesContext
   )
+  const { purpose } = React.useContext(PurposeContext)
   const { openDialog } = React.useContext(UIContext)
   const uiContext = React.useContext(UIContext)
   const myself = React.useContext(MyselfContext)
@@ -542,7 +509,8 @@ function TargetExecutionButtonUI(props: { isAvailable: boolean }) {
 }
 
 export default function NewChainBlockPage() {
-  const { purpose, selectedUser } = React.useContext(FollowerChainBlockPageStatesContext)
+  const { selectedUser } = React.useContext(FollowerChainBlockPageStatesContext)
+  const { purpose } = React.useContext(PurposeContext)
   const myself = React.useContext(MyselfContext)
   const limiterStatus = React.useContext(BlockLimiterContext)
   function isAvailable() {

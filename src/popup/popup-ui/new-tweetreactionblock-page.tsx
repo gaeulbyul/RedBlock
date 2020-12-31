@@ -13,7 +13,7 @@ import {
   BigExportButton,
   WhatIsBioBlock,
 } from './components.js'
-import { TweetReactionChainBlockPageStatesContext } from './ui-states.js'
+import { TweetReactionChainBlockPageStatesContext, PurposeContext } from './ui-states.js'
 
 const M = MaterialUI
 
@@ -155,7 +155,7 @@ function TargetChainBlockOptionsUI() {
 }
 
 function TargetOptionsUI() {
-  const { purpose, setPurpose } = React.useContext(TweetReactionChainBlockPageStatesContext)
+  const { purpose, setPurpose } = React.useContext(PurposeContext)
   const summary = `${i18n.getMessage('options')} (${i18n.getMessage(purpose)})`
   return (
     <DenseExpansionPanel summary={summary} defaultExpanded>
@@ -187,9 +187,9 @@ function TargetExecutionButtonUI(props: { isAvailable: boolean }) {
     wantBlockRetweeters,
     wantBlockLikers,
     wantBlockMentionedUsers,
-    purpose,
     targetOptions,
   } = React.useContext(TweetReactionChainBlockPageStatesContext)
+  const { purpose } = React.useContext(PurposeContext)
   const { openDialog } = React.useContext(UIContext)
   const uiContext = React.useContext(UIContext)
   const myself = React.useContext(MyselfContext)

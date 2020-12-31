@@ -2,6 +2,7 @@ import { DialogMessageObj } from '../../scripts/text-generate.js'
 import * as i18n from '../../scripts/i18n.js'
 import { requestResetCounter } from '../../scripts/background/request-sender.js'
 import { UIContext, BlockLimiterContext } from './contexts.js'
+import { PurposeContext } from './ui-states.js'
 
 const M = MaterialUI
 const T = MaterialUI.Typography
@@ -290,19 +291,64 @@ export const BigExecuteLockPickerButton = MaterialUI.withStyles(theme => ({
   },
 }))(BigBaseButton)
 
-export function determineInitialPurpose(
-  myself: TwitterUser | null,
-  givenUser: TwitterUser | null
-): Purpose {
-  if (!(myself && givenUser)) {
-    console.warn('both null?')
-    return 'chainblock'
-  }
-  if (myself.id_str === givenUser.id_str) {
-    return 'lockpicker'
-  }
-  if (givenUser.following) {
-    return 'unchainblock'
-  }
-  return 'chainblock'
+export function ChainBlockOptionsUI(props: {
+  TargetChainBlockOptionsUI(): React.ReactElement
+  TargetUnChainBlockOptionsUI(): React.ReactElement
+}) {
+  const { TargetChainBlockOptionsUI, TargetUnChainBlockOptionsUI } = props
+  const { purpose, setPurpose, availablePurposes } = React.useContext(PurposeContext)
+  const chainblockable = availablePurposes.includes('chainblock')
+  const unchainblockable = availablePurposes.includes('unchainblock')
+  const exportable = availablePurposes.includes('export')
+  const lockpickable = availablePurposes.includes('lockpicker')
+  return (
+    <div style={{ width: '100%' }}>
+      <M.Tabs
+        style={{ display: availablePurposes.length >= 2 ? 'flex' : 'none' }}
+        variant="fullWidth"
+        value={purpose}
+        onChange={(_ev, val) => setPurpose(val)}
+      >
+        {chainblockable && (
+          <M.Tab value={'chainblock'} label={`\u{1f6d1} ${i18n.getMessage('chainblock')}`} />
+        )}
+
+        {unchainblockable && (
+          <M.Tab value={'unchainblock'} label={`\u{1f49a} ${i18n.getMessage('unchainblock')}`} />
+        )}
+        {exportable && <M.Tab value={'export'} label={`\u{1f4be} ${i18n.getMessage('export')}`} />}
+        {lockpickable && (
+          <M.Tab value={'lockpicker'} label={`\u{1f513} ${i18n.getMessage('lockpicker')}`} />
+        )}
+      </M.Tabs>
+      <M.Divider />
+      {chainblockable && (
+        <TabPanel value={purpose} index="chainblock">
+          <TargetChainBlockOptionsUI />
+          <M.Divider />
+          <div className="description">
+            {i18n.getMessage('chainblock_description')}{' '}
+            {i18n.getMessage('my_mutual_followers_wont_block')}
+            <div className="wtf">{i18n.getMessage('wtf_twitter') /* massive block warning */}</div>
+          </div>
+        </TabPanel>
+      )}
+      {unchainblockable && (
+        <TabPanel value={purpose} index="unchainblock">
+          <TargetUnChainBlockOptionsUI />
+          <div className="description">{i18n.getMessage('unchainblock_description')}</div>
+        </TabPanel>
+      )}
+      {exportable && (
+        <TabPanel value={purpose} index="export">
+          <div className="description">{i18n.getMessage('export_followers_description')}</div>
+        </TabPanel>
+      )}
+      {lockpickable && (
+        <TabPanel value={purpose} index="lockpicker">
+          <div className="description">{i18n.getMessage('lockpicker_description')}</div>
+        </TabPanel>
+      )}
+    </div>
+  )
 }

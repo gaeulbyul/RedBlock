@@ -1,8 +1,40 @@
 import { Blocklist, emptyBlocklist } from '../../scripts/background/blocklist-process.js'
-import { determineInitialPurpose } from './components.js'
+import { determineInitialPurpose } from '../popup.js'
 import { MyselfContext } from './contexts.js'
 
 export type SelectUserGroup = 'invalid' | 'current' | 'saved' | 'self'
+
+interface PurposeContextType {
+  purpose: Purpose
+  setPurpose(purpose: Purpose): void
+  availablePurposes: Purpose[]
+}
+
+export const PurposeContext = React.createContext<PurposeContextType>({
+  purpose: 'chainblock',
+  setPurpose() {},
+  availablePurposes: ['chainblock'],
+})
+
+function PurposeContextProvider(props: {
+  children: React.ReactNode
+  initialPurpose: Purpose
+  availablePurposes: Array<Purpose>
+}) {
+  const { children, initialPurpose, availablePurposes } = props
+  const [purpose, setPurpose] = React.useState(initialPurpose)
+  return (
+    <PurposeContext.Provider
+      value={{
+        purpose,
+        setPurpose,
+        availablePurposes,
+      }}
+    >
+      {children}
+    </PurposeContext.Provider>
+  )
+}
 
 interface FollowerChainBlockPageStates {
   currentUser: TwitterUser | null
@@ -15,8 +47,6 @@ interface FollowerChainBlockPageStates {
   targetOptions: FollowerBlockSessionRequest['options']
   setTargetOptions(options: FollowerBlockSessionRequest['options']): void
   mutateOptions(optionsPart: Partial<FollowerBlockSessionRequest['options']>): void
-  purpose: FollowerBlockSessionRequest['purpose']
-  setPurpose(ck: Purpose): void
 }
 
 interface TweetReactionChainBlockPageStates {
@@ -27,8 +57,6 @@ interface TweetReactionChainBlockPageStates {
   setWantBlockLikers(b: boolean): void
   wantBlockMentionedUsers: boolean
   setWantBlockMentionedUsers(b: boolean): void
-  purpose: TweetReactionBlockSessionRequest['purpose']
-  setPurpose(purpose: TweetReactionBlockSessionRequest['purpose']): void
   targetOptions: TweetReactionBlockSessionRequest['options']
   setTargetOptions(options: TweetReactionBlockSessionRequest['options']): void
   mutateOptions(optionsPart: Partial<TweetReactionBlockSessionRequest['options']>): void
@@ -49,8 +77,6 @@ interface UserSearchChainBlockPageStates {
   targetOptions: UserSearchBlockSessionRequest['options']
   setTargetOptions(options: UserSearchBlockSessionRequest['options']): void
   mutateOptions(optionsPart: Partial<UserSearchBlockSessionRequest['options']>): void
-  purpose: UserSearchBlockSessionRequest['purpose']
-  setPurpose(purpose: UserSearchBlockSessionRequest['purpose']): void
 }
 
 export const FollowerChainBlockPageStatesContext = React.createContext<
@@ -71,8 +97,6 @@ export const FollowerChainBlockPageStatesContext = React.createContext<
   },
   setTargetOptions() {},
   mutateOptions() {},
-  purpose: 'chainblock',
-  setPurpose() {},
 })
 
 export const TweetReactionChainBlockPageStatesContext = React.createContext<
@@ -85,8 +109,6 @@ export const TweetReactionChainBlockPageStatesContext = React.createContext<
   setWantBlockLikers() {},
   wantBlockMentionedUsers: false,
   setWantBlockMentionedUsers() {},
-  purpose: 'chainblock',
-  setPurpose() {},
   targetOptions: {
     myFollowers: 'Skip',
     myFollowings: 'Skip',
@@ -122,31 +144,32 @@ export const UserSearchChainBlockPageStatesContext = React.createContext<
   },
   setTargetOptions() {},
   mutateOptions() {},
-  purpose: 'chainblock',
-  setPurpose() {},
 })
 
 export function FollowerChainBlockPageStatesProvider(props: {
   children: React.ReactNode
   initialUser: TwitterUser | null
 }) {
+  const myself = React.useContext(MyselfContext)
+  const initialPurpose = determineInitialPurpose(myself, props.initialUser)
   const [targetOptions, setTargetOptions] = React.useState<FollowerBlockSessionRequest['options']>({
     myFollowers: 'Skip',
     myFollowings: 'Skip',
     mutualBlocked: 'Skip',
     includeUsersInBio: 'never',
   })
-  const myself = React.useContext(MyselfContext)
   const [selectedUserGroup, setSelectedUserGroup] = React.useState<SelectUserGroup>('current')
   const [selectedUser, setSelectedUser] = React.useState<TwitterUser | null>(props.initialUser)
   const [targetList, setTargetList] = React.useState<FollowKind>('followers')
-  const initialPurpose = determineInitialPurpose(myself, selectedUser)
-  const [purpose, setPurpose] = React.useState<FollowerBlockSessionRequest['purpose']>(
-    initialPurpose
-  )
   function mutateOptions(newOptionsPart: Partial<FollowerBlockSessionRequest['options']>) {
     const newOptions = { ...targetOptions, ...newOptionsPart }
     setTargetOptions(newOptions)
+  }
+  const availablePurposes: FollowerBlockSessionRequest['purpose'][] = []
+  if (initialPurpose === 'lockpicker') {
+    availablePurposes.push('lockpicker')
+  } else {
+    availablePurposes.push('chainblock', 'unchainblock', 'export')
   }
   return (
     <FollowerChainBlockPageStatesContext.Provider
@@ -158,14 +181,14 @@ export function FollowerChainBlockPageStatesProvider(props: {
         setSelectedUser,
         targetList,
         setTargetList,
-        purpose,
-        setPurpose,
         targetOptions,
         setTargetOptions,
         mutateOptions,
       }}
     >
-      {props.children}
+      <PurposeContextProvider initialPurpose={initialPurpose} availablePurposes={availablePurposes}>
+        {props.children}
+      </PurposeContextProvider>
     </FollowerChainBlockPageStatesContext.Provider>
   )
 }
@@ -184,9 +207,6 @@ export function TweetReactionChainBlockPageStatesProvider(props: {
   const [wantBlockRetweeters, setWantBlockRetweeters] = React.useState<boolean>(false)
   const [wantBlockLikers, setWantBlockLikers] = React.useState<boolean>(false)
   const [wantBlockMentionedUsers, setWantBlockMentionedUsers] = React.useState<boolean>(false)
-  const [purpose, setPurpose] = React.useState<TweetReactionBlockSessionRequest['purpose']>(
-    'chainblock'
-  )
   function mutateOptions(newOptionsPart: Partial<TweetReactionBlockSessionRequest['options']>) {
     const newOptions = { ...targetOptions, ...newOptionsPart }
     setTargetOptions(newOptions)
@@ -201,8 +221,6 @@ export function TweetReactionChainBlockPageStatesProvider(props: {
         setWantBlockLikers,
         wantBlockMentionedUsers,
         setWantBlockMentionedUsers,
-        purpose,
-        setPurpose,
         targetOptions,
         setTargetOptions,
         mutateOptions,
@@ -246,9 +264,6 @@ export function UserSearchChainBlockPageStatesProvider(props: {
   children: React.ReactNode
   currentSearchQuery: string | null
 }) {
-  const [purpose, setPurpose] = React.useState<UserSearchBlockSessionRequest['purpose']>(
-    'chainblock'
-  )
   const [targetOptions, setTargetOptions] = React.useState<
     UserSearchBlockSessionRequest['options']
   >({
@@ -268,8 +283,6 @@ export function UserSearchChainBlockPageStatesProvider(props: {
         targetOptions,
         setTargetOptions,
         mutateOptions,
-        purpose,
-        setPurpose,
       }}
     >
       {props.children}
