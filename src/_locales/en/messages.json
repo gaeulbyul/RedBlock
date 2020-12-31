@@ -642,11 +642,8 @@
       }
     }
   },
-  "export_followers_description": {
-    "message": "Generate & export blocklist file from user's followings/followers. (up to 100,000)"
-  },
-  "export_tweetreaction_description": {
-    "message": "Generate & export blocklist file from tweet's retweeters/likers."
+  "export_description": {
+    "message": "Generate & export blocklist file from users according to the options you set."
   },
   "save": {
     "message": "Save"

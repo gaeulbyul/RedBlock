@@ -337,7 +337,7 @@ export function ChainBlockPurposeUI() {
       )}
       {exportable && (
         <TabPanel value={purpose} index="export">
-          <div className="description">{i18n.getMessage('export_followers_description')}</div>
+          <div className="description">{i18n.getMessage('export_description')}</div>
         </TabPanel>
       )}
       {lockpickable && (
