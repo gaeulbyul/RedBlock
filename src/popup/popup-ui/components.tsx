@@ -291,7 +291,7 @@ export const BigExecuteLockPickerButton = MaterialUI.withStyles(theme => ({
   },
 }))(BigBaseButton)
 
-export function ChainBlockOptionsUI(props: {
+export function ChainBlockPurposeUI(props: {
   TargetChainBlockOptionsUI(): React.ReactElement
   TargetUnChainBlockOptionsUI(): React.ReactElement
 }) {

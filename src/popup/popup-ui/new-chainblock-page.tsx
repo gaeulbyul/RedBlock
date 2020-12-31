@@ -21,7 +21,7 @@ import {
   BigExportButton,
   BigExecuteLockPickerButton,
   WhatIsBioBlock,
-  ChainBlockOptionsUI,
+  ChainBlockPurposeUI,
 } from './components.js'
 import {
   SelectUserGroup,
@@ -410,7 +410,7 @@ function TargetOptionsUI() {
   const summary = `${i18n.getMessage('options')} (${i18n.getMessage(purpose)})`
   return (
     <DenseExpansionPanel summary={summary} defaultExpanded>
-      <ChainBlockOptionsUI {...{ TargetChainBlockOptionsUI, TargetUnChainBlockOptionsUI }} />
+      <ChainBlockPurposeUI {...{ TargetChainBlockOptionsUI, TargetUnChainBlockOptionsUI }} />
     </DenseExpansionPanel>
   )
 }

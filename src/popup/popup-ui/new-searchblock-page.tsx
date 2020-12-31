@@ -9,7 +9,7 @@ import {
   PleaseLoginBox,
   BlockLimiterUI,
   WhatIsBioBlock,
-  ChainBlockOptionsUI,
+  ChainBlockPurposeUI,
 } from './components.js'
 
 const M = MaterialUI
@@ -200,7 +200,7 @@ export default function NewSearchChainBlockPage() {
                   </T>
                 </M.Box>
               </M.Paper>
-              <ChainBlockOptionsUI
+              <ChainBlockPurposeUI
                 {...{ TargetChainBlockOptionsUI, TargetUnChainBlockOptionsUI }}
               />
               <BlockLimiterUI />

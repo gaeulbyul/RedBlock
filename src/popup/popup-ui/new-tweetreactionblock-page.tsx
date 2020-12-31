@@ -11,7 +11,7 @@ import {
   BigExecuteChainBlockButton,
   BigExportButton,
   WhatIsBioBlock,
-  ChainBlockOptionsUI,
+  ChainBlockPurposeUI,
 } from './components.js'
 import { TweetReactionChainBlockPageStatesContext, PurposeContext } from './ui-states.js'
 
@@ -160,7 +160,7 @@ function TargetOptionsUI() {
   // <TargetChainBlockOptionsUI />
   return (
     <DenseExpansionPanel summary={summary} defaultExpanded>
-      <ChainBlockOptionsUI
+      <ChainBlockPurposeUI
         {...{ TargetChainBlockOptionsUI }}
         TargetUnChainBlockOptionsUI={() => <div />}
       />

@@ -3,7 +3,7 @@ import {
   PleaseLoginBox,
   BlockLimiterUI,
   BigExecuteChainBlockButton,
-  ChainBlockOptionsUI,
+  ChainBlockPurposeUI,
 } from './components.js'
 import { PageEnum } from '../popup.js'
 import * as i18n from '../../scripts/i18n.js'
@@ -217,7 +217,7 @@ export default function BlocklistPage() {
                   </React.Fragment>
                 )}
               </div>
-              <ChainBlockOptionsUI
+              <ChainBlockPurposeUI
                 TargetChainBlockOptionsUI={ImportOptionsUI}
                 TargetUnChainBlockOptionsUI={() => <span>TODO</span>}
               />
