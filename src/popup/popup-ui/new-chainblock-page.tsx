@@ -20,7 +20,6 @@ import {
   BigExecuteUnChainBlockButton,
   BigExportButton,
   BigExecuteLockPickerButton,
-  WhatIsBioBlock,
   ChainBlockPurposeUI,
 } from './components.js'
 import {
@@ -217,71 +216,6 @@ function TargetUserProfileEmpty(props: { reason: 'invalid-user' | 'loading' }) {
   return <div>{message}</div>
 }
 
-function TargetChainBlockOptionsUI() {
-  const { targetOptions, mutateOptions } = React.useContext(SessionOptionsContext)
-  const { myFollowers, myFollowings, includeUsersInBio } = targetOptions
-  const userActions: Array<[UserAction, string]> = [
-    ['Skip', i18n.getMessage('skip')],
-    ['Mute', i18n.getMessage('do_mute')],
-    ['Block', i18n.getMessage('do_block')],
-  ]
-  const bioBlockModes: Array<[BioBlockMode, string]> = [
-    ['never', i18n.getMessage('bioblock_never')],
-    ['all', i18n.getMessage('bioblock_all')],
-    ['smart', i18n.getMessage('bioblock_smart')],
-  ]
-  return (
-    <React.Fragment>
-      <M.FormControl component="fieldset">
-        <M.FormLabel component="legend">{i18n.getMessage('my_followers')}</M.FormLabel>
-        <M.RadioGroup row>
-          {userActions.map(([action, localizedAction], index) => (
-            <M.FormControlLabel
-              key={index}
-              control={<M.Radio size="small" />}
-              checked={myFollowers === action}
-              onChange={() => mutateOptions({ myFollowers: action })}
-              label={localizedAction}
-            />
-          ))}
-        </M.RadioGroup>
-      </M.FormControl>
-      <br />
-      <M.FormControl component="fieldset">
-        <M.FormLabel component="legend">{i18n.getMessage('my_followings')}</M.FormLabel>
-        <M.RadioGroup row>
-          {userActions.map(([action, localizedAction], index) => (
-            <M.FormControlLabel
-              key={index}
-              control={<M.Radio size="small" />}
-              checked={myFollowings === action}
-              onChange={() => mutateOptions({ myFollowings: action })}
-              label={localizedAction}
-            />
-          ))}
-        </M.RadioGroup>
-      </M.FormControl>
-      <br />
-      <M.FormControl>
-        <M.FormLabel component="legend">
-          BioBlock &#x1F9EA; <WhatIsBioBlock />
-        </M.FormLabel>
-        <M.RadioGroup row>
-          {bioBlockModes.map(([mode, localizedMode], index) => (
-            <M.FormControlLabel
-              key={index}
-              control={<M.Radio size="small" />}
-              checked={includeUsersInBio === mode}
-              onChange={() => mutateOptions({ includeUsersInBio: mode })}
-              label={localizedMode}
-            />
-          ))}
-        </M.RadioGroup>
-      </M.FormControl>
-    </React.Fragment>
-  )
-}
-
 function TargetUserSelectUI(props: { isAvailable: boolean }) {
   const { isAvailable } = props
   const {
@@ -378,40 +312,12 @@ function TargetUserSelectUI(props: { isAvailable: boolean }) {
   )
 }
 
-function TargetUnChainBlockOptionsUI() {
-  // const { options, mutateOptions } = props
-  const { targetOptions, mutateOptions } = React.useContext(SessionOptionsContext)
-  const { mutualBlocked } = targetOptions
-  const userActions: Array<[UserAction, string]> = [
-    ['Skip', i18n.getMessage('skip')],
-    ['UnBlock', i18n.getMessage('do_unblock')],
-  ]
-  return (
-    <React.Fragment>
-      <M.FormControl component="fieldset">
-        <M.FormLabel component="legend">{i18n.getMessage('mutually_blocked')}</M.FormLabel>
-        <M.RadioGroup row>
-          {userActions.map(([action, localizedAction], index) => (
-            <M.FormControlLabel
-              key={index}
-              control={<M.Radio size="small" />}
-              checked={mutualBlocked === action}
-              onChange={() => mutateOptions({ mutualBlocked: action })}
-              label={localizedAction}
-            />
-          ))}
-        </M.RadioGroup>
-      </M.FormControl>
-    </React.Fragment>
-  )
-}
-
 function TargetOptionsUI() {
   const { purpose } = React.useContext(PurposeContext)
   const summary = `${i18n.getMessage('options')} (${i18n.getMessage(purpose)})`
   return (
     <DenseExpansionPanel summary={summary} defaultExpanded>
-      <ChainBlockPurposeUI {...{ TargetChainBlockOptionsUI, TargetUnChainBlockOptionsUI }} />
+      <ChainBlockPurposeUI />
     </DenseExpansionPanel>
   )
 }

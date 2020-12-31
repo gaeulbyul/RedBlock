@@ -24,49 +24,6 @@ import {
 const M = MaterialUI
 const T = MaterialUI.Typography
 
-function ImportOptionsUI() {
-  const { targetOptions, mutateOptions } = React.useContext(SessionOptionsContext)
-  const { myFollowers, myFollowings } = targetOptions
-  const userActions: Array<[UserAction, string]> = [
-    ['Skip', i18n.getMessage('skip')],
-    ['Mute', i18n.getMessage('do_mute')],
-    ['Block', i18n.getMessage('do_block')],
-  ]
-  return (
-    <React.Fragment>
-      <M.FormControl component="fieldset">
-        <M.FormLabel component="legend">{i18n.getMessage('my_followers')}</M.FormLabel>
-        <M.RadioGroup row>
-          {userActions.map(([userAction, localizedAction], index) => (
-            <M.FormControlLabel
-              key={index}
-              control={<M.Radio size="small" />}
-              checked={myFollowers === userAction}
-              onChange={() => mutateOptions({ myFollowers: userAction })}
-              label={localizedAction}
-            />
-          ))}
-        </M.RadioGroup>
-      </M.FormControl>
-      <br />
-      <M.FormControl component="fieldset">
-        <M.FormLabel component="legend">{i18n.getMessage('my_followings')}</M.FormLabel>
-        <M.RadioGroup row>
-          {userActions.map(([userAction, localizedAction], index) => (
-            <M.FormControlLabel
-              key={index}
-              control={<M.Radio size="small" />}
-              checked={myFollowings === userAction}
-              onChange={() => mutateOptions({ myFollowings: userAction })}
-              label={localizedAction}
-            />
-          ))}
-        </M.RadioGroup>
-      </M.FormControl>
-    </React.Fragment>
-  )
-}
-
 export default function BlocklistPage() {
   const myself = React.useContext(MyselfContext)
   const uiContext = React.useContext(UIContext)
@@ -219,10 +176,7 @@ export default function BlocklistPage() {
                   </React.Fragment>
                 )}
               </div>
-              <ChainBlockPurposeUI
-                TargetChainBlockOptionsUI={ImportOptionsUI}
-                TargetUnChainBlockOptionsUI={() => <span>TODO</span>}
-              />
+              <ChainBlockPurposeUI />
               <div className="description">
                 <p>{i18n.getMessage('blocklist_import_description')}</p>
                 <div className="hide-on-tab">

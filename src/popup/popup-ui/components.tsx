@@ -2,7 +2,7 @@ import { DialogMessageObj } from '../../scripts/text-generate.js'
 import * as i18n from '../../scripts/i18n.js'
 import { requestResetCounter } from '../../scripts/background/request-sender.js'
 import { UIContext, BlockLimiterContext } from './contexts.js'
-import { PurposeContext } from './ui-states.js'
+import { PurposeContext, SessionOptionsContext } from './ui-states.js'
 
 const M = MaterialUI
 const T = MaterialUI.Typography
@@ -291,26 +291,12 @@ export const BigExecuteLockPickerButton = MaterialUI.withStyles(theme => ({
   },
 }))(BigBaseButton)
 
-export function ChainBlockOptionsUI() {
-  //
-}
-
-export function ChainBlockPurposeUI(props: {
-  TargetChainBlockOptionsUI(): React.ReactElement
-  TargetUnChainBlockOptionsUI(): React.ReactElement
-}) {
-  const { TargetChainBlockOptionsUI, TargetUnChainBlockOptionsUI } = props
+export function ChainBlockPurposeUI() {
   const { purpose, setPurpose, availablePurposes } = React.useContext(PurposeContext)
   const chainblockable = availablePurposes.includes('chainblock')
   const unchainblockable = availablePurposes.includes('unchainblock')
   const exportable = availablePurposes.includes('export')
   const lockpickable = availablePurposes.includes('lockpicker')
-  if (chainblockable && !TargetChainBlockOptionsUI) {
-    throw new Error('TargetChainBlockOptionsUI is missing')
-  }
-  if (unchainblockable && !TargetUnChainBlockOptionsUI) {
-    throw new Error('TargetUnChainBlockOptionsUI is missing')
-  }
   return (
     <div style={{ width: '100%' }}>
       <M.Tabs
@@ -334,7 +320,7 @@ export function ChainBlockPurposeUI(props: {
       <M.Divider />
       {chainblockable && (
         <TabPanel value={purpose} index="chainblock">
-          <TargetChainBlockOptionsUI />
+          <ChainBlockOptionsUI />
           <M.Divider />
           <div className="description">
             {i18n.getMessage('chainblock_description')}{' '}
@@ -345,7 +331,7 @@ export function ChainBlockPurposeUI(props: {
       )}
       {unchainblockable && (
         <TabPanel value={purpose} index="unchainblock">
-          <TargetUnChainBlockOptionsUI />
+          <UnChainBlockOptionsUI />
           <div className="description">{i18n.getMessage('unchainblock_description')}</div>
         </TabPanel>
       )}
@@ -360,5 +346,98 @@ export function ChainBlockPurposeUI(props: {
         </TabPanel>
       )}
     </div>
+  )
+}
+
+function ChainBlockOptionsUI() {
+  const { targetOptions, mutateOptions } = React.useContext(SessionOptionsContext)
+  const { myFollowers, myFollowings, includeUsersInBio } = targetOptions
+  const userActions: Array<[UserAction, string]> = [
+    ['Skip', i18n.getMessage('skip')],
+    ['Mute', i18n.getMessage('do_mute')],
+    ['Block', i18n.getMessage('do_block')],
+  ]
+  const bioBlockModes: Array<[BioBlockMode, string]> = [
+    ['never', i18n.getMessage('bioblock_never')],
+    ['all', i18n.getMessage('bioblock_all')],
+    ['smart', i18n.getMessage('bioblock_smart')],
+  ]
+  return (
+    <React.Fragment>
+      <M.FormControl component="fieldset">
+        <M.FormLabel component="legend">{i18n.getMessage('my_followers')}</M.FormLabel>
+        <M.RadioGroup row>
+          {userActions.map(([action, localizedAction], index) => (
+            <M.FormControlLabel
+              key={index}
+              control={<M.Radio size="small" />}
+              checked={myFollowers === action}
+              onChange={() => mutateOptions({ myFollowers: action })}
+              label={localizedAction}
+            />
+          ))}
+        </M.RadioGroup>
+      </M.FormControl>
+      <br />
+      <M.FormControl component="fieldset">
+        <M.FormLabel component="legend">{i18n.getMessage('my_followings')}</M.FormLabel>
+        <M.RadioGroup row>
+          {userActions.map(([action, localizedAction], index) => (
+            <M.FormControlLabel
+              key={index}
+              control={<M.Radio size="small" />}
+              checked={myFollowings === action}
+              onChange={() => mutateOptions({ myFollowings: action })}
+              label={localizedAction}
+            />
+          ))}
+        </M.RadioGroup>
+      </M.FormControl>
+      <br />
+      <M.FormControl>
+        <M.FormLabel component="legend">
+          BioBlock &#x1F9EA; <WhatIsBioBlock />
+        </M.FormLabel>
+        <M.RadioGroup row>
+          {bioBlockModes.map(([mode, localizedMode], index) => (
+            <M.FormControlLabel
+              key={index}
+              control={<M.Radio size="small" />}
+              checked={includeUsersInBio === mode}
+              onChange={() => mutateOptions({ includeUsersInBio: mode })}
+              label={localizedMode}
+            />
+          ))}
+        </M.RadioGroup>
+      </M.FormControl>
+    </React.Fragment>
+  )
+}
+
+function UnChainBlockOptionsUI() {
+  // const { options, mutateOptions } = props
+  const { targetOptions, mutateOptions } = React.useContext(SessionOptionsContext)
+  const { mutualBlocked } = targetOptions
+  const userActions: Array<[UserAction, string]> = [
+    ['Skip', i18n.getMessage('skip')],
+    ['UnBlock', i18n.getMessage('do_unblock')],
+  ]
+  return (
+    <React.Fragment>
+      <M.FormControl component="fieldset">
+        <M.FormLabel component="legend">{i18n.getMessage('mutually_blocked')}</M.FormLabel>
+        <M.RadioGroup row>
+          {userActions.map(([action, localizedAction], index) => (
+            <M.FormControlLabel
+              key={index}
+              control={<M.Radio size="small" />}
+              checked={mutualBlocked === action}
+              onChange={() => mutateOptions({ mutualBlocked: action })}
+              label={localizedAction}
+            />
+          ))}
+        </M.RadioGroup>
+      </M.FormControl>
+    </React.Fragment>
   )
 }

@@ -10,7 +10,6 @@ import {
   DenseExpansionPanel,
   BigExecuteChainBlockButton,
   BigExportButton,
-  WhatIsBioBlock,
   ChainBlockPurposeUI,
 } from './components.js'
 import {
@@ -91,81 +90,13 @@ function TargetTweetOuterUI() {
   )
 }
 
-function TargetChainBlockOptionsUI() {
-  const { targetOptions, mutateOptions } = React.useContext(SessionOptionsContext)
-  const { myFollowers, myFollowings, includeUsersInBio } = targetOptions
-  const userActions: Array<[UserAction, string]> = [
-    ['Skip', i18n.getMessage('skip')],
-    ['Mute', i18n.getMessage('do_mute')],
-    ['Block', i18n.getMessage('do_block')],
-  ]
-  const bioBlockModes: Array<[BioBlockMode, string]> = [
-    ['never', i18n.getMessage('bioblock_never')],
-    ['all', i18n.getMessage('bioblock_all')],
-    ['smart', i18n.getMessage('bioblock_smart')],
-  ]
-  return (
-    <React.Fragment>
-      <M.FormControl component="fieldset">
-        <M.FormLabel component="legend">{i18n.getMessage('my_followers')}</M.FormLabel>
-        <M.RadioGroup row>
-          {userActions.map(([userAction, localizedAction], index) => (
-            <M.FormControlLabel
-              key={index}
-              control={<M.Radio size="small" />}
-              checked={myFollowers === userAction}
-              onChange={() => mutateOptions({ myFollowers: userAction })}
-              label={localizedAction}
-            />
-          ))}
-        </M.RadioGroup>
-      </M.FormControl>
-      <br />
-      <M.FormControl component="fieldset">
-        <M.FormLabel component="legend">{i18n.getMessage('my_followings')}</M.FormLabel>
-        <M.RadioGroup row>
-          {userActions.map(([userAction, localizedAction], index) => (
-            <M.FormControlLabel
-              key={index}
-              control={<M.Radio size="small" />}
-              checked={myFollowings === userAction}
-              onChange={() => mutateOptions({ myFollowings: userAction })}
-              label={localizedAction}
-            />
-          ))}
-        </M.RadioGroup>
-      </M.FormControl>
-      <br />
-      <M.FormControl>
-        <M.FormLabel component="legend">
-          BioBlock &#x1F9EA; <WhatIsBioBlock />
-        </M.FormLabel>
-        <M.RadioGroup row>
-          {bioBlockModes.map(([mode, localizedMode], index) => (
-            <M.FormControlLabel
-              key={index}
-              control={<M.Radio size="small" />}
-              checked={includeUsersInBio === mode}
-              onChange={() => mutateOptions({ includeUsersInBio: mode })}
-              label={localizedMode}
-            />
-          ))}
-        </M.RadioGroup>
-      </M.FormControl>
-    </React.Fragment>
-  )
-}
-
 function TargetOptionsUI() {
   const { purpose } = React.useContext(PurposeContext)
   const summary = `${i18n.getMessage('options')} (${i18n.getMessage(purpose)})`
   // <TargetChainBlockOptionsUI />
   return (
     <DenseExpansionPanel summary={summary} defaultExpanded>
-      <ChainBlockPurposeUI
-        {...{ TargetChainBlockOptionsUI }}
-        TargetUnChainBlockOptionsUI={() => <div />}
-      />
+      <ChainBlockPurposeUI />
     </DenseExpansionPanel>
   )
 }
