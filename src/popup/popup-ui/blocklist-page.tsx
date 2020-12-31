@@ -1,5 +1,6 @@
 import { UIContext, MyselfContext, BlockLimiterContext } from './contexts.js'
 import {
+  DenseExpansionPanel,
   PleaseLoginBox,
   BlockLimiterUI,
   BigExecuteChainBlockButton,
@@ -22,7 +23,16 @@ import {
 } from './ui-states.js'
 
 const M = MaterialUI
-const T = MaterialUI.Typography
+
+function TargetOptionsUI() {
+  const { purpose } = React.useContext(PurposeContext)
+  const summary = `${i18n.getMessage('options')} (${i18n.getMessage(purpose)})`
+  return (
+    <DenseExpansionPanel summary={summary} defaultExpanded>
+      <ChainBlockPurposeUI />
+    </DenseExpansionPanel>
+  )
+}
 
 export default function BlocklistPage() {
   const myself = React.useContext(MyselfContext)
@@ -125,85 +135,83 @@ export default function BlocklistPage() {
     </span>
   )
   return (
-    <div>
-      <M.ExpansionPanel defaultExpanded>
-        <M.ExpansionPanelSummary>
-          <T>{i18n.getMessage('import_blocklist')}</T>
-        </M.ExpansionPanelSummary>
-        <M.ExpansionPanelDetails>
-          <div style={{ width: '100%' }}>
-            <form onSubmit={onSubmit} onReset={onReset}>
-              <input
-                required
-                ref={fileInput}
-                id="input-file-to-import"
-                name="input-file"
-                type="file"
-                onChange={onChange}
-                multiple
-                style={{ display: 'none' }}
-                accept="text/plain,.txt,text/csv,.csv,application/json,.json,application/javascript,.js"
-              />
-              <M.FormControl component="fieldset" fullWidth>
-                <M.Box
-                  display="flex"
-                  flexDirection="row"
-                  alignItems="center"
-                  justifyContent="space-between"
-                >
-                  <label htmlFor="input-file-to-import">
-                    <M.Button variant="contained" component="span">
-                      {i18n.getMessage('select_files')}
-                    </M.Button>
-                  </label>
-                  <M.Button variant="outlined" type="reset">
-                    Reset
-                  </M.Button>
-                </M.Box>
-              </M.FormControl>
-              <div className="description">
-                <p>
-                  {usersToBlock} / {duplicatedUsers} / {invalidUsers}
-                </p>
-                {nameOfSelectedFiles.length > 0 && (
-                  <React.Fragment>
-                    <span>{i18n.getMessage('selected_files')}:</span>
-                    <ul className="list-of-files">
-                      {nameOfSelectedFiles.map((name, index) => (
-                        <li key={index}>{name}</li>
-                      ))}
-                    </ul>
-                  </React.Fragment>
-                )}
-              </div>
-              <ChainBlockPurposeUI />
-              <div className="description">
-                <p>{i18n.getMessage('blocklist_import_description')}</p>
-                <div className="hide-on-tab">
-                  <p style={{ fontWeight: 'bold' }}>
-                    ⚠ {i18n.getMessage('open_new_tab_for_file_picker')}
-                  </p>
-                  <M.Button
-                    type="button"
-                    variant="outlined"
-                    component="button"
-                    onClick={openPopupUIInTab}
-                  >
-                    {i18n.getMessage('open_in_new_tab')}
-                  </M.Button>
-                </div>
-              </div>
-              <BigExecuteChainBlockButton type="submit" disabled={!isAvailable}>
-                <span>
-                  {'\u{1f6d1}'} {i18n.getMessage('execute_chainblock')}
-                </span>
-              </BigExecuteChainBlockButton>
-            </form>
+    <form onSubmit={onSubmit} onReset={onReset}>
+      <DenseExpansionPanel summary={i18n.getMessage('import_blocklist')} defaultExpanded>
+        <div style={{ width: '100%' }}>
+          <input
+            required
+            ref={fileInput}
+            id="input-file-to-import"
+            name="input-file"
+            type="file"
+            onChange={onChange}
+            multiple
+            style={{ display: 'none' }}
+            accept="text/plain,.txt,text/csv,.csv,application/json,.json,application/javascript,.js"
+          />
+          <M.FormControl component="fieldset" fullWidth>
+            <M.Box
+              display="flex"
+              flexDirection="row"
+              alignItems="center"
+              justifyContent="space-between"
+            >
+              <label htmlFor="input-file-to-import">
+                <M.Button variant="contained" component="span">
+                  {i18n.getMessage('select_files')}
+                </M.Button>
+              </label>
+              <M.Button variant="outlined" type="reset">
+                Reset
+              </M.Button>
+            </M.Box>
+          </M.FormControl>
+          <div className="description">
+            <p>
+              {usersToBlock} / {duplicatedUsers} / {invalidUsers}
+            </p>
+            {nameOfSelectedFiles.length > 0 && (
+              <React.Fragment>
+                <span>{i18n.getMessage('selected_files')}:</span>
+                <ul className="list-of-files">
+                  {nameOfSelectedFiles.map((name, index) => (
+                    <li key={index}>{name}</li>
+                  ))}
+                </ul>
+              </React.Fragment>
+            )}
           </div>
-        </M.ExpansionPanelDetails>
-      </M.ExpansionPanel>
-      {myself ? '' : <PleaseLoginBox />}
-      <BlockLimiterUI />
-    </div>
+          <div className="description">
+            <p>{i18n.getMessage('blocklist_import_description')}</p>
+            <div className="hide-on-tab">
+              <p style={{ fontWeight: 'bold' }}>
+                ⚠ {i18n.getMessage('open_new_tab_for_file_picker')}
+              </p>
+              <M.Button
+                type="button"
+                variant="outlined"
+                component="button"
+                onClick={openPopupUIInTab}
+              >
+                {i18n.getMessage('open_in_new_tab')}
+              </M.Button>
+            </div>
+          </div>
+        </div>
+      </DenseExpansionPanel>
+      {myself ? (
+        <div>
+          <TargetOptionsUI />
+          <BlockLimiterUI />
+          <BigExecuteChainBlockButton type="submit" disabled={!isAvailable}>
+            <span>
+              {'\u{1f6d1}'} {i18n.getMessage('execute_chainblock')}
+            </span>
+          </BigExecuteChainBlockButton>
+        </div>
+      ) : (
+        <PleaseLoginBox />
+      )}
+    </form>
   )
 }

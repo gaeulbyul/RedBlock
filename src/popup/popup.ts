@@ -113,7 +113,6 @@ export function determineInitialPurpose(
   givenUser: TwitterUser | null
 ): Purpose {
   if (!(myself && givenUser)) {
-    console.warn('both null?')
     return 'chainblock'
   }
   if (myself.id_str === givenUser.id_str) {

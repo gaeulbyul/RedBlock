@@ -8,6 +8,7 @@ import {
   SessionOptionsContext,
 } from './ui-states.js'
 import {
+  DenseExpansionPanel,
   BigExecuteChainBlockButton,
   BigExecuteUnChainBlockButton,
   PleaseLoginBox,
@@ -81,6 +82,16 @@ function TargetExecutionButtonUI(props: { isAvailable: boolean }) {
   return <M.Box>{bigButton}</M.Box>
 }
 
+function TargetOptionsUI() {
+  const { purpose } = React.useContext(PurposeContext)
+  const summary = `${i18n.getMessage('options')} (${i18n.getMessage(purpose)})`
+  return (
+    <DenseExpansionPanel summary={summary} defaultExpanded>
+      <ChainBlockPurposeUI />
+    </DenseExpansionPanel>
+  )
+}
+
 export default function NewSearchChainBlockPage() {
   const myself = React.useContext(MyselfContext)
   const limiterStatus = React.useContext(BlockLimiterContext)
@@ -96,30 +107,23 @@ export default function NewSearchChainBlockPage() {
   const { searchQuery } = React.useContext(UserSearchChainBlockPageStatesContext)
   return (
     <div>
-      <M.ExpansionPanel defaultExpanded>
-        <M.ExpansionPanelSummary>
-          <T>{i18n.getMessage('usersearch_chainblock')}</T>
-        </M.ExpansionPanelSummary>
-        <M.ExpansionPanelDetails>
-          {myself ? (
-            <div style={{ width: '100%' }}>
-              <M.Paper>
-                <M.Box padding="10px">
-                  <T>
-                    {`${i18n.getMessage('query')}: `}
-                    <strong>{searchQuery}</strong>
-                  </T>
-                </M.Box>
-              </M.Paper>
-              <ChainBlockPurposeUI />
-              <BlockLimiterUI />
-              <TargetExecutionButtonUI isAvailable={isAvailable()} />
-            </div>
-          ) : (
-            <PleaseLoginBox />
-          )}
-        </M.ExpansionPanelDetails>
-      </M.ExpansionPanel>
+      <DenseExpansionPanel summary={i18n.getMessage('usersearch_chainblock')} defaultExpanded>
+        <div style={{ width: '100%' }}>
+          <T>
+            {`${i18n.getMessage('query')}: `}
+            <strong>{searchQuery}</strong>
+          </T>
+        </div>
+      </DenseExpansionPanel>
+      {myself ? (
+        <div>
+          <TargetOptionsUI />
+          <BlockLimiterUI />
+          <TargetExecutionButtonUI isAvailable={isAvailable()} />
+        </div>
+      ) : (
+        <PleaseLoginBox />
+      )}
     </div>
   )
 }

@@ -93,7 +93,6 @@ function TargetTweetOuterUI() {
 function TargetOptionsUI() {
   const { purpose } = React.useContext(PurposeContext)
   const summary = `${i18n.getMessage('options')} (${i18n.getMessage(purpose)})`
-  // <TargetChainBlockOptionsUI />
   return (
     <DenseExpansionPanel summary={summary} defaultExpanded>
       <ChainBlockPurposeUI />
