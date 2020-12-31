@@ -46,6 +46,7 @@ async function sendProgress() {
       limiter: {
         current: blockLimiter.count,
         max: blockLimiter.max,
+        remained: blockLimiter.max - blockLimiter.count,
       },
       sessions,
     })

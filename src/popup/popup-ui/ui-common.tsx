@@ -1,7 +1,7 @@
 import { DialogMessageObj } from '../../scripts/text-generate.js'
 import * as i18n from '../../scripts/i18n.js'
 import { requestResetCounter } from '../../scripts/background/request-sender.js'
-import { UIContext } from './contexts.js'
+import { UIContext, BlockLimiterContext } from './contexts.js'
 
 const M = MaterialUI
 const T = MaterialUI.Typography
@@ -161,13 +161,13 @@ export function DenseExpansionPanel(props: {
   )
 }
 
-export function BlockLimiterUI(props: { status: BlockLimiterStatus }) {
-  const { current, max } = props.status
+export function BlockLimiterUI() {
+  const { current, max, remained } = React.useContext(BlockLimiterContext)
   function handleResetButtonClick(event: React.MouseEvent<HTMLButtonElement>) {
     event.preventDefault()
     requestResetCounter()
   }
-  return (
+  return remained <= 0 ? (
     <DenseExpansionPanel summary={`${i18n.getMessage('block_counter')}: [${current} / ${max}]`}>
       <M.Box display="flex" flexDirection="row">
         <M.Box flexGrow="1">
@@ -180,6 +180,8 @@ export function BlockLimiterUI(props: { status: BlockLimiterStatus }) {
         </M.Button>
       </M.Box>
     </DenseExpansionPanel>
+  ) : (
+    <div />
   )
 }
 

@@ -18,4 +18,5 @@ export const MyselfContext = React.createContext<TwitterUser | null>(null)
 export const BlockLimiterContext = React.createContext<BlockLimiterStatus>({
   current: 0,
   max: 500,
+  remained: 500,
 })

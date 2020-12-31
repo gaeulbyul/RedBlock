@@ -72,12 +72,11 @@ export default function BlocklistPage() {
     setNameOfSelectedFiles,
   } = React.useContext(ImportChainBlockPageStatesContext)
   const [fileInput] = React.useState(React.createRef<HTMLInputElement>())
-  const availableBlocks = limiterStatus.max - limiterStatus.current
   function isAvailable() {
     if (!myself) {
       return false
     }
-    if (availableBlocks <= 0) {
+    if (limiterStatus.remained <= 0) {
       return false
     }
     return true
@@ -239,7 +238,7 @@ export default function BlocklistPage() {
         </M.ExpansionPanelDetails>
       </M.ExpansionPanel>
       {myself ? '' : <PleaseLoginBox />}
-      {availableBlocks <= 0 ? <BlockLimiterUI status={limiterStatus} /> : ''}
+      <BlockLimiterUI />
     </div>
   )
 }

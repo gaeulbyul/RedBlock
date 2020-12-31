@@ -547,12 +547,11 @@ export default function NewChainBlockPage() {
   const { purpose, selectedUser } = React.useContext(FollowerChainBlockPageStatesContext)
   const myself = React.useContext(MyselfContext)
   const limiterStatus = React.useContext(BlockLimiterContext)
-  const availableBlocks = limiterStatus.max - limiterStatus.current
   function isAvailable() {
     if (!myself) {
       return false
     }
-    if (availableBlocks <= 0 && (purpose === 'chainblock' || purpose === 'lockpicker')) {
+    if (limiterStatus.remained <= 0 && (purpose === 'chainblock' || purpose === 'lockpicker')) {
       return false
     }
     if (!selectedUser) {
@@ -584,7 +583,7 @@ export default function NewChainBlockPage() {
       {myself ? (
         <div>
           <TargetOptionsUI />
-          {availableBlocks <= 0 ? <BlockLimiterUI status={limiterStatus} /> : ''}
+          <BlockLimiterUI />
           <TargetExecutionButtonUI isAvailable={isAvailable()} />
         </div>
       ) : (

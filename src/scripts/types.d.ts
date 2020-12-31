@@ -239,6 +239,7 @@ interface BadWordItem {
 interface BlockLimiterStatus {
   current: number
   max: number
+  remained: number
 }
 
 // ---- import chainblock ----

@@ -257,12 +257,11 @@ function TargetExecutionButtonUI(props: { isAvailable: boolean }) {
 export default function NewTweetReactionBlockPage() {
   const myself = React.useContext(MyselfContext)
   const limiterStatus = React.useContext(BlockLimiterContext)
-  const availableBlocks = limiterStatus.max - limiterStatus.current
   function isAvailable() {
     if (!myself) {
       return false
     }
-    if (availableBlocks <= 0) {
+    if (limiterStatus.remained <= 0) {
       return false
     }
     return true
@@ -273,7 +272,7 @@ export default function NewTweetReactionBlockPage() {
       {myself ? (
         <div>
           <TargetOptionsUI />
-          {availableBlocks <= 0 ? <BlockLimiterUI status={limiterStatus} /> : ''}
+          <BlockLimiterUI />
           <TargetExecutionButtonUI isAvailable={isAvailable()} />
         </div>
       ) : (

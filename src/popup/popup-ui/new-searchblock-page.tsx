@@ -174,12 +174,11 @@ function TargetExecutionButtonUI(props: { isAvailable: boolean }) {
 export default function NewSearchChainBlockPage() {
   const myself = React.useContext(MyselfContext)
   const limiterStatus = React.useContext(BlockLimiterContext)
-  const availableBlocks = limiterStatus.max - limiterStatus.current
   function isAvailable() {
     if (!myself) {
       return false
     }
-    if (availableBlocks <= 0) {
+    if (limiterStatus.remained <= 0) {
       return false
     }
     return true
@@ -227,7 +226,7 @@ export default function NewSearchChainBlockPage() {
                 <TargetSearchUnChainBlockOptionsUI />
                 <div className="description">{i18n.getMessage('unchainblock_description')}</div>
               </TabPanel>
-              {availableBlocks <= 0 ? <BlockLimiterUI status={limiterStatus} /> : ''}
+              <BlockLimiterUI />
               <TargetExecutionButtonUI isAvailable={isAvailable()} />
             </div>
           ) : (

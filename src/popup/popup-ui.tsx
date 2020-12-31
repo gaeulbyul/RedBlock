@@ -81,7 +81,8 @@ function PopupApp(props: PopupAppProps) {
   const [sessions, setSessions] = React.useState<SessionInfo[]>([])
   const [limiterStatus, setLimiterStatus] = React.useState<BlockLimiterStatus>({
     current: 0,
-    max: 0,
+    max: 500,
+    remained: 500,
   })
   const [modalOpened, setModalOpened] = React.useState(false)
   const [modalContent, setModalContent] = React.useState<DialogContent | null>(null)
