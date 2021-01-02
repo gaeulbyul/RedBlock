@@ -69,6 +69,40 @@ interface PopupAppProps {
   redblockOptions: RedBlockStorage['options']
 }
 
+function pageIcon(page: PageEnum): React.ReactElement {
+  switch (page) {
+    case PageEnum.Sessions:
+      return <M.Icon>play_circle_filled_white_icon</M.Icon>
+    case PageEnum.NewSession:
+      return <M.Icon>group</M.Icon>
+    case PageEnum.NewTweetReactionBlock:
+      return <M.Icon>repeat</M.Icon>
+    case PageEnum.NewSearchChainBlock:
+      return <M.Icon>search</M.Icon>
+    case PageEnum.Blocklist:
+      return <M.Icon>list_alt</M.Icon>
+    case PageEnum.Utilities:
+      return <M.Icon>build</M.Icon>
+  }
+}
+
+function pageLabel(page: PageEnum, sessionsCount = 0): string {
+  switch (page) {
+    case PageEnum.Sessions:
+      return `${i18n.getMessage('running_sessions')} (${sessionsCount})`
+    case PageEnum.NewSession:
+      return i18n.getMessage('new_follower_session')
+    case PageEnum.NewTweetReactionBlock:
+      return i18n.getMessage('new_tweetreaction_session')
+    case PageEnum.NewSearchChainBlock:
+      return i18n.getMessage('new_searchblock_session')
+    case PageEnum.Blocklist:
+      return i18n.getMessage('blocklist_page')
+    case PageEnum.Utilities:
+      return i18n.getMessage('miscellaneous')
+  }
+}
+
 function PopupUITopMenu(props: {
   runningSessions: SessionInfo[]
   currentTweet: Tweet | null
@@ -102,14 +136,20 @@ function PopupUITopMenu(props: {
     setMenuAnchorElem(null)
   }
   const menus = [
-    <M.MenuItem onClick={handleSettingsClick}>
-      <M.Icon>settings</M.Icon> {i18n.getMessage('open_settings_ui')}
+    <M.MenuItem dense onClick={handleSettingsClick}>
+      <M.ListItemIcon>
+        <M.Icon>settings</M.Icon>
+      </M.ListItemIcon>
+      {i18n.getMessage('open_settings_ui')}
     </M.MenuItem>,
   ]
   if (!popupOpenedInTab) {
     menus.unshift(
-      <M.MenuItem onClick={handleOpenInTabClick}>
-        <M.Icon>open_in_new</M.Icon> {i18n.getMessage('open_in_new_tab')}
+      <M.MenuItem dense onClick={handleOpenInTabClick}>
+        <M.ListItemIcon>
+          <M.Icon>open_in_new</M.Icon>
+        </M.ListItemIcon>
+        {i18n.getMessage('open_in_new_tab')}
       </M.MenuItem>
     )
   }
@@ -117,35 +157,41 @@ function PopupUITopMenu(props: {
     menus.unshift(<M.Divider />)
     menus.unshift(
       ...[
-        <M.MenuItem onClick={() => switchPageFromMenu(PageEnum.Sessions)}>
-          <M.Icon>play_circle_filled_white_icon</M.Icon>
-          {`${i18n.getMessage('running_sessions')} (${runningSessions.length})`}
-        </M.MenuItem>,
-        <M.MenuItem disabled={!myself} onClick={() => switchPageFromMenu(PageEnum.NewSession)}>
-          <M.Icon>group</M.Icon>
-          {i18n.getMessage('new_follower_session')}
+        <M.MenuItem dense onClick={() => switchPageFromMenu(PageEnum.Sessions)}>
+          <M.ListItemIcon>{pageIcon(PageEnum.Sessions)}</M.ListItemIcon>
+          {pageLabel(PageEnum.Sessions, runningSessions.length)}
         </M.MenuItem>,
         <M.MenuItem
+          dense
+          disabled={!myself}
+          onClick={() => switchPageFromMenu(PageEnum.NewSession)}
+        >
+          <M.ListItemIcon>{pageIcon(PageEnum.NewSession)}</M.ListItemIcon>
+          {pageLabel(PageEnum.NewSession)}
+        </M.MenuItem>,
+        <M.MenuItem
+          dense
           disabled={!(myself && currentTweet)}
           onClick={() => switchPageFromMenu(PageEnum.NewTweetReactionBlock)}
         >
-          <M.Icon>repeat</M.Icon>
-          {i18n.getMessage('new_tweetreaction_session')}
+          <M.ListItemIcon>{pageIcon(PageEnum.NewTweetReactionBlock)}</M.ListItemIcon>
+          {pageLabel(PageEnum.NewTweetReactionBlock)}
         </M.MenuItem>,
         <M.MenuItem
+          dense
           disabled={!(myself && currentSearchQuery)}
           onClick={() => switchPageFromMenu(PageEnum.NewSearchChainBlock)}
         >
-          <M.Icon>search</M.Icon>
-          {i18n.getMessage('new_searchblock_session')}
+          <M.ListItemIcon>{pageIcon(PageEnum.NewSearchChainBlock)}</M.ListItemIcon>
+          {pageLabel(PageEnum.NewSearchChainBlock)}
         </M.MenuItem>,
-        <M.MenuItem disabled={!myself} onClick={() => switchPageFromMenu(PageEnum.Blocklist)}>
-          <M.Icon>list_alt</M.Icon>
-          {i18n.getMessage('blocklist_page')}
+        <M.MenuItem dense disabled={!myself} onClick={() => switchPageFromMenu(PageEnum.Blocklist)}>
+          <M.ListItemIcon>{pageIcon(PageEnum.Blocklist)}</M.ListItemIcon>
+          {pageLabel(PageEnum.Blocklist)}
         </M.MenuItem>,
-        <M.MenuItem disabled={!myself} onClick={() => switchPageFromMenu(PageEnum.Utilities)}>
-          <M.Icon>build</M.Icon>
-          {i18n.getMessage('miscellaneous')}
+        <M.MenuItem dense disabled={!myself} onClick={() => switchPageFromMenu(PageEnum.Utilities)}>
+          <M.ListItemIcon>{pageIcon(PageEnum.Utilities)}</M.ListItemIcon>
+          {pageLabel(PageEnum.Utilities)}
         </M.MenuItem>,
       ]
     )
@@ -247,7 +293,7 @@ function PopupApp(props: PopupAppProps) {
         horizontal: 'right',
       }}
     >
-      <M.Icon>play_circle_filled_white_icon</M.Icon>
+      {pageIcon(PageEnum.Sessions)}
     </M.Badge>
   )
   return (
@@ -272,44 +318,41 @@ function PopupApp(props: PopupAppProps) {
                     <M.Icon>menu</M.Icon>
                   </M.IconButton>
                   <M.Tabs value={tabIndex} onChange={(_ev, val) => setTabIndex(val)}>
-                    <M.Tooltip
-                      arrow
-                      title={`${i18n.getMessage('running_sessions')} (${runningSessions.length})`}
-                    >
+                    <M.Tooltip arrow title={pageLabel(PageEnum.Sessions, runningSessions.length)}>
                       <M.Tab className={classes.tab} icon={runningSessionsTabIcon} />
                     </M.Tooltip>
-                    <M.Tooltip arrow title={i18n.getMessage('new_follower_session')}>
+                    <M.Tooltip arrow title={pageLabel(PageEnum.NewSession)}>
                       <M.Tab
                         className={classes.tab}
-                        icon={<M.Icon>group</M.Icon>}
+                        icon={pageIcon(PageEnum.NewSession)}
                         disabled={!myself}
                       />
                     </M.Tooltip>
-                    <M.Tooltip arrow title={i18n.getMessage('new_tweetreaction_session')}>
+                    <M.Tooltip arrow title={pageLabel(PageEnum.NewTweetReactionBlock)}>
                       <M.Tab
                         className={classes.tab}
-                        icon={<M.Icon>repeat</M.Icon>}
+                        icon={pageIcon(PageEnum.NewTweetReactionBlock)}
                         disabled={!(myself && currentTweet)}
                       />
                     </M.Tooltip>
-                    <M.Tooltip arrow title={i18n.getMessage('new_searchblock_session')}>
+                    <M.Tooltip arrow title={pageLabel(PageEnum.NewSearchChainBlock)}>
                       <M.Tab
                         className={classes.tab}
-                        icon={<M.Icon>search</M.Icon>}
+                        icon={pageIcon(PageEnum.NewSearchChainBlock)}
                         disabled={!(myself && currentSearchQuery)}
                       />
                     </M.Tooltip>
-                    <M.Tooltip arrow title={i18n.getMessage('blocklist_page')}>
+                    <M.Tooltip arrow title={pageLabel(PageEnum.Blocklist)}>
                       <M.Tab
                         className={classes.tab}
-                        icon={<M.Icon>list_alt</M.Icon>}
+                        icon={pageIcon(PageEnum.Blocklist)}
                         disabled={!myself}
                       />
                     </M.Tooltip>
-                    <M.Tooltip arrow title={i18n.getMessage('miscellaneous')}>
+                    <M.Tooltip arrow title={pageLabel(PageEnum.Utilities)}>
                       <M.Tab
                         className={classes.tab}
-                        icon={<M.Icon>build</M.Icon>}
+                        icon={pageIcon(PageEnum.Utilities)}
                         disabled={!myself}
                       />
                     </M.Tooltip>
