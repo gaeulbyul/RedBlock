@@ -187,27 +187,39 @@ function PopupApp(props: PopupAppProps) {
                       <M.Tab className={classes.tab} icon={runningSessionsTabIcon} />
                     </M.Tooltip>
                     <M.Tooltip arrow title={i18n.getMessage('new_follower_session')}>
-                      <M.Tab className={classes.tab} icon={<M.Icon>group</M.Icon>} />
+                      <M.Tab
+                        className={classes.tab}
+                        icon={<M.Icon>group</M.Icon>}
+                        disabled={!myself}
+                      />
                     </M.Tooltip>
                     <M.Tooltip arrow title={i18n.getMessage('new_tweetreaction_session')}>
                       <M.Tab
                         className={classes.tab}
-                        disabled={!currentTweet}
                         icon={<M.Icon>repeat</M.Icon>}
+                        disabled={!(myself && currentTweet)}
                       />
                     </M.Tooltip>
                     <M.Tooltip arrow title={i18n.getMessage('new_searchblock_session')}>
                       <M.Tab
                         className={classes.tab}
-                        disabled={!currentSearchQuery}
                         icon={<M.Icon>search</M.Icon>}
+                        disabled={!(myself && currentSearchQuery)}
                       />
                     </M.Tooltip>
                     <M.Tooltip arrow title={i18n.getMessage('blocklist_page')}>
-                      <M.Tab className={classes.tab} icon={<M.Icon>list_alt</M.Icon>} />
+                      <M.Tab
+                        className={classes.tab}
+                        icon={<M.Icon>list_alt</M.Icon>}
+                        disabled={!myself}
+                      />
                     </M.Tooltip>
                     <M.Tooltip arrow title={i18n.getMessage('miscellaneous')}>
-                      <M.Tab className={classes.tab} icon={<M.Icon>build</M.Icon>} />
+                      <M.Tab
+                        className={classes.tab}
+                        icon={<M.Icon>build</M.Icon>}
+                        disabled={!myself}
+                      />
                     </M.Tooltip>
                   </M.Tabs>
                 </M.Toolbar>
@@ -293,15 +305,26 @@ function showVersionOnFooter() {
 }
 
 interface TabContext {
+  myself: TwitterUser | null
   currentUser: TwitterUser | null
   currentTweet: Tweet | null
   currentSearchQuery: string | null
 }
 
 async function getTabContext(): Promise<TabContext> {
+  const myself = await TwitterAPI.getMyself().catch(() => null)
+  if (!myself) {
+    return {
+      myself,
+      currentUser: null,
+      currentTweet: null,
+      currentSearchQuery: null,
+    }
+  }
   const tab = await getCurrentTab()
   if (!tab) {
     return {
+      myself,
       currentUser: null,
       currentTweet: null,
       currentSearchQuery: null,
@@ -321,6 +344,7 @@ async function getTabContext(): Promise<TabContext> {
   }
   const currentSearchQuery = getCurrentSearchQueryFromTab(tab)
   return {
+    myself,
     currentTweet,
     currentUser,
     currentSearchQuery,
@@ -329,7 +353,6 @@ async function getTabContext(): Promise<TabContext> {
 
 export async function initializeUI() {
   const redblockOptions = loadOptions()
-  const myself = TwitterAPI.getMyself().catch(() => null)
   const isPopupOpenedInTab = /\bistab=1\b/.test(location.search)
   let initialPage: PageEnum
   const initialPageMatch = /\bpage=([0-5])\b/.exec(location.search)
@@ -338,11 +361,11 @@ export async function initializeUI() {
   } else {
     initialPage = PageEnum.Sessions
   }
-  const { currentTweet, currentUser, currentSearchQuery } = await getTabContext()
+  const { myself, currentTweet, currentUser, currentSearchQuery } = await getTabContext()
   const appRoot = document.getElementById('app')!
   const app = (
     <PopupApp
-      myself={await myself}
+      myself={myself}
       currentUser={currentUser}
       currentTweet={currentTweet}
       currentSearchQuery={currentSearchQuery}

@@ -100,6 +100,11 @@ export function TabPanel(props: { children?: React.ReactNode; index: any; value:
 }
 
 export function PleaseLoginBox() {
+  function closePopup(_event: React.MouseEvent) {
+    window.setTimeout(() => {
+      window.close()
+    }, 200)
+  }
   return (
     <M.Paper>
       <M.Box padding="12px 16px">
@@ -109,6 +114,7 @@ export function PleaseLoginBox() {
             rel="noopener noreferer"
             target="_blank"
             href="https://twitter.com/login"
+            onClick={closePopup}
             style={{ textDecoration: 'none' }}
           >
             <M.Button variant="outlined" startIcon={<M.Icon>exit_to_app</M.Icon>}>

@@ -11,7 +11,6 @@ import {
   DenseExpansionPanel,
   BigExecuteChainBlockButton,
   BigExecuteUnChainBlockButton,
-  PleaseLoginBox,
   BlockLimiterUI,
   ChainBlockPurposeUI,
 } from './components.js'
@@ -115,15 +114,9 @@ export default function NewSearchChainBlockPage() {
           </T>
         </div>
       </DenseExpansionPanel>
-      {myself ? (
-        <div>
-          <TargetOptionsUI />
-          <BlockLimiterUI />
-          <TargetExecutionButtonUI isAvailable={isAvailable()} />
-        </div>
-      ) : (
-        <PleaseLoginBox />
-      )}
+      <TargetOptionsUI />
+      <BlockLimiterUI />
+      <TargetExecutionButtonUI isAvailable={isAvailable()} />
     </div>
   )
 }

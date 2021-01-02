@@ -4,7 +4,6 @@ import * as TextGenerate from '../../scripts/text-generate.js'
 import { MyselfContext, BlockLimiterContext, UIContext } from './contexts.js'
 import { startNewChainBlockSession } from '../../scripts/background/request-sender.js'
 import {
-  PleaseLoginBox,
   BlockLimiterUI,
   TwitterUserProfile,
   DenseExpansionPanel,
@@ -189,15 +188,9 @@ export default function NewTweetReactionBlockPage() {
   return (
     <div>
       <TargetTweetOuterUI />
-      {myself ? (
-        <div>
-          <TargetOptionsUI />
-          <BlockLimiterUI />
-          <TargetExecutionButtonUI isAvailable={isAvailable()} />
-        </div>
-      ) : (
-        <PleaseLoginBox />
-      )}
+      <TargetOptionsUI />
+      <BlockLimiterUI />
+      <TargetExecutionButtonUI isAvailable={isAvailable()} />
     </div>
   )
 }

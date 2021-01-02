@@ -11,9 +11,9 @@ import {
   stopChainBlock,
   downloadFromExportSession,
 } from '../../scripts/background/request-sender.js'
-import { UIContext } from './contexts.js'
+import { UIContext, MyselfContext } from './contexts.js'
 import { statusToString } from '../../scripts/text-generate.js'
-import { BlockLimiterUI } from './components.js'
+import { BlockLimiterUI, PleaseLoginBox } from './components.js'
 import * as i18n from '../../scripts/i18n.js'
 
 const M = MaterialUI
@@ -285,6 +285,31 @@ function ChainBlockSessionItem(props: { sessionInfo: SessionInfo }) {
   )
 }
 
+function GlobalControls() {
+  const uiContext = React.useContext(UIContext)
+  function requestStopAllChainBlock() {
+    uiContext.openDialog({
+      dialogType: 'confirm',
+      message: {
+        title: i18n.getMessage('confirm_all_stop'),
+      },
+      callbackOnOk: stopAllChainBlock,
+    })
+  }
+  return (
+    <M.ButtonGroup>
+      <M.Button onClick={requestStopAllChainBlock}>
+        <M.Icon>highlight_off</M.Icon>
+        {i18n.getMessage('stop_all')}
+      </M.Button>
+      <M.Button onClick={cleanupInactiveSessions}>
+        <M.Icon>clear_all</M.Icon>
+        {i18n.getMessage('cleanup_sessions')}
+      </M.Button>
+    </M.ButtonGroup>
+  )
+}
+
 const useStylesForFabButton = MaterialUI.makeStyles(theme =>
   MaterialUI.createStyles({
     fab: {
@@ -297,33 +322,11 @@ const useStylesForFabButton = MaterialUI.makeStyles(theme =>
 
 export default function ChainBlockSessionsPage(props: { sessions: SessionInfo[] }) {
   const { sessions } = props
+  const myself = React.useContext(MyselfContext)
   const uiContext = React.useContext(UIContext)
   const classes = useStylesForFabButton()
   function handleFabButtonClicked() {
     uiContext.switchPage(PageEnum.NewSession)
-  }
-  function renderGlobalControls() {
-    function requestStopAllChainBlock() {
-      uiContext.openDialog({
-        dialogType: 'confirm',
-        message: {
-          title: i18n.getMessage('confirm_all_stop'),
-        },
-        callbackOnOk: stopAllChainBlock,
-      })
-    }
-    return (
-      <M.ButtonGroup>
-        <M.Button onClick={requestStopAllChainBlock}>
-          <M.Icon>highlight_off</M.Icon>
-          {i18n.getMessage('stop_all')}
-        </M.Button>
-        <M.Button onClick={cleanupInactiveSessions}>
-          <M.Icon>clear_all</M.Icon>
-          {i18n.getMessage('cleanup_sessions')}
-        </M.Button>
-      </M.ButtonGroup>
-    )
   }
   function renderSessions() {
     return (
@@ -351,14 +354,22 @@ export default function ChainBlockSessionsPage(props: { sessions: SessionInfo[] 
   const isSessionExist = sessions.length > 0
   return (
     <div>
-      <M.Box marginBottom="15px">{renderGlobalControls()}</M.Box>
-      <BlockLimiterUI />
-      {isSessionExist ? renderSessions() : renderEmptySessions()}
-      <M.Tooltip placement="left" title={i18n.getMessage('new_follower_session')}>
-        <M.Fab className={classes.fab} color="primary" onClick={handleFabButtonClicked}>
-          <M.Icon>add</M.Icon>
-        </M.Fab>
-      </M.Tooltip>
+      {myself ? (
+        <React.Fragment>
+          <M.Box marginBottom="15px">
+            <GlobalControls />
+          </M.Box>
+          <BlockLimiterUI />
+          {isSessionExist ? renderSessions() : renderEmptySessions()}
+          <M.Tooltip placement="left" title={i18n.getMessage('new_follower_session')}>
+            <M.Fab className={classes.fab} color="primary" onClick={handleFabButtonClicked}>
+              <M.Icon>add</M.Icon>
+            </M.Fab>
+          </M.Tooltip>
+        </React.Fragment>
+      ) : (
+        <PleaseLoginBox />
+      )}
     </div>
   )
 }

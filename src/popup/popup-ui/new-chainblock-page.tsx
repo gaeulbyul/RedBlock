@@ -12,7 +12,6 @@ import {
 } from '../../scripts/background/request-sender.js'
 import { UIContext, MyselfContext, BlockLimiterContext } from './contexts.js'
 import {
-  PleaseLoginBox,
   BlockLimiterUI,
   TwitterUserProfile,
   DenseExpansionPanel,
@@ -452,15 +451,9 @@ export default function NewChainBlockPage() {
   return (
     <div>
       <TargetUserSelectUI isAvailable={isAvailable()} />
-      {myself ? (
-        <div>
-          <TargetOptionsUI />
-          <BlockLimiterUI />
-          <TargetExecutionButtonUI isAvailable={isAvailable()} />
-        </div>
-      ) : (
-        <PleaseLoginBox />
-      )}
+      <TargetOptionsUI />
+      <BlockLimiterUI />
+      <TargetExecutionButtonUI isAvailable={isAvailable()} />
     </div>
   )
 }

@@ -2,7 +2,6 @@ import { defaultSessionOptions } from '../../scripts/background/chainblock-sessi
 import { UIContext, MyselfContext, BlockLimiterContext } from './contexts.js'
 import {
   DenseExpansionPanel,
-  PleaseLoginBox,
   BlockLimiterUI,
   BigExecuteChainBlockButton,
   ChainBlockPurposeUI,
@@ -194,19 +193,13 @@ export default function BlocklistPage() {
           </div>
         </div>
       </DenseExpansionPanel>
-      {myself ? (
-        <div>
-          <TargetOptionsUI />
-          <BlockLimiterUI />
-          <BigExecuteChainBlockButton type="submit" disabled={!isAvailable}>
-            <span>
-              {'\u{1f6d1}'} {i18n.getMessage('execute_chainblock')}
-            </span>
-          </BigExecuteChainBlockButton>
-        </div>
-      ) : (
-        <PleaseLoginBox />
-      )}
+      <TargetOptionsUI />
+      <BlockLimiterUI />
+      <BigExecuteChainBlockButton type="submit" disabled={!isAvailable}>
+        <span>
+          {'\u{1f6d1}'} {i18n.getMessage('execute_chainblock')}
+        </span>
+      </BigExecuteChainBlockButton>
     </form>
   )
 }
