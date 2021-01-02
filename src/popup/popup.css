@@ -9,6 +9,24 @@
   --popup-width: 550px;
 }
 
+/*
+파이어폭스 오버플로우 메뉴에 팝업을 띄울 때 가로폭 크기가 작은 문제
+https://discourse.mozilla.org/t/can-add-ons-webextensions-popups-determinate-whether-they-are-shown-in-the-overflow-menu-or-not/27937
+https://bugzilla.mozilla.org/show_bug.cgi?id=1373490
+popup-ui.tsx의 shrinkPopup 부분도 체크할 것
+*/
+@media screen and (width: 425px) {
+  :root {
+    --popup-width: 425px;
+  }
+}
+
+@media screen and (width: 348px) {
+  :root {
+    --popup-width: 348px;
+  }
+}
+
 @media screen and (prefers-color-scheme: light) {
   /* https://material-ui.com/customization/palette/#dark-mode */
   :root {

@@ -3,10 +3,24 @@ import { defaultOptions } from '../../scripts/background/storage.js'
 import type { DialogContent } from './components.js'
 import type { TwitterUser } from '../../scripts/background/twitter-api.js'
 
-export const UIContext = React.createContext({
-  openDialog(_content: DialogContent) {},
-  openSnackBar(_message: string) {},
-  switchPage(_tabIndex: PageEnum) {},
+interface UIContextType {
+  openDialog(content: DialogContent): void
+  openSnackBar(message: string): void
+  switchPage(tabIndex: PageEnum): void
+  shrinkedPopup: boolean
+  popupOpenedInTab: boolean
+  menuAnchorElem: HTMLElement | null
+  setMenuAnchorElem(elem: HTMLElement | null): void
+}
+
+export const UIContext = React.createContext<UIContextType>({
+  openDialog() {},
+  openSnackBar() {},
+  switchPage() {},
+  shrinkedPopup: false,
+  popupOpenedInTab: false,
+  menuAnchorElem: null,
+  setMenuAnchorElem() {},
 })
 
 export const RedBlockOptionsContext = React.createContext({

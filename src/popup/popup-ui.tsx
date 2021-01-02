@@ -33,6 +33,8 @@ import {
   PageEnum,
 } from './popup.js'
 
+const M = MaterialUI
+
 function checkMessage(msg: object): msg is RBMessageToPopupType {
   if (msg == null) {
     return false
@@ -58,13 +60,105 @@ const useStylesForAppBar = MaterialUI.makeStyles(() =>
 )
 
 interface PopupAppProps {
-  myself: TwitterAPI.TwitterUser | null
-  currentUser: TwitterAPI.TwitterUser | null
-  currentTweet: TwitterAPI.Tweet | null
+  myself: TwitterUser | null
+  currentUser: TwitterUser | null
+  currentTweet: Tweet | null
   currentSearchQuery: string | null
-  isPopupOpenedInTab: boolean
+  popupOpenedInTab: boolean
   initialPage: PageEnum
   redblockOptions: RedBlockStorage['options']
+}
+
+function PopupUITopMenu(props: {
+  runningSessions: SessionInfo[]
+  currentTweet: Tweet | null
+  currentSearchQuery: string | null
+}) {
+  const { runningSessions, currentTweet, currentSearchQuery } = props
+  const {
+    shrinkedPopup,
+    menuAnchorElem,
+    setMenuAnchorElem,
+    switchPage,
+    popupOpenedInTab,
+  } = React.useContext(UIContext)
+  const myself = React.useContext(MyselfContext)
+  function handleOpenInTabClick() {
+    browser.tabs.create({
+      active: true,
+      url: '/popup/popup.html?istab=1',
+    })
+    closeMenu()
+  }
+  function handleSettingsClick() {
+    browser.runtime.openOptionsPage()
+    closeMenu()
+  }
+  function switchPageFromMenu(page: PageEnum) {
+    switchPage(page)
+    closeMenu()
+  }
+  function closeMenu() {
+    setMenuAnchorElem(null)
+  }
+  const menus = [
+    <M.MenuItem onClick={handleSettingsClick}>
+      <M.Icon>settings</M.Icon> {i18n.getMessage('open_settings_ui')}
+    </M.MenuItem>,
+  ]
+  if (!popupOpenedInTab) {
+    menus.unshift(
+      <M.MenuItem onClick={handleOpenInTabClick}>
+        <M.Icon>open_in_new</M.Icon> {i18n.getMessage('open_in_new_tab')}
+      </M.MenuItem>
+    )
+  }
+  if (shrinkedPopup) {
+    menus.unshift(<M.Divider />)
+    menus.unshift(
+      ...[
+        <M.MenuItem onClick={() => switchPageFromMenu(PageEnum.Sessions)}>
+          <M.Icon>play_circle_filled_white_icon</M.Icon>
+          {`${i18n.getMessage('running_sessions')} (${runningSessions.length})`}
+        </M.MenuItem>,
+        <M.MenuItem disabled={!myself} onClick={() => switchPageFromMenu(PageEnum.NewSession)}>
+          <M.Icon>group</M.Icon>
+          {i18n.getMessage('new_follower_session')}
+        </M.MenuItem>,
+        <M.MenuItem
+          disabled={!(myself && currentTweet)}
+          onClick={() => switchPageFromMenu(PageEnum.NewTweetReactionBlock)}
+        >
+          <M.Icon>repeat</M.Icon>
+          {i18n.getMessage('new_tweetreaction_session')}
+        </M.MenuItem>,
+        <M.MenuItem
+          disabled={!(myself && currentSearchQuery)}
+          onClick={() => switchPageFromMenu(PageEnum.NewSearchChainBlock)}
+        >
+          <M.Icon>search</M.Icon>
+          {i18n.getMessage('new_searchblock_session')}
+        </M.MenuItem>,
+        <M.MenuItem disabled={!myself} onClick={() => switchPageFromMenu(PageEnum.Blocklist)}>
+          <M.Icon>list_alt</M.Icon>
+          {i18n.getMessage('blocklist_page')}
+        </M.MenuItem>,
+        <M.MenuItem disabled={!myself} onClick={() => switchPageFromMenu(PageEnum.Utilities)}>
+          <M.Icon>build</M.Icon>
+          {i18n.getMessage('miscellaneous')}
+        </M.MenuItem>,
+      ]
+    )
+  }
+  return (
+    <M.Menu
+      keepMounted
+      anchorEl={menuAnchorElem}
+      open={Boolean(menuAnchorElem)}
+      onClose={closeMenu}
+      children={[menus]}
+    />
+  )
 }
 
 function PopupApp(props: PopupAppProps) {
@@ -73,7 +167,7 @@ function PopupApp(props: PopupAppProps) {
     currentUser,
     currentTweet,
     currentSearchQuery,
-    isPopupOpenedInTab,
+    popupOpenedInTab,
     initialPage,
     redblockOptions,
   } = props
@@ -88,8 +182,11 @@ function PopupApp(props: PopupAppProps) {
   const [modalContent, setModalContent] = React.useState<DialogContent | null>(null)
   const [snackBarMessage, setSnackBarMessage] = React.useState('')
   const [snackBarOpen, setSnackBarOpen] = React.useState(false)
-  const [menuAnchorEl, setMenuAnchorEl] = React.useState<HTMLElement | null>(null)
+  const [menuAnchorElem, setMenuAnchorElem] = React.useState<HTMLElement | null>(null)
   const darkMode = MaterialUI.useMediaQuery('(prefers-color-scheme:dark)')
+  // 파이어폭스의 팝업 가로폭 문제
+  // 참고: popup.css
+  const shrinkedPopup = MaterialUI.useMediaQuery('(width:348px), (width:425px)')
   const theme = React.useMemo(() => RedBlockUITheme(darkMode), [darkMode])
   const classes = useStylesForAppBar()
   function openDialog(content: DialogContent) {
@@ -103,6 +200,9 @@ function PopupApp(props: PopupAppProps) {
   function switchPage(page: PageEnum) {
     setTabIndex(page)
   }
+  function handleMenuButtonClick(event: React.MouseEvent<HTMLButtonElement>) {
+    setMenuAnchorElem(event.currentTarget)
+  }
   function openSnackBar(message: string) {
     setSnackBarMessage(message)
     setSnackBarOpen(true)
@@ -112,23 +212,6 @@ function PopupApp(props: PopupAppProps) {
       return
     }
     setSnackBarOpen(false)
-  }
-  function handleMenuButtonClick(event: React.MouseEvent<HTMLButtonElement>) {
-    setMenuAnchorEl(event.currentTarget)
-  }
-  function handleOpenInTabClick() {
-    browser.tabs.create({
-      active: true,
-      url: '/popup/popup.html?istab=1',
-    })
-    closeMenu()
-  }
-  function handleSettingsClick() {
-    browser.runtime.openOptionsPage()
-    closeMenu()
-  }
-  function closeMenu() {
-    setMenuAnchorEl(null)
   }
   React.useEffect(() => {
     const messageListener = (msg: object) => {
@@ -155,7 +238,6 @@ function PopupApp(props: PopupAppProps) {
     }
   }, [])
   const runningSessions = sessions.filter(session => isRunningSession(session))
-  const M = MaterialUI
   const runningSessionsTabIcon = (
     <M.Badge
       color="secondary"
@@ -170,7 +252,17 @@ function PopupApp(props: PopupAppProps) {
   )
   return (
     <M.ThemeProvider theme={theme}>
-      <UIContext.Provider value={{ openDialog, openSnackBar, switchPage }}>
+      <UIContext.Provider
+        value={{
+          openDialog,
+          openSnackBar,
+          switchPage,
+          shrinkedPopup,
+          popupOpenedInTab,
+          menuAnchorElem,
+          setMenuAnchorElem,
+        }}
+      >
         <MyselfContext.Provider value={myself}>
           <RedBlockOptionsContext.Provider value={redblockOptions}>
             <BlockLimiterContext.Provider value={limiterStatus}>
@@ -224,23 +316,9 @@ function PopupApp(props: PopupAppProps) {
                   </M.Tabs>
                 </M.Toolbar>
               </M.AppBar>
-              <M.Menu
-                keepMounted
-                anchorEl={menuAnchorEl}
-                open={Boolean(menuAnchorEl)}
-                onClose={closeMenu}
-              >
-                {!isPopupOpenedInTab && (
-                  <M.MenuItem onClick={handleOpenInTabClick}>
-                    <M.Icon>open_in_new</M.Icon> {i18n.getMessage('open_in_new_tab')}
-                  </M.MenuItem>
-                )}
-                <M.MenuItem onClick={handleSettingsClick}>
-                  <M.Icon>settings</M.Icon> {i18n.getMessage('open_settings_ui')}
-                </M.MenuItem>
-              </M.Menu>
+              <PopupUITopMenu {...{ runningSessions, currentTweet, currentSearchQuery }} />
               <div className="page">
-                <M.Container maxWidth="sm">
+                <M.Container maxWidth="sm" disableGutters>
                   <TabPanel value={tabIndex} index={PageEnum.Sessions}>
                     <ChainBlockSessionsPage sessions={sessions} />
                   </TabPanel>
@@ -353,7 +431,7 @@ async function getTabContext(): Promise<TabContext> {
 
 export async function initializeUI() {
   const redblockOptions = loadOptions()
-  const isPopupOpenedInTab = /\bistab=1\b/.test(location.search)
+  const popupOpenedInTab = /\bistab=1\b/.test(location.search)
   let initialPage: PageEnum
   const initialPageMatch = /\bpage=([0-5])\b/.exec(location.search)
   if (initialPageMatch) {
@@ -369,14 +447,14 @@ export async function initializeUI() {
       currentUser={currentUser}
       currentTweet={currentTweet}
       currentSearchQuery={currentSearchQuery}
-      isPopupOpenedInTab={isPopupOpenedInTab}
+      popupOpenedInTab={popupOpenedInTab}
       initialPage={initialPage}
       redblockOptions={await redblockOptions}
     />
   )
   ReactDOM.render(app, appRoot)
   showVersionOnFooter()
-  if (isPopupOpenedInTab) {
+  if (popupOpenedInTab) {
     document.body.classList.add('ui-tab')
   } else {
     document.body.classList.add('ui-popup')
