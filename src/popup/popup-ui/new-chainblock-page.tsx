@@ -38,9 +38,8 @@ function TargetSavedUsers(props: { savedUsers: TwitterUserMap }) {
   const { savedUsers } = props
   const uiContext = React.useContext(UIContext)
   const { changeSelectedUser } = React.useContext(UserSelectorContext)
-  const { currentUser, selectedUserGroup, selectedUser } = React.useContext(
-    FollowerChainBlockPageStatesContext
-  )
+  const { currentUser, userSelectionState } = React.useContext(FollowerChainBlockPageStatesContext)
+  const { user: selectedUser, group: selectedUserGroup } = userSelectionState
   const myself = React.useContext(MyselfContext)
   async function insertUser() {
     if (selectedUser) {
@@ -156,11 +155,11 @@ function TargetSavedUsers(props: { savedUsers: TwitterUserMap }) {
 
 function TargetUserProfile(props: { isAvailable: boolean }) {
   const { isAvailable } = props
-  const { selectedUser, targetList, setTargetList } = React.useContext(
+  const { targetList, setTargetList, userSelectionState } = React.useContext(
     FollowerChainBlockPageStatesContext
   )
   // selectedUser가 null일 땐 이 컴포넌트를 렌더링하지 않으므로
-  const user = selectedUser!
+  const user = userSelectionState.user!
   const myself = React.useContext(MyselfContext)
   const selectedMyself = myself && user.id_str === myself.id_str
   function radio(fk: FollowKind, label: string) {
@@ -214,28 +213,29 @@ function TargetUserProfileEmpty(props: { reason: 'invalid-user' | 'loading' }) {
 
 function TargetUserSelectUI(props: { isAvailable: boolean }) {
   const { isAvailable } = props
-  const {
-    currentUser,
-    targetList,
-    setSelectedUserGroup,
-    selectedUser,
-    setSelectedUser,
-  } = React.useContext(FollowerChainBlockPageStatesContext)
+  const { currentUser, targetList, userSelectionState, setUserSelectionState } = React.useContext(
+    FollowerChainBlockPageStatesContext
+  )
   const { setPurpose } = React.useContext(PurposeContext)
   const { openDialog } = React.useContext(UIContext)
   const myself = React.useContext(MyselfContext)!
   const [savedUsers, setSavedUsers] = React.useState(new TwitterUserMap())
   const [isLoading, setLoadingState] = React.useState(false)
+  const { user: selectedUser } = userSelectionState
   async function changeSelectedUser(userId: string, userName: string, group: SelectUserGroup) {
     if (!/^\d+$/.test(userId)) {
-      setSelectedUser(null)
-      setSelectedUserGroup('invalid')
+      setUserSelectionState({
+        user: null,
+        group: 'invalid',
+      })
       return
     }
     if (userId === myself.id_str) {
       setPurpose('lockpicker')
-      setSelectedUser(myself)
-      setSelectedUserGroup(group)
+      setUserSelectionState({
+        user: myself,
+        group,
+      })
       return
     }
     try {
@@ -243,8 +243,10 @@ function TargetUserSelectUI(props: { isAvailable: boolean }) {
       const newUser = await getUserByIdWithCache(userId).catch(() => null)
       if (newUser) {
         setPurpose(determineInitialPurpose(myself, newUser))
-        setSelectedUser(newUser)
-        setSelectedUserGroup(group)
+        setUserSelectionState({
+          user: newUser,
+          group,
+        })
       } else {
         // TODO: 유저를 가져오는 데 실패하면 해당 유저를 지운다?
         openDialog({
@@ -253,8 +255,10 @@ function TargetUserSelectUI(props: { isAvailable: boolean }) {
             title: i18n.getMessage('failed_to_get_user_info', userName),
           },
         })
-        setSelectedUser(null)
-        setSelectedUserGroup('invalid')
+        setUserSelectionState({
+          user: null,
+          group: 'invalid',
+        })
       }
     } finally {
       setLoadingState(false)
@@ -265,9 +269,12 @@ function TargetUserSelectUI(props: { isAvailable: boolean }) {
     return Storage.onStorageChanged('savedUsers', async users => {
       const usersMap = TwitterUserMap.fromUsersArray(users)
       setSavedUsers(usersMap)
+      // 스토리지에서 불러올 때 직전에 선택했었던 유저가 없는 경우
       if (!(selectedUser && usersMap.hasUser(selectedUser))) {
-        setSelectedUser(currentUser)
-        setSelectedUserGroup('current')
+        setUserSelectionState({
+          user: currentUser,
+          group: 'current',
+        })
       }
     })
   }, [])
@@ -330,15 +337,16 @@ async function getUserByIdWithCache(userId: string): Promise<TwitterUser> {
 
 function TargetExecutionButtonUI(props: { isAvailable: boolean }) {
   const { isAvailable } = props
-  const { selectedUser, targetList } = React.useContext(FollowerChainBlockPageStatesContext)
+  const { userSelectionState, targetList } = React.useContext(FollowerChainBlockPageStatesContext)
   const { targetOptions } = React.useContext(SessionOptionsContext)
   const { purpose } = React.useContext(PurposeContext)
   const { openDialog } = React.useContext(UIContext)
   const uiContext = React.useContext(UIContext)
   const myself = React.useContext(MyselfContext)
+  const selectedUser = userSelectionState.user!
   const target: FollowerBlockSessionRequest['target'] = {
     type: 'follower',
-    user: selectedUser!,
+    user: selectedUser,
     list: targetList,
   }
   function executeSession(purpose: Purpose) {
@@ -372,10 +380,11 @@ function TargetExecutionButtonUI(props: { isAvailable: boolean }) {
 }
 
 export default function NewChainBlockPage() {
-  const { selectedUser } = React.useContext(FollowerChainBlockPageStatesContext)
+  const { userSelectionState } = React.useContext(FollowerChainBlockPageStatesContext)
   const { purpose } = React.useContext(PurposeContext)
   const myself = React.useContext(MyselfContext)
   const limiterStatus = React.useContext(BlockLimiterContext)
+  const { user: selectedUser } = userSelectionState
   function isAvailable() {
     if (!myself) {
       return false
