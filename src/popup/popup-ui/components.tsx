@@ -127,6 +127,19 @@ export function PleaseLoginBox() {
   )
 }
 
+const DenseExpansionPanel = MaterialUI.withStyles({
+  root: {
+    margin: '8px 0',
+    '&:first-child': {
+      margin: '0',
+    },
+    '&$expanded': {
+      margin: '8px 0',
+    },
+  },
+  expanded: {},
+})(MaterialUI.ExpansionPanel)
+
 const DenseExpansionPanelSummary = MaterialUI.withStyles({
   root: {
     minHeight: 16,
@@ -150,32 +163,32 @@ const useStylesForExpansionPanels = MaterialUI.makeStyles(() =>
   })
 )
 
-export function DenseExpansionPanel(props: {
+export function RBExpansionPanel(props: {
   summary: string
   children: React.ReactNode
   defaultExpanded?: boolean
 }) {
   const classes = useStylesForExpansionPanels()
   return (
-    <M.ExpansionPanel defaultExpanded={props.defaultExpanded}>
+    <DenseExpansionPanel defaultExpanded={props.defaultExpanded}>
       <DenseExpansionPanelSummary expandIcon={<M.Icon>expand_more</M.Icon>}>
         <T>{props.summary}</T>
       </DenseExpansionPanelSummary>
       <M.ExpansionPanelDetails className={classes.details}>
         {props.children}
       </M.ExpansionPanelDetails>
-    </M.ExpansionPanel>
+    </DenseExpansionPanel>
   )
 }
 
 export function BlockLimiterUI() {
-  const { current, max, remained } = React.useContext(BlockLimiterContext)
+  const { current, max } = React.useContext(BlockLimiterContext)
   function handleResetButtonClick(event: React.MouseEvent<HTMLButtonElement>) {
     event.preventDefault()
     requestResetCounter()
   }
-  return remained <= 0 ? (
-    <DenseExpansionPanel summary={`${i18n.getMessage('block_counter')}: [${current} / ${max}]`}>
+  return (
+    <RBExpansionPanel summary={`${i18n.getMessage('block_counter')}: [${current} / ${max}]`}>
       <M.Box display="flex" flexDirection="row">
         <M.Box flexGrow="1">
           <T component="div" variant="body2">
@@ -186,9 +199,7 @@ export function BlockLimiterUI() {
           Reset
         </M.Button>
       </M.Box>
-    </DenseExpansionPanel>
-  ) : (
-    <div />
+    </RBExpansionPanel>
   )
 }
 

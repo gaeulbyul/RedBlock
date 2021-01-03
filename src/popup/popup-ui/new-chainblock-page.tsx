@@ -14,7 +14,7 @@ import { UIContext, MyselfContext, BlockLimiterContext } from './contexts.js'
 import {
   BlockLimiterUI,
   TwitterUserProfile,
-  DenseExpansionPanel,
+  RBExpansionPanel,
   BigExecuteChainBlockButton,
   BigExecuteUnChainBlockButton,
   BigExportButton,
@@ -291,7 +291,7 @@ function TargetUserSelectUI(props: { isAvailable: boolean }) {
   }
   targetSummary = `${i18n.getMessage('target')} (${targetSummary})`
   return (
-    <DenseExpansionPanel summary={targetSummary} defaultExpanded>
+    <RBExpansionPanel summary={targetSummary} defaultExpanded>
       <div style={{ width: '100%' }}>
         <M.FormControl component="fieldset" fullWidth>
           <UserSelectorContext.Provider value={{ changeSelectedUser }}>
@@ -307,7 +307,7 @@ function TargetUserSelectUI(props: { isAvailable: boolean }) {
           )}
         </M.FormControl>
       </div>
-    </DenseExpansionPanel>
+    </RBExpansionPanel>
   )
 }
 
@@ -315,9 +315,9 @@ function TargetOptionsUI() {
   const { purpose } = React.useContext(PurposeContext)
   const summary = `${i18n.getMessage('options')} (${i18n.getMessage(purpose)})`
   return (
-    <DenseExpansionPanel summary={summary} defaultExpanded>
+    <RBExpansionPanel summary={summary} defaultExpanded>
       <ChainBlockPurposeUI />
-    </DenseExpansionPanel>
+    </RBExpansionPanel>
   )
 }
 

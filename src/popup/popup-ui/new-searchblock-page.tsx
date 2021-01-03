@@ -8,7 +8,7 @@ import {
   SessionOptionsContext,
 } from './ui-states.js'
 import {
-  DenseExpansionPanel,
+  RBExpansionPanel,
   BigExecuteChainBlockButton,
   BigExecuteUnChainBlockButton,
   BlockLimiterUI,
@@ -85,9 +85,9 @@ function TargetOptionsUI() {
   const { purpose } = React.useContext(PurposeContext)
   const summary = `${i18n.getMessage('options')} (${i18n.getMessage(purpose)})`
   return (
-    <DenseExpansionPanel summary={summary} defaultExpanded>
+    <RBExpansionPanel summary={summary} defaultExpanded>
       <ChainBlockPurposeUI />
-    </DenseExpansionPanel>
+    </RBExpansionPanel>
   )
 }
 
@@ -106,14 +106,14 @@ export default function NewSearchChainBlockPage() {
   const { searchQuery } = React.useContext(UserSearchChainBlockPageStatesContext)
   return (
     <div>
-      <DenseExpansionPanel summary={i18n.getMessage('usersearch_chainblock')} defaultExpanded>
+      <RBExpansionPanel summary={i18n.getMessage('usersearch_chainblock')} defaultExpanded>
         <div style={{ width: '100%' }}>
           <T>
             {`${i18n.getMessage('query')}: `}
             <strong>{searchQuery}</strong>
           </T>
         </div>
-      </DenseExpansionPanel>
+      </RBExpansionPanel>
       <TargetOptionsUI />
       <BlockLimiterUI />
       <TargetExecutionButtonUI isAvailable={isAvailable()} />

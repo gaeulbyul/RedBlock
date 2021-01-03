@@ -1,7 +1,7 @@
 import { defaultSessionOptions } from '../../scripts/background/chainblock-session/session.js'
 import { UIContext, MyselfContext, BlockLimiterContext } from './contexts.js'
 import {
-  DenseExpansionPanel,
+  RBExpansionPanel,
   BlockLimiterUI,
   BigExecuteChainBlockButton,
   ChainBlockPurposeUI,
@@ -28,9 +28,9 @@ function TargetOptionsUI() {
   const { purpose } = React.useContext(PurposeContext)
   const summary = `${i18n.getMessage('options')} (${i18n.getMessage(purpose)})`
   return (
-    <DenseExpansionPanel summary={summary} defaultExpanded>
+    <RBExpansionPanel summary={summary} defaultExpanded>
       <ChainBlockPurposeUI />
-    </DenseExpansionPanel>
+    </RBExpansionPanel>
   )
 }
 
@@ -130,7 +130,7 @@ export default function BlocklistPage() {
   )
   return (
     <form onSubmit={onSubmit} onReset={onReset}>
-      <DenseExpansionPanel summary={i18n.getMessage('import_blocklist')} defaultExpanded>
+      <RBExpansionPanel summary={i18n.getMessage('import_blocklist')} defaultExpanded>
         <div style={{ width: '100%' }}>
           <input
             required
@@ -192,7 +192,7 @@ export default function BlocklistPage() {
             </div>
           </div>
         </div>
-      </DenseExpansionPanel>
+      </RBExpansionPanel>
       <TargetOptionsUI />
       <BlockLimiterUI />
       <BigExecuteChainBlockButton type="submit" disabled={!isAvailable}>

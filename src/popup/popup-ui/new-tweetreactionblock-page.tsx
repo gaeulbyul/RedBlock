@@ -6,7 +6,7 @@ import { startNewChainBlockSession } from '../../scripts/background/request-send
 import {
   BlockLimiterUI,
   TwitterUserProfile,
-  DenseExpansionPanel,
+  RBExpansionPanel,
   BigExecuteChainBlockButton,
   BigExportButton,
   ChainBlockPurposeUI,
@@ -79,13 +79,13 @@ function TargetTweetOuterUI() {
     userName
   )})`
   return (
-    <DenseExpansionPanel summary={targetSummary} defaultExpanded>
+    <RBExpansionPanel summary={targetSummary} defaultExpanded>
       <div style={{ width: '100%' }}>
         <M.FormControl component="fieldset" fullWidth>
           <TargetTweetUI tweet={currentTweet} />
         </M.FormControl>
       </div>
-    </DenseExpansionPanel>
+    </RBExpansionPanel>
   )
 }
 
@@ -93,9 +93,9 @@ function TargetOptionsUI() {
   const { purpose } = React.useContext(PurposeContext)
   const summary = `${i18n.getMessage('options')} (${i18n.getMessage(purpose)})`
   return (
-    <DenseExpansionPanel summary={summary} defaultExpanded>
+    <RBExpansionPanel summary={summary} defaultExpanded>
       <ChainBlockPurposeUI />
-    </DenseExpansionPanel>
+    </RBExpansionPanel>
   )
 }
 
