@@ -10,6 +10,7 @@ import {
   assertNever,
 } from '../../common.js'
 import BlockLimiter from '../block-limiter.js'
+import { decideWhatToDoGivenUser } from './user-decider.js'
 
 interface SessionEventEmitter {
   'mark-user': MarkUserParams
@@ -181,7 +182,7 @@ export class ChainBlockSession extends BaseSession {
             this.stop()
             break
           }
-          const whatToDo = whatToDoGivenUser(this.request, user, now)
+          const whatToDo = decideWhatToDoGivenUser(this.request, user, now)
           console.debug('user %o => %s', user, whatToDo)
           if (whatToDo === 'Skip') {
             this.sessionInfo.progress.skipped++
@@ -339,120 +340,6 @@ export class ExportSession extends BaseSession {
     const datetime = now.format('YYYY-MM-DD_HHmmss')
     return `blocklist-${targetStr}[${datetime}].csv`
   }
-}
-
-function isAlreadyDone(follower: TwitterUser, action: UserAction): boolean {
-  if (!('blocking' in follower && 'muting' in follower)) {
-    return false
-  }
-  const { blocking, muting, following, followed_by } = follower
-  switch (true) {
-    case blocking && action === 'Block':
-    case !blocking && action === 'UnBlock':
-    case muting && action === 'Mute':
-    case !muting && action === 'UnMute':
-    case !following && action === 'UnFollow':
-    case !followed_by && action === 'BlockAndUnBlock':
-      return true
-    default:
-      return false
-  }
-}
-
-function whatToDoGivenUser(
-  request: SessionRequest,
-  follower: TwitterUser,
-  now: Dayjs
-): UserAction | 'Skip' | 'AlreadyDone' {
-  if (request.purpose === 'lockpicker') {
-    return isProtectedFollower(follower) ? 'Block' : 'Skip'
-  }
-  const { purpose, options, target } = request
-  const { following, followed_by, follow_request_sent } = follower
-  if (!(typeof following === 'boolean' && typeof followed_by === 'boolean')) {
-    throw new Error('following/followed_by property missing?')
-  }
-  if (checkUserInactivity(follower, now, options.skipInactiveUser) === 'inactive') {
-    return 'Skip'
-  }
-  const isMyFollowing = following || follow_request_sent
-  const isMyFollower = followed_by
-  const isMyMutualFollower = isMyFollower && isMyFollowing
-  // 주의!
-  // 팝업 UI에 나타난 순서를 고려할 것.
-  if (isMyMutualFollower) {
-    return 'Skip'
-  }
-  if (isMyFollower) {
-    return options.myFollowers
-  }
-  if (isMyFollowing) {
-    return options.myFollowings
-  }
-  if (purpose === 'unchainblock' && 'mutualBlocked' in options) {
-    const blockedBy = target.type === 'follower' && target.user.blocked_by
-    if (blockedBy) {
-      return options.mutualBlocked
-    }
-  }
-  let defaultAction: UserAction
-  switch (purpose) {
-    case 'chainblock':
-      defaultAction = 'Block'
-      break
-    case 'unchainblock':
-      defaultAction = 'UnBlock'
-      break
-    case 'export':
-      throw new Error('unreachable')
-  }
-  if (isAlreadyDone(follower, defaultAction)) {
-    return 'AlreadyDone'
-  }
-  return defaultAction
-}
-
-function isProtectedFollower(follower: TwitterUser) {
-  const { following, followed_by } = follower
-  if (follower.protected && followed_by && !following) {
-    return true
-  }
-  return false
-}
-
-function checkUserInactivity(
-  follower: TwitterUser,
-  now: Dayjs,
-  inactivePeriod: InactivePeriod
-): 'active' | 'inactive' {
-  if (inactivePeriod === 'never') {
-    // 체크하지 않기로 했으므로 무조건 active
-    return 'active'
-  }
-  if (follower.protected) {
-    // 프로텍트걸린 계정의 경우 마지막으로 작성한 트윗의 정보를 가져올 수 없다.
-    // 체크할 수 없으므로 active로 취급
-    return 'active'
-  }
-  let before: Dayjs
-  switch (inactivePeriod) {
-    case '1y':
-    case '2y':
-    case '3y':
-      before = now.subtract(parseInt(inactivePeriod.charAt(0), 10), 'y')
-      break
-  }
-  const lastTweet = follower.status
-  let isInactive: boolean
-  if (lastTweet) {
-    const lastTweetDatetime = dayjs(lastTweet.created_at, 'MMM DD HH:mm:ss ZZ YYYY')
-    isInactive = lastTweetDatetime.isBefore(before)
-  } else {
-    // 작성한 트윗이 없다면 계정생성일을 기준으로 판단한다.
-    const accountCreatedDatetime = dayjs(follower.created_at)
-    isInactive = accountCreatedDatetime.isBefore(before)
-  }
-  return isInactive ? 'inactive' : 'active'
 }
 
 export const defaultSessionOptions: Readonly<SessionOptions> = Object.freeze({
