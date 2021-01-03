@@ -1,9 +1,9 @@
 import * as Storage from '../../scripts/background/storage.js'
 import * as TwitterAPI from '../../scripts/background/twitter-api.js'
-import { TwitterUser } from '../../scripts/background/twitter-api.js'
 import { TwitterUserMap, checkUserIdBeforeLockPicker } from '../../scripts/common.js'
 import * as i18n from '../../scripts/i18n.js'
 import * as TextGenerate from '../../scripts/text-generate.js'
+import { determineInitialPurpose } from '../popup.js'
 import {
   insertUserToStorage,
   removeUserFromStorage,
@@ -223,7 +223,7 @@ function TargetUserSelectUI(props: { isAvailable: boolean }) {
   } = React.useContext(FollowerChainBlockPageStatesContext)
   const { setPurpose } = React.useContext(PurposeContext)
   const { openDialog } = React.useContext(UIContext)
-  const myself = React.useContext(MyselfContext)
+  const myself = React.useContext(MyselfContext)!
   const [savedUsers, setSavedUsers] = React.useState(new TwitterUserMap())
   const [isLoading, setLoadingState] = React.useState(false)
   async function changeSelectedUser(userId: string, userName: string, group: SelectUserGroup) {
@@ -232,19 +232,19 @@ function TargetUserSelectUI(props: { isAvailable: boolean }) {
       setSelectedUserGroup('invalid')
       return
     }
+    if (userId === myself.id_str) {
+      setPurpose('lockpicker')
+      setSelectedUser(myself)
+      setSelectedUserGroup(group)
+      return
+    }
     try {
       setLoadingState(true)
       const newUser = await getUserByIdWithCache(userId).catch(() => null)
       if (newUser) {
+        setPurpose(determineInitialPurpose(myself, newUser))
         setSelectedUser(newUser)
         setSelectedUserGroup(group)
-        if (myself) {
-          if (newUser.id_str === myself.id_str) {
-            setPurpose('lockpicker')
-          } else {
-            setPurpose('chainblock')
-          }
-        }
       } else {
         // TODO: 유저를 가져오는 데 실패하면 해당 유저를 지운다?
         openDialog({

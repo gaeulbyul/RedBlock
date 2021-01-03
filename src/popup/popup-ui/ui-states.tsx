@@ -25,8 +25,9 @@ function PurposeContextProvider(props: {
   const { children, initialPurpose, availablePurposes } = props
   const [purpose, setPurpose] = React.useState(initialPurpose)
   if (!availablePurposes.includes(purpose)) {
-    console.error('invalid purpose: "%s" is not in %o', purpose, availablePurposes)
-    throw new Error('invalid purpose')
+    const fallbackPurpose = availablePurposes[0]
+    console.warn('warning: invalid purpose "%s", falling back to "%s"', purpose, fallbackPurpose)
+    setPurpose(fallbackPurpose)
   }
   function setPurposeWithCheck(newPurpose: Purpose) {
     if (availablePurposes.includes(newPurpose)) {
@@ -151,10 +152,10 @@ export function FollowerChainBlockPageStatesProvider(props: {
   initialUser: TwitterUser | null
 }) {
   const myself = React.useContext(MyselfContext)
-  const initialPurpose = determineInitialPurpose(myself, props.initialUser)
   const [selectedUserGroup, setSelectedUserGroup] = React.useState<SelectUserGroup>('current')
   const [selectedUser, setSelectedUser] = React.useState<TwitterUser | null>(props.initialUser)
   const [targetList, setTargetList] = React.useState<FollowKind>('followers')
+  const initialPurpose = determineInitialPurpose(myself, selectedUser)
   const availablePurposes: FollowerBlockSessionRequest['purpose'][] = []
   if (initialPurpose === 'lockpicker') {
     availablePurposes.push('lockpicker')
