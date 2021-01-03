@@ -346,6 +346,7 @@ export const defaultSessionOptions: Readonly<SessionOptions> = Object.freeze({
   myFollowers: 'Skip',
   myFollowings: 'Skip',
   mutualBlocked: 'Skip',
+  myMutualFollowers: 'Skip',
   includeUsersInBio: 'never',
   skipInactiveUser: 'never',
 })

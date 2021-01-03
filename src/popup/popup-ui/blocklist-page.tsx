@@ -3,7 +3,7 @@ import { UIContext, MyselfContext, BlockLimiterContext } from './contexts.js'
 import {
   RBExpansionPanel,
   BlockLimiterUI,
-  BigExecuteChainBlockButton,
+  BigExecuteButton,
   ChainBlockPurposeUI,
 } from './components.js'
 import { PageEnum } from '../popup.js'
@@ -195,11 +195,7 @@ export default function BlocklistPage() {
       </RBExpansionPanel>
       <TargetOptionsUI />
       <BlockLimiterUI />
-      <BigExecuteChainBlockButton type="submit" disabled={!isAvailable}>
-        <span>
-          {'\u{1f6d1}'} {i18n.getMessage('execute_chainblock')}
-        </span>
-      </BigExecuteChainBlockButton>
+      <BigExecuteButton {...{ purpose }} type="submit" disabled={!isAvailable} />
     </form>
   )
 }

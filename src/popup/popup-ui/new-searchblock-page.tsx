@@ -9,8 +9,7 @@ import {
 } from './ui-states.js'
 import {
   RBExpansionPanel,
-  BigExecuteChainBlockButton,
-  BigExecuteUnChainBlockButton,
+  BigExecuteButton,
   BlockLimiterUI,
   ChainBlockPurposeUI,
 } from './components.js'
@@ -22,7 +21,8 @@ function TargetExecutionButtonUI(props: { isAvailable: boolean }) {
   const { isAvailable } = props
   const { searchQuery } = React.useContext(UserSearchChainBlockPageStatesContext)
   const { targetOptions } = React.useContext(SessionOptionsContext)
-  const { purpose } = React.useContext(PurposeContext)
+  const purpose = React.useContext(PurposeContext)
+    .purpose as UserSearchBlockSessionRequest['purpose']
   const { openDialog } = React.useContext(UIContext)
   const uiContext = React.useContext(UIContext)
   const myself = React.useContext(MyselfContext)
@@ -51,34 +51,15 @@ function TargetExecutionButtonUI(props: { isAvailable: boolean }) {
       },
     })
   }
-  let bigButton: React.ReactNode
-  switch (purpose) {
-    case 'chainblock':
-      bigButton = (
-        <BigExecuteChainBlockButton
-          disabled={!isAvailable}
-          onClick={() => executeSession('chainblock')}
-        >
-          <span>
-            {'\u{1f6d1}'} {i18n.getMessage('execute_chainblock')}
-          </span>
-        </BigExecuteChainBlockButton>
-      )
-      break
-    case 'unchainblock':
-      bigButton = (
-        <BigExecuteUnChainBlockButton
-          disabled={!isAvailable}
-          onClick={() => executeSession('unchainblock')}
-        >
-          <span>
-            {'\u{1f49a}'} {i18n.getMessage('execute_unchainblock')}
-          </span>
-        </BigExecuteUnChainBlockButton>
-      )
-      break
-  }
-  return <M.Box>{bigButton}</M.Box>
+  return (
+    <M.Box>
+      <BigExecuteButton
+        {...{ purpose }}
+        disabled={!isAvailable}
+        onClick={() => executeSession(purpose)}
+      />
+    </M.Box>
+  )
 }
 
 function TargetOptionsUI() {

@@ -10,13 +10,19 @@ export function decideWhatToDoGivenUser(
   if (!(typeof following === 'boolean' && typeof followed_by === 'boolean')) {
     throw new Error('following/followed_by property missing?')
   }
+  if (checkUserInactivity(follower, now, request.options.skipInactiveUser) === 'inactive') {
+    return 'Skip'
+  }
   let whatToDo: UserAction
   switch (request.purpose) {
     case 'chainblock':
-      whatToDo = decideWhenChainBlock(request, follower, now)
+      whatToDo = decideWhenChainBlock(request, follower)
       break
     case 'unchainblock':
       whatToDo = decideWhenUnChainBlock(request, follower)
+      break
+    case 'chainunfollow':
+      whatToDo = decideWhenChainUnfollow(request, follower)
       break
     case 'lockpicker':
       whatToDo = isProtectedFollower(follower) ? 'Block' : 'Skip'
@@ -31,11 +37,8 @@ export function decideWhatToDoGivenUser(
   return whatToDo
 }
 
-function decideWhenChainBlock(request: SessionRequest, follower: TwitterUser, now: Dayjs) {
+function decideWhenChainBlock(request: SessionRequest, follower: TwitterUser) {
   const { options } = request
-  if (checkUserInactivity(follower, now, options.skipInactiveUser) === 'inactive') {
-    return 'Skip'
-  }
   const { following, followed_by, follow_request_sent } = follower
   const isMyFollowing = following || follow_request_sent
   const isMyFollower = followed_by
@@ -60,6 +63,21 @@ function decideWhenUnChainBlock(request: SessionRequest, follower: TwitterUser) 
     return options.mutualBlocked
   }
   return 'UnBlock'
+}
+
+function decideWhenChainUnfollow(request: SessionRequest, follower: TwitterUser) {
+  const { options } = request
+  const { following, followed_by, follow_request_sent } = follower
+  const isMyFollowing = following || follow_request_sent
+  const isMyFollower = followed_by
+  const isMyMutualFollower = isMyFollower && isMyFollowing
+  if (isMyMutualFollower) {
+    return options.myMutualFollowers
+  }
+  if (!isMyFollowing) {
+    return 'Skip'
+  }
+  return 'UnFollow'
 }
 
 function isAlreadyDone(follower: TwitterUser, action: UserAction): boolean {

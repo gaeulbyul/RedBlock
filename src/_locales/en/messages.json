@@ -47,6 +47,9 @@
   "unchainblock": {
     "message": "Unchainblock"
   },
+  "chainunfollow": {
+    "message": "Chainunfollow"
+  },
   "lockpicker": {
     "message": "Block protected followers"
   },
@@ -329,6 +332,9 @@
   "lockpicker_description": {
     "message": "Unlike Chainblock, it will block *only* protected followers who doesn't follow back to you, and nobody else will be blocked."
   },
+  "chainunfollow_description": {
+    "message": "Unfollow all users that followed by you according to the options you set."
+  },
   "my_mutual_followers_wont_block": {
     "message": "Your mutual-followers won't be blocked to prevent muting/blocking your friends."
   },
@@ -364,6 +370,25 @@
   },
   "confirm_search_chainblock_title": {
     "message": "Do you want to block users from search result?"
+  },
+  "confirm_follower_chainunfollow_title": {
+    "message": "Do you want to Chain-unfollow on @$username$?",
+    "placeholders": {
+      "username": {
+        "content": "$1"
+      }
+    }
+  },
+  "confirm_reacted_chainunfollow_title": {
+    "message": "Do you want to run Chain-unfollow on users that reacted @$username$'s tweet?",
+    "placeholders": {
+      "username": {
+        "content": "$1"
+      }
+    }
+  },
+  "confirm_search_chainunfollow_title": {
+    "message": "Do you want to unfollow users from search result?"
   },
   "user_count": {
     "message": "Users"
@@ -426,6 +451,14 @@
       }
     }
   },
+  "unfollowed_n_users": {
+    "message": "Unfollowed $count$ users.",
+    "placeholders": {
+      "count": {
+        "content": "$1"
+      }
+    }
+  },
   "already_blocked": {
     "message": "Already blocked"
   },
@@ -440,6 +473,9 @@
   },
   "lockpicker_completed": {
     "message": "Blocking protected follower completed!"
+  },
+  "chainunfollow_completed": {
+    "message": "Chain-unfollow completed!"
   },
   "yes": {
     "message": "Yes"

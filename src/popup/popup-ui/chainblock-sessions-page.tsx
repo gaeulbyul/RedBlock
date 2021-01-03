@@ -256,6 +256,8 @@ function ChainBlockSessionItem(props: { sessionInfo: SessionInfo }) {
     case 'lockpicker':
       shortProgress = `${i18n.getMessage('block')}: ${succProgress.Block.toLocaleString()}`
       break
+    case 'chainunfollow':
+      shortProgress = `${i18n.getMessage('unfollow')}: ${succProgress.UnFollow.toLocaleString()}`
   }
   return (
     <M.Card className={classes.card}>

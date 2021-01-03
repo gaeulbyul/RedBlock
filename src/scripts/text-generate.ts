@@ -64,6 +64,9 @@ function generateFollowerBlockConfirmMessage(
     case 'lockpicker':
       title = i18n.getMessage('confirm_lockpicker_title')
       break
+    case 'chainunfollow':
+      title = i18n.getMessage('confirm_follower_chainunfollow_title', user.screen_name)
+      break
   }
   let count = getCountOfUsersToBlock(request) ?? '?'
   const contents = []
@@ -94,6 +97,7 @@ function generateFollowerBlockConfirmMessage(
       )
       break
   }
+  // TODO: also for unfollow / block-and-unblock
   if (myFollowers === 'Block') {
     warnings.push(`\u26a0 ${i18n.getMessage('warning_maybe_you_block_your_followers')}`)
   }
@@ -246,6 +250,10 @@ function followerBlockResultNotification(sessionInfo: SessionInfo<FollowerBlockS
       howManyAlready = ''
       localizedPurposeCompleted = i18n.getMessage('lockpicker_completed')
       break
+    case 'chainunfollow':
+      howMany = i18n.getMessage('unfollowed_n_users', success.UnFollow)
+      howManyAlready = ''
+      localizedPurposeCompleted = i18n.getMessage('lockpicker_completed')
   }
   let message = `${localizedPurposeCompleted} ${howMany}\n`
   if (howManyAlready) {
@@ -321,6 +329,11 @@ function userSearchBlockResultNotification(
       howMany = i18n.getMessage('unblocked_n_users', success.UnBlock)
       howManyAlready = `${i18n.getMessage('already_unblocked')}: ${already}`
       localizedPurposeCompleted = i18n.getMessage('unchainblock_completed')
+      break
+    case 'chainunfollow':
+      howMany = i18n.getMessage('unfollowed_n_users', success.Block)
+      howManyAlready = ''
+      localizedPurposeCompleted = i18n.getMessage('chainunfollow_completed')
       break
   }
   let message = `${localizedPurposeCompleted} ${howMany}\n`

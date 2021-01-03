@@ -164,6 +164,7 @@ export default class ChainBlocker {
       case 'chainblock':
       case 'unchainblock':
       case 'lockpicker':
+      case 'chainunfollow':
         session = new ChainBlockSession(request, this.limiter)
         break
       case 'export':
