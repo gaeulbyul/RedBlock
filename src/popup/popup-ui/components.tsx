@@ -363,6 +363,10 @@ function ChainBlockOptionsUI() {
     ['Mute', i18n.getMessage('do_mute')],
     ['Block', i18n.getMessage('do_block')],
   ]
+  const userActionsToMyFollowings = userActions.concat([['UnFollow', i18n.getMessage('unfollow')]])
+  const userActionsToMyFollowers = userActions.concat([
+    ['BlockAndUnBlock', i18n.getMessage('block_and_unblock')],
+  ])
   const bioBlockModes: Array<[BioBlockMode, string]> = [
     ['never', i18n.getMessage('bioblock_never')],
     ['all', i18n.getMessage('bioblock_all')],
@@ -373,7 +377,7 @@ function ChainBlockOptionsUI() {
       <M.FormControl component="fieldset">
         <M.FormLabel component="legend">{i18n.getMessage('my_followers')}</M.FormLabel>
         <M.RadioGroup row>
-          {userActions.map(([action, localizedAction], index) => (
+          {userActionsToMyFollowers.map(([action, localizedAction], index) => (
             <M.FormControlLabel
               key={index}
               control={<M.Radio size="small" />}
@@ -388,7 +392,7 @@ function ChainBlockOptionsUI() {
       <M.FormControl component="fieldset">
         <M.FormLabel component="legend">{i18n.getMessage('my_followings')}</M.FormLabel>
         <M.RadioGroup row>
-          {userActions.map(([action, localizedAction], index) => (
+          {userActionsToMyFollowings.map(([action, localizedAction], index) => (
             <M.FormControlLabel
               key={index}
               control={<M.Radio size="small" />}

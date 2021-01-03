@@ -124,6 +124,12 @@
   "unblock": {
     "message": "차단해제"
   },
+  "unfollow": {
+    "message": "언팔로우"
+  },
+  "block_and_unblock": {
+    "message": "블언블"
+  },
   "mute": {
     "message": "뮤트"
   },

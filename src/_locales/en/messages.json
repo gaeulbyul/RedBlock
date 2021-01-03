@@ -130,6 +130,12 @@
   "unmute": {
     "message": "Unmute"
   },
+  "unfollow": {
+    "message": "Unfollow"
+  },
+  "block_and_unblock": {
+    "message": "Block and unblock"
+  },
   "skipped": {
     "message": "Skipped"
   },

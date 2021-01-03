@@ -87,6 +87,20 @@ export async function unmuteUser(user: TwitterUser) {
   }
 }
 
+export async function unfollowUser(user: TwitterUser) {
+  if (!user.following) {
+    return true
+  }
+  const response = await requestAPI('post', '/friendships/destroy.json', {
+    user_id: user.id_str,
+  })
+  if (response.ok) {
+    return true
+  } else {
+    throw new APIFailError('error', response)
+  }
+}
+
 export async function getTweetById(tweetId: string): Promise<Tweet> {
   const response = await requestAPI('get', '/statuses/show.json', {
     id: tweetId,

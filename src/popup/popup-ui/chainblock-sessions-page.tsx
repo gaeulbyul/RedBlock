@@ -172,38 +172,33 @@ function ChainBlockSessionItem(props: { sessionInfo: SessionInfo }) {
       </React.Fragment>
     )
   }
+  function progressTableRow(left: string, right: string | number) {
+    const rightCell = typeof right === 'string' ? right : right.toLocaleString()
+    return (
+      <M.TableRow>
+        <M.TableCell>{left}</M.TableCell>
+        <M.TableCell align="right">{rightCell}</M.TableCell>
+      </M.TableRow>
+    )
+  }
   function renderTable() {
     const { progress: p } = sessionInfo
-    const { TableContainer, Table, TableBody, TableRow: Row, TableCell: Cell } = MaterialUI
+    const { TableContainer, Table, TableBody } = MaterialUI
     const { success: s } = p
     return (
       <TableContainer>
-        <Table>
+        <Table size="small">
           <TableBody>
-            <Row>
-              <Cell>
-                {i18n.getMessage('block')} / {i18n.getMessage('unblock')}
-              </Cell>
-              <Cell align="right">
-                {s.Block.toLocaleString()} / {s.UnBlock.toLocaleString()}
-              </Cell>
-            </Row>
-            <Row>
-              <Cell>{i18n.getMessage('mute')}</Cell>
-              <Cell align="right">{s.Mute.toLocaleString()}</Cell>
-            </Row>
-            <Row>
-              <Cell>{i18n.getMessage('already_done')}</Cell>
-              <Cell align="right">{p.already.toLocaleString()}</Cell>
-            </Row>
-            <Row>
-              <Cell>{i18n.getMessage('skipped')}</Cell>
-              <Cell align="right">{p.skipped.toLocaleString()}</Cell>
-            </Row>
-            <Row>
-              <Cell>{i18n.getMessage('failed')}</Cell>
-              <Cell align="right">{p.failure.toLocaleString()}</Cell>
-            </Row>
+            {progressTableRow(
+              `${i18n.getMessage('block')} / ${i18n.getMessage('unblock')}`,
+              `${s.Block.toLocaleString()} / ${s.UnBlock.toLocaleString()}`
+            )}
+            {progressTableRow(i18n.getMessage('mute'), s.Mute)}
+            {progressTableRow(i18n.getMessage('unfollow'), s.UnFollow)}
+            {progressTableRow(i18n.getMessage('block_and_unblock'), s.BlockAndUnBlock)}
+            {progressTableRow(i18n.getMessage('already_done'), p.already)}
+            {progressTableRow(i18n.getMessage('skipped'), p.skipped)}
+            {progressTableRow(i18n.getMessage('failed'), p.failure)}
           </TableBody>
         </Table>
       </TableContainer>

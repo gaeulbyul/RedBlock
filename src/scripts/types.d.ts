@@ -22,7 +22,7 @@ type FollowKind = 'followers' | 'friends' | 'mutual-followers'
 type Purpose = 'chainblock' | 'unchainblock' | 'export' | 'lockpicker'
 type ReactionKind = 'retweeted' | 'liked'
 
-type UserAction = 'Skip' | 'Block' | 'UnBlock' | 'Mute' | 'UnMute'
+type UserAction = 'Skip' | 'Block' | 'UnBlock' | 'Mute' | 'UnMute' | 'BlockAndUnBlock' | 'UnFollow'
 type BioBlockMode = 'never' | 'all' | 'smart'
 
 type EventStore = Record<string, Function[]>

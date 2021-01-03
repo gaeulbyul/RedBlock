@@ -7,6 +7,7 @@ import {
   copyFrozenObject,
   sleep,
   getCountOfUsersToBlock,
+  assertNever,
 } from '../../common.js'
 import BlockLimiter from '../block-limiter.js'
 
@@ -69,6 +70,8 @@ abstract class BaseSession {
         UnBlock: 0,
         Mute: 0,
         UnMute: 0,
+        UnFollow: 0,
+        BlockAndUnBlock: 0,
       },
       failure: 0,
       skipped: 0,
@@ -204,6 +207,14 @@ export class ChainBlockSession extends BaseSession {
               case 'UnMute':
                 promise = TwitterAPI.unmuteUser(user)
                 break
+              case 'UnFollow':
+                promise = TwitterAPI.unfollowUser(user)
+                break
+              case 'BlockAndUnBlock':
+                promise = TwitterAPI.blockUser(user).then(
+                  blocked => blocked && TwitterAPI.unblockUser(user)
+                )
+                break
             }
           }
           promise = promise.then(result => {
@@ -219,10 +230,20 @@ export class ChainBlockSession extends BaseSession {
             this.sessionInfo.progress.scraped = this.calculateScrapedCount()
             return result
           })
-          if (whatToDo === 'Block' || whatToDo === 'Mute') {
-            await promise
-          } else if (whatToDo === 'UnBlock' || whatToDo === 'UnMute') {
-            promisesBuffer.push(promise)
+          switch (whatToDo) {
+            case 'Block':
+            case 'Mute':
+            case 'BlockAndUnBlock':
+              await promise
+              break
+            case 'UnBlock':
+            case 'UnMute':
+            case 'UnFollow':
+              promisesBuffer.push(promise)
+              break
+            default:
+              assertNever(whatToDo)
+              break
           }
         }
         await Promise.allSettled(promisesBuffer)
@@ -324,17 +345,18 @@ function isAlreadyDone(follower: TwitterUser, action: UserAction): boolean {
   if (!('blocking' in follower && 'muting' in follower)) {
     return false
   }
-  const { blocking, muting } = follower
-  if (blocking && action === 'Block') {
-    return true
-  } else if (!blocking && action === 'UnBlock') {
-    return true
-  } else if (muting && action === 'Mute') {
-    return true
-  } else if (!muting && action === 'UnMute') {
-    return true
+  const { blocking, muting, following, followed_by } = follower
+  switch (true) {
+    case blocking && action === 'Block':
+    case !blocking && action === 'UnBlock':
+    case muting && action === 'Mute':
+    case !muting && action === 'UnMute':
+    case !following && action === 'UnFollow':
+    case !followed_by && action === 'BlockAndUnBlock':
+      return true
+    default:
+      return false
   }
-  return false
 }
 
 function whatToDoGivenUser(
