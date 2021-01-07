@@ -5,6 +5,20 @@ import { RedBlockOptionsContext, MyselfContext } from './contexts.js'
 
 export type SelectUserGroup = 'invalid' | 'current' | 'saved' | 'self'
 
+function usePurpose(availablePurposes: Purpose[], initialPurpose: Purpose) {
+  const [purpose, setPurpose] = React.useState(initialPurpose)
+  function setPurposeWithCheck(p: Purpose) {
+    if (availablePurposes.includes(p)) {
+      setPurpose(p)
+    } else {
+      const fallbackPurpose = availablePurposes[0]
+      console.warn('warning: invalid purpose "%s", falling back to "%s"', purpose, fallbackPurpose)
+      setPurpose(fallbackPurpose)
+    }
+  }
+  return [purpose, setPurposeWithCheck] as const
+}
+
 interface PurposeContextType {
   purpose: Purpose
   setPurpose(purpose: Purpose): void
@@ -16,36 +30,6 @@ export const PurposeContext = React.createContext<PurposeContextType>({
   setPurpose() {},
   availablePurposes: [],
 })
-
-function PurposeContextProvider(props: {
-  children: React.ReactNode
-  initialPurpose: Purpose
-  availablePurposes: Array<Purpose>
-}) {
-  const { children, initialPurpose, availablePurposes } = props
-  const [purpose, setPurpose] = React.useState(initialPurpose)
-  if (!availablePurposes.includes(purpose)) {
-    const fallbackPurpose = availablePurposes[0]
-    console.warn('warning: invalid purpose "%s", falling back to "%s"', purpose, fallbackPurpose)
-    setPurpose(fallbackPurpose)
-  }
-  function setPurposeWithCheck(newPurpose: Purpose) {
-    if (availablePurposes.includes(newPurpose)) {
-      setPurpose(newPurpose)
-    }
-  }
-  return (
-    <PurposeContext.Provider
-      value={{
-        purpose,
-        setPurpose: setPurposeWithCheck,
-        availablePurposes,
-      }}
-    >
-      {children}
-    </PurposeContext.Provider>
-  )
-}
 
 interface SessionOptionsContextType {
   targetOptions: SessionOptions
@@ -113,30 +97,30 @@ interface UserSearchChainBlockPageStates {
   searchQuery: string | null
 }
 
-export const FollowerChainBlockPageStatesContext = React.createContext<
-  FollowerChainBlockPageStates
->({
-  currentUser: null,
-  userSelectionState: {
-    user: null,
-    group: 'invalid',
-  },
-  setUserSelectionState() {},
-  targetList: 'followers',
-  setTargetList() {},
-})
+export const FollowerChainBlockPageStatesContext = React.createContext<FollowerChainBlockPageStates>(
+  {
+    currentUser: null,
+    userSelectionState: {
+      user: null,
+      group: 'invalid',
+    },
+    setUserSelectionState() {},
+    targetList: 'followers',
+    setTargetList() {},
+  }
+)
 
-export const TweetReactionChainBlockPageStatesContext = React.createContext<
-  TweetReactionChainBlockPageStates
->({
-  currentTweet: null,
-  wantBlockRetweeters: false,
-  setWantBlockRetweeters() {},
-  wantBlockLikers: false,
-  setWantBlockLikers() {},
-  wantBlockMentionedUsers: false,
-  setWantBlockMentionedUsers() {},
-})
+export const TweetReactionChainBlockPageStatesContext = React.createContext<TweetReactionChainBlockPageStates>(
+  {
+    currentTweet: null,
+    wantBlockRetweeters: false,
+    setWantBlockRetweeters() {},
+    wantBlockLikers: false,
+    setWantBlockLikers() {},
+    wantBlockMentionedUsers: false,
+    setWantBlockMentionedUsers() {},
+  }
+)
 
 export const ImportChainBlockPageStatesContext = React.createContext<ImportChainBlockPageStates>({
   blocklist: Object.assign({}, emptyBlocklist),
@@ -145,11 +129,11 @@ export const ImportChainBlockPageStatesContext = React.createContext<ImportChain
   setNameOfSelectedFiles() {},
 })
 
-export const UserSearchChainBlockPageStatesContext = React.createContext<
-  UserSearchChainBlockPageStates
->({
-  searchQuery: null,
-})
+export const UserSearchChainBlockPageStatesContext = React.createContext<UserSearchChainBlockPageStates>(
+  {
+    searchQuery: null,
+  }
+)
 
 export function FollowerChainBlockPageStatesProvider(props: {
   children: React.ReactNode
@@ -168,6 +152,7 @@ export function FollowerChainBlockPageStatesProvider(props: {
   } else {
     availablePurposes.push('chainblock', 'unchainblock', 'export')
   }
+  const [purpose, setPurpose] = usePurpose(availablePurposes, initialPurpose)
   return (
     <FollowerChainBlockPageStatesContext.Provider
       value={{
@@ -178,9 +163,9 @@ export function FollowerChainBlockPageStatesProvider(props: {
         setTargetList,
       }}
     >
-      <PurposeContextProvider initialPurpose={initialPurpose} availablePurposes={availablePurposes}>
+      <PurposeContext.Provider value={{ purpose, setPurpose, availablePurposes }}>
         <SessionOptionsContextProvider>{props.children}</SessionOptionsContextProvider>
-      </PurposeContextProvider>
+      </PurposeContext.Provider>
     </FollowerChainBlockPageStatesContext.Provider>
   )
 }
@@ -193,6 +178,7 @@ export function TweetReactionChainBlockPageStatesProvider(props: {
   const [wantBlockLikers, setWantBlockLikers] = React.useState<boolean>(false)
   const [wantBlockMentionedUsers, setWantBlockMentionedUsers] = React.useState<boolean>(false)
   const availablePurposes: TweetReactionBlockSessionRequest['purpose'][] = ['chainblock', 'export']
+  const [purpose, setPurpose] = usePurpose(availablePurposes, 'chainblock')
   return (
     <TweetReactionChainBlockPageStatesContext.Provider
       value={{
@@ -205,9 +191,9 @@ export function TweetReactionChainBlockPageStatesProvider(props: {
         setWantBlockMentionedUsers,
       }}
     >
-      <PurposeContextProvider initialPurpose="chainblock" availablePurposes={availablePurposes}>
+      <PurposeContext.Provider value={{ purpose, setPurpose, availablePurposes }}>
         <SessionOptionsContextProvider>{props.children}</SessionOptionsContextProvider>
-      </PurposeContextProvider>
+      </PurposeContext.Provider>
     </TweetReactionChainBlockPageStatesContext.Provider>
   )
 }
@@ -216,6 +202,7 @@ export function ImportChainBlockPageStatesProvider(props: { children: React.Reac
   const [blocklist, setBlocklist] = React.useState<Blocklist>(emptyBlocklist)
   const [nameOfSelectedFiles, setNameOfSelectedFiles] = React.useState<string[]>([])
   const availablePurposes: ImportBlockSessionRequest['purpose'][] = ['chainblock', 'unchainblock']
+  const [purpose, setPurpose] = usePurpose(availablePurposes, 'chainblock')
   return (
     <ImportChainBlockPageStatesContext.Provider
       value={{
@@ -225,9 +212,9 @@ export function ImportChainBlockPageStatesProvider(props: { children: React.Reac
         setNameOfSelectedFiles,
       }}
     >
-      <PurposeContextProvider initialPurpose="chainblock" availablePurposes={availablePurposes}>
+      <PurposeContext.Provider value={{ purpose, setPurpose, availablePurposes }}>
         <SessionOptionsContextProvider>{props.children}</SessionOptionsContextProvider>
-      </PurposeContextProvider>
+      </PurposeContext.Provider>
     </ImportChainBlockPageStatesContext.Provider>
   )
 }
@@ -240,15 +227,16 @@ export function UserSearchChainBlockPageStatesProvider(props: {
     'chainblock',
     'unchainblock',
   ]
+  const [purpose, setPurpose] = usePurpose(availablePurposes, 'chainblock')
   return (
     <UserSearchChainBlockPageStatesContext.Provider
       value={{
         searchQuery: props.currentSearchQuery,
       }}
     >
-      <PurposeContextProvider initialPurpose="chainblock" availablePurposes={availablePurposes}>
+      <PurposeContext.Provider value={{ purpose, setPurpose, availablePurposes }}>
         <SessionOptionsContextProvider>{props.children}</SessionOptionsContextProvider>
-      </PurposeContextProvider>
+      </PurposeContext.Provider>
     </UserSearchChainBlockPageStatesContext.Provider>
   )
 }
