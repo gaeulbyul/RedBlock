@@ -13,15 +13,7 @@ interface UIContextType {
   setMenuAnchorElem(elem: HTMLElement | null): void
 }
 
-export const UIContext = React.createContext<UIContextType>({
-  openDialog() {},
-  openSnackBar() {},
-  switchPage() {},
-  shrinkedPopup: false,
-  popupOpenedInTab: false,
-  menuAnchorElem: null,
-  setMenuAnchorElem() {},
-})
+export const UIContext = React.createContext<UIContextType>(null!)
 
 export const RedBlockOptionsContext = React.createContext({
   ...defaultOptions,

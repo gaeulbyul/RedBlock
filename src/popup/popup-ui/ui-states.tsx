@@ -25,21 +25,14 @@ interface PurposeContextType {
   availablePurposes: Purpose[]
 }
 
-export const PurposeContext = React.createContext<PurposeContextType>({
-  purpose: 'chainblock',
-  setPurpose() {},
-  availablePurposes: [],
-})
+export const PurposeContext = React.createContext<PurposeContextType>(null!)
 
 interface SessionOptionsContextType {
   targetOptions: SessionOptions
   mutateOptions(partialOptions: Partial<SessionOptions>): void
 }
 
-export const SessionOptionsContext = React.createContext<SessionOptionsContextType>({
-  targetOptions: defaultSessionOptions,
-  mutateOptions() {},
-})
+export const SessionOptionsContext = React.createContext<SessionOptionsContextType>(null!)
 
 function SessionOptionsContextProvider(props: { children: React.ReactNode }) {
   const { skipInactiveUser } = React.useContext(RedBlockOptionsContext)
@@ -98,41 +91,16 @@ interface UserSearchChainBlockPageStates {
 }
 
 export const FollowerChainBlockPageStatesContext = React.createContext<FollowerChainBlockPageStates>(
-  {
-    currentUser: null,
-    userSelectionState: {
-      user: null,
-      group: 'invalid',
-    },
-    setUserSelectionState() {},
-    targetList: 'followers',
-    setTargetList() {},
-  }
+  null!
 )
-
 export const TweetReactionChainBlockPageStatesContext = React.createContext<TweetReactionChainBlockPageStates>(
-  {
-    currentTweet: null,
-    wantBlockRetweeters: false,
-    setWantBlockRetweeters() {},
-    wantBlockLikers: false,
-    setWantBlockLikers() {},
-    wantBlockMentionedUsers: false,
-    setWantBlockMentionedUsers() {},
-  }
+  null!
 )
-
-export const ImportChainBlockPageStatesContext = React.createContext<ImportChainBlockPageStates>({
-  blocklist: Object.assign({}, emptyBlocklist),
-  setBlocklist() {},
-  nameOfSelectedFiles: [],
-  setNameOfSelectedFiles() {},
-})
-
+export const ImportChainBlockPageStatesContext = React.createContext<ImportChainBlockPageStates>(
+  null!
+)
 export const UserSearchChainBlockPageStatesContext = React.createContext<UserSearchChainBlockPageStates>(
-  {
-    searchQuery: null,
-  }
+  null!
 )
 
 export function FollowerChainBlockPageStatesProvider(props: {

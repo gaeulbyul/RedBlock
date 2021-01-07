@@ -30,9 +30,7 @@ const M = MaterialUI
 interface UserSelectorContextType {
   changeSelectedUser(userId: string, userName: string, group: SelectUserGroup): void
 }
-const UserSelectorContext = React.createContext<UserSelectorContextType>({
-  changeSelectedUser() {},
-})
+const UserSelectorContext = React.createContext<UserSelectorContextType>(null!)
 
 function TargetSavedUsers(props: { savedUsers: TwitterUserMap }) {
   const { savedUsers } = props
