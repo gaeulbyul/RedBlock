@@ -7,8 +7,7 @@ import {
   BlockLimiterUI,
   TwitterUserProfile,
   RBExpansionPanel,
-  BigExecuteChainBlockButton,
-  BigExportButton,
+  BigExecuteButton,
   ChainBlockPurposeUI,
 } from './components.js'
 import {
@@ -99,8 +98,7 @@ function TargetOptionsUI() {
   )
 }
 
-function TargetExecutionButtonUI(props: { isAvailable: boolean }) {
-  const { isAvailable } = props
+function TargetExecutionButtonUI() {
   const {
     currentTweet,
     wantBlockRetweeters,
@@ -108,10 +106,21 @@ function TargetExecutionButtonUI(props: { isAvailable: boolean }) {
     wantBlockMentionedUsers,
   } = React.useContext(TweetReactionChainBlockPageStatesContext)
   const { targetOptions } = React.useContext(SessionOptionsContext)
-  const { purpose } = React.useContext(PurposeContext)
+  const purpose = React.useContext(PurposeContext)
+    .purpose as TweetReactionBlockSessionRequest['purpose']
   const { openDialog } = React.useContext(UIContext)
   const uiContext = React.useContext(UIContext)
   const myself = React.useContext(MyselfContext)
+  const limiterStatus = React.useContext(BlockLimiterContext)
+  function isAvailable() {
+    if (purpose === 'chainblock' && limiterStatus.remained <= 0) {
+      return false
+    }
+    if (!(wantBlockRetweeters || wantBlockLikers || wantBlockMentionedUsers)) {
+      return false
+    }
+    return true
+  }
   function executeSession(purpose: TweetReactionBlockSessionRequest['purpose']) {
     if (!currentTweet) {
       // unreachable?
@@ -141,56 +150,24 @@ function TargetExecutionButtonUI(props: { isAvailable: boolean }) {
       },
     })
   }
-  const blockButtonDisabled = !(
-    isAvailable &&
-    (wantBlockRetweeters || wantBlockLikers || wantBlockMentionedUsers)
+  return (
+    <M.Box>
+      <BigExecuteButton
+        {...{ purpose }}
+        disabled={!isAvailable()}
+        onClick={() => executeSession(purpose)}
+      />
+    </M.Box>
   )
-  const exportButtonDisabled = !(wantBlockRetweeters || wantBlockLikers || wantBlockMentionedUsers)
-  let bigButton: React.ReactNode
-  switch (purpose) {
-    case 'chainblock':
-      bigButton = (
-        <BigExecuteChainBlockButton
-          disabled={blockButtonDisabled}
-          onClick={() => executeSession('chainblock')}
-        >
-          <span>
-            {'\u{1f6d1}'} {i18n.getMessage('execute_chainblock')}
-          </span>
-        </BigExecuteChainBlockButton>
-      )
-      break
-    case 'export':
-      bigButton = (
-        <BigExportButton disabled={exportButtonDisabled} onClick={() => executeSession('export')}>
-          <span>
-            {'\u{1f4be}'} {i18n.getMessage('export')}
-          </span>
-        </BigExportButton>
-      )
-      break
-  }
-  return <M.Box>{bigButton}</M.Box>
 }
 
 export default function NewTweetReactionBlockPage() {
-  const myself = React.useContext(MyselfContext)
-  const limiterStatus = React.useContext(BlockLimiterContext)
-  function isAvailable() {
-    if (!myself) {
-      return false
-    }
-    if (limiterStatus.remained <= 0) {
-      return false
-    }
-    return true
-  }
   return (
     <div>
       <TargetTweetOuterUI />
       <TargetOptionsUI />
       <BlockLimiterUI />
-      <TargetExecutionButtonUI isAvailable={isAvailable()} />
+      <TargetExecutionButtonUI />
     </div>
   )
 }

@@ -24,6 +24,25 @@ export function RedBlockUITheme(darkMode: boolean) {
   })
 }
 
+export function Icon({ name }: { name: string }) {
+  return <M.Icon>{name}</M.Icon>
+}
+
+function purposeToIcon(purpose: Purpose): JSX.Element {
+  switch (purpose) {
+    case 'chainblock':
+      return <Icon name="block" />
+    case 'unchainblock':
+      return <Icon name="favorite_border" />
+    case 'export':
+      return <Icon name="save" />
+    case 'lockpicker':
+      return <Icon name="no_encryption" />
+    case 'chainunfollow':
+      return <Icon name="remove_circle_outline" />
+  }
+}
+
 export function RBDialog(props: {
   isOpen: boolean
   content: DialogContent | null
@@ -264,7 +283,43 @@ const BigBaseButton = MaterialUI.withStyles(() => ({
   },
 }))(MaterialUI.Button)
 
-export const BigExecuteChainBlockButton = MaterialUI.withStyles(theme => ({
+export function BigExecuteButton(props: {
+  purpose: Purpose
+  disabled: boolean
+  type?: 'button' | 'submit'
+  onClick?(event: React.MouseEvent): void
+}): JSX.Element {
+  const { purpose, disabled, onClick } = props
+  const type = props.type || 'button'
+  let BigButton: typeof BigExecuteChainBlockButton
+  let label: string
+  switch (purpose) {
+    case 'chainblock':
+      BigButton = BigExecuteChainBlockButton
+      label = i18n.getMessage('execute_chainblock')
+      break
+    case 'unchainblock':
+      BigButton = BigExecuteUnChainBlockButton
+      label = i18n.getMessage('execute_unchainblock')
+      break
+    case 'lockpicker':
+      BigButton = BigExecuteLockPickerButton
+      label = i18n.getMessage('lockpicker')
+      break
+    case 'chainunfollow':
+      BigButton = BigChainUnfollowButton
+      label = i18n.getMessage('chainunfollow')
+      break
+    case 'export':
+      BigButton = BigExportButton
+      label = i18n.getMessage('export')
+      break
+  }
+  const startIcon = purposeToIcon(purpose)
+  return <BigButton {...{ type, startIcon, disabled, onClick }}>{label}</BigButton>
+}
+
+const BigExecuteChainBlockButton = MaterialUI.withStyles(theme => ({
   root: {
     backgroundColor: MaterialUI.colors.red[700],
     color: theme.palette.getContrastText(MaterialUI.colors.red[700]),
@@ -275,7 +330,7 @@ export const BigExecuteChainBlockButton = MaterialUI.withStyles(theme => ({
   },
 }))(BigBaseButton)
 
-export const BigExecuteUnChainBlockButton = MaterialUI.withStyles(theme => ({
+const BigExecuteUnChainBlockButton = MaterialUI.withStyles(theme => ({
   root: {
     backgroundColor: MaterialUI.colors.green[700],
     color: theme.palette.getContrastText(MaterialUI.colors.green[700]),
@@ -286,7 +341,7 @@ export const BigExecuteUnChainBlockButton = MaterialUI.withStyles(theme => ({
   },
 }))(BigBaseButton)
 
-export const BigExportButton = MaterialUI.withStyles(theme => ({
+const BigExportButton = MaterialUI.withStyles(theme => ({
   root: {
     backgroundColor: MaterialUI.colors.blueGrey[700],
     color: theme.palette.getContrastText(MaterialUI.colors.blueGrey[700]),
@@ -297,7 +352,7 @@ export const BigExportButton = MaterialUI.withStyles(theme => ({
   },
 }))(BigBaseButton)
 
-export const BigExecuteLockPickerButton = MaterialUI.withStyles(theme => ({
+const BigExecuteLockPickerButton = MaterialUI.withStyles(theme => ({
   root: {
     backgroundColor: MaterialUI.colors.pink[700],
     color: theme.palette.getContrastText(MaterialUI.colors.pink[700]),
@@ -308,12 +363,34 @@ export const BigExecuteLockPickerButton = MaterialUI.withStyles(theme => ({
   },
 }))(BigBaseButton)
 
+const BigChainUnfollowButton = MaterialUI.withStyles(theme => ({
+  root: {
+    backgroundColor: MaterialUI.colors.deepOrange[700],
+    color: theme.palette.getContrastText(MaterialUI.colors.deepOrange[700]),
+    '&:hover': {
+      backgroundColor: MaterialUI.colors.deepOrange[500],
+      color: theme.palette.getContrastText(MaterialUI.colors.deepOrange[500]),
+    },
+  },
+}))(BigBaseButton)
+
+const useStylesForTab = MaterialUI.makeStyles(() =>
+  MaterialUI.createStyles({
+    tab: {
+      paddingLeft: 0,
+      paddingRight: 0,
+    },
+  })
+)
+
 export function ChainBlockPurposeUI() {
   const { purpose, setPurpose, availablePurposes } = React.useContext(PurposeContext)
+  const classes = useStylesForTab()
   const chainblockable = availablePurposes.includes('chainblock')
   const unchainblockable = availablePurposes.includes('unchainblock')
   const exportable = availablePurposes.includes('export')
   const lockpickable = availablePurposes.includes('lockpicker')
+  const chainunfollowable = availablePurposes.includes('chainunfollow')
   return (
     <div style={{ width: '100%' }}>
       <M.Tabs
@@ -323,15 +400,44 @@ export function ChainBlockPurposeUI() {
         onChange={(_ev, val) => setPurpose(val)}
       >
         {chainblockable && (
-          <M.Tab value={'chainblock'} label={`\u{1f6d1} ${i18n.getMessage('chainblock')}`} />
+          <M.Tab
+            value={'chainblock'}
+            className={classes.tab}
+            icon={purposeToIcon('chainblock')}
+            label={i18n.getMessage('chainblock')}
+          />
         )}
-
         {unchainblockable && (
-          <M.Tab value={'unchainblock'} label={`\u{1f49a} ${i18n.getMessage('unchainblock')}`} />
+          <M.Tab
+            value={'unchainblock'}
+            className={classes.tab}
+            icon={purposeToIcon('unchainblock')}
+            label={i18n.getMessage('unchainblock')}
+          />
         )}
-        {exportable && <M.Tab value={'export'} label={`\u{1f4be} ${i18n.getMessage('export')}`} />}
         {lockpickable && (
-          <M.Tab value={'lockpicker'} label={`\u{1f513} ${i18n.getMessage('lockpicker')}`} />
+          <M.Tab
+            value={'lockpicker'}
+            className={classes.tab}
+            icon={purposeToIcon('lockpicker')}
+            label={i18n.getMessage('lockpicker')}
+          />
+        )}
+        {chainunfollowable && (
+          <M.Tab
+            value={'chainunfollow'}
+            className={classes.tab}
+            icon={purposeToIcon('chainunfollow')}
+            label={i18n.getMessage('chainunfollow')}
+          />
+        )}
+        {exportable && (
+          <M.Tab
+            value={'export'}
+            className={classes.tab}
+            icon={purposeToIcon('export')}
+            label={i18n.getMessage('export')}
+          />
         )}
       </M.Tabs>
       <M.Divider />
@@ -352,14 +458,19 @@ export function ChainBlockPurposeUI() {
           <div className="description">{i18n.getMessage('unchainblock_description')}</div>
         </TabPanel>
       )}
-      {exportable && (
-        <TabPanel value={purpose} index="export">
-          <div className="description">{i18n.getMessage('export_description')}</div>
-        </TabPanel>
-      )}
       {lockpickable && (
         <TabPanel value={purpose} index="lockpicker">
           <div className="description">{i18n.getMessage('lockpicker_description')}</div>
+        </TabPanel>
+      )}
+      {chainunfollowable && (
+        <TabPanel value={purpose} index="chainunfollow">
+          <div className="description">{i18n.getMessage('chainunfollow_description')}</div>
+        </TabPanel>
+      )}
+      {exportable && (
+        <TabPanel value={purpose} index="export">
+          <div className="description">{i18n.getMessage('export_description')}</div>
         </TabPanel>
       )}
     </div>

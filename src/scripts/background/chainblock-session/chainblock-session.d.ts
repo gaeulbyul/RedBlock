@@ -13,6 +13,7 @@ interface SessionOptions {
   myFollowers: UserAction
   myFollowings: UserAction
   mutualBlocked: UserAction
+  myMutualFollowers: UserAction
   includeUsersInBio: BioBlockMode
   skipInactiveUser: InactivePeriod
 }

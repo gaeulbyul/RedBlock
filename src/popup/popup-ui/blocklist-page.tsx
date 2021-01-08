@@ -3,13 +3,12 @@ import { UIContext, MyselfContext, BlockLimiterContext } from './contexts.js'
 import {
   RBExpansionPanel,
   BlockLimiterUI,
-  BigExecuteChainBlockButton,
+  BigExecuteButton,
   ChainBlockPurposeUI,
 } from './components.js'
 import { PageEnum } from '../popup.js'
 import * as i18n from '../../scripts/i18n.js'
 import { generateConfirmMessage } from '../../scripts/text-generate.js'
-import * as TwitterAPI from '../../scripts/background/twitter-api.js'
 import { startNewChainBlockSession } from '../../scripts/background/request-sender.js'
 import {
   emptyBlocklist,
@@ -35,7 +34,7 @@ function TargetOptionsUI() {
 }
 
 export default function BlocklistPage() {
-  const myself = React.useContext(MyselfContext)
+  const myself = React.useContext(MyselfContext)!
   const uiContext = React.useContext(UIContext)
   const limiterStatus = React.useContext(BlockLimiterContext)
   const { openDialog } = React.useContext(UIContext)
@@ -74,11 +73,6 @@ export default function BlocklistPage() {
     event.preventDefault()
     if (blocklist.userIds.size <= 0) {
       uiContext.openSnackBar(i18n.getMessage('cant_chainblock_empty_list'))
-      return
-    }
-    const myself = await TwitterAPI.getMyself().catch(() => null)
-    if (!myself) {
-      uiContext.openSnackBar(i18n.getMessage('error_occured_check_login'))
       return
     }
     const request: ImportBlockSessionRequest = {
@@ -195,11 +189,7 @@ export default function BlocklistPage() {
       </RBExpansionPanel>
       <TargetOptionsUI />
       <BlockLimiterUI />
-      <BigExecuteChainBlockButton type="submit" disabled={!isAvailable}>
-        <span>
-          {'\u{1f6d1}'} {i18n.getMessage('execute_chainblock')}
-        </span>
-      </BigExecuteChainBlockButton>
+      <BigExecuteButton {...{ purpose }} type="submit" disabled={!isAvailable} />
     </form>
   )
 }
