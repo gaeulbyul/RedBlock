@@ -379,12 +379,12 @@ export default function ChainBlockSessionsPage(props: { sessions: SessionInfo[] 
     <div>
       {myself ? (
         <React.Fragment>
+          <BlockLimiterUI />
           {isSessionExist && (
             <M.Box marginBottom="15px">
               <GlobalControls />
             </M.Box>
           )}
-          <BlockLimiterUI />
           {isSessionExist ? renderSessions() : renderEmptySessions()}
         </React.Fragment>
       ) : (
