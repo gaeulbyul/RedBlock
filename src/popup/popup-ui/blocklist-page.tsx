@@ -6,7 +6,7 @@ import {
   BigExecuteButton,
   ChainBlockPurposeUI,
 } from './components.js'
-import { PageEnum } from '../popup.js'
+import { PageEnum } from './pages.js'
 import * as i18n from '../../scripts/i18n.js'
 import { generateConfirmMessage } from '../../scripts/text-generate.js'
 import { startNewChainBlockSession } from '../../scripts/background/request-sender.js'

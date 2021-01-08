@@ -4,7 +4,7 @@ import {
   getLimitResetTime,
   getCountOfUsersToBlock,
 } from '../../scripts/common.js'
-import { PageEnum } from '../popup.js'
+import { PageEnum, pageIcon, pageLabel } from './pages.js'
 import {
   cleanupInactiveSessions,
   stopAllChainBlock,
@@ -307,23 +307,27 @@ function GlobalControls() {
   )
 }
 
-const useStylesForFabButton = MaterialUI.makeStyles(theme =>
-  MaterialUI.createStyles({
-    fab: {
-      position: 'fixed',
-      bottom: theme.spacing(5),
-      right: theme.spacing(2),
-    },
-  })
-)
-
 export default function ChainBlockSessionsPage(props: { sessions: SessionInfo[] }) {
   const { sessions } = props
   const myself = React.useContext(MyselfContext)
   const uiContext = React.useContext(UIContext)
-  const classes = useStylesForFabButton()
-  function handleFabButtonClicked() {
-    uiContext.switchPage(PageEnum.NewSession)
+  const { availablePages } = uiContext
+  function isPageAvailable(page: PageEnum) {
+    switch (page) {
+      case PageEnum.NewSession:
+        return availablePages.followerChainBlock
+      case PageEnum.NewTweetReactionBlock:
+        return availablePages.tweetReactionChainBlock
+      case PageEnum.NewSearchChainBlock:
+        return availablePages.userSearchChainBlock
+      default:
+        // 위에 3가지만 쓸 거다.
+        throw new Error('unreachable')
+    }
+  }
+  function handleNewSessionButton(event: React.MouseEvent, page: PageEnum) {
+    event.preventDefault()
+    uiContext.switchPage(page)
   }
   function renderSessions() {
     return (
@@ -338,12 +342,34 @@ export default function ChainBlockSessionsPage(props: { sessions: SessionInfo[] 
     return (
       <M.Box display="flex" flexDirection="column" justifyContent="center" padding="12px 16px">
         <M.Box display="flex" justifyContent="center" padding="10px">
-          <M.Icon color="disabled" style={{ fontSize: '120pt' }}>
+          <M.Icon color="disabled" style={{ fontSize: '100pt' }}>
             pause_circle_filled_icon
           </M.Icon>
         </M.Box>
-        <M.Box display="flex" justifyContent="center" textAlign="center">
+        <M.Box display="flex" flexDirection="column" justifyContent="center" textAlign="center">
           {i18n.getMessage('session_is_empty')} {i18n.getMessage('press_plus_to_start_new_session')}
+          <M.Divider variant="middle" style={{ margin: '5px 0' }} />
+          <M.Box display="flex" flexDirection="row" justifyContent="center">
+            <M.Box minWidth="150px" maxWidth="300px">
+              {[
+                PageEnum.NewSession,
+                PageEnum.NewTweetReactionBlock,
+                PageEnum.NewSearchChainBlock,
+              ].map((page, index) => (
+                <M.Button
+                  key={index}
+                  fullWidth
+                  style={{ margin: '5px 0' }}
+                  variant="contained"
+                  startIcon={pageIcon(page)}
+                  disabled={!isPageAvailable(page)}
+                  onClick={e => handleNewSessionButton(e, page)}
+                >
+                  {pageLabel(page)}
+                </M.Button>
+              ))}
+            </M.Box>
+          </M.Box>
         </M.Box>
       </M.Box>
     )
@@ -353,16 +379,13 @@ export default function ChainBlockSessionsPage(props: { sessions: SessionInfo[] 
     <div>
       {myself ? (
         <React.Fragment>
-          <M.Box marginBottom="15px">
-            <GlobalControls />
-          </M.Box>
+          {isSessionExist && (
+            <M.Box marginBottom="15px">
+              <GlobalControls />
+            </M.Box>
+          )}
           <BlockLimiterUI />
           {isSessionExist ? renderSessions() : renderEmptySessions()}
-          <M.Tooltip placement="left" title={i18n.getMessage('new_follower_session')}>
-            <M.Fab className={classes.fab} color="primary" onClick={handleFabButtonClicked}>
-              <M.Icon>add</M.Icon>
-            </M.Fab>
-          </M.Tooltip>
         </React.Fragment>
       ) : (
         <PleaseLoginBox />

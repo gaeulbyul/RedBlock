@@ -170,7 +170,7 @@
     "message": "Currently there are no sessions."
   },
   "press_plus_to_start_new_session": {
-    "message": "To start a new session, click the + button below."
+    "message": "To start a new session, click the button below."
   },
   "user_xxx_added": {
     "message": "Added @$username$",

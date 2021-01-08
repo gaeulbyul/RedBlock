@@ -2,18 +2,6 @@ import { getUserNameFromURL } from '../scripts/common.js'
 
 type Tab = browser.tabs.Tab
 
-// NOTE:
-// 아래의 값을 변경할 때,
-// popup-ui.tsx의 initialPageMatch 정규식 부분도 수정할 것.
-export const enum PageEnum {
-  Sessions,
-  NewSession,
-  NewTweetReactionBlock,
-  NewSearchChainBlock,
-  Blocklist,
-  Utilities,
-}
-
 export async function toggleOneClickBlockMode(enabled: boolean) {
   const tab = await getCurrentTab()
   const tabId = tab && tab.id

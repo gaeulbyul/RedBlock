@@ -1,7 +1,15 @@
-import { PageEnum } from '../popup.js'
+import { PageEnum } from './pages.js'
 import { defaultOptions } from '../../scripts/background/storage.js'
 import type { DialogContent } from './components.js'
 import type { TwitterUser } from '../../scripts/background/twitter-api.js'
+
+export interface AvailablePages {
+  followerChainBlock: boolean
+  tweetReactionChainBlock: boolean
+  userSearchChainBlock: boolean
+  importChainBlock: boolean
+  miscellaneous: boolean
+}
 
 interface UIContextType {
   openDialog(content: DialogContent): void
@@ -11,6 +19,7 @@ interface UIContextType {
   popupOpenedInTab: boolean
   menuAnchorElem: HTMLElement | null
   setMenuAnchorElem(elem: HTMLElement | null): void
+  availablePages: AvailablePages
 }
 
 export const UIContext = React.createContext<UIContextType>(null!)

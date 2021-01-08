@@ -1,4 +1,4 @@
-type PageEnum = typeof import('../popup/popup').PageEnum
+type PageEnum = typeof import('../popup/popup-ui/pages').PageEnum
 type TwitterUser = import('./background/twitter-api').TwitterUser
 type Tweet = import('./background/twitter-api').Tweet
 type DialogMessageObj = import('./text-generate').DialogMessageObj

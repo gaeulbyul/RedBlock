@@ -6,11 +6,13 @@ import * as i18n from '../scripts/i18n.js'
 
 import BlocklistPage from './popup-ui/blocklist-page.js'
 import ChainBlockSessionsPage from './popup-ui/chainblock-sessions-page.js'
+import { PageEnum, pageIcon, pageLabel } from './popup-ui/pages.js'
 import {
   UIContext,
   RedBlockOptionsContext,
   MyselfContext,
   BlockLimiterContext,
+  AvailablePages,
 } from './popup-ui/contexts.js'
 import {
   FollowerChainBlockPageStatesProvider,
@@ -30,7 +32,6 @@ import {
   getUserNameFromTab,
   getUserIdFromTab,
   getCurrentSearchQueryFromTab,
-  PageEnum,
 } from './popup.js'
 
 const M = MaterialUI
@@ -69,54 +70,20 @@ interface PopupAppProps {
   redblockOptions: RedBlockStorage['options']
 }
 
-function pageIcon(page: PageEnum): React.ReactElement {
-  switch (page) {
-    case PageEnum.Sessions:
-      return <M.Icon>play_circle_filled_white_icon</M.Icon>
-    case PageEnum.NewSession:
-      return <M.Icon>group</M.Icon>
-    case PageEnum.NewTweetReactionBlock:
-      return <M.Icon>repeat</M.Icon>
-    case PageEnum.NewSearchChainBlock:
-      return <M.Icon>search</M.Icon>
-    case PageEnum.Blocklist:
-      return <M.Icon>list_alt</M.Icon>
-    case PageEnum.Utilities:
-      return <M.Icon>build</M.Icon>
-  }
-}
-
-function pageLabel(page: PageEnum, sessionsCount = 0): string {
-  switch (page) {
-    case PageEnum.Sessions:
-      return `${i18n.getMessage('running_sessions')} (${sessionsCount})`
-    case PageEnum.NewSession:
-      return i18n.getMessage('new_follower_session')
-    case PageEnum.NewTweetReactionBlock:
-      return i18n.getMessage('new_tweetreaction_session')
-    case PageEnum.NewSearchChainBlock:
-      return i18n.getMessage('new_searchblock_session')
-    case PageEnum.Blocklist:
-      return i18n.getMessage('blocklist_page')
-    case PageEnum.Utilities:
-      return i18n.getMessage('miscellaneous')
-  }
-}
-
 function PopupUITopMenu(props: {
   runningSessions: SessionInfo[]
   currentTweet: Tweet | null
   currentSearchQuery: string | null
 }) {
-  const { runningSessions, currentTweet, currentSearchQuery } = props
+  const { runningSessions } = props
   const {
     shrinkedPopup,
     menuAnchorElem,
     setMenuAnchorElem,
     switchPage,
     popupOpenedInTab,
+    availablePages,
   } = React.useContext(UIContext)
-  const myself = React.useContext(MyselfContext)
   function handleOpenInTabClick() {
     browser.tabs.create({
       active: true,
@@ -163,7 +130,7 @@ function PopupUITopMenu(props: {
         </M.MenuItem>,
         <M.MenuItem
           dense
-          disabled={!myself}
+          disabled={!availablePages.followerChainBlock}
           onClick={() => switchPageFromMenu(PageEnum.NewSession)}
         >
           <M.ListItemIcon>{pageIcon(PageEnum.NewSession)}</M.ListItemIcon>
@@ -171,7 +138,7 @@ function PopupUITopMenu(props: {
         </M.MenuItem>,
         <M.MenuItem
           dense
-          disabled={!(myself && currentTweet)}
+          disabled={!availablePages.tweetReactionChainBlock}
           onClick={() => switchPageFromMenu(PageEnum.NewTweetReactionBlock)}
         >
           <M.ListItemIcon>{pageIcon(PageEnum.NewTweetReactionBlock)}</M.ListItemIcon>
@@ -179,17 +146,25 @@ function PopupUITopMenu(props: {
         </M.MenuItem>,
         <M.MenuItem
           dense
-          disabled={!(myself && currentSearchQuery)}
+          disabled={!availablePages.userSearchChainBlock}
           onClick={() => switchPageFromMenu(PageEnum.NewSearchChainBlock)}
         >
           <M.ListItemIcon>{pageIcon(PageEnum.NewSearchChainBlock)}</M.ListItemIcon>
           {pageLabel(PageEnum.NewSearchChainBlock)}
         </M.MenuItem>,
-        <M.MenuItem dense disabled={!myself} onClick={() => switchPageFromMenu(PageEnum.Blocklist)}>
+        <M.MenuItem
+          dense
+          disabled={!availablePages.userSearchChainBlock}
+          onClick={() => switchPageFromMenu(PageEnum.Blocklist)}
+        >
           <M.ListItemIcon>{pageIcon(PageEnum.Blocklist)}</M.ListItemIcon>
           {pageLabel(PageEnum.Blocklist)}
         </M.MenuItem>,
-        <M.MenuItem dense disabled={!myself} onClick={() => switchPageFromMenu(PageEnum.Utilities)}>
+        <M.MenuItem
+          dense
+          disabled={!availablePages.miscellaneous}
+          onClick={() => switchPageFromMenu(PageEnum.Utilities)}
+        >
           <M.ListItemIcon>{pageIcon(PageEnum.Utilities)}</M.ListItemIcon>
           {pageLabel(PageEnum.Utilities)}
         </M.MenuItem>,
@@ -259,6 +234,13 @@ function PopupApp(props: PopupAppProps) {
     }
     setSnackBarOpen(false)
   }
+  const availablePages: AvailablePages = {
+    followerChainBlock: !!myself,
+    tweetReactionChainBlock: !!(myself && currentTweet),
+    userSearchChainBlock: !!(myself && currentSearchQuery),
+    importChainBlock: !!myself,
+    miscellaneous: !!myself,
+  }
   React.useEffect(() => {
     const messageListener = (msg: object) => {
       if (!checkMessage(msg)) {
@@ -307,6 +289,7 @@ function PopupApp(props: PopupAppProps) {
           popupOpenedInTab,
           menuAnchorElem,
           setMenuAnchorElem,
+          availablePages,
         }}
       >
         <MyselfContext.Provider value={myself}>
@@ -325,35 +308,35 @@ function PopupApp(props: PopupAppProps) {
                       <M.Tab
                         className={classes.tab}
                         icon={pageIcon(PageEnum.NewSession)}
-                        disabled={!myself}
+                        disabled={!availablePages.followerChainBlock}
                       />
                     </M.Tooltip>
                     <M.Tooltip arrow title={pageLabel(PageEnum.NewTweetReactionBlock)}>
                       <M.Tab
                         className={classes.tab}
                         icon={pageIcon(PageEnum.NewTweetReactionBlock)}
-                        disabled={!(myself && currentTweet)}
+                        disabled={!availablePages.tweetReactionChainBlock}
                       />
                     </M.Tooltip>
                     <M.Tooltip arrow title={pageLabel(PageEnum.NewSearchChainBlock)}>
                       <M.Tab
                         className={classes.tab}
                         icon={pageIcon(PageEnum.NewSearchChainBlock)}
-                        disabled={!(myself && currentSearchQuery)}
+                        disabled={!availablePages.userSearchChainBlock}
                       />
                     </M.Tooltip>
                     <M.Tooltip arrow title={pageLabel(PageEnum.Blocklist)}>
                       <M.Tab
                         className={classes.tab}
                         icon={pageIcon(PageEnum.Blocklist)}
-                        disabled={!myself}
+                        disabled={!availablePages.importChainBlock}
                       />
                     </M.Tooltip>
                     <M.Tooltip arrow title={pageLabel(PageEnum.Utilities)}>
                       <M.Tab
                         className={classes.tab}
                         icon={pageIcon(PageEnum.Utilities)}
-                        disabled={!myself}
+                        disabled={!availablePages.miscellaneous}
                       />
                     </M.Tooltip>
                   </M.Tabs>

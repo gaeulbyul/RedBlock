@@ -170,7 +170,7 @@
     "message": "현재 진행중인 세션이 없습니다."
   },
   "press_plus_to_start_new_session": {
-    "message": "체인블락을 시작하려면 아래의 + 버튼을 눌러주세요."
+    "message": "체인블락을 시작하려면 아래의 버튼을 눌러주세요."
   },
   "user_xxx_added": {
     "message": "@$username$을(를) 추가했습니다.",

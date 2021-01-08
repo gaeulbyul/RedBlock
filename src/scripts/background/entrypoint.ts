@@ -1,4 +1,4 @@
-import { PageEnum } from '../../popup/popup.js'
+import { PageEnum } from '../../popup/popup-ui/pages.js'
 import { alertToCurrentTab } from './background.js'
 import ChainBlocker from './chainblock.js'
 import * as Storage from './storage.js'
