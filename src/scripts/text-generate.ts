@@ -2,6 +2,8 @@ import { TargetCheckResult } from './background/target-checker.js'
 import { SessionStatus, getCountOfUsersToBlock } from './common.js'
 import * as i18n from './i18n.js'
 
+const actionsThatNeedWarning: UserAction[] = ['Block', 'UnFollow', 'BlockAndUnBlock']
+
 export interface DialogMessageObj {
   title: string
   contentLines?: string[]
@@ -97,11 +99,10 @@ function generateFollowerBlockConfirmMessage(
       )
       break
   }
-  // TODO: also for unfollow / block-and-unblock
-  if (myFollowers === 'Block') {
+  if (actionsThatNeedWarning.includes(myFollowers)) {
     warnings.push(`\u26a0 ${i18n.getMessage('warning_maybe_you_block_your_followers')}`)
   }
-  if (myFollowings === 'Block') {
+  if (actionsThatNeedWarning.includes(myFollowings)) {
     warnings.push(`\u26a0 ${i18n.getMessage('warning_maybe_you_block_your_followings')}`)
   }
   return {
@@ -120,10 +121,10 @@ function generateTweetReactionBlockConfirmMessage(
   const title = i18n.getMessage('confirm_reacted_chainblock_title', authorName)
   const contents = []
   const warnings = []
-  if (myFollowers === 'Block') {
+  if (actionsThatNeedWarning.includes(myFollowers)) {
     warnings.push(`\u26a0 ${i18n.getMessage('warning_maybe_you_block_your_followers')}`)
   }
-  if (myFollowings === 'Block') {
+  if (actionsThatNeedWarning.includes(myFollowings)) {
     warnings.push(`\u26a0 ${i18n.getMessage('warning_maybe_you_block_your_followings')}`)
   }
   const targets = []
@@ -148,10 +149,10 @@ function generateTweetReactionBlockConfirmMessage(
 function generateImportBlockConfirmMessage(request: ImportBlockSessionRequest): DialogMessageObj {
   const { myFollowers, myFollowings } = request.options
   const warnings = []
-  if (myFollowers === 'Block') {
+  if (actionsThatNeedWarning.includes(myFollowers)) {
     warnings.push(`\u26a0 ${i18n.getMessage('warning_maybe_you_block_your_followers')}`)
   }
-  if (myFollowings === 'Block') {
+  if (actionsThatNeedWarning.includes(myFollowings)) {
     warnings.push(`\u26a0 ${i18n.getMessage('warning_maybe_you_block_your_followings')}`)
   }
   const usersCount = request.target.userIds.length.toLocaleString()
@@ -174,10 +175,10 @@ function generateUserSearchBlockConfirmMessage(
   const { myFollowers, myFollowings } = request.options
   const targetDescription = `${i18n.getMessage('query')}: '${request.target.query}'`
   const warningLines = []
-  if (myFollowers === 'Block') {
+  if (actionsThatNeedWarning.includes(myFollowers)) {
     warningLines.push(`\u26a0 ${i18n.getMessage('warning_maybe_you_block_your_followers')}`)
   }
-  if (myFollowings === 'Block') {
+  if (actionsThatNeedWarning.includes(myFollowings)) {
     warningLines.push(`\u26a0 ${i18n.getMessage('warning_maybe_you_block_your_followings')}`)
   }
   return {

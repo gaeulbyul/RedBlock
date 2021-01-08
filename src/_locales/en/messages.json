@@ -412,10 +412,10 @@
     "message": "Please select retweet and/or like"
   },
   "warning_maybe_you_block_your_followers": {
-    "message": "Caution! This option may block users who follow you."
+    "message": "Caution! This option may lose your followers."
   },
   "warning_maybe_you_block_your_followings": {
-    "message": "Caution! This option may block users who you follow."
+    "message": "Caution! This option may lose users who you follow."
   },
   "tweet_contents": {
     "message": "Tweet's contents"
