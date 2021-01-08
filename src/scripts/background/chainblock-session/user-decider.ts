@@ -25,7 +25,7 @@ export function decideWhatToDoGivenUser(
       whatToDo = decideWhenChainUnfollow(request, follower)
       break
     case 'lockpicker':
-      whatToDo = isProtectedFollower(follower) ? 'Block' : 'Skip'
+      whatToDo = decideWhenLockPicker(request, follower)
       break
   }
   if (whatToDo === 'Skip') {
@@ -65,6 +65,14 @@ function decideWhenUnChainBlock(request: SessionRequest, follower: TwitterUser) 
   return 'UnBlock'
 }
 
+function decideWhenLockPicker(_request: SessionRequest, follower: TwitterUser) {
+  const { following, followed_by } = follower
+  if (follower.protected && followed_by && !following) {
+    return 'Block'
+  }
+  return 'Skip'
+}
+
 function decideWhenChainUnfollow(request: SessionRequest, follower: TwitterUser) {
   const { options } = request
   const { following, followed_by, follow_request_sent } = follower
@@ -96,14 +104,6 @@ function isAlreadyDone(follower: TwitterUser, action: UserAction): boolean {
     default:
       return false
   }
-}
-
-function isProtectedFollower(follower: TwitterUser) {
-  const { following, followed_by } = follower
-  if (follower.protected && followed_by && !following) {
-    return true
-  }
-  return false
 }
 
 function checkUserInactivity(
