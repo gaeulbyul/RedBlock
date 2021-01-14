@@ -335,7 +335,7 @@ export default class ChainBlockSession {
       return options.myFollowings
     }
     if (purpose === 'unchainblock' && 'mutualBlocked' in options) {
-      const blockedBy = target.type === 'follower' && target.user.blocked_by
+      const blockedBy = target.type === 'follower' && follower.blocked_by
       if (blockedBy) {
         return options.mutualBlocked
       }
