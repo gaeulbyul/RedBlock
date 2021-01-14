@@ -223,6 +223,8 @@ export function checkResultToString(result: TargetCheckResult): string {
       return i18n.getMessage('already_running_to_same_target')
     case TargetCheckResult.Protected:
       return `\u{1f512} ${i18n.getMessage('cant_chainblock_to_protected')}`
+    case TargetCheckResult.Blocked:
+      return i18n.getMessage('cant_chainblock_to_blocked')
     case TargetCheckResult.NoFollowers:
       return i18n.getMessage('cant_chainblock_follower_is_zero')
     case TargetCheckResult.NoFollowings:

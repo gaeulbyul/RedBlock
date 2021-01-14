@@ -210,6 +210,7 @@ function TargetUserProfile(props: { isAvailable: boolean }) {
         {isAvailable || (
           <div className="profile-blocked">
             {user.protected && `\u{1f512} ${i18n.getMessage('cant_chainblock_to_protected')}`}
+            {user.blocked_by && `\u{1f6ab} ${i18n.getMessage('cant_chainblock_to_blocked')}`}
           </div>
         )}
         <div className="profile-right-targetlist">
@@ -566,7 +567,7 @@ export default function NewChainBlockPage(props: { currentUser: TwitterUser | nu
     if (selectedUser.following) {
       return true
     }
-    if (selectedUser.protected) {
+    if (selectedUser.protected || selectedUser.blocked_by) {
       return false
     }
     return true

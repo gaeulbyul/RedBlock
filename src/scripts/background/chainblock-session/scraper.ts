@@ -1,6 +1,5 @@
 import * as TwitterAPI from '../twitter-api.js'
 import * as UserScrapingAPI from '../user-scraping-api.js'
-import * as i18n from '../../i18n.js'
 import { getFollowersCount, getReactionsCount, wrapEitherRight, resumableAsyncIterate } from '../../common.js'
 import { SessionRequest } from './session.js'
 
@@ -77,72 +76,6 @@ class MutualFollowerScraper implements UserScraper {
     this.prefetchShouldStop = true
   }
   constructor(private user: TwitterUser) {}
-  public async *[Symbol.asyncIterator]() {
-    yield wrapEitherRight({ users: this.prefetchedUsers })
-    yield* this.generator
-  }
-}
-
-// 차단상대 대상 스크래퍼
-class AntiBlockScraper implements UserScraper {
-  public totalCount: number | null = null
-  private prefetchedUsers: TwitterUser[] = []
-  private prefetchShouldStop = false
-  private generator!: AsyncIterableIterator<Either<Error, UsersObject>>
-  private async getMutualFollowersIds(actAsUserId: string) {
-    const mutualFollowerIds = await UserScrapingAPI.getAllMutualFollowersIds(this.user, actAsUserId)
-    return mutualFollowerIds
-  }
-  private async getFollowersIds(actAsUserId: string) {
-    const idsIterator = UserScrapingAPI.getAllFollowsIds(this.followKind, this.user, { actAsUserId })
-    const userIds: string[] = []
-    for await (const response of idsIterator) {
-      if (!response.ok) {
-        throw response.error
-      }
-      userIds.push(...response.value.ids)
-    }
-    return userIds
-  }
-  public async prepare() {
-    let userIds: string[]
-    const actAsUserId = await this.prepareActor()
-    if (this.followKind === 'mutual-followers') {
-      userIds = await this.getMutualFollowersIds(actAsUserId)
-    } else {
-      userIds = await this.getFollowersIds(actAsUserId)
-    }
-    this.totalCount = userIds.length
-    this.generator = UserScrapingAPI.lookupUsersByIds(userIds)
-    for await (const response of resumableAsyncIterate(this.generator)) {
-      if (!response.ok) {
-        console.error(response.error)
-        break
-      }
-      this.prefetchedUsers.push(...response.value.users)
-      if (this.prefetchShouldStop) {
-        break
-      }
-    }
-  }
-  public stopPrepare() {
-    this.prefetchShouldStop = false
-  }
-  constructor(private user: TwitterUser, private followKind: FollowKind) {}
-  private async prepareActor() {
-    const multiCookies = await TwitterAPI.getMultiAccountCookies()
-    const actorUserIds = Object.keys(multiCookies)
-    for (const actorId of actorUserIds) {
-      const target = await TwitterAPI.getSingleUserById(this.user.id_str, actorId).catch(() => null)
-      if (target && !target.blocked_by) {
-        return actorId
-      }
-    }
-    // 현재 파이어폭스의 addons-linter에선 dynamic-import 구문을 지원하지 않는다.
-    // https://github.com/mozilla/addons-linter/issues/2940
-    // const i18n = await import('../../i18n.js')
-    throw new Error(i18n.getMessage('cant_chainblock_to_blocked'))
-  }
   public async *[Symbol.asyncIterator]() {
     yield wrapEitherRight({ users: this.prefetchedUsers })
     yield* this.generator
@@ -231,9 +164,6 @@ export function initScraper(request: SessionRequest): UserScraper {
   }
   if (target.type === 'tweet_reaction') {
     return new TweetReactedUserScraper(target)
-  }
-  if (target.user.blocked_by) {
-    return new AntiBlockScraper(target.user, target.list)
   }
   if (target.list === 'mutual-followers') {
     return new MutualFollowerScraper(target.user)
