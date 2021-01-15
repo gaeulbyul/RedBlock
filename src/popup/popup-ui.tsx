@@ -207,6 +207,7 @@ function PopupApp(props: PopupAppProps) {
   const darkMode = MaterialUI.useMediaQuery('(prefers-color-scheme:dark)')
   // 파이어폭스의 팝업 가로폭 문제
   // 참고: popup.css
+  const [initialLoading, setInitialLoading] = React.useState(true)
   const shrinkedPopup = MaterialUI.useMediaQuery('(width:348px), (width:425px)')
   const theme = React.useMemo(() => RedBlockUITheme(darkMode), [darkMode])
   const classes = useStylesForAppBar()
@@ -249,6 +250,7 @@ function PopupApp(props: PopupAppProps) {
       }
       switch (msg.messageType) {
         case 'ChainBlockInfo':
+          setInitialLoading(false)
           setSessions(msg.sessions)
           setLimiterStatus(msg.limiter)
           break
@@ -290,6 +292,7 @@ function PopupApp(props: PopupAppProps) {
           menuAnchorElem,
           setMenuAnchorElem,
           availablePages,
+          initialLoading,
         }}
       >
         <MyselfContext.Provider value={myself}>

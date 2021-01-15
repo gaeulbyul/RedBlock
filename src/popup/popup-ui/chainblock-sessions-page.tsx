@@ -338,7 +338,7 @@ export default function ChainBlockSessionsPage(props: { sessions: SessionInfo[] 
       </div>
     )
   }
-  function renderEmptySessions() {
+  function renderWelcome() {
     return (
       <M.Box display="flex" flexDirection="column" justifyContent="center" padding="12px 16px">
         <M.Box display="flex" justifyContent="center" padding="10px">
@@ -374,6 +374,8 @@ export default function ChainBlockSessionsPage(props: { sessions: SessionInfo[] 
       </M.Box>
     )
   }
+  // 세션이 있어도 팝업 로딩 직후에 빈 세션이 잠깐 나타난다.
+  const shouldShowWelcomeNewSession = sessions.length <= 0 && !uiContext.initialLoading
   const isSessionExist = sessions.length > 0
   return (
     <div>
@@ -381,11 +383,15 @@ export default function ChainBlockSessionsPage(props: { sessions: SessionInfo[] 
         <React.Fragment>
           <BlockLimiterUI />
           {isSessionExist && (
-            <M.Box margin="10px 0">
-              <GlobalControls />
-            </M.Box>
+            <React.Fragment>
+              <M.Box margin="10px 0">
+                <GlobalControls />
+              </M.Box>
+              {renderSessions()}
+            </React.Fragment>
           )}
-          {isSessionExist ? renderSessions() : renderEmptySessions()}
+          {shouldShowWelcomeNewSession && renderWelcome()}
+          {uiContext.initialLoading && <span>Loading...</span>}
         </React.Fragment>
       ) : (
         <PleaseLoginBox />

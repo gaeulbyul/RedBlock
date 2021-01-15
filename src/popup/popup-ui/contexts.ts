@@ -20,6 +20,7 @@ interface UIContextType {
   menuAnchorElem: HTMLElement | null
   setMenuAnchorElem(elem: HTMLElement | null): void
   availablePages: AvailablePages
+  initialLoading: boolean
 }
 
 export const UIContext = React.createContext<UIContextType>(null!)
