@@ -65,10 +65,11 @@ function decideWhenUnChainBlock(request: SessionRequest, follower: TwitterUser) 
   return 'UnBlock'
 }
 
-function decideWhenLockPicker(_request: SessionRequest, follower: TwitterUser) {
+function decideWhenLockPicker(request: SessionRequest, follower: TwitterUser) {
+  const { options } = request
   const { following, followed_by } = follower
   if (follower.protected && followed_by && !following) {
-    return 'Block'
+    return options.protectedFollowers
   }
   return 'Skip'
 }

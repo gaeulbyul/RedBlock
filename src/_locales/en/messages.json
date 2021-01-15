@@ -706,5 +706,8 @@
   },
   "confirm_closing_export_session_notyet_save": {
     "message": "Looks like you don't saved blocklist file yet. Are you sure to close this session?"
+  },
+  "protected_follower": {
+    "message": "Protected Follower"
   }
 }

@@ -455,11 +455,13 @@ export function ChainBlockPurposeUI() {
       {unchainblockable && (
         <TabPanel value={purpose} index="unchainblock">
           <UnChainBlockOptionsUI />
+          <M.Divider />
           <div className="description">{i18n.getMessage('unchainblock_description')}</div>
         </TabPanel>
       )}
       {lockpickable && (
         <TabPanel value={purpose} index="lockpicker">
+          <LockPickerOptionsUI />
           <div className="description">{i18n.getMessage('lockpicker_description')}</div>
         </TabPanel>
       )}
@@ -547,7 +549,6 @@ function ChainBlockOptionsUI() {
 }
 
 function UnChainBlockOptionsUI() {
-  // const { options, mutateOptions } = props
   const { targetOptions, mutateOptions } = React.useContext(SessionOptionsContext)
   const { mutualBlocked } = targetOptions
   const userActions: Array<[UserAction, string]> = [
@@ -565,6 +566,33 @@ function UnChainBlockOptionsUI() {
               control={<M.Radio size="small" />}
               checked={mutualBlocked === action}
               onChange={() => mutateOptions({ mutualBlocked: action })}
+              label={localizedAction}
+            />
+          ))}
+        </M.RadioGroup>
+      </M.FormControl>
+    </React.Fragment>
+  )
+}
+
+function LockPickerOptionsUI() {
+  const { targetOptions, mutateOptions } = React.useContext(SessionOptionsContext)
+  const { protectedFollowers } = targetOptions
+  const userActions: Array<[UserAction, string]> = [
+    ['Block', i18n.getMessage('do_block')],
+    ['BlockAndUnBlock', i18n.getMessage('block_and_unblock')],
+  ]
+  return (
+    <React.Fragment>
+      <M.FormControl component="fieldset">
+        <M.FormLabel component="legend">{i18n.getMessage('protected_follower')}</M.FormLabel>
+        <M.RadioGroup row>
+          {userActions.map(([action, localizedAction], index) => (
+            <M.FormControlLabel
+              key={index}
+              control={<M.Radio size="small" />}
+              checked={protectedFollowers === action}
+              onChange={() => mutateOptions({ protectedFollowers: action })}
               label={localizedAction}
             />
           ))}

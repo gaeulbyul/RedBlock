@@ -14,6 +14,7 @@ interface SessionOptions {
   myFollowings: UserAction
   mutualBlocked: UserAction
   myMutualFollowers: UserAction
+  protectedFollowers: UserAction
   includeUsersInBio: BioBlockMode
   skipInactiveUser: InactivePeriod
 }

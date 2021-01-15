@@ -706,5 +706,8 @@
   },
   "confirm_closing_export_session_notyet_save": {
     "message": "만들어낸 차단목록을 아직 저장하지 않았습니다. 그래도 이 세션을 닫으시겠습니까?"
+  },
+  "protected_follower": {
+    "message": "프로텍트 팔로워"
   }
 }
