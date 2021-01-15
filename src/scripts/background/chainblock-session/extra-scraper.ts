@@ -3,7 +3,7 @@
 import * as UserScrapingAPI from '../user-scraping-api.js'
 // import * as TwitterAPI from '../twitter-api.js'
 
-const alternativeAccountIndicativePrefixes = [/[a-z가-힣]+계(?:는|정은?)?(?:$|[^가-힣])/i]
+const alternativeAccountIndicativePrefixes = [/[0-9a-z가-힣]+\s*계(?:는|정은?)?/i]
 
 function extractMentionsInUsersBio(
   { description: bio }: TwitterUser,
@@ -44,7 +44,9 @@ export async function* scrapeUsersOnBio(
       const mentionedUserNames = new Set(
         users.map(user => extractMentionsInUsersBio(user, mode)).flat()
       )
-      for await (const maybeUser of UserScrapingAPI.lookupUsersByNames(Array.from(mentionedUserNames))) {
+      for await (const maybeUser of UserScrapingAPI.lookupUsersByNames(
+        Array.from(mentionedUserNames)
+      )) {
         // ok여부 체크하지 않으면 오류로 인해 체인블락이 정지한다.
         // 프로필 유저를 가져오지 못하더라도 진행할 수 있도록 하자
         if (maybeUser.ok) {
