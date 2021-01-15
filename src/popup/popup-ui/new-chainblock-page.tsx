@@ -40,16 +40,23 @@ function TargetSavedUsers(props: { savedUsers: TwitterUserMap }) {
   const { user: selectedUser, group: selectedUserGroup } = userSelectionState
   const myself = React.useContext(MyselfContext)
   async function insertUser() {
-    if (selectedUser) {
-      insertUserToStorage(selectedUser)
-      uiContext.openSnackBar(i18n.getMessage('user_xxx_added', selectedUser.screen_name))
+    if (!selectedUser) {
+      return
     }
+    if (savedUsers.hasUser(selectedUser)) {
+      uiContext.openSnackBar(i18n.getMessage('user_xxx_already_exists', selectedUser.screen_name))
+      return
+    }
+    insertUserToStorage(selectedUser)
+    uiContext.openSnackBar(i18n.getMessage('user_xxx_added', selectedUser.screen_name))
   }
   async function removeUser() {
-    if (selectedUser) {
-      removeUserFromStorage(selectedUser)
-      uiContext.openSnackBar(i18n.getMessage('user_xxx_removed', selectedUser.screen_name))
+    if (!selectedUser) {
+      console.warn("attempted remove user that doesn't exist?")
+      return
     }
+    removeUserFromStorage(selectedUser)
+    uiContext.openSnackBar(i18n.getMessage('user_xxx_removed', selectedUser.screen_name))
   }
   async function requestRefreshSavedUsers() {
     refreshSavedUsers()

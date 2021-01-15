@@ -188,6 +188,14 @@
       }
     }
   },
+  "user_xxx_already_exists": {
+    "message": "@$username$는 이미 저장되어있습니다.",
+    "placeholders": {
+      "username": {
+        "content": "$1"
+      }
+    }
+  },
   "current_user": {
     "message": "현재 유저"
   },

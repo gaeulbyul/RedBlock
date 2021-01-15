@@ -188,6 +188,14 @@
       }
     }
   },
+  "user_xxx_already_exists": {
+    "message": "User @$username$ already exists!",
+    "placeholders": {
+      "username": {
+        "content": "$1"
+      }
+    }
+  },
   "current_user": {
     "message": "Current user"
   },
