@@ -32,7 +32,13 @@ async function startSession(sessionId: string) {
     if (err instanceof TwitterAPI.RateLimitError) {
       alertToCurrentTab(i18n.getMessage('error_rate_limited'))
     } else {
-      alertToCurrentTab(err)
+      let errStr = ''
+      try {
+        errStr = JSON.stringify(err, null, 2)
+      } catch {
+        errStr = err
+      }
+      alertToCurrentTab(`Error: ${errStr}`)
     }
   })
 }
