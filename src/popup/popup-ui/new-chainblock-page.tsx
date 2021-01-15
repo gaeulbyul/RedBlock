@@ -214,7 +214,7 @@ function TargetUserSelectUI(props: { isAvailable: boolean }) {
   const { currentUser, targetList, userSelectionState, setUserSelectionState } = React.useContext(
     FollowerChainBlockPageStatesContext
   )
-  const { setPurpose } = React.useContext(PurposeContext)
+  // const { setPurpose } = React.useContext(PurposeContext)
   const { openDialog } = React.useContext(UIContext)
   const myself = React.useContext(MyselfContext)!
   const [savedUsers, setSavedUsers] = React.useState(new TwitterUserMap())
@@ -225,14 +225,15 @@ function TargetUserSelectUI(props: { isAvailable: boolean }) {
       setUserSelectionState({
         user: null,
         group: 'invalid',
+        purpose: 'chainblock',
       })
       return
     }
     if (userId === myself.id_str) {
-      setPurpose('lockpicker')
       setUserSelectionState({
         user: myself,
         group,
+        purpose: 'lockpicker',
       })
       return
     }
@@ -240,10 +241,10 @@ function TargetUserSelectUI(props: { isAvailable: boolean }) {
       setLoadingState(true)
       const newUser = await getUserByIdWithCache(userId).catch(() => null)
       if (newUser) {
-        setPurpose(determineInitialPurpose(myself, newUser))
         setUserSelectionState({
           user: newUser,
           group,
+          purpose: determineInitialPurpose(myself, newUser),
         })
       } else {
         // TODO: 유저를 가져오는 데 실패하면 해당 유저를 지운다?
@@ -256,6 +257,7 @@ function TargetUserSelectUI(props: { isAvailable: boolean }) {
         setUserSelectionState({
           user: null,
           group: 'invalid',
+          purpose: 'chainblock',
         })
       }
     } finally {
@@ -272,6 +274,7 @@ function TargetUserSelectUI(props: { isAvailable: boolean }) {
         setUserSelectionState({
           user: currentUser,
           group: 'current',
+          purpose: 'chainblock',
         })
       }
     })

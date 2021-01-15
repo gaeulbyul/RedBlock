@@ -5,16 +5,24 @@ import { RedBlockOptionsContext, MyselfContext } from './contexts.js'
 
 export type SelectUserGroup = 'invalid' | 'current' | 'saved' | 'self'
 
+function checkPurpose(
+  availablePurposes: Purpose[],
+  purpose: Purpose,
+  callback: (p: Purpose) => void
+) {
+  if (availablePurposes.includes(purpose)) {
+    callback(purpose)
+  } else {
+    const fallbackPurpose = availablePurposes[0]
+    console.warn('warning: invalid purpose "%s", falling back to "%s"', purpose, fallbackPurpose)
+    callback(fallbackPurpose)
+  }
+}
+
 function usePurpose(availablePurposes: Purpose[], initialPurpose: Purpose) {
   const [purpose, setPurpose] = React.useState(initialPurpose)
   function setPurposeWithCheck(p: Purpose) {
-    if (availablePurposes.includes(p)) {
-      setPurpose(p)
-    } else {
-      const fallbackPurpose = availablePurposes[0]
-      console.warn('warning: invalid purpose "%s", falling back to "%s"', purpose, fallbackPurpose)
-      setPurpose(fallbackPurpose)
-    }
+    checkPurpose(availablePurposes, p, setPurpose)
   }
   return [purpose, setPurposeWithCheck] as const
 }
@@ -59,6 +67,7 @@ function SessionOptionsContextProvider(props: { children: React.ReactNode }) {
 interface UserSelectionState {
   user: TwitterUser | null
   group: SelectUserGroup
+  purpose: Purpose
 }
 
 interface FollowerChainBlockPageStates {
@@ -107,20 +116,27 @@ export function FollowerChainBlockPageStatesProvider(props: {
   children: React.ReactNode
   initialUser: TwitterUser | null
 }) {
+  const { initialUser } = props
   const myself = React.useContext(MyselfContext)
+  const initialPurpose = determineInitialPurpose(myself, initialUser)
   const [userSelectionState, setUserSelectionState] = React.useState<UserSelectionState>({
-    user: props.initialUser,
+    user: initialUser,
     group: 'current',
+    purpose: initialPurpose,
   })
   const [targetList, setTargetList] = React.useState<FollowKind>('followers')
-  const initialPurpose = determineInitialPurpose(myself, userSelectionState.user)
   const availablePurposes: FollowerBlockSessionRequest['purpose'][] = []
-  if (initialPurpose === 'lockpicker') {
+  if (userSelectionState.purpose === 'lockpicker') {
     availablePurposes.push('lockpicker')
   } else {
     availablePurposes.push('chainblock', 'unchainblock', 'export')
   }
-  const [purpose, setPurpose] = usePurpose(availablePurposes, initialPurpose)
+  const { purpose } = userSelectionState
+  function setPurpose(p: Purpose) {
+    checkPurpose(availablePurposes, p, purpose =>
+      setUserSelectionState({ ...userSelectionState, purpose })
+    )
+  }
   return (
     <FollowerChainBlockPageStatesContext.Provider
       value={{

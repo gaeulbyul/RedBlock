@@ -401,7 +401,7 @@ export function ChainBlockPurposeUI() {
       >
         {chainblockable && (
           <M.Tab
-            value={'chainblock'}
+            value="chainblock"
             className={classes.tab}
             icon={purposeToIcon('chainblock')}
             label={i18n.getMessage('chainblock')}
@@ -409,7 +409,7 @@ export function ChainBlockPurposeUI() {
         )}
         {unchainblockable && (
           <M.Tab
-            value={'unchainblock'}
+            value="unchainblock"
             className={classes.tab}
             icon={purposeToIcon('unchainblock')}
             label={i18n.getMessage('unchainblock')}
@@ -417,7 +417,7 @@ export function ChainBlockPurposeUI() {
         )}
         {lockpickable && (
           <M.Tab
-            value={'lockpicker'}
+            value="lockpicker"
             className={classes.tab}
             icon={purposeToIcon('lockpicker')}
             label={i18n.getMessage('lockpicker')}
@@ -425,7 +425,7 @@ export function ChainBlockPurposeUI() {
         )}
         {chainunfollowable && (
           <M.Tab
-            value={'chainunfollow'}
+            value="chainunfollow"
             className={classes.tab}
             icon={purposeToIcon('chainunfollow')}
             label={i18n.getMessage('chainunfollow')}
@@ -433,7 +433,7 @@ export function ChainBlockPurposeUI() {
         )}
         {exportable && (
           <M.Tab
-            value={'export'}
+            value="export"
             className={classes.tab}
             icon={purposeToIcon('export')}
             label={i18n.getMessage('export')}
