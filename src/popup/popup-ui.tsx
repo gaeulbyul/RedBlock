@@ -488,6 +488,7 @@ export async function initializeUI() {
   } else {
     document.body.classList.add('ui-popup')
   }
+  requestProgress().catch(() => {})
   window.setInterval(() => {
     requestProgress().catch(() => {})
   }, UI_UPDATE_DELAY)
