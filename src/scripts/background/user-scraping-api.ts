@@ -112,15 +112,22 @@ export async function* getUserSearchResults(query: string): ScrapedUsersIterator
 export async function* lookupUsersByIds(userIds: string[]): ScrapedUsersIterator {
   const chunks = _.chunk(userIds, 100)
   for (const chunk of chunks) {
-    const mutualUsers = await getMultipleUsersById(chunk)
-    yield wrapEitherRight({ users: mutualUsers })
+    const users = await getMultipleUsersById(chunk)
+    yield wrapEitherRight({ users })
   }
 }
 
 export async function* lookupUsersByNames(userNames: string[]): ScrapedUsersIterator {
   const chunks = _.chunk(userNames, 100)
   for (const chunk of chunks) {
-    const mutualUsers = await getMultipleUsersByName(chunk)
-    yield wrapEitherRight({ users: mutualUsers })
+    try {
+      const users = await getMultipleUsersByName(chunk)
+      yield wrapEitherRight({ users })
+    } catch (error) {
+      yield {
+        ok: false,
+        error,
+      }
+    }
   }
 }

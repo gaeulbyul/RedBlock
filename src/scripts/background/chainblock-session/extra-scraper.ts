@@ -44,14 +44,15 @@ export async function* scrapeUsersOnBio(
       const mentionedUserNames = new Set(
         users.map(user => extractMentionsInUsersBio(user, mode)).flat()
       )
-      if (mentionedUserNames.size > 0) {
-        console.debug(
-          '%c found users-in-bio: %o',
-          'font-size:14pt;color:orange',
-          mentionedUserNames
-        )
+      for await (const maybeUser of UserScrapingAPI.lookupUsersByNames(Array.from(mentionedUserNames))) {
+        // ok여부 체크하지 않으면 오류로 인해 체인블락이 정지한다.
+        // 프로필 유저를 가져오지 못하더라도 진행할 수 있도록 하자
+        if (maybeUser.ok) {
+          yield maybeUser
+        } else {
+          console.error(maybeUser.error)
+        }
       }
-      yield* UserScrapingAPI.lookupUsersByNames(Array.from(mentionedUserNames))
     }
   }
 }
