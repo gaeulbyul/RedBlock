@@ -144,127 +144,137 @@ export class ChainBlockSession extends BaseSession {
     }
     const now = dayjs()
     let stopped = false
-    try {
-      const scrapedUserIds = new Set<string>()
-      for await (const scraperResponse of this.scraper) {
-        if (this.shouldStop) {
-          stopped = true
-          break
-        }
-        this.sessionInfo.progress.scraped = this.calculateScrapedCount()
-        if (!scraperResponse.ok) {
-          if (scraperResponse.error instanceof TwitterAPI.RateLimitError) {
-            this.handleRateLimit()
-            const second = 1000
-            const minute = second * 60
-            await sleep(1 * minute)
-            continue
-          } else {
-            throw scraperResponse.error
-          }
-        }
-        if (this.sessionInfo.progress.total === null) {
-          this.sessionInfo.progress.total = this.scraper.totalCount
-        }
-        this.handleRunning()
-        let promisesBuffer: Promise<any>[] = []
-        for (const user of scraperResponse.value.users) {
+    if (this.checkBlockLimiter() !== 'ok') {
+      this.stop()
+    } else
+      try {
+        const scrapedUserIds = new Set<string>()
+        for await (const scraperResponse of this.scraper) {
           if (this.shouldStop) {
             stopped = true
             break
           }
-          if (scrapedUserIds.has(user.id_str)) {
-            continue
+          this.sessionInfo.progress.scraped = this.calculateScrapedCount()
+          if (!scraperResponse.ok) {
+            if (scraperResponse.error instanceof TwitterAPI.RateLimitError) {
+              this.handleRateLimit()
+              const second = 1000
+              const minute = second * 60
+              await sleep(1 * minute)
+              continue
+            } else {
+              throw scraperResponse.error
+            }
           }
-          scrapedUserIds.add(user.id_str)
-          const blockLimitReached = this.limiter.check() !== 'ok'
-          if (blockLimitReached) {
-            this.stop()
-            break
+          if (this.sessionInfo.progress.total === null) {
+            this.sessionInfo.progress.total = this.scraper.totalCount
           }
-          const whatToDo = decideWhatToDoGivenUser(this.request, user, now)
-          console.debug('user %o => %s', user, whatToDo)
-          if (whatToDo === 'Skip') {
-            this.sessionInfo.progress.skipped++
-            continue
-          } else if (whatToDo === 'AlreadyDone') {
-            this.sessionInfo.progress.already++
-            continue
-          }
-          let promise: Promise<boolean>
-          if (DBG_dontActuallyCallAPI) {
-            promise = Promise.resolve(true)
-          } else {
+          this.handleRunning()
+          let promisesBuffer: Promise<any>[] = []
+          for (const user of scraperResponse.value.users) {
+            if (this.shouldStop) {
+              stopped = true
+              break
+            }
+            if (scrapedUserIds.has(user.id_str)) {
+              continue
+            }
+            scrapedUserIds.add(user.id_str)
+            if (this.checkBlockLimiter() !== 'ok') {
+              this.stop()
+              break
+            }
+            const whatToDo = decideWhatToDoGivenUser(this.request, user, now)
+            console.debug('user %o => %s', user, whatToDo)
+            if (whatToDo === 'Skip') {
+              this.sessionInfo.progress.skipped++
+              continue
+            } else if (whatToDo === 'AlreadyDone') {
+              this.sessionInfo.progress.already++
+              continue
+            }
+            let promise: Promise<boolean>
+            if (DBG_dontActuallyCallAPI) {
+              promise = Promise.resolve(true)
+            } else {
+              switch (whatToDo) {
+                case 'Block':
+                  promise = TwitterAPI.blockUser(user)
+                  break
+                case 'Mute':
+                  promise = TwitterAPI.muteUser(user)
+                  break
+                case 'UnBlock':
+                  promise = TwitterAPI.unblockUser(user)
+                  break
+                case 'UnMute':
+                  promise = TwitterAPI.unmuteUser(user)
+                  break
+                case 'UnFollow':
+                  promise = TwitterAPI.unfollowUser(user)
+                  break
+                case 'BlockAndUnBlock':
+                  promise = TwitterAPI.blockUser(user).then(
+                    blocked => blocked && TwitterAPI.unblockUser(user)
+                  )
+                  break
+              }
+            }
+            promise = promise.then(result => {
+              if (result) {
+                this.sessionInfo.progress.success[whatToDo]++
+                this.eventEmitter.emit('mark-user', {
+                  userId: user.id_str,
+                  userAction: whatToDo,
+                })
+              } else {
+                this.sessionInfo.progress.failure++
+              }
+              this.sessionInfo.progress.scraped = this.calculateScrapedCount()
+              return result
+            })
             switch (whatToDo) {
               case 'Block':
-                promise = TwitterAPI.blockUser(user)
-                break
               case 'Mute':
-                promise = TwitterAPI.muteUser(user)
+              case 'BlockAndUnBlock':
+                await promise
                 break
               case 'UnBlock':
-                promise = TwitterAPI.unblockUser(user)
-                break
               case 'UnMute':
-                promise = TwitterAPI.unmuteUser(user)
-                break
               case 'UnFollow':
-                promise = TwitterAPI.unfollowUser(user)
+                promisesBuffer.push(promise)
                 break
-              case 'BlockAndUnBlock':
-                promise = TwitterAPI.blockUser(user).then(
-                  blocked => blocked && TwitterAPI.unblockUser(user)
-                )
+              default:
+                assertNever(whatToDo)
                 break
             }
           }
-          promise = promise.then(result => {
-            if (result) {
-              this.sessionInfo.progress.success[whatToDo]++
-              this.eventEmitter.emit('mark-user', {
-                userId: user.id_str,
-                userAction: whatToDo,
-              })
-            } else {
-              this.sessionInfo.progress.failure++
-            }
-            this.sessionInfo.progress.scraped = this.calculateScrapedCount()
-            return result
-          })
-          switch (whatToDo) {
-            case 'Block':
-            case 'Mute':
-            case 'BlockAndUnBlock':
-              await promise
-              break
-            case 'UnBlock':
-            case 'UnMute':
-            case 'UnFollow':
-              promisesBuffer.push(promise)
-              break
-            default:
-              assertNever(whatToDo)
-              break
-          }
+          await Promise.allSettled(promisesBuffer)
         }
-        await Promise.allSettled(promisesBuffer)
+        if (stopped) {
+          this.sessionInfo.status = SessionStatus.Stopped
+          this.eventEmitter.emit('stopped', this.getSessionInfo())
+        } else {
+          this.sessionInfo.status = SessionStatus.Completed
+          this.eventEmitter.emit('complete', this.getSessionInfo())
+        }
+      } catch (error) {
+        this.sessionInfo.status = SessionStatus.Error
+        this.eventEmitter.emit('error', error.toString())
+        throw error
       }
-      if (stopped) {
-        this.sessionInfo.status = SessionStatus.Stopped
-        this.eventEmitter.emit('stopped', this.getSessionInfo())
-      } else {
-        this.sessionInfo.status = SessionStatus.Completed
-        this.eventEmitter.emit('complete', this.getSessionInfo())
-      }
-    } catch (error) {
-      this.sessionInfo.status = SessionStatus.Error
-      this.eventEmitter.emit('error', error.toString())
-      throw error
-    }
   }
-  protected calculateScrapedCount() {
+  private calculateScrapedCount() {
     const { success, already, failure, error, skipped } = this.sessionInfo.progress
     return _.sum([...Object.values(success), already, failure, error, skipped])
+  }
+  private checkBlockLimiter() {
+    const safePurposes: Purpose[] = ['unchainblock', 'chainunfollow']
+    if (safePurposes.includes(this.request.purpose)) {
+      return 'ok'
+    } else {
+      return this.limiter.check()
+    }
   }
 }
 
