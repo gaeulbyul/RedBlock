@@ -1,5 +1,5 @@
 import * as Storage from '../../scripts/background/storage.js'
-import * as TwitterAPI from '../../scripts/background/twitter-api.js'
+import type { TwClient } from '../../scripts/background/twitter-api.js'
 import { TwitterUserMap, checkUserIdBeforeLockPicker } from '../../scripts/common.js'
 import * as i18n from '../../scripts/i18n.js'
 import * as TextGenerate from '../../scripts/text-generate.js'
@@ -10,7 +10,12 @@ import {
   startNewChainBlockSession,
   refreshSavedUsers,
 } from '../../scripts/background/request-sender.js'
-import { UIContext, MyselfContext, BlockLimiterContext } from './contexts.js'
+import {
+  UIContext,
+  MyselfContext,
+  BlockLimiterContext,
+  TwitterAPIClientContext,
+} from './contexts.js'
 import {
   BlockLimiterUI,
   TwitterUserProfile,
@@ -221,7 +226,7 @@ function TargetUserSelectUI(props: { isAvailable: boolean }) {
   const { currentUser, targetList, userSelectionState, setUserSelectionState } = React.useContext(
     FollowerChainBlockPageStatesContext
   )
-  // const { setPurpose } = React.useContext(PurposeContext)
+  const twClient = React.useContext(TwitterAPIClientContext)
   const { openDialog } = React.useContext(UIContext)
   const myself = React.useContext(MyselfContext)!
   const [savedUsers, setSavedUsers] = React.useState(new TwitterUserMap())
@@ -246,7 +251,7 @@ function TargetUserSelectUI(props: { isAvailable: boolean }) {
     }
     try {
       setLoadingState(true)
-      const newUser = await getUserByIdWithCache(userId).catch(() => null)
+      const newUser = await getUserByIdWithCache(twClient, userId).catch(() => null)
       if (newUser) {
         setUserSelectionState({
           user: newUser,
@@ -334,11 +339,11 @@ function TargetOptionsUI() {
 }
 
 const userCache = new TwitterUserMap()
-async function getUserByIdWithCache(userId: string): Promise<TwitterUser> {
+async function getUserByIdWithCache(twClient: TwClient, userId: string): Promise<TwitterUser> {
   if (userCache.has(userId)) {
     return userCache.get(userId)!
   }
-  const user = await TwitterAPI.getSingleUserById(userId)
+  const user = await twClient.getSingleUser({ user_id: userId })
   userCache.addUser(user)
   return user
 }

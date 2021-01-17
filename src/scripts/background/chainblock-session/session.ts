@@ -1,6 +1,7 @@
 import * as Scraper from './scraper.js'
 import * as IdScraper from './userid-scraper.js'
 import * as TwitterAPI from '../twitter-api.js'
+import { TwClient } from '../twitter-api.js'
 import {
   EventEmitter,
   SessionStatus,
@@ -49,7 +50,7 @@ abstract class BaseSession {
   protected shouldStop = false
   protected readonly sessionInfo = this.initSessionInfo()
   public readonly eventEmitter = new EventEmitter<SessionEventEmitter>()
-  public constructor(protected request: SessionRequest) {}
+  public constructor(protected twClient: TwClient, protected request: SessionRequest) {}
   public getSessionInfo() {
     return copyFrozenObject(this.sessionInfo)
   }
@@ -114,7 +115,7 @@ abstract class BaseSession {
         break
     }
     sessionInfo.status = SessionStatus.RateLimited
-    const limitStatuses = await TwitterAPI.getRateLimitStatus()
+    const limitStatuses = await this.twClient.getRateLimitStatus()
     const limit = extractRateLimit(limitStatuses, apiKind)
     sessionInfo.limit = limit
     eventEmitter.emit('rate-limit', limit)
@@ -133,9 +134,13 @@ abstract class BaseSession {
 }
 
 export class ChainBlockSession extends BaseSession {
-  private readonly scraper = Scraper.initScraper(this.request)
-  public constructor(protected request: SessionRequest, private limiter: BlockLimiter) {
-    super(request)
+  private readonly scraper = Scraper.initScraper(this.twClient, this.request)
+  public constructor(
+    protected twClient: TwClient,
+    protected request: SessionRequest,
+    private limiter: BlockLimiter
+  ) {
+    super(twClient, request)
   }
   public async start() {
     const DBG_dontActuallyCallAPI = localStorage.getItem('RedBlock FakeAPI') === 'true'
@@ -193,30 +198,30 @@ export class ChainBlockSession extends BaseSession {
               this.sessionInfo.progress.already++
               continue
             }
-            let promise: Promise<boolean>
+            let promise: Promise<TwitterUser>
             if (DBG_dontActuallyCallAPI) {
-              promise = Promise.resolve(true)
+              promise = Promise.resolve(user)
             } else {
               switch (whatToDo) {
                 case 'Block':
-                  promise = TwitterAPI.blockUser(user)
+                  promise = this.twClient.blockUser(user)
                   break
                 case 'Mute':
-                  promise = TwitterAPI.muteUser(user)
+                  promise = this.twClient.muteUser(user)
                   break
                 case 'UnBlock':
-                  promise = TwitterAPI.unblockUser(user)
+                  promise = this.twClient.unblockUser(user)
                   break
                 case 'UnMute':
-                  promise = TwitterAPI.unmuteUser(user)
+                  promise = this.twClient.unmuteUser(user)
                   break
                 case 'UnFollow':
-                  promise = TwitterAPI.unfollowUser(user)
+                  promise = this.twClient.unfollowUser(user)
                   break
                 case 'BlockAndUnBlock':
-                  promise = TwitterAPI.blockUser(user).then(
-                    blocked => blocked && TwitterAPI.unblockUser(user)
-                  )
+                  promise = this.twClient
+                    .blockUser(user)
+                    .then(blocked => blocked && this.twClient.unblockUser(user))
                   break
               }
             }
@@ -279,14 +284,14 @@ export class ChainBlockSession extends BaseSession {
 }
 
 export class ExportSession extends BaseSession {
-  private readonly scraper = IdScraper.initIdScraper(this.request)
+  private readonly scraper = IdScraper.initIdScraper(this.twClient, this.request)
   private exportResult: ExportResult = {
     filename: this.generateFilename(this.request.target),
     userIds: new Set<string>(),
   }
   public downloaded = false
-  public constructor(protected request: ExportableSessionRequest) {
-    super(request)
+  public constructor(protected twClient: TwClient, protected request: ExportableSessionRequest) {
+    super(twClient, request)
   }
   public getExportResult(): ExportResult {
     return this.exportResult

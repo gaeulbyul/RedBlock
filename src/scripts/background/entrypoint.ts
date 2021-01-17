@@ -73,6 +73,7 @@ function handleExtensionMessage(
   message: RBMessageToBackgroundType,
   _sender: browser.runtime.MessageSender
 ) {
+  const twClient = new TwitterAPI.TwClient()
   switch (message.messageType) {
     case 'CreateChainBlockSession':
       {
@@ -117,10 +118,10 @@ function handleExtensionMessage(
       removeUserFromStorage(message.user)
       break
     case 'BlockSingleUser':
-      TwitterAPI.blockUser(message.user)
+      twClient.blockUser(message.user)
       break
     case 'UnblockSingleUser':
-      TwitterAPI.unblockUser(message.user)
+      twClient.unblockUser(message.user)
       break
     case 'RefreshSavedUsers':
       refreshSavedUsers()

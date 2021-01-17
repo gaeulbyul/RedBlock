@@ -1,5 +1,302 @@
 const BEARER_TOKEN = `AAAAAAAAAAAAAAAAAAAAANRILgAAAAAAnNwIzUejRCOuH5E6I8xnZz4puTs%3D1Zv7ttfk8LF81IUq16cHjhLTvJu4FA33AGWWjCpTnA`
 
+interface TwClientOptions {
+  // prefix: 'api.twitter.com' | 'twitter.com'
+  cookieStoreId?: string | null
+  actAsUserId?: string | null
+}
+
+interface ErrorResponseItem {
+  code: number
+  message: string
+}
+
+interface ErrorResponse {
+  errors: ErrorResponseItem[]
+}
+
+type GetMultipleUsersOption = { user_id: string[] } | { screen_name: string[] }
+type GetSingleUserOption = { user_id: string } | { screen_name: string }
+
+export class TwClient {
+  // TODO: should seperate 1.1 version (it may use v2 api such as /search)
+  public prefix = 'api.twitter.com/1.1'
+  // prefix = 'twitter.com/i/api/1.1'
+  public constructor(private options: TwClientOptions = {}) {}
+  public async getMyself(): Promise<TwitterUser> {
+    return await this.request1('get', '/account/verify_credentials.json')
+  }
+  public async getRateLimitStatus(): Promise<LimitStatus> {
+    const response = await this.request1('get', '/application/rate_limit_status.json')
+    return response.resources
+  }
+  public async blockUser(user: TwitterUser): Promise<TwitterUser> {
+    if (user.blocking) {
+      return user
+    }
+    return await this.request1('post', '/blocks/create.json', {
+      user_id: user.id_str,
+      include_entities: false,
+      skip_status: true,
+    })
+  }
+  public async unblockUser(user: TwitterUser): Promise<TwitterUser> {
+    if (!user.blocking) {
+      return user
+    }
+    return await this.request1('post', '/blocks/destroy.json', {
+      user_id: user.id_str,
+      include_entities: false,
+      skip_status: true,
+    })
+  }
+  public async muteUser(user: TwitterUser): Promise<TwitterUser> {
+    if (user.muting) {
+      return user
+    }
+    return await this.request1('post', '/mutes/users/create.json', {
+      user_id: user.id_str,
+    })
+  }
+  public async unmuteUser(user: TwitterUser): Promise<TwitterUser> {
+    if (!user.muting) {
+      return user
+    }
+    return await this.request1('post', '/mutes/users/destroy.json', {
+      user_id: user.id_str,
+    })
+  }
+  public async unfollowUser(user: TwitterUser): Promise<TwitterUser> {
+    if (!user.following) {
+      return user
+    }
+    return await this.request1('post', '/friendships/destroy.json', {
+      user_id: user.id_str,
+    })
+  }
+  public async getTweetById(tweetId: string): Promise<Tweet> {
+    return await this.request1('get', '/statuses/show.json', {
+      id: tweetId,
+      // 2020-11-28
+      // - include_entities:
+      // 멘션한 유저 체인블락 기능을 구현하기 위해
+      // entities 속성이 필요하다
+      // - tweet_mode: 'extended'
+      // 트윗이 길면 텍스트 뿐만 아니라 멘션한 유저도 적게 가져오더라.
+      include_entities: true,
+      tweet_mode: 'extended',
+      include_ext_alt_text: false,
+      include_card_uri: false,
+    })
+  }
+  public async getFollowsIds(
+    followKind: FollowKind,
+    user: TwitterUser,
+    cursor = '-1'
+  ): Promise<UserIdsResponse> {
+    return await this.request1('get', `/${followKind}/ids.json`, {
+      user_id: user.id_str,
+      stringify_ids: true,
+      count: 5000,
+      cursor,
+    })
+  }
+  public async getFollowsUserList(
+    followKind: FollowKind,
+    user: TwitterUser,
+    cursor = '-1'
+  ): Promise<UserListResponse> {
+    return await this.request1('get', `/${followKind}/list.json`, {
+      user_id: user.id_str,
+      count: 200,
+      skip_status: false,
+      include_user_entities: false,
+      cursor,
+    })
+  }
+  public async getMultipleUsers(options: GetMultipleUsersOption): Promise<TwitterUser[]> {
+    const user_id = 'user_id' in options ? options.user_id : []
+    const screen_name = 'screen_name' in options ? options.screen_name : []
+    if (user_id.length <= 0 && screen_name.length <= 0) {
+      console.warn('warning: empty user_id/screen_name')
+      return []
+    }
+    if (user_id.length > 100 || screen_name.length > 100) {
+      throw new Error('too many users! (> 100)')
+    }
+    const requestParams: URLParamsObj = {}
+    if (user_id.length > 0) {
+      requestParams.user_id = user_id
+    } else if (screen_name.length > 0) {
+      requestParams.screen_name = screen_name
+    } else {
+      throw new Error('unreachable')
+    }
+    return await this.request1('get', '/users/lookup.json', requestParams)
+  }
+  public async getSingleUser(options: GetSingleUserOption): Promise<TwitterUser> {
+    const requestParams: URLParamsObj = {
+      skip_status: true,
+      include_entities: false,
+    }
+    if ('user_id' in options) {
+      requestParams.user_id = options.user_id
+    } else if ('screen_name' in options) {
+      requestParams.screen_name = options.screen_name
+    }
+    return await this.request1('get', '/users/show.json', requestParams)
+  }
+
+  public async getFriendships(users: TwitterUser[]): Promise<FriendshipResponse> {
+    const userIds = users.map(user => user.id_str)
+    if (userIds.length === 0) {
+      return []
+    }
+    if (userIds.length > 100) {
+      throw new Error('too many users! (> 100)')
+    }
+    return await this.request1('get', '/friendships/lookup.json', {
+      user_id: userIds,
+    })
+  }
+
+  public async getRelationship(
+    sourceUser: TwitterUser,
+    targetUser: TwitterUser
+  ): Promise<Relationship> {
+    const source_id = sourceUser.id_str
+    const target_id = targetUser.id_str
+    const response = await this.request1('get', '/friendships/show.json', {
+      source_id,
+      target_id,
+    })
+    return response.relationship
+  }
+
+  public async getReactedUserList(
+    reaction: ReactionKind,
+    tweet: Tweet,
+    cursor = '-1'
+  ): Promise<UserListResponse> {
+    let requestPath = ''
+    switch (reaction) {
+      case 'retweeted':
+        requestPath = '/statuses/retweeted_by.json'
+        break
+      case 'liked':
+        requestPath = '/statuses/favorited_by.json'
+        break
+    }
+    return await this.request1('get', requestPath, {
+      id: tweet.id_str,
+      count: 200,
+      cursor,
+    })
+  }
+
+  public async getRetweetersIds(tweet: Tweet): Promise<UserIdsResponse> {
+    return await this.request1('get', '/statuses/retweeters/ids.json', {
+      id: tweet.id_str,
+      count: 100,
+      // cursor: <- 한 번 요청에 최대치(100명)을 가져올 수 있으므로 굳이 cursor를 쓰는 의미가 없다.
+      stringify_ids: true,
+    })
+  }
+  public async searchUsers(query: string, cursor?: string): Promise<APIv2Response> {
+    return await this.request2('get', '/search/adaptive.json', {
+      q: query,
+      result_filter: 'user',
+      count: 200,
+      query_source: 'typed_query',
+      pc: 1,
+      spelling_corrections: 0,
+      cursor,
+      // ext: 'mediaStats,highlightedLabel',
+    })
+  }
+  private async request1(method: HTTPMethods, path: string, paramsObj: URLParamsObj = {}) {
+    const fetchOptions = await generateTwitterAPIOptions({ method }, this.options.actAsUserId || '')
+    // TODO: prefix should customizable
+    const url = new URL(`https://${this.prefix}` + path)
+    let params: URLSearchParams
+    if (method === 'get') {
+      params = url.searchParams
+    } else {
+      params = new URLSearchParams()
+      fetchOptions.body = params
+    }
+    prepareParams(params, paramsObj)
+    let newCsrfToken = ''
+    let maxRetryCount = 3
+    while (maxRetryCount-- > 0) {
+      if (newCsrfToken) {
+        insertHeader(fetchOptions.headers!, 'x-redblock-override-ct0', newCsrfToken)
+      }
+      const response = await fetch(url.toString(), fetchOptions)
+      const responseJson = await response.json()
+      if (response.ok) {
+        return responseJson
+      } else {
+        if (!newCsrfToken) {
+          newCsrfToken = response.headers.get('x-redblock-new-ct0') || ''
+          if (newCsrfToken) {
+            continue
+          }
+        }
+        return Promise.reject(responseJson as Promise<ErrorResponse>)
+      }
+    }
+  }
+  private async request2(method: HTTPMethods, path: string, paramsObj: URLParamsObj = {}) {
+    const fetchOptions = await generateTwitterAPIOptions({ method }, this.options.actAsUserId || '')
+    // TODO: prefix should customizable
+    const url = new URL(`https://${this.prefix}` + path)
+    let params: URLSearchParams
+    if (method === 'get') {
+      params = url.searchParams
+    } else {
+      params = new URLSearchParams()
+      fetchOptions.body = params
+    }
+    prepareParams(params, paramsObj)
+    prepareMoreParams(params)
+    let newCsrfToken = ''
+    let maxRetryCount = 3
+    while (maxRetryCount-- > 0) {
+      if (newCsrfToken) {
+        insertHeader(fetchOptions.headers!, 'x-redblock-override-ct0', newCsrfToken)
+      }
+      const response = await fetch(url.toString(), fetchOptions)
+      const responseJson = await response.json()
+      if (response.ok) {
+        return responseJson
+      } else {
+        if (!newCsrfToken) {
+          newCsrfToken = response.headers.get('x-redblock-new-ct0') || ''
+          if (newCsrfToken) {
+            continue
+          }
+        }
+        return Promise.reject(responseJson as Promise<ErrorResponse>)
+      }
+    }
+  }
+}
+
+function insertHeader(
+  headers: Headers | Record<string, string> | string[][],
+  name: string,
+  value: string
+) {
+  if (headers instanceof Headers) {
+    headers.set(name, value)
+  } else if (Array.isArray(headers)) {
+    headers.push([name, value])
+  } else {
+    headers[name] = value
+  }
+}
+
 export class RateLimitError extends Error {
   public constructor(message: string, public readonly response?: Response) {
     super(message)
@@ -9,295 +306,6 @@ export class RateLimitError extends Error {
 export class APIFailError extends Error {
   public constructor(message: string, public readonly response?: Response) {
     super(message)
-  }
-}
-
-export async function getMyself(): Promise<TwitterUser> {
-  const response = await requestAPI('get', '/account/verify_credentials.json')
-  if (response.ok) {
-    return response.json()
-  } else {
-    throw new APIFailError('error', response)
-  }
-}
-
-export async function getRateLimitStatus(): Promise<LimitStatus> {
-  const response = await requestAPI('get', '/application/rate_limit_status.json')
-  const { resources } = await response.json()
-  return resources
-}
-
-export async function blockUser(user: TwitterUser) {
-  if (user.blocking) {
-    return true
-  }
-  const response = await requestAPI('post', '/blocks/create.json', {
-    user_id: user.id_str,
-    include_entities: false,
-    skip_status: true,
-  })
-  if (response.ok) {
-    return true
-  } else {
-    throw new APIFailError('error', response)
-  }
-}
-
-export async function unblockUser(user: TwitterUser) {
-  if (!user.blocking) {
-    return true
-  }
-  const response = await requestAPI('post', '/blocks/destroy.json', {
-    user_id: user.id_str,
-    include_entities: false,
-    skip_status: true,
-  })
-  if (response.ok) {
-    return true
-  } else {
-    throw new APIFailError('error', response)
-  }
-}
-
-export async function muteUser(user: TwitterUser) {
-  if (user.muting) {
-    return true
-  }
-  const response = await requestAPI('post', '/mutes/users/create.json', {
-    user_id: user.id_str,
-  })
-  if (response.ok) {
-    return true
-  } else {
-    throw new APIFailError('error', response)
-  }
-}
-
-export async function unmuteUser(user: TwitterUser) {
-  if (!user.muting) {
-    return true
-  }
-  const response = await requestAPI('post', '/mutes/users/destroy.json', {
-    user_id: user.id_str,
-  })
-  if (response.ok) {
-    return true
-  } else {
-    throw new APIFailError('error', response)
-  }
-}
-
-export async function unfollowUser(user: TwitterUser) {
-  if (!user.following) {
-    return true
-  }
-  const response = await requestAPI('post', '/friendships/destroy.json', {
-    user_id: user.id_str,
-  })
-  if (response.ok) {
-    return true
-  } else {
-    throw new APIFailError('error', response)
-  }
-}
-
-export async function getTweetById(tweetId: string): Promise<Tweet> {
-  const response = await requestAPI('get', '/statuses/show.json', {
-    id: tweetId,
-    // 2020-11-28
-    // - include_entities:
-    // 멘션한 유저 체인블락 기능을 구현하기 위해
-    // entities 속성이 필요하다
-    // - tweet_mode: 'extended'
-    // 트윗이 길면 텍스트 뿐만 아니라 멘션한 유저도 적게 가져오더라.
-    include_entities: true,
-    tweet_mode: 'extended',
-    include_ext_alt_text: false,
-    include_card_uri: false,
-  })
-  if (response.ok) {
-    return response.json()
-  } else {
-    throw new APIFailError('error', response)
-  }
-}
-
-export async function getFollowsIds(
-  followKind: FollowKind,
-  user: TwitterUser,
-  cursor = '-1',
-  actAsUserId = ''
-): Promise<UserIdsResponse> {
-  const response = await requestAPI(
-    'get',
-    `/${followKind}/ids.json`,
-    {
-      user_id: user.id_str,
-      stringify_ids: true,
-      count: 5000,
-      cursor,
-    },
-    actAsUserId
-  )
-  return response.json()
-}
-
-export async function getFollowsUserList(
-  followKind: FollowKind,
-  user: TwitterUser,
-  cursor = '-1',
-  actAsUserId = ''
-): Promise<UserListResponse> {
-  const response = await requestAPI(
-    'get',
-    `/${followKind}/list.json`,
-    {
-      user_id: user.id_str,
-      count: 200,
-      skip_status: false,
-      include_user_entities: false,
-      cursor,
-    },
-    actAsUserId
-  )
-  return response.json()
-}
-
-export async function getMultipleUsersById(userIds: string[]): Promise<TwitterUser[]> {
-  if (userIds.length === 0) {
-    return []
-  }
-  if (userIds.length > 100) {
-    throw new Error('too many users! (> 100)')
-  }
-  const joinedIds = Array.from(new Set(userIds)).join(',')
-  const response = await requestAPI('get', '/users/lookup.json', {
-    user_id: joinedIds,
-  })
-  return response.json()
-}
-
-export async function getMultipleUsersByName(userNames: string[]): Promise<TwitterUser[]> {
-  if (userNames.length === 0) {
-    return []
-  }
-  if (userNames.length > 100) {
-    throw new Error('too many users! (> 100)')
-  }
-  const joinedNames = Array.from(new Set(userNames)).join(',')
-  const response = await requestAPI('get', '/users/lookup.json', {
-    screen_name: joinedNames,
-  })
-  return response.json()
-}
-
-export async function getSingleUserByName(userName: string): Promise<TwitterUser> {
-  const response = await requestAPI('get', '/users/show.json', {
-    // user_id: user.id_str,
-    screen_name: userName,
-    skip_status: true,
-    include_entities: false,
-  })
-  return response.json()
-}
-
-export async function getSingleUserById(userId: string, actAsUserId = ''): Promise<TwitterUser> {
-  const response = await requestAPI(
-    'get',
-    '/users/show.json',
-    {
-      user_id: userId,
-      skip_status: true,
-      include_entities: false,
-    },
-    actAsUserId
-  )
-  return response.json()
-}
-
-export async function getFriendships(users: TwitterUser[]): Promise<FriendshipResponse> {
-  const userIds = users.map(user => user.id_str)
-  if (userIds.length === 0) {
-    return []
-  }
-  if (userIds.length > 100) {
-    throw new Error('too many users! (> 100)')
-  }
-  const joinedIds = Array.from(new Set(userIds)).join(',')
-  const response = await requestAPI('get', '/friendships/lookup.json', {
-    user_id: joinedIds,
-  })
-  return response.json()
-}
-
-export async function getRelationship(
-  sourceUser: TwitterUser,
-  targetUser: TwitterUser
-): Promise<Relationship> {
-  const source_id = sourceUser.id_str
-  const target_id = targetUser.id_str
-  const response = await requestAPI('get', '/friendships/show.json', {
-    source_id,
-    target_id,
-  })
-  return (await response.json()).relationship
-}
-
-export async function getReactedUserList(
-  reaction: ReactionKind,
-  tweet: Tweet,
-  cursor = '-1'
-): Promise<UserListResponse> {
-  let reactionPath = ''
-  switch (reaction) {
-    case 'retweeted':
-      reactionPath = '/statuses/retweeted_by.json'
-      break
-    case 'liked':
-      reactionPath = '/statuses/favorited_by.json'
-      break
-  }
-  const response = await requestAPI('get', reactionPath, {
-    id: tweet.id_str,
-    count: 200,
-    cursor,
-  })
-  if (response.ok) {
-    return response.json()
-  } else {
-    throw new APIFailError('error', response)
-  }
-}
-
-export async function getRetweetersIds(tweet: Tweet): Promise<UserIdsResponse> {
-  const response = await requestAPI('get', '/statuses/retweeters/ids.json', {
-    id: tweet.id_str,
-    count: 100,
-    // cursor: <- 한 번 요청에 최대치(100명)을 가져올 수 있으므로 굳이 cursor를 쓰는 의미가 없다.
-    stringify_ids: true,
-  })
-  if (response.ok) {
-    return response.json()
-  } else {
-    throw new APIFailError('error', response)
-  }
-}
-
-export async function searchUsers(query: string, cursor?: string): Promise<APIv2Response> {
-  const response = await requestAPIv2('get', '/search/adaptive.json', {
-    q: query,
-    result_filter: 'user',
-    count: 200,
-    query_source: 'typed_query',
-    pc: 1,
-    spelling_corrections: 0,
-    cursor,
-    // ext: 'mediaStats,highlightedLabel',
-  })
-  if (response.ok) {
-    return response.json()
-  } else {
-    throw new APIFailError('error', response)
   }
 }
 
@@ -322,6 +330,7 @@ async function generateTwitterAPIOptions(
   headers.set('x-csrf-token', csrfToken)
   headers.set('x-twitter-active-user', 'yes')
   headers.set('x-twitter-auth-type', 'OAuth2Session')
+  headers.set('x-redblock-request', 'yes')
   if (actAsUserId) {
     const extraCookies = await generateCookiesForAltAccountRequest(actAsUserId)
     const encodedExtraCookies = new URLSearchParams(
@@ -464,69 +473,10 @@ export function getNextCursorFromAPIv2Response(response: APIv2Response): string 
   }
 }
 
-async function requestAPIv2(
-  method: HTTPMethods,
-  path: string,
-  paramsObj: URLParamsObj = {}
-): Promise<Response> {
-  const fetchOptions = await generateTwitterAPIOptions({ method }, '')
-  const url = new URL('https://twitter.com/i/api/2' + path)
-  let params: URLSearchParams
-  if (method === 'get') {
-    params = url.searchParams
-  } else {
-    params = new URLSearchParams()
-    fetchOptions.body = params
-  }
-  prepareParams(params, paramsObj)
-  prepareMoreParams(params)
-  const response = await fetch(url.toString(), fetchOptions)
-  if (response.status === 429) {
-    throw new RateLimitError('rate limited')
-  } else if (!response.ok) {
-    throw new APIFailError('api response is not ok', response)
-  }
-  return response
-}
-
-async function requestAPI(
-  method: HTTPMethods,
-  path: string,
-  paramsObj: URLParamsObj = {},
-  actAsUserId = ''
-): Promise<Response> {
-  const fetchOptions = await generateTwitterAPIOptions({ method }, actAsUserId)
-  const url = new URL('https://api.twitter.com/1.1' + path)
-  let params: URLSearchParams
-  if (method === 'get') {
-    params = url.searchParams
-  } else {
-    params = new URLSearchParams()
-    fetchOptions.body = params
-  }
-  prepareParams(params, paramsObj)
-  const response = await fetch(url.toString(), fetchOptions)
-  if (response.status === 429) {
-    throw new RateLimitError('rate limited')
-  } else if (!response.ok) {
-    response
-      .clone()
-      .json()
-      .then(
-        json => {
-          console.error('api error', json)
-        },
-        err => {
-          console.error('unknown error', err)
-        }
-      )
-    throw new APIFailError('api response is not ok', response)
-  }
-  return response
-}
-
 type HTTPMethods = 'get' | 'delete' | 'post' | 'put'
-type URLParamsObj = { [key: string]: string | number | boolean | null | undefined }
+type URLParamsObj = {
+  [key: string]: string | number | boolean | null | undefined | string[] | number[]
+}
 
 export interface TwitterUser {
   id_str: string

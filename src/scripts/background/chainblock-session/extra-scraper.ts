@@ -1,6 +1,4 @@
-/// <reference path="./chainblock-session.d.ts" />
-
-import * as UserScrapingAPI from '../user-scraping-api.js'
+import { UserScrapingAPIClient } from '../user-scraping-api.js'
 // import * as TwitterAPI from '../twitter-api.js'
 
 const alternativeAccountIndicativePrefixes = [/[0-9a-z가-힣]+\s*계(?:는|정은?)?/i]
@@ -30,6 +28,7 @@ function extractMentionsInUsersBio(
 }
 
 export async function* scrapeUsersOnBio(
+  scrapingClient: UserScrapingAPIClient,
   userIterator: ScrapedUsersIterator,
   mode: BioBlockMode
 ): ScrapedUsersIterator {
@@ -44,7 +43,7 @@ export async function* scrapeUsersOnBio(
       const mentionedUserNames = new Set(
         users.map(user => extractMentionsInUsersBio(user, mode)).flat()
       )
-      for await (const maybeUser of UserScrapingAPI.lookupUsersByNames(
+      for await (const maybeUser of scrapingClient.lookupUsersByNames(
         Array.from(mentionedUserNames)
       )) {
         // ok여부 체크하지 않으면 오류로 인해 체인블락이 정지한다.

@@ -4,6 +4,7 @@ import {
   isRewindableSession,
   checkUserIdBeforeLockPicker,
 } from '../common.js'
+import { TwClient } from './twitter-api.js'
 import * as TextGenerate from '../text-generate.js'
 import * as i18n from '../i18n.js'
 import { alertToCurrentTab, notify, updateExtensionBadge } from './background.js'
@@ -158,17 +159,25 @@ export default class ChainBlocker {
     this.sessions.delete(sessionId)
     this.updateBadge()
   }
+  private prepareApiClient() {
+    /* NOTE 필요한 거
+     * cookieStoreId (firefox container tab 관련)
+     * incognito 여부  (incognito에선 다른 유저 로그인했을 수도 있다)
+     */
+    return new TwClient()
+  }
   private createSession(request: SessionRequest) {
+    const twClient = this.prepareApiClient()
     let session: Session
     switch (request.purpose) {
       case 'chainblock':
       case 'unchainblock':
       case 'lockpicker':
       case 'chainunfollow':
-        session = new ChainBlockSession(request, this.limiter)
+        session = new ChainBlockSession(twClient, request, this.limiter)
         break
       case 'export':
-        session = new ExportSession(request as ExportableSessionRequest)
+        session = new ExportSession(twClient, request as ExportableSessionRequest)
         break
     }
     this.handleEvents(session)

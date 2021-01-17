@@ -7,6 +7,10 @@ import { TargetCheckResult } from './target-checker.js'
 import { generateConfirmMessage, checkResultToString, objToString } from '../text-generate.js'
 import { alertToTab } from './background.js'
 
+/* TODO
+TwClient: 우클릭 버튼 누를 시 넘겨받는 tab 데이터에 따라 cookieStoreId / incognito 등 정보 활용
+*/
+
 type BrowserTab = browser.tabs.Tab
 
 const urlPatterns = ['https://twitter.com/*', 'https://mobile.twitter.com/*']
@@ -15,6 +19,7 @@ const documentUrlPatterns = [
   'https://mobile.twitter.com/*',
   'https://tweetdeck.twitter.com/*',
 ]
+
 const tweetUrlPatterns = ['https://twitter.com/*/status/*', 'https://mobile.twitter.com/*/status/*']
 
 function getTweetIdFromUrl(url: URL) {
@@ -38,11 +43,12 @@ async function confirmFollowerChainBlockRequest(
   userName: string,
   followKind: FollowKind
 ) {
-  const myself = await TwitterAPI.getMyself().catch(() => null)
+  const twClient = new TwitterAPI.TwClient()
+  const myself = await twClient.getMyself().catch(() => null)
   if (!myself) {
     return alertToTab(tab, i18n.getMessage('error_occured_check_login'))
   }
-  const user = await TwitterAPI.getSingleUserByName(userName)
+  const user = await twClient.getSingleUser({ screen_name: userName })
   const request: FollowerBlockSessionRequest = {
     purpose: 'chainblock',
     options: defaultSessionOptions,
@@ -72,11 +78,12 @@ async function confirmTweetReactionChainBlockRequest(
     blockMentionedUsers: boolean
   }
 ) {
-  const myself = await TwitterAPI.getMyself().catch(() => null)
+  const twClient = new TwitterAPI.TwClient()
+  const myself = await twClient.getMyself().catch(() => null)
   if (!myself) {
     return alertToTab(tab, i18n.getMessage('error_occured_check_login'))
   }
-  const tweet = await TwitterAPI.getTweetById(tweetId)
+  const tweet = await twClient.getTweetById(tweetId)
   const request: TweetReactionBlockSessionRequest = {
     purpose: 'chainblock',
     options: defaultSessionOptions,

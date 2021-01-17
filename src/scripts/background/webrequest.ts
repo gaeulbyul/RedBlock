@@ -6,6 +6,7 @@ import * as i18n from '../i18n.js'
 type HttpHeaders = browser.webRequest.HttpHeaders
 
 const extraInfoSpec: any = ['requestHeaders', 'blocking']
+const extraInfoSpecResponse: any = ['responseHeaders', 'blocking']
 try {
   // @ts-ignore
   const requireExtraHeadersSpec = browser.webRequest.OnBeforeSendHeadersOptions.hasOwnProperty(
@@ -13,6 +14,7 @@ try {
   )
   if (requireExtraHeadersSpec) {
     extraInfoSpec.push('extraHeaders')
+    extraInfoSpecResponse.push('extraHeaders')
   }
 } catch (e) {}
 
@@ -27,6 +29,14 @@ const notifyAboutBlockLimitation = _.debounce(
     trailing: false,
   }
 )
+
+function generateApiUrls(path: string) {
+  return [
+    'https://api.twitter.com/',
+    'https://twitter.com/i/api/',
+    'https://mobile.twitter.com/i/api/',
+  ].map(prefix => prefix + path)
+}
 
 function stripOrigin(headers: HttpHeaders) {
   for (let i = 0; i < headers.length; i++) {
@@ -43,7 +53,7 @@ function stripOrigin(headers: HttpHeaders) {
 }
 
 function filterInvalidHeaders(headers: HttpHeaders): HttpHeaders {
-  return headers.filter(({ name }) => name.length > 0)
+  return headers.filter(({ name }) => name.length > 0 || /redblock/i.test(name))
 }
 
 function changeActor(cookies: string, { auth_token, auth_multi, twid }: ActAsExtraCookies): string {
@@ -51,6 +61,19 @@ function changeActor(cookies: string, { auth_token, auth_multi, twid }: ActAsExt
     .replace(/\bauth_token=\S+\b/g, `auth_token=${auth_token}`)
     .replace(/\bauth_multi="\S+"/g, `auth_multi=${auth_multi}`)
     .replace(/\btwid=\S+\b/g, `twid=${twid}`)
+}
+
+function overrideCsrfCookie(headers: HttpHeaders) {
+  const overrideCookieHeader = headers.find(({ name }) => name === 'x-redblock-override-ct0')
+  if (!(overrideCookieHeader && overrideCookieHeader.value)) {
+    return
+  }
+  const ct0 = overrideCookieHeader.value
+  const cookieHeader = headers.find(({ name }) => name.toLowerCase() === 'cookie')!
+  cookieHeader.value = cookieHeader.value!.replace(/\bct0=[0-9a-f]+\b/g, `ct0=${ct0}`)
+  const csrfTokenHeader = headers.find(({ name }) => name.toLowerCase() === 'x-csrf-token')!
+  csrfTokenHeader.value = ct0
+  return headers
 }
 
 function extractActAsCookies(headers: HttpHeaders): ActAsExtraCookies | null {
@@ -63,16 +86,25 @@ function extractActAsCookies(headers: HttpHeaders): ActAsExtraCookies | null {
   return (decoded as unknown) as ActAsExtraCookies
 }
 
+const redblockRequestIds = new Set<string>()
+
 function initializeTwitterAPIRequestHeaderModifier() {
   const reqFilters = {
-    urls: ['https://api.twitter.com/*'],
+    urls: generateApiUrls('*'),
   }
   browser.webRequest.onBeforeSendHeaders.addListener(
     details => {
       // console.debug('block_all api', details)
       const headers = details.requestHeaders!
-      stripOrigin(headers)
+      const isRedblockRequest = headers.find(({ name }) => name === 'x-redblock-request')
+      if (isRedblockRequest) {
+        redblockRequestIds.add(details.requestId)
+      } else {
+        return {}
+      }
       const actAsCookies = extractActAsCookies(headers)
+      stripOrigin(headers)
+      overrideCsrfCookie(headers)
       if (actAsCookies) {
         for (let i = 0; i < headers.length; i++) {
           const name = headers[i].name.toLowerCase()
@@ -96,9 +128,43 @@ function initializeTwitterAPIRequestHeaderModifier() {
   )
 }
 
+function initializeTwitterAPISetCookieHeaderHandler() {
+  const reqFilters = {
+    urls: generateApiUrls('*'),
+  }
+  browser.webRequest.onHeadersReceived.addListener(
+    details => {
+      if (details.statusCode !== 403) {
+        return
+      }
+      const isRedblockRequest = redblockRequestIds.has(details.requestId)
+      if (isRedblockRequest) {
+        redblockRequestIds.delete(details.requestId)
+      } else {
+        return
+      }
+      const headers = details.responseHeaders!
+      const setCookieHeader = headers.find(({ name }) => name === 'set-cookie')
+      if (!(setCookieHeader && setCookieHeader.value)) {
+        return
+      }
+      const actualCt0Value = /ct0=([0-9a-f]+)/.exec(setCookieHeader.value)![1]
+      headers.push({
+        name: 'x-redblock-new-ct0',
+        value: actualCt0Value,
+      })
+      return {
+        responseHeaders: headers,
+      }
+    },
+    reqFilters,
+    extraInfoSpecResponse
+  )
+}
+
 export function initializeBlockAPILimiter(limiter: BlockLimiter) {
   const reqFilters = {
-    urls: ['https://api.twitter.com/1.1/blocks/create.json'],
+    urls: generateApiUrls('1.1/blocks/create.json'),
   }
   browser.webRequest.onBeforeRequest.addListener(
     details => {
@@ -127,4 +193,5 @@ export function initializeBlockAPILimiter(limiter: BlockLimiter) {
 
 export function initializeWebRequest() {
   initializeTwitterAPIRequestHeaderModifier()
+  initializeTwitterAPISetCookieHeaderHandler()
 }
