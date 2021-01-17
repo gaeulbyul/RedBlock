@@ -1,4 +1,6 @@
 import { TwClient } from '../twitter-api.js'
+import * as i18n from '../../i18n.js'
+import * as CookieHandler from '../cookie-handler.js'
 import * as UserScrapingAPI from '../user-scraping-api.js'
 import * as ExtraScraper from './extra-scraper.js'
 import { getFollowersCount, getReactionsCount } from '../../common.js'
@@ -49,21 +51,23 @@ class MutualFollowerScraper implements UserScraper {
 }
 
 // 차단상대 대상 스크래퍼
-/*
 class AntiBlockScraper implements UserScraper {
   private scrapingClient = new UserScrapingAPI.UserScrapingAPIClient(this.twClient)
   public totalCount: number | null = null
   public constructor(private twClient: TwClient, private request: FollowerBlockSessionRequest) {}
-  private async getMutualFollowersIds(actAsUserId: string) {
-    const mutualFollowerIds = await this.scrapingClient.getAllMutualFollowersIds(
-      this.request.target.user,
-      actAsUserId
+  private async getMutualFollowersIdsWith(
+    secondaryScrapingClient: UserScrapingAPI.UserScrapingAPIClient
+  ) {
+    const mutualFollowerIds = await secondaryScrapingClient.getAllMutualFollowersIds(
+      this.request.target.user
     )
     return mutualFollowerIds
   }
-  private async getFollowersIds(actAsUserId: string) {
+  private async getFollowersIdsWith(
+    secondaryScrapingClient: UserScrapingAPI.UserScrapingAPIClient
+  ) {
     const { user, list: followKind } = this.request.target
-    const idsIterator = this.scrapingClient.getAllFollowsIds(followKind, user, { actAsUserId })
+    const idsIterator = secondaryScrapingClient.getAllFollowsIds(followKind, user)
     const userIds: string[] = []
     for await (const response of idsIterator) {
       if (!response.ok) {
@@ -73,42 +77,50 @@ class AntiBlockScraper implements UserScraper {
     }
     return userIds
   }
-  private async prepareActor() {
-    const multiCookies = await TwitterAPI.getMultiAccountCookies()
+  private async prepareActor(): Promise<TwClient | null> {
+    const targetUserId = this.request.target.user.id_str
+    const multiCookies = await CookieHandler.getMultiAccountCookies()
     if (multiCookies) {
       const actorUserIds = Object.keys(multiCookies)
       for (const actorId of actorUserIds) {
-        const target = await TwitterAPI.getSingleUserById(
-          this.request.target.user.id_str,
-          actorId
-        ).catch(() => null)
+        const secondaryTwitterClient = new TwClient({ actAsUserId: actorId })
+        const target = await secondaryTwitterClient
+          .getSingleUser({ user_id: targetUserId })
+          .catch(() => null)
         if (target && !target.blocked_by) {
-          return actorId
+          return secondaryTwitterClient
         }
       }
     }
-    throw new Error(i18n.getMessage('cant_chainblock_to_blocked'))
+    return null
   }
   private async fetchFollowersIds(): Promise<string[]> {
     const { list: followKind } = this.request.target
     let userIds: string[]
-    const actAsUserId = await this.prepareActor()
+    const secondaryTwClient = await this.prepareActor()
+    if (!secondaryTwClient) {
+      throw new Error(i18n.getMessage('cant_chainblock_to_blocked'))
+    }
+    const secondaryScrapingClient = new UserScrapingAPI.UserScrapingAPIClient(secondaryTwClient)
     if (followKind === 'mutual-followers') {
-      userIds = await this.getMutualFollowersIds(actAsUserId)
+      userIds = await this.getMutualFollowersIdsWith(secondaryScrapingClient)
     } else {
-      userIds = await this.getFollowersIds(actAsUserId)
+      userIds = await this.getFollowersIdsWith(secondaryScrapingClient)
     }
     this.totalCount = userIds.length
     return userIds
   }
   public async *[Symbol.asyncIterator]() {
     const userIds = await this.fetchFollowersIds()
-    let scraper: ScrapedUsersIterator = UserScrapingAPI.lookupUsersByIds(userIds)
-    scraper = ExtraScraper.scrapeUsersOnBio(scraper, this.request.options.includeUsersInBio)
+    let scraper: ScrapedUsersIterator = this.scrapingClient.lookupUsersByIds(userIds)
+    scraper = ExtraScraper.scrapeUsersOnBio(
+      this.scrapingClient,
+      scraper,
+      this.request.options.includeUsersInBio
+    )
     yield* scraper
   }
 }
-*/
 
 // 트윗반응 유저 스크래퍼
 class TweetReactedUserScraper implements UserScraper {
@@ -201,8 +213,7 @@ export function initScraper(twClient: TwClient, request: SessionRequest): UserSc
     return new UserSearchScraper(twClient, request as UserSearchBlockSessionRequest)
   }
   if (target.user.blocked_by) {
-    // TODO: actAsUserId 먼저 구현할 것
-    // return new AntiBlockScraper(twClient, request as FollowerBlockSessionRequest)
+    return new AntiBlockScraper(twClient, request as FollowerBlockSessionRequest)
   }
   if (target.list === 'mutual-followers') {
     return new MutualFollowerScraper(twClient, request as FollowerBlockSessionRequest)

@@ -29,7 +29,8 @@ export function checkFollowerBlockTarget(
     return TargetCheckResult.Protected
   }
   if (blocked_by) {
-    return TargetCheckResult.TheyBlocksYou
+    // TODO: ì™„ì „ ì§€ì›Œë²„ë ¤~~
+    // return TargetCheckResult.TheyBlocksYou
   }
   if (target.list === 'followers' && followers_count <= 0) {
     return TargetCheckResult.NoFollowers
@@ -91,7 +92,7 @@ export function isSameTarget(target1: SessionRequest['target'], target2: Session
     case 'import':
       return false
     case 'user_search': {
-      // Q: ´ë¼Ò¹®ÀÚ°¡ °°À¸¸é °°Àº targetÀ¸·Î Ãë±ÞÇØ¾ß ÇÏ³ª?
+      // Q: ëŒ€ì†Œë¬¸ìžê°€ ê°™ìœ¼ë©´ ê°™ì€ targetìœ¼ë¡œ ì·¨ê¸‰í•´ì•¼ í•˜ë‚˜?
       const givenQuery = (target2 as UserSearchBlockSessionRequest['target']).query
       return target1.query === givenQuery
     }

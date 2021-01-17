@@ -1,5 +1,5 @@
 import type BlockLimiter from './block-limiter.js'
-import type { ActAsExtraCookies } from './twitter-api.js'
+import type { ActAsExtraCookies } from './cookie-handler.js'
 import { notify } from './background.js'
 import * as i18n from '../i18n.js'
 
