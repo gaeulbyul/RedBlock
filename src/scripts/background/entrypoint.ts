@@ -10,6 +10,7 @@ import { initializeContextMenu } from './context-menu.js'
 import { initializeWebRequest, initializeBlockAPILimiter } from './webrequest.js'
 import BlockLimiter from './block-limiter.js'
 import { assertNever } from '../common.js'
+import { tabToCookieOptions } from './cookie-handler.js'
 
 let storageQueue = Promise.resolve()
 const blockLimiter = new BlockLimiter()
@@ -71,9 +72,9 @@ async function removeUserFromStorage(user: TwitterUser) {
 
 function handleExtensionMessage(
   message: RBMessageToBackgroundType,
-  _sender: browser.runtime.MessageSender
+  sender: browser.runtime.MessageSender
 ) {
-  const twClient = new TwitterAPI.TwClient()
+  const twClient = new TwitterAPI.TwClient(sender.tab ? tabToCookieOptions(sender.tab) : {})
   switch (message.messageType) {
     case 'CreateChainBlockSession':
       {

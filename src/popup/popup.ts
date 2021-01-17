@@ -15,15 +15,12 @@ export async function toggleOneClickBlockMode(enabled: boolean) {
   })
 }
 
-export async function getCurrentTab(): Promise<Tab | null> {
+export async function getCurrentTab(): Promise<Tab> {
   const tabs = await browser.tabs.query({
     active: true,
     currentWindow: true,
   })
-  const currentTab = tabs[0]
-  if (!currentTab || !currentTab.url) {
-    return null
-  }
+  const currentTab = tabs[0]!
   return currentTab
 }
 

@@ -354,6 +354,7 @@ function TargetExecutionButtonUI(props: { isAvailable: boolean }) {
   const { targetOptions } = React.useContext(SessionOptionsContext)
   const { purpose } = React.useContext(PurposeContext)
   const { openDialog } = React.useContext(UIContext)
+  const { cookieOptions } = React.useContext(TwitterAPIClientContext)
   const uiContext = React.useContext(UIContext)
   const myself = React.useContext(MyselfContext)
   const selectedUser = userSelectionState.user!
@@ -372,6 +373,7 @@ function TargetExecutionButtonUI(props: { isAvailable: boolean }) {
       target,
       options: targetOptions,
       myself,
+      cookieOptions,
     }
     openDialog({
       dialogType: 'confirm',

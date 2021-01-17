@@ -260,6 +260,16 @@ interface TwitterArchiveBlockItem {
   }
 }
 
+// ---- cookie related ----
+
+interface CookieOptions {
+  cookieStoreId?: string | null
+  actAsUserId?: string | null
+  // incognito?: boolean
+  // 크로미움에서 cookieStore 알아내려면 탭 ID가 필요하더라
+  incognitoTabId?: number
+}
+
 // ---- browser notification types ----
 
 interface BrowserNotificationButton {

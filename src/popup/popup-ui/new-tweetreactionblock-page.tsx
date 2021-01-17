@@ -1,7 +1,12 @@
 // import * as Storage from '../../scripts/background/storage.js'
 import * as i18n from '../../scripts/i18n.js'
 import * as TextGenerate from '../../scripts/text-generate.js'
-import { MyselfContext, BlockLimiterContext, UIContext } from './contexts.js'
+import {
+  MyselfContext,
+  BlockLimiterContext,
+  UIContext,
+  TwitterAPIClientContext,
+} from './contexts.js'
 import { startNewChainBlockSession } from '../../scripts/background/request-sender.js'
 import {
   BlockLimiterUI,
@@ -112,6 +117,7 @@ function TargetExecutionButtonUI() {
   const uiContext = React.useContext(UIContext)
   const myself = React.useContext(MyselfContext)
   const limiterStatus = React.useContext(BlockLimiterContext)
+  const { cookieOptions } = React.useContext(TwitterAPIClientContext)
   function isAvailable() {
     if (purpose === 'chainblock' && limiterStatus.remained <= 0) {
       return false
@@ -141,6 +147,7 @@ function TargetExecutionButtonUI() {
         blockMentionedUsers: wantBlockMentionedUsers,
       },
       myself,
+      cookieOptions,
     }
     openDialog({
       dialogType: 'confirm',

@@ -93,6 +93,7 @@ export function isSameTarget(target1: SessionRequest['target'], target2: Session
       return false
     case 'user_search': {
       // Q: 대소문자가 같으면 같은 target으로 취급해야 하나?
+      // A: OR AND 등 대소문자 가리는 연산자 있다. 다르게 취급하자
       const givenQuery = (target2 as UserSearchBlockSessionRequest['target']).query
       return target1.query === givenQuery
     }

@@ -1,11 +1,9 @@
-import { generateCookiesForAltAccountRequest } from './cookie-handler.js'
+import { generateCookiesForAltAccountRequest, getCookieStoreId } from './cookie-handler.js'
 
 const BEARER_TOKEN = `AAAAAAAAAAAAAAAAAAAAANRILgAAAAAAnNwIzUejRCOuH5E6I8xnZz4puTs%3D1Zv7ttfk8LF81IUq16cHjhLTvJu4FA33AGWWjCpTnA`
 
-interface TwClientOptions {
+interface TwClientOptions extends CookieOptions {
   // prefix: 'api.twitter.com' | 'twitter.com'
-  cookieStoreId?: string | null
-  actAsUserId?: string | null
 }
 
 interface ErrorResponseItem {
@@ -25,11 +23,9 @@ export class TwClient {
   public prefix = 'api.twitter.com/1.1'
   // prefix = 'twitter.com/i/api/1.1'
   public constructor(private options: TwClientOptions = {}) {}
-  public get actAsUserId() {
-    return this.options.actAsUserId || null
-  }
-  public get cookieStoreId() {
-    return this.options.cookieStoreId || null
+  public get cookieOptions(): CookieOptions {
+    const { actAsUserId, cookieStoreId, incognitoTabId } = this.options
+    return { actAsUserId, cookieStoreId, incognitoTabId }
   }
   public async getMyself(): Promise<TwitterUser> {
     return await this.request1('get', '/account/verify_credentials.json')
@@ -223,7 +219,7 @@ export class TwClient {
     })
   }
   private async request1(method: HTTPMethods, path: string, paramsObj: URLParamsObj = {}) {
-    const fetchOptions = await generateTwitterAPIOptions({ method }, this.options.actAsUserId || '')
+    const fetchOptions = await generateTwitterAPIOptions({ method }, this.cookieOptions)
     // TODO: prefix should customizable
     const url = new URL(`https://${this.prefix}` + path)
     let params: URLSearchParams
@@ -256,7 +252,7 @@ export class TwClient {
     }
   }
   private async request2(method: HTTPMethods, path: string, paramsObj: URLParamsObj = {}) {
-    const fetchOptions = await generateTwitterAPIOptions({ method }, this.options.actAsUserId || '')
+    const fetchOptions = await generateTwitterAPIOptions({ method }, this.cookieOptions)
     // TODO: prefix should customizable
     const url = new URL(`https://${this.prefix}` + path)
     let params: URLSearchParams
@@ -317,34 +313,31 @@ export class APIFailError extends Error {
   }
 }
 
-async function getCsrfTokenFromCookies(): Promise<string> {
-  const csrfTokenCookie = await browser.cookies.get({
-    url: 'https://twitter.com',
-    name: 'ct0',
-  })
-  if (!csrfTokenCookie) {
-    throw new Error('failed to get csrf token!')
-  }
-  return csrfTokenCookie.value
-}
-
 async function generateTwitterAPIOptions(
   obj: RequestInit,
-  actAsUserId: string
+  cookieOptions: CookieOptions
 ): Promise<RequestInit> {
-  const csrfToken = await getCsrfTokenFromCookies()
   const headers = new Headers()
+  // x-csrf-token 헤더는 webrequest.ts 에서 채워줌
   headers.set('authorization', `Bearer ${BEARER_TOKEN}`)
-  headers.set('x-csrf-token', csrfToken)
   headers.set('x-twitter-active-user', 'yes')
   headers.set('x-twitter-auth-type', 'OAuth2Session')
-  headers.set('x-redblock-request', 'yes')
-  if (actAsUserId) {
-    const extraCookies = await generateCookiesForAltAccountRequest(actAsUserId)
+  headers.set('x-redblock-request', 'UwU')
+  const storeId = await getCookieStoreId(cookieOptions)
+  if (storeId) {
+    const cookies = await browser.cookies.getAll({ storeId, domain: 'twitter.com' })
+    headers.set(
+      'x-redblock-override-cookies',
+      cookies.map(({ name, value }) => `${name}=${value}`).join('; ')
+    )
+  }
+  // 다계정 로그인 관련
+  if (cookieOptions.actAsUserId) {
+    const extraCookies = await generateCookiesForAltAccountRequest(cookieOptions)
     const encodedExtraCookies = new URLSearchParams(
       (extraCookies as unknown) as Record<string, string>
     )
-    headers.set('x-act-as-cookies', encodedExtraCookies.toString())
+    headers.set('x-redblock-act-as-cookies', encodedExtraCookies.toString())
   }
   const result: RequestInit = {
     method: 'get',

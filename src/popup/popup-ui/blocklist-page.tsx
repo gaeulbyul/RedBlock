@@ -1,5 +1,10 @@
 import { defaultSessionOptions } from '../../scripts/background/chainblock-session/session.js'
-import { UIContext, MyselfContext, BlockLimiterContext } from './contexts.js'
+import {
+  UIContext,
+  MyselfContext,
+  BlockLimiterContext,
+  TwitterAPIClientContext,
+} from './contexts.js'
 import {
   RBExpansionPanel,
   BlockLimiterUI,
@@ -43,6 +48,7 @@ export default function BlocklistPage() {
   const { blocklist, setBlocklist, nameOfSelectedFiles, setNameOfSelectedFiles } = React.useContext(
     ImportChainBlockPageStatesContext
   )
+  const { cookieOptions } = React.useContext(TwitterAPIClientContext)
   const [fileInput] = React.useState(React.createRef<HTMLInputElement>())
   function isAvailable() {
     if (!myself) {
@@ -83,6 +89,7 @@ export default function BlocklistPage() {
       },
       options: targetOptions,
       myself,
+      cookieOptions,
     }
     openDialog({
       dialogType: 'confirm',

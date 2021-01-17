@@ -159,15 +159,8 @@ export default class ChainBlocker {
     this.sessions.delete(sessionId)
     this.updateBadge()
   }
-  private prepareApiClient() {
-    /* NOTE 필요한 거
-     * cookieStoreId (firefox container tab 관련)
-     * incognito 여부  (incognito에선 다른 유저 로그인했을 수도 있다)
-     */
-    return new TwClient()
-  }
   private createSession(request: SessionRequest) {
-    const twClient = this.prepareApiClient()
+    const twClient = new TwClient(request.cookieOptions)
     let session: Session
     switch (request.purpose) {
       case 'chainblock':

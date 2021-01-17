@@ -21,7 +21,12 @@ interface SessionOptions {
 
 // NOTE: myself: TwitterUser는 락피커 구현하면서 넣은 것
 // 자신에게 일반 체인블락걸면 안 되므로 체크용으로 넣어둠
-interface FollowerBlockSessionRequest {
+interface BaseRequest {
+  myself: TwitterUser
+  cookieOptions: CookieOptions
+}
+
+interface FollowerBlockSessionRequest extends BaseRequest {
   purpose: Purpose
   target: {
     type: 'follower'
@@ -29,10 +34,9 @@ interface FollowerBlockSessionRequest {
     list: FollowKind
   }
   options: SessionOptions
-  myself: TwitterUser
 }
 
-interface TweetReactionBlockSessionRequest {
+interface TweetReactionBlockSessionRequest extends BaseRequest {
   // 이미 차단한 사용자의 RT/마음은 확인할 수 없다.
   // 따라서, 언체인블락은 구현할 수 없다.
   // 또한 프로텍트팔로워 역시 확인할 수 없으므로
@@ -48,20 +52,18 @@ interface TweetReactionBlockSessionRequest {
     blockMentionedUsers: boolean
   }
   options: SessionOptions
-  myself: TwitterUser
 }
 
-interface ImportBlockSessionRequest {
+interface ImportBlockSessionRequest extends BaseRequest {
   purpose: Exclude<Purpose, 'export' | 'lockpicker'>
   target: {
     type: 'import'
     userIds: string[]
   }
   options: SessionOptions
-  myself: TwitterUser
 }
 
-interface UserSearchBlockSessionRequest {
+interface UserSearchBlockSessionRequest extends BaseRequest {
   // TODO: export는 나중으로 미루자
   purpose: Exclude<Purpose, 'export' | 'lockpicker'>
   target: {
@@ -69,7 +71,6 @@ interface UserSearchBlockSessionRequest {
     query: string
   }
   options: SessionOptions
-  myself: TwitterUser
 }
 
 interface SessionInfo<ReqT = SessionRequest> {

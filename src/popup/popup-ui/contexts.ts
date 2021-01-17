@@ -37,4 +37,4 @@ export const BlockLimiterContext = React.createContext<BlockLimiterStatus>({
   remained: 500,
 })
 
-export const TwitterAPIClientContext = React.createContext<TwClient>(new TwClient())
+export const TwitterAPIClientContext = React.createContext<TwClient>(null!)
