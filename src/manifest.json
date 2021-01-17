@@ -23,7 +23,8 @@
     "tabs",
     "downloads",
     "webRequest",
-    "webRequestBlocking"
+    "webRequestBlocking",
+    "contextualIdentities"
   ],
 
   "options_ui": {
@@ -68,5 +69,5 @@
     "default_popup": "popup/popup.html"
   },
 
-  "incognito": "not_allowed"
+  "incognito": "spanning"
 }
