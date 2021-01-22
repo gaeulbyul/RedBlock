@@ -19,9 +19,8 @@ type GetMultipleUsersOption = { user_id: string[] } | { screen_name: string[] }
 type GetSingleUserOption = { user_id: string } | { screen_name: string }
 
 export class TwClient {
-  // TODO: should seperate 1.1 version (it may use v2 api such as /search)
-  public prefix = 'api.twitter.com/1.1'
-  // prefix = 'twitter.com/i/api/1.1'
+  public prefix = 'api.twitter.com'
+  // prefix = 'twitter.com/i/api'
   public constructor(private options: TwClientOptions = {}) {}
   public get cookieOptions(): CookieOptions {
     const { actAsUserId, cookieStoreId } = this.options
@@ -221,7 +220,7 @@ export class TwClient {
   private async request1(method: HTTPMethods, path: string, paramsObj: URLParamsObj = {}) {
     const fetchOptions = await generateTwitterAPIOptions({ method }, this.cookieOptions)
     // TODO: prefix should customizable
-    const url = new URL(`https://${this.prefix}` + path)
+    const url = new URL(`https://${this.prefix}` + '/1.1' + path)
     let params: URLSearchParams
     if (method === 'get') {
       params = url.searchParams
@@ -254,7 +253,7 @@ export class TwClient {
   private async request2(method: HTTPMethods, path: string, paramsObj: URLParamsObj = {}) {
     const fetchOptions = await generateTwitterAPIOptions({ method }, this.cookieOptions)
     // TODO: prefix should customizable
-    const url = new URL(`https://${this.prefix}` + path)
+    const url = new URL(`https://${this.prefix}` + '/2' + path)
     let params: URLSearchParams
     if (method === 'get') {
       params = url.searchParams
