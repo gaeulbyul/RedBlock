@@ -3,8 +3,6 @@ import type { ActAsExtraCookies } from './cookie-handler.js'
 import { notify } from './background.js'
 import * as i18n from '../i18n.js'
 
-type HttpHeaders = browser.webRequest.HttpHeaders
-
 const extraInfoSpec: any = ['requestHeaders', 'blocking']
 const extraInfoSpecResponse: any = ['responseHeaders', 'blocking']
 try {
@@ -38,79 +36,70 @@ function generateApiUrls(path: string) {
   ].map(prefix => prefix + path)
 }
 
-function stripOrigin(headers: HttpHeaders) {
-  for (let i = 0; i < headers.length; i++) {
-    const name = headers[i].name.toLowerCase()
-    switch (name) {
-      case 'origin':
-        if (!/^https?:/.test(headers[i].value || '')) {
-          headers[i].value = 'https://twitter.com'
-        }
-        break
+function fromWebRequestHeaders(headersArray: browser.webRequest.HttpHeaders): Headers {
+  const headers = new Headers()
+  headersArray.forEach(item => {
+    if (!item.value) {
+      return
     }
-  }
+    headers.set(item.name, item.value)
+  })
   return headers
 }
 
-function filterInvalidHeaders(headers: HttpHeaders): HttpHeaders {
-  return headers.filter(({ name }) => name.length > 0 && !/redblock/i.test(name))
+function toWebRequestHeaders(headers: Headers): browser.webRequest.HttpHeaders {
+  return Array.from(headers.entries()).map(([name, value]) => ({ name, value }))
 }
 
-function overrideWholeCookiesWithCookieStore(headers: HttpHeaders) {
-  const overrideCookiesHeader = headers.find(
-    ({ name }) => name.toLowerCase() === 'x-redblock-override-cookies'
-  )
-  if (!overrideCookiesHeader) {
+function stripOrigin(headers: Headers) {
+  const origin = headers.get('origin')
+  if (!/^https:/.test(origin || '')) {
+    headers.set('origin', 'https://twitter.com')
+  }
+}
+
+function filterInvalidHeaders(headers: Headers) {
+  for (const name of headers.keys()) {
+    if (name.length <= 0 || /redblock/i.test(name)) {
+      headers.delete(name)
+    }
+  }
+}
+
+function overrideWholeCookiesWithCookieStore(headers: Headers) {
+  const overrideCookies = headers.get('x-redblock-override-cookies')
+  if (!overrideCookies) {
     return
   }
-  const cookieHeader = headers.find(({ name }) => name.toLowerCase() === 'cookie')!
-  cookieHeader.value = overrideCookiesHeader.value
+  headers.set('cookie', overrideCookies)
 }
 
 function overrideActorCookies(
-  headers: HttpHeaders,
+  headers: Headers,
   { auth_token, auth_multi, twid }: ActAsExtraCookies
 ) {
-  for (const header of headers) {
-    const name = header.name.toLowerCase()
-    const value = header.value!
-    if (name === 'cookie') {
-      header.value = value
-        .replace(/\bauth_token=\S+\b/g, `auth_token=${auth_token}`)
-        .replace(/\bauth_multi="\S+"/g, `auth_multi=${auth_multi}`)
-        .replace(/\btwid=\S+\b/g, `twid=${twid}`)
-    }
-  }
+  const cookie = headers.get('cookie')!
+  const newCookie = cookie
+    .replace(/\bauth_token=\S+\b/g, `auth_token=${auth_token}`)
+    .replace(/\bauth_multi="\S+"/g, `auth_multi=${auth_multi}`)
+    .replace(/\btwid=\S+\b/g, `twid=${twid}`)
+  headers.set('cookie', newCookie)
 }
 
-function handleCsrfHeader(headers: HttpHeaders) {
-  let ct0: string
-  const cookieHeader = headers.find(({ name }) => name.toLowerCase() === 'cookie')!
-  const overrideCookieHeader = headers.find(({ name }) => name === 'x-redblock-override-ct0')
-  if (overrideCookieHeader && overrideCookieHeader.value) {
-    ct0 = overrideCookieHeader.value
-  } else {
-    ct0 = /\bct0=([0-9a-f]+)\b/.exec(cookieHeader.value!)![1]
-  }
-  cookieHeader.value = cookieHeader.value!.replace(/\bct0=[0-9a-f]+\b/g, `ct0=${ct0}`)
-  const csrfTokenHeader = headers.find(({ name }) => name.toLowerCase() === 'x-csrf-token')
-  if (csrfTokenHeader) {
-    csrfTokenHeader.value = ct0
-  } else {
-    headers.push({
-      name: 'x-csrf-token',
-      value: ct0,
-    })
-  }
-  return headers
+function handleCsrfHeader(headers: Headers) {
+  const cookie = headers.get('cookie')!
+  const overrideCookie = headers.get('x-redblock-override-ct0')
+  const ct0 = overrideCookie || /\bct0=([0-9a-f]+)\b/.exec(cookie)![1]
+  headers.set('cookie', cookie.replace(/\bct0=[0-9a-f]+\b/g, `ct0=${ct0}`))
+  headers.set('x-csrf-token', ct0)
 }
 
-function extractActAsCookies(headers: HttpHeaders): ActAsExtraCookies | null {
-  const actAsCookiesHeader = headers.find(({ name }) => name === 'x-redblock-act-as-cookies')
-  if (!actAsCookiesHeader) {
+function extractActAsCookies(headers: Headers): ActAsExtraCookies | null {
+  const actAsCookies = headers.get('x-redblock-act-as-cookies')
+  if (!actAsCookies) {
     return null
   }
-  const params = new URLSearchParams(actAsCookiesHeader.value)
+  const params = new URLSearchParams(actAsCookies)
   const decoded = Object.fromEntries(params.entries())
   return (decoded as unknown) as ActAsExtraCookies
 }
@@ -123,13 +112,13 @@ function initializeTwitterAPIRequestHeaderModifier() {
   }
   browser.webRequest.onBeforeSendHeaders.addListener(
     details => {
-      const headers = details.requestHeaders!
-      const isRedblockRequest = headers.find(({ name }) => /redblock/i.test(name))
+      const isRedblockRequest = details.requestHeaders!.find(({ name }) => /redblock/i.test(name))
       if (isRedblockRequest) {
         redblockRequestIds.add(details.requestId)
       } else {
         return {}
       }
+      const headers = fromWebRequestHeaders(details.requestHeaders!)
       stripOrigin(headers)
       overrideWholeCookiesWithCookieStore(headers)
       handleCsrfHeader(headers)
@@ -137,8 +126,9 @@ function initializeTwitterAPIRequestHeaderModifier() {
       if (actAsCookies) {
         overrideActorCookies(headers, actAsCookies)
       }
+      filterInvalidHeaders(headers)
       return {
-        requestHeaders: filterInvalidHeaders(headers),
+        requestHeaders: toWebRequestHeaders(headers),
       }
     },
     reqFilters,
