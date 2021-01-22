@@ -122,7 +122,7 @@ function TargetSavedUsers(props: { savedUsers: TwitterUserMap }) {
             {i18n.getMessage('user_not_selected')}
           </option>
           {currentUser && currentUserOption(currentUser)}
-          <optgroup label={i18n.getMessage('saved_user')}>
+          <optgroup label={`${i18n.getMessage('saved_user')} (${savedUsers.size})`}>
             {sortedByName(savedUsers).map((user, index) => (
               <UserOptionItem key={index} user={user} optgroup="saved" />
             ))}

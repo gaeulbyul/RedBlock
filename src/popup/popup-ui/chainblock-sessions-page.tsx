@@ -10,6 +10,7 @@ import {
   stopAllChainBlock,
   stopChainBlock,
   downloadFromExportSession,
+  requestProgress,
 } from '../../scripts/background/request-sender.js'
 import { UIContext, MyselfContext } from './contexts.js'
 import { statusToString } from '../../scripts/text-generate.js'
@@ -284,22 +285,29 @@ function ChainBlockSessionItem(props: { sessionInfo: SessionInfo }) {
 
 function GlobalControls() {
   const uiContext = React.useContext(UIContext)
-  function requestStopAllChainBlock() {
+  function confirmStopAllChainBlock() {
     uiContext.openDialog({
       dialogType: 'confirm',
       message: {
         title: i18n.getMessage('confirm_all_stop'),
       },
-      callbackOnOk: stopAllChainBlock,
+      callbackOnOk() {
+        stopAllChainBlock()
+        requestProgress()
+      },
     })
+  }
+  function cleanupAndRefresh() {
+    cleanupInactiveSessions()
+    requestProgress()
   }
   return (
     <M.ButtonGroup>
-      <M.Button onClick={requestStopAllChainBlock}>
+      <M.Button onClick={confirmStopAllChainBlock}>
         <M.Icon>highlight_off</M.Icon>
         {i18n.getMessage('stop_all')}
       </M.Button>
-      <M.Button onClick={cleanupInactiveSessions}>
+      <M.Button onClick={cleanupAndRefresh}>
         <M.Icon>clear_all</M.Icon>
         {i18n.getMessage('cleanup_sessions')}
       </M.Button>
