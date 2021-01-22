@@ -40,17 +40,17 @@ function BadWordRow(props: {
       </TableCell>
       <TableCell>
         {badWord.regexp ? (
-          <M.Chip size="small" label="정규식" />
+          <M.Chip size="small" label={i18n.getMessage('regexp')} />
         ) : (
-          <M.Chip size="small" label="단어" />
+          <M.Chip size="small" label={i18n.getMessage('th_word')} />
         )}
       </TableCell>
       <TableCell>
         <M.Button variant="outlined" onClick={_event => editWordById(badWord.id)}>
-          수정
+          {i18n.getMessage('edit')}
         </M.Button>
         <M.Button variant="outlined" onClick={_event => removeWordById(badWord.id)}>
-          삭제
+          {i18n.getMessage('remove')}
         </M.Button>
       </TableCell>
     </TableRow>

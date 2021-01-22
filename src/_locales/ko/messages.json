@@ -593,6 +593,9 @@
   "regexp": {
     "message": "정규식"
   },
+  "edit": {
+    "message": "수정"
+  },
   "add_word_button": {
     "message": "단어 추가하기"
   },

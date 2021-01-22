@@ -593,6 +593,9 @@
   "regexp": {
     "message": "RegExp"
   },
+  "edit": {
+    "message": "Edit"
+  },
   "add_word_button": {
     "message": "Add"
   },
