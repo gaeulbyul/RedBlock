@@ -10,7 +10,7 @@ import { initializeContextMenu } from './context-menu.js'
 import { initializeWebRequest, initializeBlockAPILimiter } from './webrequest.js'
 import BlockLimiter from './block-limiter.js'
 import { assertNever } from '../common.js'
-import { tabToCookieOptions } from './cookie-handler.js'
+import { getCookieStoreIdFromTab } from './cookie-handler.js'
 
 let storageQueue = Promise.resolve()
 const blockLimiter = new BlockLimiter()
@@ -70,11 +70,15 @@ async function removeUserFromStorage(user: TwitterUser) {
   return storageQueue
 }
 
+async function twClientFromTab(tab: browser.tabs.Tab | undefined): Promise<TwitterAPI.TwClient> {
+  let cookieStoreId = tab ? await getCookieStoreIdFromTab(tab) : undefined
+  return new TwitterAPI.TwClient({ cookieStoreId })
+}
+
 function handleExtensionMessage(
   message: RBMessageToBackgroundType,
   sender: browser.runtime.MessageSender
 ) {
-  const twClient = new TwitterAPI.TwClient(sender.tab ? tabToCookieOptions(sender.tab) : {})
   switch (message.messageType) {
     case 'CreateChainBlockSession':
       {
@@ -119,10 +123,10 @@ function handleExtensionMessage(
       removeUserFromStorage(message.user)
       break
     case 'BlockSingleUser':
-      twClient.blockUser(message.user)
+      twClientFromTab(sender.tab).then(twClient => twClient.blockUser(message.user))
       break
     case 'UnblockSingleUser':
-      twClient.unblockUser(message.user)
+      twClientFromTab(sender.tab).then(twClient => twClient.unblockUser(message.user))
       break
     case 'RefreshSavedUsers':
       refreshSavedUsers()

@@ -24,7 +24,7 @@ export async function generateCookiesForAltAccountRequest(
       'auth_multi cookie unavailable. this feature requires logged in with two or more account.'
     )
   }
-  const storeId = await getCookieStoreId(cookieOptions)
+  const storeId = cookieOptions.cookieStoreId || undefined
   const authTokenCookie = await browser.cookies
     .get({
       url,
@@ -65,27 +65,14 @@ export function parseAuthMultiCookie(authMulti: string): MultiAccountCookies {
   return Object.fromEntries(userTokenPairs)
 }
 
-export async function getCookieStoreId(cookieOptions: CookieOptions): Promise<string | undefined> {
-  if (cookieOptions.cookieStoreId) {
-    return cookieOptions.cookieStoreId
-  } else if (typeof cookieOptions.incognitoTabId === 'number') {
-    // 크롬 등 cookieStoreId 개념이 없는 브라우저에선
-    // 주어진 탭에 연관된 cookieStore 관련 속성이 없더라.
-    // cookieStore의 incognito속성도 파이어폭스 전용이더라!
-    const tabId = cookieOptions.incognitoTabId
-    const cookieStores = await browser.cookies.getAllCookieStores()
-    const incognitoCookieStore = cookieStores.find(store => store.tabIds.includes(tabId))
-    return incognitoCookieStore?.id
-  } else {
-    return undefined
+export async function getCookieStoreIdFromTab(tab: browser.tabs.Tab): Promise<string> {
+  if (tab.cookieStoreId) {
+    return tab.cookieStoreId
   }
-}
-
-export function tabToCookieOptions(tab: browser.tabs.Tab): CookieOptions {
-  return {
-    cookieStoreId: tab.cookieStoreId,
-    incognitoTabId: tab.incognito ? tab.id : undefined,
-  }
+  const tabId = tab.id!
+  const cookieStores = await browser.cookies.getAllCookieStores()
+  const foundStore = cookieStores.find(store => store.tabIds.includes(tabId))!
+  return foundStore.id!
 }
 
 export interface MultiAccountCookies {

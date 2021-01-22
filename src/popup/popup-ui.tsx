@@ -34,7 +34,7 @@ import {
   getUserIdFromTab,
   getCurrentSearchQueryFromTab,
 } from './popup.js'
-import { tabToCookieOptions } from '../scripts/background/cookie-handler.js'
+import { getCookieStoreIdFromTab } from '../scripts/background/cookie-handler.js'
 
 const M = MaterialUI
 
@@ -465,7 +465,8 @@ export async function initializeUI() {
     initialPage = PageEnum.Sessions
   }
   const currentTab = await getCurrentTab()
-  const twClient = new TwClient(tabToCookieOptions(currentTab))
+  const cookieStoreId = await getCookieStoreIdFromTab(currentTab)
+  const twClient = new TwClient({ cookieStoreId })
   const { myself, currentTweet, currentUser, currentSearchQuery } = await getTabContext(
     currentTab,
     twClient

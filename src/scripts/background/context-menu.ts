@@ -6,7 +6,7 @@ import type ChainBlocker from './chainblock.js'
 import { TargetCheckResult } from './target-checker.js'
 import { generateConfirmMessage, checkResultToString, objToString } from '../text-generate.js'
 import { alertToTab } from './background.js'
-import { tabToCookieOptions } from './cookie-handler.js'
+import { getCookieStoreIdFromTab } from './cookie-handler.js'
 
 /* TODO
 TwClient: 우클릭 버튼 누를 시 넘겨받는 tab 데이터에 따라 cookieStoreId / incognito 등 정보 활용
@@ -44,7 +44,8 @@ async function confirmFollowerChainBlockRequest(
   userName: string,
   followKind: FollowKind
 ) {
-  const twClient = new TwitterAPI.TwClient(tabToCookieOptions(tab))
+  const cookieStoreId = await getCookieStoreIdFromTab(tab)
+  const twClient = new TwitterAPI.TwClient({ cookieStoreId })
   const myself = await twClient.getMyself().catch(() => null)
   if (!myself) {
     return alertToTab(tab, i18n.getMessage('error_occured_check_login'))
@@ -80,7 +81,8 @@ async function confirmTweetReactionChainBlockRequest(
     blockMentionedUsers: boolean
   }
 ) {
-  const twClient = new TwitterAPI.TwClient(tabToCookieOptions(tab))
+  const cookieStoreId = await getCookieStoreIdFromTab(tab)
+  const twClient = new TwitterAPI.TwClient({ cookieStoreId })
   const myself = await twClient.getMyself().catch(() => null)
   if (!myself) {
     return alertToTab(tab, i18n.getMessage('error_occured_check_login'))

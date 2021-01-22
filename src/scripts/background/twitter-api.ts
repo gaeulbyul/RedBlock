@@ -1,4 +1,4 @@
-import { generateCookiesForAltAccountRequest, getCookieStoreId } from './cookie-handler.js'
+import { generateCookiesForAltAccountRequest } from './cookie-handler.js'
 
 const BEARER_TOKEN = `AAAAAAAAAAAAAAAAAAAAANRILgAAAAAAnNwIzUejRCOuH5E6I8xnZz4puTs%3D1Zv7ttfk8LF81IUq16cHjhLTvJu4FA33AGWWjCpTnA`
 
@@ -24,8 +24,8 @@ export class TwClient {
   // prefix = 'twitter.com/i/api/1.1'
   public constructor(private options: TwClientOptions = {}) {}
   public get cookieOptions(): CookieOptions {
-    const { actAsUserId, cookieStoreId, incognitoTabId } = this.options
-    return { actAsUserId, cookieStoreId, incognitoTabId }
+    const { actAsUserId, cookieStoreId } = this.options
+    return { actAsUserId, cookieStoreId }
   }
   public async getMyself(): Promise<TwitterUser> {
     return await this.request1('get', '/account/verify_credentials.json')
@@ -323,7 +323,7 @@ async function generateTwitterAPIOptions(
   headers.set('x-twitter-active-user', 'yes')
   headers.set('x-twitter-auth-type', 'OAuth2Session')
   headers.set('x-redblock-request', 'UwU')
-  const storeId = await getCookieStoreId(cookieOptions)
+  const storeId = cookieOptions.cookieStoreId
   if (storeId) {
     const cookies = await browser.cookies.getAll({ storeId, domain: 'twitter.com' })
     headers.set(
