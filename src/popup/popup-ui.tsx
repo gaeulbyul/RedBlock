@@ -1,4 +1,4 @@
-import { requestProgress } from '../scripts/background/request-sender.js'
+import { requestProgress, requestBlockLimiterStatus } from '../scripts/background/request-sender.js'
 import { loadOptions } from '../scripts/background/storage.js'
 import { TwClient } from '../scripts/background/twitter-api.js'
 import { isRunningSession, UI_UPDATE_DELAY } from '../scripts/common.js'
@@ -255,7 +255,9 @@ function PopupApp({
         case 'ChainBlockInfo':
           setInitialLoading(false)
           setSessions(msg.sessions)
-          setLimiterStatus(msg.limiter)
+          break
+        case 'BlockLimiterInfo':
+          setLimiterStatus(msg.status)
           break
         case 'PopupSwitchTab':
           setTabIndex(msg.page)
@@ -494,8 +496,14 @@ export async function initializeUI() {
     document.body.classList.add('ui-popup')
   }
   requestProgress().catch(() => {})
+  if (myself) {
+    requestBlockLimiterStatus({ cookieStoreId, userId: myself.id_str }).catch(() => {})
+  }
   window.setInterval(() => {
     requestProgress().catch(() => {})
+    if (myself) {
+      requestBlockLimiterStatus({ cookieStoreId, userId: myself.id_str }).catch(() => {})
+    }
   }, UI_UPDATE_DELAY)
 }
 

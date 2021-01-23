@@ -106,9 +106,16 @@ declare namespace RBMessageToBackground {
     cookieOptions: CookieOptions
   }
 
+  interface RequestBlockLimiterStatus {
+    messageType: 'RequestBlockLimiterStatus'
+    messageTo: 'background'
+    blockLimiterOptions: BlockLimiterOptions
+  }
+
   interface RequestResetCounter {
     messageType: 'RequestResetCounter'
     messageTo: 'background'
+    blockLimiterOptions: BlockLimiterOptions
   }
 
   interface BlockSingleUser {
@@ -141,6 +148,7 @@ declare type RBMessageToBackgroundType =
   | RBMessageToBackground.RequestProgress
   | RBMessageToBackground.RequestCleanup
   | RBMessageToBackground.RefreshSavedUsers
+  | RBMessageToBackground.RequestBlockLimiterStatus
   | RBMessageToBackground.RequestResetCounter
   | RBMessageToBackground.BlockSingleUser
   | RBMessageToBackground.UnblockSingleUser
@@ -151,7 +159,12 @@ declare namespace RBMessageToPopup {
     messageType: 'ChainBlockInfo'
     messageTo: 'popup'
     sessions: SessionInfo[]
-    limiter: BlockLimiterStatus
+  }
+
+  interface BlockLimiterInfo {
+    messageType: 'BlockLimiterInfo'
+    messageTo: 'popup'
+    status: BlockLimiterStatus
   }
 
   interface PopupSwitchTab {
@@ -163,6 +176,7 @@ declare namespace RBMessageToPopup {
 
 declare type RBMessageToPopupType =
   | RBMessageToPopup.ChainBlockInfo
+  | RBMessageToPopup.BlockLimiterInfo
   | RBMessageToPopup.PopupSwitchTab
 
 declare namespace RBMessageToContent {
@@ -241,6 +255,11 @@ interface BlockLimiterStatus {
   current: number
   max: number
   remained: number
+}
+
+interface BlockLimiterOptions {
+  cookieStoreId: string
+  userId: string
 }
 
 // ---- import chainblock ----

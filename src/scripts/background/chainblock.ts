@@ -17,13 +17,12 @@ import {
 } from './target-checker.js'
 import { ChainBlockSession, ExportSession } from './chainblock-session/session.js'
 import { loadOptions } from './storage.js'
-import type BlockLimiter from './block-limiter.js'
 import { exportBlocklist } from './blocklist-process.js'
 
 export default class ChainBlocker {
   private readonly MAX_RUNNING_SESSIONS = 5
   private readonly sessions = new Map<string, Session>()
-  constructor(private readonly limiter: BlockLimiter) {}
+  constructor() {}
   public hasRunningSession(): boolean {
     if (this.sessions.size <= 0) {
       return false
@@ -167,7 +166,7 @@ export default class ChainBlocker {
       case 'unchainblock':
       case 'lockpicker':
       case 'chainunfollow':
-        session = new ChainBlockSession(twClient, request, this.limiter)
+        session = new ChainBlockSession(twClient, request)
         break
       case 'export':
         session = new ExportSession(twClient, request as ExportableSessionRequest)

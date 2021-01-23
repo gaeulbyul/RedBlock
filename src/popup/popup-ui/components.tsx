@@ -1,7 +1,12 @@
 import { DialogMessageObj } from '../../scripts/text-generate.js'
 import * as i18n from '../../scripts/i18n.js'
 import { requestResetCounter } from '../../scripts/background/request-sender.js'
-import { UIContext, BlockLimiterContext } from './contexts.js'
+import {
+  UIContext,
+  MyselfContext,
+  BlockLimiterContext,
+  TwitterAPIClientContext,
+} from './contexts.js'
 import { PurposeContext, SessionOptionsContext } from './ui-states.js'
 
 const M = MaterialUI
@@ -202,9 +207,13 @@ export function RBExpansionPanel(props: {
 
 export function BlockLimiterUI() {
   const { current, max } = React.useContext(BlockLimiterContext)
+  const {
+    cookieOptions: { cookieStoreId },
+  } = React.useContext(TwitterAPIClientContext)
+  const myself = React.useContext(MyselfContext)
   function handleResetButtonClick(event: React.MouseEvent<HTMLButtonElement>) {
     event.preventDefault()
-    requestResetCounter()
+    requestResetCounter({ cookieStoreId, userId: myself!.id_str })
   }
   return (
     <RBExpansionPanel summary={`${i18n.getMessage('block_counter')}: [${current} / ${max}]`}>

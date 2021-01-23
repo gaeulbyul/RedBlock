@@ -1,4 +1,4 @@
-import type BlockLimiter from './block-limiter.js'
+import BlockLimiter from './block-limiter.js'
 import type { ActAsExtraCookies } from './cookie-handler.js'
 import { notify } from './background.js'
 import * as i18n from '../i18n.js'
@@ -170,18 +170,52 @@ function initializeTwitterAPISetCookieHeaderHandler() {
   )
 }
 
-export function initializeBlockAPILimiter(limiter: BlockLimiter) {
+function generateBlockLimiterOptions(
+  headersArray: browser.webRequest.HttpHeaders,
+  cookieStoreIdFromRequest?: string
+): BlockLimiterOptions | null {
+  /* FIXME
+   * 레드블락 외의 차단요청(가령, 사용자가 직접 차단 메뉴를 클릭)한 경우
+   * x-redblock- 어쩌고 헤더가 없다
+   * 어떻게 `cookieStoreId`를 얻어내는가...
+   * */
+  let cookieStoreId = cookieStoreIdFromRequest || ''
+  if (!cookieStoreId) {
+    const cookieStoreIdHeader = headersArray.find(
+      ({ name }) => name === 'x-redblock-cookie-store-id'
+    )
+    cookieStoreId = cookieStoreIdHeader ? cookieStoreIdHeader.value! : ''
+    if (!cookieStoreId) {
+      return null
+    }
+  }
+  const cookieHeader = headersArray.find(({ name }) => name.toLowerCase() === 'cookie')!
+  const match = /\btwid=u%3D(\d+)\b/.exec(cookieHeader.value!)!
+  const userId = match[1]
+  return { cookieStoreId, userId }
+}
+
+function initializeBlockAPILimiter() {
   const reqFilters = {
     urls: generateApiUrls('1.1/blocks/create.json'),
   }
-  browser.webRequest.onBeforeRequest.addListener(
+  browser.webRequest.onBeforeSendHeaders.addListener(
     details => {
-      const { originUrl, method } = details
+      const { originUrl, method, requestHeaders } = details
       // Service Worker에서 실행한 건 안 쳐준다. (중복 카운팅 방지)
       const shouldCount = originUrl !== 'https://twitter.com/sw.js' && method === 'POST'
       if (!shouldCount) {
         return { cancel: false }
       }
+      // @ts-ignore
+      const blockLimiterOptions = generateBlockLimiterOptions(
+        requestHeaders!,
+        details.cookieStoreId
+      )
+      if (!blockLimiterOptions) {
+        return { cancel: false }
+      }
+      const limiter = new BlockLimiter(blockLimiterOptions)
       const cancel = limiter.check() !== 'ok'
       // console.log('block limiter: [%d +1/%d] (cancel=%s)', limiter.count, limiter.max, cancel)
       // console.dir(details)
@@ -195,11 +229,12 @@ export function initializeBlockAPILimiter(limiter: BlockLimiter) {
       }
     },
     reqFilters,
-    ['blocking']
+    extraInfoSpec
   )
 }
 
 export function initializeWebRequest() {
   initializeTwitterAPIRequestHeaderModifier()
   initializeTwitterAPISetCookieHeaderHandler()
+  initializeBlockAPILimiter()
 }

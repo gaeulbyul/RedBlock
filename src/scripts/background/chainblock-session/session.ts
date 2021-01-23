@@ -10,7 +10,7 @@ import {
   getCountOfUsersToBlock,
   assertNever,
 } from '../../common.js'
-import type BlockLimiter from '../block-limiter.js'
+import BlockLimiter from '../block-limiter.js'
 import { decideWhatToDoGivenUser } from './user-decider.js'
 
 interface SessionEventEmitter {
@@ -135,11 +135,7 @@ abstract class BaseSession {
 
 export class ChainBlockSession extends BaseSession {
   private readonly scraper = Scraper.initScraper(this.twClient, this.request)
-  public constructor(
-    protected twClient: TwClient,
-    protected request: SessionRequest,
-    private limiter: BlockLimiter
-  ) {
+  public constructor(protected twClient: TwClient, protected request: SessionRequest) {
     super(twClient, request)
   }
   public async start() {
@@ -287,7 +283,11 @@ export class ChainBlockSession extends BaseSession {
     if (safePurposes.includes(this.request.purpose)) {
       return 'ok'
     } else {
-      return this.limiter.check()
+      const limiter = new BlockLimiter({
+        cookieStoreId: this.request.cookieOptions.cookieStoreId,
+        userId: this.request.myself.id_str,
+      })
+      return limiter.check()
     }
   }
 }

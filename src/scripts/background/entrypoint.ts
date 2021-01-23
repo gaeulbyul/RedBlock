@@ -7,14 +7,13 @@ import * as i18n from '../i18n.js'
 import { checkResultToString } from '../text-generate.js'
 import { refreshSavedUsers } from './misc.js'
 import { initializeContextMenu } from './context-menu.js'
-import { initializeWebRequest, initializeBlockAPILimiter } from './webrequest.js'
+import { initializeWebRequest } from './webrequest.js'
 import BlockLimiter from './block-limiter.js'
 import { assertNever } from '../common.js'
 import { getCookieStoreIdFromTab } from './cookie-handler.js'
 
 let storageQueue = Promise.resolve()
-const blockLimiter = new BlockLimiter()
-const chainblocker = new ChainBlocker(blockLimiter)
+const chainblocker = new ChainBlocker()
 
 // for debug
 Object.assign(window, {
@@ -50,14 +49,22 @@ async function sendProgress() {
     .sendMessage<RBMessageToPopup.ChainBlockInfo>({
       messageType: 'ChainBlockInfo',
       messageTo: 'popup',
-      limiter: {
-        current: blockLimiter.count,
-        max: blockLimiter.max,
-        remained: blockLimiter.max - blockLimiter.count,
-      },
       sessions,
     })
     .catch(() => {})
+}
+
+async function sendBlockLimiterStatus(options: BlockLimiterOptions) {
+  const blockLimiter = new BlockLimiter(options)
+  return browser.runtime.sendMessage<RBMessageToPopup.BlockLimiterInfo>({
+    messageType: 'BlockLimiterInfo',
+    messageTo: 'popup',
+    status: {
+      current: blockLimiter.count,
+      max: blockLimiter.max,
+      remained: blockLimiter.max - blockLimiter.count,
+    },
+  })
 }
 
 async function saveUserToStorage(user: TwitterUser) {
@@ -134,8 +141,14 @@ function handleExtensionMessage(
     case 'RefreshSavedUsers':
       refreshSavedUsers(message.cookieOptions)
       break
+    case 'RequestBlockLimiterStatus':
+      sendBlockLimiterStatus(message.blockLimiterOptions)
+      break
     case 'RequestResetCounter':
-      blockLimiter.reset()
+      {
+        const blockLimiter = new BlockLimiter(message.blockLimiterOptions)
+        blockLimiter.reset()
+      }
       break
     case 'DownloadFromExportSession':
       chainblocker.downloadFileFromExportSession(message.sessionId)
@@ -176,7 +189,6 @@ function initialize() {
   )
   initializeContextMenu(chainblocker)
   initializeWebRequest()
-  initializeBlockAPILimiter(blockLimiter)
 }
 
 initialize()

@@ -219,7 +219,6 @@ export class TwClient {
   }
   private async request1(method: HTTPMethods, path: string, paramsObj: URLParamsObj = {}) {
     const fetchOptions = await generateTwitterAPIOptions({ method }, this.cookieOptions)
-    // TODO: prefix should customizable
     const url = new URL(`https://${this.prefix}` + '/1.1' + path)
     let params: URLSearchParams
     if (method === 'get') {
@@ -229,6 +228,15 @@ export class TwClient {
       fetchOptions.body = params
     }
     prepareParams(params, paramsObj)
+    // 파이어폭스 외의 다른 브라우저에선 webRequest의 request details에서 cookieStoreId 속성이 없다.
+    // 따라서 헤더를 통해 알아낼 수 있도록 여기서 헤더를 추가한다.
+    if (path === '/blocks/create.json') {
+      insertHeader(
+        fetchOptions.headers!,
+        'x-redblock-cookie-store-id',
+        this.cookieOptions.cookieStoreId
+      )
+    }
     let newCsrfToken = ''
     let maxRetryCount = 3
     while (maxRetryCount-- > 0) {
@@ -323,13 +331,12 @@ async function generateTwitterAPIOptions(
   headers.set('x-twitter-auth-type', 'OAuth2Session')
   headers.set('x-redblock-request', 'UwU')
   const storeId = cookieOptions.cookieStoreId
-  if (storeId) {
-    const cookies = await browser.cookies.getAll({ storeId, domain: 'twitter.com' })
-    headers.set(
-      'x-redblock-override-cookies',
-      cookies.map(({ name, value }) => `${name}=${value}`).join('; ')
-    )
-  }
+  // 컨테이너 탭의 인증정보를 담아 요청하기 위해 덮어씌우는 쿠키
+  const cookies = await browser.cookies.getAll({ storeId, domain: 'twitter.com' })
+  headers.set(
+    'x-redblock-override-cookies',
+    cookies.map(({ name, value }) => `${name}=${value}`).join('; ')
+  )
   // 다계정 로그인 관련
   if (cookieOptions.actAsUserId) {
     const extraCookies = await generateCookiesForAltAccountRequest(cookieOptions)
