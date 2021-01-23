@@ -3,8 +3,8 @@ import { TwClient } from './twitter-api.js'
 import { UserScrapingAPIClient } from './user-scraping-api.js'
 import { TwitterUserMap } from '../common.js'
 
-export async function refreshSavedUsers() {
-  const scrapingClient = new UserScrapingAPIClient(new TwClient())
+export async function refreshSavedUsers(cookieOptions: CookieOptions) {
+  const scrapingClient = new UserScrapingAPIClient(new TwClient(cookieOptions))
   const usersMap = await RBStorage.loadUsers()
   if (usersMap.size <= 0) {
     return

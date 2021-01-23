@@ -44,6 +44,7 @@ function TargetSavedUsers(props: { savedUsers: TwitterUserMap }) {
   const { currentUser, userSelectionState } = React.useContext(FollowerChainBlockPageStatesContext)
   const { user: selectedUser, group: selectedUserGroup } = userSelectionState
   const myself = React.useContext(MyselfContext)
+  const { cookieOptions } = React.useContext(TwitterAPIClientContext)
   async function insertUser() {
     if (!selectedUser) {
       return
@@ -64,7 +65,7 @@ function TargetSavedUsers(props: { savedUsers: TwitterUserMap }) {
     uiContext.openSnackBar(i18n.getMessage('user_xxx_removed', selectedUser.screen_name))
   }
   async function requestRefreshSavedUsers() {
-    refreshSavedUsers()
+    refreshSavedUsers(cookieOptions)
     uiContext.openSnackBar(i18n.getMessage('refreshing_saved_users'))
   }
   const sortedByName = (usersMap: TwitterUserMap): TwitterUser[] =>

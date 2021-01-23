@@ -60,10 +60,11 @@ export async function removeUserFromStorage(user: TwitterUser) {
   })
 }
 
-export async function refreshSavedUsers() {
+export async function refreshSavedUsers(cookieOptions: CookieOptions) {
   return browser.runtime.sendMessage<RBMessageToBackground.RefreshSavedUsers>({
     messageType: 'RefreshSavedUsers',
     messageTo: 'background',
+    cookieOptions,
   })
 }
 

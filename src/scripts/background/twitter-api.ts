@@ -21,7 +21,7 @@ type GetSingleUserOption = { user_id: string } | { screen_name: string }
 export class TwClient {
   public prefix = 'api.twitter.com'
   // prefix = 'twitter.com/i/api'
-  public constructor(private options: TwClientOptions = {}) {}
+  public constructor(private options: TwClientOptions) {}
   public get cookieOptions(): CookieOptions {
     const { actAsUserId, cookieStoreId } = this.options
     return { actAsUserId, cookieStoreId }

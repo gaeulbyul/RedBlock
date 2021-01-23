@@ -103,6 +103,7 @@ declare namespace RBMessageToBackground {
   interface RefreshSavedUsers {
     messageType: 'RefreshSavedUsers'
     messageTo: 'background'
+    cookieOptions: CookieOptions
   }
 
   interface RequestResetCounter {
@@ -263,7 +264,7 @@ interface TwitterArchiveBlockItem {
 // ---- cookie related ----
 
 interface CookieOptions {
-  cookieStoreId?: string
+  cookieStoreId: string
   actAsUserId?: string
 }
 

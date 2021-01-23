@@ -10,7 +10,7 @@ import {
   getCountOfUsersToBlock,
   assertNever,
 } from '../../common.js'
-import BlockLimiter from '../block-limiter.js'
+import type BlockLimiter from '../block-limiter.js'
 import { decideWhatToDoGivenUser } from './user-decider.js'
 
 interface SessionEventEmitter {

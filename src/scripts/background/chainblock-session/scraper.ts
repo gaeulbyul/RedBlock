@@ -82,8 +82,11 @@ class AntiBlockScraper implements UserScraper {
     const multiCookies = await CookieHandler.getMultiAccountCookies()
     if (multiCookies) {
       const actorUserIds = Object.keys(multiCookies)
-      for (const actorId of actorUserIds) {
-        const secondaryTwitterClient = new TwClient({ actAsUserId: actorId })
+      for (const actAsUserId of actorUserIds) {
+        const secondaryTwitterClient = new TwClient({
+          cookieStoreId: this.request.cookieOptions.cookieStoreId,
+          actAsUserId,
+        })
         const target = await secondaryTwitterClient
           .getSingleUser({ user_id: targetUserId })
           .catch(() => null)

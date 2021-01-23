@@ -70,8 +70,11 @@ async function removeUserFromStorage(user: TwitterUser) {
   return storageQueue
 }
 
-async function twClientFromTab(tab: browser.tabs.Tab | undefined): Promise<TwitterAPI.TwClient> {
-  let cookieStoreId = tab ? await getCookieStoreIdFromTab(tab) : undefined
+async function twClientFromTab(tab: browser.tabs.Tab): Promise<TwitterAPI.TwClient> {
+  if (!tab) {
+    throw new Error('tab is missing')
+  }
+  let cookieStoreId = await getCookieStoreIdFromTab(tab)
   return new TwitterAPI.TwClient({ cookieStoreId })
 }
 
@@ -123,13 +126,13 @@ function handleExtensionMessage(
       removeUserFromStorage(message.user)
       break
     case 'BlockSingleUser':
-      twClientFromTab(sender.tab).then(twClient => twClient.blockUser(message.user))
+      twClientFromTab(sender.tab!).then(twClient => twClient.blockUser(message.user))
       break
     case 'UnblockSingleUser':
-      twClientFromTab(sender.tab).then(twClient => twClient.unblockUser(message.user))
+      twClientFromTab(sender.tab!).then(twClient => twClient.unblockUser(message.user))
       break
     case 'RefreshSavedUsers':
-      refreshSavedUsers()
+      refreshSavedUsers(message.cookieOptions)
       break
     case 'RequestResetCounter':
       blockLimiter.reset()
