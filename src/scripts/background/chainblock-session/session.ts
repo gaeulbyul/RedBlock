@@ -175,7 +175,10 @@ export class ChainBlockSession extends BaseSession {
             this.sessionInfo.progress.total = this.scraper.totalCount
           }
           this.handleRunning()
-          let promisesBuffer: Promise<any>[] = []
+          // promisesBuffer= 차단해제, 뮤트해제 등
+          const promisesBuffer: Promise<any>[] = []
+          // miniBuffer= 차단, 뮤트 등 많이 쓰면 제한 걸리는 API용
+          const miniBuffer: Promise<any>[] = []
           for (const user of scraperResponse.value.users) {
             if (this.shouldStop) {
               stopped = true
@@ -221,7 +224,7 @@ export class ChainBlockSession extends BaseSession {
                 case 'BlockAndUnBlock':
                   promise = this.twClient
                     .blockUser(user)
-                    .then(blocked => blocked && this.twClient.unblockUser(user))
+                    .then(blockedUser => this.twClient.unblockUser(blockedUser))
                   break
               }
             }
@@ -242,7 +245,8 @@ export class ChainBlockSession extends BaseSession {
               case 'Block':
               case 'Mute':
               case 'BlockAndUnBlock':
-                await promise
+                // await promise
+                miniBuffer.push(promise)
                 break
               case 'UnBlock':
               case 'UnMute':
@@ -253,8 +257,13 @@ export class ChainBlockSession extends BaseSession {
                 assertNever(whatToDo)
                 break
             }
+            if (miniBuffer.length >= 5) {
+              await Promise.allSettled(miniBuffer)
+              miniBuffer.length = 0
+            }
           }
-          await Promise.allSettled(promisesBuffer)
+          await Promise.allSettled([...miniBuffer, ...promisesBuffer])
+          // await Promise.allSettled(promisesBuffer)
         }
         if (stopped) {
           this.sessionInfo.status = SessionStatus.Stopped
