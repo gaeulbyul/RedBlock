@@ -1,3 +1,5 @@
+import { checkUserIdBeforeLockPicker } from '../common.js'
+
 export const enum TargetCheckResult {
   Ok,
   AlreadyRunningOnSameTarget,
@@ -9,6 +11,8 @@ export const enum TargetCheckResult {
   NobodyWillBlocked,
   EmptyList,
   TheyBlocksYou,
+  CantChainBlockYourself,
+  CantLockPickerToOther,
 }
 
 export function checkFollowerBlockTarget(
@@ -76,13 +80,37 @@ export function isSameTarget(target1: SessionRequest['target'], target2: Session
     return false
   }
   switch (target1.type) {
-    case 'follower':
+    case 'follower': {
       const givenUser = (target2 as FollowerBlockSessionRequest['target']).user
       return target1.user.id_str === givenUser.id_str
-    case 'tweet_reaction':
+    }
+    case 'tweet_reaction': {
       const givenTweet = (target2 as TweetReactionBlockSessionRequest['target']).tweet
       return target1.tweet.id_str === givenTweet.id_str
+    }
     case 'import':
       return false
+    case 'user_search': {
+      // Q: 대소문자가 같으면 같은 target으로 취급해야 하나?
+      const givenQuery = (target2 as UserSearchBlockSessionRequest['target']).query
+      return target1.query === givenQuery
+    }
+  }
+}
+
+export function checkLockPickerTarget(request: FollowerBlockSessionRequest): TargetCheckResult {
+  const validity = checkUserIdBeforeLockPicker({
+    purpose: request.purpose,
+    myselfId: request.myself.id_str,
+    givenUserId: request.target.user.id_str,
+  })
+  switch (validity) {
+    case 'self':
+    case 'other':
+      return TargetCheckResult.Ok
+    case 'invalid self':
+      return TargetCheckResult.CantLockPickerToOther
+    case 'invalid other':
+      return TargetCheckResult.CantChainBlockYourself
   }
 }

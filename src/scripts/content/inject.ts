@@ -74,6 +74,11 @@ interface ReduxStore {
 
   function markUser({ userId, userAction }: MarkUserParams) {
     const id = uuid.v1()
+    if (userAction === 'BlockAndUnBlock') {
+      markUser({ userId, userAction: 'Block' })
+      markUser({ userId, userAction: 'UnBlock' })
+      return
+    }
     const userActionUpperCase = userAction.toUpperCase()
     findReduxStore().dispatch({
       type: `rweb/entities/users/${userActionUpperCase}_REQUEST`,

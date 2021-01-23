@@ -5,6 +5,9 @@
   "new_tweetreaction_session": {
     "message": "New Session (Tweet Reactions)"
   },
+  "new_searchblock_session": {
+    "message": "New Session (User Search)"
+  },
   "running_sessions": {
     "message": "Running"
   },
@@ -44,6 +47,15 @@
   "unchainblock": {
     "message": "Unchainblock"
   },
+  "chainunfollow": {
+    "message": "Chainunfollow"
+  },
+  "lockpicker": {
+    "message": "Block protected followers"
+  },
+  "query": {
+    "message": "Query"
+  },
   "followers_of_xxx": {
     "message": "@$username$'s followers",
     "placeholders": {
@@ -78,6 +90,9 @@
   },
   "from_imported_blocklist": {
     "message": "From blocklist"
+  },
+  "from_user_search_result": {
+    "message": "From user search result"
   },
   "session_status_initial": {
     "message": "Waiting..."
@@ -118,6 +133,12 @@
   "unmute": {
     "message": "Unmute"
   },
+  "unfollow": {
+    "message": "Unfollow"
+  },
+  "block_and_unblock": {
+    "message": "Block and unblock"
+  },
   "skipped": {
     "message": "Skipped"
   },
@@ -149,7 +170,7 @@
     "message": "Currently there are no sessions."
   },
   "press_plus_to_start_new_session": {
-    "message": "To start a new session, click the + button below."
+    "message": "To start a new session, click the button below."
   },
   "user_xxx_added": {
     "message": "Added @$username$",
@@ -161,6 +182,14 @@
   },
   "user_xxx_removed": {
     "message": "Removed @$username$",
+    "placeholders": {
+      "username": {
+        "content": "$1"
+      }
+    }
+  },
+  "user_xxx_already_exists": {
+    "message": "User @$username$ already exists!",
     "placeholders": {
       "username": {
         "content": "$1"
@@ -308,6 +337,12 @@
   "unchainblock_description": {
     "message": "Unblocks all users according to the options you set."
   },
+  "lockpicker_description": {
+    "message": "Unlike Chainblock, it will block *only* protected followers who doesn't follow back to you, and nobody else will be blocked."
+  },
+  "chainunfollow_description": {
+    "message": "Unfollow all users that followed by you according to the options you set."
+  },
   "my_mutual_followers_wont_block": {
     "message": "Your mutual-followers won't be blocked to prevent muting/blocking your friends."
   },
@@ -338,6 +373,31 @@
   "confirm_import_chainblock_title": {
     "message": "Do you want to block users from imported list?"
   },
+  "confirm_lockpicker_title": {
+    "message": "Do you want to block protected followers?"
+  },
+  "confirm_search_chainblock_title": {
+    "message": "Do you want to block users from search result?"
+  },
+  "confirm_follower_chainunfollow_title": {
+    "message": "Do you want to Chain-unfollow on @$username$?",
+    "placeholders": {
+      "username": {
+        "content": "$1"
+      }
+    }
+  },
+  "confirm_reacted_chainunfollow_title": {
+    "message": "Do you want to run Chain-unfollow on users that reacted @$username$'s tweet?",
+    "placeholders": {
+      "username": {
+        "content": "$1"
+      }
+    }
+  },
+  "confirm_search_chainunfollow_title": {
+    "message": "Do you want to unfollow users from search result?"
+  },
   "user_count": {
     "message": "Users"
   },
@@ -346,6 +406,9 @@
   },
   "import_blocklist": {
     "message": "Import blocklist"
+  },
+  "usersearch_chainblock": {
+    "message": "User search result Chainblock"
   },
   "pick_file_first": {
     "message": "Pick blocklist file first."
@@ -357,10 +420,10 @@
     "message": "Please select retweet and/or like"
   },
   "warning_maybe_you_block_your_followers": {
-    "message": "Caution! This option may block users who follow you."
+    "message": "Caution! This option may lose your followers."
   },
   "warning_maybe_you_block_your_followings": {
-    "message": "Caution! This option may block users who you follow."
+    "message": "Caution! This option may lose users who you follow."
   },
   "tweet_contents": {
     "message": "Tweet's contents"
@@ -396,6 +459,14 @@
       }
     }
   },
+  "unfollowed_n_users": {
+    "message": "Unfollowed $count$ users.",
+    "placeholders": {
+      "count": {
+        "content": "$1"
+      }
+    }
+  },
   "already_blocked": {
     "message": "Already blocked"
   },
@@ -407,6 +478,12 @@
   },
   "unchainblock_completed": {
     "message": "Unchainblock completed!"
+  },
+  "lockpicker_completed": {
+    "message": "Blocking protected follower completed!"
+  },
+  "chainunfollow_completed": {
+    "message": "Chain-unfollow completed!"
   },
   "yes": {
     "message": "Yes"
@@ -461,6 +538,12 @@
   },
   "cant_chainblock_empty_list": {
     "message": "A list is empty or can't find any user ID."
+  },
+  "cant_chainblock_to_yourself": {
+    "message": "You can't run chainblock to yourself."
+  },
+  "cant_lockpicker_to_others": {
+    "message": "You can't run protected-follower-chainblock to other user."
   },
   "wtf_twitter": {
     "message": "⚠️ To avoid problem(force-logout, account suspension), Red Block won't block over 500 users."
@@ -537,11 +620,20 @@
   "block_target": {
     "message": "Users to block"
   },
+  "count_of_users": {
+    "message": "Users"
+  },
   "duplicated": {
     "message": "Duplicated"
   },
   "invalid": {
     "message": "Invalid"
+  },
+  "select_files": {
+    "message": "Select Files"
+  },
+  "selected_files": {
+    "message": "Selected Files"
   },
   "notify_on_block_limit": {
     "message": "To avoid problem(force-logout, account suspension), Red Block won't block over 500 users. If you want to reset counter, open Red Block's UI and press \"Reset\" button."
@@ -600,11 +692,8 @@
       }
     }
   },
-  "export_followers_description": {
-    "message": "Generate & export blocklist file from user's followings/followers. (up to 100,000)"
-  },
-  "export_tweetreaction_description": {
-    "message": "Generate & export blocklist file from tweet's retweeters/likers."
+  "export_description": {
+    "message": "Generate & export blocklist file from users according to the options you set."
   },
   "save": {
     "message": "Save"
@@ -617,5 +706,8 @@
   },
   "confirm_closing_export_session_notyet_save": {
     "message": "Looks like you don't saved blocklist file yet. Are you sure to close this session?"
+  },
+  "protected_follower": {
+    "message": "Protected Follower"
   }
 }

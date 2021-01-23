@@ -1,4 +1,9 @@
-import { SessionStatus, isRunningSession, isRewindableSession } from '../common.js'
+import {
+  SessionStatus,
+  isRunningSession,
+  isRewindableSession,
+  checkUserIdBeforeLockPicker,
+} from '../common.js'
 import * as TextGenerate from '../text-generate.js'
 import * as i18n from '../i18n.js'
 import { alertToCurrentTab, notify, updateExtensionBadge } from './background.js'
@@ -32,13 +37,29 @@ export default class ChainBlocker {
     return currentRunningSessions
   }
   public checkTarget(request: SessionRequest): TargetCheckResult {
-    const { target } = request
+    const { target, myself, purpose } = request
     const sameTargetSession = this.getSessionByTarget(target)
     if (sameTargetSession) {
       const sessionInfo = sameTargetSession.getSessionInfo()
       if (isRunningSession(sessionInfo)) {
         return TargetCheckResult.AlreadyRunningOnSameTarget
       }
+    }
+    if (request.target.type === 'follower') {
+      const targetUser = (target as FollowerBlockSessionRequest['target']).user
+      const isValidLockPicker = checkUserIdBeforeLockPicker({
+        purpose,
+        myselfId: myself.id_str,
+        givenUserId: targetUser.id_str,
+      })
+      if (isValidLockPicker.startsWith('invalid')) {
+        throw new Error('락피커 오폭방지 작동')
+      }
+    }
+    if (request.purpose === 'lockpicker') {
+      // 중복실행여부 및 락피커 타겟검증 테스트를 통과하면 더 이상 체크할 확인은 없다.
+      // (checkFollowerBlockTarget은 target이 상대방일 경우를 상정하며 만든 함수임)
+      return TargetCheckResult.Ok
     }
     switch (target.type) {
       case 'follower':
@@ -47,9 +68,12 @@ export default class ChainBlocker {
         return checkTweetReactionBlockTarget(target)
       case 'import':
         return checkImportBlockTarget(target)
+      case 'user_search':
+        // 검색체인블락의 경우 중복실행 아니면 더 체크할 부분 없을...걸?
+        return TargetCheckResult.Ok
     }
   }
-  public getSessionByTarget(target: SessionInfo['request']['target']): Session | null {
+  private getSessionByTarget(target: SessionInfo['request']['target']): Session | null {
     for (const session of this.getCurrentRunningSessions()) {
       if (isSameTarget(session.getSessionInfo().request.target, target)) {
         return session
@@ -121,9 +145,6 @@ export default class ChainBlocker {
         break
       }
       const sessionInfo = session.getSessionInfo()
-      if (!sessionInfo.confirmed) {
-        continue
-      }
       if (sessionInfo.status === SessionStatus.Initial) {
         await session.start()
       }
@@ -137,32 +158,37 @@ export default class ChainBlocker {
     this.sessions.delete(sessionId)
     this.updateBadge()
   }
-  private register(session: Session) {
+  private createSession(request: SessionRequest) {
+    let session: Session
+    switch (request.purpose) {
+      case 'chainblock':
+      case 'unchainblock':
+      case 'lockpicker':
+      case 'chainunfollow':
+        session = new ChainBlockSession(request, this.limiter)
+        break
+      case 'export':
+        session = new ExportSession(request as ExportableSessionRequest)
+        break
+    }
     this.handleEvents(session)
     this.sessions.set(session.getSessionInfo().sessionId, session)
+    return session
   }
-  private createSession(request: SessionRequest) {
-    if (request.purpose === 'export') {
-      return new ExportSession(request as ExportableSessionRequest)
-    } else {
-      return new ChainBlockSession(request, this.limiter)
-    }
-  }
-  public add(request: SessionRequest): string {
-    const { target } = request
-    // 만약 confirm대기 중인데 다시 요청하면 그 세션 다시 써도 될듯
-    const sameTargetSession = this.getSessionByTarget(target)
-    if (sameTargetSession) {
-      const sessionInfo = sameTargetSession.getSessionInfo()
-      if (isRunningSession(sessionInfo)) {
-        throw new Error('unreachable(attempting run already-running session)')
+  public add(request: SessionRequest): Either<TargetCheckResult, string> {
+    const isValidTarget = this.checkTarget(request)
+    if (isValidTarget !== TargetCheckResult.Ok) {
+      return {
+        ok: false,
+        error: isValidTarget,
       }
-      return sessionInfo.sessionId
     }
     const session = this.createSession(request)
-    this.register(session)
     const sessionId = session.getSessionInfo().sessionId
-    return sessionId
+    return {
+      ok: true,
+      value: sessionId,
+    }
   }
   public stop(sessionId: string) {
     const session = this.sessions.get(sessionId)!
@@ -179,10 +205,6 @@ export default class ChainBlocker {
       session.stop()
     }
     this.updateBadge()
-  }
-  public setConfirmed(sessionId: string) {
-    const session = this.sessions.get(sessionId)!
-    session.setConfirmed()
   }
   public async start(sessionId: string) {
     const count = this.checkAvailableSessionsCount()
@@ -202,9 +224,6 @@ export default class ChainBlocker {
         break
       }
       const sessionInfo = session.getSessionInfo()
-      if (!sessionInfo.confirmed) {
-        continue
-      }
       if (sessionInfo.status === SessionStatus.Initial) {
         sessionPromises.push(session.start().catch(() => {}))
       }

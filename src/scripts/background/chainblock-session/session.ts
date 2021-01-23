@@ -7,9 +7,10 @@ import {
   copyFrozenObject,
   sleep,
   getCountOfUsersToBlock,
+  assertNever,
 } from '../../common.js'
 import BlockLimiter from '../block-limiter.js'
-import { loadOptions } from '../storage.js'
+import { decideWhatToDoGivenUser } from './user-decider.js'
 
 interface SessionEventEmitter {
   'mark-user': MarkUserParams
@@ -22,7 +23,7 @@ interface SessionEventEmitter {
 }
 
 // 더 나은 타입이름 없을까...
-type ApiKind = FollowKind | 'tweet-reactions' | 'lookup-users'
+type ApiKind = FollowKind | 'tweet-reactions' | 'lookup-users' | 'search'
 
 function extractRateLimit(
   limitStatuses: TwitterAPI.LimitStatus,
@@ -39,6 +40,8 @@ function extractRateLimit(
       return limitStatuses.statuses['/statuses/retweeted_by']
     case 'lookup-users':
       return limitStatuses.users['/users/lookup']
+    case 'search':
+      return limitStatuses.search['/search/adaptive']
   }
 }
 
@@ -49,9 +52,6 @@ abstract class BaseSession {
   public constructor(protected request: SessionRequest) {}
   public getSessionInfo() {
     return copyFrozenObject(this.sessionInfo)
-  }
-  public setConfirmed() {
-    this.sessionInfo.confirmed = true
   }
   public async stop() {
     this.shouldStop = true
@@ -71,6 +71,8 @@ abstract class BaseSession {
         UnBlock: 0,
         Mute: 0,
         UnMute: 0,
+        UnFollow: 0,
+        BlockAndUnBlock: 0,
       },
       failure: 0,
       skipped: 0,
@@ -89,7 +91,6 @@ abstract class BaseSession {
       progress: this.initProgress(),
       status: SessionStatus.Initial,
       limit: null,
-      confirmed: false,
     }
   }
   protected generateSessionId(): string {
@@ -107,6 +108,9 @@ abstract class BaseSession {
         break
       case 'import':
         apiKind = 'lookup-users'
+        break
+      case 'user_search':
+        apiKind = 'search'
         break
     }
     sessionInfo.status = SessionStatus.RateLimited
@@ -134,123 +138,143 @@ export class ChainBlockSession extends BaseSession {
     super(request)
   }
   public async start() {
-    if (!this.sessionInfo.confirmed) {
-      throw new Error('session not confirmed')
-    }
     const DBG_dontActuallyCallAPI = localStorage.getItem('RedBlock FakeAPI') === 'true'
     if (DBG_dontActuallyCallAPI) {
       console.warn("WARNING: RedBlock FakeAPI mode detected! won't call actual api")
     }
-    const redblockOptions = await loadOptions()
     const now = dayjs()
     let stopped = false
-    try {
-      const scrapedUserIds = new Set<string>()
-      for await (const scraperResponse of this.scraper) {
-        if (this.shouldStop) {
-          stopped = true
-          break
-        }
-        this.sessionInfo.progress.scraped = this.calculateScrapedCount()
-        if (!scraperResponse.ok) {
-          if (scraperResponse.error instanceof TwitterAPI.RateLimitError) {
-            this.handleRateLimit()
-            const second = 1000
-            const minute = second * 60
-            await sleep(1 * minute)
-            continue
-          } else {
-            throw scraperResponse.error
-          }
-        }
-        if (this.sessionInfo.progress.total === null) {
-          this.sessionInfo.progress.total = this.scraper.totalCount
-        }
-        this.handleRunning()
-        let promisesBuffer: Promise<any>[] = []
-        for (const user of scraperResponse.value.users) {
+    if (this.checkBlockLimiter() !== 'ok') {
+      this.stop()
+    } else
+      try {
+        const scrapedUserIds = new Set<string>()
+        for await (const scraperResponse of this.scraper) {
           if (this.shouldStop) {
             stopped = true
             break
           }
-          if (scrapedUserIds.has(user.id_str)) {
-            continue
+          this.sessionInfo.progress.scraped = this.calculateScrapedCount()
+          if (!scraperResponse.ok) {
+            if (scraperResponse.error instanceof TwitterAPI.RateLimitError) {
+              this.handleRateLimit()
+              const second = 1000
+              const minute = second * 60
+              await sleep(1 * minute)
+              continue
+            } else {
+              throw scraperResponse.error
+            }
           }
-          scrapedUserIds.add(user.id_str)
-          const blockLimitReached = this.limiter.check() !== 'ok'
-          if (blockLimitReached) {
-            this.stop()
-            break
+          if (this.sessionInfo.progress.total === null) {
+            this.sessionInfo.progress.total = this.scraper.totalCount
           }
-          const whatToDo = whatToDoGivenUser(
-            this.request,
-            user,
-            now,
-            redblockOptions.skipInactiveUser
-          )
-          console.debug('user %o => %s', user, whatToDo)
-          if (whatToDo === 'Skip') {
-            this.sessionInfo.progress.skipped++
-            continue
-          } else if (whatToDo === 'AlreadyDone') {
-            this.sessionInfo.progress.already++
-            continue
-          }
-          let promise: Promise<boolean>
-          if (DBG_dontActuallyCallAPI) {
-            promise = Promise.resolve(true)
-          } else {
+          this.handleRunning()
+          let promisesBuffer: Promise<any>[] = []
+          for (const user of scraperResponse.value.users) {
+            if (this.shouldStop) {
+              stopped = true
+              break
+            }
+            if (scrapedUserIds.has(user.id_str)) {
+              continue
+            }
+            scrapedUserIds.add(user.id_str)
+            if (this.checkBlockLimiter() !== 'ok') {
+              this.stop()
+              break
+            }
+            const whatToDo = decideWhatToDoGivenUser(this.request, user, now)
+            console.debug('user %o => %s', user, whatToDo)
+            if (whatToDo === 'Skip') {
+              this.sessionInfo.progress.skipped++
+              continue
+            } else if (whatToDo === 'AlreadyDone') {
+              this.sessionInfo.progress.already++
+              continue
+            }
+            let promise: Promise<boolean>
+            if (DBG_dontActuallyCallAPI) {
+              promise = Promise.resolve(true)
+            } else {
+              switch (whatToDo) {
+                case 'Block':
+                  promise = TwitterAPI.blockUser(user)
+                  break
+                case 'Mute':
+                  promise = TwitterAPI.muteUser(user)
+                  break
+                case 'UnBlock':
+                  promise = TwitterAPI.unblockUser(user)
+                  break
+                case 'UnMute':
+                  promise = TwitterAPI.unmuteUser(user)
+                  break
+                case 'UnFollow':
+                  promise = TwitterAPI.unfollowUser(user)
+                  break
+                case 'BlockAndUnBlock':
+                  promise = TwitterAPI.blockUser(user).then(
+                    blocked => blocked && TwitterAPI.unblockUser(user)
+                  )
+                  break
+              }
+            }
+            promise = promise.then(result => {
+              if (result) {
+                this.sessionInfo.progress.success[whatToDo]++
+                this.eventEmitter.emit('mark-user', {
+                  userId: user.id_str,
+                  userAction: whatToDo,
+                })
+              } else {
+                this.sessionInfo.progress.failure++
+              }
+              this.sessionInfo.progress.scraped = this.calculateScrapedCount()
+              return result
+            })
             switch (whatToDo) {
               case 'Block':
-                promise = TwitterAPI.blockUser(user)
-                break
               case 'Mute':
-                promise = TwitterAPI.muteUser(user)
+              case 'BlockAndUnBlock':
+                await promise
                 break
               case 'UnBlock':
-                promise = TwitterAPI.unblockUser(user)
-                break
               case 'UnMute':
-                promise = TwitterAPI.unmuteUser(user)
+              case 'UnFollow':
+                promisesBuffer.push(promise)
+                break
+              default:
+                assertNever(whatToDo)
                 break
             }
           }
-          promise = promise.then(result => {
-            if (result) {
-              this.sessionInfo.progress.success[whatToDo]++
-              this.eventEmitter.emit('mark-user', {
-                userId: user.id_str,
-                userAction: whatToDo,
-              })
-            } else {
-              this.sessionInfo.progress.failure++
-            }
-            return result
-          })
-          if (whatToDo === 'Block' || whatToDo === 'Mute') {
-            await promise
-          } else if (whatToDo === 'UnBlock' || whatToDo === 'UnMute') {
-            promisesBuffer.push(promise)
-          }
+          await Promise.allSettled(promisesBuffer)
         }
-        await Promise.allSettled(promisesBuffer)
+        if (stopped) {
+          this.sessionInfo.status = SessionStatus.Stopped
+          this.eventEmitter.emit('stopped', this.getSessionInfo())
+        } else {
+          this.sessionInfo.status = SessionStatus.Completed
+          this.eventEmitter.emit('complete', this.getSessionInfo())
+        }
+      } catch (error) {
+        this.sessionInfo.status = SessionStatus.Error
+        this.eventEmitter.emit('error', error.toString())
+        throw error
       }
-      if (stopped) {
-        this.sessionInfo.status = SessionStatus.Stopped
-        this.eventEmitter.emit('stopped', this.getSessionInfo())
-      } else {
-        this.sessionInfo.status = SessionStatus.Completed
-        this.eventEmitter.emit('complete', this.getSessionInfo())
-      }
-    } catch (error) {
-      this.sessionInfo.status = SessionStatus.Error
-      this.eventEmitter.emit('error', error.toString())
-      throw error
-    }
   }
-  protected calculateScrapedCount() {
+  private calculateScrapedCount() {
     const { success, already, failure, error, skipped } = this.sessionInfo.progress
     return _.sum([...Object.values(success), already, failure, error, skipped])
+  }
+  private checkBlockLimiter() {
+    const safePurposes: Purpose[] = ['unchainblock', 'chainunfollow']
+    if (safePurposes.includes(this.request.purpose)) {
+      return 'ok'
+    } else {
+      return this.limiter.check()
+    }
   }
 }
 
@@ -268,9 +292,6 @@ export class ExportSession extends BaseSession {
     return this.exportResult
   }
   public async start() {
-    if (!this.sessionInfo.confirmed) {
-      throw new Error('session not confirmed')
-    }
     let stopped = false
     try {
       const scrapedUserIds = this.exportResult.userIds
@@ -324,128 +345,19 @@ export class ExportSession extends BaseSession {
         break
       case 'tweet_reaction':
         targetStr = `tweet-${target.tweet.user.screen_name}-${target.tweet.id_str}`
+        break
     }
     const datetime = now.format('YYYY-MM-DD_HHmmss')
     return `blocklist-${targetStr}[${datetime}].csv`
   }
 }
 
-function isAlreadyDone(follower: TwitterUser, action: UserAction): boolean {
-  if (!('blocking' in follower && 'muting' in follower)) {
-    return false
-  }
-  const { blocking, muting } = follower
-  if (blocking && action === 'Block') {
-    return true
-  } else if (!blocking && action === 'UnBlock') {
-    return true
-  } else if (muting && action === 'Mute') {
-    return true
-  } else if (!muting && action === 'UnMute') {
-    return true
-  }
-  return false
-}
-
-function whatToDoGivenUser(
-  request: SessionRequest,
-  follower: TwitterUser,
-  now: Dayjs,
-  inactivePeriod: InactivePeriod
-): UserAction | 'Skip' | 'AlreadyDone' {
-  const { purpose, options, target } = request
-  const { following, followed_by, follow_request_sent } = follower
-  if (!(typeof following === 'boolean' && typeof followed_by === 'boolean')) {
-    throw new Error('following/followed_by property missing?')
-  }
-  if (checkUserInactivity(follower, now, inactivePeriod) === 'inactive') {
-    return 'Skip'
-  }
-  const isMyFollowing = following || follow_request_sent
-  const isMyFollower = followed_by
-  const isMyMutualFollower = isMyFollower && isMyFollowing
-  // 주의!
-  // 팝업 UI에 나타난 순서를 고려할 것.
-  if (isMyMutualFollower) {
-    return 'Skip'
-  }
-  if (isMyFollower) {
-    return options.myFollowers
-  }
-  if (isMyFollowing) {
-    return options.myFollowings
-  }
-  if (purpose === 'unchainblock' && 'mutualBlocked' in options) {
-    const blockedBy = target.type === 'follower' && target.user.blocked_by
-    if (blockedBy) {
-      return options.mutualBlocked
-    }
-  }
-  let defaultAction: UserAction
-  switch (purpose) {
-    case 'chainblock':
-      defaultAction = 'Block'
-      break
-    case 'unchainblock':
-      defaultAction = 'UnBlock'
-      break
-    case 'export':
-      throw new Error('unreachable')
-  }
-  if (isAlreadyDone(follower, defaultAction)) {
-    return 'AlreadyDone'
-  }
-  return defaultAction
-}
-
-function checkUserInactivity(
-  follower: TwitterUser,
-  now: Dayjs,
-  inactivePeriod: InactivePeriod
-): 'active' | 'inactive' {
-  if (inactivePeriod === 'never') {
-    // 체크하지 않기로 했으므로 무조건 active
-    return 'active'
-  }
-  if (follower.protected) {
-    // 프로텍트걸린 계정의 경우 마지막으로 작성한 트윗의 정보를 가져올 수 없다.
-    // 체크할 수 없으므로 active로 취급
-    return 'active'
-  }
-  let before: Dayjs
-  switch (inactivePeriod) {
-    case '1y':
-    case '2y':
-    case '3y':
-      before = now.subtract(parseInt(inactivePeriod.charAt(0), 10), 'y')
-      break
-  }
-  const lastTweet = follower.status
-  let isInactive: boolean
-  if (lastTweet) {
-    const lastTweetDatetime = dayjs(lastTweet.created_at, 'MMM DD HH:mm:ss ZZ YYYY')
-    isInactive = lastTweetDatetime.isBefore(before)
-  } else {
-    // 작성한 트윗이 없다면 계정생성일을 기준으로 판단한다.
-    const accountCreatedDatetime = dayjs(follower.created_at)
-    isInactive = accountCreatedDatetime.isBefore(before)
-  }
-  return isInactive ? 'inactive' : 'active'
-}
-
-export const followerBlockDefaultOption: Readonly<
-  FollowerBlockSessionRequest['options']
-> = Object.freeze({
+export const defaultSessionOptions: Readonly<SessionOptions> = Object.freeze({
   myFollowers: 'Skip',
   myFollowings: 'Skip',
   mutualBlocked: 'Skip',
+  myMutualFollowers: 'Skip',
+  protectedFollowers: 'Block',
   includeUsersInBio: 'never',
-})
-
-export const tweetReactionBlockDefaultOption: Readonly<
-  TweetReactionBlockSessionRequest['options']
-> = Object.freeze({
-  myFollowers: 'Skip',
-  myFollowings: 'Skip',
-  includeUsersInBio: 'never',
+  skipInactiveUser: 'never',
 })

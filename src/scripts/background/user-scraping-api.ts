@@ -5,8 +5,9 @@ import {
   getReactedUserList,
   getMultipleUsersById,
   getMultipleUsersByName,
+  searchUsers,
+  getNextCursorFromAPIv2Response,
 } from './twitter-api.js'
-import type { UserIdsResponse, UserListResponse } from './twitter-api.js'
 
 const DELAY = 100
 
@@ -18,7 +19,7 @@ export async function* getAllFollowsIds(
   followKind: FollowKind,
   user: TwitterUser,
   { actAsUserId }: AdditionalScraperParameter = {}
-): AsyncIterableIterator<Either<Error, UserIdsResponse>> {
+): ScrapedUserIdsIterator {
   let cursor = '-1'
   while (cursor !== '0') {
     try {
@@ -39,7 +40,7 @@ export async function* getAllFollowsUserList(
   followKind: FollowKind,
   user: TwitterUser,
   { actAsUserId }: AdditionalScraperParameter = {}
-): AsyncIterableIterator<Either<Error, UserListResponse>> {
+): ScrapedUsersIterator {
   let cursor = '-1'
   while (cursor !== '0') {
     try {
@@ -75,7 +76,7 @@ export async function getAllMutualFollowersIds(
 export async function* getAllReactedUserList(
   reaction: ReactionKind,
   tweet: Tweet
-): AsyncIterableIterator<Either<Error, UserListResponse>> {
+): ScrapedUsersIterator {
   let cursor = '-1'
   while (cursor !== '0') {
     try {
@@ -92,22 +93,41 @@ export async function* getAllReactedUserList(
   }
 }
 
-export async function* lookupUsersByIds(
-  userIds: string[]
-): AsyncIterableIterator<Either<Error, { users: TwitterUser[] }>> {
-  const chunks = _.chunk(userIds, 100)
-  for (const chunk of chunks) {
-    const mutualUsers = await getMultipleUsersById(chunk)
-    yield wrapEitherRight({ users: mutualUsers })
+export async function* getUserSearchResults(query: string): ScrapedUsersIterator {
+  let cursor: string | undefined
+  while (true) {
+    const response = await searchUsers(query, cursor)
+    cursor = getNextCursorFromAPIv2Response(response) || undefined
+    const { users } = response.globalObjects
+    const usersArray = Object.values(users)
+    if (usersArray.length > 0) {
+      yield wrapEitherRight({ users: usersArray })
+      await sleep(DELAY)
+    } else {
+      break
+    }
   }
 }
 
-export async function* lookupUsersByNames(
-  userNames: string[]
-): AsyncIterableIterator<Either<Error, { users: TwitterUser[] }>> {
+export async function* lookupUsersByIds(userIds: string[]): ScrapedUsersIterator {
+  const chunks = _.chunk(userIds, 100)
+  for (const chunk of chunks) {
+    const users = await getMultipleUsersById(chunk)
+    yield wrapEitherRight({ users })
+  }
+}
+
+export async function* lookupUsersByNames(userNames: string[]): ScrapedUsersIterator {
   const chunks = _.chunk(userNames, 100)
   for (const chunk of chunks) {
-    const mutualUsers = await getMultipleUsersByName(chunk)
-    yield wrapEitherRight({ users: mutualUsers })
+    try {
+      const users = await getMultipleUsersByName(chunk)
+      yield wrapEitherRight({ users })
+    } catch (error) {
+      yield {
+        ok: false,
+        error,
+      }
+    }
   }
 }

@@ -9,7 +9,7 @@ export const enum SessionStatus {
   Error,
 }
 
-export const UI_UPDATE_DELAY = 250
+export const UI_UPDATE_DELAY = 750
 
 export class EventEmitter<T> {
   protected events: EventStore = new Proxy(
@@ -162,7 +162,7 @@ export function getReactionsCount(target: TweetReactionBlockSessionRequest['targ
   return result
 }
 
-export function getCountOfUsersToBlock({ target }: SessionRequest) {
+export function getCountOfUsersToBlock({ target }: SessionRequest): number | null {
   switch (target.type) {
     case 'follower':
       return getFollowersCount(target.user, target.list)
@@ -170,21 +170,17 @@ export function getCountOfUsersToBlock({ target }: SessionRequest) {
       return getReactionsCount(target)
     case 'import':
       return target.userIds.length
+    case 'user_search':
+      return null
   }
 }
 
-export function isRunningSession({ status, confirmed }: SessionInfo): boolean {
-  if (!confirmed) {
-    return false
-  }
+export function isRunningSession({ status }: SessionInfo): boolean {
   const runningStatuses = [SessionStatus.Initial, SessionStatus.Running, SessionStatus.RateLimited]
   return runningStatuses.includes(status)
 }
 
-export function isRewindableSession({ status, confirmed }: SessionInfo): boolean {
-  if (!confirmed) {
-    return false
-  }
+export function isRewindableSession({ status }: SessionInfo): boolean {
   const rewindableStatus: SessionStatus[] = [
     SessionStatus.Completed,
     SessionStatus.Error,
@@ -202,6 +198,25 @@ export function getLimitResetTime(limit: Limit): string {
   })
   const datetime = new Date(limit.reset * 1000 + 120000)
   return formatter.format(datetime)
+}
+
+// 주의! 리턴타입 바꾸기 전에 .startsWith('invalid') 로 짠 부분에 영향가지 않는지 체크할 것
+export function checkUserIdBeforeLockPicker({
+  purpose,
+  myselfId,
+  givenUserId,
+}: {
+  purpose: Purpose
+  myselfId: string
+  givenUserId: string
+}): 'self' | 'other' | 'invalid self' | 'invalid other' /* 주의 */ {
+  if (purpose === 'lockpicker') {
+    // 락피커의 타겟은 오직 나 자신이어야하고,
+    return myselfId === givenUserId ? 'self' : 'invalid self'
+  } else {
+    // 반대로 체인/언체인블락 타겟은 나 자신이어선 안된다.
+    return myselfId !== givenUserId ? 'other' : 'invalid other'
+  }
 }
 
 export function unwrap<T>(maybeValue: Either<Error, T>) {

@@ -1,6 +1,6 @@
 import * as Storage from '../scripts/background/storage.js'
 import * as i18n from '../scripts/i18n.js'
-import { RedBlockUITheme } from '../popup/popup-ui/ui-common.js'
+import { RedBlockUITheme } from '../popup/popup-ui/components.js'
 
 const M = MaterialUI
 const T = MaterialUI.Typography
@@ -20,9 +20,9 @@ const useStylesForRow = MaterialUI.makeStyles(_theme => ({
 
 function BadWordRow(props: {
   badWord: BadWordItem
-  removeWordById: (wordId: string) => void
-  editWordById: (wordId: string) => void
-  modifyAbilityOfWordById: (wordId: string, enabled: boolean) => void
+  removeWordById(wordId: string): void
+  editWordById(wordId: string): void
+  modifyAbilityOfWordById(wordId: string, enabled: boolean): void
 }) {
   const { TableCell, TableRow } = MaterialUI
   const classes = useStylesForRow()

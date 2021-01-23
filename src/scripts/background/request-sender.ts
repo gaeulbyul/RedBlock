@@ -1,22 +1,6 @@
-export async function startFollowerChainBlock(request: FollowerBlockSessionRequest) {
-  return browser.runtime.sendMessage<RBMessageToBackground.CreateFollowerChainBlockSession>({
-    messageType: 'CreateFollowerChainBlockSession',
-    messageTo: 'background',
-    request,
-  })
-}
-
-export async function startTweetReactionChainBlock(request: TweetReactionBlockSessionRequest) {
-  return browser.runtime.sendMessage<RBMessageToBackground.CreateTweetReactionChainBlockSession>({
-    messageType: 'CreateTweetReactionChainBlockSession',
-    messageTo: 'background',
-    request,
-  })
-}
-
-export async function startImportChainBlock(request: ImportBlockSessionRequest) {
-  return browser.runtime.sendMessage<RBMessageToBackground.CreateImportChainBlockSession>({
-    messageType: 'CreateImportChainBlockSession',
+export async function startNewChainBlockSession<T extends SessionRequest>(request: T) {
+  return browser.runtime.sendMessage<RBMessageToBackground.CreateChainBlockSession>({
+    messageType: 'CreateChainBlockSession',
     messageTo: 'background',
     request,
   })
@@ -57,14 +41,6 @@ export async function cleanupInactiveSessions() {
     messageType: 'RequestCleanup',
     messageTo: 'background',
     cleanupWhat: 'inactive',
-  })
-}
-
-export async function cleanupNotConfirmedSessions() {
-  return browser.runtime.sendMessage<RBMessageToBackground.RequestCleanup>({
-    messageType: 'RequestCleanup',
-    messageTo: 'background',
-    cleanupWhat: 'not-confirmed',
   })
 }
 

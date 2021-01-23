@@ -6,26 +6,35 @@ import * as i18n from '../scripts/i18n.js'
 
 import BlocklistPage from './popup-ui/blocklist-page.js'
 import ChainBlockSessionsPage from './popup-ui/chainblock-sessions-page.js'
+import { PageEnum, pageIcon, pageLabel } from './popup-ui/pages.js'
 import {
-  DialogContext,
-  PageSwitchContext,
+  UIContext,
   RedBlockOptionsContext,
-  SnackBarContext,
-  LoginStatusContext,
+  MyselfContext,
   BlockLimiterContext,
+  AvailablePages,
 } from './popup-ui/contexts.js'
+import {
+  FollowerChainBlockPageStatesProvider,
+  TweetReactionChainBlockPageStatesProvider,
+  ImportChainBlockPageStatesProvider,
+  UserSearchChainBlockPageStatesProvider,
+} from './popup-ui/ui-states.js'
 import MiscPage from './popup-ui/misc-page.js'
 import NewChainBlockPage from './popup-ui/new-chainblock-page.js'
 import NewTweetReactionBlockPage from './popup-ui/new-tweetreactionblock-page.js'
-import { DialogContent, RBDialog, RedBlockUITheme, TabPanel } from './popup-ui/ui-common.js'
+import NewSearchChainBlockPage from './popup-ui/new-searchblock-page.js'
+import { DialogContent, RBDialog, RedBlockUITheme, TabPanel } from './popup-ui/components.js'
 
 import {
   getCurrentTab,
   getTweetIdFromTab,
   getUserNameFromTab,
   getUserIdFromTab,
-  PageEnum,
+  getCurrentSearchQueryFromTab,
 } from './popup.js'
+
+const M = MaterialUI
 
 function checkMessage(msg: object): msg is RBMessageToPopupType {
   if (msg == null) {
@@ -52,61 +61,29 @@ const useStylesForAppBar = MaterialUI.makeStyles(() =>
 )
 
 interface PopupAppProps {
-  loggedIn: boolean
-  currentUser: TwitterAPI.TwitterUser | null
-  currentTweet: TwitterAPI.Tweet | null
-  isPopupOpenedInTab: boolean
+  myself: TwitterUser | null
+  currentUser: TwitterUser | null
+  currentTweet: Tweet | null
+  currentSearchQuery: string | null
+  popupOpenedInTab: boolean
   initialPage: PageEnum
   redblockOptions: RedBlockStorage['options']
 }
 
-function PopupApp(props: PopupAppProps) {
+function PopupUITopMenu(props: {
+  runningSessions: SessionInfo[]
+  currentTweet: Tweet | null
+  currentSearchQuery: string | null
+}) {
+  const { runningSessions } = props
   const {
-    loggedIn,
-    currentUser,
-    currentTweet,
-    isPopupOpenedInTab,
-    initialPage,
-    redblockOptions,
-  } = props
-  const [tabIndex, setTabIndex] = React.useState<PageEnum>(initialPage)
-  const [sessions, setSessions] = React.useState<SessionInfo[]>([])
-  const [limiterStatus, setLimiterStatus] = React.useState<BlockLimiterStatus>({
-    current: 0,
-    max: 0,
-  })
-  const [modalOpened, setModalOpened] = React.useState(false)
-  const [modalContent, setModalContent] = React.useState<DialogContent | null>(null)
-  const [snackBarMessage, setSnackBarMessage] = React.useState('')
-  const [snackBarOpen, setSnackBarOpen] = React.useState(false)
-  const [menuAnchorEl, setMenuAnchorEl] = React.useState<HTMLElement | null>(null)
-  const darkMode = MaterialUI.useMediaQuery('(prefers-color-scheme:dark)')
-  const theme = React.useMemo(() => RedBlockUITheme(darkMode), [darkMode])
-  const classes = useStylesForAppBar()
-  function openModal(content: DialogContent) {
-    console.debug(content)
-    setModalOpened(true)
-    setModalContent(content)
-  }
-  function closeModal() {
-    setModalOpened(false)
-  }
-  function switchPage(page: PageEnum) {
-    setTabIndex(page)
-  }
-  function snack(message: string) {
-    setSnackBarMessage(message)
-    setSnackBarOpen(true)
-  }
-  function handleSnackBarClose(_event: React.SyntheticEvent | React.MouseEvent, reason?: string) {
-    if (reason === 'clickaway') {
-      return
-    }
-    setSnackBarOpen(false)
-  }
-  function handleMenuButtonClick(event: React.MouseEvent<HTMLButtonElement>) {
-    setMenuAnchorEl(event.currentTarget)
-  }
+    shrinkedPopup,
+    menuAnchorElem,
+    setMenuAnchorElem,
+    switchPage,
+    popupOpenedInTab,
+    availablePages,
+  } = React.useContext(UIContext)
   function handleOpenInTabClick() {
     browser.tabs.create({
       active: true,
@@ -118,27 +95,152 @@ function PopupApp(props: PopupAppProps) {
     browser.runtime.openOptionsPage()
     closeMenu()
   }
-  function closeMenu() {
-    setMenuAnchorEl(null)
+  function switchPageFromMenu(page: PageEnum) {
+    switchPage(page)
+    closeMenu()
   }
-  function handleConfirm({ confirmMessage, sessionId }: RBMessageToPopup.ConfirmChainBlockInPopup) {
-    if (isPopupOpenedInTab) {
-      // 레드블락 UI가 여려군데(팝업 + 탭)에 떠있는 상태에서
-      // 체인블락을 실행하면 탭에도 확인메시지가 나타나더라.
-      // 팝업에서만 메시지가 뜨게 함.
+  function closeMenu() {
+    setMenuAnchorElem(null)
+  }
+  const menus = [
+    <M.MenuItem dense onClick={handleSettingsClick}>
+      <M.ListItemIcon>
+        <M.Icon>settings</M.Icon>
+      </M.ListItemIcon>
+      {i18n.getMessage('open_settings_ui')}
+    </M.MenuItem>,
+  ]
+  if (!popupOpenedInTab) {
+    menus.unshift(
+      <M.MenuItem dense onClick={handleOpenInTabClick}>
+        <M.ListItemIcon>
+          <M.Icon>open_in_new</M.Icon>
+        </M.ListItemIcon>
+        {i18n.getMessage('open_in_new_tab')}
+      </M.MenuItem>
+    )
+  }
+  if (shrinkedPopup) {
+    menus.unshift(<M.Divider />)
+    menus.unshift(
+      ...[
+        <M.MenuItem dense onClick={() => switchPageFromMenu(PageEnum.Sessions)}>
+          <M.ListItemIcon>{pageIcon(PageEnum.Sessions)}</M.ListItemIcon>
+          {pageLabel(PageEnum.Sessions, runningSessions.length)}
+        </M.MenuItem>,
+        <M.MenuItem
+          dense
+          disabled={!availablePages.followerChainBlock}
+          onClick={() => switchPageFromMenu(PageEnum.NewSession)}
+        >
+          <M.ListItemIcon>{pageIcon(PageEnum.NewSession)}</M.ListItemIcon>
+          {pageLabel(PageEnum.NewSession)}
+        </M.MenuItem>,
+        <M.MenuItem
+          dense
+          disabled={!availablePages.tweetReactionChainBlock}
+          onClick={() => switchPageFromMenu(PageEnum.NewTweetReactionBlock)}
+        >
+          <M.ListItemIcon>{pageIcon(PageEnum.NewTweetReactionBlock)}</M.ListItemIcon>
+          {pageLabel(PageEnum.NewTweetReactionBlock)}
+        </M.MenuItem>,
+        <M.MenuItem
+          dense
+          disabled={!availablePages.userSearchChainBlock}
+          onClick={() => switchPageFromMenu(PageEnum.NewSearchChainBlock)}
+        >
+          <M.ListItemIcon>{pageIcon(PageEnum.NewSearchChainBlock)}</M.ListItemIcon>
+          {pageLabel(PageEnum.NewSearchChainBlock)}
+        </M.MenuItem>,
+        <M.MenuItem
+          dense
+          disabled={!availablePages.userSearchChainBlock}
+          onClick={() => switchPageFromMenu(PageEnum.Blocklist)}
+        >
+          <M.ListItemIcon>{pageIcon(PageEnum.Blocklist)}</M.ListItemIcon>
+          {pageLabel(PageEnum.Blocklist)}
+        </M.MenuItem>,
+        <M.MenuItem
+          dense
+          disabled={!availablePages.miscellaneous}
+          onClick={() => switchPageFromMenu(PageEnum.Utilities)}
+        >
+          <M.ListItemIcon>{pageIcon(PageEnum.Utilities)}</M.ListItemIcon>
+          {pageLabel(PageEnum.Utilities)}
+        </M.MenuItem>,
+      ]
+    )
+  }
+  return (
+    <M.Menu
+      keepMounted
+      anchorEl={menuAnchorElem}
+      open={Boolean(menuAnchorElem)}
+      onClose={closeMenu}
+      children={[menus]}
+    />
+  )
+}
+
+function PopupApp(props: PopupAppProps) {
+  const {
+    myself,
+    currentUser,
+    currentTweet,
+    currentSearchQuery,
+    popupOpenedInTab,
+    initialPage,
+    redblockOptions,
+  } = props
+  const [tabIndex, setTabIndex] = React.useState<PageEnum>(initialPage)
+  const [sessions, setSessions] = React.useState<SessionInfo[]>([])
+  const [limiterStatus, setLimiterStatus] = React.useState<BlockLimiterStatus>({
+    current: 0,
+    max: 500,
+    remained: 500,
+  })
+  const [modalOpened, setModalOpened] = React.useState(false)
+  const [modalContent, setModalContent] = React.useState<DialogContent | null>(null)
+  const [snackBarMessage, setSnackBarMessage] = React.useState('')
+  const [snackBarOpen, setSnackBarOpen] = React.useState(false)
+  const [menuAnchorElem, setMenuAnchorElem] = React.useState<HTMLElement | null>(null)
+  const darkMode = MaterialUI.useMediaQuery('(prefers-color-scheme:dark)')
+  // 파이어폭스의 팝업 가로폭 문제
+  // 참고: popup.css
+  const [initialLoading, setInitialLoading] = React.useState(true)
+  const shrinkedPopup = MaterialUI.useMediaQuery('(width:348px), (width:425px)')
+  const theme = React.useMemo(() => RedBlockUITheme(darkMode), [darkMode])
+  const classes = useStylesForAppBar()
+  function openDialog(content: DialogContent) {
+    console.debug(content)
+    setModalOpened(true)
+    setModalContent(content)
+  }
+  function closeModal() {
+    setModalOpened(false)
+  }
+  function switchPage(page: PageEnum) {
+    setTabIndex(page)
+  }
+  function handleMenuButtonClick(event: React.MouseEvent<HTMLButtonElement>) {
+    setMenuAnchorElem(event.currentTarget)
+  }
+  function openSnackBar(message: string) {
+    setSnackBarMessage(message)
+    setSnackBarOpen(true)
+  }
+  function handleSnackBarClose(_event: React.SyntheticEvent | React.MouseEvent, reason?: string) {
+    if (reason === 'clickaway') {
       return
     }
-    openModal({
-      dialogType: 'confirm',
-      message: confirmMessage,
-      callbackOnOk() {
-        return browser.runtime.sendMessage<RBMessageToBackground.StartSession>({
-          messageType: 'StartSession',
-          messageTo: 'background',
-          sessionId,
-        })
-      },
-    })
+    setSnackBarOpen(false)
+  }
+  const availablePages: AvailablePages = {
+    followerChainBlock: !!myself,
+    tweetReactionChainBlock: !!(myself && currentTweet),
+    userSearchChainBlock: !!(myself && currentSearchQuery),
+    importChainBlock: !!myself,
+    miscellaneous: !!myself,
   }
   React.useEffect(() => {
     const messageListener = (msg: object) => {
@@ -148,34 +250,24 @@ function PopupApp(props: PopupAppProps) {
       }
       switch (msg.messageType) {
         case 'ChainBlockInfo':
+          setInitialLoading(false)
           setSessions(msg.sessions)
           setLimiterStatus(msg.limiter)
           break
         case 'PopupSwitchTab':
           setTabIndex(msg.page)
           break
-        case 'ConfirmChainBlockInPopup':
-          handleConfirm(msg)
-          break
         default:
           break
       }
     }
     browser.runtime.onMessage.addListener(messageListener)
-    const interval = window.setInterval(() => {
-      requestProgress().catch(() => {})
-    }, UI_UPDATE_DELAY)
     // clean-up
     return () => {
       browser.runtime.onMessage.removeListener(messageListener)
-      window.clearInterval(interval)
     }
   }, [])
-  const runningSessions = React.useMemo(
-    () => sessions.filter(session => isRunningSession(session)),
-    [sessions]
-  )
-  const M = MaterialUI
+  const runningSessions = sessions.filter(session => isRunningSession(session))
   const runningSessionsTabIcon = (
     <M.Badge
       color="secondary"
@@ -185,90 +277,109 @@ function PopupApp(props: PopupAppProps) {
         horizontal: 'right',
       }}
     >
-      <M.Icon>play_circle_filled_white_icon</M.Icon>
+      {pageIcon(PageEnum.Sessions)}
     </M.Badge>
   )
   return (
     <M.ThemeProvider theme={theme}>
-      <SnackBarContext.Provider value={{ snack }}>
-        <DialogContext.Provider value={{ openModal }}>
-          <LoginStatusContext.Provider value={{ loggedIn }}>
-            <RedBlockOptionsContext.Provider value={redblockOptions}>
-              <BlockLimiterContext.Provider value={limiterStatus}>
-                <PageSwitchContext.Provider value={{ switchPage }}>
-                  <M.AppBar position="fixed">
-                    <M.Toolbar variant="dense" className={classes.toolbar}>
-                      <M.IconButton color="inherit" onClick={handleMenuButtonClick}>
-                        <M.Icon>menu</M.Icon>
-                      </M.IconButton>
-                      <M.Tabs value={tabIndex} onChange={(_ev, val) => setTabIndex(val)}>
-                        <M.Tooltip
-                          arrow
-                          title={`${i18n.getMessage('running_sessions')} (${
-                            runningSessions.length
-                          })`}
-                        >
-                          <M.Tab className={classes.tab} icon={runningSessionsTabIcon} />
-                        </M.Tooltip>
-                        <M.Tooltip arrow title={i18n.getMessage('new_follower_session')}>
-                          <M.Tab className={classes.tab} icon={<M.Icon>group</M.Icon>} />
-                        </M.Tooltip>
-                        <M.Tooltip arrow title={i18n.getMessage('new_tweetreaction_session')}>
-                          <M.Tab
-                            className={classes.tab}
-                            disabled={!currentTweet}
-                            icon={<M.Icon>repeat</M.Icon>}
-                          />
-                        </M.Tooltip>
-                        <M.Tooltip arrow title={i18n.getMessage('blocklist_page')}>
-                          <M.Tab className={classes.tab} icon={<M.Icon>list_alt</M.Icon>} />
-                        </M.Tooltip>
-                        <M.Tooltip arrow title={i18n.getMessage('miscellaneous')}>
-                          <M.Tab className={classes.tab} icon={<M.Icon>build</M.Icon>} />
-                        </M.Tooltip>
-                      </M.Tabs>
-                    </M.Toolbar>
-                  </M.AppBar>
-                  <M.Menu
-                    keepMounted
-                    anchorEl={menuAnchorEl}
-                    open={Boolean(menuAnchorEl)}
-                    onClose={closeMenu}
-                  >
-                    {!isPopupOpenedInTab && (
-                      <M.MenuItem onClick={handleOpenInTabClick}>
-                        <M.Icon>open_in_new</M.Icon> {i18n.getMessage('open_in_new_tab')}
-                      </M.MenuItem>
-                    )}
-                    <M.MenuItem onClick={handleSettingsClick}>
-                      <M.Icon>settings</M.Icon> {i18n.getMessage('open_settings_ui')}
-                    </M.MenuItem>
-                  </M.Menu>
-                  <div className="page">
-                    <M.Container maxWidth="sm">
-                      <TabPanel value={tabIndex} index={PageEnum.Sessions}>
-                        <ChainBlockSessionsPage sessions={sessions} />
-                      </TabPanel>
-                      <TabPanel value={tabIndex} index={PageEnum.NewSession}>
-                        <NewChainBlockPage currentUser={currentUser} />
-                      </TabPanel>
-                      <TabPanel value={tabIndex} index={PageEnum.NewTweetReactionBlock}>
-                        <NewTweetReactionBlockPage currentTweet={currentTweet} />
-                      </TabPanel>
-                      <TabPanel value={tabIndex} index={PageEnum.Blocklist}>
-                        <BlocklistPage />
-                      </TabPanel>
-                      <TabPanel value={tabIndex} index={PageEnum.Utilities}>
-                        <MiscPage />
-                      </TabPanel>
-                    </M.Container>
-                  </div>
-                </PageSwitchContext.Provider>
-              </BlockLimiterContext.Provider>
-            </RedBlockOptionsContext.Provider>
-          </LoginStatusContext.Provider>
-        </DialogContext.Provider>
-      </SnackBarContext.Provider>
+      <UIContext.Provider
+        value={{
+          openDialog,
+          openSnackBar,
+          switchPage,
+          shrinkedPopup,
+          popupOpenedInTab,
+          menuAnchorElem,
+          setMenuAnchorElem,
+          availablePages,
+          initialLoading,
+        }}
+      >
+        <MyselfContext.Provider value={myself}>
+          <RedBlockOptionsContext.Provider value={redblockOptions}>
+            <BlockLimiterContext.Provider value={limiterStatus}>
+              <M.AppBar position="fixed">
+                <M.Toolbar variant="dense" className={classes.toolbar}>
+                  <M.IconButton color="inherit" onClick={handleMenuButtonClick}>
+                    <M.Icon>menu</M.Icon>
+                  </M.IconButton>
+                  <M.Tabs value={tabIndex} onChange={(_ev, val) => setTabIndex(val)}>
+                    <M.Tooltip arrow title={pageLabel(PageEnum.Sessions, runningSessions.length)}>
+                      <M.Tab className={classes.tab} icon={runningSessionsTabIcon} />
+                    </M.Tooltip>
+                    <M.Tooltip arrow title={pageLabel(PageEnum.NewSession)}>
+                      <M.Tab
+                        className={classes.tab}
+                        icon={pageIcon(PageEnum.NewSession)}
+                        disabled={!availablePages.followerChainBlock}
+                      />
+                    </M.Tooltip>
+                    <M.Tooltip arrow title={pageLabel(PageEnum.NewTweetReactionBlock)}>
+                      <M.Tab
+                        className={classes.tab}
+                        icon={pageIcon(PageEnum.NewTweetReactionBlock)}
+                        disabled={!availablePages.tweetReactionChainBlock}
+                      />
+                    </M.Tooltip>
+                    <M.Tooltip arrow title={pageLabel(PageEnum.NewSearchChainBlock)}>
+                      <M.Tab
+                        className={classes.tab}
+                        icon={pageIcon(PageEnum.NewSearchChainBlock)}
+                        disabled={!availablePages.userSearchChainBlock}
+                      />
+                    </M.Tooltip>
+                    <M.Tooltip arrow title={pageLabel(PageEnum.Blocklist)}>
+                      <M.Tab
+                        className={classes.tab}
+                        icon={pageIcon(PageEnum.Blocklist)}
+                        disabled={!availablePages.importChainBlock}
+                      />
+                    </M.Tooltip>
+                    <M.Tooltip arrow title={pageLabel(PageEnum.Utilities)}>
+                      <M.Tab
+                        className={classes.tab}
+                        icon={pageIcon(PageEnum.Utilities)}
+                        disabled={!availablePages.miscellaneous}
+                      />
+                    </M.Tooltip>
+                  </M.Tabs>
+                </M.Toolbar>
+              </M.AppBar>
+              <PopupUITopMenu {...{ runningSessions, currentTweet, currentSearchQuery }} />
+              <div className="page">
+                <M.Container maxWidth="sm" disableGutters>
+                  <TabPanel value={tabIndex} index={PageEnum.Sessions}>
+                    <ChainBlockSessionsPage sessions={sessions} />
+                  </TabPanel>
+                  <FollowerChainBlockPageStatesProvider initialUser={currentUser}>
+                    <TabPanel value={tabIndex} index={PageEnum.NewSession}>
+                      <NewChainBlockPage />
+                    </TabPanel>
+                  </FollowerChainBlockPageStatesProvider>
+                  <TweetReactionChainBlockPageStatesProvider initialTweet={currentTweet}>
+                    <TabPanel value={tabIndex} index={PageEnum.NewTweetReactionBlock}>
+                      <NewTweetReactionBlockPage />
+                    </TabPanel>
+                  </TweetReactionChainBlockPageStatesProvider>
+                  <UserSearchChainBlockPageStatesProvider currentSearchQuery={currentSearchQuery}>
+                    <TabPanel value={tabIndex} index={PageEnum.NewSearchChainBlock}>
+                      <NewSearchChainBlockPage />
+                    </TabPanel>
+                  </UserSearchChainBlockPageStatesProvider>
+                  <ImportChainBlockPageStatesProvider>
+                    <TabPanel value={tabIndex} index={PageEnum.Blocklist}>
+                      <BlocklistPage />
+                    </TabPanel>
+                  </ImportChainBlockPageStatesProvider>
+                  <TabPanel value={tabIndex} index={PageEnum.Utilities}>
+                    <MiscPage />
+                  </TabPanel>
+                </M.Container>
+              </div>
+            </BlockLimiterContext.Provider>
+          </RedBlockOptionsContext.Provider>
+        </MyselfContext.Provider>
+      </UIContext.Provider>
       <M.Snackbar
         anchorOrigin={{
           horizontal: 'center',
@@ -301,15 +412,34 @@ function showVersionOnFooter() {
 }
 
 interface TabContext {
+  myself: TwitterUser | null
   currentUser: TwitterUser | null
   currentTweet: Tweet | null
+  currentSearchQuery: string | null
 }
 
 async function getTabContext(): Promise<TabContext> {
+  const myself = await TwitterAPI.getMyself().catch(() => null)
+  if (!myself) {
+    return {
+      myself,
+      currentUser: null,
+      currentTweet: null,
+      currentSearchQuery: null,
+    }
+  }
   const tab = await getCurrentTab()
-  const tweetId = tab ? getTweetIdFromTab(tab) : null
-  const userId = tab ? getUserIdFromTab(tab) : null
-  const userName = tab ? getUserNameFromTab(tab) : null
+  if (!tab) {
+    return {
+      myself,
+      currentUser: null,
+      currentTweet: null,
+      currentSearchQuery: null,
+    }
+  }
+  const tweetId = getTweetIdFromTab(tab)
+  const userId = getUserIdFromTab(tab)
+  const userName = getUserNameFromTab(tab)
   const currentTweet = await (tweetId ? TwitterAPI.getTweetById(tweetId).catch(() => null) : null)
   let currentUser: TwitterUser | null = null
   if (currentTweet) {
@@ -319,50 +449,49 @@ async function getTabContext(): Promise<TabContext> {
   } else if (userId) {
     currentUser = await TwitterAPI.getSingleUserById(userId).catch(() => null)
   }
+  const currentSearchQuery = getCurrentSearchQueryFromTab(tab)
   return {
+    myself,
     currentTweet,
     currentUser,
+    currentSearchQuery,
   }
 }
 
 export async function initializeUI() {
-  browser.runtime.sendMessage<RBMessageToBackground.RequestCleanup>({
-    messageType: 'RequestCleanup',
-    messageTo: 'background',
-    cleanupWhat: 'not-confirmed',
-  })
   const redblockOptions = loadOptions()
-  const loggedIn = TwitterAPI.getMyself().then(
-    () => true,
-    () => false
-  )
-  const isPopupOpenedInTab = /\bistab=1\b/.test(location.search)
+  const popupOpenedInTab = /\bistab=1\b/.test(location.search)
   let initialPage: PageEnum
-  const initialPageMatch = /\bpage=([0-4])\b/.exec(location.search)
+  const initialPageMatch = /\bpage=([0-5])\b/.exec(location.search)
   if (initialPageMatch) {
     initialPage = parseInt(initialPageMatch[1]) as PageEnum
   } else {
     initialPage = PageEnum.Sessions
   }
-  const { currentTweet, currentUser } = await getTabContext()
+  const { myself, currentTweet, currentUser, currentSearchQuery } = await getTabContext()
   const appRoot = document.getElementById('app')!
   const app = (
     <PopupApp
-      loggedIn={await loggedIn}
+      myself={myself}
       currentUser={currentUser}
       currentTweet={currentTweet}
-      isPopupOpenedInTab={isPopupOpenedInTab}
+      currentSearchQuery={currentSearchQuery}
+      popupOpenedInTab={popupOpenedInTab}
       initialPage={initialPage}
       redblockOptions={await redblockOptions}
     />
   )
   ReactDOM.render(app, appRoot)
   showVersionOnFooter()
-  if (isPopupOpenedInTab) {
+  if (popupOpenedInTab) {
     document.body.classList.add('ui-tab')
   } else {
     document.body.classList.add('ui-popup')
   }
+  requestProgress().catch(() => {})
+  window.setInterval(() => {
+    requestProgress().catch(() => {})
+  }, UI_UPDATE_DELAY)
 }
 
 initializeUI()

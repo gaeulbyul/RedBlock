@@ -23,7 +23,7 @@ export async function getMyself(): Promise<TwitterUser> {
 
 export async function getRateLimitStatus(): Promise<LimitStatus> {
   const response = await requestAPI('get', '/application/rate_limit_status.json')
-  const resources = (await response.json()).resources as LimitStatus
+  const { resources } = await response.json()
   return resources
 }
 
@@ -78,6 +78,20 @@ export async function unmuteUser(user: TwitterUser) {
     return true
   }
   const response = await requestAPI('post', '/mutes/users/destroy.json', {
+    user_id: user.id_str,
+  })
+  if (response.ok) {
+    return true
+  } else {
+    throw new APIFailError('error', response)
+  }
+}
+
+export async function unfollowUser(user: TwitterUser) {
+  if (!user.following) {
+    return true
+  }
+  const response = await requestAPI('post', '/friendships/destroy.json', {
     user_id: user.id_str,
   })
   if (response.ok) {
@@ -269,6 +283,24 @@ export async function getRetweetersIds(tweet: Tweet): Promise<UserIdsResponse> {
   }
 }
 
+export async function searchUsers(query: string, cursor?: string): Promise<APIv2Response> {
+  const response = await requestAPIv2('get', '/search/adaptive.json', {
+    q: query,
+    result_filter: 'user',
+    count: 200,
+    query_source: 'typed_query',
+    pc: 1,
+    spelling_corrections: 0,
+    cursor,
+    // ext: 'mediaStats,highlightedLabel',
+  })
+  if (response.ok) {
+    return response.json()
+  } else {
+    throw new APIFailError('error', response)
+  }
+}
+
 async function getCsrfTokenFromCookies(): Promise<string> {
   const csrfTokenCookie = await browser.cookies.get({
     url: 'https://twitter.com',
@@ -378,6 +410,85 @@ export function parseAuthMultiCookie(authMulti: string): MultiAccountCookies {
   return Object.fromEntries(userTokenPairs)
 }
 
+function prepareParams(params: URLSearchParams, additional: URLParamsObj = {}): void {
+  setDefaultParams(params)
+  for (const [key, value] of Object.entries(additional)) {
+    if (value == null) {
+      continue
+    }
+    params.set(key, value.toString())
+  }
+}
+
+function prepareMoreParams(params: URLSearchParams) {
+  params.set('include_can_media_tag', '1')
+  params.set('skip_status', '1')
+  params.set('cards_platform', 'Web-12')
+  params.set('include_cards', '1')
+  params.set('include_ext_alt_text', 'true')
+  params.set('include_quote_count', 'true')
+  params.set('include_reply_count', '1')
+  params.set('tweet_mode', 'extended')
+  params.set('include_entities', 'true')
+  params.set('include_user_entities', 'true')
+  params.set('include_ext_media_color', 'true')
+  params.set('include_ext_media_availability', 'true')
+  params.set('send_error_codes', 'true')
+  params.set('simple_quoted_tweet', 'true')
+}
+
+export function getNextCursorFromAPIv2Response(response: APIv2Response): string | null {
+  try {
+    const { instructions } = response.timeline
+    const entries: any[] = []
+    for (const inst of instructions) {
+      if ('addEntries' in inst) {
+        entries.push(...inst.addEntries.entries)
+      } else if ('replaceEntry' in inst) {
+        entries.push(inst.replaceEntry.entry)
+      }
+    }
+    entries.reverse()
+    const bottomEntry = entries.find(entry => entry.entryId === 'sq-cursor-bottom')
+    if (!bottomEntry) {
+      return null
+    }
+    return bottomEntry.content.operation.cursor.value
+  } catch (err) {
+    console.warn('failed to find v2 cursor in %o', response)
+    if (err instanceof TypeError) {
+      return null
+    } else {
+      throw err
+    }
+  }
+}
+
+async function requestAPIv2(
+  method: HTTPMethods,
+  path: string,
+  paramsObj: URLParamsObj = {}
+): Promise<Response> {
+  const fetchOptions = await generateTwitterAPIOptions({ method }, '')
+  const url = new URL('https://twitter.com/i/api/2' + path)
+  let params: URLSearchParams
+  if (method === 'get') {
+    params = url.searchParams
+  } else {
+    params = new URLSearchParams()
+    fetchOptions.body = params
+  }
+  prepareParams(params, paramsObj)
+  prepareMoreParams(params)
+  const response = await fetch(url.toString(), fetchOptions)
+  if (response.status === 429) {
+    throw new RateLimitError('rate limited')
+  } else if (!response.ok) {
+    throw new APIFailError('api response is not ok', response)
+  }
+  return response
+}
+
 async function requestAPI(
   method: HTTPMethods,
   path: string,
@@ -393,21 +504,29 @@ async function requestAPI(
     params = new URLSearchParams()
     fetchOptions.body = params
   }
-  setDefaultParams(params)
-  for (const [key, value] of Object.entries(paramsObj)) {
-    params.set(key, value.toString())
-  }
+  prepareParams(params, paramsObj)
   const response = await fetch(url.toString(), fetchOptions)
   if (response.status === 429) {
     throw new RateLimitError('rate limited')
   } else if (!response.ok) {
+    response
+      .clone()
+      .json()
+      .then(
+        json => {
+          console.error('api error', json)
+        },
+        err => {
+          console.error('unknown error', err)
+        }
+      )
     throw new APIFailError('api response is not ok', response)
   }
   return response
 }
 
 type HTTPMethods = 'get' | 'delete' | 'post' | 'put'
-type URLParamsObj = { [key: string]: string | number | boolean }
+type URLParamsObj = { [key: string]: string | number | boolean | null | undefined }
 
 export interface TwitterUser {
   id_str: string
@@ -561,6 +680,9 @@ export interface LimitStatus {
   users: {
     '/users/lookup': Limit
   }
+  search: {
+    '/search/adaptive': Limit
+  }
 }
 
 export interface MultiAccountCookies {
@@ -571,4 +693,16 @@ export interface ActAsExtraCookies {
   auth_token: string
   auth_multi: string
   twid: string
+}
+
+export interface APIv2Response {
+  globalObjects: {
+    tweets: { [tweetId: string]: Tweet }
+    users: { [userId: string]: TwitterUser }
+  }
+  timeline: {
+    // TODO
+    id: string
+    instructions: any[]
+  }
 }

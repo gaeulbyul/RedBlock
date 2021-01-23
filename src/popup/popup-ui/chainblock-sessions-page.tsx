@@ -4,16 +4,16 @@ import {
   getLimitResetTime,
   getCountOfUsersToBlock,
 } from '../../scripts/common.js'
-import { PageEnum } from '../popup.js'
+import { PageEnum, pageIcon, pageLabel } from './pages.js'
 import {
   cleanupInactiveSessions,
   stopAllChainBlock,
   stopChainBlock,
   downloadFromExportSession,
 } from '../../scripts/background/request-sender.js'
-import { DialogContext, PageSwitchContext, BlockLimiterContext } from './contexts.js'
+import { UIContext, MyselfContext } from './contexts.js'
 import { statusToString } from '../../scripts/text-generate.js'
-import { BlockLimiterUI } from './ui-common.js'
+import { BlockLimiterUI, PleaseLoginBox } from './components.js'
 import * as i18n from '../../scripts/i18n.js'
 
 const M = MaterialUI
@@ -29,7 +29,6 @@ function calculatePercentage(session: SessionInfo): number | null {
   if (typeof max === 'number') {
     // Math.min : bioBlock모드로 인해 total보다 더 많은 유저를 수집할 수도 있다.
     // 100%가 안 넘도록 함
-    // TODO: 근데 제대로 계산할 수 있었음 좋겠다.
     return Math.min(100, Math.round((scraped / max) * 1000) / 10)
   } else {
     return null
@@ -51,7 +50,7 @@ function ChainBlockSessionItem(props: { sessionInfo: SessionInfo }) {
   const { sessionInfo } = props
   const { sessionId } = sessionInfo
   const { purpose, target } = sessionInfo.request
-  const modalContext = React.useContext(DialogContext)
+  const uiContext = React.useContext(UIContext)
   const classes = useStylesForSessionItem()
   const [expanded, setExpanded] = React.useState(false)
   const [downloadButtonClicked, setDownloadButtonClicked] = React.useState(false)
@@ -82,13 +81,18 @@ function ChainBlockSessionItem(props: { sessionInfo: SessionInfo }) {
     case 'import':
       user = null
       localizedTarget = i18n.getMessage('from_imported_blocklist')
+      break
+    case 'user_search':
+      user = null
+      localizedTarget = i18n.getMessage('from_user_search_result')
+      break
   }
   const localizedPurpose = i18n.getMessage(purpose)
   const cardTitle = `${localizedPurpose} ${statusToString(sessionInfo.status)}`
   function renderControls() {
     function requestStopChainBlock() {
       if (isRunningSession(sessionInfo)) {
-        modalContext.openModal({
+        uiContext.openDialog({
           dialogType: 'confirm',
           message: {
             title: i18n.getMessage('confirm_session_stop_message'),
@@ -100,7 +104,7 @@ function ChainBlockSessionItem(props: { sessionInfo: SessionInfo }) {
         return
       }
       if (purpose === 'export' && !downloadButtonClicked) {
-        modalContext.openModal({
+        uiContext.openDialog({
           dialogType: 'confirm',
           message: {
             title: i18n.getMessage('confirm_closing_export_session_notyet_save'),
@@ -125,7 +129,7 @@ function ChainBlockSessionItem(props: { sessionInfo: SessionInfo }) {
       if (sessionInfo.progress.scraped > 0) {
         downloadFromExportSession(sessionInfo.sessionId)
       } else {
-        modalContext.openModal({
+        uiContext.openDialog({
           dialogType: 'alert',
           message: {
             title: i18n.getMessage('blocklist_is_empty'),
@@ -168,38 +172,33 @@ function ChainBlockSessionItem(props: { sessionInfo: SessionInfo }) {
       </React.Fragment>
     )
   }
+  function progressTableRow(left: string, right: string | number) {
+    const rightCell = typeof right === 'string' ? right : right.toLocaleString()
+    return (
+      <M.TableRow>
+        <M.TableCell>{left}</M.TableCell>
+        <M.TableCell align="right">{rightCell}</M.TableCell>
+      </M.TableRow>
+    )
+  }
   function renderTable() {
     const { progress: p } = sessionInfo
-    const { TableContainer, Table, TableBody, TableRow: Row, TableCell: Cell } = MaterialUI
+    const { TableContainer, Table, TableBody } = MaterialUI
     const { success: s } = p
     return (
       <TableContainer>
-        <Table>
+        <Table size="small">
           <TableBody>
-            <Row>
-              <Cell>
-                {i18n.getMessage('block')} / {i18n.getMessage('unblock')}
-              </Cell>
-              <Cell align="right">
-                {s.Block.toLocaleString()} / {s.UnBlock.toLocaleString()}
-              </Cell>
-            </Row>
-            <Row>
-              <Cell>{i18n.getMessage('mute')}</Cell>
-              <Cell align="right">{s.Mute.toLocaleString()}</Cell>
-            </Row>
-            <Row>
-              <Cell>{i18n.getMessage('already_done')}</Cell>
-              <Cell align="right">{p.already.toLocaleString()}</Cell>
-            </Row>
-            <Row>
-              <Cell>{i18n.getMessage('skipped')}</Cell>
-              <Cell align="right">{p.skipped.toLocaleString()}</Cell>
-            </Row>
-            <Row>
-              <Cell>{i18n.getMessage('failed')}</Cell>
-              <Cell align="right">{p.failure.toLocaleString()}</Cell>
-            </Row>
+            {progressTableRow(
+              `${i18n.getMessage('block')} / ${i18n.getMessage('unblock')}`,
+              `${s.Block.toLocaleString()} / ${s.UnBlock.toLocaleString()}`
+            )}
+            {progressTableRow(i18n.getMessage('mute'), s.Mute)}
+            {progressTableRow(i18n.getMessage('unfollow'), s.UnFollow)}
+            {progressTableRow(i18n.getMessage('block_and_unblock'), s.BlockAndUnBlock)}
+            {progressTableRow(i18n.getMessage('already_done'), p.already)}
+            {progressTableRow(i18n.getMessage('skipped'), p.skipped)}
+            {progressTableRow(i18n.getMessage('failed'), p.failure)}
           </TableBody>
         </Table>
       </TableContainer>
@@ -253,6 +252,12 @@ function ChainBlockSessionItem(props: { sessionInfo: SessionInfo }) {
       shortProgress = `${i18n.getMessage(
         'export'
       )}: ${sessionInfo.progress.scraped.toLocaleString()}`
+      break
+    case 'lockpicker':
+      shortProgress = `${i18n.getMessage('block')}: ${succProgress.Block.toLocaleString()}`
+      break
+    case 'chainunfollow':
+      shortProgress = `${i18n.getMessage('unfollow')}: ${succProgress.UnFollow.toLocaleString()}`
   }
   return (
     <M.Card className={classes.card}>
@@ -277,83 +282,120 @@ function ChainBlockSessionItem(props: { sessionInfo: SessionInfo }) {
   )
 }
 
-const useStylesForFabButton = MaterialUI.makeStyles(theme =>
-  MaterialUI.createStyles({
-    fab: {
-      position: 'fixed',
-      bottom: theme.spacing(5),
-      right: theme.spacing(2),
-    },
-  })
-)
+function GlobalControls() {
+  const uiContext = React.useContext(UIContext)
+  function requestStopAllChainBlock() {
+    uiContext.openDialog({
+      dialogType: 'confirm',
+      message: {
+        title: i18n.getMessage('confirm_all_stop'),
+      },
+      callbackOnOk: stopAllChainBlock,
+    })
+  }
+  return (
+    <M.ButtonGroup>
+      <M.Button onClick={requestStopAllChainBlock}>
+        <M.Icon>highlight_off</M.Icon>
+        {i18n.getMessage('stop_all')}
+      </M.Button>
+      <M.Button onClick={cleanupInactiveSessions}>
+        <M.Icon>clear_all</M.Icon>
+        {i18n.getMessage('cleanup_sessions')}
+      </M.Button>
+    </M.ButtonGroup>
+  )
+}
 
 export default function ChainBlockSessionsPage(props: { sessions: SessionInfo[] }) {
   const { sessions } = props
-  const modalContext = React.useContext(DialogContext)
-  const pageSwitchCtx = React.useContext(PageSwitchContext)
-  const limiterStatus = React.useContext(BlockLimiterContext)
-  const classes = useStylesForFabButton()
-  function handleFabButtonClicked() {
-    pageSwitchCtx.switchPage(PageEnum.NewSession)
-  }
-  function renderGlobalControls() {
-    function requestStopAllChainBlock() {
-      modalContext.openModal({
-        dialogType: 'confirm',
-        message: {
-          title: i18n.getMessage('confirm_all_stop'),
-        },
-        callbackOnOk: stopAllChainBlock,
-      })
+  const myself = React.useContext(MyselfContext)
+  const uiContext = React.useContext(UIContext)
+  const { availablePages } = uiContext
+  function isPageAvailable(page: PageEnum) {
+    switch (page) {
+      case PageEnum.NewSession:
+        return availablePages.followerChainBlock
+      case PageEnum.NewTweetReactionBlock:
+        return availablePages.tweetReactionChainBlock
+      case PageEnum.NewSearchChainBlock:
+        return availablePages.userSearchChainBlock
+      default:
+        // 위에 3가지만 쓸 거다.
+        throw new Error('unreachable')
     }
-    return (
-      <M.ButtonGroup>
-        <M.Button onClick={requestStopAllChainBlock}>
-          <M.Icon>highlight_off</M.Icon>
-          {i18n.getMessage('stop_all')}
-        </M.Button>
-        <M.Button onClick={cleanupInactiveSessions}>
-          <M.Icon>clear_all</M.Icon>
-          {i18n.getMessage('cleanup_sessions')}
-        </M.Button>
-      </M.ButtonGroup>
-    )
+  }
+  function handleNewSessionButton(event: React.MouseEvent, page: PageEnum) {
+    event.preventDefault()
+    uiContext.switchPage(page)
   }
   function renderSessions() {
-    const visibleSessions = sessions.filter(session => session.confirmed)
     return (
-      <div className="chainblock-sessions">
-        {visibleSessions.map(session => (
+      <div>
+        {sessions.map(session => (
           <ChainBlockSessionItem sessionInfo={session} key={session.sessionId} />
         ))}
       </div>
     )
   }
-  function renderEmptySessions() {
+  function renderWelcome() {
     return (
       <M.Box display="flex" flexDirection="column" justifyContent="center" padding="12px 16px">
-        <M.Box display="flex" justifyContent="center">
+        <M.Box display="flex" justifyContent="center" padding="10px">
           <M.Icon color="disabled" style={{ fontSize: '100pt' }}>
             pause_circle_filled_icon
           </M.Icon>
         </M.Box>
-        <M.Box display="flex" justifyContent="center">
+        <M.Box display="flex" flexDirection="column" justifyContent="center" textAlign="center">
           {i18n.getMessage('session_is_empty')} {i18n.getMessage('press_plus_to_start_new_session')}
+          <M.Divider variant="middle" style={{ margin: '5px 0' }} />
+          <M.Box display="flex" flexDirection="row" justifyContent="center">
+            <M.Box minWidth="150px" maxWidth="300px">
+              {[
+                PageEnum.NewSession,
+                PageEnum.NewTweetReactionBlock,
+                PageEnum.NewSearchChainBlock,
+              ].map((page, index) => (
+                <M.Button
+                  key={index}
+                  fullWidth
+                  style={{ margin: '5px 0' }}
+                  variant="contained"
+                  startIcon={pageIcon(page)}
+                  disabled={!isPageAvailable(page)}
+                  onClick={e => handleNewSessionButton(e, page)}
+                >
+                  {pageLabel(page)}
+                </M.Button>
+              ))}
+            </M.Box>
+          </M.Box>
         </M.Box>
       </M.Box>
     )
   }
+  // 세션이 있어도 팝업 로딩 직후에 빈 세션이 잠깐 나타난다.
+  const shouldShowWelcomeNewSession = sessions.length <= 0 && !uiContext.initialLoading
   const isSessionExist = sessions.length > 0
   return (
     <div>
-      <M.Box marginBottom="15px">{renderGlobalControls()}</M.Box>
-      <BlockLimiterUI status={limiterStatus} />
-      {isSessionExist ? renderSessions() : renderEmptySessions()}
-      <M.Tooltip placement="left" title={i18n.getMessage('new_follower_session')}>
-        <M.Fab className={classes.fab} color="primary" onClick={handleFabButtonClicked}>
-          <M.Icon>add</M.Icon>
-        </M.Fab>
-      </M.Tooltip>
+      {myself ? (
+        <React.Fragment>
+          <BlockLimiterUI />
+          {isSessionExist && (
+            <React.Fragment>
+              <M.Box margin="10px 0">
+                <GlobalControls />
+              </M.Box>
+              {renderSessions()}
+            </React.Fragment>
+          )}
+          {shouldShowWelcomeNewSession && renderWelcome()}
+          {uiContext.initialLoading && <span>Loading...</span>}
+        </React.Fragment>
+      ) : (
+        <PleaseLoginBox />
+      )}
     </div>
   )
 }
