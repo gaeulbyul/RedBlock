@@ -217,6 +217,28 @@ export class TwClient {
       // ext: 'mediaStats,highlightedLabel',
     })
   }
+  private async sendRequest(request: RequestInit, url: URL) {
+    let newCsrfToken = ''
+    let maxRetryCount = 3
+    while (maxRetryCount-- > 0) {
+      if (newCsrfToken) {
+        insertHeader(request.headers!, 'x-redblock-override-ct0', newCsrfToken)
+      }
+      const response = await fetch(url.toString(), request)
+      const responseJson = await response.json()
+      if (response.ok) {
+        return responseJson
+      } else {
+        if (!newCsrfToken) {
+          newCsrfToken = response.headers.get('x-redblock-new-ct0') || ''
+          if (newCsrfToken) {
+            continue
+          }
+        }
+        return Promise.reject(responseJson as Promise<ErrorResponse>)
+      }
+    }
+  }
   private async request1(method: HTTPMethods, path: string, paramsObj: URLParamsObj = {}) {
     const fetchOptions = await generateTwitterAPIOptions({ method }, this.cookieOptions)
     const url = new URL(`https://${this.prefix}` + '/1.1' + path)
@@ -237,26 +259,7 @@ export class TwClient {
         this.cookieOptions.cookieStoreId
       )
     }
-    let newCsrfToken = ''
-    let maxRetryCount = 3
-    while (maxRetryCount-- > 0) {
-      if (newCsrfToken) {
-        insertHeader(fetchOptions.headers!, 'x-redblock-override-ct0', newCsrfToken)
-      }
-      const response = await fetch(url.toString(), fetchOptions)
-      const responseJson = await response.json()
-      if (response.ok) {
-        return responseJson
-      } else {
-        if (!newCsrfToken) {
-          newCsrfToken = response.headers.get('x-redblock-new-ct0') || ''
-          if (newCsrfToken) {
-            continue
-          }
-        }
-        return Promise.reject(responseJson as Promise<ErrorResponse>)
-      }
-    }
+    return this.sendRequest(fetchOptions, url)
   }
   private async request2(method: HTTPMethods, path: string, paramsObj: URLParamsObj = {}) {
     const fetchOptions = await generateTwitterAPIOptions({ method }, this.cookieOptions)
@@ -271,26 +274,7 @@ export class TwClient {
     }
     prepareParams(params, paramsObj)
     prepareMoreParams(params)
-    let newCsrfToken = ''
-    let maxRetryCount = 3
-    while (maxRetryCount-- > 0) {
-      if (newCsrfToken) {
-        insertHeader(fetchOptions.headers!, 'x-redblock-override-ct0', newCsrfToken)
-      }
-      const response = await fetch(url.toString(), fetchOptions)
-      const responseJson = await response.json()
-      if (response.ok) {
-        return responseJson
-      } else {
-        if (!newCsrfToken) {
-          newCsrfToken = response.headers.get('x-redblock-new-ct0') || ''
-          if (newCsrfToken) {
-            continue
-          }
-        }
-        return Promise.reject(responseJson as Promise<ErrorResponse>)
-      }
-    }
+    return this.sendRequest(fetchOptions, url)
   }
 }
 
@@ -307,19 +291,6 @@ function insertHeader(
     headers[name] = value
   }
 }
-
-export class RateLimitError extends Error {
-  public constructor(message: string, public readonly response?: Response) {
-    super(message)
-  }
-}
-
-export class APIFailError extends Error {
-  public constructor(message: string, public readonly response?: Response) {
-    super(message)
-  }
-}
-
 async function generateTwitterAPIOptions(
   obj: RequestInit,
   cookieOptions: CookieOptions
@@ -417,6 +388,12 @@ export function getNextCursorFromAPIv2Response(response: APIv2Response): string 
     } else {
       throw err
     }
+  }
+}
+
+export class RateLimitError extends Error {
+  public constructor(message: string, public readonly response?: Response) {
+    super(message)
   }
 }
 
