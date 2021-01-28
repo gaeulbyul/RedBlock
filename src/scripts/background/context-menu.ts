@@ -156,6 +156,7 @@ export async function initializeContextMenu(chainblocker: ChainBlocker) {
   })
 
   menus.create({
+    contexts: ['link'],
     type: 'separator',
   })
   // 우클릭 - 트윗
@@ -222,7 +223,6 @@ export async function initializeContextMenu(chainblocker: ChainBlocker) {
   // 확장기능버튼
   menus.create({
     contexts: ['browser_action'],
-    documentUrlPatterns: tweetUrlPatterns,
     title: i18n.getMessage('open_in_new_tab'),
     onclick(_clickEvent, _tab) {
       const url = browser.runtime.getURL('/popup/popup.html') + '?istab=1'
@@ -234,7 +234,6 @@ export async function initializeContextMenu(chainblocker: ChainBlocker) {
   })
   menus.create({
     contexts: ['browser_action'],
-    documentUrlPatterns: tweetUrlPatterns,
     title: i18n.getMessage('options'),
     onclick(_clickEvent, _tab) {
       browser.runtime.openOptionsPage()
