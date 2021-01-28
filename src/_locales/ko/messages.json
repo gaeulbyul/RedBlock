@@ -712,5 +712,16 @@
   },
   "protected_follower": {
     "message": "프로텍트 팔로워"
+  },
+  "current_account": {
+    "message": "현재 계정: @$username$ ($name$)",
+    "placeholders": {
+      "username": {
+        "content": "$1"
+      },
+      "name": {
+        "content": "$2"
+      }
+    }
   }
 }

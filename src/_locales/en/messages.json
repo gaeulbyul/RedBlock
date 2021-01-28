@@ -712,5 +712,16 @@
   },
   "protected_follower": {
     "message": "Protected Follower"
+  },
+  "current_account": {
+    "message": "Current Account: @$username$ ($name)",
+    "placeholders": {
+      "username": {
+        "content": "$1"
+      },
+      "name": {
+        "content": "$1"
+      }
+    }
   }
 }

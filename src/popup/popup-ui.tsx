@@ -185,6 +185,18 @@ function PopupUITopMenu(props: {
   )
 }
 
+function PopupMyselfIcon(props: { myself: TwitterUser }) {
+  const { myself } = props
+  const description = i18n.getMessage('current_account', [myself.screen_name, myself.name])
+  return (
+    <M.Tooltip arrow placement="bottom-end" title={description}>
+      <M.Button>
+        <img width="24" style={{ borderRadius: '50%' }} src={myself.profile_image_url_https} />
+      </M.Button>
+    </M.Tooltip>
+  )
+}
+
 function PopupApp({
   myself,
   twClient,
@@ -309,7 +321,11 @@ function PopupApp({
                     <M.IconButton color="inherit" onClick={handleMenuButtonClick}>
                       <M.Icon>menu</M.Icon>
                     </M.IconButton>
-                    <M.Tabs value={tabIndex} onChange={(_ev, val) => setTabIndex(val)}>
+                    <M.Tabs
+                      style={{ flexGrow: 1 }}
+                      value={tabIndex}
+                      onChange={(_ev, val) => setTabIndex(val)}
+                    >
                       <M.Tooltip arrow title={pageLabel(PageEnum.Sessions, runningSessions.length)}>
                         <M.Tab className={classes.tab} icon={runningSessionsTabIcon} />
                       </M.Tooltip>
@@ -349,6 +365,7 @@ function PopupApp({
                         />
                       </M.Tooltip>
                     </M.Tabs>
+                    {myself && <PopupMyselfIcon {...{ myself }} />}
                   </M.Toolbar>
                 </M.AppBar>
                 <PopupUITopMenu {...{ runningSessions, currentTweet, currentSearchQuery }} />
