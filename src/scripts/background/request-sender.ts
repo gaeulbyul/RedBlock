@@ -68,11 +68,15 @@ export async function refreshSavedUsers(cookieOptions: CookieOptions) {
   })
 }
 
-export async function requestBlockLimiterStatus(blockLimiterOptions: BlockLimiterOptions) {
+export async function requestBlockLimiterStatus(
+  blockLimiterOptions: BlockLimiterOptions,
+  cookieStoreId: string
+) {
   return browser.runtime.sendMessage<RBMessageToBackground.RequestBlockLimiterStatus>({
     messageType: 'RequestBlockLimiterStatus',
     messageTo: 'background',
     blockLimiterOptions,
+    cookieStoreId,
   })
 }
 

@@ -258,6 +258,7 @@ function PopupApp({
     miscellaneous: !!myself,
   }
   React.useEffect(() => {
+    const { cookieStoreId } = twClient.cookieOptions
     const messageListener = (msg: object) => {
       if (!checkMessage(msg)) {
         console.debug('unknown message?', msg)
@@ -269,7 +270,9 @@ function PopupApp({
           setSessions(msg.sessions)
           break
         case 'BlockLimiterInfo':
-          setLimiterStatus(msg.status)
+          if (msg.cookieStoreId === cookieStoreId) {
+            setLimiterStatus(msg.status)
+          }
           break
         case 'PopupSwitchTab':
           setTabIndex(msg.page)
@@ -283,7 +286,7 @@ function PopupApp({
     return () => {
       browser.runtime.onMessage.removeListener(messageListener)
     }
-  }, [])
+  }, [twClient])
   const runningSessions = sessions.filter(session => isRunningSession(session))
   const runningSessionsTabIcon = (
     <M.Badge
@@ -514,12 +517,18 @@ export async function initializeUI() {
   }
   requestProgress().catch(() => {})
   if (myself) {
-    requestBlockLimiterStatus({ cookieStoreId, userId: myself.id_str }).catch(() => {})
+    requestBlockLimiterStatus(
+      { cookieStoreId, userId: myself.id_str },
+      cookieStoreId
+    ).catch(() => {})
   }
   window.setInterval(() => {
     requestProgress().catch(() => {})
     if (myself) {
-      requestBlockLimiterStatus({ cookieStoreId, userId: myself.id_str }).catch(() => {})
+      requestBlockLimiterStatus(
+        { cookieStoreId, userId: myself.id_str },
+        cookieStoreId
+      ).catch(() => {})
     }
   }, UI_UPDATE_DELAY)
 }

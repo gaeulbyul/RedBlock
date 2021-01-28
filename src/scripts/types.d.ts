@@ -110,6 +110,7 @@ declare namespace RBMessageToBackground {
     messageType: 'RequestBlockLimiterStatus'
     messageTo: 'background'
     blockLimiterOptions: BlockLimiterOptions
+    cookieStoreId: string
   }
 
   interface RequestResetCounter {
@@ -165,6 +166,7 @@ declare namespace RBMessageToPopup {
     messageType: 'BlockLimiterInfo'
     messageTo: 'popup'
     status: BlockLimiterStatus
+    cookieStoreId: string
   }
 
   interface PopupSwitchTab {

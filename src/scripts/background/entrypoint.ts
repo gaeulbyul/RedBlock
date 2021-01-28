@@ -54,7 +54,7 @@ async function sendProgress() {
     .catch(() => {})
 }
 
-async function sendBlockLimiterStatus(options: BlockLimiterOptions) {
+async function sendBlockLimiterStatus(options: BlockLimiterOptions, cookieStoreId: string) {
   const blockLimiter = new BlockLimiter(options)
   return browser.runtime.sendMessage<RBMessageToPopup.BlockLimiterInfo>({
     messageType: 'BlockLimiterInfo',
@@ -64,6 +64,7 @@ async function sendBlockLimiterStatus(options: BlockLimiterOptions) {
       max: blockLimiter.max,
       remained: blockLimiter.max - blockLimiter.count,
     },
+    cookieStoreId,
   })
 }
 
@@ -142,7 +143,7 @@ function handleExtensionMessage(
       refreshSavedUsers(message.cookieOptions)
       break
     case 'RequestBlockLimiterStatus':
-      sendBlockLimiterStatus(message.blockLimiterOptions)
+      sendBlockLimiterStatus(message.blockLimiterOptions, message.cookieStoreId)
       break
     case 'RequestResetCounter':
       {
