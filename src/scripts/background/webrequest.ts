@@ -202,16 +202,14 @@ function initializeBlockAPILimiter() {
   browser.webRequest.onBeforeSendHeaders.addListener(
     details => {
       const { originUrl, method, requestHeaders } = details
+      // @ts-ignore
+      const { cookieStoreId } = details
       // Service Worker에서 실행한 건 안 쳐준다. (중복 카운팅 방지)
       const shouldCount = originUrl !== 'https://twitter.com/sw.js' && method === 'POST'
       if (!shouldCount) {
         return { cancel: false }
       }
-      // @ts-ignore
-      const blockLimiterOptions = generateBlockLimiterOptions(
-        requestHeaders!,
-        details.cookieStoreId
-      )
+      const blockLimiterOptions = generateBlockLimiterOptions(requestHeaders!, cookieStoreId)
       if (!blockLimiterOptions) {
         return { cancel: false }
       }
