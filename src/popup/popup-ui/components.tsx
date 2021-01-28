@@ -223,7 +223,12 @@ export function BlockLimiterUI() {
             {i18n.getMessage('wtf_twitter')}
           </T>
         </M.Box>
-        <M.Button type="button" variant="outlined" onClick={handleResetButtonClick}>
+        <M.Button
+          type="button"
+          variant="outlined"
+          onClick={handleResetButtonClick}
+          disabled={current <= 0}
+        >
           Reset
         </M.Button>
       </M.Box>
