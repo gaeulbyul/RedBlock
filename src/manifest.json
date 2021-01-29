@@ -23,8 +23,7 @@
     "tabs",
     "downloads",
     "webRequest",
-    "webRequestBlocking",
-    "contextualIdentities"
+    "webRequestBlocking"
   ],
 
   "options_ui": {
