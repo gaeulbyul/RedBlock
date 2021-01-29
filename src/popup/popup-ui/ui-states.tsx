@@ -129,7 +129,7 @@ export function FollowerChainBlockPageStatesProvider(props: {
   if (userSelectionState.purpose === 'lockpicker') {
     availablePurposes.push('lockpicker')
   } else {
-    availablePurposes.push('chainblock', 'unchainblock', 'export')
+    availablePurposes.push('chainblock', 'unchainblock', 'export', 'chainunfollow')
   }
   const { purpose } = userSelectionState
   function setPurpose(p: Purpose) {
@@ -161,7 +161,11 @@ export function TweetReactionChainBlockPageStatesProvider(props: {
   const [wantBlockRetweeters, setWantBlockRetweeters] = React.useState<boolean>(false)
   const [wantBlockLikers, setWantBlockLikers] = React.useState<boolean>(false)
   const [wantBlockMentionedUsers, setWantBlockMentionedUsers] = React.useState<boolean>(false)
-  const availablePurposes: TweetReactionBlockSessionRequest['purpose'][] = ['chainblock', 'export']
+  const availablePurposes: TweetReactionBlockSessionRequest['purpose'][] = [
+    'chainblock',
+    'export',
+    'chainunfollow',
+  ]
   const [purpose, setPurpose] = usePurpose(availablePurposes, 'chainblock')
   return (
     <TweetReactionChainBlockPageStatesContext.Provider
@@ -185,7 +189,11 @@ export function TweetReactionChainBlockPageStatesProvider(props: {
 export function ImportChainBlockPageStatesProvider(props: { children: React.ReactNode }) {
   const [blocklist, setBlocklist] = React.useState<Blocklist>(emptyBlocklist)
   const [nameOfSelectedFiles, setNameOfSelectedFiles] = React.useState<string[]>([])
-  const availablePurposes: ImportBlockSessionRequest['purpose'][] = ['chainblock', 'unchainblock']
+  const availablePurposes: ImportBlockSessionRequest['purpose'][] = [
+    'chainblock',
+    'unchainblock',
+    'chainunfollow',
+  ]
   const [purpose, setPurpose] = usePurpose(availablePurposes, 'chainblock')
   return (
     <ImportChainBlockPageStatesContext.Provider
@@ -210,6 +218,7 @@ export function UserSearchChainBlockPageStatesProvider(props: {
   const availablePurposes: UserSearchBlockSessionRequest['purpose'][] = [
     'chainblock',
     'unchainblock',
+    'chainunfollow',
   ]
   const [purpose, setPurpose] = usePurpose(availablePurposes, 'chainblock')
   return (
