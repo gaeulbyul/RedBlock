@@ -8,7 +8,6 @@ import {
   insertUserToStorage,
   removeUserFromStorage,
   startNewChainBlockSession,
-  refreshSavedUsers,
 } from '../../scripts/background/request-sender.js'
 import {
   UIContext,
@@ -44,7 +43,6 @@ function TargetSavedUsers(props: { savedUsers: TwitterUserMap }) {
   const { currentUser, userSelectionState } = React.useContext(FollowerChainBlockPageStatesContext)
   const { user: selectedUser, group: selectedUserGroup } = userSelectionState
   const myself = React.useContext(MyselfContext)
-  const { cookieOptions } = React.useContext(TwitterAPIClientContext)
   async function insertUser() {
     if (!selectedUser) {
       return
@@ -63,10 +61,6 @@ function TargetSavedUsers(props: { savedUsers: TwitterUserMap }) {
     }
     removeUserFromStorage(selectedUser)
     uiContext.openSnackBar(i18n.getMessage('user_xxx_removed', selectedUser.screen_name))
-  }
-  async function requestRefreshSavedUsers() {
-    refreshSavedUsers(cookieOptions)
-    uiContext.openSnackBar(i18n.getMessage('refreshing_saved_users'))
   }
   const sortedByName = (usersMap: TwitterUserMap): TwitterUser[] =>
     _.sortBy(usersMap.toUserArray(), user => user.screen_name.toLowerCase())
@@ -153,9 +147,6 @@ function TargetSavedUsers(props: { savedUsers: TwitterUserMap }) {
               startIcon={<M.Icon>delete</M.Icon>}
             >
               {i18n.getMessage('remove')}
-            </M.Button>
-            <M.Button onClick={requestRefreshSavedUsers} startIcon={<M.Icon>refresh</M.Icon>}>
-              {i18n.getMessage('refresh')}
             </M.Button>
           </M.ButtonGroup>
         </M.Box>

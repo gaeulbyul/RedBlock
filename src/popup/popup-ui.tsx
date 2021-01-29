@@ -1,4 +1,8 @@
-import { requestProgress, requestBlockLimiterStatus } from '../scripts/background/request-sender.js'
+import {
+  requestProgress,
+  requestBlockLimiterStatus,
+  refreshSavedUsers,
+} from '../scripts/background/request-sender.js'
 import { loadOptions } from '../scripts/background/storage.js'
 import { TwClient } from '../scripts/background/twitter-api.js'
 import { isRunningSession, UI_UPDATE_DELAY } from '../scripts/common.js'
@@ -522,6 +526,7 @@ export async function initializeUI() {
       cookieStoreId
     ).catch(() => {})
   }
+  refreshSavedUsers({ cookieStoreId })
   window.setInterval(() => {
     requestProgress().catch(() => {})
     if (myself) {
