@@ -70,7 +70,7 @@ export function checkTweetReactionBlockTarget(
 export function checkImportBlockTarget(
   target: ImportBlockSessionRequest['target']
 ): TargetCheckResult {
-  if (target.userIds.length <= 0) {
+  if (target.userIds.length <= 0 && target.userNames.length <= 0) {
     return TargetCheckResult.EmptyList
   }
   return TargetCheckResult.Ok

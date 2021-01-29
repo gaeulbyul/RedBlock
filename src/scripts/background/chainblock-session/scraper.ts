@@ -175,15 +175,27 @@ class ImportUserScraper implements UserScraper {
   public totalCount = this.request.target.userIds.length
   public constructor(private twClient: TwClient, private request: ImportBlockSessionRequest) {}
   public async *[Symbol.asyncIterator]() {
-    let scraper: ScrapedUsersIterator = this.scrapingClient.lookupUsersByIds(
-      this.request.target.userIds
-    )
-    scraper = ExtraScraper.scrapeUsersOnBio(
-      this.scrapingClient,
-      scraper,
-      this.request.options.includeUsersInBio
-    )
-    yield* scraper
+    // 여러 파일을 import한다면 유저ID와 유저네임 둘 다 있을 수 있다.
+    const { userIds, userNames } = this.request.target
+    let scraper: ScrapedUsersIterator
+    if (userIds.length > 0) {
+      scraper = this.scrapingClient.lookupUsersByIds(userIds)
+      scraper = ExtraScraper.scrapeUsersOnBio(
+        this.scrapingClient,
+        scraper,
+        this.request.options.includeUsersInBio
+      )
+      yield* scraper
+    }
+    if (userNames.length > 0) {
+      scraper = this.scrapingClient.lookupUsersByNames(userNames)
+      scraper = ExtraScraper.scrapeUsersOnBio(
+        this.scrapingClient,
+        scraper,
+        this.request.options.includeUsersInBio
+      )
+      yield* scraper
+    }
   }
 }
 

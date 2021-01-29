@@ -1,5 +1,34 @@
 import { TwitterUserEntities, Limit } from './background/twitter-api.js'
 
+const userNameBlacklist = [
+  'about',
+  'account',
+  'blog',
+  'compose',
+  'download',
+  'explore',
+  'followers',
+  'followings',
+  'hashtag',
+  'home',
+  'i',
+  'intent',
+  'lists',
+  'login',
+  'logout',
+  'messages',
+  'notifications',
+  'oauth',
+  'privacy',
+  'search',
+  'session',
+  'settings',
+  'share',
+  'signup',
+  'tos',
+  'welcome',
+]
+
 export const enum SessionStatus {
   Initial,
   Running,
@@ -68,34 +97,6 @@ export class TwitterUserMap extends Map<string, TwitterUser> {
 }
 
 export function getUserNameFromURL(url: URL | Location | HTMLAnchorElement): string | null {
-  const userNameBlacklist = [
-    'about',
-    'account',
-    'blog',
-    'compose',
-    'download',
-    'explore',
-    'followers',
-    'followings',
-    'hashtag',
-    'home',
-    'i',
-    'intent',
-    'lists',
-    'login',
-    'logout',
-    'messages',
-    'notifications',
-    'oauth',
-    'privacy',
-    'search',
-    'session',
-    'settings',
-    'share',
-    'signup',
-    'tos',
-    'welcome',
-  ]
   const supportingHostname = ['twitter.com', 'mobile.twitter.com']
   if (!/^https?/.test(url.protocol)) {
     return null
@@ -103,8 +104,8 @@ export function getUserNameFromURL(url: URL | Location | HTMLAnchorElement): str
   if (!supportingHostname.includes(url.hostname)) {
     return null
   }
-  const nonUserPagePattern01 = /^\/\w\w\/(?:tos|privacy)/
-  if (nonUserPagePattern01.test(url.pathname)) {
+  const nonUserPagePattern = /^\/\w\w\/(?:tos|privacy)/
+  if (nonUserPagePattern.test(url.pathname)) {
     return null
   }
   const pattern = /^\/([0-9A-Za-z_]{1,15})/i
@@ -113,10 +114,18 @@ export function getUserNameFromURL(url: URL | Location | HTMLAnchorElement): str
     return null
   }
   const userName = match[1]
-  if (userNameBlacklist.includes(userName.toLowerCase())) {
-    return null
+  if (validateUserName(userName)) {
+    return userName
   }
-  return userName
+  return null
+}
+
+export function validateUserName(userName: string): boolean {
+  const pattern = /[0-9A-Za-z_]{1,15}/i
+  if (userNameBlacklist.includes(userName.toLowerCase())) {
+    return false
+  }
+  return pattern.test(userName)
 }
 
 export function sleep(time: number): Promise<void> {

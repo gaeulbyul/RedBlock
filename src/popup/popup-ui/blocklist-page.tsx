@@ -86,6 +86,7 @@ export default function BlocklistPage() {
       target: {
         type: 'import',
         userIds: Array.from(blocklist.userIds),
+        userNames: Array.from(blocklist.userNames),
       },
       options: targetOptions,
       myself,

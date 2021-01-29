@@ -59,6 +59,7 @@ interface ImportBlockSessionRequest extends BaseRequest {
   target: {
     type: 'import'
     userIds: string[]
+    userNames: string[]
   }
   options: SessionOptions
 }
