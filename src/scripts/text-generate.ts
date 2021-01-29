@@ -50,7 +50,7 @@ function generateFollowerBlockConfirmMessage(
 ): DialogMessageObj {
   const { purpose } = request
   const { user, list: targetList } = request.target
-  const { myFollowers, myFollowings } = request.options
+  const { myFollowers, myFollowings, protectedFollowers } = request.options
   const targetUserName = user.screen_name
   let title: string
   switch (purpose) {
@@ -64,7 +64,14 @@ function generateFollowerBlockConfirmMessage(
       title = i18n.getMessage('confirm_follower_export_title', user.screen_name)
       break
     case 'lockpicker':
-      title = i18n.getMessage('confirm_lockpicker_title')
+      switch (protectedFollowers) {
+        case 'Block':
+          title = i18n.getMessage('confirm_lockpicker_block_title')
+          break
+        case 'BlockAndUnBlock':
+          title = i18n.getMessage('confirm_lockpicker_bnb_title')
+          break
+      }
       break
     case 'chainunfollow':
       title = i18n.getMessage('confirm_follower_chainunfollow_title', user.screen_name)
@@ -163,10 +170,17 @@ function generateImportBlockConfirmMessage(request: ImportBlockSessionRequest): 
   }
 }
 
-function generateLockPickerConfirmMessage(): DialogMessageObj {
-  return {
-    title: i18n.getMessage('confirm_lockpicker_title'),
+function generateLockPickerConfirmMessage(request: FollowerBlockSessionRequest): DialogMessageObj {
+  let title: string
+  switch (request.options.protectedFollowers) {
+    case 'Block':
+      title = i18n.getMessage('confirm_lockpicker_block_title')
+      break
+    case 'BlockAndUnBlock':
+      title = i18n.getMessage('confirm_lockpicker_bnb_title')
+      break
   }
+  return { title }
 }
 
 function generateUserSearchBlockConfirmMessage(
@@ -190,7 +204,7 @@ function generateUserSearchBlockConfirmMessage(
 
 export function generateConfirmMessage(request: SessionRequest): DialogMessageObj {
   if (request.purpose === 'lockpicker') {
-    return generateLockPickerConfirmMessage()
+    return generateLockPickerConfirmMessage(request as FollowerBlockSessionRequest)
   }
   switch (request.target.type) {
     case 'follower':

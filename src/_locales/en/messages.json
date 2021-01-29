@@ -373,8 +373,11 @@
   "confirm_import_chainblock_title": {
     "message": "Do you want to block users from imported list?"
   },
-  "confirm_lockpicker_title": {
+  "confirm_lockpicker_block_title": {
     "message": "Do you want to block protected followers?"
+  },
+  "confirm_lockpicker_bnb_title": {
+    "message": "Do you want to block-and-unblock protected followers?"
   },
   "confirm_search_chainblock_title": {
     "message": "Do you want to block users from search result?"

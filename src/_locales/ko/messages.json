@@ -373,8 +373,11 @@
   "confirm_import_chainblock_title": {
     "message": "정말로 해당 차단목록에 있는 유저를 차단하시겠습니까?"
   },
-  "confirm_lockpicker_title": {
+  "confirm_lockpicker_block_title": {
     "message": "프로텍트 팔로워를 차단하시겠습니까?"
+  },
+  "confirm_lockpicker_bnb_title": {
+    "message": "프로텍트 팔로워를 블언블하시겠습니까?"
   },
   "confirm_search_chainblock_title": {
     "message": "정말로 해당 유저 검색결과에 나온 유저를 차단하시겠습니까?"

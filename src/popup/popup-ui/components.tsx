@@ -592,7 +592,7 @@ function UnChainBlockOptionsUI() {
 function LockPickerOptionsUI() {
   const { targetOptions, mutateOptions } = React.useContext(SessionOptionsContext)
   const { protectedFollowers } = targetOptions
-  const userActions: Array<[UserAction, string]> = [
+  const userActions: Array<['Block' | 'BlockAndUnBlock', string]> = [
     ['Block', i18n.getMessage('do_block')],
     ['BlockAndUnBlock', i18n.getMessage('block_and_unblock')],
   ]

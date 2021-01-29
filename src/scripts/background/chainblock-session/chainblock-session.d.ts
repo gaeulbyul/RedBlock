@@ -13,8 +13,8 @@ interface SessionOptions {
   myFollowers: UserAction
   myFollowings: UserAction
   mutualBlocked: UserAction
-  myMutualFollowers: UserAction
-  protectedFollowers: UserAction
+  myMutualFollowers: 'Skip' | 'UnBlock' // 언체인블락에서만 사용
+  protectedFollowers: 'Block' | 'BlockAndUnBlock' // UserAction
   includeUsersInBio: BioBlockMode
   skipInactiveUser: InactivePeriod
 }
