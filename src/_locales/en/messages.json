@@ -341,7 +341,7 @@
     "message": "Unlike Chainblock, it will block *only* protected followers who doesn't follow back to you, and nobody else will be blocked."
   },
   "chainunfollow_description": {
-    "message": "Unfollow all users that followed by you according to the options you set."
+    "message": "Unfollow all users that followed by you."
   },
   "my_mutual_followers_wont_block": {
     "message": "Your mutual-followers won't be blocked to prevent muting/blocking your friends."
@@ -696,7 +696,7 @@
     }
   },
   "export_description": {
-    "message": "Generate & export blocklist file from users according to the options you set."
+    "message": "Generate blocklist file from users."
   },
   "save": {
     "message": "Save"
