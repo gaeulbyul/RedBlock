@@ -411,7 +411,7 @@ export default function NewChainBlockPage() {
   return (
     <div>
       <TargetUserSelectUI isAvailable={isAvailable()} />
-      <TargetOptionsUI />
+      {userSelection.user && <TargetOptionsUI />}
       <BlockLimiterUI />
       <TargetExecutionButtonUI isAvailable={isAvailable()} />
     </div>

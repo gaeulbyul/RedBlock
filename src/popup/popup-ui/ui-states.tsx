@@ -127,7 +127,7 @@ export function FollowerChainBlockPageStatesProvider(props: {
   const myself = React.useContext(MyselfContext)
   const [userSelection, setUserSelection] = React.useState<UserSelectionState>({
     user: props.initialUser,
-    group: 'current',
+    group: props.initialUser ? 'current' : 'invalid',
   })
   const initialPurposeType = determineInitialPurposeType<FollowerBlockSessionRequest['purpose']>(
     myself,
