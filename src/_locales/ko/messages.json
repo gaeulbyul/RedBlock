@@ -462,6 +462,14 @@
       }
     }
   },
+  "bnbed_n_users": {
+    "message": "$count$명을 블언블했습니다.",
+    "placeholders": {
+      "count": {
+        "content": "$1"
+      }
+    }
+  },
   "unfollowed_n_users": {
     "message": "$count$명을 언팔로우했습니다.",
     "placeholders": {

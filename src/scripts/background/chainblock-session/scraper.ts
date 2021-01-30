@@ -3,7 +3,7 @@ import * as i18n from '../../i18n.js'
 import * as CookieHandler from '../cookie-handler.js'
 import * as UserScrapingAPI from '../user-scraping-api.js'
 import * as ExtraScraper from './extra-scraper.js'
-import { getFollowersCount, getReactionsCount } from '../../common.js'
+import { getFollowersCount, getReactionsCount, assertNever } from '../../common.js'
 
 export interface UserScraper {
   totalCount: number | null
@@ -14,7 +14,10 @@ export interface UserScraper {
 class SimpleScraper implements UserScraper {
   private scrapingClient = new UserScrapingAPI.UserScrapingAPIClient(this.twClient)
   public totalCount: number
-  public constructor(private twClient: TwClient, private request: FollowerBlockSessionRequest) {
+  public constructor(
+    private twClient: TwClient,
+    private request: FollowerBlockSessionRequest | LockPickerSessionRequest
+  ) {
     const { user, list: followKind } = this.request.target
     this.totalCount = getFollowersCount(user, followKind)!
   }
@@ -218,14 +221,19 @@ class UserSearchScraper implements UserScraper {
 
 export function initScraper(twClient: TwClient, request: SessionRequest): UserScraper {
   const { target } = request
-  if (target.type === 'import') {
-    return new ImportUserScraper(twClient, request as ImportBlockSessionRequest)
-  }
-  if (target.type === 'tweet_reaction') {
-    return new TweetReactedUserScraper(twClient, request as TweetReactionBlockSessionRequest)
-  }
-  if (target.type === 'user_search') {
-    return new UserSearchScraper(twClient, request as UserSearchBlockSessionRequest)
+  switch (target.type) {
+    case 'import':
+      return new ImportUserScraper(twClient, request as ImportBlockSessionRequest)
+    case 'tweet_reaction':
+      return new TweetReactedUserScraper(twClient, request as TweetReactionBlockSessionRequest)
+    case 'user_search':
+      return new UserSearchScraper(twClient, request as UserSearchBlockSessionRequest)
+    case 'lockpicker':
+      return new SimpleScraper(twClient, request as LockPickerSessionRequest)
+    case 'follower':
+      break
+    default:
+      assertNever(target)
   }
   if (target.user.blocked_by) {
     return new AntiBlockScraper(twClient, request as FollowerBlockSessionRequest)

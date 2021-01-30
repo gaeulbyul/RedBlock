@@ -7,16 +7,12 @@ import {
   UIContext,
   TwitterAPIClientContext,
 } from './contexts.js'
-import {
-  UserSearchChainBlockPageStatesContext,
-  PurposeContext,
-  SessionOptionsContext,
-} from './ui-states.js'
+import { UserSearchChainBlockPageStatesContext, SessionOptionsContext } from './ui-states.js'
 import {
   RBExpansionPanel,
   BigExecuteButton,
   BlockLimiterUI,
-  ChainBlockPurposeUI,
+  PurposeSelectionUI,
 } from './components.js'
 
 const M = MaterialUI
@@ -24,10 +20,8 @@ const T = MaterialUI.Typography
 
 function TargetExecutionButtonUI(props: { isAvailable: boolean }) {
   const { isAvailable } = props
-  const { searchQuery } = React.useContext(UserSearchChainBlockPageStatesContext)
-  const { targetOptions } = React.useContext(SessionOptionsContext)
-  const purpose = React.useContext(PurposeContext)
-    .purpose as UserSearchBlockSessionRequest['purpose']
+  const { searchQuery, purpose } = React.useContext(UserSearchChainBlockPageStatesContext)
+  const { sessionOptions } = React.useContext(SessionOptionsContext)
   const { openDialog } = React.useContext(UIContext)
   const uiContext = React.useContext(UIContext)
   const myself = React.useContext(MyselfContext)
@@ -42,7 +36,7 @@ function TargetExecutionButtonUI(props: { isAvailable: boolean }) {
     }
     const request: UserSearchBlockSessionRequest = {
       purpose,
-      options: targetOptions,
+      options: sessionOptions,
       target: {
         type: 'user_search',
         query: searchQuery,
@@ -70,11 +64,23 @@ function TargetExecutionButtonUI(props: { isAvailable: boolean }) {
 }
 
 function TargetOptionsUI() {
-  const { purpose } = React.useContext(PurposeContext)
-  const summary = `${i18n.getMessage('options')} (${i18n.getMessage(purpose)})`
+  const {
+    purpose,
+    changePurposeType,
+    mutatePurposeOptions,
+    availablePurposeTypes,
+  } = React.useContext(UserSearchChainBlockPageStatesContext)
+  const summary = `${i18n.getMessage('options')} (${i18n.getMessage(purpose.type)})`
   return (
     <RBExpansionPanel summary={summary} defaultExpanded>
-      <ChainBlockPurposeUI />
+      <PurposeSelectionUI
+        {...{
+          purpose,
+          changePurposeType,
+          mutatePurposeOptions,
+          availablePurposeTypes,
+        }}
+      />
     </RBExpansionPanel>
   )
 }

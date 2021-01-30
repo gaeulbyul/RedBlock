@@ -12,6 +12,7 @@ import {
   TargetCheckResult,
   checkImportBlockTarget,
   checkFollowerBlockTarget,
+  checkLockPickerBlockTarget,
   checkTweetReactionBlockTarget,
   isSameTarget,
 } from './target-checker.js'
@@ -48,7 +49,7 @@ export default class ChainBlocker {
     if (request.target.type === 'follower') {
       const targetUser = (target as FollowerBlockSessionRequest['target']).user
       const isValidLockPicker = checkUserIdBeforeLockPicker({
-        purpose,
+        purposeType: purpose.type,
         myselfId: myself.id_str,
         givenUserId: targetUser.id_str,
       })
@@ -56,7 +57,7 @@ export default class ChainBlocker {
         throw new Error('락피커 오폭방지 작동')
       }
     }
-    if (request.purpose === 'lockpicker') {
+    if (request.purpose.type === 'lockpicker') {
       // 중복실행여부 및 락피커 타겟검증 테스트를 통과하면 더 이상 체크할 확인은 없다.
       // (checkFollowerBlockTarget은 target이 상대방일 경우를 상정하며 만든 함수임)
       return TargetCheckResult.Ok
@@ -66,6 +67,8 @@ export default class ChainBlocker {
         return checkFollowerBlockTarget(target)
       case 'tweet_reaction':
         return checkTweetReactionBlockTarget(target)
+      case 'lockpicker':
+        return checkLockPickerBlockTarget(target)
       case 'import':
         return checkImportBlockTarget(target)
       case 'user_search':
@@ -111,7 +114,7 @@ export default class ChainBlocker {
       this.startRemainingSessions()
       this.updateBadge()
       const options = await loadOptions()
-      if (options.removeSessionAfterComplete && info.request.purpose !== 'export') {
+      if (options.removeSessionAfterComplete && info.request.purpose.type !== 'export') {
         this.remove(sessionId)
       }
     })
@@ -161,7 +164,7 @@ export default class ChainBlocker {
   private createSession(request: SessionRequest) {
     const twClient = new TwClient(request.cookieOptions)
     let session: Session
-    switch (request.purpose) {
+    switch (request.purpose.type) {
       case 'chainblock':
       case 'unchainblock':
       case 'lockpicker':
@@ -249,7 +252,7 @@ export default class ChainBlocker {
       if (isRunningSession(sessionInfo)) {
         continue
       }
-      if (sessionInfo.request.purpose === 'export') {
+      if (sessionInfo.request.purpose.type === 'export') {
         const exportSession = session as ExportSession
         if (!exportSession.downloaded) {
           continue
@@ -261,7 +264,7 @@ export default class ChainBlocker {
   }
   public downloadFileFromExportSession(sessionId: string) {
     const session = this.sessions.get(sessionId)! as ExportSession
-    if (session.getSessionInfo().request.purpose !== 'export') {
+    if (session.getSessionInfo().request.purpose.type !== 'export') {
       throw new Error('unreachable - this session is not export-session')
     }
     const exportResult = session.getExportResult()

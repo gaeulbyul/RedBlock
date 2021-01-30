@@ -62,6 +62,7 @@ function ChainBlockSessionItem(props: { sessionInfo: SessionInfo }) {
   let localizedTarget = ''
   switch (target.type) {
     case 'follower':
+    case 'lockpicker':
       user = target.user
       switch (target.list) {
         case 'followers':
@@ -88,7 +89,7 @@ function ChainBlockSessionItem(props: { sessionInfo: SessionInfo }) {
       localizedTarget = i18n.getMessage('from_user_search_result')
       break
   }
-  const localizedPurpose = i18n.getMessage(purpose)
+  const localizedPurpose = i18n.getMessage(purpose.type)
   const cardTitle = `${localizedPurpose} ${statusToString(sessionInfo.status)}`
   function renderControls() {
     function requestStopChainBlock() {
@@ -104,7 +105,7 @@ function ChainBlockSessionItem(props: { sessionInfo: SessionInfo }) {
         })
         return
       }
-      if (purpose === 'export' && !downloadButtonClicked) {
+      if (purpose.type === 'export' && !downloadButtonClicked) {
         uiContext.openDialog({
           dialogType: 'confirm',
           message: {
@@ -140,7 +141,7 @@ function ChainBlockSessionItem(props: { sessionInfo: SessionInfo }) {
       setDownloadButtonClicked(true)
     }
     let downloadButton: React.ReactNode
-    if (purpose === 'export') {
+    if (purpose.type === 'export') {
       const disabled = sessionInfo.progress.scraped <= 0
       downloadButton = (
         <M.Button
@@ -242,7 +243,7 @@ function ChainBlockSessionItem(props: { sessionInfo: SessionInfo }) {
     )
   const succProgress = sessionInfo.progress.success
   let shortProgress: string
-  switch (purpose) {
+  switch (purpose.type) {
     case 'chainblock':
       shortProgress = `${i18n.getMessage('block')}: ${succProgress.Block.toLocaleString()}`
       break

@@ -13,13 +13,9 @@ import {
   TwitterUserProfile,
   RBExpansionPanel,
   BigExecuteButton,
-  ChainBlockPurposeUI,
+  PurposeSelectionUI,
 } from './components.js'
-import {
-  TweetReactionChainBlockPageStatesContext,
-  PurposeContext,
-  SessionOptionsContext,
-} from './ui-states.js'
+import { TweetReactionChainBlockPageStatesContext, SessionOptionsContext } from './ui-states.js'
 
 const M = MaterialUI
 
@@ -94,11 +90,23 @@ function TargetTweetOuterUI() {
 }
 
 function TargetOptionsUI() {
-  const { purpose } = React.useContext(PurposeContext)
-  const summary = `${i18n.getMessage('options')} (${i18n.getMessage(purpose)})`
+  const {
+    purpose,
+    changePurposeType,
+    mutatePurposeOptions,
+    availablePurposeTypes,
+  } = React.useContext(TweetReactionChainBlockPageStatesContext)
+  const summary = `${i18n.getMessage('options')} (${i18n.getMessage(purpose.type)})`
   return (
     <RBExpansionPanel summary={summary} defaultExpanded>
-      <ChainBlockPurposeUI />
+      <PurposeSelectionUI
+        {...{
+          purpose,
+          changePurposeType,
+          mutatePurposeOptions,
+          availablePurposeTypes,
+        }}
+      />
     </RBExpansionPanel>
   )
 }
@@ -109,17 +117,16 @@ function TargetExecutionButtonUI() {
     wantBlockRetweeters,
     wantBlockLikers,
     wantBlockMentionedUsers,
+    purpose,
   } = React.useContext(TweetReactionChainBlockPageStatesContext)
-  const { targetOptions } = React.useContext(SessionOptionsContext)
-  const purpose = React.useContext(PurposeContext)
-    .purpose as TweetReactionBlockSessionRequest['purpose']
+  const { sessionOptions } = React.useContext(SessionOptionsContext)
   const { openDialog } = React.useContext(UIContext)
   const uiContext = React.useContext(UIContext)
   const myself = React.useContext(MyselfContext)
   const limiterStatus = React.useContext(BlockLimiterContext)
   const { cookieOptions } = React.useContext(TwitterAPIClientContext)
   function isAvailable() {
-    if (purpose === 'chainblock' && limiterStatus.remained <= 0) {
+    if (purpose.type === 'chainblock' && limiterStatus.remained <= 0) {
       return false
     }
     if (!(wantBlockRetweeters || wantBlockLikers || wantBlockMentionedUsers)) {
@@ -138,7 +145,7 @@ function TargetExecutionButtonUI() {
     }
     const request: TweetReactionBlockSessionRequest = {
       purpose,
-      options: targetOptions,
+      options: sessionOptions,
       target: {
         type: 'tweet_reaction',
         tweet: currentTweet,

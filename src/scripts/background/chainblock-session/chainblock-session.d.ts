@@ -2,45 +2,71 @@ type SessionRequest =
   | FollowerBlockSessionRequest
   | TweetReactionBlockSessionRequest
   | ImportBlockSessionRequest
+  | LockPickerSessionRequest
   | UserSearchBlockSessionRequest
 
 type ExportableSessionRequest = FollowerBlockSessionRequest | TweetReactionBlockSessionRequest
 
 type Session = import('./session').ChainBlockSession | import('./session').ExportSession
 
-// TODO: 언체인블락 분리 (적어도 options만큼이라도)
-interface SessionOptions {
-  myFollowers: UserAction
-  myFollowings: UserAction
-  mutualBlocked: UserAction
-  myMutualFollowers: 'Skip' | 'UnBlock' // 언체인블락에서만 사용
-  protectedFollowers: 'Block' | 'BlockAndUnBlock' // UserAction
-  includeUsersInBio: BioBlockMode
-  skipInactiveUser: InactivePeriod
-}
-
 // NOTE: myself: TwitterUser는 락피커 구현하면서 넣은 것
 // 자신에게 일반 체인블락걸면 안 되므로 체크용으로 넣어둠
 interface BaseRequest {
   myself: TwitterUser
   cookieOptions: CookieOptions
+  options: SessionOptions
+}
+
+type Purpose =
+  | ChainBlockPurpose
+  | UnChainBlockPurpose
+  | LockPickerPurpose
+  | ChainUnfollowPurpose
+  | ExportPurpose
+
+interface ChainBlockPurpose {
+  type: 'chainblock'
+  myFollowers: UserAction
+  myFollowings: UserAction
+}
+
+interface UnChainBlockPurpose {
+  type: 'unchainblock'
+  mutualBlocked: 'Skip' | 'UnBlock'
+}
+
+interface LockPickerPurpose {
+  type: 'lockpicker'
+  protectedFollowers: 'Block' | 'BlockAndUnBlock'
+}
+
+interface ChainUnfollowPurpose {
+  type: 'chainunfollow'
+}
+
+interface ExportPurpose {
+  type: 'export'
+}
+
+interface SessionOptions {
+  includeUsersInBio: BioBlockMode
+  skipInactiveUser: InactivePeriod
 }
 
 interface FollowerBlockSessionRequest extends BaseRequest {
-  purpose: Purpose
+  purpose: Exclude<Purpose, LockPickerPurpose>
   target: {
     type: 'follower'
     user: TwitterUser
     list: FollowKind
   }
-  options: SessionOptions
 }
 
 interface TweetReactionBlockSessionRequest extends BaseRequest {
   // 이미 차단한 사용자의 RT/마음은 확인할 수 없다.
   // 따라서, 언체인블락은 구현할 수 없다.
   // 또한 프로텍트팔로워 역시 확인할 수 없으므로
-  purpose: Exclude<Purpose, 'unchainblock' | 'lockpicker'>
+  purpose: Exclude<Purpose, UnChainBlockPurpose | LockPickerPurpose>
   target: {
     type: 'tweet_reaction'
     // author of tweet
@@ -51,27 +77,33 @@ interface TweetReactionBlockSessionRequest extends BaseRequest {
     blockLikers: boolean
     blockMentionedUsers: boolean
   }
-  options: SessionOptions
+}
+
+interface LockPickerSessionRequest extends BaseRequest {
+  purpose: LockPickerPurpose
+  target: {
+    type: 'lockpicker'
+    user: TwitterUser
+    list: 'followers'
+  }
 }
 
 interface ImportBlockSessionRequest extends BaseRequest {
-  purpose: Exclude<Purpose, 'export' | 'lockpicker'>
+  purpose: Exclude<Purpose, ExportPurpose | LockPickerPurpose>
   target: {
     type: 'import'
     userIds: string[]
     userNames: string[]
   }
-  options: SessionOptions
 }
 
 interface UserSearchBlockSessionRequest extends BaseRequest {
   // TODO: export는 나중으로 미루자
-  purpose: Exclude<Purpose, 'export' | 'lockpicker'>
+  purpose: Exclude<Purpose, ExportPurpose | LockPickerPurpose>
   target: {
     type: 'user_search'
     query: string
   }
-  options: SessionOptions
 }
 
 interface SessionInfo<ReqT = SessionRequest> {

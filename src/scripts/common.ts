@@ -174,6 +174,7 @@ export function getReactionsCount(target: TweetReactionBlockSessionRequest['targ
 export function getCountOfUsersToBlock({ target }: SessionRequest): number | null {
   switch (target.type) {
     case 'follower':
+    case 'lockpicker':
       return getFollowersCount(target.user, target.list)
     case 'tweet_reaction':
       return getReactionsCount(target)
@@ -211,15 +212,15 @@ export function getLimitResetTime(limit: Limit): string {
 
 // 주의! 리턴타입 바꾸기 전에 .startsWith('invalid') 로 짠 부분에 영향가지 않는지 체크할 것
 export function checkUserIdBeforeLockPicker({
-  purpose,
+  purposeType,
   myselfId,
   givenUserId,
 }: {
-  purpose: Purpose
+  purposeType: Purpose['type']
   myselfId: string
   givenUserId: string
 }): 'self' | 'other' | 'invalid self' | 'invalid other' /* 주의 */ {
-  if (purpose === 'lockpicker') {
+  if (purposeType === 'lockpicker') {
     // 락피커의 타겟은 오직 나 자신이어야하고,
     return myselfId === givenUserId ? 'self' : 'invalid self'
   } else {
@@ -245,7 +246,7 @@ export function wrapEitherRight<T>(value: T): EitherRight<T> {
   }
 }
 
-export function assertNever(shouldBeNever: never) {
+export function assertNever(shouldBeNever: never): never {
   console.error('triggered assertNever with: ', shouldBeNever)
   throw new Error('unreachable: assertNever')
 }

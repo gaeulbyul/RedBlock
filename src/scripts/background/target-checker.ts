@@ -42,6 +42,15 @@ export function checkFollowerBlockTarget(
   return TargetCheckResult.Ok
 }
 
+export function checkLockPickerBlockTarget(
+  target: LockPickerSessionRequest['target']
+): TargetCheckResult {
+  if (target.user.followers_count <= 0) {
+    return TargetCheckResult.NoFollowers
+  }
+  return TargetCheckResult.Ok
+}
+
 export function checkTweetReactionBlockTarget(
   target: TweetReactionBlockSessionRequest['target']
 ): TargetCheckResult {
@@ -89,6 +98,8 @@ export function isSameTarget(target1: SessionRequest['target'], target2: Session
       const givenTweet = (target2 as TweetReactionBlockSessionRequest['target']).tweet
       return target1.tweet.id_str === givenTweet.id_str
     }
+    case 'lockpicker':
+      return true
     case 'import':
       return false
     case 'user_search': {
@@ -102,7 +113,7 @@ export function isSameTarget(target1: SessionRequest['target'], target2: Session
 
 export function checkLockPickerTarget(request: FollowerBlockSessionRequest): TargetCheckResult {
   const validity = checkUserIdBeforeLockPicker({
-    purpose: request.purpose,
+    purposeType: request.purpose.type,
     myselfId: request.myself.id_str,
     givenUserId: request.target.user.id_str,
   })

@@ -462,6 +462,14 @@
       }
     }
   },
+  "bnbed_n_users": {
+    "message": "Block-and-unblocked $count$ users.",
+    "placeholders": {
+      "count": {
+        "content": "$1"
+      }
+    }
+  },
   "unfollowed_n_users": {
     "message": "Unfollowed $count$ users.",
     "placeholders": {

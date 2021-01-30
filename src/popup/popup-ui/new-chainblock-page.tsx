@@ -1,9 +1,8 @@
 import * as Storage from '../../scripts/background/storage.js'
 import type { TwClient } from '../../scripts/background/twitter-api.js'
-import { TwitterUserMap, checkUserIdBeforeLockPicker } from '../../scripts/common.js'
+import { TwitterUserMap } from '../../scripts/common.js'
 import * as i18n from '../../scripts/i18n.js'
 import * as TextGenerate from '../../scripts/text-generate.js'
-import { determineInitialPurpose } from '../popup.js'
 import {
   insertUserToStorage,
   removeUserFromStorage,
@@ -20,12 +19,11 @@ import {
   TwitterUserProfile,
   RBExpansionPanel,
   BigExecuteButton,
-  ChainBlockPurposeUI,
+  PurposeSelectionUI,
 } from './components.js'
 import {
   SelectUserGroup,
   FollowerChainBlockPageStatesContext,
-  PurposeContext,
   SessionOptionsContext,
 } from './ui-states.js'
 
@@ -40,9 +38,8 @@ function TargetSavedUsers(props: { savedUsers: TwitterUserMap }) {
   const { savedUsers } = props
   const uiContext = React.useContext(UIContext)
   const { changeSelectedUser } = React.useContext(UserSelectorContext)
-  const { currentUser, userSelectionState } = React.useContext(FollowerChainBlockPageStatesContext)
-  const { user: selectedUser, group: selectedUserGroup } = userSelectionState
-  const myself = React.useContext(MyselfContext)
+  const { currentUser, userSelection } = React.useContext(FollowerChainBlockPageStatesContext)
+  const { user: selectedUser, group: selectedUserGroup } = userSelection
   async function insertUser() {
     if (!selectedUser) {
       return
@@ -122,13 +119,6 @@ function TargetSavedUsers(props: { savedUsers: TwitterUserMap }) {
               <UserOptionItem key={index} user={user} optgroup="saved" />
             ))}
           </optgroup>
-          {myself ? (
-            <optgroup label={i18n.getMessage('lockpicker')}>
-              <UserOptionItem user={myself} optgroup="self" />
-            </optgroup>
-          ) : (
-            ''
-          )}
         </M.Select>
       </M.FormControl>
       {selectedUser && (
@@ -157,11 +147,11 @@ function TargetSavedUsers(props: { savedUsers: TwitterUserMap }) {
 
 function TargetUserProfile(props: { isAvailable: boolean }) {
   const { isAvailable } = props
-  const { targetList, setTargetList, userSelectionState } = React.useContext(
+  const { targetList, setTargetList, userSelection } = React.useContext(
     FollowerChainBlockPageStatesContext
   )
   // selectedUser가 null일 땐 이 컴포넌트를 렌더링하지 않으므로
-  const user = userSelectionState.user!
+  const user = userSelection.user!
   const myself = React.useContext(MyselfContext)
   const selectedMyself = myself && user.id_str === myself.id_str
   function radio(fk: FollowKind, label: string) {
@@ -215,7 +205,7 @@ function TargetUserProfileEmpty(props: { reason: 'invalid-user' | 'loading' }) {
 
 function TargetUserSelectUI(props: { isAvailable: boolean }) {
   const { isAvailable } = props
-  const { currentUser, targetList, userSelectionState, setUserSelectionState } = React.useContext(
+  const { currentUser, targetList, userSelection, setUserSelection } = React.useContext(
     FollowerChainBlockPageStatesContext
   )
   const twClient = React.useContext(TwitterAPIClientContext)
@@ -223,32 +213,30 @@ function TargetUserSelectUI(props: { isAvailable: boolean }) {
   const myself = React.useContext(MyselfContext)!
   const [savedUsers, setSavedUsers] = React.useState(new TwitterUserMap())
   const [isLoading, setLoadingState] = React.useState(false)
-  const { user: selectedUser } = userSelectionState
+  const { user: selectedUser } = userSelection
   async function changeSelectedUser(userId: string, userName: string, group: SelectUserGroup) {
     if (!/^\d+$/.test(userId)) {
-      setUserSelectionState({
+      setUserSelection({
         user: null,
         group: 'invalid',
-        purpose: 'chainblock',
       })
       return
     }
     if (userId === myself.id_str) {
-      setUserSelectionState({
-        user: myself,
-        group,
-        purpose: 'lockpicker',
-      })
-      return
+      // TODO
+      //setUserSelection({
+      //  user: myself,
+      //  group,
+      //})
+      //return
     }
     try {
       setLoadingState(true)
       const newUser = await getUserByIdWithCache(twClient, userId).catch(() => null)
       if (newUser) {
-        setUserSelectionState({
+        setUserSelection({
           user: newUser,
           group,
-          purpose: determineInitialPurpose(myself, newUser),
         })
       } else {
         // TODO: 유저를 가져오는 데 실패하면 해당 유저를 지운다?
@@ -258,10 +246,9 @@ function TargetUserSelectUI(props: { isAvailable: boolean }) {
             title: i18n.getMessage('failed_to_get_user_info', userName),
           },
         })
-        setUserSelectionState({
+        setUserSelection({
           user: null,
           group: 'invalid',
-          purpose: 'chainblock',
         })
       }
     } finally {
@@ -275,10 +262,9 @@ function TargetUserSelectUI(props: { isAvailable: boolean }) {
       setSavedUsers(usersMap)
       // 스토리지에서 불러올 때 직전에 선택했었던 유저가 없는 경우
       if (!(selectedUser && usersMap.hasUser(selectedUser))) {
-        setUserSelectionState({
+        setUserSelection({
           user: currentUser,
           group: 'current',
-          purpose: 'chainblock',
         })
       }
     })
@@ -321,11 +307,23 @@ function TargetUserSelectUI(props: { isAvailable: boolean }) {
 }
 
 function TargetOptionsUI() {
-  const { purpose } = React.useContext(PurposeContext)
-  const summary = `${i18n.getMessage('options')} (${i18n.getMessage(purpose)})`
+  const {
+    purpose,
+    changePurposeType,
+    mutatePurposeOptions,
+    availablePurposeTypes,
+  } = React.useContext(FollowerChainBlockPageStatesContext)
+  const summary = `${i18n.getMessage('options')} (${i18n.getMessage(purpose.type)})`
   return (
     <RBExpansionPanel summary={summary} defaultExpanded>
-      <ChainBlockPurposeUI />
+      <PurposeSelectionUI
+        {...{
+          purpose,
+          changePurposeType,
+          mutatePurposeOptions,
+          availablePurposeTypes,
+        }}
+      />
     </RBExpansionPanel>
   )
 }
@@ -342,20 +340,21 @@ async function getUserByIdWithCache(twClient: TwClient, userId: string): Promise
 
 function TargetExecutionButtonUI(props: { isAvailable: boolean }) {
   const { isAvailable } = props
-  const { userSelectionState, targetList } = React.useContext(FollowerChainBlockPageStatesContext)
-  const { targetOptions } = React.useContext(SessionOptionsContext)
-  const { purpose } = React.useContext(PurposeContext)
+  const { userSelection, targetList, purpose } = React.useContext(
+    FollowerChainBlockPageStatesContext
+  )
+  const { sessionOptions } = React.useContext(SessionOptionsContext)
   const { openDialog } = React.useContext(UIContext)
   const { cookieOptions } = React.useContext(TwitterAPIClientContext)
   const uiContext = React.useContext(UIContext)
   const myself = React.useContext(MyselfContext)
-  const selectedUser = userSelectionState.user!
+  const selectedUser = userSelection.user!
   const target: FollowerBlockSessionRequest['target'] = {
     type: 'follower',
     user: selectedUser,
     list: targetList,
   }
-  function executeSession(purpose: Purpose) {
+  function executeSession(purpose: FollowerBlockSessionRequest['purpose']) {
     if (!myself) {
       uiContext.openSnackBar(i18n.getMessage('error_occured_check_login'))
       return
@@ -363,7 +362,7 @@ function TargetExecutionButtonUI(props: { isAvailable: boolean }) {
     const request: FollowerBlockSessionRequest = {
       purpose,
       target,
-      options: targetOptions,
+      options: sessionOptions,
       myself,
       cookieOptions,
     }
@@ -387,32 +386,19 @@ function TargetExecutionButtonUI(props: { isAvailable: boolean }) {
 }
 
 export default function NewChainBlockPage() {
-  const { userSelectionState } = React.useContext(FollowerChainBlockPageStatesContext)
-  const { purpose } = React.useContext(PurposeContext)
+  const { userSelection, purpose } = React.useContext(FollowerChainBlockPageStatesContext)
   const myself = React.useContext(MyselfContext)
   const limiterStatus = React.useContext(BlockLimiterContext)
-  const { user: selectedUser } = userSelectionState
+  const { user: selectedUser } = userSelection
   function isAvailable() {
     if (!myself) {
       return false
     }
-    if (limiterStatus.remained <= 0 && (purpose === 'chainblock' || purpose === 'lockpicker')) {
+    if (limiterStatus.remained <= 0 && purpose.type === 'chainblock') {
       return false
     }
     if (!selectedUser) {
       return false
-    }
-    const selfvalid = checkUserIdBeforeLockPicker({
-      purpose,
-      myselfId: myself.id_str,
-      givenUserId: selectedUser.id_str,
-    })
-    if (selfvalid.startsWith('invalid')) {
-      return false
-    }
-    // 락피커은 이하의 체크가 필요없음
-    if (selfvalid === 'self') {
-      return true
     }
     if (selectedUser.following) {
       return true

@@ -102,6 +102,7 @@ abstract class BaseSession {
     let apiKind: ApiKind
     switch (this.request.target.type) {
       case 'follower':
+      case 'lockpicker':
         apiKind = this.request.target.list
         break
       case 'tweet_reaction':
@@ -280,8 +281,8 @@ export class ChainBlockSession extends BaseSession {
     return _.sum([...Object.values(success), already, failure, error, skipped])
   }
   private checkBlockLimiter() {
-    const safePurposes: Purpose[] = ['unchainblock', 'chainunfollow']
-    if (safePurposes.includes(this.request.purpose)) {
+    const safePurposes: Purpose['type'][] = ['unchainblock', 'chainunfollow']
+    if (safePurposes.includes(this.request.purpose.type)) {
       return 'ok'
     } else {
       const limiter = new BlockLimiter({
@@ -366,13 +367,3 @@ export class ExportSession extends BaseSession {
     return `blocklist-${targetStr}[${datetime}].csv`
   }
 }
-
-export const defaultSessionOptions: Readonly<SessionOptions> = Object.freeze({
-  myFollowers: 'Skip',
-  myFollowings: 'Skip',
-  mutualBlocked: 'Skip',
-  myMutualFollowers: 'Skip',
-  protectedFollowers: 'Block',
-  includeUsersInBio: 'never',
-  skipInactiveUser: 'never',
-})

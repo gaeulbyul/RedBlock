@@ -1,4 +1,3 @@
-import { defaultSessionOptions } from '../../scripts/background/chainblock-session/session.js'
 import {
   UIContext,
   MyselfContext,
@@ -9,7 +8,7 @@ import {
   RBExpansionPanel,
   BlockLimiterUI,
   BigExecuteButton,
-  ChainBlockPurposeUI,
+  PurposeSelectionUI,
 } from './components.js'
 import { PageEnum } from './pages.js'
 import * as i18n from '../../scripts/i18n.js'
@@ -20,20 +19,28 @@ import {
   parseBlocklist,
   concatBlockList,
 } from '../../scripts/background/blocklist-process.js'
-import {
-  ImportChainBlockPageStatesContext,
-  PurposeContext,
-  SessionOptionsContext,
-} from './ui-states.js'
+import { ImportChainBlockPageStatesContext, SessionOptionsContext } from './ui-states.js'
 
 const M = MaterialUI
 
 function TargetOptionsUI() {
-  const { purpose } = React.useContext(PurposeContext)
-  const summary = `${i18n.getMessage('options')} (${i18n.getMessage(purpose)})`
+  const {
+    purpose,
+    changePurposeType,
+    mutatePurposeOptions,
+    availablePurposeTypes,
+  } = React.useContext(ImportChainBlockPageStatesContext)
+  const summary = `${i18n.getMessage('options')} (${i18n.getMessage(purpose.type)})`
   return (
     <RBExpansionPanel summary={summary} defaultExpanded>
-      <ChainBlockPurposeUI />
+      <PurposeSelectionUI
+        {...{
+          purpose,
+          changePurposeType,
+          mutatePurposeOptions,
+          availablePurposeTypes,
+        }}
+      />
     </RBExpansionPanel>
   )
 }
@@ -43,11 +50,14 @@ export default function BlocklistPage() {
   const uiContext = React.useContext(UIContext)
   const limiterStatus = React.useContext(BlockLimiterContext)
   const { openDialog } = React.useContext(UIContext)
-  const purpose = React.useContext(PurposeContext).purpose as ImportBlockSessionRequest['purpose']
-  const { targetOptions, mutateOptions } = React.useContext(SessionOptionsContext)
-  const { blocklist, setBlocklist, nameOfSelectedFiles, setNameOfSelectedFiles } = React.useContext(
-    ImportChainBlockPageStatesContext
-  )
+  const { sessionOptions } = React.useContext(SessionOptionsContext)
+  const {
+    blocklist,
+    setBlocklist,
+    nameOfSelectedFiles,
+    setNameOfSelectedFiles,
+    purpose,
+  } = React.useContext(ImportChainBlockPageStatesContext)
   const { cookieOptions } = React.useContext(TwitterAPIClientContext)
   const [fileInput] = React.useState(React.createRef<HTMLInputElement>())
   function isAvailable() {
@@ -88,7 +98,7 @@ export default function BlocklistPage() {
         userIds: Array.from(blocklist.userIds),
         userNames: Array.from(blocklist.userNames),
       },
-      options: targetOptions,
+      options: sessionOptions,
       myself,
       cookieOptions,
     }
@@ -104,7 +114,6 @@ export default function BlocklistPage() {
     event.preventDefault()
     setBlocklist(emptyBlocklist)
     setNameOfSelectedFiles([])
-    mutateOptions(defaultSessionOptions)
   }
   async function openPopupUIInTab(event: React.MouseEvent<HTMLButtonElement, MouseEvent>) {
     event.preventDefault()

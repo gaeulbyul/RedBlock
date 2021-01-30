@@ -93,15 +93,12 @@ export function getTweetIdFromTab(tab: Tab): string | null {
   return null
 }
 
-export function determineInitialPurpose(
+export function determineInitialPurposeType<T extends Purpose>(
   myself: TwitterUser | null,
   givenUser: TwitterUser | null
-): Purpose {
+): T['type'] {
   if (!(myself && givenUser)) {
     return 'chainblock'
-  }
-  if (myself.id_str === givenUser.id_str) {
-    return 'lockpicker'
   }
   if (givenUser.following) {
     return 'unchainblock'
