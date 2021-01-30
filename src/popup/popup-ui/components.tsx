@@ -191,12 +191,13 @@ export function RBExpansionPanel(props: {
   summary: string
   children: React.ReactNode
   defaultExpanded?: boolean
+  warning?: boolean
 }) {
   const classes = useStylesForExpansionPanels()
   return (
     <DenseExpansionPanel defaultExpanded={props.defaultExpanded}>
       <DenseExpansionPanelSummary expandIcon={<M.Icon>expand_more</M.Icon>}>
-        <T>{props.summary}</T>
+        <T color={props.warning ? 'error' : 'initial'}>{props.summary}</T>
       </DenseExpansionPanelSummary>
       <M.ExpansionPanelDetails className={classes.details}>
         {props.children}
@@ -215,8 +216,13 @@ export function BlockLimiterUI() {
     event.preventDefault()
     requestResetCounter({ cookieStoreId, userId: myself!.id_str })
   }
+  const exceed = current >= max
+  const warningIcon = exceed ? '\u26a0\ufe0f' : ''
   return (
-    <RBExpansionPanel summary={`${i18n.getMessage('block_counter')}: [${current} / ${max}]`}>
+    <RBExpansionPanel
+      summary={`${warningIcon} ${i18n.getMessage('block_counter')}: [${current} / ${max}]`}
+      warning={exceed}
+    >
       <M.Box display="flex" flexDirection="row">
         <M.Box flexGrow="1">
           <T component="div" variant="body2">

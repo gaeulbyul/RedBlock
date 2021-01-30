@@ -557,7 +557,7 @@
     "message": "You can't run protected-follower-chainblock to other user."
   },
   "wtf_twitter": {
-    "message": "⚠️ To avoid problem(force-logout, account suspension), Red Block won't block over 500 users."
+    "message": "To avoid problem(force-logout, account suspension), Red Block won't block over 500 users."
   },
   "oneclick_block_mode": {
     "message": "One-click block mode"
