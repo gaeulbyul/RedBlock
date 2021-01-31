@@ -57,16 +57,14 @@ function checkMessage(msg: object): msg is RBMessageToPopupType {
   return true
 }
 
-const useStylesForAppBar = MaterialUI.makeStyles(() =>
-  MaterialUI.createStyles({
-    toolbar: {
-      padding: 0,
+const PopupTopTab = MaterialUI.withStyles({
+  root: {
+    minWidth: '48px',
+    '&:disabled': {
+      opacity: 0.3,
     },
-    tab: {
-      minWidth: '60px',
-    },
-  })
-)
+  },
+})(MaterialUI.Tab)
 
 interface PopupAppProps {
   myself: TwitterUser | null
@@ -147,7 +145,7 @@ function PopupUITopMenu(props: {
       </M.MenuItem>
       <M.MenuItem
         dense
-        disabled={!availablePages.userSearchChainBlock}
+        disabled={!availablePages.importChainBlock}
         onClick={() => switchPageFromMenu(PageEnum.Blocklist)}
       >
         <M.ListItemIcon>{pageIcon(PageEnum.Blocklist)}</M.ListItemIcon>
@@ -228,7 +226,6 @@ function PopupApp({
   const [initialLoading, setInitialLoading] = React.useState(true)
   const shrinkedPopup = MaterialUI.useMediaQuery('(width:348px), (width:425px)')
   const theme = React.useMemo(() => RedBlockUITheme(darkMode), [darkMode])
-  const classes = useStylesForAppBar()
   function openDialog(content: DialogContent) {
     console.debug(content)
     setModalOpened(true)
@@ -324,7 +321,7 @@ function PopupApp({
             <RedBlockOptionsContext.Provider value={redblockOptions}>
               <BlockLimiterContext.Provider value={limiterStatus}>
                 <M.AppBar position="fixed">
-                  <M.Toolbar variant="dense" className={classes.toolbar}>
+                  <M.Toolbar variant="dense" disableGutters>
                     <M.IconButton color="inherit" onClick={handleMenuButtonClick}>
                       <M.Icon>menu</M.Icon>
                     </M.IconButton>
@@ -334,46 +331,40 @@ function PopupApp({
                       onChange={(_ev, val) => setTabIndex(val)}
                     >
                       <M.Tooltip arrow title={pageLabel(PageEnum.Sessions, runningSessions.length)}>
-                        <M.Tab className={classes.tab} icon={runningSessionsTabIcon} />
+                        <PopupTopTab icon={runningSessionsTabIcon} />
                       </M.Tooltip>
                       <M.Tooltip arrow title={pageLabel(PageEnum.NewSession)}>
-                        <M.Tab
-                          className={classes.tab}
+                        <PopupTopTab
                           icon={pageIcon(PageEnum.NewSession)}
                           disabled={!availablePages.followerChainBlock}
                         />
                       </M.Tooltip>
                       <M.Tooltip arrow title={pageLabel(PageEnum.NewTweetReactionBlock)}>
-                        <M.Tab
-                          className={classes.tab}
+                        <PopupTopTab
                           icon={pageIcon(PageEnum.NewTweetReactionBlock)}
                           disabled={!availablePages.tweetReactionChainBlock}
                         />
                       </M.Tooltip>
                       <M.Tooltip arrow title={pageLabel(PageEnum.NewSearchChainBlock)}>
-                        <M.Tab
-                          className={classes.tab}
+                        <PopupTopTab
                           icon={pageIcon(PageEnum.NewSearchChainBlock)}
                           disabled={!availablePages.userSearchChainBlock}
                         />
                       </M.Tooltip>
                       <M.Tooltip arrow title={pageLabel(PageEnum.Blocklist)}>
-                        <M.Tab
-                          className={classes.tab}
+                        <PopupTopTab
                           icon={pageIcon(PageEnum.Blocklist)}
                           disabled={!availablePages.importChainBlock}
                         />
                       </M.Tooltip>
                       <M.Tooltip arrow title={pageLabel(PageEnum.LockPicker)}>
-                        <M.Tab
-                          className={classes.tab}
+                        <PopupTopTab
                           icon={pageIcon(PageEnum.LockPicker)}
                           disabled={!availablePages.lockPicker}
                         />
                       </M.Tooltip>
                       <M.Tooltip arrow title={pageLabel(PageEnum.Utilities)}>
-                        <M.Tab
-                          className={classes.tab}
+                        <PopupTopTab
                           icon={pageIcon(PageEnum.Utilities)}
                           disabled={!availablePages.miscellaneous}
                         />
