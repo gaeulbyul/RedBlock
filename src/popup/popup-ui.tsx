@@ -24,11 +24,13 @@ import {
   TweetReactionChainBlockPageStatesProvider,
   ImportChainBlockPageStatesProvider,
   UserSearchChainBlockPageStatesProvider,
+  LockPickerPageStatesProvider,
 } from './popup-ui/ui-states.js'
 import MiscPage from './popup-ui/misc-page.js'
 import NewChainBlockPage from './popup-ui/new-chainblock-page.js'
 import NewTweetReactionBlockPage from './popup-ui/new-tweetreactionblock-page.js'
 import NewSearchChainBlockPage from './popup-ui/new-searchblock-page.js'
+import LockPickerPage from './popup-ui/lockpicker-page.js'
 import { DialogContent, RBDialog, RedBlockUITheme, TabPanel } from './popup-ui/components.js'
 
 import {
@@ -84,7 +86,6 @@ function PopupUITopMenu(props: {
 }) {
   const { runningSessions } = props
   const {
-    shrinkedPopup,
     menuAnchorElem,
     setMenuAnchorElem,
     switchPage,
@@ -109,83 +110,81 @@ function PopupUITopMenu(props: {
   function closeMenu() {
     setMenuAnchorElem(null)
   }
-  const menus = [
-    <M.MenuItem dense onClick={handleSettingsClick}>
-      <M.ListItemIcon>
-        <M.Icon>settings</M.Icon>
-      </M.ListItemIcon>
-      {i18n.getMessage('open_settings_ui')}
-    </M.MenuItem>,
-  ]
-  if (!popupOpenedInTab) {
-    menus.unshift(
-      <M.MenuItem dense onClick={handleOpenInTabClick}>
-        <M.ListItemIcon>
-          <M.Icon>open_in_new</M.Icon>
-        </M.ListItemIcon>
-        {i18n.getMessage('open_in_new_tab')}
-      </M.MenuItem>
-    )
-  }
-  if (shrinkedPopup) {
-    menus.unshift(<M.Divider />)
-    menus.unshift(
-      ...[
-        <M.MenuItem dense onClick={() => switchPageFromMenu(PageEnum.Sessions)}>
-          <M.ListItemIcon>{pageIcon(PageEnum.Sessions)}</M.ListItemIcon>
-          {pageLabel(PageEnum.Sessions, runningSessions.length)}
-        </M.MenuItem>,
-        <M.MenuItem
-          dense
-          disabled={!availablePages.followerChainBlock}
-          onClick={() => switchPageFromMenu(PageEnum.NewSession)}
-        >
-          <M.ListItemIcon>{pageIcon(PageEnum.NewSession)}</M.ListItemIcon>
-          {pageLabel(PageEnum.NewSession)}
-        </M.MenuItem>,
-        <M.MenuItem
-          dense
-          disabled={!availablePages.tweetReactionChainBlock}
-          onClick={() => switchPageFromMenu(PageEnum.NewTweetReactionBlock)}
-        >
-          <M.ListItemIcon>{pageIcon(PageEnum.NewTweetReactionBlock)}</M.ListItemIcon>
-          {pageLabel(PageEnum.NewTweetReactionBlock)}
-        </M.MenuItem>,
-        <M.MenuItem
-          dense
-          disabled={!availablePages.userSearchChainBlock}
-          onClick={() => switchPageFromMenu(PageEnum.NewSearchChainBlock)}
-        >
-          <M.ListItemIcon>{pageIcon(PageEnum.NewSearchChainBlock)}</M.ListItemIcon>
-          {pageLabel(PageEnum.NewSearchChainBlock)}
-        </M.MenuItem>,
-        <M.MenuItem
-          dense
-          disabled={!availablePages.userSearchChainBlock}
-          onClick={() => switchPageFromMenu(PageEnum.Blocklist)}
-        >
-          <M.ListItemIcon>{pageIcon(PageEnum.Blocklist)}</M.ListItemIcon>
-          {pageLabel(PageEnum.Blocklist)}
-        </M.MenuItem>,
-        <M.MenuItem
-          dense
-          disabled={!availablePages.miscellaneous}
-          onClick={() => switchPageFromMenu(PageEnum.Utilities)}
-        >
-          <M.ListItemIcon>{pageIcon(PageEnum.Utilities)}</M.ListItemIcon>
-          {pageLabel(PageEnum.Utilities)}
-        </M.MenuItem>,
-      ]
-    )
-  }
   return (
     <M.Menu
       keepMounted
       anchorEl={menuAnchorElem}
       open={Boolean(menuAnchorElem)}
       onClose={closeMenu}
-      children={[menus]}
-    />
+    >
+      <M.MenuItem dense onClick={() => switchPageFromMenu(PageEnum.Sessions)}>
+        <M.ListItemIcon>{pageIcon(PageEnum.Sessions)}</M.ListItemIcon>
+        {pageLabel(PageEnum.Sessions, runningSessions.length)}
+      </M.MenuItem>
+      <M.MenuItem
+        dense
+        disabled={!availablePages.followerChainBlock}
+        onClick={() => switchPageFromMenu(PageEnum.NewSession)}
+      >
+        <M.ListItemIcon>{pageIcon(PageEnum.NewSession)}</M.ListItemIcon>
+        {pageLabel(PageEnum.NewSession)}
+      </M.MenuItem>
+      <M.MenuItem
+        dense
+        disabled={!availablePages.tweetReactionChainBlock}
+        onClick={() => switchPageFromMenu(PageEnum.NewTweetReactionBlock)}
+      >
+        <M.ListItemIcon>{pageIcon(PageEnum.NewTweetReactionBlock)}</M.ListItemIcon>
+        {pageLabel(PageEnum.NewTweetReactionBlock)}
+      </M.MenuItem>
+      <M.MenuItem
+        dense
+        disabled={!availablePages.userSearchChainBlock}
+        onClick={() => switchPageFromMenu(PageEnum.NewSearchChainBlock)}
+      >
+        <M.ListItemIcon>{pageIcon(PageEnum.NewSearchChainBlock)}</M.ListItemIcon>
+        {pageLabel(PageEnum.NewSearchChainBlock)}
+      </M.MenuItem>
+      <M.MenuItem
+        dense
+        disabled={!availablePages.userSearchChainBlock}
+        onClick={() => switchPageFromMenu(PageEnum.Blocklist)}
+      >
+        <M.ListItemIcon>{pageIcon(PageEnum.Blocklist)}</M.ListItemIcon>
+        {pageLabel(PageEnum.Blocklist)}
+      </M.MenuItem>
+      <M.MenuItem
+        dense
+        disabled={!availablePages.lockPicker}
+        onClick={() => switchPageFromMenu(PageEnum.LockPicker)}
+      >
+        <M.ListItemIcon>{pageIcon(PageEnum.LockPicker)}</M.ListItemIcon>
+        {pageLabel(PageEnum.LockPicker)}
+      </M.MenuItem>
+      <M.MenuItem
+        dense
+        disabled={!availablePages.miscellaneous}
+        onClick={() => switchPageFromMenu(PageEnum.Utilities)}
+      >
+        <M.ListItemIcon>{pageIcon(PageEnum.Utilities)}</M.ListItemIcon>
+        {pageLabel(PageEnum.Utilities)}
+      </M.MenuItem>
+      <M.Divider />
+      {!popupOpenedInTab && (
+        <M.MenuItem dense onClick={handleOpenInTabClick}>
+          <M.ListItemIcon>
+            <M.Icon>open_in_new</M.Icon>
+          </M.ListItemIcon>
+          {i18n.getMessage('open_in_new_tab')}
+        </M.MenuItem>
+      )}
+      <M.MenuItem dense onClick={handleSettingsClick}>
+        <M.ListItemIcon>
+          <M.Icon>settings</M.Icon>
+        </M.ListItemIcon>
+        {i18n.getMessage('open_settings_ui')}
+      </M.MenuItem>
+    </M.Menu>
   )
 }
 
@@ -259,6 +258,7 @@ function PopupApp({
     tweetReactionChainBlock: !!(myself && currentTweet),
     userSearchChainBlock: !!(myself && currentSearchQuery),
     importChainBlock: !!myself,
+    lockPicker: !!myself,
     miscellaneous: !!myself,
   }
   React.useEffect(() => {
@@ -364,6 +364,13 @@ function PopupApp({
                           disabled={!availablePages.importChainBlock}
                         />
                       </M.Tooltip>
+                      <M.Tooltip arrow title={pageLabel(PageEnum.LockPicker)}>
+                        <M.Tab
+                          className={classes.tab}
+                          icon={pageIcon(PageEnum.LockPicker)}
+                          disabled={!availablePages.lockPicker}
+                        />
+                      </M.Tooltip>
                       <M.Tooltip arrow title={pageLabel(PageEnum.Utilities)}>
                         <M.Tab
                           className={classes.tab}
@@ -396,6 +403,11 @@ function PopupApp({
                         <NewSearchChainBlockPage />
                       </TabPanel>
                     </UserSearchChainBlockPageStatesProvider>
+                    <LockPickerPageStatesProvider>
+                      <TabPanel value={tabIndex} index={PageEnum.LockPicker}>
+                        <LockPickerPage />
+                      </TabPanel>
+                    </LockPickerPageStatesProvider>
                     <ImportChainBlockPageStatesProvider>
                       <TabPanel value={tabIndex} index={PageEnum.Blocklist}>
                         <BlocklistPage />
@@ -484,7 +496,7 @@ export async function initializeUI() {
   const redblockOptions = await loadOptions()
   const popupOpenedInTab = /\bistab=1\b/.test(location.search)
   let initialPage: PageEnum
-  const initialPageMatch = /\bpage=([0-5])\b/.exec(location.search)
+  const initialPageMatch = /\bpage=([0-6])\b/.exec(location.search)
   if (initialPageMatch) {
     initialPage = parseInt(initialPageMatch[1]) as PageEnum
   } else {

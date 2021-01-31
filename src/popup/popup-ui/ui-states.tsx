@@ -107,6 +107,16 @@ interface UserSearchChainBlockPageStates {
   availablePurposeTypes: UserSearchBlockSessionRequest['purpose']['type'][]
 }
 
+interface LockPickerPageStates {
+  purpose: LockPickerSessionRequest['purpose']
+  // TODO: 이거 없어도 되게?
+  changePurposeType(purposeType: UserSearchBlockSessionRequest['purpose']['type']): void
+  mutatePurposeOptions(
+    partialOptions: Partial<Omit<LockPickerSessionRequest['purpose'], 'type'>>
+  ): void
+  availablePurposeTypes: LockPickerSessionRequest['purpose']['type'][]
+}
+
 export const FollowerChainBlockPageStatesContext = React.createContext<FollowerChainBlockPageStates>(
   null!
 )
@@ -119,6 +129,7 @@ export const ImportChainBlockPageStatesContext = React.createContext<ImportChain
 export const UserSearchChainBlockPageStatesContext = React.createContext<UserSearchChainBlockPageStates>(
   null!
 )
+export const LockPickerPageStatesContext = React.createContext<LockPickerPageStates>(null!)
 
 export function FollowerChainBlockPageStatesProvider(props: {
   children: React.ReactNode
@@ -251,5 +262,23 @@ export function UserSearchChainBlockPageStatesProvider(props: {
     >
       <SessionOptionsContextProvider>{props.children}</SessionOptionsContextProvider>
     </UserSearchChainBlockPageStatesContext.Provider>
+  )
+}
+
+export function LockPickerPageStatesProvider(props: { children: React.ReactNode }) {
+  const [purpose, changePurposeType, mutatePurposeOptions] = usePurpose<
+    LockPickerSessionRequest['purpose']
+  >('lockpicker')
+  return (
+    <LockPickerPageStatesContext.Provider
+      value={{
+        purpose,
+        changePurposeType,
+        mutatePurposeOptions,
+        availablePurposeTypes: ['lockpicker'],
+      }}
+    >
+      <SessionOptionsContextProvider>{props.children}</SessionOptionsContextProvider>
+    </LockPickerPageStatesContext.Provider>
   )
 }

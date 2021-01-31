@@ -22,7 +22,6 @@ function TargetExecutionButtonUI(props: { isAvailable: boolean }) {
   const { isAvailable } = props
   const { searchQuery, purpose } = React.useContext(UserSearchChainBlockPageStatesContext)
   const { sessionOptions } = React.useContext(SessionOptionsContext)
-  const { openDialog } = React.useContext(UIContext)
   const uiContext = React.useContext(UIContext)
   const myself = React.useContext(MyselfContext)
   const { cookieOptions } = React.useContext(TwitterAPIClientContext)
@@ -44,7 +43,7 @@ function TargetExecutionButtonUI(props: { isAvailable: boolean }) {
       myself,
       cookieOptions,
     }
-    openDialog({
+    uiContext.openDialog({
       dialogType: 'confirm',
       message: TextGenerate.generateConfirmMessage(request),
       callbackOnOk() {

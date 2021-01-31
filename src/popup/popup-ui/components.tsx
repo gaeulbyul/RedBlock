@@ -242,7 +242,7 @@ export function BlockLimiterUI() {
   )
 }
 
-export function TwitterUserProfile(props: { user: TwitterUser; children: React.ReactNode }) {
+export function TwitterUserProfile(props: { user: TwitterUser; children?: React.ReactNode }) {
   const { user } = props
   const biggerProfileImageUrl = user.profile_image_url_https.replace('_normal', '_bigger')
   return (
@@ -465,7 +465,7 @@ export function PurposeSelectionUI(props: {
           />
         )}
       </M.Tabs>
-      <M.Divider />
+      {availablePurposeTypes.length >= 2 && <M.Divider />}
       {chainblockable && (
         <TabPanel value={purpose.type} index="chainblock">
           {purpose.type === 'chainblock' && (
