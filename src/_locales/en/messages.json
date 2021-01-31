@@ -734,5 +734,20 @@
         "content": "$1"
       }
     }
+  },
+  "oneclick_block_mode_description": {
+    "message": "Oneclick-block button will appear on users or tweets."
+  },
+  "troubleshooting": {
+    "message": "Troubleshooting"
+  },
+  "delete_cookie": {
+    "message": "Delete cookies"
+  },
+  "confirm_delete_cookie": {
+    "message": "Are you sure to delete Twitter-related cookies?"
+  },
+  "delete_cookie_description": {
+    "message": "If you're experiencing a malfunction on Twitter after Chainblock overuse, try to delete Twitter-related cookies by clicking this button. Note that your account will be logged out immediately after deleting cookies."
   }
 }

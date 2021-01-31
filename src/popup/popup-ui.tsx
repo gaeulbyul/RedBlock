@@ -256,7 +256,8 @@ function PopupApp({
     userSearchChainBlock: !!(myself && currentSearchQuery),
     importChainBlock: !!myself,
     lockPicker: !!myself,
-    miscellaneous: !!myself,
+    // 쿠키삭제 메뉴는 트위터 로그인상태가 아니어도 사용할 수 있도록
+    miscellaneous: true,
   }
   React.useEffect(() => {
     const { cookieStoreId } = twClient.cookieOptions

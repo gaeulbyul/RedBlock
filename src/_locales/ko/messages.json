@@ -734,5 +734,20 @@
         "content": "$2"
       }
     }
+  },
+  "oneclick_block_mode_description": {
+    "message": "유저나 트윗에 원클릭 차단버튼이 생깁니다."
+  },
+  "troubleshooting": {
+    "message": "문제해결"
+  },
+  "delete_cookie": {
+    "message": "쿠키 삭제"
+  },
+  "confirm_delete_cookie": {
+    "message": "트위터 관련 쿠키를 삭제합니다. 계속 진행하시겠습니까?"
+  },
+  "delete_cookie_description": {
+    "message": "체인블락 과다사용 이후 트위터가 오작동할 경우 트위터의 쿠키를 삭제해볼 수 있습니다. 쿠키를 삭제한 이후엔 계정이 로그아웃됩니다."
   }
 }
