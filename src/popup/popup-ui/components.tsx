@@ -394,6 +394,12 @@ const BigChainUnfollowButton = MaterialUI.withStyles(theme => ({
   },
 }))(BigBaseButton)
 
+const PurposeTab = MaterialUI.withStyles(_theme => ({
+  root: {
+    padding: 0,
+  },
+}))(MaterialUI.Tab)
+
 const useStylesForTab = MaterialUI.makeStyles(() =>
   MaterialUI.createStyles({
     tab: {
@@ -425,7 +431,7 @@ export function PurposeSelectionUI(props: {
         onChange={(_ev, val) => changePurposeType(val)}
       >
         {chainblockable && (
-          <M.Tab
+          <PurposeTab
             value="chainblock"
             className={classes.tab}
             icon={purposeTypeToIcon('chainblock')}
@@ -433,7 +439,7 @@ export function PurposeSelectionUI(props: {
           />
         )}
         {unchainblockable && (
-          <M.Tab
+          <PurposeTab
             value="unchainblock"
             className={classes.tab}
             icon={purposeTypeToIcon('unchainblock')}
@@ -441,7 +447,7 @@ export function PurposeSelectionUI(props: {
           />
         )}
         {lockpickable && (
-          <M.Tab
+          <PurposeTab
             value="lockpicker"
             className={classes.tab}
             icon={purposeTypeToIcon('lockpicker')}
@@ -449,7 +455,7 @@ export function PurposeSelectionUI(props: {
           />
         )}
         {chainunfollowable && (
-          <M.Tab
+          <PurposeTab
             value="chainunfollow"
             className={classes.tab}
             icon={purposeTypeToIcon('chainunfollow')}
@@ -457,7 +463,7 @@ export function PurposeSelectionUI(props: {
           />
         )}
         {exportable && (
-          <M.Tab
+          <PurposeTab
             value="export"
             className={classes.tab}
             icon={purposeTypeToIcon('export')}
