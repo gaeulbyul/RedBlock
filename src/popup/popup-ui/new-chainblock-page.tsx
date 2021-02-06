@@ -169,22 +169,21 @@ function TargetUserProfile(props: { isAvailable: boolean }) {
   }
   return (
     <TwitterUserProfile user={user}>
-      {selectedMyself ? (
-        ''
-      ) : (
-        <div className="target-user-info">
-          {isAvailable || (
-            <div>
-              {user.protected && `\u{1f512} ${i18n.getMessage('cant_chainblock_to_protected')}`}
-            </div>
-          )}
-          <M.RadioGroup row>
-            {radio('followers', i18n.formatFollowsCount('followers', user.followers_count))}
-            {radio('friends', i18n.formatFollowsCount('friends', user.friends_count))}
-            {radio('mutual-followers', i18n.getMessage('mutual_followers'))}
-          </M.RadioGroup>
-        </div>
-      )}
+      <div>
+        {isAvailable || (
+          <M.Box display="flex" flexDirection="column">
+            {user.protected && !selectedMyself && (
+              <div>&#128274; {i18n.getMessage('cant_chainblock_to_protected')}</div>
+            )}
+            {selectedMyself && <div>&#10071; {i18n.getMessage('its_you')}</div>}
+          </M.Box>
+        )}
+        <M.RadioGroup row>
+          {radio('followers', i18n.formatFollowsCount('followers', user.followers_count))}
+          {radio('friends', i18n.formatFollowsCount('friends', user.friends_count))}
+          {radio('mutual-followers', i18n.getMessage('mutual_followers'))}
+        </M.RadioGroup>
+      </div>
     </TwitterUserProfile>
   )
 }
