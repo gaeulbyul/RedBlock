@@ -94,6 +94,11 @@ export class TwitterUserMap extends Map<string, TwitterUser> {
   ): TwitterUserMap {
     return TwitterUserMap.fromUsersArray(this.toUserArray().filter(fn))
   }
+  public merge(anotherMap: TwitterUserMap) {
+    for (const user of anotherMap.values()) {
+      this.addUser(user)
+    }
+  }
 }
 
 export function getUserNameFromURL(url: URL | Location | HTMLAnchorElement): string | null {

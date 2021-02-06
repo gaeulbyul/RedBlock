@@ -29,6 +29,8 @@ import {
 
 const M = MaterialUI
 
+const userCache = new TwitterUserMap()
+
 interface UserSelectorContextType {
   changeSelectedUser(userId: string, userName: string, group: SelectUserGroup): void
 }
@@ -239,7 +241,6 @@ function TargetUserSelectUI(props: { isAvailable: boolean }) {
           group,
         })
       } else {
-        // TODO: 유저를 가져오는 데 실패하면 해당 유저를 지운다?
         openDialog({
           dialogType: 'alert',
           message: {
@@ -256,10 +257,14 @@ function TargetUserSelectUI(props: { isAvailable: boolean }) {
     }
   }
   React.useEffect(() => {
-    Storage.loadUsers().then(setSavedUsers)
+    Storage.loadUsers().then(users => {
+      setSavedUsers(users)
+      userCache.merge(users)
+    })
     return Storage.onStorageChanged('savedUsers', async users => {
       const usersMap = TwitterUserMap.fromUsersArray(users)
       setSavedUsers(usersMap)
+      users.forEach(user => userCache.addUser(user))
       // 스토리지에서 불러올 때 직전에 선택했었던 유저가 없는 경우
       if (!(selectedUser && usersMap.hasUser(selectedUser))) {
         setUserSelection({
@@ -328,7 +333,6 @@ function TargetOptionsUI() {
   )
 }
 
-const userCache = new TwitterUserMap()
 async function getUserByIdWithCache(twClient: TwClient, userId: string): Promise<TwitterUser> {
   if (userCache.has(userId)) {
     return userCache.get(userId)!
