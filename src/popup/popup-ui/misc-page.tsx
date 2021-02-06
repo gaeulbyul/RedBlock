@@ -15,11 +15,13 @@ async function deleteTwitterRelatedCookies(cookieOptions: CookieOptions) {
   const promises: Promise<any>[] = []
   for (const cookie of cookies) {
     promises.push(
-      browser.cookies.remove({
-        url,
-        storeId,
-        name: cookie.name,
-      })
+      browser.cookies
+        .remove({
+          url,
+          storeId,
+          name: cookie.name,
+        })
+        .catch(() => {})
     )
   }
   await Promise.allSettled(promises)
@@ -42,7 +44,9 @@ export default function MiscPage() {
         contentLines: [i18n.getMessage('confirm_delete_cookie')],
       },
       callbackOnOk() {
-        deleteTwitterRelatedCookies(cookieOptions)
+        deleteTwitterRelatedCookies(cookieOptions).then(() => {
+          uiContext.openSnackBar(i18n.getMessage('cookie_delete_complete'))
+        })
       },
     })
   }
