@@ -82,32 +82,56 @@ class AntiBlockScraper implements UserScraper {
   }
   private async prepareActor(): Promise<TwClient | null> {
     const targetUserId = this.request.target.user.id_str
-    const multiCookies = await CookieHandler.getMultiAccountCookies()
-    if (multiCookies) {
-      const actorUserIds = Object.keys(multiCookies)
-      for (const actAsUserId of actorUserIds) {
-        const secondaryTwitterClient = new TwClient({
-          cookieStoreId: this.request.cookieOptions.cookieStoreId,
-          actAsUserId,
-        })
-        const target = await secondaryTwitterClient
+    const cookieStores = await browser.cookies.getAllCookieStores()
+    for (const store of cookieStores) {
+      const cookieStoreId = store.id
+      // 컨테이너에 트위터 계정을 하나만 로그인한 경우, auth_multi 쿠키가 없어 서
+      // getMultiAccountCookies 함수가 null 을 리턴한다.
+      const secondaryTwClients: TwClient[] = [new TwClient({ cookieStoreId })]
+      const multiCookies = await CookieHandler.getMultiAccountCookies({ cookieStoreId })
+      if (multiCookies) {
+        const actorUserIds = Object.keys(multiCookies)
+        for (const actAsUserId of actorUserIds) {
+          secondaryTwClients.push(
+            new TwClient({
+              cookieStoreId,
+              actAsUserId,
+            })
+          )
+        }
+      }
+      console.debug(
+        '[AntiBlock]: storeId: "%s" multiCookies:%o clients:%o',
+        cookieStoreId,
+        multiCookies,
+        secondaryTwClients
+      )
+      for (const secondaryTwClient of secondaryTwClients) {
+        console.debug('[AntiBlock]: secondaryTwClient:%o', secondaryTwClient)
+        const secondaryMyself = await secondaryTwClient.getMyself().catch(() => null)
+        if (!secondaryMyself) {
+          console.debug('[AntiBlock]: login check failed')
+          continue
+        }
+        if (secondaryMyself.id_str === this.request.myself.id_str) {
+          continue
+        }
+        const target = await secondaryTwClient
           .getSingleUser({ user_id: targetUserId })
           .catch(() => null)
         if (target && !target.blocked_by) {
-          return secondaryTwitterClient
+          console.debug('[AntiBlock]: Found! will use %o', secondaryTwClient)
+          return secondaryTwClient
         }
       }
     }
     return null
   }
-  private async fetchFollowersIds(): Promise<string[]> {
-    const { list: followKind } = this.request.target
+  private async fetchFollowersIds(
+    secondaryScrapingClient: UserScrapingAPI.UserScrapingAPIClient
+  ): Promise<string[]> {
     let userIds: string[]
-    const secondaryTwClient = await this.prepareActor()
-    if (!secondaryTwClient) {
-      throw new Error(i18n.getMessage('cant_chainblock_to_blocked'))
-    }
-    const secondaryScrapingClient = new UserScrapingAPI.UserScrapingAPIClient(secondaryTwClient)
+    const { list: followKind } = this.request.target
     if (followKind === 'mutual-followers') {
       userIds = await this.getMutualFollowersIdsWith(secondaryScrapingClient)
     } else {
@@ -117,7 +141,12 @@ class AntiBlockScraper implements UserScraper {
     return userIds
   }
   public async *[Symbol.asyncIterator]() {
-    const userIds = await this.fetchFollowersIds()
+    const secondaryTwClient = await this.prepareActor()
+    if (!secondaryTwClient) {
+      throw new Error(i18n.getMessage('cant_chainblock_to_blocked'))
+    }
+    const secondaryScrapingClient = new UserScrapingAPI.UserScrapingAPIClient(secondaryTwClient)
+    const userIds = await this.fetchFollowersIds(secondaryScrapingClient)
     let scraper: ScrapedUsersIterator = this.scrapingClient.lookupUsersByIds(userIds)
     scraper = ExtraScraper.scrapeUsersOnBio(
       this.scrapingClient,

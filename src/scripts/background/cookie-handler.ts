@@ -1,8 +1,11 @@
-export async function getMultiAccountCookies(): Promise<MultiAccountCookies | null> {
+export async function getMultiAccountCookies({
+  cookieStoreId,
+}: CookieOptions): Promise<MultiAccountCookies | null> {
   const url = 'https://twitter.com'
   const authMultiCookie = await browser.cookies.get({
     url,
     name: 'auth_multi',
+    storeId: cookieStoreId,
   })
   if (!authMultiCookie) {
     return null
@@ -18,7 +21,7 @@ export async function generateCookiesForAltAccountRequest(
     throw new Error('unreachable - `actAsUserId` is missing')
   }
   const url = 'https://twitter.com'
-  const authMultiCookie = await getMultiAccountCookies()
+  const authMultiCookie = await getMultiAccountCookies(cookieOptions)
   if (!authMultiCookie) {
     throw new Error(
       'auth_multi cookie unavailable. this feature requires logged in with two or more account.'
