@@ -59,11 +59,16 @@ function stripOrigin(headers: Headers) {
 }
 
 function filterInvalidHeaders(headers: Headers) {
+  const keysToRemove = new Set<string>()
   for (const name of headers.keys()) {
     if (name.length <= 0 || /redblock/i.test(name)) {
-      headers.delete(name)
+      // 여기서 곧장 headers.delete하면 iterate중인 headers를 건드리게 되고,
+      // 그러고나면 일부 key를 건너뛰더라.
+      // Set에 모았다가 한꺼번에 지우도록 고침
+      keysToRemove.add(name)
     }
   }
+  keysToRemove.forEach(key => headers.delete(key))
 }
 
 function overrideWholeCookiesWithCookieStore(headers: Headers) {
