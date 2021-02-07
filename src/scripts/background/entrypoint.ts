@@ -56,16 +56,18 @@ async function sendProgress() {
 
 async function sendBlockLimiterStatus(options: BlockLimiterOptions, cookieStoreId: string) {
   const blockLimiter = new BlockLimiter(options)
-  return browser.runtime.sendMessage<RBMessageToPopup.BlockLimiterInfo>({
-    messageType: 'BlockLimiterInfo',
-    messageTo: 'popup',
-    status: {
-      current: blockLimiter.count,
-      max: blockLimiter.max,
-      remained: blockLimiter.max - blockLimiter.count,
-    },
-    cookieStoreId,
-  })
+  return browser.runtime
+    .sendMessage<RBMessageToPopup.BlockLimiterInfo>({
+      messageType: 'BlockLimiterInfo',
+      messageTo: 'popup',
+      status: {
+        current: blockLimiter.count,
+        max: blockLimiter.max,
+        remained: blockLimiter.max - blockLimiter.count,
+      },
+      cookieStoreId,
+    })
+    .catch(() => {})
 }
 
 async function saveUserToStorage(user: TwitterUser) {
