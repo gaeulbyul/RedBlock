@@ -3,7 +3,7 @@ import {
   requestBlockLimiterStatus,
   refreshSavedUsers,
 } from '../scripts/background/request-sender.js'
-import { loadOptions } from '../scripts/background/storage.js'
+import { loadOptions, onStorageChanged } from '../scripts/background/storage.js'
 import { TwClient } from '../scripts/background/twitter-api.js'
 import { isRunningSession, UI_UPDATE_DELAY } from '../scripts/common.js'
 import * as i18n from '../scripts/i18n.js'
@@ -74,7 +74,7 @@ interface PopupAppProps {
   currentSearchQuery: string | null
   popupOpenedInTab: boolean
   initialPage: PageEnum
-  redblockOptions: RedBlockStorage['options']
+  initialRedBlockOptions: RedBlockStorage['options']
 }
 
 function PopupUITopMenu(props: {
@@ -206,7 +206,7 @@ function PopupApp({
   currentSearchQuery,
   popupOpenedInTab,
   initialPage,
-  redblockOptions,
+  initialRedBlockOptions,
 }: PopupAppProps) {
   const [tabIndex, setTabIndex] = React.useState<PageEnum>(initialPage)
   const [sessions, setSessions] = React.useState<SessionInfo[]>([])
@@ -224,6 +224,7 @@ function PopupApp({
   // 파이어폭스의 팝업 가로폭 문제
   // 참고: popup.css
   const [initialLoading, setInitialLoading] = React.useState(true)
+  const [redblockOptions, setRedBlockOptions] = React.useState(initialRedBlockOptions)
   const shrinkedPopup = MaterialUI.useMediaQuery('(width:348px), (width:425px)')
   const theme = React.useMemo(() => RedBlockUITheme(darkMode), [darkMode])
   function openDialog(content: DialogContent) {
@@ -289,6 +290,9 @@ function PopupApp({
       browser.runtime.onMessage.removeListener(messageListener)
     }
   }, [twClient])
+  React.useEffect(() => {
+    return onStorageChanged('options', setRedBlockOptions)
+  }, [])
   const runningSessions = sessions.filter(session => isRunningSession(session))
   const runningSessionsTabIcon = (
     <M.Badge
@@ -485,7 +489,7 @@ async function getTabContext(tab: browser.tabs.Tab, twClient: TwClient): Promise
 }
 
 export async function initializeUI() {
-  const redblockOptions = await loadOptions()
+  const initialRedBlockOptions = await loadOptions()
   const popupOpenedInTab = /\bistab=1\b/.test(location.search)
   let initialPage: PageEnum
   const initialPageMatch = /\bpage=([0-6])\b/.exec(location.search)
@@ -512,7 +516,7 @@ export async function initializeUI() {
         currentSearchQuery,
         popupOpenedInTab,
         initialPage,
-        redblockOptions,
+        initialRedBlockOptions,
       }}
     />
   )

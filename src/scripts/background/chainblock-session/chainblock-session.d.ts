@@ -51,6 +51,7 @@ interface ExportPurpose {
 interface SessionOptions {
   includeUsersInBio: BioBlockMode
   skipInactiveUser: InactivePeriod
+  enableAntiBlock: boolean
 }
 
 interface FollowerBlockSessionRequest extends BaseRequest {

@@ -263,7 +263,6 @@ export class TwClient {
   }
   private async request2(method: HTTPMethods, path: string, paramsObj: URLParamsObj = {}) {
     const fetchOptions = await generateTwitterAPIOptions({ method }, this.cookieOptions)
-    // TODO: prefix should customizable
     const url = new URL(`https://${this.prefix}` + '/2' + path)
     let params: URLSearchParams
     if (method === 'get') {
@@ -565,7 +564,6 @@ export interface APIv2Response {
     users: { [userId: string]: TwitterUser }
   }
   timeline: {
-    // TODO
     id: string
     instructions: any[]
   }

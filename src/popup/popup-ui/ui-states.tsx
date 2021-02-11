@@ -28,10 +28,11 @@ interface SessionOptionsContextType {
 export const SessionOptionsContext = React.createContext<SessionOptionsContextType>(null!)
 
 function SessionOptionsContextProvider(props: { children: React.ReactNode }) {
-  const { skipInactiveUser } = React.useContext(RedBlockOptionsContext)
+  const { skipInactiveUser, enableAntiBlock } = React.useContext(RedBlockOptionsContext)
   const [sessionOptions, setTargetOptions] = React.useState<SessionOptions>({
     ...defaultSessionOptions,
     skipInactiveUser,
+    enableAntiBlock,
   })
   function mutateOptions(newOptionsPart: Partial<SessionOptions>) {
     const newOptions = { ...sessionOptions, ...newOptionsPart }

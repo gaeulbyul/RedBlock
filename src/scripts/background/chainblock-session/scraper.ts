@@ -264,7 +264,7 @@ export function initScraper(twClient: TwClient, request: SessionRequest): UserSc
     default:
       assertNever(target)
   }
-  if (target.user.blocked_by) {
+  if (target.user.blocked_by && request.options.enableAntiBlock) {
     return new AntiBlockScraper(twClient, request as FollowerBlockSessionRequest)
   }
   if (target.list === 'mutual-followers') {

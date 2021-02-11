@@ -37,7 +37,7 @@ export default class ChainBlocker {
     )
     return currentRunningSessions
   }
-  public checkTarget(request: SessionRequest): TargetCheckResult {
+  public checkRequest(request: SessionRequest): TargetCheckResult {
     const { target, myself, purpose } = request
     const sameTargetSession = this.getSessionByTarget(target)
     if (sameTargetSession) {
@@ -55,6 +55,9 @@ export default class ChainBlocker {
       })
       if (isValidLockPicker.startsWith('invalid')) {
         throw new Error('락피커 오폭방지 작동')
+      }
+      if (targetUser.blocked_by && !request.options.enableAntiBlock) {
+        return TargetCheckResult.TheyBlocksYou
       }
     }
     if (request.purpose.type === 'lockpicker') {
@@ -180,7 +183,7 @@ export default class ChainBlocker {
     return session
   }
   public add(request: SessionRequest): Either<TargetCheckResult, string> {
-    const isValidTarget = this.checkTarget(request)
+    const isValidTarget = this.checkRequest(request)
     if (isValidTarget !== TargetCheckResult.Ok) {
       return {
         ok: false,

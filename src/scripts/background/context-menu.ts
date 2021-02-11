@@ -11,10 +11,6 @@ import { generateConfirmMessage, checkResultToString, objToString } from '../tex
 import { alertToTab } from './background.js'
 import { getCookieStoreIdFromTab } from './cookie-handler.js'
 
-/* TODO
-TwClient: 우클릭 버튼 누를 시 넘겨받는 tab 데이터에 따라 cookieStoreId / incognito 등 정보 활용
-*/
-
 type BrowserTab = browser.tabs.Tab
 
 const urlPatterns = ['https://twitter.com/*', 'https://mobile.twitter.com/*']
@@ -65,7 +61,7 @@ async function confirmFollowerChainBlockRequest(
     myself,
     cookieOptions: twClient.cookieOptions,
   }
-  const checkResult = chainblocker.checkTarget(request)
+  const checkResult = chainblocker.checkRequest(request)
   if (checkResult === TargetCheckResult.Ok) {
     return sendConfirmToTab(tab, request)
   } else {
@@ -102,7 +98,7 @@ async function confirmTweetReactionChainBlockRequest(
     myself,
     cookieOptions: twClient.cookieOptions,
   }
-  const checkResult = chainblocker.checkTarget(request)
+  const checkResult = chainblocker.checkRequest(request)
   if (checkResult === TargetCheckResult.Ok) {
     return sendConfirmToTab(tab, request)
   } else {

@@ -211,7 +211,6 @@ function TargetUserSelectUI(props: { isAvailable: boolean }) {
   )
   const twClient = React.useContext(TwitterAPIClientContext)
   const { openDialog } = React.useContext(UIContext)
-  const myself = React.useContext(MyselfContext)!
   const [savedUsers, setSavedUsers] = React.useState(new TwitterUserMap())
   const [isLoading, setLoadingState] = React.useState(false)
   const { user: selectedUser } = userSelection
@@ -222,14 +221,6 @@ function TargetUserSelectUI(props: { isAvailable: boolean }) {
         group: 'invalid',
       })
       return
-    }
-    if (userId === myself.id_str) {
-      // TODO
-      //setUserSelection({
-      //  user: myself,
-      //  group,
-      //})
-      //return
     }
     try {
       setLoadingState(true)

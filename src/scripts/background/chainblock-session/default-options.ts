@@ -5,10 +5,12 @@ const protectedFollowers = 'Block'
 
 const includeUsersInBio = 'never'
 const skipInactiveUser = 'never'
+const enableAntiBlock = false
 
 export const defaultSessionOptions = Object.freeze<SessionOptions>({
   includeUsersInBio,
   skipInactiveUser,
+  enableAntiBlock,
 })
 
 export const defaultChainBlockPurposeOptions = Object.freeze<ChainBlockPurpose>({
