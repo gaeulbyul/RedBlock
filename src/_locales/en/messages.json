@@ -755,5 +755,20 @@
   },
   "its_you": {
     "message": "It's you!"
+  },
+  "enable_antiblock": {
+    "message": "Enable AntiBlock"
+  },
+  "enable_bioblock": {
+    "message": "Enable BioBlock"
+  },
+  "1st_party_isolation_compatible_mode": {
+    "message": "Compatible Firefox's 1st-party isolation mode."
+  },
+  "antiblock_description": {
+    "message": "You can run Chainblock to the user, even they block you. Note that this feature requires logged in with two or more accounts and at least one of the accounts should be able to see their's followers list."
+  },
+  "1st_party_isolation_compatible_mode_description": {
+    "message": "Be compatible with Firefox's 1st-party isolation mode. If you're on the non-Firefox browser or 1st-party isolation is turned off, Enabling this option makes Red Block's most features became unavailable."
   }
 }

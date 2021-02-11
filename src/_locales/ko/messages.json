@@ -754,6 +754,21 @@
     "message": "쿠키 삭제 완료!"
   },
   "its_you": {
-    "message": "나 자신은 영원한 인생의 친구래요. 그런데 체인블락을..."
+    "message": "여러분의 트친은 소중해요. 그런데 체인블락을..."
+  },
+  "enable_antiblock": {
+    "message": "AntiBlock 기능 활성화"
+  },
+  "enable_bioblock": {
+    "message": "BioBlock 기능 활성화"
+  },
+  "1st_party_isolation_compatible_mode": {
+    "message": "Firefox의 1st-part Isolation 기능 호환모드"
+  },
+  "antiblock_description": {
+    "message": "상대방이 나를 차단해도 체인블락이 작동할 수 있도록 합니다. 이 기능은 이 웹 브라우저에 두 개 이상의 계정에 로그인해야 하며 그 중 적어도 하나는 상대방의 팔로워 목록을 볼 수 있어야 합니다."
+  },
+  "1st_party_isolation_compatible_mode_description": {
+    "message": "Firefox의 1st-party Isolation 기능과 호환되도록 합니다. 단, Firefox외 다른 웹 브라우저이거나 1st-party Isolation기능이 꺼져있는 경우 레드블락의 대부분의 기능이 작동하지 않을 수 있습니다."
   }
 }

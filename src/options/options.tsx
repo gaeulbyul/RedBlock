@@ -7,7 +7,7 @@ import ExperimentalOptionsPage from './pages/experimentals.js'
 
 const M = MaterialUI
 
-const optionsTabPages = ['chainblock', 'oneclickblock', 'experimentals'] as const
+const optionsTabPages = ['chainblock', 'oneclickblock', 'experimental'] as const
 type OptionsTabPage = typeof optionsTabPages[number]
 
 function OptionsApp() {
@@ -41,7 +41,7 @@ function OptionsApp() {
           <TabPanel value={tabPage} index="oneclickblock">
             <OneClickBlockOptionsPage />
           </TabPanel>
-          <TabPanel value={tabPage} index="experimentals">
+          <TabPanel value={tabPage} index="experimental">
             <ExperimentalOptionsPage />
           </TabPanel>
         </M.Container>

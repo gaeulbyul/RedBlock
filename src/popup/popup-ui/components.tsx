@@ -2,10 +2,10 @@ import { DialogMessageObj } from '../../scripts/text-generate.js'
 import * as i18n from '../../scripts/i18n.js'
 import { requestResetCounter } from '../../scripts/background/request-sender.js'
 import {
-  UIContext,
   MyselfContext,
   BlockLimiterContext,
   TwitterAPIClientContext,
+  RedBlockOptionsContext,
 } from './contexts.js'
 import { SessionOptionsContext } from './ui-states.js'
 
@@ -276,25 +276,6 @@ export function TwitterUserProfile(props: { user: TwitterUser; children?: React.
   )
 }
 
-export function WhatIsBioBlock() {
-  const { openDialog } = React.useContext(UIContext)
-  function handleClick(event: React.MouseEvent) {
-    event.preventDefault()
-    openDialog({
-      dialogType: 'alert',
-      message: {
-        title: 'BioBlock',
-        contentLines: [`BioBlock: ${i18n.getMessage('bioblock_description')}`],
-      },
-    })
-  }
-  return (
-    <M.IconButton size="small" onClick={handleClick}>
-      <M.Icon>help_outline</M.Icon>
-    </M.IconButton>
-  )
-}
-
 const BigBaseButton = MaterialUI.withStyles(() => ({
   root: {
     width: '100%',
@@ -543,6 +524,7 @@ function RadioOptionItem(props: {
 
 function SessionOptionsUI() {
   const { sessionOptions, mutateOptions } = React.useContext(SessionOptionsContext)
+  const { revealBioBlockMode } = React.useContext(RedBlockOptionsContext)
   const bioBlockModes: { [label: string]: BioBlockMode } = {
     [i18n.getMessage('bioblock_never')]: 'never',
     [i18n.getMessage('bioblock_all')]: 'all',
@@ -550,16 +532,14 @@ function SessionOptionsUI() {
   }
   return (
     <React.Fragment>
-      <RadioOptionItem
-        legend={
-          <span>
-            BioBlock &#x1F9EA; <WhatIsBioBlock />
-          </span>
-        }
-        options={bioBlockModes}
-        selectedValue={sessionOptions.includeUsersInBio}
-        onChange={(newMode: BioBlockMode) => mutateOptions({ includeUsersInBio: newMode })}
-      />
+      {revealBioBlockMode && (
+        <RadioOptionItem
+          legend="BioBlock"
+          options={bioBlockModes}
+          selectedValue={sessionOptions.includeUsersInBio}
+          onChange={(newMode: BioBlockMode) => mutateOptions({ includeUsersInBio: newMode })}
+        />
+      )}
     </React.Fragment>
   )
 }

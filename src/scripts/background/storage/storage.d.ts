@@ -5,6 +5,9 @@ interface RedBlockStorage {
   options: {
     removeSessionAfterComplete: boolean
     skipInactiveUser: InactivePeriod
+    revealBioBlockMode: boolean
+    enableAntiBlock: boolean
+    firstPartyIsolationCompatibleMode: boolean
   }
   badWords: BadWordItem[]
 }

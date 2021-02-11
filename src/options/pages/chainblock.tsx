@@ -21,9 +21,9 @@ export default function ChainBlockOptionsPage() {
           <M.FormGroup>
             <M.FormControlLabel
               control={<M.Checkbox size="small" />}
-              onChange={() =>
+              onChange={(_event, checked) =>
                 updateOptions({
-                  removeSessionAfterComplete: !options.removeSessionAfterComplete,
+                  removeSessionAfterComplete: checked,
                 })
               }
               checked={options.removeSessionAfterComplete}

@@ -26,4 +26,7 @@ export async function saveOptions(newOptions: RedBlockOptions): Promise<void> {
 export const defaultOptions = Object.freeze<RedBlockOptions>({
   removeSessionAfterComplete: false,
   skipInactiveUser: 'never',
+  revealBioBlockMode: false,
+  enableAntiBlock: false,
+  firstPartyIsolationCompatibleMode: false,
 })
