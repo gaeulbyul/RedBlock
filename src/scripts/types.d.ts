@@ -108,14 +108,13 @@ declare namespace RBMessageToBackground {
   interface RequestBlockLimiterStatus {
     messageType: 'RequestBlockLimiterStatus'
     messageTo: 'background'
-    blockLimiterOptions: BlockLimiterOptions
-    cookieStoreId: string
+    userId: string
   }
 
   interface RequestResetCounter {
     messageType: 'RequestResetCounter'
     messageTo: 'background'
-    blockLimiterOptions: BlockLimiterOptions
+    userId: string
   }
 
   interface BlockSingleUser {
@@ -165,7 +164,7 @@ declare namespace RBMessageToPopup {
     messageType: 'BlockLimiterInfo'
     messageTo: 'popup'
     status: BlockLimiterStatus
-    cookieStoreId: string
+    userId: string
   }
 
   interface PopupSwitchTab {
@@ -256,11 +255,6 @@ interface BlockLimiterStatus {
   current: number
   max: number
   remained: number
-}
-
-interface BlockLimiterOptions {
-  cookieStoreId: string
-  userId: string
 }
 
 // ---- import chainblock ----

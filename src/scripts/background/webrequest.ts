@@ -175,23 +175,27 @@ function initializeTwitterAPISetCookieHeaderHandler() {
   )
 }
 
-function generateBlockLimiterOptions(
-  headersArray: browser.webRequest.HttpHeaders
-): BlockLimiterOptions | null {
-  /* FIXME
-   * 레드블락 외의 차단요청(가령, 사용자가 직접 차단 메뉴를 클릭)한 경우
-   * x-redblock- 어쩌고 헤더가 없다
-   * 어떻게 `cookieStoreId`를 얻어내는가...
-   * */
-  const cookieStoreIdHeader = headersArray.find(({ name }) => name === 'x-redblock-cookie-store-id')
-  const cookieStoreId = cookieStoreIdHeader?.value
-  if (!cookieStoreId) {
-    return null
+function findCookieHeader(headersArray: browser.webRequest.HttpHeaders): string | null {
+  // 그냥 'cookie'에서만 찾으면 수정전 쿠키가 들어온다. 다중로그인 등의 상황을 위해 수정한 쿠키인 override-cookies를 먼저 찾자.
+  let cookie: string | undefined
+  let overridenCookie: string | undefined
+  for (const header of headersArray) {
+    const name = header.name.toLowerCase()
+    if (name === 'x-redblock-override-cookies') {
+      overridenCookie = header.value!
+      return overridenCookie
+    } else if (name === 'cookie') {
+      cookie = header.value!
+    }
   }
-  const cookieHeader = headersArray.find(({ name }) => name.toLowerCase() === 'cookie')!
-  const match = /\btwid=u%3D(\d+)\b/.exec(cookieHeader.value!)!
+  return overridenCookie || cookie || null
+}
+
+function generateBlockLimiterOptions(headersArray: browser.webRequest.HttpHeaders): string | null {
+  const cookieHeader = findCookieHeader(headersArray)!
+  const match = /\btwid=u%3D(\d+)\b/.exec(cookieHeader)!
   const userId = match[1]
-  return { cookieStoreId, userId }
+  return userId
 }
 
 function initializeBlockAPILimiter() {

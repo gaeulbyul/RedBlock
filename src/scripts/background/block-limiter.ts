@@ -11,8 +11,8 @@ export default class BlockLimiter {
   public readonly max = 500
   private readonly KEY_TIMESTAMP: string
   private readonly KEY_COUNT: string
-  public constructor(options: BlockLimiterOptions) {
-    const identifier = `store=${options.cookieStoreId} user=${options.userId}`
+  public constructor(userId: string) {
+    const identifier = `user=${userId}`
     this.KEY_TIMESTAMP = `${PREFIX_KEY_TIMESTAMP} ${identifier}`
     this.KEY_COUNT = `${PREFIX_KEY_COUNT} ${identifier}`
   }

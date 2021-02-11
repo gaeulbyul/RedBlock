@@ -68,23 +68,19 @@ export async function refreshSavedUsers(cookieOptions: CookieOptions) {
   })
 }
 
-export async function requestBlockLimiterStatus(
-  blockLimiterOptions: BlockLimiterOptions,
-  cookieStoreId: string
-) {
+export async function requestBlockLimiterStatus(userId: string) {
   return browser.runtime.sendMessage<RBMessageToBackground.RequestBlockLimiterStatus>({
     messageType: 'RequestBlockLimiterStatus',
     messageTo: 'background',
-    blockLimiterOptions,
-    cookieStoreId,
+    userId,
   })
 }
 
-export async function requestResetCounter(blockLimiterOptions: BlockLimiterOptions) {
+export async function requestResetCounter(userId: string) {
   return browser.runtime.sendMessage<RBMessageToBackground.RequestResetCounter>({
     messageType: 'RequestResetCounter',
     messageTo: 'background',
-    blockLimiterOptions,
+    userId,
   })
 }
 

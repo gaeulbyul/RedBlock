@@ -285,10 +285,7 @@ export class ChainBlockSession extends BaseSession {
     if (safePurposes.includes(this.request.purpose.type)) {
       return 'ok'
     } else {
-      const limiter = new BlockLimiter({
-        cookieStoreId: this.request.cookieOptions.cookieStoreId,
-        userId: this.request.myself.id_str,
-      })
+      const limiter = new BlockLimiter(this.request.myself.id_str)
       return limiter.check()
     }
   }

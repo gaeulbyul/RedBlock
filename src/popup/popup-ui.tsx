@@ -261,7 +261,6 @@ function PopupApp({
     miscellaneous: true,
   }
   React.useEffect(() => {
-    const { cookieStoreId } = twClient.cookieOptions
     const messageListener = (msg: object) => {
       if (!checkMessage(msg)) {
         console.debug('unknown message?', msg)
@@ -273,7 +272,7 @@ function PopupApp({
           setSessions(msg.sessions)
           break
         case 'BlockLimiterInfo':
-          if (msg.cookieStoreId === cookieStoreId) {
+          if (myself && msg.userId === myself.id_str) {
             setLimiterStatus(msg.status)
           }
           break
@@ -529,19 +528,13 @@ export async function initializeUI() {
   }
   requestProgress().catch(() => {})
   if (myself) {
-    requestBlockLimiterStatus(
-      { cookieStoreId, userId: myself.id_str },
-      cookieStoreId
-    ).catch(() => {})
+    requestBlockLimiterStatus(myself.id_str).catch(() => {})
   }
   refreshSavedUsers({ cookieStoreId })
   window.setInterval(() => {
     requestProgress().catch(() => {})
     if (myself) {
-      requestBlockLimiterStatus(
-        { cookieStoreId, userId: myself.id_str },
-        cookieStoreId
-      ).catch(() => {})
+      requestBlockLimiterStatus(myself.id_str).catch(() => {})
     }
   }, UI_UPDATE_DELAY)
 }
