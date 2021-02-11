@@ -763,7 +763,7 @@
     "message": "BioBlock 기능 활성화"
   },
   "1st_party_isolation_compatible_mode": {
-    "message": "Firefox의 1st-part Isolation 기능 호환모드"
+    "message": "Firefox의 1st-party Isolation 기능 호환모드"
   },
   "antiblock_description": {
     "message": "상대방이 나를 차단해도 체인블락이 작동할 수 있도록 합니다. 이 기능은 이 웹 브라우저에 두 개 이상의 계정에 로그인해야 하며 그 중 적어도 하나는 상대방의 팔로워 목록을 볼 수 있어야 합니다."

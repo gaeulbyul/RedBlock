@@ -1,9 +1,50 @@
+import { loadOptions } from './storage/options.js'
+
+const url = 'https://twitter.com'
+const firstPartyDomain = 'twitter.com'
+
+async function getCookie({ name, storeId }: { name: string; storeId: string }) {
+  const options = await loadOptions()
+  const cookieGetDetails: Parameters<typeof browser.cookies.get>[0] = {
+    url,
+    name,
+    storeId,
+  }
+  if (options.firstPartyIsolationCompatibleMode) {
+    cookieGetDetails.firstPartyDomain = firstPartyDomain
+  }
+  return browser.cookies.get(cookieGetDetails)
+}
+
+export async function getAllCookies({ storeId }: { storeId: string }) {
+  const options = await loadOptions()
+  const cookieGetAllDetails: Parameters<typeof browser.cookies.getAll>[0] = {
+    url,
+    storeId,
+  }
+  if (options.firstPartyIsolationCompatibleMode) {
+    cookieGetAllDetails.firstPartyDomain = firstPartyDomain
+  }
+  return browser.cookies.getAll(cookieGetAllDetails)
+}
+
+export async function removeCookie({ name, storeId }: { name: string; storeId: string }) {
+  const options = await loadOptions()
+  const cookieRemoveDetails: Parameters<typeof browser.cookies.remove>[0] = {
+    url,
+    name,
+    storeId,
+  }
+  if (options.firstPartyIsolationCompatibleMode) {
+    cookieRemoveDetails.firstPartyDomain = firstPartyDomain
+  }
+  return browser.cookies.remove(cookieRemoveDetails)
+}
+
 export async function getMultiAccountCookies({
   cookieStoreId,
 }: CookieOptions): Promise<MultiAccountCookies | null> {
-  const url = 'https://twitter.com'
-  const authMultiCookie = await browser.cookies.get({
-    url,
+  const authMultiCookie = await getCookie({
     name: 'auth_multi',
     storeId: cookieStoreId,
   })
@@ -20,28 +61,20 @@ export async function generateCookiesForAltAccountRequest(
   if (!actAsUserId) {
     throw new Error('unreachable - `actAsUserId` is missing')
   }
-  const url = 'https://twitter.com'
   const authMultiCookie = await getMultiAccountCookies(cookieOptions)
   if (!authMultiCookie) {
     throw new Error(
       'auth_multi cookie unavailable. this feature requires logged in with two or more account.'
     )
   }
-  const storeId = cookieOptions.cookieStoreId || undefined
-  const authTokenCookie = await browser.cookies
-    .get({
-      url,
-      name: 'auth_token',
-      storeId,
-    })
-    .then(coo => coo!.value)
-  const twidCookie = await browser.cookies
-    .get({
-      url,
-      name: 'twid',
-      storeId,
-    })
-    .then(coo => /u%3D([0-9]+)\b/.exec(coo!.value)![1])
+  const authTokenCookie = await getCookie({
+    name: 'auth_token',
+    storeId: cookieOptions.cookieStoreId,
+  }).then(coo => coo!.value)
+  const twidCookie = await getCookie({
+    name: 'twid',
+    storeId: cookieOptions.cookieStoreId,
+  }).then(coo => /u%3D([0-9]+)\b/.exec(coo!.value)![1])
   const actAsUserToken = authMultiCookie![actAsUserId]
   // 새로 만들 auth_multi 쿠키엔 현재 계정인 twid를 넣고...
   // actAsUser가 될 유저를 뺀다.

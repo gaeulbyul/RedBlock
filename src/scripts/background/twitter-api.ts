@@ -1,4 +1,4 @@
-import { generateCookiesForAltAccountRequest } from './cookie-handler.js'
+import { getAllCookies, generateCookiesForAltAccountRequest } from './cookie-handler.js'
 
 const BEARER_TOKEN = `AAAAAAAAAAAAAAAAAAAAANRILgAAAAAAnNwIzUejRCOuH5E6I8xnZz4puTs%3D1Zv7ttfk8LF81IUq16cHjhLTvJu4FA33AGWWjCpTnA`
 
@@ -302,7 +302,7 @@ async function generateTwitterAPIOptions(
   headers.set('x-redblock-request', 'UwU')
   const storeId = cookieOptions.cookieStoreId
   // 컨테이너 탭의 인증정보를 담아 요청하기 위해 덮어씌우는 쿠키
-  const cookies = await browser.cookies.getAll({ storeId, domain: 'twitter.com' })
+  const cookies = await getAllCookies({ storeId })
   headers.set(
     'x-redblock-override-cookies',
     cookies.map(({ name, value }) => `${name}=${value}`).join('; ')

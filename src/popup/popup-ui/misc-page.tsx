@@ -2,26 +2,23 @@ import { toggleOneClickBlockMode } from '../popup.js'
 import { UIContext, TwitterAPIClientContext, MyselfContext } from './contexts.js'
 import { RBExpansionPanel } from './components.js'
 import * as i18n from '../../scripts/i18n.js'
+import { getAllCookies, removeCookie } from '../../scripts/background/cookie-handler.js'
 
 const M = MaterialUI
 
 async function deleteTwitterRelatedCookies(cookieOptions: CookieOptions) {
-  const url = 'https://twitter.com'
   const storeId = cookieOptions.cookieStoreId
-  const cookies = await browser.cookies.getAll({
-    url,
+
+  const cookies = await getAllCookies({
     storeId,
   })
   const promises: Promise<any>[] = []
   for (const cookie of cookies) {
     promises.push(
-      browser.cookies
-        .remove({
-          url,
-          storeId,
-          name: cookie.name,
-        })
-        .catch(() => {})
+      removeCookie({
+        storeId,
+        name: cookie.name,
+      }).catch(() => {})
     )
   }
   await Promise.allSettled(promises)
