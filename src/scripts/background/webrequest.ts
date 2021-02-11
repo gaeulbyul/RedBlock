@@ -176,23 +176,17 @@ function initializeTwitterAPISetCookieHeaderHandler() {
 }
 
 function generateBlockLimiterOptions(
-  headersArray: browser.webRequest.HttpHeaders,
-  cookieStoreIdFromRequest?: string
+  headersArray: browser.webRequest.HttpHeaders
 ): BlockLimiterOptions | null {
   /* FIXME
    * 레드블락 외의 차단요청(가령, 사용자가 직접 차단 메뉴를 클릭)한 경우
    * x-redblock- 어쩌고 헤더가 없다
    * 어떻게 `cookieStoreId`를 얻어내는가...
    * */
-  let cookieStoreId = cookieStoreIdFromRequest || ''
+  const cookieStoreIdHeader = headersArray.find(({ name }) => name === 'x-redblock-cookie-store-id')
+  const cookieStoreId = cookieStoreIdHeader?.value
   if (!cookieStoreId) {
-    const cookieStoreIdHeader = headersArray.find(
-      ({ name }) => name === 'x-redblock-cookie-store-id'
-    )
-    cookieStoreId = cookieStoreIdHeader ? cookieStoreIdHeader.value! : ''
-    if (!cookieStoreId) {
-      return null
-    }
+    return null
   }
   const cookieHeader = headersArray.find(({ name }) => name.toLowerCase() === 'cookie')!
   const match = /\btwid=u%3D(\d+)\b/.exec(cookieHeader.value!)!
@@ -207,14 +201,14 @@ function initializeBlockAPILimiter() {
   browser.webRequest.onBeforeSendHeaders.addListener(
     details => {
       const { originUrl, method, requestHeaders } = details
-      // @ts-ignore
-      const { cookieStoreId } = details
       // Service Worker에서 실행한 건 안 쳐준다. (중복 카운팅 방지)
       const shouldCount = originUrl !== 'https://twitter.com/sw.js' && method === 'POST'
       if (!shouldCount) {
         return { cancel: false }
       }
-      const blockLimiterOptions = generateBlockLimiterOptions(requestHeaders!, cookieStoreId)
+      // cookieStoreId는 반드시 헤더에서 가져올 것.
+      // (background에서 보내는 API 요청은 무조건 default cookie store를 사용하게 되므로)
+      const blockLimiterOptions = generateBlockLimiterOptions(requestHeaders!)
       if (!blockLimiterOptions) {
         return { cancel: false }
       }
