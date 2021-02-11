@@ -1,271 +1,51 @@
 import * as Storage from '../scripts/background/storage.js'
-import * as i18n from '../scripts/i18n.js'
-import { RedBlockUITheme } from '../popup/popup-ui/components.js'
+import { RedBlockUITheme, TabPanel } from '../popup/popup-ui/components.js'
+import { RedBlockOptionsContext } from './pages/contexts.js'
+import ChainBlockOptionsPage from './pages/chainblock.js'
+import OneClickBlockOptionsPage from './pages/oneclickblock.js'
+import ExperimentalOptionsPage from './pages/experimentals.js'
 
 const M = MaterialUI
-const T = MaterialUI.Typography
 
-const useStylesForTable = MaterialUI.makeStyles(_theme => ({
-  tablePaper: {
-    margin: '10px 0',
-    width: '100%',
-  },
-}))
-
-const useStylesForRow = MaterialUI.makeStyles(_theme => ({
-  striked: {
-    textDecoration: 'strike',
-  },
-}))
-
-function BadWordRow(props: {
-  badWord: BadWordItem
-  removeWordById(wordId: string): void
-  editWordById(wordId: string): void
-  modifyAbilityOfWordById(wordId: string, enabled: boolean): void
-}) {
-  const { TableCell, TableRow } = MaterialUI
-  const classes = useStylesForRow()
-  const { badWord, removeWordById, editWordById, modifyAbilityOfWordById } = props
-  return (
-    <TableRow>
-      <TableCell padding="checkbox">
-        <M.Checkbox
-          checked={badWord.enabled}
-          onChange={(_event, checked) => modifyAbilityOfWordById(badWord.id, checked)}
-        />
-      </TableCell>
-      <TableCell>
-        <span className={badWord.enabled ? '' : classes.striked}>{badWord.word}</span>
-      </TableCell>
-      <TableCell>
-        {badWord.regexp ? (
-          <M.Chip size="small" label={i18n.getMessage('regexp')} />
-        ) : (
-          <M.Chip size="small" label={i18n.getMessage('th_word')} />
-        )}
-      </TableCell>
-      <TableCell>
-        <M.Button variant="outlined" onClick={_event => editWordById(badWord.id)}>
-          {i18n.getMessage('edit')}
-        </M.Button>
-        <M.Button variant="outlined" onClick={_event => removeWordById(badWord.id)}>
-          {i18n.getMessage('remove')}
-        </M.Button>
-      </TableCell>
-    </TableRow>
-  )
-}
-
-function BadwordsTable() {
-  const [badWords, setBadWords] = React.useState<BadWordItem[]>([])
-  const [newBadWordWord, setNewBadWordWord] = React.useState('')
-  const [newBadWordIsRegExp, setNewBadWordIsRegExp] = React.useState(false)
-  const [newBadWordWordInputRef] = React.useState(() => React.createRef<HTMLInputElement>())
-  React.useEffect(() => {
-    Storage.loadBadWords().then(setBadWords)
-    Storage.onStorageChanged('badWords', setBadWords)
-  }, [])
-  async function insertWord() {
-    const newWord = newBadWordWord
-    await Storage.insertBadWord(newWord, newBadWordIsRegExp)
-    setNewBadWordWord('')
-    setNewBadWordIsRegExp(false)
-  }
-  async function readyToEditWordById(wordId: string) {
-    const wordToEdit = badWords.filter(bw => bw.id === wordId)[0]
-    await removeWordById(wordId)
-    setNewBadWordWord(wordToEdit.word)
-    setNewBadWordIsRegExp(wordToEdit.regexp)
-    newBadWordWordInputRef.current!.focus()
-  }
-  async function removeWordById(wordId: string) {
-    return Storage.removeBadWord(wordId)
-  }
-  async function modifyAbilityOfWordById(wordId: string, enabled: boolean) {
-    const wordToEdit = badWords.filter(bw => bw.id === wordId)[0]
-    const modified: BadWordItem = {
-      ...wordToEdit,
-      enabled,
-    }
-    return Storage.editBadWord(wordId, modified)
-  }
-  async function handleKeypressEvent(event: React.KeyboardEvent<HTMLInputElement>) {
-    if (event.key !== 'Enter') {
-      return
-    }
-    event.preventDefault()
-    insertWord()
-  }
-  const classes = useStylesForTable()
-  const sortedBadWords = _.sortBy(badWords, 'word')
-  const {
-    Table,
-    TableHead,
-    TableBody,
-    TableCell,
-    TableContainer,
-    TableRow,
-    TableFooter,
-  } = MaterialUI
-  return (
-    <M.Paper variant="outlined" className={classes.tablePaper}>
-      <TableContainer>
-        <Table size="small">
-          <TableHead>
-            <TableRow>
-              <TableCell>
-                <strong>{i18n.getMessage('th_enable')}</strong>
-              </TableCell>
-              <TableCell>
-                <strong>{i18n.getMessage('th_word')}</strong>
-              </TableCell>
-              <TableCell>
-                <strong>{i18n.getMessage('th_options')}</strong>
-              </TableCell>
-              <TableCell>
-                <strong>{i18n.getMessage('th_actions')}</strong>
-              </TableCell>
-            </TableRow>
-          </TableHead>
-          <TableBody>
-            {sortedBadWords.map(badWord => (
-              <BadWordRow
-                badWord={badWord}
-                key={badWord.id}
-                editWordById={readyToEditWordById}
-                removeWordById={removeWordById}
-                modifyAbilityOfWordById={modifyAbilityOfWordById}
-              />
-            ))}
-          </TableBody>
-          <TableFooter>
-            <TableRow>
-              <TableCell></TableCell>
-              <TableCell>
-                <M.Input
-                  fullWidth
-                  required
-                  ref={newBadWordWordInputRef}
-                  placeholder={i18n.getMessage('placeholder_word')}
-                  value={newBadWordWord}
-                  onChange={event => setNewBadWordWord(event.target.value)}
-                  onKeyPress={handleKeypressEvent}
-                />
-              </TableCell>
-              <TableCell>
-                <M.FormControlLabel
-                  control={<M.Checkbox />}
-                  checked={newBadWordIsRegExp}
-                  label={i18n.getMessage('regexp')}
-                  onChange={(_event, checked) => setNewBadWordIsRegExp(checked)}
-                />
-              </TableCell>
-              <TableCell>
-                <M.Button
-                  variant="contained"
-                  color="primary"
-                  disabled={newBadWordWord.length <= 0}
-                  onClick={insertWord}
-                >
-                  {i18n.getMessage('add_word_button')}
-                </M.Button>
-              </TableCell>
-            </TableRow>
-            <TableRow>
-              <TableCell colSpan={4}>
-                <p>{i18n.getMessage('sbs_description')} </p>
-                <p>{i18n.getMessage('sbs_please_refresh')}</p>
-              </TableCell>
-            </TableRow>
-          </TableFooter>
-        </Table>
-      </TableContainer>
-    </M.Paper>
-  )
-}
+const optionsTabPages = ['chainblock', 'oneclickblock', 'experimentals'] as const
+type OptionsTabPage = typeof optionsTabPages[number]
 
 function OptionsApp() {
-  const [options, setOptions] = React.useState<RedBlockOptions>(Storage.defaultOptions)
   const darkMode = MaterialUI.useMediaQuery('(prefers-color-scheme:dark)')
   const theme = React.useMemo(() => RedBlockUITheme(darkMode), [darkMode])
+  const [options, setOptions] = React.useState<RedBlockOptions>(Storage.defaultOptions)
+  const [tabPage, setTabPage] = React.useState<OptionsTabPage>('chainblock')
+  async function updateOptions(newOptionsPart: Partial<RedBlockOptions>) {
+    const newOptions: RedBlockOptions = { ...options, ...newOptionsPart }
+    await Storage.saveOptions(newOptions)
+    setOptions(newOptions)
+  }
   React.useEffect(() => {
     Storage.loadOptions().then(setOptions)
     return Storage.onStorageChanged('options', setOptions)
   }, [])
-  async function mutateOptions(newOptionsPart: Partial<RedBlockOptions>) {
-    const newOptions = { ...options, ...newOptionsPart }
-    await Storage.saveOptions(newOptions)
-    setOptions(newOptions)
-  }
-  // L10N-ME
-  const inactivePeriods: Array<[InactivePeriod, string]> = [
-    ['never', i18n.getMessage('dont_skip')],
-    ['1y', i18n.getMessage('one_year')],
-    ['2y', i18n.getMessage('n_years', 2)],
-    ['3y', i18n.getMessage('n_years', 3)],
-  ]
   return (
     <M.ThemeProvider theme={theme}>
-      <M.AppBar position="static">
-        <M.Toolbar variant="dense">
-          <T variant="h6">옵션 / Options</T>
-        </M.Toolbar>
-      </M.AppBar>
-      <M.Container maxWidth="md">
-        <M.Paper>
-          <M.Box padding="10px" margin="10px">
-            <M.FormControl component="fieldset" fullWidth>
-              <M.FormLabel component="legend">체인블락 / Chainblock</M.FormLabel>
-              <M.Divider />
-              <M.FormGroup>
-                <M.FormControlLabel
-                  control={<M.Checkbox size="small" />}
-                  onChange={() =>
-                    mutateOptions({
-                      removeSessionAfterComplete: !options.removeSessionAfterComplete,
-                    })
-                  }
-                  checked={options.removeSessionAfterComplete}
-                  label={i18n.getMessage('remove_session_after_complete')}
-                />
-              </M.FormGroup>
-              <M.FormControl>
-                <M.FormLabel>
-                  <T>{i18n.getMessage('skip_inactive_users')}</T>
-                </M.FormLabel>
-                <M.RadioGroup row>
-                  {inactivePeriods.map(([period, label], index) => (
-                    <M.FormControlLabel
-                      key={index}
-                      control={<M.Radio />}
-                      checked={options.skipInactiveUser === period}
-                      onChange={() =>
-                        mutateOptions({
-                          skipInactiveUser: period,
-                        })
-                      }
-                      label={label}
-                    />
-                  ))}
-                </M.RadioGroup>
-                <M.FormHelperText>
-                  {i18n.getMessage('skip_inactive_users_description')}
-                </M.FormHelperText>
-              </M.FormControl>
-            </M.FormControl>
-          </M.Box>
-        </M.Paper>
-        <M.Paper>
-          <M.Box padding="10px" margin="10px">
-            <M.FormControl component="fieldset" fullWidth>
-              <M.FormLabel component="legend">원클릭차단 / One-click block</M.FormLabel>
-              <M.Divider />
-              <BadwordsTable />
-            </M.FormControl>
-          </M.Box>
-        </M.Paper>
-      </M.Container>
+      <RedBlockOptionsContext.Provider value={{ options, updateOptions }}>
+        <M.AppBar position="static">
+          <M.Tabs value={tabPage} onChange={(_ev, val) => setTabPage(val)}>
+            {optionsTabPages.map((value, index) => (
+              <M.Tab key={index} value={value} label={value} />
+            ))}
+          </M.Tabs>
+        </M.AppBar>
+        <M.Container maxWidth="md">
+          <TabPanel value={tabPage} index="chainblock">
+            <ChainBlockOptionsPage />
+          </TabPanel>
+          <TabPanel value={tabPage} index="oneclickblock">
+            <OneClickBlockOptionsPage />
+          </TabPanel>
+          <TabPanel value={tabPage} index="experimentals">
+            <ExperimentalOptionsPage />
+          </TabPanel>
+        </M.Container>
+      </RedBlockOptionsContext.Provider>
     </M.ThemeProvider>
   )
 }
