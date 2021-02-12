@@ -725,7 +725,7 @@
     "message": "Protected Follower"
   },
   "current_account": {
-    "message": "Current Account: @$username$ ($name)",
+    "message": "Current Account: @$username$ ($name$)",
     "placeholders": {
       "username": {
         "content": "$1"
