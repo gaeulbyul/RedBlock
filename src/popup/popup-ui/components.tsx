@@ -1,8 +1,9 @@
-import { DialogMessageObj } from '../../scripts/text-generate.js'
+import { DialogMessageObj, checkResultToString } from '../../scripts/text-generate.js'
 import * as i18n from '../../scripts/i18n.js'
 import { requestResetCounter } from '../../scripts/background/request-sender.js'
 import { MyselfContext, BlockLimiterContext, RedBlockOptionsContext } from './contexts.js'
 import { SessionOptionsContext } from './ui-states.js'
+import { TargetCheckResult, validateRequest } from '../../scripts/background/target-checker.js'
 
 const M = MaterialUI
 const T = MaterialUI.Typography
@@ -620,5 +621,23 @@ function LockPickerOptionsUI(props: {
         }
       />
     </React.Fragment>
+  )
+}
+export function RequestCheckResultUI(props: { request: SessionRequest }) {
+  const checkResult = validateRequest(props.request)
+  const checkResultMsg = checkResultToString(checkResult)
+  const isOk = checkResult === TargetCheckResult.Ok
+  return (
+    <div>
+      {!isOk && (
+        <M.Paper square>
+          <T component="div">
+            <M.Box px={2} py={1} mb={1} color="warning.main">
+              {checkResultMsg}
+            </M.Box>
+          </T>
+        </M.Paper>
+      )}
+    </div>
   )
 }

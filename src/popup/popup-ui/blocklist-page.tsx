@@ -9,6 +9,7 @@ import {
   BlockLimiterUI,
   BigExecuteButton,
   PurposeSelectionUI,
+  RequestCheckResultUI,
 } from './components.js'
 import { PageEnum } from './pages.js'
 import * as i18n from '../../scripts/i18n.js'
@@ -20,8 +21,27 @@ import {
   concatBlockList,
 } from '../../scripts/background/blocklist-process.js'
 import { ImportChainBlockPageStatesContext, SessionOptionsContext } from './ui-states.js'
+import { TargetCheckResult, validateRequest } from '../../scripts/background/target-checker.js'
 
 const M = MaterialUI
+
+function useSessionRequest(): ImportBlockSessionRequest {
+  const { purpose, blocklist } = React.useContext(ImportChainBlockPageStatesContext)
+  const myself = React.useContext(MyselfContext)!
+  const { sessionOptions } = React.useContext(SessionOptionsContext)
+  const { cookieOptions } = React.useContext(TwitterAPIClientContext)
+  return {
+    purpose,
+    target: {
+      type: 'import',
+      userIds: Array.from(blocklist.userIds),
+      userNames: Array.from(blocklist.userNames),
+    },
+    options: sessionOptions,
+    myself,
+    cookieOptions,
+  }
+}
 
 function TargetOptionsUI() {
   const {
@@ -46,11 +66,9 @@ function TargetOptionsUI() {
 }
 
 export default function BlocklistPage() {
-  const myself = React.useContext(MyselfContext)!
   const uiContext = React.useContext(UIContext)
   const limiterStatus = React.useContext(BlockLimiterContext)
   const { openDialog } = React.useContext(UIContext)
-  const { sessionOptions } = React.useContext(SessionOptionsContext)
   const {
     blocklist,
     setBlocklist,
@@ -58,16 +76,13 @@ export default function BlocklistPage() {
     setNameOfSelectedFiles,
     purpose,
   } = React.useContext(ImportChainBlockPageStatesContext)
-  const { cookieOptions } = React.useContext(TwitterAPIClientContext)
   const [fileInput] = React.useState(React.createRef<HTMLInputElement>())
+  const request = useSessionRequest()
   function isAvailable() {
-    if (!myself) {
-      return false
-    }
     if (limiterStatus.remained <= 0) {
       return false
     }
-    return true
+    return validateRequest(request) === TargetCheckResult.Ok
   }
   async function onChange(event: React.FormEvent<HTMLInputElement>) {
     event.preventDefault()
@@ -90,17 +105,6 @@ export default function BlocklistPage() {
     if (blocklist.userIds.size <= 0) {
       uiContext.openSnackBar(i18n.getMessage('cant_chainblock_empty_list'))
       return
-    }
-    const request: ImportBlockSessionRequest = {
-      purpose,
-      target: {
-        type: 'import',
-        userIds: Array.from(blocklist.userIds),
-        userNames: Array.from(blocklist.userNames),
-      },
-      options: sessionOptions,
-      myself,
-      cookieOptions,
     }
     openDialog({
       dialogType: 'confirm',
@@ -206,7 +210,8 @@ export default function BlocklistPage() {
       </RBExpansionPanel>
       <TargetOptionsUI />
       <BlockLimiterUI />
-      <BigExecuteButton {...{ purpose }} type="submit" disabled={!isAvailable} />
+      <RequestCheckResultUI {...{ request }} />
+      <BigExecuteButton {...{ purpose }} type="submit" disabled={!isAvailable()} />
     </form>
   )
 }

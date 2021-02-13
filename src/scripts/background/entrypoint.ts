@@ -94,7 +94,8 @@ function handleExtensionMessage(
           startSession(result.value).then(sendProgress)
         } else {
           // 이 시점에선 이미 target check를 통과한 요청만이 들어와야 한다
-          throw new Error(checkResultToString(result.error))
+          // throw new Error(checkResultToString(result.error))
+          alertToCurrentTab(checkResultToString(result.error))
         }
       }
       break

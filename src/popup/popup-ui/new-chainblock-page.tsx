@@ -20,12 +20,14 @@ import {
   RBExpansionPanel,
   BigExecuteButton,
   PurposeSelectionUI,
+  RequestCheckResultUI,
 } from './components.js'
 import {
   SelectUserGroup,
   FollowerChainBlockPageStatesContext,
   SessionOptionsContext,
 } from './ui-states.js'
+import { TargetCheckResult, validateRequest } from '../../scripts/background/target-checker.js'
 
 const M = MaterialUI
 
@@ -35,6 +37,27 @@ interface UserSelectorContextType {
   changeSelectedUser(userId: string, userName: string, group: SelectUserGroup): void
 }
 const UserSelectorContext = React.createContext<UserSelectorContextType>(null!)
+
+function useSessionRequest(): FollowerBlockSessionRequest {
+  const { purpose, targetList, userSelection } = React.useContext(
+    FollowerChainBlockPageStatesContext
+  )
+  const { cookieOptions } = React.useContext(TwitterAPIClientContext)
+  const { sessionOptions } = React.useContext(SessionOptionsContext)
+  const myself = React.useContext(MyselfContext)!
+  const selectedUser = userSelection.user!
+  return {
+    purpose,
+    target: {
+      type: 'follower',
+      user: selectedUser,
+      list: targetList,
+    },
+    options: sessionOptions,
+    myself,
+    cookieOptions,
+  }
+}
 
 function TargetSavedUsers(props: { savedUsers: TwitterUserMap }) {
   const { savedUsers } = props
@@ -147,8 +170,7 @@ function TargetSavedUsers(props: { savedUsers: TwitterUserMap }) {
   )
 }
 
-function TargetUserProfile(props: { isAvailable: boolean }) {
-  const { isAvailable } = props
+function TargetUserProfile() {
   const { targetList, setTargetList, userSelection } = React.useContext(
     FollowerChainBlockPageStatesContext
   )
@@ -161,7 +183,6 @@ function TargetUserProfile(props: { isAvailable: boolean }) {
       <M.FormControlLabel
         control={<M.Radio size="small" />}
         onChange={() => setTargetList(fk)}
-        disabled={!isAvailable}
         checked={targetList === fk}
         label={label}
       />
@@ -170,14 +191,9 @@ function TargetUserProfile(props: { isAvailable: boolean }) {
   return (
     <TwitterUserProfile user={user}>
       <div>
-        {isAvailable || (
-          <M.Box display="flex" flexDirection="column">
-            {user.protected && !selectedMyself && (
-              <div>&#128274; {i18n.getMessage('cant_chainblock_to_protected')}</div>
-            )}
-            {selectedMyself && <div>&#10071; {i18n.getMessage('its_you')}</div>}
-          </M.Box>
-        )}
+        <M.Box display="flex" flexDirection="column">
+          {selectedMyself && <div>&#10071; {i18n.getMessage('its_you')}</div>}
+        </M.Box>
         <M.RadioGroup row>
           {radio('followers', i18n.formatFollowsCount('followers', user.followers_count))}
           {radio('friends', i18n.formatFollowsCount('friends', user.friends_count))}
@@ -204,8 +220,7 @@ function TargetUserProfileEmpty(props: { reason: 'invalid-user' | 'loading' }) {
   return <div>{message}</div>
 }
 
-function TargetUserSelectUI(props: { isAvailable: boolean }) {
-  const { isAvailable } = props
+function TargetUserSelectUI() {
   const { currentUser, targetList, userSelection, setUserSelection } = React.useContext(
     FollowerChainBlockPageStatesContext
   )
@@ -288,12 +303,10 @@ function TargetUserSelectUI(props: { isAvailable: boolean }) {
             <TargetSavedUsers savedUsers={savedUsers} />
           </UserSelectorContext.Provider>
           <M.Divider />
-          {isLoading ? (
-            <TargetUserProfileEmpty reason="loading" />
-          ) : selectedUser ? (
-            <TargetUserProfile isAvailable={isAvailable} />
+          {selectedUser ? (
+            <TargetUserProfile />
           ) : (
-            <TargetUserProfileEmpty reason="invalid-user" />
+            <TargetUserProfileEmpty reason={isLoading ? 'loading' : 'invalid-user'} />
           )}
         </M.FormControl>
       </div>
@@ -332,35 +345,23 @@ async function getUserByIdWithCache(twClient: TwClient, userId: string): Promise
   return user
 }
 
-function TargetExecutionButtonUI(props: { isAvailable: boolean }) {
-  const { isAvailable } = props
-  const { userSelection, targetList, purpose } = React.useContext(
-    FollowerChainBlockPageStatesContext
-  )
-  const { sessionOptions } = React.useContext(SessionOptionsContext)
-  const { openDialog } = React.useContext(UIContext)
-  const { cookieOptions } = React.useContext(TwitterAPIClientContext)
+function TargetExecutionButtonUI() {
+  const { purpose } = React.useContext(FollowerChainBlockPageStatesContext)
   const uiContext = React.useContext(UIContext)
-  const myself = React.useContext(MyselfContext)
-  const selectedUser = userSelection.user!
-  const target: FollowerBlockSessionRequest['target'] = {
-    type: 'follower',
-    user: selectedUser,
-    list: targetList,
+  const limiterStatus = React.useContext(BlockLimiterContext)
+  const request = useSessionRequest()
+  function isAvailable() {
+    if (limiterStatus.remained <= 0 && purpose.type === 'chainblock') {
+      return false
+    }
+    return validateRequest(request) === TargetCheckResult.Ok
   }
-  function executeSession(purpose: FollowerBlockSessionRequest['purpose']) {
-    if (!myself) {
+  function executeSession() {
+    if (!request) {
       uiContext.openSnackBar(i18n.getMessage('error_occured_check_login'))
       return
     }
-    const request: FollowerBlockSessionRequest = {
-      purpose,
-      target,
-      options: sessionOptions,
-      myself,
-      cookieOptions,
-    }
-    openDialog({
+    uiContext.openDialog({
       dialogType: 'confirm',
       message: TextGenerate.generateConfirmMessage(request),
       callbackOnOk() {
@@ -370,44 +371,25 @@ function TargetExecutionButtonUI(props: { isAvailable: boolean }) {
   }
   return (
     <M.Box>
-      <BigExecuteButton
-        {...{ purpose }}
-        disabled={!isAvailable}
-        onClick={() => executeSession(purpose)}
-      />
+      <BigExecuteButton {...{ purpose }} disabled={!isAvailable()} onClick={executeSession} />
     </M.Box>
   )
 }
 
 export default function NewChainBlockPage() {
-  const { userSelection, purpose } = React.useContext(FollowerChainBlockPageStatesContext)
-  const myself = React.useContext(MyselfContext)
-  const limiterStatus = React.useContext(BlockLimiterContext)
-  const { user: selectedUser } = userSelection
-  function isAvailable() {
-    if (!myself) {
-      return false
-    }
-    if (limiterStatus.remained <= 0 && purpose.type === 'chainblock') {
-      return false
-    }
-    if (!selectedUser) {
-      return false
-    }
-    if (selectedUser.following) {
-      return true
-    }
-    if (selectedUser.protected) {
-      return false
-    }
-    return true
-  }
+  const { userSelection } = React.useContext(FollowerChainBlockPageStatesContext)
+  const request = useSessionRequest()
   return (
     <div>
-      <TargetUserSelectUI isAvailable={isAvailable()} />
+      <TargetUserSelectUI />
       {userSelection.user && <TargetOptionsUI />}
       <BlockLimiterUI />
-      <TargetExecutionButtonUI isAvailable={isAvailable()} />
+      {userSelection.user && (
+        <div>
+          <RequestCheckResultUI {...{ request }} />
+          <TargetExecutionButtonUI />
+        </div>
+      )}
     </div>
   )
 }

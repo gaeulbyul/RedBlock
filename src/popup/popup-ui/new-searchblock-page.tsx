@@ -13,36 +13,42 @@ import {
   BigExecuteButton,
   BlockLimiterUI,
   PurposeSelectionUI,
+  RequestCheckResultUI,
 } from './components.js'
+import { TargetCheckResult, validateRequest } from '../../scripts/background/target-checker.js'
 
 const M = MaterialUI
 const T = MaterialUI.Typography
 
-function TargetExecutionButtonUI(props: { isAvailable: boolean }) {
-  const { isAvailable } = props
-  const { searchQuery, purpose } = React.useContext(UserSearchChainBlockPageStatesContext)
-  const { sessionOptions } = React.useContext(SessionOptionsContext)
-  const uiContext = React.useContext(UIContext)
-  const myself = React.useContext(MyselfContext)
+function useSessionRequest(): UserSearchBlockSessionRequest {
+  const { purpose, searchQuery } = React.useContext(UserSearchChainBlockPageStatesContext)
   const { cookieOptions } = React.useContext(TwitterAPIClientContext)
-  function executeSession(purpose: UserSearchBlockSessionRequest['purpose']) {
-    if (!myself) {
-      uiContext.openSnackBar(i18n.getMessage('error_occured_check_login'))
-      return
+  const { sessionOptions } = React.useContext(SessionOptionsContext)
+  const myself = React.useContext(MyselfContext)!
+  return {
+    purpose,
+    options: sessionOptions,
+    target: {
+      type: 'user_search',
+      query: searchQuery!,
+    },
+    myself,
+    cookieOptions,
+  }
+}
+
+function TargetExecutionButtonUI() {
+  const { purpose } = React.useContext(UserSearchChainBlockPageStatesContext)
+  const limiterStatus = React.useContext(BlockLimiterContext)
+  const uiContext = React.useContext(UIContext)
+  const request = useSessionRequest()
+  function isAvailable() {
+    if (limiterStatus.remained <= 0) {
+      return false
     }
-    if (!searchQuery) {
-      throw new Error('unreachable -- searchQuery is null')
-    }
-    const request: UserSearchBlockSessionRequest = {
-      purpose,
-      options: sessionOptions,
-      target: {
-        type: 'user_search',
-        query: searchQuery,
-      },
-      myself,
-      cookieOptions,
-    }
+    return validateRequest(request) === TargetCheckResult.Ok
+  }
+  function executeSession() {
     uiContext.openDialog({
       dialogType: 'confirm',
       message: TextGenerate.generateConfirmMessage(request),
@@ -53,11 +59,7 @@ function TargetExecutionButtonUI(props: { isAvailable: boolean }) {
   }
   return (
     <M.Box>
-      <BigExecuteButton
-        {...{ purpose }}
-        disabled={!isAvailable}
-        onClick={() => executeSession(purpose)}
-      />
+      <BigExecuteButton {...{ purpose }} disabled={!isAvailable()} onClick={executeSession} />
     </M.Box>
   )
 }
@@ -85,17 +87,7 @@ function TargetOptionsUI() {
 }
 
 export default function NewSearchChainBlockPage() {
-  const myself = React.useContext(MyselfContext)
-  const limiterStatus = React.useContext(BlockLimiterContext)
-  function isAvailable() {
-    if (!myself) {
-      return false
-    }
-    if (limiterStatus.remained <= 0) {
-      return false
-    }
-    return true
-  }
+  const request = useSessionRequest()
   const { searchQuery } = React.useContext(UserSearchChainBlockPageStatesContext)
   return (
     <div>
@@ -109,7 +101,8 @@ export default function NewSearchChainBlockPage() {
       </RBExpansionPanel>
       <TargetOptionsUI />
       <BlockLimiterUI />
-      <TargetExecutionButtonUI isAvailable={isAvailable()} />
+      <RequestCheckResultUI {...{ request }} />
+      <TargetExecutionButtonUI />
     </div>
   )
 }

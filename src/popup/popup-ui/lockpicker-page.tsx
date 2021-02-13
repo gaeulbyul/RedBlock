@@ -10,14 +10,34 @@ import {
   BigExecuteButton,
   PurposeSelectionUI,
   TwitterUserProfile,
+  RequestCheckResultUI,
 } from './components.js'
 
 import * as i18n from '../../scripts/i18n.js'
 import { generateConfirmMessage } from '../../scripts/text-generate.js'
 import { startNewChainBlockSession } from '../../scripts/background/request-sender.js'
 import { LockPickerPageStatesContext, SessionOptionsContext } from './ui-states.js'
+import { TargetCheckResult, validateRequest } from '../../scripts/background/target-checker.js'
 
 const M = MaterialUI
+
+function useSessionRequest(): LockPickerSessionRequest {
+  const { purpose } = React.useContext(LockPickerPageStatesContext)
+  const { cookieOptions } = React.useContext(TwitterAPIClientContext)
+  const { sessionOptions } = React.useContext(SessionOptionsContext)
+  const myself = React.useContext(MyselfContext)!
+  return {
+    purpose,
+    options: sessionOptions,
+    target: {
+      type: 'lockpicker',
+      user: myself,
+      list: 'followers',
+    },
+    myself,
+    cookieOptions,
+  }
+}
 
 function TargetOptionsUI() {
   const {
@@ -41,29 +61,18 @@ function TargetOptionsUI() {
   )
 }
 
-function TargetExecutionButtonUI(props: { isAvailable: boolean }) {
-  const { isAvailable } = props
+function TargetExecutionButtonUI() {
   const { purpose } = React.useContext(LockPickerPageStatesContext)
-  const { sessionOptions } = React.useContext(SessionOptionsContext)
   const uiContext = React.useContext(UIContext)
-  const myself = React.useContext(MyselfContext)
-  const { cookieOptions } = React.useContext(TwitterAPIClientContext)
-  function executeSession(purpose: LockPickerSessionRequest['purpose']) {
-    if (!myself) {
-      uiContext.openSnackBar(i18n.getMessage('error_occured_check_login'))
-      return
+  const limiterStatus = React.useContext(BlockLimiterContext)
+  const request = useSessionRequest()
+  function isAvailable() {
+    if (limiterStatus.remained <= 0) {
+      return false
     }
-    const request: LockPickerSessionRequest = {
-      purpose,
-      options: sessionOptions,
-      target: {
-        type: 'lockpicker',
-        user: myself,
-        list: 'followers',
-      },
-      myself,
-      cookieOptions,
-    }
+    return validateRequest(request) === TargetCheckResult.Ok
+  }
+  function executeSession() {
     uiContext.openDialog({
       dialogType: 'confirm',
       message: generateConfirmMessage(request),
@@ -74,27 +83,14 @@ function TargetExecutionButtonUI(props: { isAvailable: boolean }) {
   }
   return (
     <M.Box>
-      <BigExecuteButton
-        {...{ purpose }}
-        disabled={!isAvailable}
-        onClick={() => executeSession(purpose)}
-      />
+      <BigExecuteButton {...{ purpose }} disabled={!isAvailable()} onClick={executeSession} />
     </M.Box>
   )
 }
 
 export default function LockPickerPage() {
   const myself = React.useContext(MyselfContext)!
-  const limiterStatus = React.useContext(BlockLimiterContext)
-  function isAvailable() {
-    if (!myself) {
-      return false
-    }
-    if (limiterStatus.remained <= 0) {
-      return false
-    }
-    return true
-  }
+  const request = useSessionRequest()
   return (
     <div>
       <RBExpansionPanel summary={i18n.getMessage('lockpicker')} defaultExpanded>
@@ -104,7 +100,8 @@ export default function LockPickerPage() {
       </RBExpansionPanel>
       <TargetOptionsUI />
       <BlockLimiterUI />
-      <TargetExecutionButtonUI isAvailable={isAvailable()} />
+      <RequestCheckResultUI {...{ request }} />
+      <TargetExecutionButtonUI />
     </div>
   )
 }

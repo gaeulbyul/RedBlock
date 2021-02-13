@@ -14,10 +14,38 @@ import {
   RBExpansionPanel,
   BigExecuteButton,
   PurposeSelectionUI,
+  RequestCheckResultUI,
 } from './components.js'
 import { TweetReactionChainBlockPageStatesContext, SessionOptionsContext } from './ui-states.js'
+import { TargetCheckResult, validateRequest } from '../../scripts/background/target-checker.js'
 
 const M = MaterialUI
+
+function useSessionRequest(): TweetReactionBlockSessionRequest {
+  const {
+    purpose,
+    currentTweet,
+    wantBlockRetweeters,
+    wantBlockLikers,
+    wantBlockMentionedUsers,
+  } = React.useContext(TweetReactionChainBlockPageStatesContext)
+  const { cookieOptions } = React.useContext(TwitterAPIClientContext)
+  const { sessionOptions } = React.useContext(SessionOptionsContext)
+  const myself = React.useContext(MyselfContext)!
+  return {
+    purpose,
+    options: sessionOptions,
+    target: {
+      type: 'tweet_reaction',
+      tweet: currentTweet!,
+      blockRetweeters: wantBlockRetweeters,
+      blockLikers: wantBlockLikers,
+      blockMentionedUsers: wantBlockMentionedUsers,
+    },
+    myself,
+    cookieOptions,
+  }
+}
 
 function TargetTweetUI(props: { tweet: Tweet }) {
   const {
@@ -37,7 +65,7 @@ function TargetTweetUI(props: { tweet: Tweet }) {
     <TwitterUserProfile user={tweet.user}>
       <div className="profile-right-targettweet">
         <div>
-          <span>트윗 내용:</span>
+          <span>Tweet:</span>
           <blockquote className="tweet-content">{tweet.full_text}</blockquote>
         </div>
         <M.FormGroup row>
@@ -112,50 +140,17 @@ function TargetOptionsUI() {
 }
 
 function TargetExecutionButtonUI() {
-  const {
-    currentTweet,
-    wantBlockRetweeters,
-    wantBlockLikers,
-    wantBlockMentionedUsers,
-    purpose,
-  } = React.useContext(TweetReactionChainBlockPageStatesContext)
-  const { sessionOptions } = React.useContext(SessionOptionsContext)
+  const { purpose } = React.useContext(TweetReactionChainBlockPageStatesContext)
   const { openDialog } = React.useContext(UIContext)
-  const uiContext = React.useContext(UIContext)
-  const myself = React.useContext(MyselfContext)
   const limiterStatus = React.useContext(BlockLimiterContext)
-  const { cookieOptions } = React.useContext(TwitterAPIClientContext)
+  const request = useSessionRequest()
   function isAvailable() {
     if (purpose.type === 'chainblock' && limiterStatus.remained <= 0) {
       return false
     }
-    if (!(wantBlockRetweeters || wantBlockLikers || wantBlockMentionedUsers)) {
-      return false
-    }
-    return true
+    return validateRequest(request) === TargetCheckResult.Ok
   }
-  function executeSession(purpose: TweetReactionBlockSessionRequest['purpose']) {
-    if (!currentTweet) {
-      // unreachable?
-      throw new Error('트윗을 선택해주세요')
-    }
-    if (!myself) {
-      uiContext.openSnackBar(i18n.getMessage('error_occured_check_login'))
-      return
-    }
-    const request: TweetReactionBlockSessionRequest = {
-      purpose,
-      options: sessionOptions,
-      target: {
-        type: 'tweet_reaction',
-        tweet: currentTweet,
-        blockRetweeters: wantBlockRetweeters,
-        blockLikers: wantBlockLikers,
-        blockMentionedUsers: wantBlockMentionedUsers,
-      },
-      myself,
-      cookieOptions,
-    }
+  function executeSession() {
     openDialog({
       dialogType: 'confirm',
       message: TextGenerate.generateConfirmMessage(request),
@@ -166,21 +161,19 @@ function TargetExecutionButtonUI() {
   }
   return (
     <M.Box>
-      <BigExecuteButton
-        {...{ purpose }}
-        disabled={!isAvailable()}
-        onClick={() => executeSession(purpose)}
-      />
+      <BigExecuteButton {...{ purpose }} disabled={!isAvailable()} onClick={executeSession} />
     </M.Box>
   )
 }
 
 export default function NewTweetReactionBlockPage() {
+  const request = useSessionRequest()
   return (
     <div>
       <TargetTweetOuterUI />
       <TargetOptionsUI />
       <BlockLimiterUI />
+      <RequestCheckResultUI {...{ request }} />
       <TargetExecutionButtonUI />
     </div>
   )

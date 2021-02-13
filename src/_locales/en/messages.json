@@ -556,6 +556,9 @@
   "cant_lockpicker_to_others": {
     "message": "You can't run protected-follower-chainblock to other user."
   },
+  "cant_chainblock_searchquery_invalid": {
+    "message": "Search query is not valid."
+  },
   "wtf_twitter": {
     "message": "To avoid problem(force-logout, account suspension), Red Block won't block over 500 users."
   },

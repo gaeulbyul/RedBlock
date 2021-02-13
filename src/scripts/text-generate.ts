@@ -406,5 +406,7 @@ export function checkResultToString(result: TargetCheckResult): string {
       return i18n.getMessage('cant_chainblock_to_yourself')
     case TargetCheckResult.CantLockPickerToOther:
       return i18n.getMessage('cant_lockpicker_to_others')
+    case TargetCheckResult.InvalidSearchQuery:
+      return i18n.getMessage('cant_chainblock_searchquery_invalid')
   }
 }
