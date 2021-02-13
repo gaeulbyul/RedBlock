@@ -31,7 +31,13 @@ import NewChainBlockPage from './popup-ui/new-chainblock-page.js'
 import NewTweetReactionBlockPage from './popup-ui/new-tweetreactionblock-page.js'
 import NewSearchChainBlockPage from './popup-ui/new-searchblock-page.js'
 import LockPickerPage from './popup-ui/lockpicker-page.js'
-import { DialogContent, RBDialog, RedBlockUITheme, TabPanel } from './popup-ui/components.js'
+import {
+  DialogContent,
+  RBDialog,
+  RedBlockUITheme,
+  TabPanel,
+  MyTooltip,
+} from './popup-ui/components.js'
 
 import {
   getCurrentTab,
@@ -190,11 +196,11 @@ function PopupMyselfIcon(props: { myself: TwitterUser }) {
   const { myself } = props
   const description = i18n.getMessage('current_account', [myself.screen_name, myself.name])
   return (
-    <M.Tooltip arrow placement="bottom-end" title={description}>
+    <MyTooltip arrow placement="bottom-end" title={description}>
       <M.Button>
         <img width="24" style={{ borderRadius: '50%' }} src={myself.profile_image_url_https} />
       </M.Button>
-    </M.Tooltip>
+    </MyTooltip>
   )
 }
 
@@ -334,45 +340,45 @@ function PopupApp({
                       value={tabIndex}
                       onChange={(_ev, val) => setTabIndex(val)}
                     >
-                      <M.Tooltip arrow title={pageLabel(PageEnum.Sessions, runningSessions.length)}>
+                      <MyTooltip arrow title={pageLabel(PageEnum.Sessions, runningSessions.length)}>
                         <PopupTopTab icon={runningSessionsTabIcon} />
-                      </M.Tooltip>
-                      <M.Tooltip arrow title={pageLabel(PageEnum.NewSession)}>
+                      </MyTooltip>
+                      <MyTooltip arrow title={pageLabel(PageEnum.NewSession)}>
                         <PopupTopTab
                           icon={pageIcon(PageEnum.NewSession)}
                           disabled={!availablePages.followerChainBlock}
                         />
-                      </M.Tooltip>
-                      <M.Tooltip arrow title={pageLabel(PageEnum.NewTweetReactionBlock)}>
+                      </MyTooltip>
+                      <MyTooltip arrow title={pageLabel(PageEnum.NewTweetReactionBlock)}>
                         <PopupTopTab
                           icon={pageIcon(PageEnum.NewTweetReactionBlock)}
                           disabled={!availablePages.tweetReactionChainBlock}
                         />
-                      </M.Tooltip>
-                      <M.Tooltip arrow title={pageLabel(PageEnum.NewSearchChainBlock)}>
+                      </MyTooltip>
+                      <MyTooltip arrow title={pageLabel(PageEnum.NewSearchChainBlock)}>
                         <PopupTopTab
                           icon={pageIcon(PageEnum.NewSearchChainBlock)}
                           disabled={!availablePages.userSearchChainBlock}
                         />
-                      </M.Tooltip>
-                      <M.Tooltip arrow title={pageLabel(PageEnum.Blocklist)}>
+                      </MyTooltip>
+                      <MyTooltip arrow title={pageLabel(PageEnum.Blocklist)}>
                         <PopupTopTab
                           icon={pageIcon(PageEnum.Blocklist)}
                           disabled={!availablePages.importChainBlock}
                         />
-                      </M.Tooltip>
-                      <M.Tooltip arrow title={pageLabel(PageEnum.LockPicker)}>
+                      </MyTooltip>
+                      <MyTooltip arrow title={pageLabel(PageEnum.LockPicker)}>
                         <PopupTopTab
                           icon={pageIcon(PageEnum.LockPicker)}
                           disabled={!availablePages.lockPicker}
                         />
-                      </M.Tooltip>
-                      <M.Tooltip arrow title={pageLabel(PageEnum.Utilities)}>
+                      </MyTooltip>
+                      <MyTooltip arrow title={pageLabel(PageEnum.Utilities)}>
                         <PopupTopTab
                           icon={pageIcon(PageEnum.Utilities)}
                           disabled={!availablePages.miscellaneous}
                         />
-                      </M.Tooltip>
+                      </MyTooltip>
                     </M.Tabs>
                     {myself && <PopupMyselfIcon {...{ myself }} />}
                   </M.Toolbar>

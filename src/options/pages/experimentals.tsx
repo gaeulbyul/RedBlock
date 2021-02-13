@@ -56,7 +56,7 @@ export default function ExperimentalOptionsPages() {
           <M.FormGroup>
             <SwitchItem
               checked={options.enableChainMute}
-              label="chainmute"
+              label={i18n.getMessage('enable_chainmute')}
               onChange={checked =>
                 updateOptions({
                   enableChainMute: checked,

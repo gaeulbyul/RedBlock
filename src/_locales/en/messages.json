@@ -410,13 +410,15 @@
     "message": "Caution! This option may lose users who you follow."
   },
   "tweet_contents": {
-    "message": "Tweet's contents"
+    "message": "Tweet content"
   },
-  "execute_chainblock": {
-    "message": "Run Chain-block"
-  },
-  "execute_unchainblock": {
-    "message": "Run Unchain-block"
+  "run_xxx": {
+    "message": "Run $purpose$",
+    "placeholders": {
+      "purpose": {
+        "content": "$1"
+      }
+    }
   },
   "confirm_session_stop_message": {
     "message": "Do you want to stop this session?"

@@ -412,11 +412,13 @@
   "tweet_contents": {
     "message": "트윗 내용"
   },
-  "execute_chainblock": {
-    "message": "체인블락 실행"
-  },
-  "execute_unchainblock": {
-    "message": "언체인블락 실행"
+  "run_xxx": {
+    "message": "$purpose$ 실행",
+    "placeholders": {
+      "purpose": {
+        "content": "$1"
+      }
+    }
   },
   "confirm_session_stop_message": {
     "message": "이 세션을 중단하시겠습니까?"

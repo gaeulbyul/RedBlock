@@ -150,6 +150,7 @@ export function FollowerChainBlockPageStatesProvider(props: {
     'chainblock',
     'unchainblock',
     'chainmute',
+    'unchainmute',
     'chainunfollow',
     'export',
   ]
@@ -185,6 +186,7 @@ export function TweetReactionChainBlockPageStatesProvider(props: {
   const availablePurposeTypes: TweetReactionBlockSessionRequest['purpose']['type'][] = [
     'chainblock',
     'chainmute',
+    'unchainmute',
     'chainunfollow',
     'export',
   ]
@@ -219,6 +221,7 @@ export function ImportChainBlockPageStatesProvider(props: { children: React.Reac
     'chainblock',
     'unchainblock',
     'chainmute',
+    'unchainmute',
     'chainunfollow',
   ]
   const [purpose, changePurposeType, mutatePurposeOptions] = usePurpose<
@@ -250,6 +253,7 @@ export function UserSearchChainBlockPageStatesProvider(props: {
     'chainblock',
     'unchainblock',
     'chainmute',
+    'unchainmute',
     'chainunfollow',
   ]
   const [purpose, changePurposeType, mutatePurposeOptions] = usePurpose<

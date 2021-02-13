@@ -17,6 +17,9 @@ export interface DialogContent {
 
 export function RedBlockUITheme(darkMode: boolean) {
   return MaterialUI.createMuiTheme({
+    typography: {
+      fontSize: 12,
+    },
     palette: {
       type: darkMode ? 'dark' : 'light',
       primary: MaterialUI.colors.pink,
@@ -28,6 +31,12 @@ export function RedBlockUITheme(darkMode: boolean) {
 export function Icon({ name }: { name: string }) {
   return <M.Icon>{name}</M.Icon>
 }
+
+export const MyTooltip = MaterialUI.withStyles(() => ({
+  tooltip: {
+    fontSize: 12,
+  },
+}))(MaterialUI.Tooltip)
 
 function purposeTypeToIcon(purposeType: Purpose['type']): JSX.Element {
   switch (purposeType) {
@@ -44,7 +53,7 @@ function purposeTypeToIcon(purposeType: Purpose['type']): JSX.Element {
     case 'chainmute':
       return <Icon name="volume_off" />
     case 'unchainmute':
-      return <Icon name="volume_on" />
+      return <Icon name="volume_up" />
   }
 }
 
@@ -289,36 +298,29 @@ export function BigExecuteButton(props: {
 }): JSX.Element {
   const { purpose, disabled, onClick } = props
   const type = props.type || 'button'
+  const label = i18n.getMessage('run_xxx', i18n.getMessage(purpose.type))
   let BigButton: typeof BigExecuteChainBlockButton
-  let label: string
   switch (purpose.type) {
     case 'chainblock':
       BigButton = BigExecuteChainBlockButton
-      label = i18n.getMessage('execute_chainblock')
       break
     case 'unchainblock':
       BigButton = BigExecuteUnChainBlockButton
-      label = i18n.getMessage('execute_unchainblock')
       break
     case 'lockpicker':
       BigButton = BigExecuteLockPickerButton
-      label = i18n.getMessage('lockpicker')
       break
     case 'chainunfollow':
       BigButton = BigChainUnfollowButton
-      label = i18n.getMessage('chainunfollow')
       break
     case 'chainmute':
       BigButton = BigChainMuteButton
-      label = i18n.getMessage('chainmute')
       break
     case 'unchainmute':
       BigButton = BigUnChainMuteButton
-      label = i18n.getMessage('unchainmute')
       break
     case 'export':
       BigButton = BigExportButton
-      label = i18n.getMessage('export')
       break
   }
   const startIcon = purposeTypeToIcon(purpose.type)
@@ -404,7 +406,10 @@ const BigUnChainMuteButton = MaterialUI.withStyles(theme => ({
 
 const PurposeTab = MaterialUI.withStyles(_theme => ({
   root: {
-    padding: 0,
+    flexGrow: 1,
+    '@media (min-width: 600px)': {
+      minWidth: 'initial',
+    },
   },
 }))(MaterialUI.Tab)
 
@@ -450,7 +455,8 @@ export function PurposeSelectionUI(props: {
     <div style={{ width: '100%' }}>
       <M.Tabs
         style={{ display: availablePurposeTypes.length >= 2 ? 'flex' : 'none' }}
-        variant="fullWidth"
+        variant="scrollable"
+        scrollButtons="auto"
         value={purpose.type}
         onChange={(_ev, val) => changePurposeType(val)}
       >
