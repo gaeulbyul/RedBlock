@@ -147,7 +147,7 @@ function TargetSavedUsers(props: { savedUsers: TwitterUserMap }) {
         </M.Select>
       </M.FormControl>
       {selectedUser && (
-        <M.Box margin="10px 0" display="flex" flexDirection="row-reverse">
+        <M.Box my={1} display="flex" flexDirection="row-reverse">
           <M.ButtonGroup>
             <M.Button
               disabled={selectedUserGroup !== 'current'}
@@ -204,10 +204,10 @@ function TargetUserProfile() {
   )
 }
 
-const useStylesForCircularProgress = MaterialUI.makeStyles(() =>
+const useStylesForCircularProgress = MaterialUI.makeStyles(theme =>
   MaterialUI.createStyles({
     center: {
-      margin: '10px auto',
+      margin: theme.spacing(1, 'auto'),
     },
   })
 )

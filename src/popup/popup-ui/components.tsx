@@ -127,9 +127,9 @@ export function PleaseLoginBox() {
   }
   return (
     <M.Paper>
-      <M.Box padding="12px 16px">
+      <M.Box px={2} py={1.5}>
         <T component="div">{i18n.getMessage('please_check_login')}</T>
-        <M.Box marginTop="10px">
+        <M.Box mt={1}>
           <a
             rel="noopener noreferer"
             target="_blank"
@@ -147,18 +147,18 @@ export function PleaseLoginBox() {
   )
 }
 
-const DenseExpansionPanel = MaterialUI.withStyles({
+const DenseExpansionPanel = MaterialUI.withStyles(theme => ({
   root: {
-    margin: '8px 0',
+    margin: theme.spacing(1, 0),
     '&:first-child': {
       margin: '0',
     },
     '&$expanded': {
-      margin: '8px 0',
+      margin: theme.spacing(1, 0),
     },
   },
   expanded: {},
-})(MaterialUI.ExpansionPanel)
+}))(MaterialUI.ExpansionPanel)
 
 const DenseExpansionPanelSummary = MaterialUI.withStyles({
   root: {
@@ -175,10 +175,10 @@ const DenseExpansionPanelSummary = MaterialUI.withStyles({
   expanded: {},
 })(MaterialUI.ExpansionPanelSummary)
 
-const useStylesForExpansionPanels = MaterialUI.makeStyles(() =>
+const useStylesForExpansionPanels = MaterialUI.makeStyles(theme =>
   MaterialUI.createStyles({
     details: {
-      padding: '8px 16px',
+      padding: theme.spacing(1, 2),
     },
   })
 )
@@ -269,10 +269,10 @@ export function TwitterUserProfile(props: { user: TwitterUser; children?: React.
   )
 }
 
-const BigBaseButton = MaterialUI.withStyles(() => ({
+const BigBaseButton = MaterialUI.withStyles(theme => ({
   root: {
     width: '100%',
-    padding: '10px',
+    padding: theme.spacing(1),
     fontSize: 'larger',
   },
 }))(MaterialUI.Button)

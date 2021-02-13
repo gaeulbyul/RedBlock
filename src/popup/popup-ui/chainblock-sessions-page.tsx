@@ -350,7 +350,6 @@ function NewSessionMenu(props: {
         <M.MenuItem
           key={index}
           dense
-          style={{ margin: '5px 0' }}
           disabled={!uiContext.availablePages[pageAvailabilityKey(page)]}
           onClick={e => handleNewSessionButton(e, page)}
         >
@@ -386,17 +385,17 @@ function NewSessionButtons() {
     <M.Box display="flex" flexDirection="row" justifyContent="center" my={1}>
       <M.Box minWidth="150px" maxWidth="300px">
         {newSessionTypesToShow.map((page, index) => (
-          <M.Button
-            key={index}
-            fullWidth
-            style={{ margin: '5px 0' }}
-            variant="contained"
-            startIcon={pageIcon(page)}
-            disabled={!uiContext.availablePages[pageAvailabilityKey(page)]}
-            onClick={e => handleNewSessionButton(e, page)}
-          >
-            {pageLabel(page)}
-          </M.Button>
+          <M.Box key={index} my={1}>
+            <M.Button
+              fullWidth
+              variant="contained"
+              startIcon={pageIcon(page)}
+              disabled={!uiContext.availablePages[pageAvailabilityKey(page)]}
+              onClick={e => handleNewSessionButton(e, page)}
+            >
+              {pageLabel(page)}
+            </M.Button>
+          </M.Box>
         ))}
       </M.Box>
     </M.Box>
