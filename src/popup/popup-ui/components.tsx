@@ -383,6 +383,19 @@ const useStylesForTab = MaterialUI.makeStyles(() =>
   })
 )
 
+export function LinearProgressWithLabel(props: { value: number }) {
+  return (
+    <M.Box display="flex" alignItems="center">
+      <M.Box width="100%" mr={1}>
+        <M.LinearProgress variant="determinate" {...props} />
+      </M.Box>
+      <M.Box minWidth={35}>
+        <T variant="body2" color="textSecondary">{`${Math.round(props.value)}%`}</T>
+      </M.Box>
+    </M.Box>
+  )
+}
+
 export function PurposeSelectionUI(props: {
   purpose: SessionRequest['purpose']
   changePurposeType(purposeType: SessionRequest['purpose']['type']): void
