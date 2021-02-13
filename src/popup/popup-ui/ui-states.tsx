@@ -149,8 +149,9 @@ export function FollowerChainBlockPageStatesProvider(props: {
   const availablePurposeTypes: FollowerBlockSessionRequest['purpose']['type'][] = [
     'chainblock',
     'unchainblock',
-    'export',
+    'chainmute',
     'chainunfollow',
+    'export',
   ]
   const [purpose, changePurposeType, mutatePurposeOptions] = usePurpose<
     FollowerBlockSessionRequest['purpose']
@@ -183,8 +184,9 @@ export function TweetReactionChainBlockPageStatesProvider(props: {
   const [wantBlockMentionedUsers, setWantBlockMentionedUsers] = React.useState<boolean>(false)
   const availablePurposeTypes: TweetReactionBlockSessionRequest['purpose']['type'][] = [
     'chainblock',
-    'export',
+    'chainmute',
     'chainunfollow',
+    'export',
   ]
   const [purpose, changePurposeType, mutatePurposeOptions] = usePurpose<
     TweetReactionBlockSessionRequest['purpose']
@@ -216,6 +218,7 @@ export function ImportChainBlockPageStatesProvider(props: { children: React.Reac
   const availablePurposeTypes: ImportBlockSessionRequest['purpose']['type'][] = [
     'chainblock',
     'unchainblock',
+    'chainmute',
     'chainunfollow',
   ]
   const [purpose, changePurposeType, mutatePurposeOptions] = usePurpose<
@@ -246,6 +249,7 @@ export function UserSearchChainBlockPageStatesProvider(props: {
   const availablePurposeTypes: UserSearchBlockSessionRequest['purpose']['type'][] = [
     'chainblock',
     'unchainblock',
+    'chainmute',
     'chainunfollow',
   ]
   const [purpose, changePurposeType, mutatePurposeOptions] = usePurpose<

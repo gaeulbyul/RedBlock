@@ -25,6 +25,12 @@ export function decideWhatToDoGivenUser(
     case 'chainunfollow':
       whatToDo = decideWhenChainUnfollow(purpose, follower)
       break
+    case 'chainmute':
+      whatToDo = decideWhenChainMute(purpose, follower)
+      break
+    case 'unchainmute':
+      whatToDo = decideWhenUnChainMute(purpose, follower)
+      break
     case 'lockpicker':
       whatToDo = decideWhenLockPicker(purpose, follower)
       break
@@ -84,6 +90,32 @@ function decideWhenChainUnfollow(_purpose: ChainUnfollowPurpose, follower: Twitt
     return 'Skip'
   }
   return 'UnFollow'
+}
+
+function decideWhenChainMute(purpose: ChainMutePurpose, follower: TwitterUser) {
+  const { following, followed_by, follow_request_sent } = follower
+  const isMyFollowing = following || follow_request_sent
+  const isMyFollower = followed_by
+  const isMyMutualFollower = isMyFollower && isMyFollowing
+  // 주의!
+  // 팝업 UI에 나타난 순서를 고려할 것.
+  if (isMyMutualFollower) {
+    return 'Skip'
+  }
+  if (isMyFollower) {
+    return purpose.myFollowers
+  }
+  if (isMyFollowing) {
+    return purpose.myFollowings
+  }
+  return 'Mute'
+}
+
+function decideWhenUnChainMute(purpose: UnChainMutePurpose, follower: TwitterUser) {
+  if (follower.muting && follower.blocking) {
+    return purpose.mutedAndAlsoBlocked
+  }
+  return 'UnMute'
 }
 
 function isAlreadyDone(follower: TwitterUser, action: UserAction): boolean {

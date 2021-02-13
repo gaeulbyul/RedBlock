@@ -22,6 +22,8 @@ type Purpose =
   | UnChainBlockPurpose
   | LockPickerPurpose
   | ChainUnfollowPurpose
+  | ChainMutePurpose
+  | UnChainMutePurpose
   | ExportPurpose
 
 interface ChainBlockPurpose {
@@ -42,6 +44,17 @@ interface LockPickerPurpose {
 
 interface ChainUnfollowPurpose {
   type: 'chainunfollow'
+}
+
+interface ChainMutePurpose {
+  type: 'chainmute'
+  myFollowers: 'Skip' | 'Mute'
+  myFollowings: 'Skip' | 'Mute'
+}
+
+interface UnChainMutePurpose {
+  type: 'unchainmute'
+  mutedAndAlsoBlocked: 'Skip' | 'UnMute'
 }
 
 interface ExportPurpose {

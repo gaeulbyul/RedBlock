@@ -262,6 +262,13 @@ function ChainBlockSessionItem(props: { sessionInfo: SessionInfo }) {
       break
     case 'chainunfollow':
       shortProgress = `${i18n.getMessage('unfollow')}: ${succProgress.UnFollow.toLocaleString()}`
+      break
+    case 'chainmute':
+      shortProgress = `${i18n.getMessage('mute')}: ${succProgress.Mute.toLocaleString()}`
+      break
+    case 'unchainmute':
+      shortProgress = `${i18n.getMessage('unmute')}: ${succProgress.UnMute.toLocaleString()}`
+      break
   }
   let notSavedYet = ''
   if (!downloadButtonClicked) {

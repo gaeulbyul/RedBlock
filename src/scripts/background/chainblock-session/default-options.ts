@@ -2,6 +2,7 @@ const myFollowers = 'Skip'
 const myFollowings = 'Skip'
 const mutualBlocked = 'Skip'
 const protectedFollowers = 'Block'
+const mutedAndAlsoBlocked = 'Skip'
 
 const includeUsersInBio = 'never'
 const skipInactiveUser = 'never'
@@ -33,6 +34,17 @@ export const defaultChainUnfollowPurposeOptions = Object.freeze<ChainUnfollowPur
   type: 'chainunfollow',
 })
 
+export const defaultChainMutePurposeOptions = Object.freeze<ChainMutePurpose>({
+  type: 'chainmute',
+  myFollowers,
+  myFollowings,
+})
+
+export const defaultUnChainMutePurposeOptions = Object.freeze<UnChainMutePurpose>({
+  type: 'unchainmute',
+  mutedAndAlsoBlocked,
+})
+
 export const defaultExportPurposeOptions = Object.freeze<ExportPurpose>({
   type: 'export',
 })
@@ -42,5 +54,7 @@ export const defaultPurposeOptions = Object.freeze({
   unchainblock: defaultUnChainBlockPurposeOptions,
   lockpicker: defaultLockPickerPurposeOptions,
   chainunfollow: defaultChainUnfollowPurposeOptions,
+  chainmute: defaultChainMutePurposeOptions,
+  unchainmute: defaultUnChainMutePurposeOptions,
   export: defaultExportPurposeOptions,
 })

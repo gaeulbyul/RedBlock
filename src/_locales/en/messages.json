@@ -42,13 +42,19 @@
     "message": "Mentioned Users"
   },
   "chainblock": {
-    "message": "Chainblock"
+    "message": "ChainBlock"
   },
   "unchainblock": {
-    "message": "Unchainblock"
+    "message": "UnchainBlock"
   },
   "chainunfollow": {
-    "message": "Chainunfollow"
+    "message": "ChainUnfollow"
+  },
+  "chainmute": {
+    "message": "ChainMute"
+  },
+  "unchainmute": {
+    "message": "UnchainMute"
   },
   "lockpicker": {
     "message": "Block protected followers"
@@ -332,10 +338,10 @@
     "message": "Options"
   },
   "chainblock_description": {
-    "message": "Blocks all users according to the options you set."
+    "message": "Block all users according to the options you set."
   },
   "unchainblock_description": {
-    "message": "Unblocks all users according to the options you set."
+    "message": "Unblock all users according to the options you set."
   },
   "lockpicker_description": {
     "message": "Unlike Chainblock, it will block *only* protected followers who doesn't follow back to you, and nobody else will be blocked."
@@ -343,35 +349,29 @@
   "chainunfollow_description": {
     "message": "Unfollow all users that followed by you."
   },
-  "my_mutual_followers_wont_block": {
-    "message": "Your mutual-followers won't be blocked to prevent muting/blocking your friends."
+  "chainmute_description": {
+    "message": "Mute all users according to the options you set."
   },
-  "confirm_follower_chainblock_title": {
-    "message": "Do you want to run Chainblock on @$username$?",
-    "placeholders": {
-      "username": {
-        "content": "$1"
-      }
-    }
+  "unchainmute_description": {
+    "message": "Unmute all users according to the options you set."
   },
-  "confirm_follower_unchainblock_title": {
-    "message": "Do you want to run Unchainblock on @$username$?",
-    "placeholders": {
-      "username": {
-        "content": "$1"
-      }
-    }
+  "my_mutual_followers_wont_block_or_mute": {
+    "message": "Your mutual-followers won't be blocked/muted."
   },
-  "confirm_reacted_chainblock_title": {
-    "message": "Do you want to run Chainblock on users that reacted @$username$'s tweet?",
-    "placeholders": {
-      "username": {
-        "content": "$1"
-      }
-    }
+  "confirm_chainblock_title": {
+    "message": "Do you want to run Chainblock?"
   },
-  "confirm_import_chainblock_title": {
-    "message": "Do you want to block users from imported list?"
+  "confirm_unchainblock_title": {
+    "message": "Do you want to run Unhainblock?"
+  },
+  "confirm_chainmute_title": {
+    "message": "Do you want to run Chainmute?"
+  },
+  "confirm_unchainmute_title": {
+    "message": "Do you want to run Unchainmute?"
+  },
+  "confirm_chainunfollow_title": {
+    "message": "Do you want to run Chainunfollow?"
   },
   "confirm_lockpicker_block_title": {
     "message": "Do you want to block protected followers?"
@@ -379,27 +379,8 @@
   "confirm_lockpicker_bnb_title": {
     "message": "Do you want to block-and-unblock protected followers?"
   },
-  "confirm_search_chainblock_title": {
-    "message": "Do you want to block users from search result?"
-  },
-  "confirm_follower_chainunfollow_title": {
-    "message": "Do you want to Chain-unfollow on @$username$?",
-    "placeholders": {
-      "username": {
-        "content": "$1"
-      }
-    }
-  },
-  "confirm_reacted_chainunfollow_title": {
-    "message": "Do you want to run Chain-unfollow on users that reacted @$username$'s tweet?",
-    "placeholders": {
-      "username": {
-        "content": "$1"
-      }
-    }
-  },
-  "confirm_search_chainunfollow_title": {
-    "message": "Do you want to unfollow users from search result?"
+  "confirm_export_title": {
+    "message": "Do you want to export user lists?"
   },
   "user_count": {
     "message": "Users"
@@ -478,11 +459,33 @@
       }
     }
   },
+  "muted_n_users": {
+    "message": "Muted $count$ users.",
+    "placeholders": {
+      "count": {
+        "content": "$1"
+      }
+    }
+  },
+  "unmuted_n_users": {
+    "message": "Unmuted $count$ users.",
+    "placeholders": {
+      "count": {
+        "content": "$1"
+      }
+    }
+  },
   "already_blocked": {
     "message": "Already blocked"
   },
   "already_unblocked": {
     "message": "Already unblocked"
+  },
+  "already_muted": {
+    "message": "Already muted"
+  },
+  "already_unmuted": {
+    "message": "Already unmuted"
   },
   "chainblock_completed": {
     "message": "Chainblock completed!"
@@ -494,7 +497,13 @@
     "message": "Blocking protected follower completed!"
   },
   "chainunfollow_completed": {
-    "message": "Chain-unfollow completed!"
+    "message": "Chainunfollow completed!"
+  },
+  "chainmute_completed": {
+    "message": "Chainmute completed!"
+  },
+  "unchainmute_completed": {
+    "message": "UnchainMute completed!"
   },
   "yes": {
     "message": "Yes"
@@ -701,14 +710,6 @@
       }
     }
   },
-  "confirm_follower_export_title": {
-    "message": "Do you want to export user lists from @$username$?",
-    "placeholders": {
-      "username": {
-        "content": "$1"
-      }
-    }
-  },
   "export_description": {
     "message": "Generate blocklist file from users."
   },
@@ -768,6 +769,9 @@
   "enable_bioblock": {
     "message": "Enable BioBlock"
   },
+  "enable_chainmute": {
+    "message": "Enable ChainMute"
+  },
   "1st_party_isolation_compatible_mode": {
     "message": "Compatible Firefox's 1st-party isolation mode."
   },
@@ -776,5 +780,8 @@
   },
   "1st_party_isolation_compatible_mode_description": {
     "message": "Be compatible with Firefox's 1st-party isolation mode. If you're on the non-Firefox browser or 1st-party isolation is turned off, Enabling this option makes Red Block's most features became unavailable."
+  },
+  "muted_and_also_blocked": {
+    "message": "Muted and blocked user."
   }
 }

@@ -50,6 +50,12 @@
   "chainunfollow": {
     "message": "체인언팔로우"
   },
+  "chainmute": {
+    "message": "체인뮤트"
+  },
+  "unchainmute": {
+    "message": "언체인뮤트"
+  },
   "lockpicker": {
     "message": "프로텍트 팔로워 차단"
   },
@@ -343,35 +349,29 @@
   "chainunfollow_description": {
     "message": "내가 팔로우한 유저를 모두 언팔로우합니다."
   },
-  "my_mutual_followers_wont_block": {
+  "chainmute_description": {
+    "message": "설정한 옵션에 따라 유저를 모두 뮤트합니다."
+  },
+  "unchainmute_description": {
+    "message": "설정한 옵션에 따라 유저를 모두 언뮤트합니다."
+  },
+  "my_mutual_followers_wont_block_or_mute": {
     "message": "단, 내 맞팔로워는 위 옵션과 무관하게 차단이나 뮤트를 하지 않습니다."
   },
-  "confirm_follower_chainblock_title": {
-    "message": "정말로 @$username$에게 체인블락을 실행하시겠습니까?",
-    "placeholders": {
-      "username": {
-        "content": "$1"
-      }
-    }
+  "confirm_chainblock_title": {
+    "message": "정말로 체인블락을 실행하시겠습니까?"
   },
-  "confirm_follower_unchainblock_title": {
-    "message": "정말로 @$username$에게 언체인블락을 실행하시겠습니까?",
-    "placeholders": {
-      "username": {
-        "content": "$1"
-      }
-    }
+  "confirm_unchainblock_title": {
+    "message": "정말로 언체인블락을 실행하시겠습니까?"
   },
-  "confirm_reacted_chainblock_title": {
-    "message": "정말로 @$username$이 쓴 트윗에 반응한 유저에게 체인블락을 실행하시겠습니까?",
-    "placeholders": {
-      "username": {
-        "content": "$1"
-      }
-    }
+  "confirm_chainmute_title": {
+    "message": "정말로 체인뮤트를 실행하시겠습니까?"
   },
-  "confirm_import_chainblock_title": {
-    "message": "정말로 해당 차단목록에 있는 유저를 차단하시겠습니까?"
+  "confirm_unchainmute_title": {
+    "message": "정말로 언체인뮤트를 실행하시겠습니까?"
+  },
+  "confirm_chainunfollow_title": {
+    "message": "정말로 체인언팔로우를 실행하시겠습니까?"
   },
   "confirm_lockpicker_block_title": {
     "message": "프로텍트 팔로워를 차단하시겠습니까?"
@@ -379,27 +379,8 @@
   "confirm_lockpicker_bnb_title": {
     "message": "프로텍트 팔로워를 블언블하시겠습니까?"
   },
-  "confirm_search_chainblock_title": {
-    "message": "정말로 해당 유저 검색결과에 나온 유저를 차단하시겠습니까?"
-  },
-  "confirm_follower_chainunfollow_title": {
-    "message": "정말로 @$username$에게 체인언팔로우를 실행하시겠습니까?",
-    "placeholders": {
-      "username": {
-        "content": "$1"
-      }
-    }
-  },
-  "confirm_reacted_chainunfollow_title": {
-    "message": "정말로 @$username$이 쓴 트윗에 반응한 유저에게 체인언팔로우를 실행하시겠습니까?",
-    "placeholders": {
-      "username": {
-        "content": "$1"
-      }
-    }
-  },
-  "confirm_search_chainunfollow_title": {
-    "message": "정말로 해당 유저 검색결과에 나온 유저를 언팔로우하시겠습니까?"
+  "confirm_export_title": {
+    "message": "차단목록 생성을 실행하시겠습니까?"
   },
   "user_count": {
     "message": "유저수"
@@ -478,11 +459,33 @@
       }
     }
   },
+  "muted_n_users": {
+    "message": "$count$명을 뮤트했습니다.",
+    "placeholders": {
+      "count": {
+        "content": "$1"
+      }
+    }
+  },
+  "unmuted_n_users": {
+    "message": "$count$명을 언뮤트했습니다.",
+    "placeholders": {
+      "count": {
+        "content": "$1"
+      }
+    }
+  },
   "already_blocked": {
     "message": "이미 차단함"
   },
   "already_unblocked": {
     "message": "이미 차단해제함"
+  },
+  "already_muted": {
+    "message": "이미 뮤트함"
+  },
+  "already_unmuted": {
+    "message": "이미 언뮤트함"
   },
   "chainblock_completed": {
     "message": "체인블락 완료!"
@@ -495,6 +498,12 @@
   },
   "chainunfollow_completed": {
     "message": "체인언팔로우 완료!"
+  },
+  "chainmute_completed": {
+    "message": "체인뮤트 완료!"
+  },
+  "unchainmute_completed": {
+    "message": "언체인뮤트 완료!"
   },
   "yes": {
     "message": "네"
@@ -701,14 +710,6 @@
       }
     }
   },
-  "confirm_follower_export_title": {
-    "message": "@$username$에서 유저목록을 만드시겠습니까?",
-    "placeholders": {
-      "username": {
-        "content": "$1"
-      }
-    }
-  },
   "export_description": {
     "message": "유저들을 수집하여 차단목록 파일을 만들어냅니다. (100,000명까지)"
   },
@@ -768,6 +769,9 @@
   "enable_bioblock": {
     "message": "BioBlock 기능 활성화"
   },
+  "enable_chainmute": {
+    "message": "체인뮤트 기능 활성화"
+  },
   "1st_party_isolation_compatible_mode": {
     "message": "Firefox의 1st-party Isolation 기능 호환모드"
   },
@@ -776,5 +780,8 @@
   },
   "1st_party_isolation_compatible_mode_description": {
     "message": "Firefox의 1st-party Isolation 기능과 호환되도록 합니다. 단, Firefox외 다른 웹 브라우저이거나 1st-party Isolation기능이 꺼져있는 경우 레드블락의 대부분의 기능이 작동하지 않을 수 있습니다."
+  },
+  "muted_and_also_blocked": {
+    "message": "뮤트 및 차단한 유저"
   }
 }

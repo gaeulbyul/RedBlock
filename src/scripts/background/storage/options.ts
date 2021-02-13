@@ -28,5 +28,6 @@ export const defaultOptions = Object.freeze<RedBlockOptions>({
   skipInactiveUser: 'never',
   revealBioBlockMode: false,
   enableAntiBlock: false,
+  enableChainMute: false,
   firstPartyIsolationCompatibleMode: false,
 })

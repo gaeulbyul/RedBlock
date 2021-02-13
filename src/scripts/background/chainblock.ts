@@ -127,6 +127,8 @@ export default class ChainBlocker {
       case 'unchainblock':
       case 'lockpicker':
       case 'chainunfollow':
+      case 'chainmute':
+      case 'unchainmute':
         session = new ChainBlockSession(twClient, request)
         break
       case 'export':

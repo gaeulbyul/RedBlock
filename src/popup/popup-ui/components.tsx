@@ -41,6 +41,10 @@ function purposeTypeToIcon(purposeType: Purpose['type']): JSX.Element {
       return <Icon name="no_encryption" />
     case 'chainunfollow':
       return <Icon name="remove_circle_outline" />
+    case 'chainmute':
+      return <Icon name="volume_off" />
+    case 'unchainmute':
+      return <Icon name="volume_on" />
   }
 }
 
@@ -304,6 +308,14 @@ export function BigExecuteButton(props: {
       BigButton = BigChainUnfollowButton
       label = i18n.getMessage('chainunfollow')
       break
+    case 'chainmute':
+      BigButton = BigChainMuteButton
+      label = i18n.getMessage('chainmute')
+      break
+    case 'unchainmute':
+      BigButton = BigUnChainMuteButton
+      label = i18n.getMessage('unchainmute')
+      break
     case 'export':
       BigButton = BigExportButton
       label = i18n.getMessage('export')
@@ -368,6 +380,28 @@ const BigChainUnfollowButton = MaterialUI.withStyles(theme => ({
   },
 }))(BigBaseButton)
 
+const BigChainMuteButton = MaterialUI.withStyles(theme => ({
+  root: {
+    backgroundColor: MaterialUI.colors.amber[700],
+    color: theme.palette.getContrastText(MaterialUI.colors.amber[700]),
+    '&:hover': {
+      backgroundColor: MaterialUI.colors.amber[500],
+      color: theme.palette.getContrastText(MaterialUI.colors.amber[500]),
+    },
+  },
+}))(BigBaseButton)
+
+const BigUnChainMuteButton = MaterialUI.withStyles(theme => ({
+  root: {
+    backgroundColor: MaterialUI.colors.green[700],
+    color: theme.palette.getContrastText(MaterialUI.colors.green[700]),
+    '&:hover': {
+      backgroundColor: MaterialUI.colors.green[500],
+      color: theme.palette.getContrastText(MaterialUI.colors.green[500]),
+    },
+  },
+}))(BigBaseButton)
+
 const PurposeTab = MaterialUI.withStyles(_theme => ({
   root: {
     padding: 0,
@@ -403,12 +437,15 @@ export function PurposeSelectionUI(props: {
   availablePurposeTypes: SessionRequest['purpose']['type'][]
 }) {
   const { purpose, changePurposeType, mutatePurposeOptions, availablePurposeTypes } = props
+  const { enableChainMute } = React.useContext(RedBlockOptionsContext)
   const classes = useStylesForTab()
   const chainblockable = availablePurposeTypes.includes('chainblock')
   const unchainblockable = availablePurposeTypes.includes('unchainblock')
   const exportable = availablePurposeTypes.includes('export')
   const lockpickable = availablePurposeTypes.includes('lockpicker')
   const chainunfollowable = availablePurposeTypes.includes('chainunfollow')
+  const chainmutable = availablePurposeTypes.includes('chainmute') && enableChainMute
+  const unchainmutable = availablePurposeTypes.includes('unchainmute') && enableChainMute
   return (
     <div style={{ width: '100%' }}>
       <M.Tabs
@@ -449,6 +486,22 @@ export function PurposeSelectionUI(props: {
             label={i18n.getMessage('chainunfollow')}
           />
         )}
+        {chainmutable && (
+          <PurposeTab
+            value="chainmute"
+            className={classes.tab}
+            icon={purposeTypeToIcon('chainmute')}
+            label={i18n.getMessage('chainmute')}
+          />
+        )}
+        {unchainmutable && (
+          <PurposeTab
+            value="unchainmute"
+            className={classes.tab}
+            icon={purposeTypeToIcon('unchainmute')}
+            label={i18n.getMessage('unchainmute')}
+          />
+        )}
         {exportable && (
           <PurposeTab
             value="export"
@@ -468,7 +521,7 @@ export function PurposeSelectionUI(props: {
           <M.Divider />
           <div className="description">
             {i18n.getMessage('chainblock_description')}{' '}
-            {i18n.getMessage('my_mutual_followers_wont_block')}
+            {i18n.getMessage('my_mutual_followers_wont_block_or_mute')}
             <div className="wtf">{i18n.getMessage('wtf_twitter') /* massive block warning */}</div>
           </div>
         </TabPanel>
@@ -493,6 +546,27 @@ export function PurposeSelectionUI(props: {
       {chainunfollowable && (
         <TabPanel value={purpose.type} index="chainunfollow">
           <div className="description">{i18n.getMessage('chainunfollow_description')}</div>
+        </TabPanel>
+      )}
+      {chainmutable && (
+        <TabPanel value={purpose.type} index="chainmute">
+          {purpose.type === 'chainmute' && (
+            <ChainMutePurposeUI {...{ purpose, mutatePurposeOptions }} />
+          )}
+          <SessionOptionsUI />
+          <M.Divider />
+          <div className="description">
+            {i18n.getMessage('chainmute_description')}{' '}
+            {i18n.getMessage('my_mutual_followers_wont_block_or_mute')}
+          </div>
+        </TabPanel>
+      )}
+      {unchainmutable && (
+        <TabPanel value={purpose.type} index="unchainmute">
+          {purpose.type === 'unchainmute' && (
+            <UnChainMuteOptionsUI {...{ purpose, mutatePurposeOptions }} />
+          )}
+          <div className="description">{i18n.getMessage('unchainmute_description')}</div>
         </TabPanel>
       )}
       {exportable && (
@@ -636,6 +710,62 @@ function LockPickerOptionsUI(props: {
     </React.Fragment>
   )
 }
+
+function ChainMutePurposeUI(props: {
+  purpose: ChainMutePurpose
+  mutatePurposeOptions(partialOptions: Partial<Omit<ChainMutePurpose, 'type'>>): void
+}) {
+  const { purpose, mutatePurposeOptions } = props
+  const userActions = {
+    [i18n.getMessage('skip')]: 'Skip',
+    [i18n.getMessage('do_mute')]: 'Mute',
+  } as const
+  return (
+    <React.Fragment>
+      <RadioOptionItem
+        legend={i18n.getMessage('my_followers')}
+        options={userActions}
+        selectedValue={purpose.myFollowers}
+        onChange={(myFollowers: ChainMutePurpose['myFollowers']) =>
+          mutatePurposeOptions({ myFollowers })
+        }
+      />
+      <br />
+      <RadioOptionItem
+        legend={i18n.getMessage('my_followings')}
+        options={userActions}
+        selectedValue={purpose.myFollowings}
+        onChange={(myFollowings: ChainMutePurpose['myFollowings']) =>
+          mutatePurposeOptions({ myFollowings })
+        }
+      />
+    </React.Fragment>
+  )
+}
+
+function UnChainMuteOptionsUI(props: {
+  purpose: UnChainMutePurpose
+  mutatePurposeOptions(partialOptions: Partial<Omit<UnChainMutePurpose, 'type'>>): void
+}) {
+  const { purpose, mutatePurposeOptions } = props
+  const userActions: { [label: string]: UnChainMutePurpose['mutedAndAlsoBlocked'] } = {
+    [i18n.getMessage('skip')]: 'Skip',
+    [i18n.getMessage('unmute')]: 'UnMute',
+  }
+  return (
+    <React.Fragment>
+      <RadioOptionItem
+        legend={i18n.getMessage('muted_and_also_blocked')}
+        options={userActions}
+        selectedValue={purpose.mutedAndAlsoBlocked}
+        onChange={(mutedAndAlsoBlocked: UnChainMutePurpose['mutedAndAlsoBlocked']) =>
+          mutatePurposeOptions({ mutedAndAlsoBlocked })
+        }
+      />
+    </React.Fragment>
+  )
+}
+
 export function RequestCheckResultUI(props: { request: SessionRequest }) {
   const checkResult = validateRequest(props.request)
   const checkResultMsg = checkResultToString(checkResult)
