@@ -715,6 +715,9 @@
   "save": {
     "message": "저장하기"
   },
+  "not_saved_yet": {
+    "message": "아직 저장하지 않음"
+  },
   "save_button_description": {
     "message": "만들어낸 차단목록 파일을 저장합니다."
   },

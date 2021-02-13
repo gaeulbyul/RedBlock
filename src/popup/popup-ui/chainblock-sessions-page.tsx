@@ -188,6 +188,7 @@ function ChainBlockSessionItem(props: { sessionInfo: SessionInfo }) {
           title={i18n.getMessage('save_button_description')}
           onClick={downloadBlocklist}
           disabled={disabled}
+          color={downloadButtonClicked ? 'default' : 'primary'}
         >
           <M.Icon>save</M.Icon>
         </M.IconButton>
@@ -262,6 +263,10 @@ function ChainBlockSessionItem(props: { sessionInfo: SessionInfo }) {
     case 'chainunfollow':
       shortProgress = `${i18n.getMessage('unfollow')}: ${succProgress.UnFollow.toLocaleString()}`
   }
+  let notSavedYet = ''
+  if (!downloadButtonClicked) {
+    notSavedYet = `(${i18n.getMessage('not_saved_yet')})`
+  }
   return (
     <M.Box my={1}>
       <M.Card>
@@ -269,7 +274,8 @@ function ChainBlockSessionItem(props: { sessionInfo: SessionInfo }) {
         <M.CardContent>
           {progressBar}
           <T>
-            {i18n.getMessage('status')}: {statusToString(sessionInfo.status)} / {shortProgress}
+            {i18n.getMessage('status')}: {statusToString(sessionInfo.status)} {notSavedYet} /{' '}
+            {shortProgress}
           </T>
           {sessionInfo.limit && (
             <T color="textSecondary">

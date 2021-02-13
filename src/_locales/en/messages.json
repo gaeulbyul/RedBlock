@@ -715,6 +715,9 @@
   "save": {
     "message": "Save"
   },
+  "not_saved_yet": {
+    "message": "Not saved yet"
+  },
   "save_button_description": {
     "message": "Save exported blocklist file"
   },
