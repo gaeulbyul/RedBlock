@@ -65,7 +65,7 @@ function TargetTweetUI(props: { tweet: Tweet }) {
     <TwitterUserProfile user={tweet.user}>
       <div className="profile-right-targettweet">
         <div>
-          <span>Tweet:</span>
+          <span>{i18n.getMessage('tweet')}:</span>
           <blockquote className="tweet-content">{tweet.full_text}</blockquote>
         </div>
         <M.FormGroup row>
