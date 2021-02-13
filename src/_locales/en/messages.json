@@ -548,7 +548,7 @@
     "message": "There's no user to block on this tweet."
   },
   "cant_chainblock_empty_list": {
-    "message": "A list is empty or can't find any user ID."
+    "message": "You didn't select blocklist file yet, or can't find any user ID in selected blocklist."
   },
   "cant_chainblock_to_yourself": {
     "message": "You can't run chainblock to yourself."

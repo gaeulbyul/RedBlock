@@ -548,7 +548,7 @@
     "message": "이 트윗에 차단할 유저가 없습니다."
   },
   "cant_chainblock_empty_list": {
-    "message": "불러온 목록이 비어있거나 유저ID를 찾을 수 없습니다."
+    "message": "차단목록 파일을 아직 선택하지 않았거나, 선택한 파일에서 유저ID를 찾을 수 없습니다."
   },
   "cant_chainblock_to_yourself": {
     "message": "나 자신에게 체인블락을 할 수 없습니다."
