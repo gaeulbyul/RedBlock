@@ -34,7 +34,7 @@ import LockPickerPage from './popup-ui/lockpicker-page.js'
 import {
   DialogContent,
   RBDialog,
-  RedBlockUITheme,
+  RedBlockPopupUITheme,
   TabPanel,
   MyTooltip,
 } from './popup-ui/components.js'
@@ -232,7 +232,7 @@ function PopupApp({
   const [initialLoading, setInitialLoading] = React.useState(true)
   const [redblockOptions, setRedBlockOptions] = React.useState(initialRedBlockOptions)
   const shrinkedPopup = MaterialUI.useMediaQuery('(width:348px), (width:425px)')
-  const theme = React.useMemo(() => RedBlockUITheme(darkMode), [darkMode])
+  const theme = React.useMemo(() => RedBlockPopupUITheme(darkMode), [darkMode])
   function openDialog(content: DialogContent) {
     console.debug(content)
     setModalOpened(true)

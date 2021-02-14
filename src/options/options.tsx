@@ -1,5 +1,5 @@
 import * as Storage from '../scripts/background/storage.js'
-import { RedBlockUITheme, TabPanel } from '../popup/popup-ui/components.js'
+import { TabPanel } from '../popup/popup-ui/components.js'
 import { RedBlockOptionsContext } from './pages/contexts.js'
 import ChainBlockOptionsPage from './pages/chainblock.js'
 import OneClickBlockOptionsPage from './pages/oneclickblock.js'
@@ -10,9 +10,22 @@ const M = MaterialUI
 const optionsTabPages = ['chainblock', 'oneclickblock', 'experimental'] as const
 type OptionsTabPage = typeof optionsTabPages[number]
 
+function RedBlockOptionsUITheme(darkMode: boolean) {
+  return MaterialUI.createMuiTheme({
+    typography: {
+      fontSize: 14,
+    },
+    palette: {
+      type: darkMode ? 'dark' : 'light',
+      primary: MaterialUI.colors.pink,
+      secondary: darkMode ? MaterialUI.colors.lightBlue : MaterialUI.colors.indigo,
+    },
+  })
+}
+
 function OptionsApp() {
   const darkMode = MaterialUI.useMediaQuery('(prefers-color-scheme:dark)')
-  const theme = React.useMemo(() => RedBlockUITheme(darkMode), [darkMode])
+  const theme = React.useMemo(() => RedBlockOptionsUITheme(darkMode), [darkMode])
   const [options, setOptions] = React.useState<RedBlockOptions>(Storage.defaultOptions)
   const [tabPage, setTabPage] = React.useState<OptionsTabPage>('chainblock')
   async function updateOptions(newOptionsPart: Partial<RedBlockOptions>) {

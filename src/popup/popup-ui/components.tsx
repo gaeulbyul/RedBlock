@@ -15,7 +15,7 @@ export interface DialogContent {
   callbackOnCancel?(): void
 }
 
-export function RedBlockUITheme(darkMode: boolean) {
+export function RedBlockPopupUITheme(darkMode: boolean) {
   return MaterialUI.createMuiTheme({
     typography: {
       fontSize: 12,
@@ -28,16 +28,17 @@ export function RedBlockUITheme(darkMode: boolean) {
   })
 }
 
-export function Icon({ name }: { name: string }) {
-  return <M.Icon>{name}</M.Icon>
-}
-
 export const MyTooltip = MaterialUI.withStyles(() => ({
   tooltip: {
     fontSize: 12,
   },
 }))(MaterialUI.Tooltip)
 
+function Icon({ name }: { name: string }) {
+  // overflow: purpose 탭 아이콘 짤림 문제방지
+  // (특히 탭 라벨이 두 줄이상으로 넘어갈때)
+  return <M.Icon style={{ overflow: 'visible' }}>{name}</M.Icon>
+}
 function purposeTypeToIcon(purposeType: Purpose['type']): JSX.Element {
   switch (purposeType) {
     case 'chainblock':
@@ -299,35 +300,27 @@ export function BigExecuteButton(props: {
   const { purpose, disabled, onClick } = props
   const type = props.type || 'button'
   const label = i18n.getMessage('run_xxx', i18n.getMessage(purpose.type))
-  let BigButton: typeof BigExecuteChainBlockButton
+  let BigButton: typeof BigBaseButton
   switch (purpose.type) {
     case 'chainblock':
-      BigButton = BigExecuteChainBlockButton
+    case 'chainmute':
+    case 'lockpicker':
+    case 'chainunfollow':
+      BigButton = BigRedButton
       break
     case 'unchainblock':
-      BigButton = BigExecuteUnChainBlockButton
-      break
-    case 'lockpicker':
-      BigButton = BigExecuteLockPickerButton
-      break
-    case 'chainunfollow':
-      BigButton = BigChainUnfollowButton
-      break
-    case 'chainmute':
-      BigButton = BigChainMuteButton
-      break
     case 'unchainmute':
-      BigButton = BigUnChainMuteButton
+      BigButton = BigGreenButton
       break
     case 'export':
-      BigButton = BigExportButton
+      BigButton = BigGrayButton
       break
   }
   const startIcon = purposeTypeToIcon(purpose.type)
   return <BigButton {...{ type, startIcon, disabled, onClick }}>{label}</BigButton>
 }
 
-const BigExecuteChainBlockButton = MaterialUI.withStyles(theme => ({
+const BigRedButton = MaterialUI.withStyles(theme => ({
   root: {
     backgroundColor: MaterialUI.colors.red[700],
     color: theme.palette.getContrastText(MaterialUI.colors.red[700]),
@@ -338,7 +331,7 @@ const BigExecuteChainBlockButton = MaterialUI.withStyles(theme => ({
   },
 }))(BigBaseButton)
 
-const BigExecuteUnChainBlockButton = MaterialUI.withStyles(theme => ({
+const BigGreenButton = MaterialUI.withStyles(theme => ({
   root: {
     backgroundColor: MaterialUI.colors.green[700],
     color: theme.palette.getContrastText(MaterialUI.colors.green[700]),
@@ -349,7 +342,7 @@ const BigExecuteUnChainBlockButton = MaterialUI.withStyles(theme => ({
   },
 }))(BigBaseButton)
 
-const BigExportButton = MaterialUI.withStyles(theme => ({
+const BigGrayButton = MaterialUI.withStyles(theme => ({
   root: {
     backgroundColor: MaterialUI.colors.blueGrey[700],
     color: theme.palette.getContrastText(MaterialUI.colors.blueGrey[700]),
@@ -360,67 +353,16 @@ const BigExportButton = MaterialUI.withStyles(theme => ({
   },
 }))(BigBaseButton)
 
-const BigExecuteLockPickerButton = MaterialUI.withStyles(theme => ({
+const PurposeTab = MaterialUI.withStyles(theme => ({
   root: {
-    backgroundColor: MaterialUI.colors.pink[700],
-    color: theme.palette.getContrastText(MaterialUI.colors.pink[700]),
-    '&:hover': {
-      backgroundColor: MaterialUI.colors.pink[500],
-      color: theme.palette.getContrastText(MaterialUI.colors.pink[500]),
-    },
-  },
-}))(BigBaseButton)
-
-const BigChainUnfollowButton = MaterialUI.withStyles(theme => ({
-  root: {
-    backgroundColor: MaterialUI.colors.deepOrange[700],
-    color: theme.palette.getContrastText(MaterialUI.colors.deepOrange[700]),
-    '&:hover': {
-      backgroundColor: MaterialUI.colors.deepOrange[500],
-      color: theme.palette.getContrastText(MaterialUI.colors.deepOrange[500]),
-    },
-  },
-}))(BigBaseButton)
-
-const BigChainMuteButton = MaterialUI.withStyles(theme => ({
-  root: {
-    backgroundColor: MaterialUI.colors.amber[700],
-    color: theme.palette.getContrastText(MaterialUI.colors.amber[700]),
-    '&:hover': {
-      backgroundColor: MaterialUI.colors.amber[500],
-      color: theme.palette.getContrastText(MaterialUI.colors.amber[500]),
-    },
-  },
-}))(BigBaseButton)
-
-const BigUnChainMuteButton = MaterialUI.withStyles(theme => ({
-  root: {
-    backgroundColor: MaterialUI.colors.green[700],
-    color: theme.palette.getContrastText(MaterialUI.colors.green[700]),
-    '&:hover': {
-      backgroundColor: MaterialUI.colors.green[500],
-      color: theme.palette.getContrastText(MaterialUI.colors.green[500]),
-    },
-  },
-}))(BigBaseButton)
-
-const PurposeTab = MaterialUI.withStyles(_theme => ({
-  root: {
-    flexGrow: 1,
+    lineHeight: 1.5,
+    paddingLeft: theme.spacing(1),
+    paddingRight: theme.spacing(1),
     '@media (min-width: 600px)': {
       minWidth: 'initial',
     },
   },
 }))(MaterialUI.Tab)
-
-const useStylesForTab = MaterialUI.makeStyles(() =>
-  MaterialUI.createStyles({
-    tab: {
-      paddingLeft: 0,
-      paddingRight: 0,
-    },
-  })
-)
 
 export function LinearProgressWithLabel(props: { value: number }) {
   return (
@@ -443,7 +385,6 @@ export function PurposeSelectionUI(props: {
 }) {
   const { purpose, changePurposeType, mutatePurposeOptions, availablePurposeTypes } = props
   const { enableChainMute } = React.useContext(RedBlockOptionsContext)
-  const classes = useStylesForTab()
   const chainblockable = availablePurposeTypes.includes('chainblock')
   const unchainblockable = availablePurposeTypes.includes('unchainblock')
   const exportable = availablePurposeTypes.includes('export')
@@ -451,11 +392,12 @@ export function PurposeSelectionUI(props: {
   const chainunfollowable = availablePurposeTypes.includes('chainunfollow')
   const chainmutable = availablePurposeTypes.includes('chainmute') && enableChainMute
   const unchainmutable = availablePurposeTypes.includes('unchainmute') && enableChainMute
+  //const narrow = MaterialUI.useMediaQuery('(max-width:500px)')
   return (
     <div style={{ width: '100%' }}>
       <M.Tabs
         style={{ display: availablePurposeTypes.length >= 2 ? 'flex' : 'none' }}
-        variant="scrollable"
+        variant="fullWidth"
         scrollButtons="auto"
         value={purpose.type}
         onChange={(_ev, val) => changePurposeType(val)}
@@ -463,7 +405,6 @@ export function PurposeSelectionUI(props: {
         {chainblockable && (
           <PurposeTab
             value="chainblock"
-            className={classes.tab}
             icon={purposeTypeToIcon('chainblock')}
             label={i18n.getMessage('chainblock')}
           />
@@ -471,7 +412,6 @@ export function PurposeSelectionUI(props: {
         {unchainblockable && (
           <PurposeTab
             value="unchainblock"
-            className={classes.tab}
             icon={purposeTypeToIcon('unchainblock')}
             label={i18n.getMessage('unchainblock')}
           />
@@ -479,7 +419,6 @@ export function PurposeSelectionUI(props: {
         {lockpickable && (
           <PurposeTab
             value="lockpicker"
-            className={classes.tab}
             icon={purposeTypeToIcon('lockpicker')}
             label={i18n.getMessage('lockpicker')}
           />
@@ -487,7 +426,6 @@ export function PurposeSelectionUI(props: {
         {chainunfollowable && (
           <PurposeTab
             value="chainunfollow"
-            className={classes.tab}
             icon={purposeTypeToIcon('chainunfollow')}
             label={i18n.getMessage('chainunfollow')}
           />
@@ -495,7 +433,6 @@ export function PurposeSelectionUI(props: {
         {chainmutable && (
           <PurposeTab
             value="chainmute"
-            className={classes.tab}
             icon={purposeTypeToIcon('chainmute')}
             label={i18n.getMessage('chainmute')}
           />
@@ -503,7 +440,6 @@ export function PurposeSelectionUI(props: {
         {unchainmutable && (
           <PurposeTab
             value="unchainmute"
-            className={classes.tab}
             icon={purposeTypeToIcon('unchainmute')}
             label={i18n.getMessage('unchainmute')}
           />
@@ -511,7 +447,6 @@ export function PurposeSelectionUI(props: {
         {exportable && (
           <PurposeTab
             value="export"
-            className={classes.tab}
             icon={purposeTypeToIcon('export')}
             label={i18n.getMessage('export')}
           />
@@ -584,14 +519,23 @@ export function PurposeSelectionUI(props: {
   )
 }
 
+const useStylesForFormControl = MaterialUI.makeStyles(() =>
+  MaterialUI.createStyles({
+    fieldset: {
+      display: 'flex',
+    },
+  })
+)
+
 function RadioOptionItem(props: {
   legend: React.ReactNode
   options: { [label: string]: string }
   selectedValue: string
   onChange(newValue: string): void
 }) {
+  const classes = useStylesForFormControl()
   return (
-    <M.FormControl component="fieldset">
+    <M.FormControl component="fieldset" className={classes.fieldset}>
       <M.FormLabel component="legend">{props.legend}</M.FormLabel>
       <M.RadioGroup row>
         {Object.entries(props.options).map(([label, value], index) => (
@@ -658,7 +602,6 @@ function ChainBlockPurposeUI(props: {
           mutatePurposeOptions({ myFollowers })
         }
       />
-      <br />
       <RadioOptionItem
         legend={i18n.getMessage('my_followings')}
         options={userActionsToMyFollowings}
@@ -736,7 +679,6 @@ function ChainMutePurposeUI(props: {
           mutatePurposeOptions({ myFollowers })
         }
       />
-      <br />
       <RadioOptionItem
         legend={i18n.getMessage('my_followings')}
         options={userActions}
