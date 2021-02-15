@@ -271,7 +271,7 @@ function ChainBlockSessionItem(props: { sessionInfo: SessionInfo }) {
       break
   }
   let notSavedYet = ''
-  if (!downloadButtonClicked) {
+  if (purpose.type === 'export' && !downloadButtonClicked) {
     notSavedYet = `(${i18n.getMessage('not_saved_yet')})`
   }
   return (
