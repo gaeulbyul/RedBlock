@@ -558,7 +558,7 @@ function SessionOptionsUI() {
   const bioBlockModes: { [label: string]: BioBlockMode } = {
     [i18n.getMessage('bioblock_never')]: 'never',
     [i18n.getMessage('bioblock_all')]: 'all',
-    [i18n.getMessage('bioblock_smart')]: 'smart',
+    // [i18n.getMessage('bioblock_smart')]: 'smart',
   }
   return (
     <React.Fragment>

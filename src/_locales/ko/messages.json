@@ -670,7 +670,7 @@
     "message": "사용 안함"
   },
   "bioblock_all": {
-    "message": "사용 (모두 포함)"
+    "message": "사용"
   },
   "bioblock_smart": {
     "message": "사용 (스마트모드)"
