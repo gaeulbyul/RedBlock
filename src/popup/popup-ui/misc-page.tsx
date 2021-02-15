@@ -8,7 +8,6 @@ const M = MaterialUI
 
 async function deleteTwitterRelatedCookies(cookieOptions: CookieOptions) {
   const storeId = cookieOptions.cookieStoreId
-
   const cookies = await getAllCookies({
     storeId,
   })
@@ -22,6 +21,11 @@ async function deleteTwitterRelatedCookies(cookieOptions: CookieOptions) {
     )
   }
   await Promise.allSettled(promises)
+}
+
+function openOptions() {
+  browser.runtime.openOptionsPage()
+  window.close()
 }
 
 export default function MiscPage() {
@@ -78,6 +82,11 @@ export default function MiscPage() {
           </M.FormControl>
           <p>{i18n.getMessage('delete_cookie_description')}</p>
         </div>
+      </RBExpansionPanel>
+      <RBExpansionPanel summary={i18n.getMessage('open_settings_ui')} defaultExpanded>
+        <M.Button variant="outlined" startIcon={<M.Icon>settings</M.Icon>} onClick={openOptions}>
+          <span>{i18n.getMessage('open_settings_ui')}</span>
+        </M.Button>
       </RBExpansionPanel>
     </div>
   )
