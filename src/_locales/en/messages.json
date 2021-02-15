@@ -170,7 +170,7 @@
     "message": "Stop all"
   },
   "cleanup_sessions": {
-    "message": "Clear completed sessions"
+    "message": "Clear completed"
   },
   "session_is_empty": {
     "message": "Currently there are no sessions."
@@ -781,7 +781,7 @@
     "message": "You can run Chain-block to the user, even they block you. Note that this feature requires logged in with two or more accounts and at least one of the accounts should be able to see their's followers list."
   },
   "1st_party_isolation_compatible_mode_description": {
-    "message": "Be compatible with Firefox's 1st-party isolation mode. If you're on the non-Firefox browser or 1st-party isolation is turned off, Enabling this option makes Red Block's most features became unavailable."
+    "message": "Be compatible with Firefox's 1st-party isolation mode. If you're on the non-Firefox browser, Enabling this option makes Red Block's most features became unavailable."
   },
   "muted_and_also_blocked": {
     "message": "Blocked user"
