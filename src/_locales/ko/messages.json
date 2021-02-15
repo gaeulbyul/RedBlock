@@ -785,5 +785,8 @@
   },
   "muted_and_also_blocked": {
     "message": "내가 차단한 유저"
+  },
+  "throttle_block": {
+    "message": "차단 및 뮤트 속도 낮추기"
   }
 }

@@ -30,6 +30,18 @@ export default function ChainBlockOptionsPage() {
               label={i18n.getMessage('remove_session_after_complete')}
             />
           </M.FormGroup>
+          <M.FormGroup>
+            <M.FormControlLabel
+              control={<M.Checkbox size="small" />}
+              onChange={(_event, checked) =>
+                updateOptions({
+                  throttleBlockRequest: checked,
+                })
+              }
+              checked={options.throttleBlockRequest}
+              label={i18n.getMessage('throttle_block')}
+            />
+          </M.FormGroup>
           <M.FormControl>
             <M.FormLabel>
               <T>{i18n.getMessage('skip_inactive_users')}</T>

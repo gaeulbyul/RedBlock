@@ -65,6 +65,7 @@ interface SessionOptions {
   includeUsersInBio: BioBlockMode
   skipInactiveUser: InactivePeriod
   enableAntiBlock: boolean
+  throttleBlockRequest: boolean
 }
 
 interface FollowerBlockSessionRequest extends BaseRequest {

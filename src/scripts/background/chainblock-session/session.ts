@@ -255,13 +255,14 @@ export class ChainBlockSession extends BaseSession {
                 assertNever(whatToDo)
                 break
             }
-            if (miniBuffer.length >= 5) {
+            if (this.request.options.throttleBlockRequest && miniBuffer.length >= 5) {
               await Promise.allSettled(miniBuffer)
               miniBuffer.length = 0
             }
           }
           await Promise.allSettled([...miniBuffer, ...promisesBuffer])
-          // await Promise.allSettled(promisesBuffer)
+          miniBuffer.length = 0
+          promisesBuffer.length = 0
         }
         if (stopped) {
           this.sessionInfo.status = SessionStatus.Stopped

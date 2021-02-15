@@ -7,11 +7,13 @@ const mutedAndAlsoBlocked = 'Skip'
 const includeUsersInBio = 'never'
 const skipInactiveUser = 'never'
 const enableAntiBlock = false
+const throttleBlockRequest = true
 
 export const defaultSessionOptions = Object.freeze<SessionOptions>({
   includeUsersInBio,
   skipInactiveUser,
   enableAntiBlock,
+  throttleBlockRequest,
 })
 
 export const defaultChainBlockPurposeOptions = Object.freeze<ChainBlockPurpose>({

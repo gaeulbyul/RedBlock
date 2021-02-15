@@ -785,5 +785,8 @@
   },
   "muted_and_also_blocked": {
     "message": "Blocked user"
+  },
+  "throttle_block": {
+    "message": "Throttle mute or block requests"
   }
 }
