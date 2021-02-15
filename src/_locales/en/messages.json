@@ -362,7 +362,7 @@
     "message": "Do you want to run Chain-block?"
   },
   "confirm_unchainblock_title": {
-    "message": "Do you want to run Unhainblock?"
+    "message": "Do you want to run Unchain-block?"
   },
   "confirm_chainmute_title": {
     "message": "Do you want to run Chain-mute?"
