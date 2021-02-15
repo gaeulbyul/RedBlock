@@ -784,6 +784,6 @@
     "message": "Be compatible with Firefox's 1st-party isolation mode. If you're on the non-Firefox browser or 1st-party isolation is turned off, Enabling this option makes Red Block's most features became unavailable."
   },
   "muted_and_also_blocked": {
-    "message": "Muted and blocked user."
+    "message": "Blocked user"
   }
 }

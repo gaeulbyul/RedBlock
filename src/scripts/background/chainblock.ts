@@ -3,6 +3,7 @@ import { TwClient } from './twitter-api.js'
 import * as TextGenerate from '../text-generate.js'
 import * as i18n from '../i18n.js'
 import { alertToCurrentTab, notify, updateExtensionBadge } from './background.js'
+import { markUser } from './misc.js'
 import { TargetCheckResult, validateRequest, isSameTarget } from './target-checker.js'
 import { ChainBlockSession, ExportSession } from './chainblock-session/session.js'
 import { loadOptions } from './storage.js'
@@ -32,25 +33,6 @@ export default class ChainBlocker {
       ) || null
     )
   }
-  private async markUser(params: MarkUserParams) {
-    const tabs = await browser.tabs.query({
-      discarded: false,
-      url: ['https://twitter.com/*', 'https://mobile.twitter.com/*'],
-    })
-    tabs.forEach(tab => {
-      const id = tab.id
-      if (typeof id !== 'number') {
-        return
-      }
-      browser.tabs
-        .sendMessage<RBMessageToContent.MarkUser>(id, {
-          messageType: 'MarkUser',
-          messageTo: 'content',
-          ...params,
-        })
-        .catch(() => {})
-    })
-  }
   private handleEvents(session: Session) {
     session.eventEmitter.on('started', () => {
       this.updateBadge()
@@ -75,7 +57,7 @@ export default class ChainBlocker {
       this.updateBadge()
     })
     session.eventEmitter.on('mark-user', params => {
-      this.markUser(params)
+      markUser(params)
     })
   }
   private updateBadge() {
