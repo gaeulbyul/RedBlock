@@ -50,6 +50,9 @@ const useStylesForSessionItem = MaterialUI.makeStyles(() =>
   })
 )
 
+const downloadedIdsStr = sessionStorage.getItem('exported sessions') || ''
+const downloadedIds = downloadedIdsStr.split('\n')
+
 function ChainBlockSessionItem(props: { sessionInfo: SessionInfo }) {
   const { sessionInfo } = props
   const { sessionId } = sessionInfo
@@ -57,7 +60,11 @@ function ChainBlockSessionItem(props: { sessionInfo: SessionInfo }) {
   const uiContext = React.useContext(UIContext)
   const classes = useStylesForSessionItem()
   const [expanded, setExpanded] = React.useState(false)
-  const [downloadButtonClicked, setDownloadButtonClicked] = React.useState(false)
+  const downloaded = downloadedIds.includes(sessionId)
+  function markAsDownloaded() {
+    downloadedIds.push(sessionId)
+    sessionStorage.setItem('exported sessions', downloadedIds.join('\n'))
+  }
   function toggleExpand() {
     setExpanded(!expanded)
   }
@@ -147,7 +154,7 @@ function ChainBlockSessionItem(props: { sessionInfo: SessionInfo }) {
         })
         return
       }
-      if (purpose.type === 'export' && !downloadButtonClicked) {
+      if (purpose.type === 'export' && !downloaded) {
         uiContext.openDialog({
           dialogType: 'confirm',
           message: {
@@ -173,7 +180,7 @@ function ChainBlockSessionItem(props: { sessionInfo: SessionInfo }) {
           },
         })
       }
-      setDownloadButtonClicked(true)
+      markAsDownloaded()
     }
     let closeButtonTitleText = i18n.getMessage('tooltip_close_session')
     if (isRunningSession(sessionInfo)) {
@@ -188,7 +195,7 @@ function ChainBlockSessionItem(props: { sessionInfo: SessionInfo }) {
           title={i18n.getMessage('save_button_description')}
           onClick={downloadBlocklist}
           disabled={disabled}
-          color={downloadButtonClicked ? 'default' : 'primary'}
+          color={downloaded ? 'default' : 'primary'}
         >
           <M.Icon>save</M.Icon>
         </M.IconButton>
@@ -271,7 +278,7 @@ function ChainBlockSessionItem(props: { sessionInfo: SessionInfo }) {
       break
   }
   let notSavedYet = ''
-  if (purpose.type === 'export' && !downloadButtonClicked) {
+  if (purpose.type === 'export' && !downloaded) {
     notSavedYet = `(${i18n.getMessage('not_saved_yet')})`
   }
   return (
