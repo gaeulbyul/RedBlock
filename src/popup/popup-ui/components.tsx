@@ -434,14 +434,14 @@ export function PurposeSelectionUI(props: {
           <PurposeTab
             value="chainmute"
             icon={purposeTypeToIcon('chainmute')}
-            label={i18n.getMessage('chainmute')}
+            label={i18n.getMessage('chainmute') + '\u1d5d'}
           />
         )}
         {unchainmutable && (
           <PurposeTab
             value="unchainmute"
             icon={purposeTypeToIcon('unchainmute')}
-            label={i18n.getMessage('unchainmute')}
+            label={i18n.getMessage('unchainmute') + '\u1d5d'}
           />
         )}
         {exportable && (
@@ -564,7 +564,7 @@ function SessionOptionsUI() {
     <React.Fragment>
       {revealBioBlockMode && (
         <RadioOptionItem
-          legend="BioBlock"
+          legend="BioBlock &#7517;"
           options={bioBlockModes}
           selectedValue={sessionOptions.includeUsersInBio}
           onChange={(newMode: BioBlockMode) => mutateOptions({ includeUsersInBio: newMode })}
