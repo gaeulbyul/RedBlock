@@ -61,6 +61,7 @@ function ChainBlockSessionItem(props: { sessionInfo: SessionInfo }) {
   const classes = useStylesForSessionItem()
   const [expanded, setExpanded] = React.useState(false)
   const downloaded = downloadedIds.includes(sessionId)
+  const running = isRunningSession(sessionInfo)
   function markAsDownloaded() {
     downloadedIds.push(sessionId)
     sessionStorage.setItem('exported sessions', downloadedIds.join('\n'))
@@ -142,7 +143,7 @@ function ChainBlockSessionItem(props: { sessionInfo: SessionInfo }) {
     //  {i18n.getMessage('rewind')}
     //</M.Button>
     function requestStopChainBlock() {
-      if (isRunningSession(sessionInfo)) {
+      if (running) {
         uiContext.openDialog({
           dialogType: 'confirm',
           message: {
@@ -183,8 +184,10 @@ function ChainBlockSessionItem(props: { sessionInfo: SessionInfo }) {
       markAsDownloaded()
     }
     let closeButtonTitleText = i18n.getMessage('tooltip_close_session')
-    if (isRunningSession(sessionInfo)) {
+    let closeButtonIcon = 'close'
+    if (running) {
       closeButtonTitleText = i18n.getMessage('tooltip_stop_session')
+      closeButtonIcon = 'power_settings_new'
     }
     let downloadButton: React.ReactNode = null
     let expandButton: React.ReactNode = null
@@ -215,7 +218,7 @@ function ChainBlockSessionItem(props: { sessionInfo: SessionInfo }) {
               {downloadButton}
               {expandButton}
               <M.IconButton title={closeButtonTitleText} onClick={requestStopChainBlock}>
-                <M.Icon>close</M.Icon>
+                <M.Icon>{closeButtonIcon}</M.Icon>
               </M.IconButton>
             </React.Fragment>
           }
