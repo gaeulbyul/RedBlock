@@ -282,7 +282,7 @@ export class ChainBlockSession extends BaseSession {
     return _.sum([...Object.values(success), already, failure, error, skipped])
   }
   private checkBlockLimiter() {
-    const safePurposes: Purpose['type'][] = ['unchainblock', 'chainunfollow']
+    const safePurposes: Purpose['type'][] = ['unchainblock', 'unchainmute', 'chainunfollow']
     if (safePurposes.includes(this.request.purpose.type)) {
       return 'ok'
     } else {
