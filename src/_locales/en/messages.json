@@ -788,5 +788,8 @@
   },
   "throttle_block": {
     "message": "Throttle mute or block requests"
+  },
+  "users_in_other_tab": {
+    "message": "Users in other tab"
   }
 }

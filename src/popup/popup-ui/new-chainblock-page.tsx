@@ -28,6 +28,7 @@ import {
   SessionOptionsContext,
 } from './ui-states.js'
 import { TargetCheckResult, validateRequest } from '../../scripts/background/target-checker.js'
+import { getUserNameFromTab } from '../popup.js'
 
 const M = MaterialUI
 
@@ -59,8 +60,8 @@ function useSessionRequest(): FollowerBlockSessionRequest {
   }
 }
 
-function TargetSavedUsers(props: { savedUsers: TwitterUserMap }) {
-  const { savedUsers } = props
+function TargetSavedUsers(props: { savedUsers: TwitterUserMap; usersInOtherTab: TwitterUserMap }) {
+  const { savedUsers, usersInOtherTab } = props
   const uiContext = React.useContext(UIContext)
   const { changeSelectedUser } = React.useContext(UserSelectorContext)
   const { currentUser, userSelection } = React.useContext(FollowerChainBlockPageStatesContext)
@@ -122,6 +123,7 @@ function TargetSavedUsers(props: { savedUsers: TwitterUserMap }) {
       </option>
     )
   }
+  const addButtonDisabledGroup: SelectUserGroup[] = ['invalid', 'saved']
   return (
     <div style={{ width: '100%' }}>
       <M.FormControl fullWidth>
@@ -139,6 +141,11 @@ function TargetSavedUsers(props: { savedUsers: TwitterUserMap }) {
             {i18n.getMessage('user_not_selected')}
           </option>
           {currentUser && currentUserOption(currentUser)}
+          <optgroup label={`${i18n.getMessage('users_in_other_tab')} (${usersInOtherTab.size})`}>
+            {sortedByName(usersInOtherTab).map((user, index) => (
+              <UserOptionItem key={index} user={user} optgroup="other tab" />
+            ))}
+          </optgroup>
           <optgroup label={`${i18n.getMessage('saved_user')} (${savedUsers.size})`}>
             {sortedByName(savedUsers).map((user, index) => (
               <UserOptionItem key={index} user={user} optgroup="saved" />
@@ -150,7 +157,7 @@ function TargetSavedUsers(props: { savedUsers: TwitterUserMap }) {
         <M.Box my={1} display="flex" flexDirection="row-reverse">
           <M.ButtonGroup>
             <M.Button
-              disabled={selectedUserGroup !== 'current'}
+              disabled={addButtonDisabledGroup.includes(selectedUserGroup)}
               onClick={insertUser}
               startIcon={<M.Icon>add_circle</M.Icon>}
             >
@@ -227,6 +234,7 @@ function TargetUserSelectUI() {
   const twClient = React.useContext(TwitterAPIClientContext)
   const { openDialog } = React.useContext(UIContext)
   const [savedUsers, setSavedUsers] = React.useState(new TwitterUserMap())
+  const [usersInOtherTab, setUsersInOtherTab] = React.useState(new TwitterUserMap())
   const [isLoading, setLoadingState] = React.useState(false)
   const { user: selectedUser } = userSelection
   async function changeSelectedUser(userId: string, userName: string, group: SelectUserGroup) {
@@ -279,6 +287,20 @@ function TargetUserSelectUI() {
       }
     })
   }, [])
+  React.useEffect(() => {
+    browser.tabs
+      .query({
+        url: ['https://twitter.com/*', 'https://mobile.twitter.com/*'],
+      })
+      .then(async tabs => {
+        const userNames = tabs.map(getUserNameFromTab).filter(Boolean) as string[]
+        const usersArray = await twClient
+          .getMultipleUsers({ screen_name: userNames })
+          .catch(() => [])
+        const usersMap = TwitterUserMap.fromUsersArray(usersArray)
+        setUsersInOtherTab(usersMap)
+      })
+  }, [])
   let targetSummary = ''
   if (selectedUser) {
     const userName = selectedUser.screen_name
@@ -300,7 +322,7 @@ function TargetUserSelectUI() {
       <div style={{ width: '100%' }}>
         <M.FormControl component="fieldset" fullWidth>
           <UserSelectorContext.Provider value={{ changeSelectedUser }}>
-            <TargetSavedUsers savedUsers={savedUsers} />
+            <TargetSavedUsers {...{ savedUsers, usersInOtherTab }} />
           </UserSelectorContext.Provider>
           <M.Divider />
           {selectedUser ? (

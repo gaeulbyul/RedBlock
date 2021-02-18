@@ -6,7 +6,7 @@ import { Blocklist, emptyBlocklist } from '../../scripts/background/blocklist-pr
 import { determineInitialPurposeType } from '../popup.js'
 import { RedBlockOptionsContext, MyselfContext } from './contexts.js'
 
-export type SelectUserGroup = 'invalid' | 'current' | 'saved'
+export type SelectUserGroup = 'invalid' | 'current' | 'saved' | 'other tab'
 
 function usePurpose<T extends Purpose>(initialPurposeType: T['type']) {
   const initialPurpose = defaultPurposeOptions[initialPurposeType] as T

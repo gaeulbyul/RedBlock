@@ -788,5 +788,8 @@
   },
   "throttle_block": {
     "message": "차단 및 뮤트 속도 낮추기"
+  },
+  "users_in_other_tab": {
+    "message": "다른 탭에 띄운 유저"
   }
 }
