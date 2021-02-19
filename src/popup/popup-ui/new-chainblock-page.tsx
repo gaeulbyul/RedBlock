@@ -1,99 +1,92 @@
 import * as Storage from '../../scripts/background/storage.js'
-import * as TwitterAPI from '../../scripts/background/twitter-api.js'
-import { TwitterUser } from '../../scripts/background/twitter-api.js'
+import type { TwClient } from '../../scripts/background/twitter-api.js'
 import { TwitterUserMap } from '../../scripts/common.js'
 import * as i18n from '../../scripts/i18n.js'
+import * as TextGenerate from '../../scripts/text-generate.js'
 import {
   insertUserToStorage,
   removeUserFromStorage,
-  startFollowerChainBlock,
-  refreshSavedUsers,
+  startNewChainBlockSession,
 } from '../../scripts/background/request-sender.js'
-import { DialogContext, SnackBarContext, LoginStatusContext, BlockLimiterContext } from './contexts.js'
-import { TabPanel, PleaseLoginBox, BlockLimiterUI } from './ui-common.js'
+import {
+  UIContext,
+  MyselfContext,
+  BlockLimiterContext,
+  TwitterAPIClientContext,
+  RedBlockOptionsContext,
+} from './contexts.js'
+import {
+  BlockLimiterUI,
+  TwitterUserProfile,
+  RBExpansionPanel,
+  BigExecuteButton,
+  PurposeSelectionUI,
+  RequestCheckResultUI,
+} from './components.js'
+import {
+  SelectUserGroup,
+  FollowerChainBlockPageStatesContext,
+  ExtraTargetContext,
+} from './ui-states.js'
+import { TargetCheckResult, validateRequest } from '../../scripts/background/target-checker.js'
+import { getUserNameFromTab } from '../popup.js'
 
 const M = MaterialUI
-const T = MaterialUI.Typography
 
-type SessionOptions = FollowerBlockSessionRequest['options']
-type SelectUserGroup = 'invalid' | 'current' | 'saved'
+const userCache = new TwitterUserMap()
 
-const useStylesForExpansionPanels = MaterialUI.makeStyles(() =>
-  MaterialUI.createStyles({
-    details: {
-      padding: '8px 16px',
+interface UserSelectorContextType {
+  changeSelectedUser(userId: string, userName: string, group: SelectUserGroup): void
+}
+const UserSelectorContext = React.createContext<UserSelectorContextType>(null!)
+
+function useSessionRequest(): FollowerBlockSessionRequest {
+  const { purpose, targetList, userSelection } = React.useContext(
+    FollowerChainBlockPageStatesContext
+  )
+  const { cookieOptions } = React.useContext(TwitterAPIClientContext)
+  const { extraTarget } = React.useContext(ExtraTargetContext)
+  const options = React.useContext(RedBlockOptionsContext)
+  const myself = React.useContext(MyselfContext)!
+  const selectedUser = userSelection.user!
+  return {
+    purpose,
+    target: {
+      type: 'follower',
+      user: selectedUser,
+      list: targetList,
     },
-  })
-)
+    options,
+    extraTarget,
+    myself,
+    cookieOptions,
+  }
+}
 
-const DenseExpansionPanelSummary = MaterialUI.withStyles({
-  root: {
-    minHeight: 16,
-    '&$expanded': {
-      minHeight: 16,
-    },
-  },
-  content: {
-    '&$expanded': {
-      margin: 0,
-    },
-  },
-  expanded: {},
-})(MaterialUI.ExpansionPanelSummary)
-
-// const SelectedUserContext = React.createContext<TwitterUser | null>(null)
-const TargetUserContext = React.createContext<{
-  currentUser: TwitterUser | null
-  selectedUser: TwitterUser | null
-  setSelectedUser: (maybeUser: TwitterUser | null) => void
-  targetList: FollowKind
-  setTargetList: (fk: FollowKind) => void
-  targetOptions: SessionOptions
-  setTargetOptions: (options: SessionOptions) => void
-  mutateOptions: (optionsPart: Partial<SessionOptions>) => void
-  selectedMode: ChainKind
-  setSelectedMode: (ck: ChainKind) => void
-}>({
-  currentUser: null,
-  selectedUser: null,
-  setSelectedUser: () => {},
-  targetList: 'followers',
-  setTargetList: () => {},
-  targetOptions: {
-    myFollowers: 'Skip',
-    myFollowings: 'Skip',
-    mutualBlocked: 'Skip',
-  },
-  setTargetOptions: () => {},
-  mutateOptions: () => {},
-  selectedMode: 'chainblock',
-  setSelectedMode: () => {},
-})
-
-function TargetSavedUsers(props: {
-  currentUser: TwitterUser | null
-  selectedUserGroup: SelectUserGroup
-  savedUsers: TwitterUserMap
-  changeUser: (userId: string, userName: string, group: SelectUserGroup) => Promise<void>
-}) {
-  const { currentUser, selectedUserGroup, savedUsers, changeUser } = props
-  const snackBarCtx = React.useContext(SnackBarContext)
-  const { selectedUser } = React.useContext(TargetUserContext)
+function TargetSavedUsers(props: { savedUsers: TwitterUserMap; usersInOtherTab: TwitterUserMap }) {
+  const { savedUsers, usersInOtherTab } = props
+  const uiContext = React.useContext(UIContext)
+  const { changeSelectedUser } = React.useContext(UserSelectorContext)
+  const { currentUser, userSelection } = React.useContext(FollowerChainBlockPageStatesContext)
+  const { user: selectedUser, group: selectedUserGroup } = userSelection
   async function insertUser() {
-    if (selectedUser) {
-      insertUserToStorage(selectedUser)
-      snackBarCtx.snack(i18n.getMessage('user_xxx_added', selectedUser.screen_name))
+    if (!selectedUser) {
+      return
     }
+    if (savedUsers.hasUser(selectedUser)) {
+      uiContext.openSnackBar(i18n.getMessage('user_xxx_already_exists', selectedUser.screen_name))
+      return
+    }
+    insertUserToStorage(selectedUser)
+    uiContext.openSnackBar(i18n.getMessage('user_xxx_added', selectedUser.screen_name))
   }
   async function removeUser() {
-    if (selectedUser) {
-      removeUserFromStorage(selectedUser)
-      snackBarCtx.snack(i18n.getMessage('user_xxx_removed', selectedUser.screen_name))
+    if (!selectedUser) {
+      console.warn("attempted remove user that doesn't exist?")
+      return
     }
-  }
-  async function requestRefreshSavedUsers() {
-    refreshSavedUsers()
-    snackBarCtx.snack(i18n.getMessage('refreshing_saved_users'))
+    removeUserFromStorage(selectedUser)
+    uiContext.openSnackBar(i18n.getMessage('user_xxx_removed', selectedUser.screen_name))
   }
   const sortedByName = (usersMap: TwitterUserMap): TwitterUser[] =>
     _.sortBy(usersMap.toUserArray(), user => user.screen_name.toLowerCase())
@@ -105,15 +98,35 @@ function TargetSavedUsers(props: {
     const group = selectedOption.getAttribute('data-group') as SelectUserGroup
     const userId = selectedOption.getAttribute('data-userid')!
     const userName = selectedOption.getAttribute('data-username')!
-    changeUser(userId, userName, group)
+    changeSelectedUser(userId, userName, group)
   }
   const currentUserOption = ({ id_str, screen_name, name }: TwitterUser) => (
     <optgroup label={i18n.getMessage('current_user')}>
-      <option value={`current/${id_str}`} data-group="current" data-userid={id_str} data-username={screen_name}>
+      <option
+        value={`current/${id_str}`}
+        data-group="current"
+        data-userid={id_str}
+        data-username={screen_name}
+      >
         @{screen_name} &lt;{name}&gt;
       </option>
     </optgroup>
   )
+  function UserOptionItem(props: { user: TwitterUser; optgroup: SelectUserGroup; label?: string }) {
+    const { user, optgroup } = props
+    const label = props.label || `@${user.screen_name} <${user.name}>`
+    return (
+      <option
+        value={`${optgroup}/${user.id_str}`}
+        data-group={optgroup}
+        data-userid={user.id_str}
+        data-username={user.screen_name}
+      >
+        {label}
+      </option>
+    )
+  }
+  const addButtonDisabledGroup: SelectUserGroup[] = ['invalid', 'saved']
   return (
     <div style={{ width: '100%' }}>
       <M.FormControl fullWidth>
@@ -131,36 +144,34 @@ function TargetSavedUsers(props: {
             {i18n.getMessage('user_not_selected')}
           </option>
           {currentUser && currentUserOption(currentUser)}
-          <optgroup label={i18n.getMessage('saved_user')}>
-            {sortedByName(savedUsers).map(({ id_str, screen_name, name }, index) => (
-              <option
-                key={index}
-                value={'saved/' + id_str}
-                data-group="saved"
-                data-userid={id_str}
-                data-username={screen_name}
-              >
-                @{screen_name} &lt;{name}&gt;
-              </option>
+          <optgroup label={`${i18n.getMessage('users_in_other_tab')} (${usersInOtherTab.size})`}>
+            {sortedByName(usersInOtherTab).map((user, index) => (
+              <UserOptionItem key={index} user={user} optgroup="other tab" />
+            ))}
+          </optgroup>
+          <optgroup label={`${i18n.getMessage('saved_user')} (${savedUsers.size})`}>
+            {sortedByName(savedUsers).map((user, index) => (
+              <UserOptionItem key={index} user={user} optgroup="saved" />
             ))}
           </optgroup>
         </M.Select>
       </M.FormControl>
       {selectedUser && (
-        <M.Box margin="10px 0" display="flex" flexDirection="row-reverse">
+        <M.Box my={1} display="flex" flexDirection="row-reverse">
           <M.ButtonGroup>
             <M.Button
-              disabled={selectedUserGroup !== 'current'}
+              disabled={addButtonDisabledGroup.includes(selectedUserGroup)}
               onClick={insertUser}
               startIcon={<M.Icon>add_circle</M.Icon>}
             >
               {i18n.getMessage('add')}
             </M.Button>
-            <M.Button disabled={selectedUserGroup !== 'saved'} onClick={removeUser} startIcon={<M.Icon>delete</M.Icon>}>
+            <M.Button
+              disabled={selectedUserGroup !== 'saved'}
+              onClick={removeUser}
+              startIcon={<M.Icon>delete</M.Icon>}
+            >
               {i18n.getMessage('remove')}
-            </M.Button>
-            <M.Button onClick={requestRefreshSavedUsers} startIcon={<M.Icon>refresh</M.Icon>}>
-              {i18n.getMessage('refresh')}
             </M.Button>
           </M.ButtonGroup>
         </M.Box>
@@ -169,65 +180,44 @@ function TargetSavedUsers(props: {
   )
 }
 
-function TargetUserProfile(props: { isAvailable: boolean }) {
-  const { isAvailable } = props
-  const { selectedUser, targetList, setTargetList } = React.useContext(TargetUserContext)
+function TargetUserProfile() {
+  const { targetList, setTargetList, userSelection } = React.useContext(
+    FollowerChainBlockPageStatesContext
+  )
   // selectedUser가 null일 땐 이 컴포넌트를 렌더링하지 않으므로
-  const user = selectedUser!
-  const biggerProfileImageUrl = user.profile_image_url_https.replace('_normal', '_bigger')
+  const user = userSelection.user!
+  const myself = React.useContext(MyselfContext)
+  const selectedMyself = myself && user.id_str === myself.id_str
   function radio(fk: FollowKind, label: string) {
     return (
       <M.FormControlLabel
         control={<M.Radio size="small" />}
         onChange={() => setTargetList(fk)}
-        disabled={!isAvailable}
         checked={targetList === fk}
         label={label}
       />
     )
   }
   return (
-    <div className="target-user-info">
-      <div className="profile-image-area">
-        <img alt={i18n.getMessage('profile_image')} className="profile-image" src={biggerProfileImageUrl} />
+    <TwitterUserProfile user={user}>
+      <div>
+        <M.Box display="flex" flexDirection="column">
+          {selectedMyself && <div>&#10071; {i18n.getMessage('its_you')}</div>}
+        </M.Box>
+        <M.RadioGroup row>
+          {radio('followers', i18n.formatFollowsCount('followers', user.followers_count))}
+          {radio('friends', i18n.formatFollowsCount('friends', user.friends_count))}
+          {radio('mutual-followers', i18n.getMessage('mutual_followers'))}
+        </M.RadioGroup>
       </div>
-      <div className="profile-right-area">
-        <div className="profile-right-info">
-          <div className="nickname" title={user.name}>
-            {user.name}
-          </div>
-          <div className="username">
-            <a
-              target="_blank"
-              rel="noopener noreferer"
-              href={`https://twitter.com/${user.screen_name}`}
-              title={i18n.getMessage('go_to_url', `https://twitter.com/${user.screen_name}`)}
-            >
-              @{user.screen_name}
-            </a>
-          </div>
-        </div>
-        {isAvailable || (
-          <div className="profile-blocked">
-            {user.protected && `\u{1f512} ${i18n.getMessage('cant_chainblock_to_protected')}`}
-          </div>
-        )}
-        <div className="profile-right-targetlist">
-          <M.RadioGroup row>
-            {radio('followers', i18n.formatFollowsCount('followers', user.followers_count))}
-            {radio('friends', i18n.formatFollowsCount('friends', user.friends_count))}
-            {radio('mutual-followers', i18n.getMessage('mutual_followers'))}
-          </M.RadioGroup>
-        </div>
-      </div>
-    </div>
+    </TwitterUserProfile>
   )
 }
 
-const useStylesForCircularProgress = MaterialUI.makeStyles(() =>
+const useStylesForCircularProgress = MaterialUI.makeStyles(theme =>
   MaterialUI.createStyles({
     center: {
-      margin: '10px auto',
+      margin: theme.spacing(1, 'auto'),
     },
   })
 )
@@ -240,96 +230,80 @@ function TargetUserProfileEmpty(props: { reason: 'invalid-user' | 'loading' }) {
   return <div>{message}</div>
 }
 
-function TargetChainBlockOptionsUI() {
-  const { targetOptions, mutateOptions } = React.useContext(TargetUserContext)
-  const { myFollowers, myFollowings } = targetOptions
-  const verbs: Array<[Verb, string]> = [
-    ['Skip', i18n.getMessage('skip')],
-    ['Mute', i18n.getMessage('do_mute')],
-    ['Block', i18n.getMessage('do_block')],
-  ]
-  return (
-    <React.Fragment>
-      <M.FormControl component="fieldset">
-        <M.FormLabel component="legend">{i18n.getMessage('my_followers')}</M.FormLabel>
-        <M.RadioGroup row>
-          {verbs.map(([verb, vKor], index) => (
-            <M.FormControlLabel
-              key={index}
-              control={<M.Radio size="small" />}
-              checked={myFollowers === verb}
-              onChange={() => mutateOptions({ myFollowers: verb })}
-              label={vKor}
-            />
-          ))}
-        </M.RadioGroup>
-      </M.FormControl>
-      <br />
-      <M.FormControl component="fieldset">
-        <M.FormLabel component="legend">{i18n.getMessage('my_followings')}</M.FormLabel>
-        <M.RadioGroup row>
-          {verbs.map(([verb, vKor], index) => (
-            <M.FormControlLabel
-              key={index}
-              control={<M.Radio size="small" />}
-              checked={myFollowings === verb}
-              onChange={() => mutateOptions({ myFollowings: verb })}
-              label={vKor}
-            />
-          ))}
-        </M.RadioGroup>
-      </M.FormControl>
-    </React.Fragment>
+function TargetUserSelectUI() {
+  const { currentUser, targetList, userSelection, setUserSelection } = React.useContext(
+    FollowerChainBlockPageStatesContext
   )
-}
-
-function TargetUserSelectUI(props: { isAvailable: boolean }) {
-  const { isAvailable } = props
-  const { currentUser, targetList, selectedUser, setSelectedUser } = React.useContext(TargetUserContext)
-  const { openModal } = React.useContext(DialogContext)
+  const twClient = React.useContext(TwitterAPIClientContext)
+  const { openDialog } = React.useContext(UIContext)
   const [savedUsers, setSavedUsers] = React.useState(new TwitterUserMap())
-  const [selectedUserGroup, selectUserGroup] = React.useState<SelectUserGroup>('current')
+  const [usersInOtherTab, setUsersInOtherTab] = React.useState(new TwitterUserMap())
   const [isLoading, setLoadingState] = React.useState(false)
-  async function changeUser(userId: string, userName: string, group: SelectUserGroup) {
+  const { user: selectedUser } = userSelection
+  async function changeSelectedUser(userId: string, userName: string, group: SelectUserGroup) {
     if (!/^\d+$/.test(userId)) {
-      setSelectedUser(null)
-      selectUserGroup('invalid')
+      setUserSelection({
+        user: null,
+        group: 'invalid',
+      })
       return
     }
     try {
       setLoadingState(true)
-      const newUser = await getUserByIdWithCache(userId).catch(() => null)
+      const newUser = await getUserByIdWithCache(twClient, userId).catch(() => null)
       if (newUser) {
-        setSelectedUser(newUser)
-        selectUserGroup(group)
+        setUserSelection({
+          user: newUser,
+          group,
+        })
       } else {
-        openModal({
+        openDialog({
           dialogType: 'alert',
           message: {
             title: i18n.getMessage('failed_to_get_user_info', userName),
           },
-          callbackOnOk() {},
-          callbackOnCancel() {},
         })
-        setSelectedUser(null)
-        selectUserGroup('invalid')
+        setUserSelection({
+          user: null,
+          group: 'invalid',
+        })
       }
     } finally {
       setLoadingState(false)
     }
   }
   React.useEffect(() => {
-    Storage.loadUsers().then(setSavedUsers)
+    Storage.loadUsers().then(users => {
+      setSavedUsers(users)
+      userCache.merge(users)
+    })
     return Storage.onStorageChanged('savedUsers', async users => {
       const usersMap = TwitterUserMap.fromUsersArray(users)
       setSavedUsers(usersMap)
+      users.forEach(user => userCache.addUser(user))
+      // 스토리지에서 불러올 때 직전에 선택했었던 유저가 없는 경우
       if (!(selectedUser && usersMap.hasUser(selectedUser))) {
-        setSelectedUser(currentUser)
-        selectUserGroup('current')
+        setUserSelection({
+          user: currentUser,
+          group: 'current',
+        })
       }
     })
   }, [])
-  const classes = useStylesForExpansionPanels()
+  React.useEffect(() => {
+    browser.tabs
+      .query({
+        url: ['https://twitter.com/*', 'https://mobile.twitter.com/*'],
+      })
+      .then(async tabs => {
+        const userNames = tabs.map(getUserNameFromTab).filter(Boolean) as string[]
+        const usersArray = await twClient
+          .getMultipleUsers({ screen_name: userNames })
+          .catch(() => [])
+        const usersMap = TwitterUserMap.fromUsersArray(usersArray)
+        setUsersInOtherTab(usersMap)
+      })
+  }, [])
   let targetSummary = ''
   if (selectedUser) {
     const userName = selectedUser.screen_name
@@ -345,261 +319,102 @@ function TargetUserSelectUI(props: { isAvailable: boolean }) {
         break
     }
   }
+  targetSummary = `${i18n.getMessage('target')} (${targetSummary})`
   return (
-    <M.ExpansionPanel defaultExpanded>
-      <DenseExpansionPanelSummary expandIcon={<M.Icon>expand_more</M.Icon>}>
-        <T>
-          {i18n.getMessage('target')} ({targetSummary})
-        </T>
-      </DenseExpansionPanelSummary>
-      <M.ExpansionPanelDetails className={classes.details}>
-        <div style={{ width: '100%' }}>
-          <M.FormControl component="fieldset" fullWidth>
-            <TargetSavedUsers
-              currentUser={currentUser}
-              selectedUserGroup={selectedUserGroup}
-              savedUsers={savedUsers}
-              changeUser={changeUser}
-            />
-            <M.Divider />
-            {isLoading ? (
-              <TargetUserProfileEmpty reason="loading" />
-            ) : selectedUser ? (
-              <TargetUserProfile isAvailable={isAvailable} />
-            ) : (
-              <TargetUserProfileEmpty reason="invalid-user" />
-            )}
-          </M.FormControl>
-        </div>
-      </M.ExpansionPanelDetails>
-    </M.ExpansionPanel>
+    <RBExpansionPanel summary={targetSummary} defaultExpanded>
+      <div style={{ width: '100%' }}>
+        <M.FormControl component="fieldset" fullWidth>
+          <UserSelectorContext.Provider value={{ changeSelectedUser }}>
+            <TargetSavedUsers {...{ savedUsers, usersInOtherTab }} />
+          </UserSelectorContext.Provider>
+          <M.Divider />
+          {selectedUser ? (
+            <TargetUserProfile />
+          ) : (
+            <TargetUserProfileEmpty reason={isLoading ? 'loading' : 'invalid-user'} />
+          )}
+        </M.FormControl>
+      </div>
+    </RBExpansionPanel>
   )
 }
 
 function TargetOptionsUI() {
-  const { selectedMode, setSelectedMode } = React.useContext(TargetUserContext)
-  const classes = useStylesForExpansionPanels()
-  const localizedMode = i18n.getMessage(selectedMode)
-  // const helpPageLanguage = i18n.getUILanguage() === 'ko' ? 'ko' : 'en'
-  // const twitterAdvancedBlockOptionsHelpPageUrl = `https://help.twitter.com/${helpPageLanguage}/using-twitter/advanced-twitter-block-options`
-  // const pleaseReturnOurChainBlock = (
-  //   <a
-  //     target="_blank"
-  //     rel="noopener noreferer"
-  //     href={twitterAdvancedBlockOptionsHelpPageUrl}>*</a>
-  // )
-  const cautionOnMassiveBlock = i18n.getMessage('wtf_twitter')
+  const {
+    purpose,
+    changePurposeType,
+    mutatePurposeOptions,
+    availablePurposeTypes,
+  } = React.useContext(FollowerChainBlockPageStatesContext)
+  const summary = `${i18n.getMessage('options')} (${i18n.getMessage(purpose.type)})`
   return (
-    <M.ExpansionPanel defaultExpanded>
-      <DenseExpansionPanelSummary expandIcon={<M.Icon>expand_more</M.Icon>}>
-        <T>
-          {i18n.getMessage('options')} ({localizedMode})
-        </T>
-      </DenseExpansionPanelSummary>
-      <M.ExpansionPanelDetails className={classes.details}>
-        <div style={{ width: '100%' }}>
-          <M.Tabs value={selectedMode} onChange={(_ev, val) => setSelectedMode(val)}>
-            <M.Tab value={'chainblock'} label={`\u{1f6d1} ${i18n.getMessage('chainblock')}`} />
-            <M.Tab value={'unchainblock'} label={`\u{1f49a} ${i18n.getMessage('unchainblock')}`} />
-          </M.Tabs>
-          <M.Divider />
-          <TabPanel value={selectedMode} index={'chainblock'}>
-            <TargetChainBlockOptionsUI />
-            <M.Divider />
-            <div className="description">
-              {i18n.getMessage('chainblock_description')} {i18n.getMessage('my_mutual_followers_wont_block')}
-              <div className="wtf">{cautionOnMassiveBlock}</div>
-            </div>
-          </TabPanel>
-          <TabPanel value={selectedMode} index={'unchainblock'}>
-            <TargetUnChainBlockOptionsUI />
-            <div className="description">{i18n.getMessage('unchainblock_description')}</div>
-          </TabPanel>
-        </div>
-      </M.ExpansionPanelDetails>
-    </M.ExpansionPanel>
+    <RBExpansionPanel summary={summary} defaultExpanded>
+      <PurposeSelectionUI
+        {...{
+          purpose,
+          changePurposeType,
+          mutatePurposeOptions,
+          availablePurposeTypes,
+        }}
+      />
+    </RBExpansionPanel>
   )
 }
 
-function TargetUnChainBlockOptionsUI() {
-  // const { options, mutateOptions } = props
-  const { targetOptions, mutateOptions } = React.useContext(TargetUserContext)
-  const { mutualBlocked } = targetOptions
-  const verbs: Array<[Verb, string]> = [
-    ['Skip', i18n.getMessage('skip')],
-    ['UnBlock', i18n.getMessage('do_unblock')],
-  ]
-  return (
-    <React.Fragment>
-      <M.FormControl component="fieldset">
-        <M.FormLabel component="legend">{i18n.getMessage('mutually_blocked')}</M.FormLabel>
-        <M.RadioGroup row>
-          {verbs.map(([verb, vKor], index) => (
-            <M.FormControlLabel
-              key={index}
-              control={<M.Radio size="small" />}
-              checked={mutualBlocked === verb}
-              onChange={() => mutateOptions({ mutualBlocked: verb })}
-              label={vKor}
-            />
-          ))}
-        </M.RadioGroup>
-      </M.FormControl>
-    </React.Fragment>
-  )
-}
-
-function TargetExecutionButtonUI(props: { isAvailable: boolean }) {
-  const { isAvailable } = props
-  const { selectedMode, selectedUser, targetList, targetOptions } = React.useContext(TargetUserContext)
-  function onExecuteChainBlockButtonClicked() {
-    const request: FollowerBlockSessionRequest = {
-      purpose: 'chainblock',
-      target: {
-        type: 'follower',
-        user: selectedUser!,
-        list: targetList,
-      },
-      options: targetOptions,
-    }
-    startFollowerChainBlock(request)
-  }
-  function onExecuteUnChainBlockButtonClicked() {
-    const request: FollowerBlockSessionRequest = {
-      purpose: 'unchainblock',
-      target: {
-        type: 'follower',
-        user: selectedUser!,
-        list: targetList,
-      },
-      options: targetOptions,
-    }
-    startFollowerChainBlock(request)
-  }
-  return (
-    <M.Box padding="10px">
-      {selectedMode === 'chainblock' && (
-        <BigExecuteChainBlockButton disabled={!isAvailable} onClick={onExecuteChainBlockButtonClicked}>
-          <span>
-            {'\u{1f6d1}'} {i18n.getMessage('execute_chainblock')}
-          </span>
-        </BigExecuteChainBlockButton>
-      )}
-      {selectedMode === 'unchainblock' && (
-        <BigExecuteUnChainBlockButton disabled={!isAvailable} onClick={onExecuteUnChainBlockButtonClicked}>
-          <span>
-            {'\u{1f49a}'} {i18n.getMessage('execute_unchainblock')}
-          </span>
-        </BigExecuteUnChainBlockButton>
-      )}
-    </M.Box>
-  )
-}
-
-const userCache = new TwitterUserMap()
-async function getUserByIdWithCache(userId: string): Promise<TwitterUser> {
+async function getUserByIdWithCache(twClient: TwClient, userId: string): Promise<TwitterUser> {
   if (userCache.has(userId)) {
     return userCache.get(userId)!
   }
-  const user = await TwitterAPI.getSingleUserById(userId)
+  const user = await twClient.getSingleUser({ user_id: userId })
   userCache.addUser(user)
   return user
 }
 
-const BigExecuteChainBlockButton = MaterialUI.withStyles(theme => ({
-  root: {
-    width: '100%',
-    padding: '10px',
-    fontSize: 'larger',
-    backgroundColor: MaterialUI.colors.red[700],
-    color: theme.palette.getContrastText(MaterialUI.colors.red[700]),
-    '&:hover': {
-      backgroundColor: MaterialUI.colors.red[500],
-      color: theme.palette.getContrastText(MaterialUI.colors.red[500]),
-    },
-  },
-}))(MaterialUI.Button)
-const BigExecuteUnChainBlockButton = MaterialUI.withStyles(theme => ({
-  root: {
-    width: '100%',
-    padding: '10px',
-    fontSize: 'larger',
-    backgroundColor: MaterialUI.colors.green[700],
-    color: theme.palette.getContrastText(MaterialUI.colors.green[700]),
-    '&:hover': {
-      backgroundColor: MaterialUI.colors.green[500],
-      color: theme.palette.getContrastText(MaterialUI.colors.green[500]),
-    },
-  },
-}))(MaterialUI.Button)
-
-export default function NewChainBlockPage(props: { currentUser: TwitterUser | null }) {
-  const { currentUser } = props
-  const { loggedIn } = React.useContext(LoginStatusContext)
+function TargetExecutionButtonUI() {
+  const { purpose } = React.useContext(FollowerChainBlockPageStatesContext)
+  const uiContext = React.useContext(UIContext)
   const limiterStatus = React.useContext(BlockLimiterContext)
-  const [targetOptions, setTargetOptions] = React.useState<SessionOptions>({
-    myFollowers: 'Skip',
-    myFollowings: 'Skip',
-    mutualBlocked: 'Skip',
-  })
-  const [selectedUser, setSelectedUser] = React.useState<TwitterUser | null>(currentUser)
-  const [targetList, setTargetList] = React.useState<FollowKind>('followers')
-  const firstMode = selectedUser && selectedUser.following ? 'unchainblock' : 'chainblock'
-  const [selectedMode, setSelectedMode] = React.useState<ChainKind>(firstMode)
-  function mutateOptions(newOptionsPart: Partial<SessionOptions>) {
-    const newOptions = { ...targetOptions, ...newOptionsPart }
-    setTargetOptions(newOptions)
+  const request = useSessionRequest()
+  function isAvailable() {
+    if (limiterStatus.remained <= 0 && purpose.type === 'chainblock') {
+      return false
+    }
+    return validateRequest(request) === TargetCheckResult.Ok
   }
-  const availableBlocks = React.useMemo((): number => {
-    return limiterStatus.max - limiterStatus.current
-  }, [limiterStatus])
-  const isAvailable = React.useMemo((): boolean => {
-    if (!loggedIn) {
-      return false
+  function executeSession() {
+    if (!request) {
+      uiContext.openSnackBar(i18n.getMessage('error_occured_check_login'))
+      return
     }
-    if (availableBlocks <= 0) {
-      return false
-    }
-    if (!selectedUser) {
-      return false
-    }
-    if (selectedUser.following) {
-      return true
-    }
-    if (selectedUser.protected) {
-      return false
-    }
-    return true
-  }, [loggedIn, selectedUser, availableBlocks])
+    uiContext.openDialog({
+      dialogType: 'confirm',
+      message: TextGenerate.generateConfirmMessage(request),
+      callbackOnOk() {
+        startNewChainBlockSession<FollowerBlockSessionRequest>(request)
+      },
+    })
+  }
+  return (
+    <M.Box>
+      <BigExecuteButton {...{ purpose }} disabled={!isAvailable()} onClick={executeSession} />
+    </M.Box>
+  )
+}
+
+export default function NewChainBlockPage() {
+  const { userSelection } = React.useContext(FollowerChainBlockPageStatesContext)
+  const request = useSessionRequest()
   return (
     <div>
-      <TargetUserContext.Provider
-        value={{
-          currentUser,
-          selectedUser,
-          setSelectedUser,
-          targetList,
-          setTargetList,
-          targetOptions,
-          setTargetOptions,
-          mutateOptions,
-          selectedMode,
-          setSelectedMode,
-        }}
-      >
-        <div className="chainblock-target">
-          <TargetUserSelectUI isAvailable={isAvailable} />
-          {loggedIn ? (
-            <div>
-              <TargetOptionsUI />
-              {availableBlocks <= 0 ? <BlockLimiterUI status={limiterStatus} /> : ''}
-              <TargetExecutionButtonUI isAvailable={isAvailable} />
-            </div>
-          ) : (
-            <PleaseLoginBox />
-          )}
+      <TargetUserSelectUI />
+      {userSelection.user && <TargetOptionsUI />}
+      <BlockLimiterUI />
+      {userSelection.user && (
+        <div>
+          <RequestCheckResultUI {...{ request }} />
+          <TargetExecutionButtonUI />
         </div>
-      </TargetUserContext.Provider>
+      )}
     </div>
   )
 }

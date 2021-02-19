@@ -1,70 +1,114 @@
 import { getUserNameFromURL } from '../common.js'
 import * as i18n from '../i18n.js'
-import { followerBlockDefaultOption, tweetReactionBlockDefaultOption } from './chainblock-session/session.js'
+import { defaultChainBlockPurposeOptions } from './chainblock-session/default-options.js'
 import * as TwitterAPI from './twitter-api.js'
-import { createChainBlockSession, confirmSession } from './entrypoint.js'
-import { checkResultToString } from '../text-generate.js'
-import { alertToCurrentTab } from './background.js'
+import { TargetCheckResult } from './target-checker.js'
+import { generateConfirmMessage, checkResultToString, objToString } from '../text-generate.js'
+import { alertToTab } from './background.js'
+import { getCookieStoreIdFromTab } from './cookie-handler.js'
+import { loadOptions } from './storage.js'
+import type ChainBlocker from './chainblock.js'
+
+type BrowserTab = browser.tabs.Tab
 
 const urlPatterns = ['https://twitter.com/*', 'https://mobile.twitter.com/*']
-const documentUrlPatterns = ['https://twitter.com/*', 'https://mobile.twitter.com/*', 'https://tweetdeck.twitter.com/*']
+const documentUrlPatterns = [
+  'https://twitter.com/*',
+  'https://mobile.twitter.com/*',
+  'https://tweetdeck.twitter.com/*',
+]
 const tweetUrlPatterns = ['https://twitter.com/*/status/*', 'https://mobile.twitter.com/*/status/*']
+
+const extraTarget: SessionRequest['extraTarget'] = {
+  bioBlock: 'never',
+}
 
 function getTweetIdFromUrl(url: URL) {
   const match = /\/status\/(\d+)/.exec(url.pathname)
   return match && match[1]
 }
 
-async function sendFollowerChainBlockConfirm(tab: browser.tabs.Tab, userName: string, followKind: FollowKind) {
-  const myself = await TwitterAPI.getMyself().catch(() => null)
+async function sendConfirmToTab(tab: BrowserTab, request: SessionRequest) {
+  const confirmMessage = objToString(generateConfirmMessage(request))
+  browser.tabs.sendMessage<RBMessageToContent.ConfirmChainBlock>(tab.id!, {
+    messageType: 'ConfirmChainBlock',
+    messageTo: 'content',
+    confirmMessage,
+    request,
+  })
+}
+
+async function confirmFollowerChainBlockRequest(
+  tab: BrowserTab,
+  chainblocker: ChainBlocker,
+  userName: string,
+  followKind: FollowKind
+) {
+  const cookieStoreId = await getCookieStoreIdFromTab(tab)
+  const twClient = new TwitterAPI.TwClient({ cookieStoreId })
+  const myself = await twClient.getMyself().catch(() => null)
   if (!myself) {
-    return alertToCurrentTab(i18n.getMessage('error_occured_check_login'))
+    return alertToTab(tab, i18n.getMessage('error_occured_check_login'))
   }
-  const user = await TwitterAPI.getSingleUserByName(userName)
+  const user = await twClient.getSingleUser({ screen_name: userName })
+  const options = await loadOptions()
   const request: FollowerBlockSessionRequest = {
-    purpose: 'chainblock',
-    options: followerBlockDefaultOption,
+    purpose: defaultChainBlockPurposeOptions,
+    options,
     target: {
       type: 'follower',
       list: followKind,
       user,
     },
+    myself,
+    extraTarget,
+    cookieOptions: twClient.cookieOptions,
   }
-  const result = createChainBlockSession(request)
-  if (result.ok) {
-    return confirmSession(tab, request, result.value)
+  const checkResult = chainblocker.checkRequest(request)
+  if (checkResult === TargetCheckResult.Ok) {
+    return sendConfirmToTab(tab, request)
   } else {
-    const alertMessage = checkResultToString(result.error)
-    return alertToCurrentTab(alertMessage)
+    const alertMessage = checkResultToString(checkResult)
+    return alertToTab(tab, alertMessage)
   }
 }
 
-async function sendTweetReactionChainBlockConfirm(
-  tab: browser.tabs.Tab,
+async function confirmTweetReactionChainBlockRequest(
+  tab: BrowserTab,
+  chainblocker: ChainBlocker,
   tweetId: string,
-  { blockRetweeters, blockLikers }: { blockRetweeters: boolean; blockLikers: boolean }
-) {
-  const myself = await TwitterAPI.getMyself().catch(() => null)
-  if (!myself) {
-    return alertToCurrentTab(i18n.getMessage('error_occured_check_login'))
+  whoToBlock: {
+    blockRetweeters: boolean
+    blockLikers: boolean
+    blockMentionedUsers: boolean
   }
-  const tweet = await TwitterAPI.getTweetById(tweetId)
+) {
+  const cookieStoreId = await getCookieStoreIdFromTab(tab)
+  const twClient = new TwitterAPI.TwClient({ cookieStoreId })
+  const myself = await twClient.getMyself().catch(() => null)
+  if (!myself) {
+    return alertToTab(tab, i18n.getMessage('error_occured_check_login'))
+  }
+  const tweet = await twClient.getTweetById(tweetId)
+  const options = await loadOptions()
   const request: TweetReactionBlockSessionRequest = {
-    purpose: 'chainblock',
-    options: tweetReactionBlockDefaultOption,
+    purpose: defaultChainBlockPurposeOptions,
+    options,
     target: {
       type: 'tweet_reaction',
-      blockRetweeters,
-      blockLikers,
       tweet,
+      ...whoToBlock,
     },
+    myself,
+    extraTarget,
+    cookieOptions: twClient.cookieOptions,
   }
-  const result = createChainBlockSession(request)
-  if (result.ok) {
-    return confirmSession(tab, request, result.value)
+  const checkResult = chainblocker.checkRequest(request)
+  if (checkResult === TargetCheckResult.Ok) {
+    return sendConfirmToTab(tab, request)
   } else {
-    const alertMessage = checkResultToString(result.error)
-    return alertToCurrentTab(alertMessage)
+    const alertMessage = checkResultToString(checkResult)
+    return alertToTab(tab, alertMessage)
   }
 }
 
@@ -78,7 +122,7 @@ const menus = new Proxy<typeof browser.menus>({} as any, {
   },
 })
 
-async function createContextMenu() {
+export async function initializeContextMenu(chainblocker: ChainBlocker) {
   await menus.removeAll()
   // 우클릭 - 유저
   menus.create({
@@ -89,7 +133,7 @@ async function createContextMenu() {
     onclick(clickEvent, tab) {
       const url = new URL(clickEvent.linkUrl!)
       const userName = getUserNameFromURL(url)!
-      sendFollowerChainBlockConfirm(tab, userName, 'followers')
+      confirmFollowerChainBlockRequest(tab, chainblocker, userName, 'followers')
     },
   })
   menus.create({
@@ -100,7 +144,7 @@ async function createContextMenu() {
     onclick(clickEvent, tab) {
       const url = new URL(clickEvent.linkUrl!)
       const userName = getUserNameFromURL(url)!
-      sendFollowerChainBlockConfirm(tab, userName, 'friends')
+      confirmFollowerChainBlockRequest(tab, chainblocker, userName, 'friends')
     },
   })
   menus.create({
@@ -111,11 +155,12 @@ async function createContextMenu() {
     onclick(clickEvent, tab) {
       const url = new URL(clickEvent.linkUrl!)
       const userName = getUserNameFromURL(url)!
-      sendFollowerChainBlockConfirm(tab, userName, 'mutual-followers')
+      confirmFollowerChainBlockRequest(tab, chainblocker, userName, 'mutual-followers')
     },
   })
 
   menus.create({
+    contexts: ['link'],
     type: 'separator',
   })
   // 우클릭 - 트윗
@@ -127,9 +172,10 @@ async function createContextMenu() {
     onclick(clickEvent, tab) {
       const url = new URL(clickEvent.linkUrl!)
       const tweetId = getTweetIdFromUrl(url)!
-      sendTweetReactionChainBlockConfirm(tab, tweetId, {
+      confirmTweetReactionChainBlockRequest(tab, chainblocker, tweetId, {
         blockRetweeters: true,
         blockLikers: false,
+        blockMentionedUsers: false,
       })
     },
   })
@@ -141,9 +187,10 @@ async function createContextMenu() {
     onclick(clickEvent, tab) {
       const url = new URL(clickEvent.linkUrl!)
       const tweetId = getTweetIdFromUrl(url)!
-      sendTweetReactionChainBlockConfirm(tab, tweetId, {
+      confirmTweetReactionChainBlockRequest(tab, chainblocker, tweetId, {
         blockRetweeters: false,
         blockLikers: true,
+        blockMentionedUsers: false,
       })
     },
   })
@@ -155,16 +202,31 @@ async function createContextMenu() {
     onclick(clickEvent, tab) {
       const url = new URL(clickEvent.linkUrl!)
       const tweetId = getTweetIdFromUrl(url)!
-      sendTweetReactionChainBlockConfirm(tab, tweetId, {
+      confirmTweetReactionChainBlockRequest(tab, chainblocker, tweetId, {
         blockRetweeters: true,
         blockLikers: true,
+        blockMentionedUsers: false,
+      })
+    },
+  })
+  menus.create({
+    contexts: ['link'],
+    documentUrlPatterns,
+    targetUrlPatterns: tweetUrlPatterns,
+    title: i18n.getMessage('run_mentioned_users_chainblock_to_this_tweet'),
+    onclick(clickEvent, tab) {
+      const url = new URL(clickEvent.linkUrl!)
+      const tweetId = getTweetIdFromUrl(url)!
+      confirmTweetReactionChainBlockRequest(tab, chainblocker, tweetId, {
+        blockRetweeters: false,
+        blockLikers: false,
+        blockMentionedUsers: true,
       })
     },
   })
   // 확장기능버튼
   menus.create({
     contexts: ['browser_action'],
-    documentUrlPatterns: tweetUrlPatterns,
     title: i18n.getMessage('open_in_new_tab'),
     onclick(_clickEvent, _tab) {
       const url = browser.runtime.getURL('/popup/popup.html') + '?istab=1'
@@ -176,14 +238,9 @@ async function createContextMenu() {
   })
   menus.create({
     contexts: ['browser_action'],
-    documentUrlPatterns: tweetUrlPatterns,
     title: i18n.getMessage('options'),
     onclick(_clickEvent, _tab) {
       browser.runtime.openOptionsPage()
     },
   })
-}
-
-export function initializeContextMenu() {
-  createContextMenu()
 }

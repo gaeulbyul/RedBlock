@@ -5,6 +5,9 @@
   "new_tweetreaction_session": {
     "message": "새 세션 (트윗반응)"
   },
+  "new_searchblock_session": {
+    "message": "새 세션 (유저 검색결과)"
+  },
   "running_sessions": {
     "message": "실행중인 세션"
   },
@@ -35,11 +38,29 @@
   "like": {
     "message": "마음에 들어요"
   },
+  "mentioned": {
+    "message": "멘션한 유저"
+  },
   "chainblock": {
     "message": "체인블락"
   },
   "unchainblock": {
     "message": "언체인블락"
+  },
+  "chainunfollow": {
+    "message": "체인언팔로우"
+  },
+  "chainmute": {
+    "message": "체인뮤트"
+  },
+  "unchainmute": {
+    "message": "언체인뮤트"
+  },
+  "lockpicker": {
+    "message": "프로텍트 팔로워 차단"
+  },
+  "query": {
+    "message": "검색어"
   },
   "followers_of_xxx": {
     "message": "@$username$의 팔로워",
@@ -76,6 +97,9 @@
   "from_imported_blocklist": {
     "message": "차단목록에서"
   },
+  "from_user_search_result": {
+    "message": "유저 검색결과에서"
+  },
   "session_status_initial": {
     "message": "대기 중"
   },
@@ -108,6 +132,12 @@
   },
   "unblock": {
     "message": "차단해제"
+  },
+  "unfollow": {
+    "message": "언팔로우"
+  },
+  "block_and_unblock": {
+    "message": "블언블"
   },
   "mute": {
     "message": "뮤트"
@@ -146,7 +176,7 @@
     "message": "현재 진행중인 세션이 없습니다."
   },
   "press_plus_to_start_new_session": {
-    "message": "체인블락을 시작하려면 아래의 + 버튼을 눌러주세요."
+    "message": "체인블락을 시작하려면 아래의 버튼을 눌러주세요."
   },
   "user_xxx_added": {
     "message": "@$username$을(를) 추가했습니다.",
@@ -158,6 +188,14 @@
   },
   "user_xxx_removed": {
     "message": "@$username$을(를) 제거했습니다.",
+    "placeholders": {
+      "username": {
+        "content": "$1"
+      }
+    }
+  },
+  "user_xxx_already_exists": {
+    "message": "@$username$는 이미 저장되어있습니다.",
     "placeholders": {
       "username": {
         "content": "$1"
@@ -305,35 +343,44 @@
   "unchainblock_description": {
     "message": "설정한 옵션에 따라 유저를 모두 차단해제합니다."
   },
-  "my_mutual_followers_wont_block": {
+  "lockpicker_description": {
+    "message": "체인블락과 달리 나와 맞팔로우하지 않은 *프로텍트 팔로워만* 차단하며, 이외의 유저는 차단하지 않습니다."
+  },
+  "chainunfollow_description": {
+    "message": "내가 팔로우한 유저를 모두 언팔로우합니다. 단, 내 맞팔로워는 언팔로우하지 않습니다."
+  },
+  "chainmute_description": {
+    "message": "설정한 옵션에 따라 유저를 모두 뮤트합니다."
+  },
+  "unchainmute_description": {
+    "message": "설정한 옵션에 따라 유저를 모두 언뮤트합니다."
+  },
+  "my_mutual_followers_wont_block_or_mute": {
     "message": "단, 내 맞팔로워는 위 옵션과 무관하게 차단이나 뮤트를 하지 않습니다."
   },
-  "confirm_follower_chainblock_title": {
-    "message": "정말로 @$username$에게 체인블락을 실행하시겠습니까?",
-    "placeholders": {
-      "username": {
-        "content": "$1"
-      }
-    }
+  "confirm_chainblock_title": {
+    "message": "정말로 체인블락을 실행하시겠습니까?"
   },
-  "confirm_follower_unchainblock_title": {
-    "message": "정말로 @$username$에게 언체인블락을 실행하시겠습니까?",
-    "placeholders": {
-      "username": {
-        "content": "$1"
-      }
-    }
+  "confirm_unchainblock_title": {
+    "message": "정말로 언체인블락을 실행하시겠습니까?"
   },
-  "confirm_reacted_chainblock_title": {
-    "message": "정말로 @$username$이 쓴 트윗에 반응한 유저에게 체인블락을 실행하시겠습니까?",
-    "placeholders": {
-      "username": {
-        "content": "$1"
-      }
-    }
+  "confirm_chainmute_title": {
+    "message": "정말로 체인뮤트를 실행하시겠습니까?"
   },
-  "confirm_import_chainblock_title": {
-    "message": "정말로 해당 차단목록에 있는 유저를 차단하시겠습니까?"
+  "confirm_unchainmute_title": {
+    "message": "정말로 언체인뮤트를 실행하시겠습니까?"
+  },
+  "confirm_chainunfollow_title": {
+    "message": "정말로 체인언팔로우를 실행하시겠습니까?"
+  },
+  "confirm_lockpicker_block_title": {
+    "message": "프로텍트 팔로워를 차단하시겠습니까?"
+  },
+  "confirm_lockpicker_bnb_title": {
+    "message": "프로텍트 팔로워를 블언블하시겠습니까?"
+  },
+  "confirm_export_title": {
+    "message": "차단목록 생성을 실행하시겠습니까?"
   },
   "user_count": {
     "message": "유저수"
@@ -343,6 +390,9 @@
   },
   "import_blocklist": {
     "message": "차단목록 가져오기"
+  },
+  "usersearch_chainblock": {
+    "message": "유저 검색결과 체인블락"
   },
   "pick_file_first": {
     "message": "가져올 차단목록 파일을 선택해주세요."
@@ -354,19 +404,21 @@
     "message": "'리트윗'이나 '마음에 들어요' 중 하나 이상을 선택해주세요."
   },
   "warning_maybe_you_block_your_followers": {
-    "message": "주의! 내 팔로워를 차단할 수도 있습니다."
+    "message": "주의! 내 팔로워가 줄어들 수 있습니다."
   },
   "warning_maybe_you_block_your_followings": {
-    "message": "주의! 내가 팔로우하는 유저를 차단할 수도 있습니다."
+    "message": "주의! 내가 팔로우하는 유저가 줄어들 수 있습니다."
   },
   "tweet_contents": {
     "message": "트윗 내용"
   },
-  "execute_chainblock": {
-    "message": "체인블락 실행"
-  },
-  "execute_unchainblock": {
-    "message": "언체인블락 실행"
+  "run_xxx": {
+    "message": "$purpose$ 실행",
+    "placeholders": {
+      "purpose": {
+        "content": "$1"
+      }
+    }
   },
   "confirm_session_stop_message": {
     "message": "이 세션을 중단하시겠습니까?"
@@ -393,17 +445,67 @@
       }
     }
   },
+  "bnbed_n_users": {
+    "message": "$count$명을 블언블했습니다.",
+    "placeholders": {
+      "count": {
+        "content": "$1"
+      }
+    }
+  },
+  "unfollowed_n_users": {
+    "message": "$count$명을 언팔로우했습니다.",
+    "placeholders": {
+      "count": {
+        "content": "$1"
+      }
+    }
+  },
+  "muted_n_users": {
+    "message": "$count$명을 뮤트했습니다.",
+    "placeholders": {
+      "count": {
+        "content": "$1"
+      }
+    }
+  },
+  "unmuted_n_users": {
+    "message": "$count$명을 언뮤트했습니다.",
+    "placeholders": {
+      "count": {
+        "content": "$1"
+      }
+    }
+  },
   "already_blocked": {
     "message": "이미 차단함"
   },
   "already_unblocked": {
     "message": "이미 차단해제함"
   },
+  "already_muted": {
+    "message": "이미 뮤트함"
+  },
+  "already_unmuted": {
+    "message": "이미 언뮤트함"
+  },
   "chainblock_completed": {
     "message": "체인블락 완료!"
   },
   "unchainblock_completed": {
     "message": "언체인블락 완료!"
+  },
+  "lockpicker_completed": {
+    "message": "프로텍트 팔로워 차단 완료!"
+  },
+  "chainunfollow_completed": {
+    "message": "체인언팔로우 완료!"
+  },
+  "chainmute_completed": {
+    "message": "체인뮤트 완료!"
+  },
+  "unchainmute_completed": {
+    "message": "언체인뮤트 완료!"
   },
   "yes": {
     "message": "네"
@@ -438,6 +540,9 @@
   "run_retweeters_and_likers_chainblock_to_this_tweet": {
     "message": "이 트윗을 리트윗하거나 마음에 들어한 유저에게 체인블락 실행"
   },
+  "run_mentioned_users_chainblock_to_this_tweet": {
+    "message": "이 트윗이 멘션한 유저에게 체인블락 실행"
+  },
   "already_running_to_same_target": {
     "message": "이미 같은 대상에게 (언)체인블락이 실행중입니다."
   },
@@ -450,20 +555,23 @@
   "cant_chainblock_mutual_follower_is_zero": {
     "message": "맞팔로워가 0명입니다."
   },
-  "cant_chainblock_nobody_retweeted": {
-    "message": "아무도 리트윗하지 않은 트윗입니다."
-  },
-  "cant_chainblock_nobody_liked": {
-    "message": "아무도 마음에 들어하지 않은 트윗입니다."
-  },
-  "cant_chainblock_nobody_retweet_or_like": {
-    "message": "아무도 리트윗이나 마음에 들어하지 않은 트윗입니다."
+  "cant_chainblock_nobody_will_blocked": {
+    "message": "이 트윗에 차단할 유저가 없습니다."
   },
   "cant_chainblock_empty_list": {
-    "message": "불러온 목록이 비어있거나 유저ID를 찾을 수 없습니다."
+    "message": "차단목록 파일을 아직 선택하지 않았거나, 선택한 파일에서 유저ID를 찾을 수 없습니다."
+  },
+  "cant_chainblock_to_yourself": {
+    "message": "나 자신에게 체인블락을 할 수 없습니다."
+  },
+  "cant_lockpicker_to_others": {
+    "message": "다른 유저에게 프로텍트 팔로워차단을 할 수 없습니다."
+  },
+  "cant_chainblock_searchquery_invalid": {
+    "message": "검색어가 올바르지 않습니다."
   },
   "wtf_twitter": {
-    "message": "주의: 강제 로그아웃이나 계정정지 등의 문제를 피하기 위해 차단횟수를 누적 500회 미만이 되도록 제한하고 있습니다."
+    "message": "강제 로그아웃이나 계정정지 등의 문제를 피하기 위해 누적 차단횟수를 500회 미만으로 제한하고 있습니다."
   },
   "oneclick_block_mode": {
     "message": "원클릭 차단모드"
@@ -510,6 +618,9 @@
   "regexp": {
     "message": "정규식"
   },
+  "edit": {
+    "message": "수정"
+  },
   "add_word_button": {
     "message": "단어 추가하기"
   },
@@ -531,8 +642,14 @@
   "please_check_login": {
     "message": "레드블락을 사용하시려면 트위터에 로그인해주세요."
   },
-  "user_ids_to_block": {
-    "message": "차단할 유저ID"
+  "block_counter": {
+    "message": "차단 횟수"
+  },
+  "block_target": {
+    "message": "차단할 대상"
+  },
+  "count_of_users": {
+    "message": "유저수"
   },
   "duplicated": {
     "message": "중복"
@@ -540,7 +657,142 @@
   "invalid": {
     "message": "잘못된 값"
   },
+  "select_files": {
+    "message": "파일 선택하기"
+  },
+  "selected_files": {
+    "message": "선택한 파일"
+  },
   "notify_on_block_limit": {
     "message": "강제 로그아웃등의 문제를 막기 위해 유저 차단을 500회 미만으로 제한합니다. 차단횟수를 초기화하시려면 레드블락 UI에서 Reset 버튼을 눌러주세요."
+  },
+  "bioblock_never": {
+    "message": "안함"
+  },
+  "bioblock_all": {
+    "message": "사용"
+  },
+  "bioblock_smart": {
+    "message": "사용 (스마트모드)"
+  },
+  "bioblock_description": {
+    "message": "레드블락이 유저를 차단할 때, 해당 유저의 프로필에 있는 다른 계정도 같이 차단합니다."
+  },
+  "dont_skip": {
+    "message": "건너뛰지 않음"
+  },
+  "one_year": {
+    "message": "1 년"
+  },
+  "n_years": {
+    "message": "$year$ 년",
+    "placeholders": {
+      "year": {
+        "content": "$1"
+      }
+    }
+  },
+  "skip_inactive_users": {
+    "message": "미사용 계정 건너뛰기"
+  },
+  "skip_inactive_users_description": {
+    "message": "미사용여부는 마지막 트윗의 작성일이나 계정 생성일을 기준으로 하여 판단합니다. 단, 프로텍트가 걸린 계정은 마지막 트윗 작성일을 알아내지 못하므로 건너뛰지 않습니다."
+  },
+  "export": {
+    "message": "목록 만들기"
+  },
+  "export_completed": {
+    "message": "목록 만들기 완료!"
+  },
+  "exported_n_users": {
+    "message": "$count$명이 들어있는 목록을 만들었습니다.",
+    "placeholders": {
+      "count": {
+        "content": "$1"
+      }
+    }
+  },
+  "export_description": {
+    "message": "유저들을 수집하여 차단목록 파일을 만들어냅니다. (100,000명까지)"
+  },
+  "save": {
+    "message": "저장하기"
+  },
+  "not_saved_yet": {
+    "message": "아직 저장하지 않음"
+  },
+  "save_button_description": {
+    "message": "만들어낸 차단목록 파일을 저장합니다."
+  },
+  "blocklist_is_empty": {
+    "message": "만들어낸 차단목록이 비어있습니다."
+  },
+  "confirm_closing_export_session_notyet_save": {
+    "message": "만들어낸 차단목록을 아직 저장하지 않았습니다. 그래도 이 세션을 닫으시겠습니까?"
+  },
+  "protected_follower": {
+    "message": "프로텍트 팔로워"
+  },
+  "current_account": {
+    "message": "현재 계정: @$username$ ($name$)",
+    "placeholders": {
+      "username": {
+        "content": "$1"
+      },
+      "name": {
+        "content": "$2"
+      }
+    }
+  },
+  "oneclick_block_mode_description": {
+    "message": "유저나 트윗에 원클릭 차단버튼이 생깁니다."
+  },
+  "troubleshooting": {
+    "message": "문제해결"
+  },
+  "delete_cookie": {
+    "message": "쿠키 삭제"
+  },
+  "confirm_delete_cookie": {
+    "message": "트위터 관련 쿠키를 삭제합니다. 계속 진행하시겠습니까?"
+  },
+  "delete_cookie_description": {
+    "message": "체인블락 과다사용 이후 트위터가 오작동할 경우 트위터의 쿠키를 삭제해볼 수 있습니다. 쿠키를 삭제한 이후엔 계정이 로그아웃됩니다."
+  },
+  "cookie_delete_complete": {
+    "message": "쿠키 삭제 완료!"
+  },
+  "its_you": {
+    "message": "여러분의 트친은 소중해요. 그런데 체인블락을..."
+  },
+  "enable_antiblock": {
+    "message": "AntiBlock 기능 활성화"
+  },
+  "enable_bioblock": {
+    "message": "BioBlock 기능 활성화"
+  },
+  "enable_chainmute": {
+    "message": "체인뮤트 기능 활성화"
+  },
+  "1st_party_isolation_compatible_mode": {
+    "message": "Firefox의 1st-party Isolation 기능 호환모드"
+  },
+  "antiblock_description": {
+    "message": "상대방이 나를 차단해도 체인블락이 작동할 수 있도록 합니다. 이 기능은 이 웹 브라우저에 두 개 이상의 계정에 로그인해야 하며 그 중 적어도 하나는 상대방의 팔로워 목록을 볼 수 있어야 합니다."
+  },
+  "1st_party_isolation_compatible_mode_description": {
+    "message": "Firefox의 1st-party Isolation 기능과 호환되도록 합니다. 단, Firefox외 다른 웹 브라우저인 경우 레드블락의 대부분의 기능이 작동하지 않을 수 있습니다."
+  },
+  "muted_and_also_blocked": {
+    "message": "내가 차단한 유저"
+  },
+  "throttle_block": {
+    "message": "차단 및 뮤트 속도 낮추기"
+  },
+  "users_in_other_tab": {
+    "message": "다른 탭에 띄운 유저"
+  },
+  "mute_even_already_blocked": {
+    "message": "체인뮤트: 이미 차단한 유저를 굳이 뮤트하기"
   }
 }

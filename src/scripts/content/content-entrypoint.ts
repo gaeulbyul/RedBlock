@@ -18,14 +18,23 @@ function injectScriptToPage(path: string) {
     .remove()
 }
 
+function checkMessage(msg: object): msg is RBMessageToContentType {
+  if (msg == null) {
+    return false
+  }
+  if (!('messageTo' in msg)) {
+    return false
+  }
+  if ((msg as any).messageTo !== 'content') {
+    return false
+  }
+  return true
+}
+
 function listenExtensionMessages(reactRoot: Element | null) {
-  browser.runtime.onMessage.addListener((msgobj: any) => {
-    if (!(typeof msgobj === 'object' && 'messageType' in msgobj)) {
-      console.debug('unknown msg?', msgobj)
-      return
-    }
-    const msg = msgobj as RBMessageToContent
-    if (msg.messageTo !== 'content') {
+  browser.runtime.onMessage.addListener((msg: object) => {
+    if (!checkMessage(msg)) {
+      console.debug('unknown msg?', msg)
       return
     }
     switch (msg.messageType) {
@@ -35,7 +44,7 @@ function listenExtensionMessages(reactRoot: Element | null) {
             new CustomEvent<MarkUserParams>('RedBlock->MarkUser', {
               detail: cloneDetail({
                 userId: msg.userId,
-                verb: msg.verb,
+                userAction: msg.userAction,
               }),
             })
           )
@@ -46,14 +55,10 @@ function listenExtensionMessages(reactRoot: Element | null) {
         break
       case 'ConfirmChainBlock':
         if (window.confirm(msg.confirmMessage)) {
-          browser.runtime.sendMessage<RBActions.Start>({
-            actionType: 'Start',
-            sessionId: msg.sessionId,
-          })
-        } else {
-          browser.runtime.sendMessage<RBActions.Cancel>({
-            actionType: 'Cancel',
-            sessionId: msg.sessionId,
+          browser.runtime.sendMessage<RBMessageToBackground.CreateChainBlockSession>({
+            messageType: 'CreateChainBlockSession',
+            messageTo: 'background',
+            request: msg.request,
           })
         }
         break

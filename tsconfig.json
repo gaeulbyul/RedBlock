@@ -5,6 +5,7 @@
     "target": "es2019",
     "module": "es2020",
     "moduleResolution": "node",
+    "lib": ["DOM", "DOM.Iterable", "ES2020"],
     "allowJs": true,
     "checkJs": false,
     "jsx": "react",

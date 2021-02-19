@@ -10,6 +10,14 @@ export function notify(message: string): void {
   browser.notifications.create(null, notif)
 }
 
+export async function alertToTab(tab: browser.tabs.Tab, message: string) {
+  return browser.tabs.sendMessage<RBMessageToContent.Alert>(tab.id!, {
+    messageType: 'Alert',
+    messageTo: 'content',
+    message,
+  })
+}
+
 export async function alertToCurrentTab(message: string) {
   const currentTab = await browser.tabs
     .query({
@@ -20,11 +28,7 @@ export async function alertToCurrentTab(message: string) {
   if (!currentTab) {
     return
   }
-  browser.tabs.sendMessage<RBMessages.Alert>(currentTab.id!, {
-    messageType: 'Alert',
-    messageTo: 'content',
-    message,
-  })
+  return alertToTab(currentTab, message)
 }
 
 export function updateExtensionBadge(sessions: SessionInfo[]) {

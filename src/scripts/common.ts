@@ -1,5 +1,34 @@
 import { TwitterUserEntities, Limit } from './background/twitter-api.js'
 
+const userNameBlacklist = [
+  'about',
+  'account',
+  'blog',
+  'compose',
+  'download',
+  'explore',
+  'followers',
+  'followings',
+  'hashtag',
+  'home',
+  'i',
+  'intent',
+  'lists',
+  'login',
+  'logout',
+  'messages',
+  'notifications',
+  'oauth',
+  'privacy',
+  'search',
+  'session',
+  'settings',
+  'share',
+  'signup',
+  'tos',
+  'welcome',
+]
+
 export const enum SessionStatus {
   Initial,
   Running,
@@ -9,7 +38,7 @@ export const enum SessionStatus {
   Error,
 }
 
-export const UI_UPDATE_DELAY = 250
+export const UI_UPDATE_DELAY = 750
 
 export class EventEmitter<T> {
   protected events: EventStore = new Proxy(
@@ -60,40 +89,19 @@ export class TwitterUserMap extends Map<string, TwitterUser> {
   public map<T>(fn: (user: TwitterUser, index: number, array: TwitterUser[]) => T): T[] {
     return this.toUserArray().map(fn)
   }
-  public filter(fn: (user: TwitterUser, index: number, array: TwitterUser[]) => boolean): TwitterUserMap {
+  public filter(
+    fn: (user: TwitterUser, index: number, array: TwitterUser[]) => boolean
+  ): TwitterUserMap {
     return TwitterUserMap.fromUsersArray(this.toUserArray().filter(fn))
+  }
+  public merge(anotherMap: TwitterUserMap) {
+    for (const user of anotherMap.values()) {
+      this.addUser(user)
+    }
   }
 }
 
 export function getUserNameFromURL(url: URL | Location | HTMLAnchorElement): string | null {
-  const userNameBlacklist = [
-    'about',
-    'account',
-    'blog',
-    'compose',
-    'download',
-    'explore',
-    'followers',
-    'followings',
-    'hashtag',
-    'home',
-    'i',
-    'intent',
-    'lists',
-    'login',
-    'logout',
-    'messages',
-    'notifications',
-    'oauth',
-    'privacy',
-    'search',
-    'session',
-    'settings',
-    'share',
-    'signup',
-    'tos',
-    'welcome',
-  ]
   const supportingHostname = ['twitter.com', 'mobile.twitter.com']
   if (!/^https?/.test(url.protocol)) {
     return null
@@ -101,8 +109,8 @@ export function getUserNameFromURL(url: URL | Location | HTMLAnchorElement): str
   if (!supportingHostname.includes(url.hostname)) {
     return null
   }
-  const nonUserPagePattern01 = /^\/\w\w\/(?:tos|privacy)/
-  if (nonUserPagePattern01.test(url.pathname)) {
+  const nonUserPagePattern = /^\/\w\w\/(?:tos|privacy)/
+  if (nonUserPagePattern.test(url.pathname)) {
     return null
   }
   const pattern = /^\/([0-9A-Za-z_]{1,15})/i
@@ -111,10 +119,18 @@ export function getUserNameFromURL(url: URL | Location | HTMLAnchorElement): str
     return null
   }
   const userName = match[1]
-  if (userNameBlacklist.includes(userName.toLowerCase())) {
-    return null
+  if (validateUserName(userName)) {
+    return userName
   }
-  return userName
+  return null
+}
+
+export function validateUserName(userName: string): boolean {
+  const pattern = /[0-9A-Za-z_]{1,15}/i
+  if (userNameBlacklist.includes(userName.toLowerCase())) {
+    return false
+  }
+  return pattern.test(userName)
 }
 
 export function sleep(time: number): Promise<void> {
@@ -147,39 +163,44 @@ export function getFollowersCount(user: TwitterUser, followKind: FollowKind): nu
 export function getReactionsCount(target: TweetReactionBlockSessionRequest['target']): number {
   let result = 0
   const { retweet_count, favorite_count } = target.tweet
+  const mentions = target.tweet.entities.user_mentions || []
   if (target.blockRetweeters) {
     result += retweet_count
   }
   if (target.blockLikers) {
     result += favorite_count
   }
+  if (target.blockMentionedUsers) {
+    result += mentions.length
+  }
   return result
 }
 
-export function getCountOfUsersToBlock({ target }: SessionRequest) {
+export function getCountOfUsersToBlock({ target }: SessionRequest): number | null {
   switch (target.type) {
     case 'follower':
+    case 'lockpicker':
       return getFollowersCount(target.user, target.list)
     case 'tweet_reaction':
       return getReactionsCount(target)
     case 'import':
       return target.userIds.length
+    case 'user_search':
+      return null
   }
 }
 
-export function isRunningSession({ status, confirmed }: SessionInfo): boolean {
-  if (!confirmed) {
-    return false
-  }
+export function isRunningSession({ status }: SessionInfo): boolean {
   const runningStatuses = [SessionStatus.Initial, SessionStatus.Running, SessionStatus.RateLimited]
   return runningStatuses.includes(status)
 }
 
-export function isRewindableSession({ status, confirmed }: SessionInfo): boolean {
-  if (!confirmed) {
-    return false
-  }
-  const rewindableStatus: SessionStatus[] = [SessionStatus.Completed, SessionStatus.Error, SessionStatus.Stopped]
+export function isRewindableSession({ status }: SessionInfo): boolean {
+  const rewindableStatus: SessionStatus[] = [
+    SessionStatus.Completed,
+    SessionStatus.Error,
+    SessionStatus.Stopped,
+  ]
   return rewindableStatus.includes(status)
 }
 
@@ -211,7 +232,7 @@ export function wrapEitherRight<T>(value: T): EitherRight<T> {
   }
 }
 
-export function assertNever(shouldBeNever: never) {
+export function assertNever(shouldBeNever: never): never {
   console.error('triggered assertNever with: ', shouldBeNever)
   throw new Error('unreachable: assertNever')
 }

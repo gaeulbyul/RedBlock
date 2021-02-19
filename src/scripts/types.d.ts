@@ -1,9 +1,4 @@
-type PageEnum = typeof import('../popup/popup').PageEnum
-type SessionInfo = import('./background/chainblock-session/session').SessionInfo
-type SessionRequest = import('./background/chainblock-session/session').SessionRequest
-type FollowerBlockSessionRequest = import('./background/chainblock-session/session').FollowerBlockSessionRequest
-type TweetReactionBlockSessionRequest = import('./background/chainblock-session/session').TweetReactionBlockSessionRequest
-type ImportBlockSessionRequest = import('./background/chainblock-session/session').ImportBlockSessionRequest
+type PageEnum = typeof import('../popup/popup-ui/pages').PageEnum
 type TwitterUser = import('./background/twitter-api').TwitterUser
 type Tweet = import('./background/twitter-api').Tweet
 type DialogMessageObj = import('./text-generate').DialogMessageObj
@@ -13,18 +8,21 @@ declare var _: typeof import('lodash')
 declare var React: typeof import('react')
 declare var ReactDOM: typeof import('react-dom')
 declare var MaterialUI: typeof import('@material-ui/core')
+declare namespace twttr {
+  export const txt: typeof import('twitter-text')
+}
+declare var dayjs: typeof import('dayjs')
+declare type Dayjs = import('dayjs').Dayjs
 
 declare namespace uuid {
   function v1(): string
 }
 
 type FollowKind = 'followers' | 'friends' | 'mutual-followers'
-type ChainKind = 'chainblock' | 'unchainblock'
 type ReactionKind = 'retweeted' | 'liked'
 
-type VerbSomething = 'Block' | 'UnBlock' | 'Mute' | 'UnMute'
-type VerbNothing = 'Skip' | 'AlreadyDone'
-type Verb = VerbSomething | VerbNothing
+type UserAction = 'Skip' | 'Block' | 'UnBlock' | 'Mute' | 'UnMute' | 'BlockAndUnBlock' | 'UnFollow'
+type BioBlockMode = 'never' | 'all' | 'smart'
 
 type EventStore = Record<string, Function[]>
 
@@ -40,122 +38,153 @@ interface EitherLeft<E> {
 
 type Either<E, T> = EitherLeft<E> | EitherRight<T>
 
-declare namespace RBActions {
-  interface CreateFollowerChainBlockSession {
-    actionType: 'CreateFollowerChainBlockSession'
-    request: FollowerBlockSessionRequest
+interface UsersObject {
+  users: TwitterUser[]
+}
+
+interface UserIdsObject {
+  ids: string[]
+}
+
+declare namespace RBMessageToBackground {
+  interface CreateChainBlockSession {
+    messageType: 'CreateChainBlockSession'
+    messageTo: 'background'
+    request: SessionRequest
   }
 
-  interface CreateTweetReactionChainBlockSession {
-    actionType: 'CreateTweetReactionChainBlockSession'
-    request: TweetReactionBlockSessionRequest
-  }
-
-  interface CreateImportChainBlockSession {
-    actionType: 'CreateImportChainBlockSession'
-    request: ImportBlockSessionRequest
-  }
-
-  interface Cancel {
-    actionType: 'Cancel'
+  interface StartSession {
+    messageType: 'StartSession'
+    messageTo: 'background'
     sessionId: string
   }
 
-  interface Start {
-    actionType: 'Start'
+  interface StopSession {
+    messageType: 'StopSession'
+    messageTo: 'background'
     sessionId: string
   }
 
-  interface Stop {
-    actionType: 'StopChainBlock'
-    sessionId: string
+  interface StopAllSessions {
+    messageType: 'StopAllSessions'
+    messageTo: 'background'
   }
 
-  interface StopAll {
-    actionType: 'StopAllChainBlock'
-  }
-
-  interface Rewind {
-    actionType: 'RewindChainBlock'
+  interface RewindSession {
+    messageType: 'RewindSession'
+    messageTo: 'background'
     sessionId: string
   }
 
   interface InsertUserToStorage {
-    actionType: 'InsertUserToStorage'
+    messageType: 'InsertUserToStorage'
+    messageTo: 'background'
     user: TwitterUser
   }
 
   interface RemoveUserFromStorage {
-    actionType: 'RemoveUserFromStorage'
+    messageType: 'RemoveUserFromStorage'
+    messageTo: 'background'
     user: TwitterUser
   }
 
   interface RequestProgress {
-    actionType: 'RequestProgress'
+    messageType: 'RequestProgress'
+    messageTo: 'background'
   }
 
   interface RequestCleanup {
-    actionType: 'RequestCleanup'
-    cleanupWhat: 'inactive' | 'not-confirmed'
+    messageType: 'RequestCleanup'
+    messageTo: 'background'
+    cleanupWhat: 'inactive'
   }
 
   interface RefreshSavedUsers {
-    actionType: 'RefreshSavedUsers'
+    messageType: 'RefreshSavedUsers'
+    messageTo: 'background'
+    cookieOptions: CookieOptions
+  }
+
+  interface RequestBlockLimiterStatus {
+    messageType: 'RequestBlockLimiterStatus'
+    messageTo: 'background'
+    userId: string
   }
 
   interface RequestResetCounter {
-    actionType: 'RequestResetCounter'
+    messageType: 'RequestResetCounter'
+    messageTo: 'background'
+    userId: string
   }
 
   interface BlockSingleUser {
-    actionType: 'BlockSingleUser'
+    messageType: 'BlockSingleUser'
+    messageTo: 'background'
     user: TwitterUser
   }
 
   interface UnblockSingleUser {
-    actionType: 'UnblockSingleUser'
+    messageType: 'UnblockSingleUser'
+    messageTo: 'background'
     user: TwitterUser
+  }
+
+  interface DownloadFromExportSession {
+    messageType: 'DownloadFromExportSession'
+    messageTo: 'background'
+    sessionId: string
   }
 }
 
-// background 측으로 보내는 메시지
-type RBAction =
-  | RBActions.CreateFollowerChainBlockSession
-  | RBActions.CreateTweetReactionChainBlockSession
-  | RBActions.CreateImportChainBlockSession
-  | RBActions.Cancel
-  | RBActions.Start
-  | RBActions.Stop
-  | RBActions.StopAll
-  | RBActions.Rewind
-  | RBActions.InsertUserToStorage
-  | RBActions.RemoveUserFromStorage
-  | RBActions.RequestProgress
-  | RBActions.RequestCleanup
-  | RBActions.RefreshSavedUsers
-  | RBActions.RequestResetCounter
-  | RBActions.BlockSingleUser
-  | RBActions.UnblockSingleUser
+declare type RBMessageToBackgroundType =
+  | RBMessageToBackground.CreateChainBlockSession
+  // | RBMessageToBackground.StartSession
+  | RBMessageToBackground.StopSession
+  | RBMessageToBackground.StopAllSessions
+  | RBMessageToBackground.RewindSession
+  | RBMessageToBackground.InsertUserToStorage
+  | RBMessageToBackground.RemoveUserFromStorage
+  | RBMessageToBackground.RequestProgress
+  | RBMessageToBackground.RequestCleanup
+  | RBMessageToBackground.RefreshSavedUsers
+  | RBMessageToBackground.RequestBlockLimiterStatus
+  | RBMessageToBackground.RequestResetCounter
+  | RBMessageToBackground.BlockSingleUser
+  | RBMessageToBackground.UnblockSingleUser
+  | RBMessageToBackground.DownloadFromExportSession
 
-declare namespace RBMessages {
+declare namespace RBMessageToPopup {
   interface ChainBlockInfo {
     messageType: 'ChainBlockInfo'
     messageTo: 'popup'
     sessions: SessionInfo[]
-    limiter: BlockLimiterStatus
   }
 
-  interface MarkUser {
-    messageType: 'MarkUser'
-    messageTo: 'content'
+  interface BlockLimiterInfo {
+    messageType: 'BlockLimiterInfo'
+    messageTo: 'popup'
+    status: BlockLimiterStatus
     userId: string
-    verb: VerbSomething
   }
 
   interface PopupSwitchTab {
     messageType: 'PopupSwitchTab'
     messageTo: 'popup'
     page: PageEnum[keyof PageEnum]
+  }
+}
+
+declare type RBMessageToPopupType =
+  | RBMessageToPopup.ChainBlockInfo
+  | RBMessageToPopup.BlockLimiterInfo
+  | RBMessageToPopup.PopupSwitchTab
+
+declare namespace RBMessageToContent {
+  interface MarkUser {
+    messageType: 'MarkUser'
+    messageTo: 'content'
+    userId: string
+    userAction: UserAction
   }
 
   interface Alert {
@@ -164,18 +193,12 @@ declare namespace RBMessages {
     message: string
   }
 
-  interface ConfirmChainBlockInPopup {
-    messageType: 'ConfirmChainBlockInPopup'
-    messageTo: 'popup'
-    confirmMessage: DialogMessageObj
-    sessionId: string
-  }
-
   interface ConfirmChainBlock {
     messageType: 'ConfirmChainBlock'
     messageTo: 'content'
     confirmMessage: string
-    sessionId: string
+    request: SessionRequest
+    // sessionId: string
   }
 
   interface ToggleOneClickBlockMode {
@@ -185,21 +208,17 @@ declare namespace RBMessages {
   }
 }
 
-// popup페이지로 보내는 메시지
-type RBMessageToPopup = RBMessages.ConfirmChainBlockInPopup | RBMessages.PopupSwitchTab | RBMessages.ChainBlockInfo
-
-// content측으로 보내는 메시지
-type RBMessageToContent =
-  | RBMessages.MarkUser
-  | RBMessages.Alert
-  | RBMessages.ConfirmChainBlock
-  | RBMessages.ToggleOneClickBlockMode
+declare type RBMessageToContentType =
+  | RBMessageToContent.MarkUser
+  | RBMessageToContent.Alert
+  | RBMessageToContent.ConfirmChainBlock
+  | RBMessageToContent.ToggleOneClickBlockMode
 
 // ---- content & inject ----
 
 interface MarkUserParams {
   userId: string
-  verb: VerbSomething
+  userAction: UserAction
 }
 
 interface MarkManyUsersAsBlockedParams {
@@ -235,6 +254,7 @@ interface BadWordItem {
 interface BlockLimiterStatus {
   current: number
   max: number
+  remained: number
 }
 
 // ---- import chainblock ----
@@ -253,6 +273,13 @@ interface TwitterArchiveBlockItem {
     accountId: string
     userLink: string
   }
+}
+
+// ---- cookie related ----
+
+interface CookieOptions {
+  cookieStoreId: string
+  actAsUserId?: string
 }
 
 // ---- browser notification types ----

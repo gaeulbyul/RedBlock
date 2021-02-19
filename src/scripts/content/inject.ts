@@ -8,7 +8,9 @@ interface ReduxStore {
   let reduxStore: ReduxStore
   let myselfUserId = ''
 
-  function* getAddedElementsFromMutations(mutations: MutationRecord[]): IterableIterator<HTMLElement> {
+  function* getAddedElementsFromMutations(
+    mutations: MutationRecord[]
+  ): IterableIterator<HTMLElement> {
     for (const mut of mutations) {
       for (const node of mut.addedNodes) {
         if (node instanceof HTMLElement) {
@@ -70,11 +72,16 @@ interface ReduxStore {
     })
   }
 
-  function markUser({ userId, verb }: MarkUserParams) {
+  function markUser({ userId, userAction }: MarkUserParams) {
     const id = uuid.v1()
-    const verbUpperCase = verb.toUpperCase()
+    if (userAction === 'BlockAndUnBlock') {
+      markUser({ userId, userAction: 'Block' })
+      markUser({ userId, userAction: 'UnBlock' })
+      return
+    }
+    const userActionUpperCase = userAction.toUpperCase()
     findReduxStore().dispatch({
-      type: `rweb/entities/users/${verbUpperCase}_REQUEST`,
+      type: `rweb/entities/users/${userActionUpperCase}_REQUEST`,
       optimist: {
         type: 'BEGIN',
         id,
@@ -123,7 +130,7 @@ interface ReduxStore {
       const rafTimeout = { timeout: 30000 }
       window.requestAnimationFrame(() => {
         for (const userId of customEvent.detail.userIds) {
-          markUser({ userId, verb: 'Block' })
+          markUser({ userId, userAction: 'Block' })
         }
         // @ts-ignore
       }, rafTimeout)

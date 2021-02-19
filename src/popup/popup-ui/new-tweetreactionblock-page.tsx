@@ -1,306 +1,183 @@
 // import * as Storage from '../../scripts/background/storage.js'
 import * as i18n from '../../scripts/i18n.js'
-import { LoginStatusContext, BlockLimiterContext } from './contexts.js'
-import { startTweetReactionChainBlock } from '../../scripts/background/request-sender.js'
-import { PleaseLoginBox, BlockLimiterUI } from './ui-common.js'
-
-type SessionOptions = TweetReactionBlockSessionRequest['options']
-
-const TargetTweetContext = React.createContext<{
-  currentTweet: Tweet | null
-  wantBlockRetweeters: boolean
-  setWantBlockRetweeters: (b: boolean) => void
-  wantBlockLikers: boolean
-  setWantBlockLikers: (b: boolean) => void
-  targetOptions: SessionOptions
-  setTargetOptions: (options: SessionOptions) => void
-  mutateOptions: (optionsPart: Partial<SessionOptions>) => void
-}>({
-  currentTweet: null,
-  wantBlockRetweeters: false,
-  setWantBlockRetweeters: () => {},
-  wantBlockLikers: false,
-  setWantBlockLikers: () => {},
-  targetOptions: {
-    myFollowers: 'Skip',
-    myFollowings: 'Skip',
-  },
-  setTargetOptions: () => {},
-  mutateOptions: () => {},
-})
+import * as TextGenerate from '../../scripts/text-generate.js'
+import {
+  UIContext,
+  MyselfContext,
+  BlockLimiterContext,
+  TwitterAPIClientContext,
+  RedBlockOptionsContext,
+} from './contexts.js'
+import { startNewChainBlockSession } from '../../scripts/background/request-sender.js'
+import {
+  BlockLimiterUI,
+  TwitterUserProfile,
+  RBExpansionPanel,
+  BigExecuteButton,
+  PurposeSelectionUI,
+  RequestCheckResultUI,
+} from './components.js'
+import { TweetReactionChainBlockPageStatesContext, ExtraTargetContext } from './ui-states.js'
+import { TargetCheckResult, validateRequest } from '../../scripts/background/target-checker.js'
 
 const M = MaterialUI
-const T = MaterialUI.Typography
 
-const useStylesForExpansionPanels = MaterialUI.makeStyles(() =>
-  MaterialUI.createStyles({
-    details: {
-      padding: '8px 16px',
+function useSessionRequest(): TweetReactionBlockSessionRequest {
+  const {
+    purpose,
+    currentTweet,
+    wantBlockRetweeters,
+    wantBlockLikers,
+    wantBlockMentionedUsers,
+  } = React.useContext(TweetReactionChainBlockPageStatesContext)
+  const { cookieOptions } = React.useContext(TwitterAPIClientContext)
+  const { extraTarget } = React.useContext(ExtraTargetContext)
+  const myself = React.useContext(MyselfContext)!
+  const options = React.useContext(RedBlockOptionsContext)
+  return {
+    purpose,
+    options,
+    extraTarget,
+    target: {
+      type: 'tweet_reaction',
+      tweet: currentTweet!,
+      blockRetweeters: wantBlockRetweeters,
+      blockLikers: wantBlockLikers,
+      blockMentionedUsers: wantBlockMentionedUsers,
     },
-  })
-)
-
-const DenseExpansionPanelSummary = MaterialUI.withStyles({
-  root: {
-    minHeight: 16,
-    '&$expanded': {
-      minHeight: 16,
-    },
-  },
-  content: {
-    '&$expanded': {
-      margin: 0,
-    },
-  },
-  expanded: {},
-})(MaterialUI.ExpansionPanelSummary)
-
-const BigExecuteChainBlockButton = MaterialUI.withStyles(theme => ({
-  root: {
-    width: '100%',
-    padding: '10px',
-    fontSize: 'larger',
-    backgroundColor: MaterialUI.colors.red[700],
-    color: theme.palette.getContrastText(MaterialUI.colors.red[700]),
-    '&:disabled': {
-      opacity: '.5',
-    },
-    '&:hover': {
-      backgroundColor: MaterialUI.colors.red[500],
-      color: theme.palette.getContrastText(MaterialUI.colors.red[500]),
-    },
-  },
-}))(MaterialUI.Button)
+    myself,
+    cookieOptions,
+  }
+}
 
 function TargetTweetUI(props: { tweet: Tweet }) {
-  const { wantBlockRetweeters, setWantBlockRetweeters, wantBlockLikers, setWantBlockLikers } = React.useContext(
-    TargetTweetContext
-  )
+  const {
+    wantBlockRetweeters,
+    setWantBlockRetweeters,
+    wantBlockLikers,
+    setWantBlockLikers,
+    wantBlockMentionedUsers,
+    setWantBlockMentionedUsers,
+  } = React.useContext(TweetReactionChainBlockPageStatesContext)
   const { tweet } = props
-  const user = tweet.user
-  const biggerProfileImageUrl = user.profile_image_url_https.replace('_normal', '_bigger')
+  const mentions = tweet.entities.user_mentions || []
   const nobodyRetweeted = tweet.retweet_count <= 0
   const nobodyLiked = tweet.favorite_count <= 0
+  const nobodyMentioned = mentions.length <= 0
   return (
-    <div className="target-user-info">
-      <div className="profile-image-area">
-        <img alt={i18n.getMessage('profile_image')} className="profile-image" src={biggerProfileImageUrl} />
-      </div>
-      <div className="profile-right-area">
-        <div className="profile-right-info">
-          <div className="nickname" title={user.name}>
-            {user.name}
-          </div>
-          <div className="username">
-            <a
-              target="_blank"
-              rel="noopener noreferer"
-              href={`https://twitter.com/${user.screen_name}`}
-              title={i18n.getMessage('go_to_url', `https://twitter.com/${user.screen_name}`)}
-            >
-              @{user.screen_name}
-            </a>
-          </div>
+    <TwitterUserProfile user={tweet.user}>
+      <div className="profile-right-targettweet">
+        <div>
+          <span>{i18n.getMessage('tweet')}:</span>
+          <blockquote className="tweet-content">{tweet.full_text}</blockquote>
         </div>
-        <div className="profile-right-targettweet">
-          <div>
-            <small>{tweet.text}</small>
-          </div>
-          <M.FormGroup row>
-            <M.FormControlLabel
-              control={<M.Checkbox size="small" />}
-              onChange={() => setWantBlockRetweeters(!wantBlockRetweeters)}
-              checked={wantBlockRetweeters}
-              disabled={nobodyRetweeted}
-              label={`${i18n.getMessage('retweet')} (${tweet.retweet_count.toLocaleString()})`}
-            />
-            <M.FormControlLabel
-              control={<M.Checkbox size="small" />}
-              onChange={() => setWantBlockLikers(!wantBlockLikers)}
-              checked={wantBlockLikers}
-              disabled={nobodyLiked}
-              label={`${i18n.getMessage('like')} (${tweet.favorite_count.toLocaleString()})`}
-            />
-          </M.FormGroup>
-        </div>
+        <M.FormGroup row>
+          <M.FormControlLabel
+            control={<M.Checkbox size="small" />}
+            onChange={() => setWantBlockRetweeters(!wantBlockRetweeters)}
+            checked={wantBlockRetweeters}
+            disabled={nobodyRetweeted}
+            label={`${i18n.getMessage('retweet')} (${tweet.retweet_count.toLocaleString()})`}
+          />
+          <M.FormControlLabel
+            control={<M.Checkbox size="small" />}
+            onChange={() => setWantBlockLikers(!wantBlockLikers)}
+            checked={wantBlockLikers}
+            disabled={nobodyLiked}
+            label={`${i18n.getMessage('like')} (${tweet.favorite_count.toLocaleString()})`}
+          />
+          <M.FormControlLabel
+            control={<M.Checkbox size="small" />}
+            onChange={() => setWantBlockMentionedUsers(!wantBlockMentionedUsers)}
+            checked={wantBlockMentionedUsers}
+            disabled={nobodyMentioned}
+            label={`${i18n.getMessage('mentioned')} (${mentions.length.toLocaleString()})`}
+          />
+        </M.FormGroup>
       </div>
-    </div>
+    </TwitterUserProfile>
   )
 }
 
 function TargetTweetOuterUI() {
-  const { currentTweet } = React.useContext(TargetTweetContext)
+  const { currentTweet } = React.useContext(TweetReactionChainBlockPageStatesContext)
   if (!currentTweet) {
     throw new Error()
   }
-  const classes = useStylesForExpansionPanels()
   const userName = currentTweet.user.screen_name
-  const targetSummary = `(${i18n.getMessage('reacted_xxxs_tweet', userName)})`
+  const targetSummary = `${i18n.getMessage('target')} (${i18n.getMessage(
+    'reacted_xxxs_tweet',
+    userName
+  )})`
   return (
-    <M.ExpansionPanel defaultExpanded>
-      <DenseExpansionPanelSummary expandIcon={<M.Icon>expand_more</M.Icon>}>
-        <T>
-          {i18n.getMessage('target')} {targetSummary}
-        </T>
-      </DenseExpansionPanelSummary>
-      <M.ExpansionPanelDetails className={classes.details}>
-        <div style={{ width: '100%' }}>
-          <M.FormControl component="fieldset" fullWidth>
-            <TargetTweetUI tweet={currentTweet} />
-          </M.FormControl>
-        </div>
-      </M.ExpansionPanelDetails>
-    </M.ExpansionPanel>
-  )
-}
-
-function TargetChainBlockOptionsUI() {
-  const { targetOptions, mutateOptions } = React.useContext(TargetTweetContext)
-  const { myFollowers, myFollowings } = targetOptions
-  const verbs: Array<[Verb, string]> = [
-    ['Skip', i18n.getMessage('skip')],
-    ['Mute', i18n.getMessage('do_mute')],
-    ['Block', i18n.getMessage('do_block')],
-  ]
-  return (
-    <React.Fragment>
-      <M.FormControl component="fieldset">
-        <M.FormLabel component="legend">{i18n.getMessage('my_followers')}</M.FormLabel>
-        <M.RadioGroup row>
-          {verbs.map(([verb, vKor], index) => (
-            <M.FormControlLabel
-              key={index}
-              control={<M.Radio size="small" />}
-              checked={myFollowers === verb}
-              onChange={() => mutateOptions({ myFollowers: verb })}
-              label={vKor}
-            />
-          ))}
-        </M.RadioGroup>
-      </M.FormControl>
-      <br />
-      <M.FormControl component="fieldset">
-        <M.FormLabel component="legend">{i18n.getMessage('my_followings')}</M.FormLabel>
-        <M.RadioGroup row>
-          {verbs.map(([verb, vKor], index) => (
-            <M.FormControlLabel
-              key={index}
-              control={<M.Radio size="small" />}
-              checked={myFollowings === verb}
-              onChange={() => mutateOptions({ myFollowings: verb })}
-              label={vKor}
-            />
-          ))}
-        </M.RadioGroup>
-      </M.FormControl>
-    </React.Fragment>
+    <RBExpansionPanel summary={targetSummary} defaultExpanded>
+      <div style={{ width: '100%' }}>
+        <M.FormControl component="fieldset" fullWidth>
+          <TargetTweetUI tweet={currentTweet} />
+        </M.FormControl>
+      </div>
+    </RBExpansionPanel>
   )
 }
 
 function TargetOptionsUI() {
-  const classes = useStylesForExpansionPanels()
+  const {
+    purpose,
+    changePurposeType,
+    mutatePurposeOptions,
+    availablePurposeTypes,
+  } = React.useContext(TweetReactionChainBlockPageStatesContext)
+  const summary = `${i18n.getMessage('options')} (${i18n.getMessage(purpose.type)})`
   return (
-    <M.ExpansionPanel defaultExpanded>
-      <DenseExpansionPanelSummary expandIcon={<M.Icon>expand_more</M.Icon>}>
-        <T>{i18n.getMessage('options')}</T>
-      </DenseExpansionPanelSummary>
-      <M.ExpansionPanelDetails className={classes.details}>
-        <div style={{ width: '100%' }}>
-          <TargetChainBlockOptionsUI />
-          <div className="description">
-            {i18n.getMessage('chainblock_description')} {i18n.getMessage('my_mutual_followers_wont_block')}
-          </div>
-        </div>
-      </M.ExpansionPanelDetails>
-    </M.ExpansionPanel>
+    <RBExpansionPanel summary={summary} defaultExpanded>
+      <PurposeSelectionUI
+        {...{
+          purpose,
+          changePurposeType,
+          mutatePurposeOptions,
+          availablePurposeTypes,
+        }}
+      />
+    </RBExpansionPanel>
   )
 }
 
-function TargetExecutionButtonUI(props: { isAvailable: boolean }) {
-  const { isAvailable } = props
-  const { currentTweet, wantBlockRetweeters, wantBlockLikers, targetOptions } = React.useContext(TargetTweetContext)
-  function onExecuteChainBlockButtonClicked() {
-    if (!currentTweet) {
-      throw new Error('트윗을 선택해주세요')
+function TargetExecutionButtonUI() {
+  const { purpose } = React.useContext(TweetReactionChainBlockPageStatesContext)
+  const { openDialog } = React.useContext(UIContext)
+  const limiterStatus = React.useContext(BlockLimiterContext)
+  const request = useSessionRequest()
+  function isAvailable() {
+    if (purpose.type === 'chainblock' && limiterStatus.remained <= 0) {
+      return false
     }
-    const request: TweetReactionBlockSessionRequest = {
-      purpose: 'chainblock',
-      target: {
-        type: 'tweet_reaction',
-        tweet: currentTweet,
-        blockRetweeters: wantBlockRetweeters,
-        blockLikers: wantBlockLikers,
-      },
-      options: targetOptions,
-    }
-    startTweetReactionChainBlock(request)
+    return validateRequest(request) === TargetCheckResult.Ok
   }
-  const blockButtonDisabled = !(isAvailable && (wantBlockRetweeters || wantBlockLikers))
+  function executeSession() {
+    openDialog({
+      dialogType: 'confirm',
+      message: TextGenerate.generateConfirmMessage(request),
+      callbackOnOk() {
+        startNewChainBlockSession<TweetReactionBlockSessionRequest>(request)
+      },
+    })
+  }
   return (
-    <M.Box padding="10px">
-      <BigExecuteChainBlockButton disabled={blockButtonDisabled} onClick={onExecuteChainBlockButtonClicked}>
-        <span>
-          {'\u{1f6d1}'} {i18n.getMessage('execute_chainblock')}
-        </span>
-      </BigExecuteChainBlockButton>
+    <M.Box>
+      <BigExecuteButton {...{ purpose }} disabled={!isAvailable()} onClick={executeSession} />
     </M.Box>
   )
 }
 
-export default function NewTweetReactionBlockPage(props: { currentTweet: Tweet | null }) {
-  const { currentTweet } = props
-  const { loggedIn } = React.useContext(LoginStatusContext)
-  const limiterStatus = React.useContext(BlockLimiterContext)
-  const [targetOptions, setTargetOptions] = React.useState<SessionOptions>({
-    myFollowers: 'Skip',
-    myFollowings: 'Skip',
-  })
-  // const [targetReaction, setTargetReaction] = React.useState<ReactionKind>('retweeted')
-  const [wantBlockRetweeters, setWantBlockRetweeters] = React.useState<boolean>(false)
-  const [wantBlockLikers, setWantBlockLikers] = React.useState<boolean>(false)
-  const availableBlocks = React.useMemo((): number => {
-    return limiterStatus.max - limiterStatus.current
-  }, [limiterStatus])
-  const isAvailable = React.useMemo((): boolean => {
-    if (!loggedIn) {
-      return false
-    }
-    if (availableBlocks <= 0) {
-      return false
-    }
-    return true
-  }, [loggedIn, availableBlocks])
-  function mutateOptions(newOptionsPart: Partial<SessionOptions>) {
-    const newOptions = { ...targetOptions, ...newOptionsPart }
-    setTargetOptions(newOptions)
-  }
+export default function NewTweetReactionBlockPage() {
+  const request = useSessionRequest()
   return (
     <div>
-      <TargetTweetContext.Provider
-        value={{
-          currentTweet,
-          wantBlockRetweeters,
-          setWantBlockRetweeters,
-          wantBlockLikers,
-          setWantBlockLikers,
-          targetOptions,
-          setTargetOptions,
-          mutateOptions,
-        }}
-      >
-        <div className="chainblock-target">
-          <TargetTweetOuterUI />
-          {loggedIn ? (
-            <div>
-              <TargetOptionsUI />
-              {availableBlocks <= 0 ? <BlockLimiterUI status={limiterStatus} /> : ''}
-              <TargetExecutionButtonUI isAvailable={isAvailable} />
-            </div>
-          ) : (
-            <PleaseLoginBox />
-          )}
-        </div>
-      </TargetTweetContext.Provider>
+      <TargetTweetOuterUI />
+      <TargetOptionsUI />
+      <BlockLimiterUI />
+      <RequestCheckResultUI {...{ request }} />
+      <TargetExecutionButtonUI />
     </div>
   )
 }

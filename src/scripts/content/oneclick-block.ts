@@ -59,7 +59,11 @@
     return null
   }
 
-  function checkBadWordFromUserProfile({ description, name, screen_name }: TwitterUser): BadWordItem | null {
+  function checkBadWordFromUserProfile({
+    description,
+    name,
+    screen_name,
+  }: TwitterUser): BadWordItem | null {
     const textsToFind = [description, name, screen_name]
     for (const text of textsToFind) {
       const bw = checkBadWord(text)
@@ -85,8 +89,9 @@
   }
 
   async function blockUser(user: TwitterUser) {
-    return browser.runtime.sendMessage<RBActions.BlockSingleUser>({
-      actionType: 'BlockSingleUser',
+    return browser.runtime.sendMessage<RBMessageToBackground.BlockSingleUser>({
+      messageType: 'BlockSingleUser',
+      messageTo: 'background',
       user,
     })
   }
@@ -117,7 +122,7 @@
       blockUser(user)
       user.blocking = true
       markUser({
-        verb: 'Block',
+        userAction: 'Block',
         userId: user.id_str,
       })
       toastMessage(`[Red Block] ${i18nGetMessage('blocked_xxx', user.screen_name)}`)

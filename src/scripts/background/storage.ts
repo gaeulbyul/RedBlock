@@ -1,4 +1,10 @@
-export { loadBadWords, saveBadWords, editBadWord, insertBadWord, removeBadWord } from './storage/badwords.js'
+export {
+  loadBadWords,
+  saveBadWords,
+  editBadWord,
+  insertBadWord,
+  removeBadWord,
+} from './storage/badwords.js'
 export { loadOptions, saveOptions, defaultOptions } from './storage/options.js'
 export { loadUsers, saveUsers, insertUser, removeUser } from './storage/saveduser.js'
 
