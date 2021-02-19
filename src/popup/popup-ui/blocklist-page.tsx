@@ -1,10 +1,16 @@
-import { defaultSessionOptions } from '../../scripts/background/chainblock-session/session.js'
-import { UIContext, MyselfContext, BlockLimiterContext } from './contexts.js'
+import {
+  UIContext,
+  MyselfContext,
+  BlockLimiterContext,
+  TwitterAPIClientContext,
+  RedBlockOptionsContext,
+} from './contexts.js'
 import {
   RBExpansionPanel,
   BlockLimiterUI,
   BigExecuteButton,
-  ChainBlockPurposeUI,
+  PurposeSelectionUI,
+  RequestCheckResultUI,
 } from './components.js'
 import { PageEnum } from './pages.js'
 import * as i18n from '../../scripts/i18n.js'
@@ -15,43 +21,71 @@ import {
   parseBlocklist,
   concatBlockList,
 } from '../../scripts/background/blocklist-process.js'
-import {
-  ImportChainBlockPageStatesContext,
-  PurposeContext,
-  SessionOptionsContext,
-} from './ui-states.js'
+import { ImportChainBlockPageStatesContext, ExtraTargetContext } from './ui-states.js'
+import { TargetCheckResult, validateRequest } from '../../scripts/background/target-checker.js'
 
 const M = MaterialUI
 
+function useSessionRequest(): ImportBlockSessionRequest {
+  const { purpose, blocklist } = React.useContext(ImportChainBlockPageStatesContext)
+  const myself = React.useContext(MyselfContext)!
+  const { extraTarget } = React.useContext(ExtraTargetContext)
+  const { cookieOptions } = React.useContext(TwitterAPIClientContext)
+  const options = React.useContext(RedBlockOptionsContext)
+  return {
+    purpose,
+    target: {
+      type: 'import',
+      userIds: Array.from(blocklist.userIds),
+      userNames: Array.from(blocklist.userNames),
+    },
+    extraTarget,
+    myself,
+    options,
+    cookieOptions,
+  }
+}
+
 function TargetOptionsUI() {
-  const { purpose } = React.useContext(PurposeContext)
-  const summary = `${i18n.getMessage('options')} (${i18n.getMessage(purpose)})`
+  const {
+    purpose,
+    changePurposeType,
+    mutatePurposeOptions,
+    availablePurposeTypes,
+  } = React.useContext(ImportChainBlockPageStatesContext)
+  const summary = `${i18n.getMessage('options')} (${i18n.getMessage(purpose.type)})`
   return (
     <RBExpansionPanel summary={summary} defaultExpanded>
-      <ChainBlockPurposeUI />
+      <PurposeSelectionUI
+        {...{
+          purpose,
+          changePurposeType,
+          mutatePurposeOptions,
+          availablePurposeTypes,
+        }}
+      />
     </RBExpansionPanel>
   )
 }
 
 export default function BlocklistPage() {
-  const myself = React.useContext(MyselfContext)!
   const uiContext = React.useContext(UIContext)
   const limiterStatus = React.useContext(BlockLimiterContext)
   const { openDialog } = React.useContext(UIContext)
-  const purpose = React.useContext(PurposeContext).purpose as ImportBlockSessionRequest['purpose']
-  const { targetOptions, mutateOptions } = React.useContext(SessionOptionsContext)
-  const { blocklist, setBlocklist, nameOfSelectedFiles, setNameOfSelectedFiles } = React.useContext(
-    ImportChainBlockPageStatesContext
-  )
+  const {
+    blocklist,
+    setBlocklist,
+    nameOfSelectedFiles,
+    setNameOfSelectedFiles,
+    purpose,
+  } = React.useContext(ImportChainBlockPageStatesContext)
   const [fileInput] = React.useState(React.createRef<HTMLInputElement>())
+  const request = useSessionRequest()
   function isAvailable() {
-    if (!myself) {
-      return false
-    }
     if (limiterStatus.remained <= 0) {
       return false
     }
-    return true
+    return validateRequest(request) === TargetCheckResult.Ok
   }
   async function onChange(event: React.FormEvent<HTMLInputElement>) {
     event.preventDefault()
@@ -75,15 +109,6 @@ export default function BlocklistPage() {
       uiContext.openSnackBar(i18n.getMessage('cant_chainblock_empty_list'))
       return
     }
-    const request: ImportBlockSessionRequest = {
-      purpose,
-      target: {
-        type: 'import',
-        userIds: Array.from(blocklist.userIds),
-      },
-      options: targetOptions,
-      myself,
-    }
     openDialog({
       dialogType: 'confirm',
       message: generateConfirmMessage(request),
@@ -96,7 +121,6 @@ export default function BlocklistPage() {
     event.preventDefault()
     setBlocklist(emptyBlocklist)
     setNameOfSelectedFiles([])
-    mutateOptions(defaultSessionOptions)
   }
   async function openPopupUIInTab(event: React.MouseEvent<HTMLButtonElement, MouseEvent>) {
     event.preventDefault()
@@ -189,7 +213,8 @@ export default function BlocklistPage() {
       </RBExpansionPanel>
       <TargetOptionsUI />
       <BlockLimiterUI />
-      <BigExecuteButton {...{ purpose }} type="submit" disabled={!isAvailable} />
+      <RequestCheckResultUI {...{ request }} />
+      <BigExecuteButton {...{ purpose }} type="submit" disabled={!isAvailable()} />
     </form>
   )
 }

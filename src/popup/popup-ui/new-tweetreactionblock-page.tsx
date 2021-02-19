@@ -1,22 +1,54 @@
 // import * as Storage from '../../scripts/background/storage.js'
 import * as i18n from '../../scripts/i18n.js'
 import * as TextGenerate from '../../scripts/text-generate.js'
-import { MyselfContext, BlockLimiterContext, UIContext } from './contexts.js'
+import {
+  UIContext,
+  MyselfContext,
+  BlockLimiterContext,
+  TwitterAPIClientContext,
+  RedBlockOptionsContext,
+} from './contexts.js'
 import { startNewChainBlockSession } from '../../scripts/background/request-sender.js'
 import {
   BlockLimiterUI,
   TwitterUserProfile,
   RBExpansionPanel,
   BigExecuteButton,
-  ChainBlockPurposeUI,
+  PurposeSelectionUI,
+  RequestCheckResultUI,
 } from './components.js'
-import {
-  TweetReactionChainBlockPageStatesContext,
-  PurposeContext,
-  SessionOptionsContext,
-} from './ui-states.js'
+import { TweetReactionChainBlockPageStatesContext, ExtraTargetContext } from './ui-states.js'
+import { TargetCheckResult, validateRequest } from '../../scripts/background/target-checker.js'
 
 const M = MaterialUI
+
+function useSessionRequest(): TweetReactionBlockSessionRequest {
+  const {
+    purpose,
+    currentTweet,
+    wantBlockRetweeters,
+    wantBlockLikers,
+    wantBlockMentionedUsers,
+  } = React.useContext(TweetReactionChainBlockPageStatesContext)
+  const { cookieOptions } = React.useContext(TwitterAPIClientContext)
+  const { extraTarget } = React.useContext(ExtraTargetContext)
+  const myself = React.useContext(MyselfContext)!
+  const options = React.useContext(RedBlockOptionsContext)
+  return {
+    purpose,
+    options,
+    extraTarget,
+    target: {
+      type: 'tweet_reaction',
+      tweet: currentTweet!,
+      blockRetweeters: wantBlockRetweeters,
+      blockLikers: wantBlockLikers,
+      blockMentionedUsers: wantBlockMentionedUsers,
+    },
+    myself,
+    cookieOptions,
+  }
+}
 
 function TargetTweetUI(props: { tweet: Tweet }) {
   const {
@@ -36,7 +68,7 @@ function TargetTweetUI(props: { tweet: Tweet }) {
     <TwitterUserProfile user={tweet.user}>
       <div className="profile-right-targettweet">
         <div>
-          <span>트윗 내용:</span>
+          <span>{i18n.getMessage('tweet')}:</span>
           <blockquote className="tweet-content">{tweet.full_text}</blockquote>
         </div>
         <M.FormGroup row>
@@ -89,59 +121,39 @@ function TargetTweetOuterUI() {
 }
 
 function TargetOptionsUI() {
-  const { purpose } = React.useContext(PurposeContext)
-  const summary = `${i18n.getMessage('options')} (${i18n.getMessage(purpose)})`
+  const {
+    purpose,
+    changePurposeType,
+    mutatePurposeOptions,
+    availablePurposeTypes,
+  } = React.useContext(TweetReactionChainBlockPageStatesContext)
+  const summary = `${i18n.getMessage('options')} (${i18n.getMessage(purpose.type)})`
   return (
     <RBExpansionPanel summary={summary} defaultExpanded>
-      <ChainBlockPurposeUI />
+      <PurposeSelectionUI
+        {...{
+          purpose,
+          changePurposeType,
+          mutatePurposeOptions,
+          availablePurposeTypes,
+        }}
+      />
     </RBExpansionPanel>
   )
 }
 
 function TargetExecutionButtonUI() {
-  const {
-    currentTweet,
-    wantBlockRetweeters,
-    wantBlockLikers,
-    wantBlockMentionedUsers,
-  } = React.useContext(TweetReactionChainBlockPageStatesContext)
-  const { targetOptions } = React.useContext(SessionOptionsContext)
-  const purpose = React.useContext(PurposeContext)
-    .purpose as TweetReactionBlockSessionRequest['purpose']
+  const { purpose } = React.useContext(TweetReactionChainBlockPageStatesContext)
   const { openDialog } = React.useContext(UIContext)
-  const uiContext = React.useContext(UIContext)
-  const myself = React.useContext(MyselfContext)
   const limiterStatus = React.useContext(BlockLimiterContext)
+  const request = useSessionRequest()
   function isAvailable() {
-    if (purpose === 'chainblock' && limiterStatus.remained <= 0) {
+    if (purpose.type === 'chainblock' && limiterStatus.remained <= 0) {
       return false
     }
-    if (!(wantBlockRetweeters || wantBlockLikers || wantBlockMentionedUsers)) {
-      return false
-    }
-    return true
+    return validateRequest(request) === TargetCheckResult.Ok
   }
-  function executeSession(purpose: TweetReactionBlockSessionRequest['purpose']) {
-    if (!currentTweet) {
-      // unreachable?
-      throw new Error('트윗을 선택해주세요')
-    }
-    if (!myself) {
-      uiContext.openSnackBar(i18n.getMessage('error_occured_check_login'))
-      return
-    }
-    const request: TweetReactionBlockSessionRequest = {
-      purpose,
-      options: targetOptions,
-      target: {
-        type: 'tweet_reaction',
-        tweet: currentTweet,
-        blockRetweeters: wantBlockRetweeters,
-        blockLikers: wantBlockLikers,
-        blockMentionedUsers: wantBlockMentionedUsers,
-      },
-      myself,
-    }
+  function executeSession() {
     openDialog({
       dialogType: 'confirm',
       message: TextGenerate.generateConfirmMessage(request),
@@ -152,21 +164,19 @@ function TargetExecutionButtonUI() {
   }
   return (
     <M.Box>
-      <BigExecuteButton
-        {...{ purpose }}
-        disabled={!isAvailable()}
-        onClick={() => executeSession(purpose)}
-      />
+      <BigExecuteButton {...{ purpose }} disabled={!isAvailable()} onClick={executeSession} />
     </M.Box>
   )
 }
 
 export default function NewTweetReactionBlockPage() {
+  const request = useSessionRequest()
   return (
     <div>
       <TargetTweetOuterUI />
       <TargetOptionsUI />
       <BlockLimiterUI />
+      <RequestCheckResultUI {...{ request }} />
       <TargetExecutionButtonUI />
     </div>
   )

@@ -15,15 +15,12 @@ export async function toggleOneClickBlockMode(enabled: boolean) {
   })
 }
 
-export async function getCurrentTab(): Promise<Tab | null> {
+export async function getCurrentTab(): Promise<Tab> {
   const tabs = await browser.tabs.query({
     active: true,
     currentWindow: true,
   })
-  const currentTab = tabs[0]
-  if (!currentTab || !currentTab.url) {
-    return null
-  }
+  const currentTab = tabs[0]!
   return currentTab
 }
 
@@ -96,15 +93,12 @@ export function getTweetIdFromTab(tab: Tab): string | null {
   return null
 }
 
-export function determineInitialPurpose(
+export function determineInitialPurposeType<T extends Purpose>(
   myself: TwitterUser | null,
   givenUser: TwitterUser | null
-): Purpose {
+): T['type'] {
   if (!(myself && givenUser)) {
     return 'chainblock'
-  }
-  if (myself.id_str === givenUser.id_str) {
-    return 'lockpicker'
   }
   if (givenUser.following) {
     return 'unchainblock'

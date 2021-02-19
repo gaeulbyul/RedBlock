@@ -1,13 +1,23 @@
 const second = 1000
 const minute = 60 * second
 const hour = 60 * minute
-// 정확한 값은 불명, 일단 3시간갖고는 안 되나벼...
-const threshold = 6 * hour
+// 정확한 값은 불명
+const threshold = 8 * hour
+
+const PREFIX_KEY_TIMESTAMP = `BlockLimiterTimestamp`
+const PREFIX_KEY_COUNT = `BlockLimiterCount`
 
 export default class BlockLimiter {
   public readonly max = 500
+  private readonly KEY_TIMESTAMP: string
+  private readonly KEY_COUNT: string
+  public constructor(userId: string) {
+    const identifier = `user=${userId}`
+    this.KEY_TIMESTAMP = `${PREFIX_KEY_TIMESTAMP} ${identifier}`
+    this.KEY_COUNT = `${PREFIX_KEY_COUNT} ${identifier}`
+  }
   private expired() {
-    const timestamp = parseInt(localStorage.getItem('RedBlock BlockLimiterTimestamp') || '0', 10)
+    const timestamp = parseInt(localStorage.getItem(this.KEY_TIMESTAMP) || '0', 10)
     const diff = Date.now() - timestamp
     return diff > threshold
   }
@@ -15,13 +25,13 @@ export default class BlockLimiter {
     if (this.expired()) {
       return 0
     } else {
-      return parseInt(localStorage.getItem('RedBlock BlockLimiterCount') || '0', 10)
+      return parseInt(localStorage.getItem(this.KEY_COUNT) || '0', 10)
     }
   }
   public increment() {
     const count = this.count + 1
-    localStorage.setItem('RedBlock BlockLimiterCount', count.toString())
-    localStorage.setItem('RedBlock BlockLimiterTimestamp', Date.now().toString())
+    localStorage.setItem(this.KEY_COUNT, count.toString())
+    localStorage.setItem(this.KEY_TIMESTAMP, Date.now().toString())
     return count
   }
   public check(): 'ok' | 'danger' {
@@ -33,7 +43,7 @@ export default class BlockLimiter {
     }
   }
   public reset() {
-    localStorage.setItem('RedBlock BlockLimiterCount', '0')
-    localStorage.setItem('RedBlock BlockLimiterTimestamp', '0')
+    localStorage.setItem(this.KEY_COUNT, '0')
+    localStorage.setItem(this.KEY_TIMESTAMP, '0')
   }
 }

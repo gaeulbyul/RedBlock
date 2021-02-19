@@ -1,8 +1,9 @@
-import { DialogMessageObj } from '../../scripts/text-generate.js'
+import { DialogMessageObj, checkResultToString } from '../../scripts/text-generate.js'
 import * as i18n from '../../scripts/i18n.js'
 import { requestResetCounter } from '../../scripts/background/request-sender.js'
-import { UIContext, BlockLimiterContext } from './contexts.js'
-import { PurposeContext, SessionOptionsContext } from './ui-states.js'
+import { MyselfContext, BlockLimiterContext, RedBlockOptionsContext } from './contexts.js'
+import { ExtraTargetContext } from './ui-states.js'
+import { TargetCheckResult, validateRequest } from '../../scripts/background/target-checker.js'
 
 const M = MaterialUI
 const T = MaterialUI.Typography
@@ -14,8 +15,11 @@ export interface DialogContent {
   callbackOnCancel?(): void
 }
 
-export function RedBlockUITheme(darkMode: boolean) {
+export function RedBlockPopupUITheme(darkMode: boolean) {
   return MaterialUI.createMuiTheme({
+    typography: {
+      fontSize: 12,
+    },
     palette: {
       type: darkMode ? 'dark' : 'light',
       primary: MaterialUI.colors.pink,
@@ -24,12 +28,19 @@ export function RedBlockUITheme(darkMode: boolean) {
   })
 }
 
-export function Icon({ name }: { name: string }) {
-  return <M.Icon>{name}</M.Icon>
-}
+export const MyTooltip = MaterialUI.withStyles(() => ({
+  tooltip: {
+    fontSize: 12,
+  },
+}))(MaterialUI.Tooltip)
 
-function purposeToIcon(purpose: Purpose): JSX.Element {
-  switch (purpose) {
+function Icon({ name }: { name: string }) {
+  // overflow: purpose 탭 아이콘 짤림 문제방지
+  // (특히 탭 라벨이 두 줄이상으로 넘어갈때)
+  return <M.Icon style={{ overflow: 'visible' }}>{name}</M.Icon>
+}
+function purposeTypeToIcon(purposeType: Purpose['type']): JSX.Element {
+  switch (purposeType) {
     case 'chainblock':
       return <Icon name="block" />
     case 'unchainblock':
@@ -40,6 +51,10 @@ function purposeToIcon(purpose: Purpose): JSX.Element {
       return <Icon name="no_encryption" />
     case 'chainunfollow':
       return <Icon name="remove_circle_outline" />
+    case 'chainmute':
+      return <Icon name="volume_off" />
+    case 'unchainmute':
+      return <Icon name="volume_up" />
   }
 }
 
@@ -126,9 +141,9 @@ export function PleaseLoginBox() {
   }
   return (
     <M.Paper>
-      <M.Box padding="12px 16px">
+      <M.Box px={2} py={1.5}>
         <T component="div">{i18n.getMessage('please_check_login')}</T>
-        <M.Box marginTop="10px">
+        <M.Box mt={1}>
           <a
             rel="noopener noreferer"
             target="_blank"
@@ -146,18 +161,18 @@ export function PleaseLoginBox() {
   )
 }
 
-const DenseExpansionPanel = MaterialUI.withStyles({
+const DenseExpansionPanel = MaterialUI.withStyles(theme => ({
   root: {
-    margin: '8px 0',
+    margin: theme.spacing(1, 0),
     '&:first-child': {
       margin: '0',
     },
     '&$expanded': {
-      margin: '8px 0',
+      margin: theme.spacing(1, 0),
     },
   },
   expanded: {},
-})(MaterialUI.ExpansionPanel)
+}))(MaterialUI.ExpansionPanel)
 
 const DenseExpansionPanelSummary = MaterialUI.withStyles({
   root: {
@@ -174,10 +189,10 @@ const DenseExpansionPanelSummary = MaterialUI.withStyles({
   expanded: {},
 })(MaterialUI.ExpansionPanelSummary)
 
-const useStylesForExpansionPanels = MaterialUI.makeStyles(() =>
+const useStylesForExpansionPanels = MaterialUI.makeStyles(theme =>
   MaterialUI.createStyles({
     details: {
-      padding: '8px 16px',
+      padding: theme.spacing(1, 2),
     },
   })
 )
@@ -186,12 +201,13 @@ export function RBExpansionPanel(props: {
   summary: string
   children: React.ReactNode
   defaultExpanded?: boolean
+  warning?: boolean
 }) {
   const classes = useStylesForExpansionPanels()
   return (
     <DenseExpansionPanel defaultExpanded={props.defaultExpanded}>
       <DenseExpansionPanelSummary expandIcon={<M.Icon>expand_more</M.Icon>}>
-        <T>{props.summary}</T>
+        <T color={props.warning ? 'error' : 'initial'}>{props.summary}</T>
       </DenseExpansionPanelSummary>
       <M.ExpansionPanelDetails className={classes.details}>
         {props.children}
@@ -202,19 +218,30 @@ export function RBExpansionPanel(props: {
 
 export function BlockLimiterUI() {
   const { current, max } = React.useContext(BlockLimiterContext)
+  const myself = React.useContext(MyselfContext)
   function handleResetButtonClick(event: React.MouseEvent<HTMLButtonElement>) {
     event.preventDefault()
-    requestResetCounter()
+    requestResetCounter(myself!.id_str)
   }
+  const exceed = current >= max
+  const warningIcon = exceed ? '\u26a0\ufe0f' : ''
   return (
-    <RBExpansionPanel summary={`${i18n.getMessage('block_counter')}: [${current} / ${max}]`}>
+    <RBExpansionPanel
+      summary={`${warningIcon} ${i18n.getMessage('block_counter')}: [${current} / ${max}]`}
+      warning={exceed}
+    >
       <M.Box display="flex" flexDirection="row">
         <M.Box flexGrow="1">
           <T component="div" variant="body2">
             {i18n.getMessage('wtf_twitter')}
           </T>
         </M.Box>
-        <M.Button type="button" variant="outlined" onClick={handleResetButtonClick}>
+        <M.Button
+          type="button"
+          variant="outlined"
+          onClick={handleResetButtonClick}
+          disabled={current <= 0}
+        >
           Reset
         </M.Button>
       </M.Box>
@@ -222,7 +249,7 @@ export function BlockLimiterUI() {
   )
 }
 
-export function TwitterUserProfile(props: { user: TwitterUser; children: React.ReactNode }) {
+export function TwitterUserProfile(props: { user: TwitterUser; children?: React.ReactNode }) {
   const { user } = props
   const biggerProfileImageUrl = user.profile_image_url_https.replace('_normal', '_bigger')
   return (
@@ -256,29 +283,10 @@ export function TwitterUserProfile(props: { user: TwitterUser; children: React.R
   )
 }
 
-export function WhatIsBioBlock() {
-  const { openDialog } = React.useContext(UIContext)
-  function handleClick(event: React.MouseEvent) {
-    event.preventDefault()
-    openDialog({
-      dialogType: 'alert',
-      message: {
-        title: 'BioBlock',
-        contentLines: [`BioBlock: ${i18n.getMessage('bioblock_description')}`],
-      },
-    })
-  }
-  return (
-    <M.IconButton size="small" onClick={handleClick}>
-      <M.Icon>help_outline</M.Icon>
-    </M.IconButton>
-  )
-}
-
-const BigBaseButton = MaterialUI.withStyles(() => ({
+const BigBaseButton = MaterialUI.withStyles(theme => ({
   root: {
     width: '100%',
-    padding: '10px',
+    padding: theme.spacing(1),
     fontSize: 'larger',
   },
 }))(MaterialUI.Button)
@@ -291,35 +299,28 @@ export function BigExecuteButton(props: {
 }): JSX.Element {
   const { purpose, disabled, onClick } = props
   const type = props.type || 'button'
-  let BigButton: typeof BigExecuteChainBlockButton
-  let label: string
-  switch (purpose) {
+  const label = i18n.getMessage('run_xxx', i18n.getMessage(purpose.type))
+  let BigButton: typeof BigBaseButton
+  switch (purpose.type) {
     case 'chainblock':
-      BigButton = BigExecuteChainBlockButton
-      label = i18n.getMessage('execute_chainblock')
+    case 'chainmute':
+    case 'lockpicker':
+    case 'chainunfollow':
+      BigButton = BigRedButton
       break
     case 'unchainblock':
-      BigButton = BigExecuteUnChainBlockButton
-      label = i18n.getMessage('execute_unchainblock')
-      break
-    case 'lockpicker':
-      BigButton = BigExecuteLockPickerButton
-      label = i18n.getMessage('lockpicker')
-      break
-    case 'chainunfollow':
-      BigButton = BigChainUnfollowButton
-      label = i18n.getMessage('chainunfollow')
+    case 'unchainmute':
+      BigButton = BigGreenButton
       break
     case 'export':
-      BigButton = BigExportButton
-      label = i18n.getMessage('export')
+      BigButton = BigGrayButton
       break
   }
-  const startIcon = purposeToIcon(purpose)
+  const startIcon = purposeTypeToIcon(purpose.type)
   return <BigButton {...{ type, startIcon, disabled, onClick }}>{label}</BigButton>
 }
 
-const BigExecuteChainBlockButton = MaterialUI.withStyles(theme => ({
+const BigRedButton = MaterialUI.withStyles(theme => ({
   root: {
     backgroundColor: MaterialUI.colors.red[700],
     color: theme.palette.getContrastText(MaterialUI.colors.red[700]),
@@ -330,7 +331,7 @@ const BigExecuteChainBlockButton = MaterialUI.withStyles(theme => ({
   },
 }))(BigBaseButton)
 
-const BigExecuteUnChainBlockButton = MaterialUI.withStyles(theme => ({
+const BigGreenButton = MaterialUI.withStyles(theme => ({
   root: {
     backgroundColor: MaterialUI.colors.green[700],
     color: theme.palette.getContrastText(MaterialUI.colors.green[700]),
@@ -341,7 +342,7 @@ const BigExecuteUnChainBlockButton = MaterialUI.withStyles(theme => ({
   },
 }))(BigBaseButton)
 
-const BigExportButton = MaterialUI.withStyles(theme => ({
+const BigGrayButton = MaterialUI.withStyles(theme => ({
   root: {
     backgroundColor: MaterialUI.colors.blueGrey[700],
     color: theme.palette.getContrastText(MaterialUI.colors.blueGrey[700]),
@@ -352,126 +353,165 @@ const BigExportButton = MaterialUI.withStyles(theme => ({
   },
 }))(BigBaseButton)
 
-const BigExecuteLockPickerButton = MaterialUI.withStyles(theme => ({
+const PurposeTab = MaterialUI.withStyles(theme => ({
   root: {
-    backgroundColor: MaterialUI.colors.pink[700],
-    color: theme.palette.getContrastText(MaterialUI.colors.pink[700]),
-    '&:hover': {
-      backgroundColor: MaterialUI.colors.pink[500],
-      color: theme.palette.getContrastText(MaterialUI.colors.pink[500]),
+    lineHeight: 1.5,
+    paddingLeft: theme.spacing(1),
+    paddingRight: theme.spacing(1),
+    '@media (min-width: 600px)': {
+      minWidth: 'initial',
     },
   },
-}))(BigBaseButton)
+}))(MaterialUI.Tab)
 
-const BigChainUnfollowButton = MaterialUI.withStyles(theme => ({
-  root: {
-    backgroundColor: MaterialUI.colors.deepOrange[700],
-    color: theme.palette.getContrastText(MaterialUI.colors.deepOrange[700]),
-    '&:hover': {
-      backgroundColor: MaterialUI.colors.deepOrange[500],
-      color: theme.palette.getContrastText(MaterialUI.colors.deepOrange[500]),
-    },
-  },
-}))(BigBaseButton)
+export function LinearProgressWithLabel(props: { value: number }) {
+  return (
+    <M.Box display="flex" alignItems="center">
+      <M.Box width="100%" mr={1}>
+        <M.LinearProgress variant="determinate" {...props} />
+      </M.Box>
+      <M.Box minWidth={35}>
+        <T variant="body2" color="textSecondary">{`${Math.round(props.value)}%`}</T>
+      </M.Box>
+    </M.Box>
+  )
+}
 
-const useStylesForTab = MaterialUI.makeStyles(() =>
-  MaterialUI.createStyles({
-    tab: {
-      paddingLeft: 0,
-      paddingRight: 0,
-    },
-  })
-)
-
-export function ChainBlockPurposeUI() {
-  const { purpose, setPurpose, availablePurposes } = React.useContext(PurposeContext)
-  const classes = useStylesForTab()
-  const chainblockable = availablePurposes.includes('chainblock')
-  const unchainblockable = availablePurposes.includes('unchainblock')
-  const exportable = availablePurposes.includes('export')
-  const lockpickable = availablePurposes.includes('lockpicker')
-  const chainunfollowable = availablePurposes.includes('chainunfollow')
+export function PurposeSelectionUI(props: {
+  purpose: SessionRequest['purpose']
+  changePurposeType(purposeType: SessionRequest['purpose']['type']): void
+  mutatePurposeOptions(partialOptions: Partial<Omit<SessionRequest['purpose'], 'type'>>): void
+  availablePurposeTypes: SessionRequest['purpose']['type'][]
+}) {
+  const { purpose, changePurposeType, mutatePurposeOptions, availablePurposeTypes } = props
+  const { enableChainMute } = React.useContext(RedBlockOptionsContext)
+  const chainblockable = availablePurposeTypes.includes('chainblock')
+  const unchainblockable = availablePurposeTypes.includes('unchainblock')
+  const exportable = availablePurposeTypes.includes('export')
+  const lockpickable = availablePurposeTypes.includes('lockpicker')
+  const chainunfollowable = availablePurposeTypes.includes('chainunfollow')
+  const chainmutable = availablePurposeTypes.includes('chainmute') && enableChainMute
+  const unchainmutable = availablePurposeTypes.includes('unchainmute') && enableChainMute
+  //const narrow = MaterialUI.useMediaQuery('(max-width:500px)')
   return (
     <div style={{ width: '100%' }}>
       <M.Tabs
-        style={{ display: availablePurposes.length >= 2 ? 'flex' : 'none' }}
+        style={{ display: availablePurposeTypes.length >= 2 ? 'flex' : 'none' }}
         variant="fullWidth"
-        value={purpose}
-        onChange={(_ev, val) => setPurpose(val)}
+        scrollButtons="auto"
+        value={purpose.type}
+        onChange={(_ev, val) => changePurposeType(val)}
       >
         {chainblockable && (
-          <M.Tab
+          <PurposeTab
             value="chainblock"
-            className={classes.tab}
-            icon={purposeToIcon('chainblock')}
+            icon={purposeTypeToIcon('chainblock')}
             label={i18n.getMessage('chainblock')}
           />
         )}
         {unchainblockable && (
-          <M.Tab
+          <PurposeTab
             value="unchainblock"
-            className={classes.tab}
-            icon={purposeToIcon('unchainblock')}
+            icon={purposeTypeToIcon('unchainblock')}
             label={i18n.getMessage('unchainblock')}
           />
         )}
         {lockpickable && (
-          <M.Tab
+          <PurposeTab
             value="lockpicker"
-            className={classes.tab}
-            icon={purposeToIcon('lockpicker')}
+            icon={purposeTypeToIcon('lockpicker')}
             label={i18n.getMessage('lockpicker')}
           />
         )}
         {chainunfollowable && (
-          <M.Tab
+          <PurposeTab
             value="chainunfollow"
-            className={classes.tab}
-            icon={purposeToIcon('chainunfollow')}
+            icon={purposeTypeToIcon('chainunfollow')}
             label={i18n.getMessage('chainunfollow')}
           />
         )}
+        {chainmutable && (
+          <PurposeTab
+            value="chainmute"
+            icon={purposeTypeToIcon('chainmute')}
+            label={i18n.getMessage('chainmute') + '\u1d5d'}
+          />
+        )}
+        {unchainmutable && (
+          <PurposeTab
+            value="unchainmute"
+            icon={purposeTypeToIcon('unchainmute')}
+            label={i18n.getMessage('unchainmute') + '\u1d5d'}
+          />
+        )}
         {exportable && (
-          <M.Tab
+          <PurposeTab
             value="export"
-            className={classes.tab}
-            icon={purposeToIcon('export')}
+            icon={purposeTypeToIcon('export')}
             label={i18n.getMessage('export')}
           />
         )}
       </M.Tabs>
-      <M.Divider />
+      {availablePurposeTypes.length >= 2 && <M.Divider />}
       {chainblockable && (
-        <TabPanel value={purpose} index="chainblock">
-          <ChainBlockOptionsUI />
+        <TabPanel value={purpose.type} index="chainblock">
+          {purpose.type === 'chainblock' && (
+            <ChainBlockPurposeUI {...{ purpose, mutatePurposeOptions }} />
+          )}
+          <ExtraTargetUI />
           <M.Divider />
           <div className="description">
             {i18n.getMessage('chainblock_description')}{' '}
-            {i18n.getMessage('my_mutual_followers_wont_block')}
+            {i18n.getMessage('my_mutual_followers_wont_block_or_mute')}
             <div className="wtf">{i18n.getMessage('wtf_twitter') /* massive block warning */}</div>
           </div>
         </TabPanel>
       )}
       {unchainblockable && (
-        <TabPanel value={purpose} index="unchainblock">
-          <UnChainBlockOptionsUI />
+        <TabPanel value={purpose.type} index="unchainblock">
+          {purpose.type === 'unchainblock' && (
+            <UnChainBlockOptionsUI {...{ purpose, mutatePurposeOptions }} />
+          )}
           <M.Divider />
           <div className="description">{i18n.getMessage('unchainblock_description')}</div>
         </TabPanel>
       )}
       {lockpickable && (
-        <TabPanel value={purpose} index="lockpicker">
-          <LockPickerOptionsUI />
+        <TabPanel value={purpose.type} index="lockpicker">
+          {purpose.type === 'lockpicker' && (
+            <LockPickerOptionsUI {...{ purpose, mutatePurposeOptions }} />
+          )}
           <div className="description">{i18n.getMessage('lockpicker_description')}</div>
         </TabPanel>
       )}
       {chainunfollowable && (
-        <TabPanel value={purpose} index="chainunfollow">
+        <TabPanel value={purpose.type} index="chainunfollow">
           <div className="description">{i18n.getMessage('chainunfollow_description')}</div>
         </TabPanel>
       )}
+      {chainmutable && (
+        <TabPanel value={purpose.type} index="chainmute">
+          {purpose.type === 'chainmute' && (
+            <ChainMutePurposeUI {...{ purpose, mutatePurposeOptions }} />
+          )}
+          <ExtraTargetUI />
+          <M.Divider />
+          <div className="description">
+            {i18n.getMessage('chainmute_description')}{' '}
+            {i18n.getMessage('my_mutual_followers_wont_block_or_mute')}
+          </div>
+        </TabPanel>
+      )}
+      {unchainmutable && (
+        <TabPanel value={purpose.type} index="unchainmute">
+          {purpose.type === 'unchainmute' && (
+            <UnChainMuteOptionsUI {...{ purpose, mutatePurposeOptions }} />
+          )}
+          <div className="description">{i18n.getMessage('unchainmute_description')}</div>
+        </TabPanel>
+      )}
       {exportable && (
-        <TabPanel value={purpose} index="export">
+        <TabPanel value={purpose.type} index="export">
           <div className="description">{i18n.getMessage('export_description')}</div>
         </TabPanel>
       )}
@@ -479,125 +519,216 @@ export function ChainBlockPurposeUI() {
   )
 }
 
-function ChainBlockOptionsUI() {
-  const { targetOptions, mutateOptions } = React.useContext(SessionOptionsContext)
-  const { myFollowers, myFollowings, includeUsersInBio } = targetOptions
-  const userActions: Array<[UserAction, string]> = [
-    ['Skip', i18n.getMessage('skip')],
-    ['Mute', i18n.getMessage('do_mute')],
-    ['Block', i18n.getMessage('do_block')],
-  ]
-  const userActionsToMyFollowings = userActions.concat([['UnFollow', i18n.getMessage('unfollow')]])
-  const userActionsToMyFollowers = userActions.concat([
-    ['BlockAndUnBlock', i18n.getMessage('block_and_unblock')],
-  ])
-  const bioBlockModes: Array<[BioBlockMode, string]> = [
-    ['never', i18n.getMessage('bioblock_never')],
-    ['all', i18n.getMessage('bioblock_all')],
-    ['smart', i18n.getMessage('bioblock_smart')],
-  ]
+const useStylesForFormControl = MaterialUI.makeStyles(() =>
+  MaterialUI.createStyles({
+    fieldset: {
+      display: 'flex',
+    },
+  })
+)
+
+function RadioOptionItem(props: {
+  legend: React.ReactNode
+  options: { [label: string]: string }
+  selectedValue: string
+  onChange(newValue: string): void
+}) {
+  const classes = useStylesForFormControl()
+  return (
+    <M.FormControl component="fieldset" className={classes.fieldset}>
+      <M.FormLabel component="legend">{props.legend}</M.FormLabel>
+      <M.RadioGroup row>
+        {Object.entries(props.options).map(([label, value], index) => (
+          <M.FormControlLabel
+            key={index}
+            control={<M.Radio size="small" />}
+            checked={props.selectedValue === value}
+            onChange={() => props.onChange(value)}
+            label={label}
+          />
+        ))}
+      </M.RadioGroup>
+    </M.FormControl>
+  )
+}
+
+function ExtraTargetUI() {
+  const { extraTarget, mutate } = React.useContext(ExtraTargetContext)
+  const { revealBioBlockMode } = React.useContext(RedBlockOptionsContext)
+  const bioBlockModes: { [label: string]: BioBlockMode } = {
+    [i18n.getMessage('bioblock_never')]: 'never',
+    [i18n.getMessage('bioblock_all')]: 'all',
+    // [i18n.getMessage('bioblock_smart')]: 'smart',
+  }
   return (
     <React.Fragment>
-      <M.FormControl component="fieldset">
-        <M.FormLabel component="legend">{i18n.getMessage('my_followers')}</M.FormLabel>
-        <M.RadioGroup row>
-          {userActionsToMyFollowers.map(([action, localizedAction], index) => (
-            <M.FormControlLabel
-              key={index}
-              control={<M.Radio size="small" />}
-              checked={myFollowers === action}
-              onChange={() => mutateOptions({ myFollowers: action })}
-              label={localizedAction}
-            />
-          ))}
-        </M.RadioGroup>
-      </M.FormControl>
-      <br />
-      <M.FormControl component="fieldset">
-        <M.FormLabel component="legend">{i18n.getMessage('my_followings')}</M.FormLabel>
-        <M.RadioGroup row>
-          {userActionsToMyFollowings.map(([action, localizedAction], index) => (
-            <M.FormControlLabel
-              key={index}
-              control={<M.Radio size="small" />}
-              checked={myFollowings === action}
-              onChange={() => mutateOptions({ myFollowings: action })}
-              label={localizedAction}
-            />
-          ))}
-        </M.RadioGroup>
-      </M.FormControl>
-      <br />
-      <M.FormControl>
-        <M.FormLabel component="legend">
-          BioBlock &#x1F9EA; <WhatIsBioBlock />
-        </M.FormLabel>
-        <M.RadioGroup row>
-          {bioBlockModes.map(([mode, localizedMode], index) => (
-            <M.FormControlLabel
-              key={index}
-              control={<M.Radio size="small" />}
-              checked={includeUsersInBio === mode}
-              onChange={() => mutateOptions({ includeUsersInBio: mode })}
-              label={localizedMode}
-            />
-          ))}
-        </M.RadioGroup>
-      </M.FormControl>
+      {revealBioBlockMode && (
+        <RadioOptionItem
+          legend="BioBlock &#7517;"
+          options={bioBlockModes}
+          selectedValue={extraTarget.bioBlock}
+          onChange={(bioBlock: BioBlockMode) => mutate({ bioBlock })}
+        />
+      )}
     </React.Fragment>
   )
 }
 
-function UnChainBlockOptionsUI() {
-  const { targetOptions, mutateOptions } = React.useContext(SessionOptionsContext)
-  const { mutualBlocked } = targetOptions
-  const userActions: Array<[UserAction, string]> = [
-    ['Skip', i18n.getMessage('skip')],
-    ['UnBlock', i18n.getMessage('do_unblock')],
-  ]
+function ChainBlockPurposeUI(props: {
+  purpose: ChainBlockPurpose
+  mutatePurposeOptions(partialOptions: Partial<Omit<ChainBlockPurpose, 'type'>>): void
+}) {
+  const { purpose, mutatePurposeOptions } = props
+  const userActions = {
+    [i18n.getMessage('skip')]: 'Skip',
+    [i18n.getMessage('do_mute')]: 'Mute',
+    [i18n.getMessage('do_block')]: 'Block',
+  } as const
+  const userActionsToMyFollowers: { [label: string]: ChainBlockPurpose['myFollowers'] } = {
+    ...userActions,
+    [i18n.getMessage('block_and_unblock')]: 'BlockAndUnBlock',
+  }
+  const userActionsToMyFollowings: { [label: string]: ChainBlockPurpose['myFollowings'] } = {
+    ...userActions,
+    [i18n.getMessage('unfollow')]: 'UnFollow',
+  }
   return (
     <React.Fragment>
-      <M.FormControl component="fieldset">
-        <M.FormLabel component="legend">{i18n.getMessage('mutually_blocked')}</M.FormLabel>
-        <M.RadioGroup row>
-          {userActions.map(([action, localizedAction], index) => (
-            <M.FormControlLabel
-              key={index}
-              control={<M.Radio size="small" />}
-              checked={mutualBlocked === action}
-              onChange={() => mutateOptions({ mutualBlocked: action })}
-              label={localizedAction}
-            />
-          ))}
-        </M.RadioGroup>
-      </M.FormControl>
+      <RadioOptionItem
+        legend={i18n.getMessage('my_followers')}
+        options={userActionsToMyFollowers}
+        selectedValue={purpose.myFollowers}
+        onChange={(myFollowers: ChainBlockPurpose['myFollowers']) =>
+          mutatePurposeOptions({ myFollowers })
+        }
+      />
+      <RadioOptionItem
+        legend={i18n.getMessage('my_followings')}
+        options={userActionsToMyFollowings}
+        selectedValue={purpose.myFollowings}
+        onChange={(myFollowings: ChainBlockPurpose['myFollowings']) =>
+          mutatePurposeOptions({ myFollowings })
+        }
+      />
     </React.Fragment>
   )
 }
 
-function LockPickerOptionsUI() {
-  const { targetOptions, mutateOptions } = React.useContext(SessionOptionsContext)
-  const { protectedFollowers } = targetOptions
-  const userActions: Array<[UserAction, string]> = [
-    ['Block', i18n.getMessage('do_block')],
-    ['BlockAndUnBlock', i18n.getMessage('block_and_unblock')],
-  ]
+function UnChainBlockOptionsUI(props: {
+  purpose: UnChainBlockPurpose
+  mutatePurposeOptions(partialOptions: Partial<Omit<UnChainBlockPurpose, 'type'>>): void
+}) {
+  const { purpose, mutatePurposeOptions } = props
+  const userActions: { [label: string]: UnChainBlockPurpose['mutualBlocked'] } = {
+    [i18n.getMessage('skip')]: 'Skip',
+    [i18n.getMessage('do_unblock')]: 'UnBlock',
+  }
   return (
     <React.Fragment>
-      <M.FormControl component="fieldset">
-        <M.FormLabel component="legend">{i18n.getMessage('protected_follower')}</M.FormLabel>
-        <M.RadioGroup row>
-          {userActions.map(([action, localizedAction], index) => (
-            <M.FormControlLabel
-              key={index}
-              control={<M.Radio size="small" />}
-              checked={protectedFollowers === action}
-              onChange={() => mutateOptions({ protectedFollowers: action })}
-              label={localizedAction}
-            />
-          ))}
-        </M.RadioGroup>
-      </M.FormControl>
+      <RadioOptionItem
+        legend={i18n.getMessage('mutually_blocked')}
+        options={userActions}
+        selectedValue={purpose.mutualBlocked}
+        onChange={(mutualBlocked: UnChainBlockPurpose['mutualBlocked']) =>
+          mutatePurposeOptions({ mutualBlocked })
+        }
+      />
     </React.Fragment>
+  )
+}
+
+function LockPickerOptionsUI(props: {
+  purpose: LockPickerPurpose
+  mutatePurposeOptions(partialOptions: Partial<Omit<LockPickerPurpose, 'type'>>): void
+}) {
+  const { purpose, mutatePurposeOptions } = props
+  const userActions: { [label: string]: LockPickerPurpose['protectedFollowers'] } = {
+    [i18n.getMessage('do_block')]: 'Block',
+    [i18n.getMessage('block_and_unblock')]: 'BlockAndUnBlock',
+  }
+  return (
+    <React.Fragment>
+      <RadioOptionItem
+        legend={i18n.getMessage('protected_follower')}
+        options={userActions}
+        selectedValue={purpose.protectedFollowers}
+        onChange={(protectedFollowers: LockPickerPurpose['protectedFollowers']) =>
+          mutatePurposeOptions({ protectedFollowers })
+        }
+      />
+    </React.Fragment>
+  )
+}
+
+function ChainMutePurposeUI(props: {
+  purpose: ChainMutePurpose
+  mutatePurposeOptions(partialOptions: Partial<Omit<ChainMutePurpose, 'type'>>): void
+}) {
+  const { purpose, mutatePurposeOptions } = props
+  const userActions = {
+    [i18n.getMessage('skip')]: 'Skip',
+    [i18n.getMessage('do_mute')]: 'Mute',
+  } as const
+  return (
+    <React.Fragment>
+      <RadioOptionItem
+        legend={i18n.getMessage('my_followers')}
+        options={userActions}
+        selectedValue={purpose.myFollowers}
+        onChange={(myFollowers: ChainMutePurpose['myFollowers']) =>
+          mutatePurposeOptions({ myFollowers })
+        }
+      />
+      <RadioOptionItem
+        legend={i18n.getMessage('my_followings')}
+        options={userActions}
+        selectedValue={purpose.myFollowings}
+        onChange={(myFollowings: ChainMutePurpose['myFollowings']) =>
+          mutatePurposeOptions({ myFollowings })
+        }
+      />
+    </React.Fragment>
+  )
+}
+
+function UnChainMuteOptionsUI(props: {
+  purpose: UnChainMutePurpose
+  mutatePurposeOptions(partialOptions: Partial<Omit<UnChainMutePurpose, 'type'>>): void
+}) {
+  const { purpose, mutatePurposeOptions } = props
+  const userActions: { [label: string]: UnChainMutePurpose['mutedAndAlsoBlocked'] } = {
+    [i18n.getMessage('skip')]: 'Skip',
+    [i18n.getMessage('unmute')]: 'UnMute',
+  }
+  return (
+    <React.Fragment>
+      <RadioOptionItem
+        legend={i18n.getMessage('muted_and_also_blocked')}
+        options={userActions}
+        selectedValue={purpose.mutedAndAlsoBlocked}
+        onChange={(mutedAndAlsoBlocked: UnChainMutePurpose['mutedAndAlsoBlocked']) =>
+          mutatePurposeOptions({ mutedAndAlsoBlocked })
+        }
+      />
+    </React.Fragment>
+  )
+}
+
+export function RequestCheckResultUI(props: { request: SessionRequest }) {
+  const checkResult = validateRequest(props.request)
+  const checkResultMsg = checkResultToString(checkResult)
+  const isOk = checkResult === TargetCheckResult.Ok
+  return (
+    <div>
+      {!isOk && (
+        <M.Paper square>
+          <T component="div">
+            <M.Box px={2} py={1} mb={1} color="warning.main">
+              {checkResultMsg}
+            </M.Box>
+          </T>
+        </M.Paper>
+      )}
+    </div>
   )
 }

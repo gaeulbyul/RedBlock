@@ -7,13 +7,13 @@ import * as i18n from '../i18n.js'
 import { checkResultToString } from '../text-generate.js'
 import { refreshSavedUsers } from './misc.js'
 import { initializeContextMenu } from './context-menu.js'
-import { initializeWebRequest, initializeBlockAPILimiter } from './webrequest.js'
+import { initializeWebRequest } from './webrequest.js'
 import BlockLimiter from './block-limiter.js'
 import { assertNever } from '../common.js'
+import { getCookieStoreIdFromTab } from './cookie-handler.js'
 
 let storageQueue = Promise.resolve()
-const blockLimiter = new BlockLimiter()
-const chainblocker = new ChainBlocker(blockLimiter)
+const chainblocker = new ChainBlocker()
 
 // for debug
 Object.assign(window, {
@@ -32,13 +32,7 @@ async function startSession(sessionId: string) {
     if (err instanceof TwitterAPI.RateLimitError) {
       alertToCurrentTab(i18n.getMessage('error_rate_limited'))
     } else {
-      let errStr = ''
-      try {
-        errStr = JSON.stringify(err, null, 2)
-      } catch {
-        errStr = err
-      }
-      alertToCurrentTab(`Error: ${errStr}`)
+      console.error(err)
     }
   })
 }
@@ -49,12 +43,23 @@ async function sendProgress() {
     .sendMessage<RBMessageToPopup.ChainBlockInfo>({
       messageType: 'ChainBlockInfo',
       messageTo: 'popup',
-      limiter: {
+      sessions,
+    })
+    .catch(() => {})
+}
+
+async function sendBlockLimiterStatus(userId: string) {
+  const blockLimiter = new BlockLimiter(userId)
+  return browser.runtime
+    .sendMessage<RBMessageToPopup.BlockLimiterInfo>({
+      messageType: 'BlockLimiterInfo',
+      messageTo: 'popup',
+      userId,
+      status: {
         current: blockLimiter.count,
         max: blockLimiter.max,
         remained: blockLimiter.max - blockLimiter.count,
       },
-      sessions,
     })
     .catch(() => {})
 }
@@ -69,9 +74,17 @@ async function removeUserFromStorage(user: TwitterUser) {
   return storageQueue
 }
 
+async function twClientFromTab(tab: browser.tabs.Tab): Promise<TwitterAPI.TwClient> {
+  if (!tab) {
+    throw new Error('tab is missing')
+  }
+  let cookieStoreId = await getCookieStoreIdFromTab(tab)
+  return new TwitterAPI.TwClient({ cookieStoreId })
+}
+
 function handleExtensionMessage(
   message: RBMessageToBackgroundType,
-  _sender: browser.runtime.MessageSender
+  sender: browser.runtime.MessageSender
 ) {
   switch (message.messageType) {
     case 'CreateChainBlockSession':
@@ -81,7 +94,8 @@ function handleExtensionMessage(
           startSession(result.value).then(sendProgress)
         } else {
           // 이 시점에선 이미 target check를 통과한 요청만이 들어와야 한다
-          throw new Error(checkResultToString(result.error))
+          // throw new Error(checkResultToString(result.error))
+          alertToCurrentTab(checkResultToString(result.error))
         }
       }
       break
@@ -117,16 +131,22 @@ function handleExtensionMessage(
       removeUserFromStorage(message.user)
       break
     case 'BlockSingleUser':
-      TwitterAPI.blockUser(message.user)
+      twClientFromTab(sender.tab!).then(twClient => twClient.blockUser(message.user))
       break
     case 'UnblockSingleUser':
-      TwitterAPI.unblockUser(message.user)
+      twClientFromTab(sender.tab!).then(twClient => twClient.unblockUser(message.user))
       break
     case 'RefreshSavedUsers':
-      refreshSavedUsers()
+      refreshSavedUsers(message.cookieOptions)
+      break
+    case 'RequestBlockLimiterStatus':
+      sendBlockLimiterStatus(message.userId)
       break
     case 'RequestResetCounter':
-      blockLimiter.reset()
+      {
+        const blockLimiter = new BlockLimiter(message.userId)
+        blockLimiter.reset()
+      }
       break
     case 'DownloadFromExportSession':
       chainblocker.downloadFileFromExportSession(message.sessionId)
@@ -167,7 +187,6 @@ function initialize() {
   )
   initializeContextMenu(chainblocker)
   initializeWebRequest()
-  initializeBlockAPILimiter(blockLimiter)
 }
 
 initialize()

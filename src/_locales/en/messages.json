@@ -42,13 +42,19 @@
     "message": "Mentioned Users"
   },
   "chainblock": {
-    "message": "Chainblock"
+    "message": "Chain-block"
   },
   "unchainblock": {
-    "message": "Unchainblock"
+    "message": "Unchain-block"
   },
   "chainunfollow": {
-    "message": "Chainunfollow"
+    "message": "Chain-unfollow"
+  },
+  "chainmute": {
+    "message": "Chain-mute"
+  },
+  "unchainmute": {
+    "message": "Unchain-mute"
   },
   "lockpicker": {
     "message": "Block protected followers"
@@ -164,7 +170,7 @@
     "message": "Stop all"
   },
   "cleanup_sessions": {
-    "message": "Clear completed sessions"
+    "message": "Clear completed"
   },
   "session_is_empty": {
     "message": "Currently there are no sessions."
@@ -215,16 +221,16 @@
     "message": "Refresh"
   },
   "user_not_selected": {
-    "message": "Select target user to run Chainblock on"
+    "message": "Select target user to run Chain-block on"
   },
   "profile_image": {
     "message": "Profile image"
   },
   "cant_chainblock_to_protected": {
-    "message": "Can't run Chainblock on protected user."
+    "message": "Can't run Chain-block on protected user."
   },
   "cant_chainblock_to_blocked": {
-    "message": "Can't run Chainblock on user that blocks you."
+    "message": "Can't run Chain-block on user that blocks you."
   },
   "target": {
     "message": "Target"
@@ -332,71 +338,49 @@
     "message": "Options"
   },
   "chainblock_description": {
-    "message": "Blocks all users according to the options you set."
+    "message": "Block all users according to the options you set."
   },
   "unchainblock_description": {
-    "message": "Unblocks all users according to the options you set."
+    "message": "Unblock all users according to the options you set."
   },
   "lockpicker_description": {
-    "message": "Unlike Chainblock, it will block *only* protected followers who doesn't follow back to you, and nobody else will be blocked."
+    "message": "Unlike Chain-block, it will block *only* protected followers who doesn't follow back to you, and nobody else will be blocked."
   },
   "chainunfollow_description": {
-    "message": "Unfollow all users that followed by you according to the options you set."
+    "message": "Unfollow all users that followed by you. Your mutual-followers won't be unfollowed."
   },
-  "my_mutual_followers_wont_block": {
-    "message": "Your mutual-followers won't be blocked to prevent muting/blocking your friends."
+  "chainmute_description": {
+    "message": "Mute all users according to the options you set."
   },
-  "confirm_follower_chainblock_title": {
-    "message": "Do you want to run Chainblock on @$username$?",
-    "placeholders": {
-      "username": {
-        "content": "$1"
-      }
-    }
+  "unchainmute_description": {
+    "message": "Unmute all users according to the options you set."
   },
-  "confirm_follower_unchainblock_title": {
-    "message": "Do you want to run Unchainblock on @$username$?",
-    "placeholders": {
-      "username": {
-        "content": "$1"
-      }
-    }
+  "my_mutual_followers_wont_block_or_mute": {
+    "message": "Your mutual-followers won't be blocked/muted."
   },
-  "confirm_reacted_chainblock_title": {
-    "message": "Do you want to run Chainblock on users that reacted @$username$'s tweet?",
-    "placeholders": {
-      "username": {
-        "content": "$1"
-      }
-    }
+  "confirm_chainblock_title": {
+    "message": "Do you want to run Chain-block?"
   },
-  "confirm_import_chainblock_title": {
-    "message": "Do you want to block users from imported list?"
+  "confirm_unchainblock_title": {
+    "message": "Do you want to run Unchain-block?"
   },
-  "confirm_lockpicker_title": {
+  "confirm_chainmute_title": {
+    "message": "Do you want to run Chain-mute?"
+  },
+  "confirm_unchainmute_title": {
+    "message": "Do you want to run Unchain-mute?"
+  },
+  "confirm_chainunfollow_title": {
+    "message": "Do you want to run Chain-unfollow?"
+  },
+  "confirm_lockpicker_block_title": {
     "message": "Do you want to block protected followers?"
   },
-  "confirm_search_chainblock_title": {
-    "message": "Do you want to block users from search result?"
+  "confirm_lockpicker_bnb_title": {
+    "message": "Do you want to block-and-unblock protected followers?"
   },
-  "confirm_follower_chainunfollow_title": {
-    "message": "Do you want to Chain-unfollow on @$username$?",
-    "placeholders": {
-      "username": {
-        "content": "$1"
-      }
-    }
-  },
-  "confirm_reacted_chainunfollow_title": {
-    "message": "Do you want to run Chain-unfollow on users that reacted @$username$'s tweet?",
-    "placeholders": {
-      "username": {
-        "content": "$1"
-      }
-    }
-  },
-  "confirm_search_chainunfollow_title": {
-    "message": "Do you want to unfollow users from search result?"
+  "confirm_export_title": {
+    "message": "Do you want to export user lists?"
   },
   "user_count": {
     "message": "Users"
@@ -408,7 +392,7 @@
     "message": "Import blocklist"
   },
   "usersearch_chainblock": {
-    "message": "User search result Chainblock"
+    "message": "User search result Chain-block"
   },
   "pick_file_first": {
     "message": "Pick blocklist file first."
@@ -426,13 +410,15 @@
     "message": "Caution! This option may lose users who you follow."
   },
   "tweet_contents": {
-    "message": "Tweet's contents"
+    "message": "Tweet content"
   },
-  "execute_chainblock": {
-    "message": "Run Chainblock"
-  },
-  "execute_unchainblock": {
-    "message": "Run Unchainblock"
+  "run_xxx": {
+    "message": "Run $purpose$",
+    "placeholders": {
+      "purpose": {
+        "content": "$1"
+      }
+    }
   },
   "confirm_session_stop_message": {
     "message": "Do you want to stop this session?"
@@ -459,8 +445,32 @@
       }
     }
   },
+  "bnbed_n_users": {
+    "message": "Block-and-unblocked $count$ users.",
+    "placeholders": {
+      "count": {
+        "content": "$1"
+      }
+    }
+  },
   "unfollowed_n_users": {
     "message": "Unfollowed $count$ users.",
+    "placeholders": {
+      "count": {
+        "content": "$1"
+      }
+    }
+  },
+  "muted_n_users": {
+    "message": "Muted $count$ users.",
+    "placeholders": {
+      "count": {
+        "content": "$1"
+      }
+    }
+  },
+  "unmuted_n_users": {
+    "message": "Unmuted $count$ users.",
     "placeholders": {
       "count": {
         "content": "$1"
@@ -473,17 +483,29 @@
   "already_unblocked": {
     "message": "Already unblocked"
   },
+  "already_muted": {
+    "message": "Already muted"
+  },
+  "already_unmuted": {
+    "message": "Already unmuted"
+  },
   "chainblock_completed": {
-    "message": "Chainblock completed!"
+    "message": "Chain-block completed!"
   },
   "unchainblock_completed": {
-    "message": "Unchainblock completed!"
+    "message": "Unchain-block completed!"
   },
   "lockpicker_completed": {
     "message": "Blocking protected follower completed!"
   },
   "chainunfollow_completed": {
     "message": "Chain-unfollow completed!"
+  },
+  "chainmute_completed": {
+    "message": "Chain-mute completed!"
+  },
+  "unchainmute_completed": {
+    "message": "Unchain-mute completed!"
   },
   "yes": {
     "message": "Yes"
@@ -501,25 +523,25 @@
     "message": "Rate limited. Please try again later."
   },
   "run_followers_chainblock_to_this_user": {
-    "message": "Run Chainblock on this user's followers"
+    "message": "Run Chain-block on this user's followers"
   },
   "run_followings_chainblock_to_this_user": {
-    "message": "Run Chainblock on this user's followings"
+    "message": "Run Chain-block on this user's followings"
   },
   "run_mutual_followers_chainblock_to_this_user": {
-    "message": "Run Chainblock on this user's mutual-followers"
+    "message": "Run Chain-block on this user's mutual-followers"
   },
   "run_retweeters_chainblock_to_this_tweet": {
-    "message": "Run Chainblock on users who retweeted this tweet"
+    "message": "Run Chain-block on users who retweeted this tweet"
   },
   "run_likers_chainblock_to_this_tweet": {
-    "message": "Run Chainblock on users who liked this tweet"
+    "message": "Run Chain-block on users who liked this tweet"
   },
   "run_retweeters_and_likers_chainblock_to_this_tweet": {
-    "message": "Run Chainblock on users who retweeted or liked this tweet"
+    "message": "Run Chain-block on users who retweeted or liked this tweet"
   },
   "run_mentioned_users_chainblock_to_this_tweet": {
-    "message": "Run Chainblock on users who mentioned on this tweet"
+    "message": "Run Chain-block on users who mentioned on this tweet"
   },
   "already_running_to_same_target": {
     "message": "Already running on the same target."
@@ -537,16 +559,19 @@
     "message": "There's no user to block on this tweet."
   },
   "cant_chainblock_empty_list": {
-    "message": "A list is empty or can't find any user ID."
+    "message": "You didn't select blocklist file yet, or can't find any user ID in selected blocklist."
   },
   "cant_chainblock_to_yourself": {
-    "message": "You can't run chainblock to yourself."
+    "message": "You can't run Chain-block to yourself."
   },
   "cant_lockpicker_to_others": {
-    "message": "You can't run protected-follower-chainblock to other user."
+    "message": "You can't run Protected-follower-chainblock to other user."
+  },
+  "cant_chainblock_searchquery_invalid": {
+    "message": "Search query is not valid."
   },
   "wtf_twitter": {
-    "message": "⚠️ To avoid problem(force-logout, account suspension), Red Block won't block over 500 users."
+    "message": "To avoid problem(force-logout, account suspension), Red Block won't block over 500 users."
   },
   "oneclick_block_mode": {
     "message": "One-click block mode"
@@ -592,6 +617,9 @@
   },
   "regexp": {
     "message": "RegExp"
+  },
+  "edit": {
+    "message": "Edit"
   },
   "add_word_button": {
     "message": "Add"
@@ -642,7 +670,7 @@
     "message": "Disable"
   },
   "bioblock_all": {
-    "message": "Enable (All)"
+    "message": "Enable"
   },
   "bioblock_smart": {
     "message": "Enable (Smart)"
@@ -684,19 +712,14 @@
       }
     }
   },
-  "confirm_follower_export_title": {
-    "message": "Do you want to export user lists from @$username$?",
-    "placeholders": {
-      "username": {
-        "content": "$1"
-      }
-    }
-  },
   "export_description": {
-    "message": "Generate & export blocklist file from users according to the options you set."
+    "message": "Generate blocklist file from users."
   },
   "save": {
     "message": "Save"
+  },
+  "not_saved_yet": {
+    "message": "Not saved yet"
   },
   "save_button_description": {
     "message": "Save exported blocklist file"
@@ -709,5 +732,67 @@
   },
   "protected_follower": {
     "message": "Protected Follower"
+  },
+  "current_account": {
+    "message": "Current Account: @$username$ ($name$)",
+    "placeholders": {
+      "username": {
+        "content": "$1"
+      },
+      "name": {
+        "content": "$1"
+      }
+    }
+  },
+  "oneclick_block_mode_description": {
+    "message": "Oneclick-block button will appear on users or tweets."
+  },
+  "troubleshooting": {
+    "message": "Troubleshooting"
+  },
+  "delete_cookie": {
+    "message": "Delete cookies"
+  },
+  "confirm_delete_cookie": {
+    "message": "Are you sure to delete Twitter-related cookies?"
+  },
+  "delete_cookie_description": {
+    "message": "If you're experiencing a malfunction on Twitter after Chain-block overuse, try to delete Twitter-related cookies by clicking this button. Note that your account will be logged out immediately after deleting cookies."
+  },
+  "cookie_delete_complete": {
+    "message": "Cookie Deleted!"
+  },
+  "its_you": {
+    "message": "It's you!"
+  },
+  "enable_antiblock": {
+    "message": "Enable AntiBlock"
+  },
+  "enable_bioblock": {
+    "message": "Enable BioBlock"
+  },
+  "enable_chainmute": {
+    "message": "Enable Chain-mute"
+  },
+  "1st_party_isolation_compatible_mode": {
+    "message": "Compatible Firefox's 1st-party isolation mode."
+  },
+  "antiblock_description": {
+    "message": "You can run Chain-block to the user, even they block you. Note that this feature requires logged in with two or more accounts and at least one of the accounts should be able to see their's followers list."
+  },
+  "1st_party_isolation_compatible_mode_description": {
+    "message": "Be compatible with Firefox's 1st-party isolation mode. If you're on the non-Firefox browser, Enabling this option makes Red Block's most features became unavailable."
+  },
+  "muted_and_also_blocked": {
+    "message": "Blocked user"
+  },
+  "throttle_block": {
+    "message": "Throttle mute or block requests"
+  },
+  "users_in_other_tab": {
+    "message": "Users in other tab"
+  },
+  "mute_even_already_blocked": {
+    "message": "Chain-mute: Mute already blocked user"
   }
 }

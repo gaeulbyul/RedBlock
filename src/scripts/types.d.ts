@@ -19,7 +19,6 @@ declare namespace uuid {
 }
 
 type FollowKind = 'followers' | 'friends' | 'mutual-followers'
-type Purpose = 'chainblock' | 'unchainblock' | 'export' | 'lockpicker' | 'chainunfollow'
 type ReactionKind = 'retweeted' | 'liked'
 
 type UserAction = 'Skip' | 'Block' | 'UnBlock' | 'Mute' | 'UnMute' | 'BlockAndUnBlock' | 'UnFollow'
@@ -103,11 +102,19 @@ declare namespace RBMessageToBackground {
   interface RefreshSavedUsers {
     messageType: 'RefreshSavedUsers'
     messageTo: 'background'
+    cookieOptions: CookieOptions
+  }
+
+  interface RequestBlockLimiterStatus {
+    messageType: 'RequestBlockLimiterStatus'
+    messageTo: 'background'
+    userId: string
   }
 
   interface RequestResetCounter {
     messageType: 'RequestResetCounter'
     messageTo: 'background'
+    userId: string
   }
 
   interface BlockSingleUser {
@@ -140,6 +147,7 @@ declare type RBMessageToBackgroundType =
   | RBMessageToBackground.RequestProgress
   | RBMessageToBackground.RequestCleanup
   | RBMessageToBackground.RefreshSavedUsers
+  | RBMessageToBackground.RequestBlockLimiterStatus
   | RBMessageToBackground.RequestResetCounter
   | RBMessageToBackground.BlockSingleUser
   | RBMessageToBackground.UnblockSingleUser
@@ -150,7 +158,13 @@ declare namespace RBMessageToPopup {
     messageType: 'ChainBlockInfo'
     messageTo: 'popup'
     sessions: SessionInfo[]
-    limiter: BlockLimiterStatus
+  }
+
+  interface BlockLimiterInfo {
+    messageType: 'BlockLimiterInfo'
+    messageTo: 'popup'
+    status: BlockLimiterStatus
+    userId: string
   }
 
   interface PopupSwitchTab {
@@ -162,6 +176,7 @@ declare namespace RBMessageToPopup {
 
 declare type RBMessageToPopupType =
   | RBMessageToPopup.ChainBlockInfo
+  | RBMessageToPopup.BlockLimiterInfo
   | RBMessageToPopup.PopupSwitchTab
 
 declare namespace RBMessageToContent {
@@ -258,6 +273,13 @@ interface TwitterArchiveBlockItem {
     accountId: string
     userLink: string
   }
+}
+
+// ---- cookie related ----
+
+interface CookieOptions {
+  cookieStoreId: string
+  actAsUserId?: string
 }
 
 // ---- browser notification types ----

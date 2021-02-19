@@ -1,11 +1,13 @@
 import { getUserNameFromURL } from '../common.js'
 import * as i18n from '../i18n.js'
-import { defaultSessionOptions } from './chainblock-session/session.js'
+import { defaultChainBlockPurposeOptions } from './chainblock-session/default-options.js'
 import * as TwitterAPI from './twitter-api.js'
-import type ChainBlocker from './chainblock.js'
 import { TargetCheckResult } from './target-checker.js'
 import { generateConfirmMessage, checkResultToString, objToString } from '../text-generate.js'
 import { alertToTab } from './background.js'
+import { getCookieStoreIdFromTab } from './cookie-handler.js'
+import { loadOptions } from './storage.js'
+import type ChainBlocker from './chainblock.js'
 
 type BrowserTab = browser.tabs.Tab
 
@@ -16,6 +18,10 @@ const documentUrlPatterns = [
   'https://tweetdeck.twitter.com/*',
 ]
 const tweetUrlPatterns = ['https://twitter.com/*/status/*', 'https://mobile.twitter.com/*/status/*']
+
+const extraTarget: SessionRequest['extraTarget'] = {
+  bioBlock: 'never',
+}
 
 function getTweetIdFromUrl(url: URL) {
   const match = /\/status\/(\d+)/.exec(url.pathname)
@@ -38,22 +44,27 @@ async function confirmFollowerChainBlockRequest(
   userName: string,
   followKind: FollowKind
 ) {
-  const myself = await TwitterAPI.getMyself().catch(() => null)
+  const cookieStoreId = await getCookieStoreIdFromTab(tab)
+  const twClient = new TwitterAPI.TwClient({ cookieStoreId })
+  const myself = await twClient.getMyself().catch(() => null)
   if (!myself) {
     return alertToTab(tab, i18n.getMessage('error_occured_check_login'))
   }
-  const user = await TwitterAPI.getSingleUserByName(userName)
+  const user = await twClient.getSingleUser({ screen_name: userName })
+  const options = await loadOptions()
   const request: FollowerBlockSessionRequest = {
-    purpose: 'chainblock',
-    options: defaultSessionOptions,
+    purpose: defaultChainBlockPurposeOptions,
+    options,
     target: {
       type: 'follower',
       list: followKind,
       user,
     },
     myself,
+    extraTarget,
+    cookieOptions: twClient.cookieOptions,
   }
-  const checkResult = chainblocker.checkTarget(request)
+  const checkResult = chainblocker.checkRequest(request)
   if (checkResult === TargetCheckResult.Ok) {
     return sendConfirmToTab(tab, request)
   } else {
@@ -72,22 +83,27 @@ async function confirmTweetReactionChainBlockRequest(
     blockMentionedUsers: boolean
   }
 ) {
-  const myself = await TwitterAPI.getMyself().catch(() => null)
+  const cookieStoreId = await getCookieStoreIdFromTab(tab)
+  const twClient = new TwitterAPI.TwClient({ cookieStoreId })
+  const myself = await twClient.getMyself().catch(() => null)
   if (!myself) {
     return alertToTab(tab, i18n.getMessage('error_occured_check_login'))
   }
-  const tweet = await TwitterAPI.getTweetById(tweetId)
+  const tweet = await twClient.getTweetById(tweetId)
+  const options = await loadOptions()
   const request: TweetReactionBlockSessionRequest = {
-    purpose: 'chainblock',
-    options: defaultSessionOptions,
+    purpose: defaultChainBlockPurposeOptions,
+    options,
     target: {
       type: 'tweet_reaction',
       tweet,
       ...whoToBlock,
     },
     myself,
+    extraTarget,
+    cookieOptions: twClient.cookieOptions,
   }
-  const checkResult = chainblocker.checkTarget(request)
+  const checkResult = chainblocker.checkRequest(request)
   if (checkResult === TargetCheckResult.Ok) {
     return sendConfirmToTab(tab, request)
   } else {
@@ -144,6 +160,7 @@ export async function initializeContextMenu(chainblocker: ChainBlocker) {
   })
 
   menus.create({
+    contexts: ['link'],
     type: 'separator',
   })
   // 우클릭 - 트윗
@@ -210,7 +227,6 @@ export async function initializeContextMenu(chainblocker: ChainBlocker) {
   // 확장기능버튼
   menus.create({
     contexts: ['browser_action'],
-    documentUrlPatterns: tweetUrlPatterns,
     title: i18n.getMessage('open_in_new_tab'),
     onclick(_clickEvent, _tab) {
       const url = browser.runtime.getURL('/popup/popup.html') + '?istab=1'
@@ -222,7 +238,6 @@ export async function initializeContextMenu(chainblocker: ChainBlocker) {
   })
   menus.create({
     contexts: ['browser_action'],
-    documentUrlPatterns: tweetUrlPatterns,
     title: i18n.getMessage('options'),
     onclick(_clickEvent, _tab) {
       browser.runtime.openOptionsPage()

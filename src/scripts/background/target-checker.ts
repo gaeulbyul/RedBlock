@@ -1,5 +1,3 @@
-import { checkUserIdBeforeLockPicker } from '../common.js'
-
 export const enum TargetCheckResult {
   Ok,
   AlreadyRunningOnSameTarget,
@@ -13,22 +11,38 @@ export const enum TargetCheckResult {
   TheyBlocksYou,
   CantChainBlockYourself,
   CantLockPickerToOther,
+  InvalidSearchQuery,
 }
 
-export function checkFollowerBlockTarget(
-  target: FollowerBlockSessionRequest['target']
-): TargetCheckResult {
-  const {
-    protected: isProtected,
-    blocked_by,
-    following,
-    followers_count,
-    friends_count,
-  } = target.user
-  if (isProtected && !following) {
+export function validateRequest(request: SessionRequest): TargetCheckResult {
+  const { target } = request
+  switch (target.type) {
+    case 'follower':
+      return checkFollowerBlockRequest(request as FollowerBlockSessionRequest)
+    case 'tweet_reaction':
+      return checkTweetReactionBlockRequest(request as TweetReactionBlockSessionRequest)
+    case 'lockpicker':
+      return checkLockPickerRequest(request as LockPickerSessionRequest)
+    case 'import':
+      return checkImportBlockRequest(request as ImportBlockSessionRequest)
+    case 'user_search':
+      return checkUserSearchBlockRequest(request as UserSearchBlockSessionRequest)
+  }
+}
+
+function checkFollowerBlockRequest({
+  target,
+  myself,
+  options,
+}: FollowerBlockSessionRequest): TargetCheckResult {
+  const { followers_count, friends_count } = target.user
+  if (target.user.protected && !target.user.following) {
     return TargetCheckResult.Protected
   }
-  if (blocked_by) {
+  if (target.user.id_str === myself.id_str) {
+    return TargetCheckResult.CantChainBlockYourself
+  }
+  if (target.user.blocked_by && !options.enableAntiBlock) {
     return TargetCheckResult.TheyBlocksYou
   }
   if (target.list === 'followers' && followers_count <= 0) {
@@ -41,9 +55,9 @@ export function checkFollowerBlockTarget(
   return TargetCheckResult.Ok
 }
 
-export function checkTweetReactionBlockTarget(
-  target: TweetReactionBlockSessionRequest['target']
-): TargetCheckResult {
+function checkTweetReactionBlockRequest({
+  target,
+}: TweetReactionBlockSessionRequest): TargetCheckResult {
   const { blockRetweeters, blockLikers, blockMentionedUsers } = target
   const mentions = target.tweet.entities.user_mentions || []
   if (!(blockRetweeters || blockLikers || blockMentionedUsers)) {
@@ -66,11 +80,25 @@ export function checkTweetReactionBlockTarget(
   return TargetCheckResult.Ok
 }
 
-export function checkImportBlockTarget(
-  target: ImportBlockSessionRequest['target']
-): TargetCheckResult {
-  if (target.userIds.length <= 0) {
+function checkImportBlockRequest({ target }: ImportBlockSessionRequest): TargetCheckResult {
+  if (target.userIds.length <= 0 && target.userNames.length <= 0) {
     return TargetCheckResult.EmptyList
+  }
+  return TargetCheckResult.Ok
+}
+function checkLockPickerRequest({ target, myself }: LockPickerSessionRequest): TargetCheckResult {
+  if (target.user.followers_count <= 0) {
+    return TargetCheckResult.NoFollowers
+  }
+  if (target.user.id_str !== myself.id_str) {
+    return TargetCheckResult.CantLockPickerToOther
+  }
+  return TargetCheckResult.Ok
+}
+
+function checkUserSearchBlockRequest({ target }: UserSearchBlockSessionRequest): TargetCheckResult {
+  if (!target.query) {
+    return TargetCheckResult.InvalidSearchQuery
   }
   return TargetCheckResult.Ok
 }
@@ -88,29 +116,15 @@ export function isSameTarget(target1: SessionRequest['target'], target2: Session
       const givenTweet = (target2 as TweetReactionBlockSessionRequest['target']).tweet
       return target1.tweet.id_str === givenTweet.id_str
     }
+    case 'lockpicker':
+      return true
     case 'import':
       return false
     case 'user_search': {
-      // Q: ´ë¼Ò¹®ÀÚ°¡ °°À¸¸é °°Àº targetÀ¸·Î Ãë±ÞÇØ¾ß ÇÏ³ª?
+      // Q: ëŒ€ì†Œë¬¸ìžê°€ ê°™ìœ¼ë©´ ê°™ì€ targetìœ¼ë¡œ ì·¨ê¸‰í•´ì•¼ í•˜ë‚˜?
+      // A: OR AND ë“± ëŒ€ì†Œë¬¸ìž ê°€ë¦¬ëŠ” ì—°ì‚°ìž ìžˆë‹¤. ë‹¤ë¥´ê²Œ ì·¨ê¸‰í•˜ìž
       const givenQuery = (target2 as UserSearchBlockSessionRequest['target']).query
       return target1.query === givenQuery
     }
-  }
-}
-
-export function checkLockPickerTarget(request: FollowerBlockSessionRequest): TargetCheckResult {
-  const validity = checkUserIdBeforeLockPicker({
-    purpose: request.purpose,
-    myselfId: request.myself.id_str,
-    givenUserId: request.target.user.id_str,
-  })
-  switch (validity) {
-    case 'self':
-    case 'other':
-      return TargetCheckResult.Ok
-    case 'invalid self':
-      return TargetCheckResult.CantLockPickerToOther
-    case 'invalid other':
-      return TargetCheckResult.CantChainBlockYourself
   }
 }

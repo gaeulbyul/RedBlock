@@ -1,13 +1,14 @@
 import { PageEnum } from './pages.js'
 import { defaultOptions } from '../../scripts/background/storage.js'
 import type { DialogContent } from './components.js'
-import type { TwitterUser } from '../../scripts/background/twitter-api.js'
+import { TwClient, TwitterUser } from '../../scripts/background/twitter-api.js'
 
 export interface AvailablePages {
   followerChainBlock: boolean
   tweetReactionChainBlock: boolean
   userSearchChainBlock: boolean
   importChainBlock: boolean
+  lockPicker: boolean
   miscellaneous: boolean
 }
 
@@ -36,3 +37,5 @@ export const BlockLimiterContext = React.createContext<BlockLimiterStatus>({
   max: 500,
   remained: 500,
 })
+
+export const TwitterAPIClientContext = React.createContext<TwClient>(null!)

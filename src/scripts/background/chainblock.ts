@@ -1,28 +1,18 @@
-import {
-  SessionStatus,
-  isRunningSession,
-  isRewindableSession,
-  checkUserIdBeforeLockPicker,
-} from '../common.js'
+import { SessionStatus, isRunningSession, isRewindableSession } from '../common.js'
+import { TwClient } from './twitter-api.js'
 import * as TextGenerate from '../text-generate.js'
 import * as i18n from '../i18n.js'
 import { alertToCurrentTab, notify, updateExtensionBadge } from './background.js'
-import {
-  TargetCheckResult,
-  checkImportBlockTarget,
-  checkFollowerBlockTarget,
-  checkTweetReactionBlockTarget,
-  isSameTarget,
-} from './target-checker.js'
+import { markUser } from './misc.js'
+import { TargetCheckResult, validateRequest, isSameTarget } from './target-checker.js'
 import { ChainBlockSession, ExportSession } from './chainblock-session/session.js'
 import { loadOptions } from './storage.js'
-import type BlockLimiter from './block-limiter.js'
 import { exportBlocklist } from './blocklist-process.js'
 
 export default class ChainBlocker {
   private readonly MAX_RUNNING_SESSIONS = 5
   private readonly sessions = new Map<string, Session>()
-  constructor(private readonly limiter: BlockLimiter) {}
+  constructor() {}
   public hasRunningSession(): boolean {
     if (this.sessions.size <= 0) {
       return false
@@ -36,69 +26,12 @@ export default class ChainBlocker {
     )
     return currentRunningSessions
   }
-  public checkTarget(request: SessionRequest): TargetCheckResult {
-    const { target, myself, purpose } = request
-    const sameTargetSession = this.getSessionByTarget(target)
-    if (sameTargetSession) {
-      const sessionInfo = sameTargetSession.getSessionInfo()
-      if (isRunningSession(sessionInfo)) {
-        return TargetCheckResult.AlreadyRunningOnSameTarget
-      }
-    }
-    if (request.target.type === 'follower') {
-      const targetUser = (target as FollowerBlockSessionRequest['target']).user
-      const isValidLockPicker = checkUserIdBeforeLockPicker({
-        purpose,
-        myselfId: myself.id_str,
-        givenUserId: targetUser.id_str,
-      })
-      if (isValidLockPicker.startsWith('invalid')) {
-        throw new Error('락피커 오폭방지 작동')
-      }
-    }
-    if (request.purpose === 'lockpicker') {
-      // 중복실행여부 및 락피커 타겟검증 테스트를 통과하면 더 이상 체크할 확인은 없다.
-      // (checkFollowerBlockTarget은 target이 상대방일 경우를 상정하며 만든 함수임)
-      return TargetCheckResult.Ok
-    }
-    switch (target.type) {
-      case 'follower':
-        return checkFollowerBlockTarget(target)
-      case 'tweet_reaction':
-        return checkTweetReactionBlockTarget(target)
-      case 'import':
-        return checkImportBlockTarget(target)
-      case 'user_search':
-        // 검색체인블락의 경우 중복실행 아니면 더 체크할 부분 없을...걸?
-        return TargetCheckResult.Ok
-    }
-  }
   private getSessionByTarget(target: SessionInfo['request']['target']): Session | null {
-    for (const session of this.getCurrentRunningSessions()) {
-      if (isSameTarget(session.getSessionInfo().request.target, target)) {
-        return session
-      }
-    }
-    return null
-  }
-  private async markUser(params: MarkUserParams) {
-    const tabs = await browser.tabs.query({
-      discarded: false,
-      url: ['https://twitter.com/*', 'https://mobile.twitter.com/*'],
-    })
-    tabs.forEach(tab => {
-      const id = tab.id
-      if (typeof id !== 'number') {
-        return
-      }
-      browser.tabs
-        .sendMessage<RBMessageToContent.MarkUser>(id, {
-          messageType: 'MarkUser',
-          messageTo: 'content',
-          ...params,
-        })
-        .catch(() => {})
-    })
+    return (
+      this.getCurrentRunningSessions().find(session =>
+        isSameTarget(session.getSessionInfo().request.target, target)
+      ) || null
+    )
   }
   private handleEvents(session: Session) {
     session.eventEmitter.on('started', () => {
@@ -111,7 +44,7 @@ export default class ChainBlocker {
       this.startRemainingSessions()
       this.updateBadge()
       const options = await loadOptions()
-      if (options.removeSessionAfterComplete && info.request.purpose !== 'export') {
+      if (options.removeSessionAfterComplete && info.request.purpose.type !== 'export') {
         this.remove(sessionId)
       }
     })
@@ -124,7 +57,7 @@ export default class ChainBlocker {
       this.updateBadge()
     })
     session.eventEmitter.on('mark-user', params => {
-      this.markUser(params)
+      markUser(params)
     })
   }
   private updateBadge() {
@@ -150,6 +83,16 @@ export default class ChainBlocker {
       }
     }
   }
+  private checkAlreadyRunningOnSameTarget(target: SessionRequest['target']): boolean {
+    const sameTargetSession = this.getSessionByTarget(target)
+    if (sameTargetSession) {
+      const sessionInfo = sameTargetSession.getSessionInfo()
+      if (isRunningSession(sessionInfo)) {
+        return true
+      }
+    }
+    return false
+  }
   public remove(sessionId: string) {
     const session = this.sessions.get(sessionId)!
     if (isRunningSession(session.getSessionInfo())) {
@@ -159,16 +102,19 @@ export default class ChainBlocker {
     this.updateBadge()
   }
   private createSession(request: SessionRequest) {
+    const twClient = new TwClient(request.cookieOptions)
     let session: Session
-    switch (request.purpose) {
+    switch (request.purpose.type) {
       case 'chainblock':
       case 'unchainblock':
       case 'lockpicker':
       case 'chainunfollow':
-        session = new ChainBlockSession(request, this.limiter)
+      case 'chainmute':
+      case 'unchainmute':
+        session = new ChainBlockSession(twClient, request)
         break
       case 'export':
-        session = new ExportSession(request as ExportableSessionRequest)
+        session = new ExportSession(twClient, request as ExportableSessionRequest)
         break
     }
     this.handleEvents(session)
@@ -176,12 +122,9 @@ export default class ChainBlocker {
     return session
   }
   public add(request: SessionRequest): Either<TargetCheckResult, string> {
-    const isValidTarget = this.checkTarget(request)
+    const isValidTarget = validateRequest(request)
     if (isValidTarget !== TargetCheckResult.Ok) {
-      return {
-        ok: false,
-        error: isValidTarget,
-      }
+      throw new Error(TextGenerate.checkResultToString(isValidTarget))
     }
     const session = this.createSession(request)
     const sessionId = session.getSessionInfo().sessionId
@@ -248,9 +191,8 @@ export default class ChainBlocker {
       if (isRunningSession(sessionInfo)) {
         continue
       }
-      if (sessionInfo.request.purpose === 'export') {
-        const exportSession = session as ExportSession
-        if (!exportSession.downloaded) {
+      if (sessionInfo.request.purpose.type === 'export') {
+        if (!sessionInfo.exported) {
           continue
         }
       }
@@ -260,15 +202,21 @@ export default class ChainBlocker {
   }
   public downloadFileFromExportSession(sessionId: string) {
     const session = this.sessions.get(sessionId)! as ExportSession
-    if (session.getSessionInfo().request.purpose !== 'export') {
+    if (session.getSessionInfo().request.purpose.type !== 'export') {
       throw new Error('unreachable - this session is not export-session')
     }
     const exportResult = session.getExportResult()
     if (exportResult.userIds.size > 0) {
       exportBlocklist(exportResult)
-      session.downloaded = true
+      session.markAsExported()
     } else {
       alertToCurrentTab(i18n.getMessage('blocklist_is_empty'))
     }
+  }
+  public checkRequest(request: SessionRequest): TargetCheckResult {
+    if (this.checkAlreadyRunningOnSameTarget(request.target)) {
+      return TargetCheckResult.AlreadyRunningOnSameTarget
+    }
+    return validateRequest(request)
   }
 }

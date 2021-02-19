@@ -60,17 +60,27 @@ export async function removeUserFromStorage(user: TwitterUser) {
   })
 }
 
-export async function refreshSavedUsers() {
+export async function refreshSavedUsers(cookieOptions: CookieOptions) {
   return browser.runtime.sendMessage<RBMessageToBackground.RefreshSavedUsers>({
     messageType: 'RefreshSavedUsers',
     messageTo: 'background',
+    cookieOptions,
   })
 }
 
-export async function requestResetCounter() {
+export async function requestBlockLimiterStatus(userId: string) {
+  return browser.runtime.sendMessage<RBMessageToBackground.RequestBlockLimiterStatus>({
+    messageType: 'RequestBlockLimiterStatus',
+    messageTo: 'background',
+    userId,
+  })
+}
+
+export async function requestResetCounter(userId: string) {
   return browser.runtime.sendMessage<RBMessageToBackground.RequestResetCounter>({
     messageType: 'RequestResetCounter',
     messageTo: 'background',
+    userId,
   })
 }
 

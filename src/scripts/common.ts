@@ -1,5 +1,34 @@
 import { TwitterUserEntities, Limit } from './background/twitter-api.js'
 
+const userNameBlacklist = [
+  'about',
+  'account',
+  'blog',
+  'compose',
+  'download',
+  'explore',
+  'followers',
+  'followings',
+  'hashtag',
+  'home',
+  'i',
+  'intent',
+  'lists',
+  'login',
+  'logout',
+  'messages',
+  'notifications',
+  'oauth',
+  'privacy',
+  'search',
+  'session',
+  'settings',
+  'share',
+  'signup',
+  'tos',
+  'welcome',
+]
+
 export const enum SessionStatus {
   Initial,
   Running,
@@ -65,37 +94,14 @@ export class TwitterUserMap extends Map<string, TwitterUser> {
   ): TwitterUserMap {
     return TwitterUserMap.fromUsersArray(this.toUserArray().filter(fn))
   }
+  public merge(anotherMap: TwitterUserMap) {
+    for (const user of anotherMap.values()) {
+      this.addUser(user)
+    }
+  }
 }
 
 export function getUserNameFromURL(url: URL | Location | HTMLAnchorElement): string | null {
-  const userNameBlacklist = [
-    'about',
-    'account',
-    'blog',
-    'compose',
-    'download',
-    'explore',
-    'followers',
-    'followings',
-    'hashtag',
-    'home',
-    'i',
-    'intent',
-    'lists',
-    'login',
-    'logout',
-    'messages',
-    'notifications',
-    'oauth',
-    'privacy',
-    'search',
-    'session',
-    'settings',
-    'share',
-    'signup',
-    'tos',
-    'welcome',
-  ]
   const supportingHostname = ['twitter.com', 'mobile.twitter.com']
   if (!/^https?/.test(url.protocol)) {
     return null
@@ -103,8 +109,8 @@ export function getUserNameFromURL(url: URL | Location | HTMLAnchorElement): str
   if (!supportingHostname.includes(url.hostname)) {
     return null
   }
-  const nonUserPagePattern01 = /^\/\w\w\/(?:tos|privacy)/
-  if (nonUserPagePattern01.test(url.pathname)) {
+  const nonUserPagePattern = /^\/\w\w\/(?:tos|privacy)/
+  if (nonUserPagePattern.test(url.pathname)) {
     return null
   }
   const pattern = /^\/([0-9A-Za-z_]{1,15})/i
@@ -113,10 +119,18 @@ export function getUserNameFromURL(url: URL | Location | HTMLAnchorElement): str
     return null
   }
   const userName = match[1]
-  if (userNameBlacklist.includes(userName.toLowerCase())) {
-    return null
+  if (validateUserName(userName)) {
+    return userName
   }
-  return userName
+  return null
+}
+
+export function validateUserName(userName: string): boolean {
+  const pattern = /[0-9A-Za-z_]{1,15}/i
+  if (userNameBlacklist.includes(userName.toLowerCase())) {
+    return false
+  }
+  return pattern.test(userName)
 }
 
 export function sleep(time: number): Promise<void> {
@@ -165,6 +179,7 @@ export function getReactionsCount(target: TweetReactionBlockSessionRequest['targ
 export function getCountOfUsersToBlock({ target }: SessionRequest): number | null {
   switch (target.type) {
     case 'follower':
+    case 'lockpicker':
       return getFollowersCount(target.user, target.list)
     case 'tweet_reaction':
       return getReactionsCount(target)
@@ -200,25 +215,6 @@ export function getLimitResetTime(limit: Limit): string {
   return formatter.format(datetime)
 }
 
-// 주의! 리턴타입 바꾸기 전에 .startsWith('invalid') 로 짠 부분에 영향가지 않는지 체크할 것
-export function checkUserIdBeforeLockPicker({
-  purpose,
-  myselfId,
-  givenUserId,
-}: {
-  purpose: Purpose
-  myselfId: string
-  givenUserId: string
-}): 'self' | 'other' | 'invalid self' | 'invalid other' /* 주의 */ {
-  if (purpose === 'lockpicker') {
-    // 락피커의 타겟은 오직 나 자신이어야하고,
-    return myselfId === givenUserId ? 'self' : 'invalid self'
-  } else {
-    // 반대로 체인/언체인블락 타겟은 나 자신이어선 안된다.
-    return myselfId !== givenUserId ? 'other' : 'invalid other'
-  }
-}
-
 export function unwrap<T>(maybeValue: Either<Error, T>) {
   if (maybeValue.ok) {
     return maybeValue.value
@@ -236,7 +232,7 @@ export function wrapEitherRight<T>(value: T): EitherRight<T> {
   }
 }
 
-export function assertNever(shouldBeNever: never) {
+export function assertNever(shouldBeNever: never): never {
   console.error('triggered assertNever with: ', shouldBeNever)
   throw new Error('unreachable: assertNever')
 }

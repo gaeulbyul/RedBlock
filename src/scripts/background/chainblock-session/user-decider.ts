@@ -3,33 +3,43 @@ export function decideWhatToDoGivenUser(
   follower: TwitterUser,
   now: Dayjs
 ): UserAction | 'Skip' | 'AlreadyDone' {
-  if (request.purpose === 'export') {
+  const { purpose, options } = request
+  if (purpose.type === 'export') {
     throw new Error('unreachable')
   }
   const { following, followed_by } = follower
   if (!(typeof following === 'boolean' && typeof followed_by === 'boolean')) {
     throw new Error('following/followed_by property missing?')
   }
-  if (checkUserInactivity(follower, now, request.options.skipInactiveUser) === 'inactive') {
+  if (checkUserInactivity(follower, now, options.skipInactiveUser) === 'inactive') {
     return 'Skip'
   }
   let whatToDo: UserAction
-  switch (request.purpose) {
+  switch (purpose.type) {
     case 'chainblock':
-      whatToDo = decideWhenChainBlock(request, follower)
+      whatToDo = decideWhenChainBlock(purpose, follower)
       break
     case 'unchainblock':
-      whatToDo = decideWhenUnChainBlock(request, follower)
+      whatToDo = decideWhenUnChainBlock(purpose, follower)
       break
     case 'chainunfollow':
-      whatToDo = decideWhenChainUnfollow(request, follower)
+      whatToDo = decideWhenChainUnfollow(purpose, follower)
+      break
+    case 'chainmute':
+      whatToDo = decideWhenChainMute(purpose, follower)
+      break
+    case 'unchainmute':
+      whatToDo = decideWhenUnChainMute(purpose, follower)
       break
     case 'lockpicker':
-      whatToDo = decideWhenLockPicker(request, follower)
+      whatToDo = decideWhenLockPicker(purpose, follower)
       break
   }
   if (whatToDo === 'Skip') {
     return whatToDo
+  }
+  if (whatToDo === 'Mute' && follower.blocking) {
+    return options.muteEvenAlreadyBlocking ? 'Mute' : 'Skip'
   }
   if (isAlreadyDone(follower, whatToDo)) {
     return 'AlreadyDone'
@@ -37,8 +47,7 @@ export function decideWhatToDoGivenUser(
   return whatToDo
 }
 
-function decideWhenChainBlock(request: SessionRequest, follower: TwitterUser) {
-  const { options } = request
+function decideWhenChainBlock(purpose: ChainBlockPurpose, follower: TwitterUser) {
   const { following, followed_by, follow_request_sent } = follower
   const isMyFollowing = following || follow_request_sent
   const isMyFollower = followed_by
@@ -49,44 +58,67 @@ function decideWhenChainBlock(request: SessionRequest, follower: TwitterUser) {
     return 'Skip'
   }
   if (isMyFollower) {
-    return options.myFollowers
+    return purpose.myFollowers
   }
   if (isMyFollowing) {
-    return options.myFollowings
+    return purpose.myFollowings
   }
   return 'Block'
 }
 
-function decideWhenUnChainBlock(request: SessionRequest, follower: TwitterUser) {
-  const { options } = request
+function decideWhenUnChainBlock(purpose: UnChainBlockPurpose, follower: TwitterUser) {
   if (follower.blocking && follower.blocked_by) {
-    return options.mutualBlocked
+    return purpose.mutualBlocked
   }
   return 'UnBlock'
 }
 
-function decideWhenLockPicker(request: SessionRequest, follower: TwitterUser) {
-  const { options } = request
+function decideWhenLockPicker(purpose: LockPickerPurpose, follower: TwitterUser) {
   const { following, followed_by } = follower
   if (follower.protected && followed_by && !following) {
-    return options.protectedFollowers
+    return purpose.protectedFollowers
   }
   return 'Skip'
 }
 
-function decideWhenChainUnfollow(request: SessionRequest, follower: TwitterUser) {
-  const { options } = request
+function decideWhenChainUnfollow(_purpose: ChainUnfollowPurpose, follower: TwitterUser) {
   const { following, followed_by, follow_request_sent } = follower
   const isMyFollowing = following || follow_request_sent
   const isMyFollower = followed_by
   const isMyMutualFollower = isMyFollower && isMyFollowing
   if (isMyMutualFollower) {
-    return options.myMutualFollowers
+    return 'Skip'
   }
   if (!isMyFollowing) {
     return 'Skip'
   }
   return 'UnFollow'
+}
+
+function decideWhenChainMute(purpose: ChainMutePurpose, follower: TwitterUser) {
+  const { following, followed_by, follow_request_sent } = follower
+  const isMyFollowing = following || follow_request_sent
+  const isMyFollower = followed_by
+  const isMyMutualFollower = isMyFollower && isMyFollowing
+  // 주의!
+  // 팝업 UI에 나타난 순서를 고려할 것.
+  if (isMyMutualFollower) {
+    return 'Skip'
+  }
+  if (isMyFollower) {
+    return purpose.myFollowers
+  }
+  if (isMyFollowing) {
+    return purpose.myFollowings
+  }
+  return 'Mute'
+}
+
+function decideWhenUnChainMute(purpose: UnChainMutePurpose, follower: TwitterUser) {
+  if (follower.muting && follower.blocking) {
+    return purpose.mutedAndAlsoBlocked
+  }
+  return 'UnMute'
 }
 
 function isAlreadyDone(follower: TwitterUser, action: UserAction): boolean {
@@ -100,7 +132,7 @@ function isAlreadyDone(follower: TwitterUser, action: UserAction): boolean {
     case muting && action === 'Mute':
     case !muting && action === 'UnMute':
     case !following && action === 'UnFollow':
-    case !followed_by && action === 'BlockAndUnBlock':
+    case !followed_by && !following && action === 'BlockAndUnBlock':
       return true
     default:
       return false

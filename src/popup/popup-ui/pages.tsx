@@ -9,6 +9,7 @@ export const enum PageEnum {
   NewTweetReactionBlock,
   NewSearchChainBlock,
   Blocklist,
+  LockPicker,
   Utilities,
 }
 
@@ -25,6 +26,8 @@ export function pageIcon(page: PageEnum): React.ReactElement {
       return <M.Icon>search</M.Icon>
     case PageEnum.Blocklist:
       return <M.Icon>list_alt</M.Icon>
+    case PageEnum.LockPicker:
+      return <M.Icon>no_encryption</M.Icon>
     case PageEnum.Utilities:
       return <M.Icon>build</M.Icon>
   }
@@ -42,6 +45,8 @@ export function pageLabel(page: PageEnum, sessionsCount = 0): string {
       return i18n.getMessage('new_searchblock_session')
     case PageEnum.Blocklist:
       return i18n.getMessage('blocklist_page')
+    case PageEnum.LockPicker:
+      return i18n.getMessage('lockpicker')
     case PageEnum.Utilities:
       return i18n.getMessage('miscellaneous')
   }

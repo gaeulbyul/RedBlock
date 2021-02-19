@@ -1,9 +1,9 @@
-// import * as TwitterAPI from '../twitter-api.js'
-// import * as i18n from '../../i18n.js'
-// 위 import는 AntiblockScraper에서 사용하던 거
+import { TwClient } from '../twitter-api.js'
+import * as i18n from '../../i18n.js'
 import * as UserScrapingAPI from '../user-scraping-api.js'
 import * as ExtraScraper from './extra-scraper.js'
-import { getFollowersCount, getReactionsCount } from '../../common.js'
+import { getFollowersCount, getReactionsCount, assertNever } from '../../common.js'
+import { prepareActor } from '../antiblock.js'
 
 export interface UserScraper {
   totalCount: number | null
@@ -12,49 +12,65 @@ export interface UserScraper {
 
 // 단순 스크래퍼. 기존 체인블락 방식
 class SimpleScraper implements UserScraper {
+  private scrapingClient = new UserScrapingAPI.UserScrapingAPIClient(this.twClient)
   public totalCount: number
-  constructor(private request: FollowerBlockSessionRequest) {
+  public constructor(
+    private twClient: TwClient,
+    private request: FollowerBlockSessionRequest | LockPickerSessionRequest
+  ) {
     const { user, list: followKind } = this.request.target
     this.totalCount = getFollowersCount(user, followKind)!
   }
   public async *[Symbol.asyncIterator]() {
     const { user, list: followKind } = this.request.target
-    let scraper: ScrapedUsersIterator = UserScrapingAPI.getAllFollowsUserList(followKind, user)
-    scraper = ExtraScraper.scrapeUsersOnBio(scraper, this.request.options.includeUsersInBio)
+    let scraper: ScrapedUsersIterator = this.scrapingClient.getAllFollowsUserList(followKind, user)
+    scraper = ExtraScraper.scrapeUsersOnBio(
+      this.scrapingClient,
+      scraper,
+      this.request.extraTarget.bioBlock
+    )
     yield* scraper
   }
 }
 
 // 맞팔로우 스크래퍼
 class MutualFollowerScraper implements UserScraper {
+  private scrapingClient = new UserScrapingAPI.UserScrapingAPIClient(this.twClient)
   public totalCount: number | null = null
-  public constructor(private request: FollowerBlockSessionRequest) {}
+  public constructor(private twClient: TwClient, private request: FollowerBlockSessionRequest) {}
   public async *[Symbol.asyncIterator]() {
-    const mutualFollowersIds = await UserScrapingAPI.getAllMutualFollowersIds(
+    const mutualFollowersIds = await this.scrapingClient.getAllMutualFollowersIds(
       this.request.target.user
     )
     this.totalCount = mutualFollowersIds.length
-    let scraper: ScrapedUsersIterator = UserScrapingAPI.lookupUsersByIds(mutualFollowersIds)
-    scraper = ExtraScraper.scrapeUsersOnBio(scraper, this.request.options.includeUsersInBio)
+    let scraper: ScrapedUsersIterator = this.scrapingClient.lookupUsersByIds(mutualFollowersIds)
+    scraper = ExtraScraper.scrapeUsersOnBio(
+      this.scrapingClient,
+      scraper,
+      this.request.extraTarget.bioBlock
+    )
     yield* scraper
   }
 }
 
 // 차단상대 대상 스크래퍼
-/*
 class AntiBlockScraper implements UserScraper {
+  private scrapingClient = new UserScrapingAPI.UserScrapingAPIClient(this.twClient)
   public totalCount: number | null = null
-  constructor(private request: FollowerBlockSessionRequest) {}
-  private async getMutualFollowersIds(actAsUserId: string) {
-    const mutualFollowerIds = await UserScrapingAPI.getAllMutualFollowersIds(
-      this.request.target.user,
-      actAsUserId
+  public constructor(private twClient: TwClient, private request: FollowerBlockSessionRequest) {}
+  private async getMutualFollowersIdsWith(
+    secondaryScrapingClient: UserScrapingAPI.UserScrapingAPIClient
+  ) {
+    const mutualFollowerIds = await secondaryScrapingClient.getAllMutualFollowersIds(
+      this.request.target.user
     )
     return mutualFollowerIds
   }
-  private async getFollowersIds(actAsUserId: string) {
+  private async getFollowersIdsWith(
+    secondaryScrapingClient: UserScrapingAPI.UserScrapingAPIClient
+  ) {
     const { user, list: followKind } = this.request.target
-    const idsIterator = UserScrapingAPI.getAllFollowsIds(followKind, user, { actAsUserId })
+    const idsIterator = secondaryScrapingClient.getAllFollowsIds(followKind, user)
     const userIds: string[] = []
     for await (const response of idsIterator) {
       if (!response.ok) {
@@ -64,113 +80,148 @@ class AntiBlockScraper implements UserScraper {
     }
     return userIds
   }
-  private async prepareActor() {
-    const multiCookies = await TwitterAPI.getMultiAccountCookies()
-    if (multiCookies) {
-      const actorUserIds = Object.keys(multiCookies)
-      for (const actorId of actorUserIds) {
-        const target = await TwitterAPI.getSingleUserById(
-          this.request.target.user.id_str,
-          actorId
-        ).catch(() => null)
-        if (target && !target.blocked_by) {
-          return actorId
-        }
-      }
-    }
-    throw new Error(i18n.getMessage('cant_chainblock_to_blocked'))
-  }
-  private async fetchFollowersIds(): Promise<string[]> {
-    const { list: followKind } = this.request.target
+  private async fetchFollowersIds(
+    secondaryScrapingClient: UserScrapingAPI.UserScrapingAPIClient
+  ): Promise<string[]> {
     let userIds: string[]
-    const actAsUserId = await this.prepareActor()
+    const { list: followKind } = this.request.target
     if (followKind === 'mutual-followers') {
-      userIds = await this.getMutualFollowersIds(actAsUserId)
+      userIds = await this.getMutualFollowersIdsWith(secondaryScrapingClient)
     } else {
-      userIds = await this.getFollowersIds(actAsUserId)
+      userIds = await this.getFollowersIdsWith(secondaryScrapingClient)
     }
     this.totalCount = userIds.length
     return userIds
   }
   public async *[Symbol.asyncIterator]() {
-    const userIds = await this.fetchFollowersIds()
-    let scraper: ScrapedUsersIterator = UserScrapingAPI.lookupUsersByIds(userIds)
-    scraper = ExtraScraper.scrapeUsersOnBio(scraper, this.request.options.includeUsersInBio)
+    const secondaryTwClient = await prepareActor(this.request, this.request.target.user.id_str)
+    if (!secondaryTwClient) {
+      throw new Error(i18n.getMessage('cant_chainblock_to_blocked'))
+    }
+    const secondaryScrapingClient = new UserScrapingAPI.UserScrapingAPIClient(secondaryTwClient)
+    const userIds = await this.fetchFollowersIds(secondaryScrapingClient)
+    let scraper: ScrapedUsersIterator = this.scrapingClient.lookupUsersByIds(userIds)
+    scraper = ExtraScraper.scrapeUsersOnBio(
+      this.scrapingClient,
+      scraper,
+      this.request.extraTarget.bioBlock
+    )
     yield* scraper
   }
 }
-*/
 
 // 트윗반응 유저 스크래퍼
 class TweetReactedUserScraper implements UserScraper {
+  private scrapingClient = new UserScrapingAPI.UserScrapingAPIClient(this.twClient)
   public totalCount: number
-  constructor(private request: TweetReactionBlockSessionRequest) {
+  public constructor(
+    private twClient: TwClient,
+    private request: TweetReactionBlockSessionRequest
+  ) {
     this.totalCount = getReactionsCount(request.target)
   }
   public async *[Symbol.asyncIterator]() {
     const { tweet, blockRetweeters, blockLikers, blockMentionedUsers } = this.request.target
     let scraper: ScrapedUsersIterator
     if (blockRetweeters) {
-      scraper = UserScrapingAPI.getAllReactedUserList('retweeted', tweet)
-      scraper = ExtraScraper.scrapeUsersOnBio(scraper, this.request.options.includeUsersInBio)
+      scraper = this.scrapingClient.getAllReactedUserList('retweeted', tweet)
+      scraper = ExtraScraper.scrapeUsersOnBio(
+        this.scrapingClient,
+        scraper,
+        this.request.extraTarget.bioBlock
+      )
       yield* scraper
     }
     if (blockLikers) {
-      scraper = UserScrapingAPI.getAllReactedUserList('liked', tweet)
-      scraper = ExtraScraper.scrapeUsersOnBio(scraper, this.request.options.includeUsersInBio)
+      scraper = this.scrapingClient.getAllReactedUserList('liked', tweet)
+      scraper = ExtraScraper.scrapeUsersOnBio(
+        this.scrapingClient,
+        scraper,
+        this.request.extraTarget.bioBlock
+      )
       yield* scraper
     }
     if (blockMentionedUsers) {
       const mentions = tweet.entities.user_mentions || []
       const mentionedUserIds = mentions.map(e => e.id_str)
-      scraper = UserScrapingAPI.lookupUsersByIds(mentionedUserIds)
-      scraper = ExtraScraper.scrapeUsersOnBio(scraper, this.request.options.includeUsersInBio)
+      scraper = this.scrapingClient.lookupUsersByIds(mentionedUserIds)
+      scraper = ExtraScraper.scrapeUsersOnBio(
+        this.scrapingClient,
+        scraper,
+        this.request.extraTarget.bioBlock
+      )
       yield* scraper
     }
   }
 }
 
 class ImportUserScraper implements UserScraper {
+  private scrapingClient = new UserScrapingAPI.UserScrapingAPIClient(this.twClient)
   public totalCount = this.request.target.userIds.length
-  constructor(private request: ImportBlockSessionRequest) {}
+  public constructor(private twClient: TwClient, private request: ImportBlockSessionRequest) {}
   public async *[Symbol.asyncIterator]() {
-    let scraper: ScrapedUsersIterator = UserScrapingAPI.lookupUsersByIds(
-      this.request.target.userIds
-    )
-    scraper = ExtraScraper.scrapeUsersOnBio(scraper, this.request.options.includeUsersInBio)
-    yield* scraper
+    // 여러 파일을 import한다면 유저ID와 유저네임 둘 다 있을 수 있다.
+    const { userIds, userNames } = this.request.target
+    let scraper: ScrapedUsersIterator
+    if (userIds.length > 0) {
+      scraper = this.scrapingClient.lookupUsersByIds(userIds)
+      scraper = ExtraScraper.scrapeUsersOnBio(
+        this.scrapingClient,
+        scraper,
+        this.request.extraTarget.bioBlock
+      )
+      yield* scraper
+    }
+    if (userNames.length > 0) {
+      scraper = this.scrapingClient.lookupUsersByNames(userNames)
+      scraper = ExtraScraper.scrapeUsersOnBio(
+        this.scrapingClient,
+        scraper,
+        this.request.extraTarget.bioBlock
+      )
+      yield* scraper
+    }
   }
 }
 
 class UserSearchScraper implements UserScraper {
+  private scrapingClient = new UserScrapingAPI.UserScrapingAPIClient(this.twClient)
   public totalCount = null
-  constructor(private request: UserSearchBlockSessionRequest) {}
+  public constructor(private twClient: TwClient, private request: UserSearchBlockSessionRequest) {}
   public async *[Symbol.asyncIterator]() {
-    let scraper: ScrapedUsersIterator = UserScrapingAPI.getUserSearchResults(
+    let scraper: ScrapedUsersIterator = this.scrapingClient.getUserSearchResults(
       this.request.target.query
     )
-    scraper = ExtraScraper.scrapeUsersOnBio(scraper, this.request.options.includeUsersInBio)
+    scraper = ExtraScraper.scrapeUsersOnBio(
+      this.scrapingClient,
+      scraper,
+      this.request.extraTarget.bioBlock
+    )
     yield* scraper
   }
 }
 
-export function initScraper(request: SessionRequest): UserScraper {
+export function initScraper(twClient: TwClient, request: SessionRequest): UserScraper {
   const { target } = request
-  if (target.type === 'import') {
-    return new ImportUserScraper(request as ImportBlockSessionRequest)
+  switch (target.type) {
+    case 'import':
+      return new ImportUserScraper(twClient, request as ImportBlockSessionRequest)
+    case 'tweet_reaction':
+      return new TweetReactedUserScraper(twClient, request as TweetReactionBlockSessionRequest)
+    case 'user_search':
+      return new UserSearchScraper(twClient, request as UserSearchBlockSessionRequest)
+    case 'lockpicker':
+      return new SimpleScraper(twClient, request as LockPickerSessionRequest)
+    case 'follower':
+      break
+    default:
+      assertNever(target)
   }
-  if (target.type === 'tweet_reaction') {
-    return new TweetReactedUserScraper(request as TweetReactionBlockSessionRequest)
-  }
-  if (target.type === 'user_search') {
-    return new UserSearchScraper(request as UserSearchBlockSessionRequest)
-  }
-  if (target.user.blocked_by) {
-    // 작동X
-    // return new AntiBlockScraper(request as FollowerBlockSessionRequest)
+  if (target.user.blocked_by && request.options.enableAntiBlock) {
+    return new AntiBlockScraper(twClient, request as FollowerBlockSessionRequest)
   }
   if (target.list === 'mutual-followers') {
-    return new MutualFollowerScraper(request as FollowerBlockSessionRequest)
+    return new MutualFollowerScraper(twClient, request as FollowerBlockSessionRequest)
   }
-  return new SimpleScraper(request as FollowerBlockSessionRequest)
+  return new SimpleScraper(twClient, request as FollowerBlockSessionRequest)
 }

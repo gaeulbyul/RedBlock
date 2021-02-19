@@ -1,6 +1,7 @@
 import * as Scraper from './scraper.js'
 import * as IdScraper from './userid-scraper.js'
 import * as TwitterAPI from '../twitter-api.js'
+import { TwClient } from '../twitter-api.js'
 import {
   EventEmitter,
   SessionStatus,
@@ -49,7 +50,7 @@ abstract class BaseSession {
   protected shouldStop = false
   protected readonly sessionInfo = this.initSessionInfo()
   public readonly eventEmitter = new EventEmitter<SessionEventEmitter>()
-  public constructor(protected request: SessionRequest) {}
+  public constructor(protected twClient: TwClient, protected request: SessionRequest) {}
   public getSessionInfo() {
     return copyFrozenObject(this.sessionInfo)
   }
@@ -101,6 +102,7 @@ abstract class BaseSession {
     let apiKind: ApiKind
     switch (this.request.target.type) {
       case 'follower':
+      case 'lockpicker':
         apiKind = this.request.target.list
         break
       case 'tweet_reaction':
@@ -114,7 +116,7 @@ abstract class BaseSession {
         break
     }
     sessionInfo.status = SessionStatus.RateLimited
-    const limitStatuses = await TwitterAPI.getRateLimitStatus()
+    const limitStatuses = await this.twClient.getRateLimitStatus()
     const limit = extractRateLimit(limitStatuses, apiKind)
     sessionInfo.limit = limit
     eventEmitter.emit('rate-limit', limit)
@@ -133,9 +135,9 @@ abstract class BaseSession {
 }
 
 export class ChainBlockSession extends BaseSession {
-  private readonly scraper = Scraper.initScraper(this.request)
-  public constructor(protected request: SessionRequest, private limiter: BlockLimiter) {
-    super(request)
+  private readonly scraper = Scraper.initScraper(this.twClient, this.request)
+  public constructor(protected twClient: TwClient, protected request: SessionRequest) {
+    super(twClient, request)
   }
   public async start() {
     const DBG_dontActuallyCallAPI = localStorage.getItem('RedBlock FakeAPI') === 'true'
@@ -170,7 +172,10 @@ export class ChainBlockSession extends BaseSession {
             this.sessionInfo.progress.total = this.scraper.totalCount
           }
           this.handleRunning()
-          let promisesBuffer: Promise<any>[] = []
+          // promisesBuffer= 차단해제, 뮤트해제 등
+          const promisesBuffer: Promise<any>[] = []
+          // miniBuffer= 차단, 뮤트 등 많이 쓰면 제한 걸리는 API용
+          const miniBuffer: Promise<any>[] = []
           for (const user of scraperResponse.value.users) {
             if (this.shouldStop) {
               stopped = true
@@ -184,39 +189,40 @@ export class ChainBlockSession extends BaseSession {
               this.stop()
               break
             }
+            const thisIsMe = user.id_str === this.request.myself.id_str
             const whatToDo = decideWhatToDoGivenUser(this.request, user, now)
             console.debug('user %o => %s', user, whatToDo)
-            if (whatToDo === 'Skip') {
+            if (whatToDo === 'Skip' || thisIsMe) {
               this.sessionInfo.progress.skipped++
               continue
             } else if (whatToDo === 'AlreadyDone') {
               this.sessionInfo.progress.already++
               continue
             }
-            let promise: Promise<boolean>
+            let promise: Promise<TwitterUser>
             if (DBG_dontActuallyCallAPI) {
-              promise = Promise.resolve(true)
+              promise = Promise.resolve(user)
             } else {
               switch (whatToDo) {
                 case 'Block':
-                  promise = TwitterAPI.blockUser(user)
+                  promise = this.twClient.blockUser(user)
                   break
                 case 'Mute':
-                  promise = TwitterAPI.muteUser(user)
+                  promise = this.twClient.muteUser(user)
                   break
                 case 'UnBlock':
-                  promise = TwitterAPI.unblockUser(user)
+                  promise = this.twClient.unblockUser(user)
                   break
                 case 'UnMute':
-                  promise = TwitterAPI.unmuteUser(user)
+                  promise = this.twClient.unmuteUser(user)
                   break
                 case 'UnFollow':
-                  promise = TwitterAPI.unfollowUser(user)
+                  promise = this.twClient.unfollowUser(user)
                   break
                 case 'BlockAndUnBlock':
-                  promise = TwitterAPI.blockUser(user).then(
-                    blocked => blocked && TwitterAPI.unblockUser(user)
-                  )
+                  promise = this.twClient
+                    .blockUser(user)
+                    .then(blockedUser => this.twClient.unblockUser(blockedUser))
                   break
               }
             }
@@ -237,7 +243,8 @@ export class ChainBlockSession extends BaseSession {
               case 'Block':
               case 'Mute':
               case 'BlockAndUnBlock':
-                await promise
+                // await promise
+                miniBuffer.push(promise)
                 break
               case 'UnBlock':
               case 'UnMute':
@@ -248,8 +255,14 @@ export class ChainBlockSession extends BaseSession {
                 assertNever(whatToDo)
                 break
             }
+            if (this.request.options.throttleBlockRequest && miniBuffer.length >= 5) {
+              await Promise.allSettled(miniBuffer)
+              miniBuffer.length = 0
+            }
           }
-          await Promise.allSettled(promisesBuffer)
+          await Promise.allSettled([...miniBuffer, ...promisesBuffer])
+          miniBuffer.length = 0
+          promisesBuffer.length = 0
         }
         if (stopped) {
           this.sessionInfo.status = SessionStatus.Stopped
@@ -269,27 +282,30 @@ export class ChainBlockSession extends BaseSession {
     return _.sum([...Object.values(success), already, failure, error, skipped])
   }
   private checkBlockLimiter() {
-    const safePurposes: Purpose[] = ['unchainblock', 'chainunfollow']
-    if (safePurposes.includes(this.request.purpose)) {
+    const safePurposes: Purpose['type'][] = ['unchainblock', 'unchainmute', 'chainunfollow']
+    if (safePurposes.includes(this.request.purpose.type)) {
       return 'ok'
     } else {
-      return this.limiter.check()
+      const limiter = new BlockLimiter(this.request.myself.id_str)
+      return limiter.check()
     }
   }
 }
 
 export class ExportSession extends BaseSession {
-  private readonly scraper = IdScraper.initIdScraper(this.request)
+  private readonly scraper = IdScraper.initIdScraper(this.twClient, this.request)
   private exportResult: ExportResult = {
     filename: this.generateFilename(this.request.target),
     userIds: new Set<string>(),
   }
-  public downloaded = false
-  public constructor(protected request: ExportableSessionRequest) {
-    super(request)
+  public constructor(protected twClient: TwClient, protected request: ExportableSessionRequest) {
+    super(twClient, request)
   }
   public getExportResult(): ExportResult {
     return this.exportResult
+  }
+  public markAsExported() {
+    this.sessionInfo.exported = true
   }
   public async start() {
     let stopped = false
@@ -351,13 +367,3 @@ export class ExportSession extends BaseSession {
     return `blocklist-${targetStr}[${datetime}].csv`
   }
 }
-
-export const defaultSessionOptions: Readonly<SessionOptions> = Object.freeze({
-  myFollowers: 'Skip',
-  myFollowings: 'Skip',
-  mutualBlocked: 'Skip',
-  myMutualFollowers: 'Skip',
-  protectedFollowers: 'Block',
-  includeUsersInBio: 'never',
-  skipInactiveUser: 'never',
-})
