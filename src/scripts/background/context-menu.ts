@@ -1,9 +1,6 @@
 import { getUserNameFromURL } from '../common.js'
 import * as i18n from '../i18n.js'
-import {
-  defaultChainBlockPurposeOptions,
-  defaultSessionOptions,
-} from './chainblock-session/default-options.js'
+import { defaultChainBlockPurposeOptions } from './chainblock-session/default-options.js'
 import * as TwitterAPI from './twitter-api.js'
 import { TargetCheckResult } from './target-checker.js'
 import { generateConfirmMessage, checkResultToString, objToString } from '../text-generate.js'
@@ -20,22 +17,15 @@ const documentUrlPatterns = [
   'https://mobile.twitter.com/*',
   'https://tweetdeck.twitter.com/*',
 ]
-
 const tweetUrlPatterns = ['https://twitter.com/*/status/*', 'https://mobile.twitter.com/*/status/*']
+
+const extraTarget: SessionRequest['extraTarget'] = {
+  bioBlock: 'never',
+}
 
 function getTweetIdFromUrl(url: URL) {
   const match = /\/status\/(\d+)/.exec(url.pathname)
   return match && match[1]
-}
-
-async function getSessionOptionsFromStorage(): Promise<SessionOptions> {
-  const { skipInactiveUser, enableAntiBlock, throttleBlockRequest } = await loadOptions()
-  return {
-    ...defaultSessionOptions,
-    skipInactiveUser,
-    enableAntiBlock,
-    throttleBlockRequest,
-  }
 }
 
 async function sendConfirmToTab(tab: BrowserTab, request: SessionRequest) {
@@ -61,7 +51,7 @@ async function confirmFollowerChainBlockRequest(
     return alertToTab(tab, i18n.getMessage('error_occured_check_login'))
   }
   const user = await twClient.getSingleUser({ screen_name: userName })
-  const options = await getSessionOptionsFromStorage()
+  const options = await loadOptions()
   const request: FollowerBlockSessionRequest = {
     purpose: defaultChainBlockPurposeOptions,
     options,
@@ -71,6 +61,7 @@ async function confirmFollowerChainBlockRequest(
       user,
     },
     myself,
+    extraTarget,
     cookieOptions: twClient.cookieOptions,
   }
   const checkResult = chainblocker.checkRequest(request)
@@ -99,7 +90,7 @@ async function confirmTweetReactionChainBlockRequest(
     return alertToTab(tab, i18n.getMessage('error_occured_check_login'))
   }
   const tweet = await twClient.getTweetById(tweetId)
-  const options = await getSessionOptionsFromStorage()
+  const options = await loadOptions()
   const request: TweetReactionBlockSessionRequest = {
     purpose: defaultChainBlockPurposeOptions,
     options,
@@ -109,6 +100,7 @@ async function confirmTweetReactionChainBlockRequest(
       ...whoToBlock,
     },
     myself,
+    extraTarget,
     cookieOptions: twClient.cookieOptions,
   }
   const checkResult = chainblocker.checkRequest(request)

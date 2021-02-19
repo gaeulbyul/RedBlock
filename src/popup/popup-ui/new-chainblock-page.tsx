@@ -13,6 +13,7 @@ import {
   MyselfContext,
   BlockLimiterContext,
   TwitterAPIClientContext,
+  RedBlockOptionsContext,
 } from './contexts.js'
 import {
   BlockLimiterUI,
@@ -25,7 +26,7 @@ import {
 import {
   SelectUserGroup,
   FollowerChainBlockPageStatesContext,
-  SessionOptionsContext,
+  ExtraTargetContext,
 } from './ui-states.js'
 import { TargetCheckResult, validateRequest } from '../../scripts/background/target-checker.js'
 import { getUserNameFromTab } from '../popup.js'
@@ -44,7 +45,8 @@ function useSessionRequest(): FollowerBlockSessionRequest {
     FollowerChainBlockPageStatesContext
   )
   const { cookieOptions } = React.useContext(TwitterAPIClientContext)
-  const { sessionOptions } = React.useContext(SessionOptionsContext)
+  const { extraTarget } = React.useContext(ExtraTargetContext)
+  const options = React.useContext(RedBlockOptionsContext)
   const myself = React.useContext(MyselfContext)!
   const selectedUser = userSelection.user!
   return {
@@ -54,7 +56,8 @@ function useSessionRequest(): FollowerBlockSessionRequest {
       user: selectedUser,
       list: targetList,
     },
-    options: sessionOptions,
+    options,
+    extraTarget,
     myself,
     cookieOptions,
   }

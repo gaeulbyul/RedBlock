@@ -2,7 +2,7 @@ import { DialogMessageObj, checkResultToString } from '../../scripts/text-genera
 import * as i18n from '../../scripts/i18n.js'
 import { requestResetCounter } from '../../scripts/background/request-sender.js'
 import { MyselfContext, BlockLimiterContext, RedBlockOptionsContext } from './contexts.js'
-import { SessionOptionsContext } from './ui-states.js'
+import { ExtraTargetContext } from './ui-states.js'
 import { TargetCheckResult, validateRequest } from '../../scripts/background/target-checker.js'
 
 const M = MaterialUI
@@ -458,7 +458,7 @@ export function PurposeSelectionUI(props: {
           {purpose.type === 'chainblock' && (
             <ChainBlockPurposeUI {...{ purpose, mutatePurposeOptions }} />
           )}
-          <SessionOptionsUI />
+          <ExtraTargetUI />
           <M.Divider />
           <div className="description">
             {i18n.getMessage('chainblock_description')}{' '}
@@ -494,7 +494,7 @@ export function PurposeSelectionUI(props: {
           {purpose.type === 'chainmute' && (
             <ChainMutePurposeUI {...{ purpose, mutatePurposeOptions }} />
           )}
-          <SessionOptionsUI />
+          <ExtraTargetUI />
           <M.Divider />
           <div className="description">
             {i18n.getMessage('chainmute_description')}{' '}
@@ -552,8 +552,8 @@ function RadioOptionItem(props: {
   )
 }
 
-function SessionOptionsUI() {
-  const { sessionOptions, mutateOptions } = React.useContext(SessionOptionsContext)
+function ExtraTargetUI() {
+  const { extraTarget, mutate } = React.useContext(ExtraTargetContext)
   const { revealBioBlockMode } = React.useContext(RedBlockOptionsContext)
   const bioBlockModes: { [label: string]: BioBlockMode } = {
     [i18n.getMessage('bioblock_never')]: 'never',
@@ -566,8 +566,8 @@ function SessionOptionsUI() {
         <RadioOptionItem
           legend="BioBlock &#7517;"
           options={bioBlockModes}
-          selectedValue={sessionOptions.includeUsersInBio}
-          onChange={(newMode: BioBlockMode) => mutateOptions({ includeUsersInBio: newMode })}
+          selectedValue={extraTarget.bioBlock}
+          onChange={(bioBlock: BioBlockMode) => mutate({ bioBlock })}
         />
       )}
     </React.Fragment>

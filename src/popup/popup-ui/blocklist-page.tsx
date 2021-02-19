@@ -3,6 +3,7 @@ import {
   MyselfContext,
   BlockLimiterContext,
   TwitterAPIClientContext,
+  RedBlockOptionsContext,
 } from './contexts.js'
 import {
   RBExpansionPanel,
@@ -20,7 +21,7 @@ import {
   parseBlocklist,
   concatBlockList,
 } from '../../scripts/background/blocklist-process.js'
-import { ImportChainBlockPageStatesContext, SessionOptionsContext } from './ui-states.js'
+import { ImportChainBlockPageStatesContext, ExtraTargetContext } from './ui-states.js'
 import { TargetCheckResult, validateRequest } from '../../scripts/background/target-checker.js'
 
 const M = MaterialUI
@@ -28,8 +29,9 @@ const M = MaterialUI
 function useSessionRequest(): ImportBlockSessionRequest {
   const { purpose, blocklist } = React.useContext(ImportChainBlockPageStatesContext)
   const myself = React.useContext(MyselfContext)!
-  const { sessionOptions } = React.useContext(SessionOptionsContext)
+  const { extraTarget } = React.useContext(ExtraTargetContext)
   const { cookieOptions } = React.useContext(TwitterAPIClientContext)
+  const options = React.useContext(RedBlockOptionsContext)
   return {
     purpose,
     target: {
@@ -37,8 +39,9 @@ function useSessionRequest(): ImportBlockSessionRequest {
       userIds: Array.from(blocklist.userIds),
       userNames: Array.from(blocklist.userNames),
     },
-    options: sessionOptions,
+    extraTarget,
     myself,
+    options,
     cookieOptions,
   }
 }

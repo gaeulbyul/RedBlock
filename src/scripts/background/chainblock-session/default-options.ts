@@ -4,17 +4,7 @@ const mutualBlocked = 'Skip'
 const protectedFollowers = 'Block'
 const mutedAndAlsoBlocked = 'Skip'
 
-const includeUsersInBio = 'never'
-const skipInactiveUser = 'never'
-const enableAntiBlock = false
-const throttleBlockRequest = true
-
-export const defaultSessionOptions = Object.freeze<SessionOptions>({
-  includeUsersInBio,
-  skipInactiveUser,
-  enableAntiBlock,
-  throttleBlockRequest,
-})
+const bioBlock = 'never'
 
 export const defaultChainBlockPurposeOptions = Object.freeze<ChainBlockPurpose>({
   type: 'chainblock',
@@ -59,4 +49,8 @@ export const defaultPurposeOptions = Object.freeze({
   chainmute: defaultChainMutePurposeOptions,
   unchainmute: defaultUnChainMutePurposeOptions,
   export: defaultExportPurposeOptions,
+})
+
+export const defaultExtraTarget = Object.freeze<SessionRequest['extraTarget']>({
+  bioBlock,
 })

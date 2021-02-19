@@ -2,10 +2,11 @@
 import * as i18n from '../../scripts/i18n.js'
 import * as TextGenerate from '../../scripts/text-generate.js'
 import {
+  UIContext,
   MyselfContext,
   BlockLimiterContext,
-  UIContext,
   TwitterAPIClientContext,
+  RedBlockOptionsContext,
 } from './contexts.js'
 import { startNewChainBlockSession } from '../../scripts/background/request-sender.js'
 import {
@@ -16,7 +17,7 @@ import {
   PurposeSelectionUI,
   RequestCheckResultUI,
 } from './components.js'
-import { TweetReactionChainBlockPageStatesContext, SessionOptionsContext } from './ui-states.js'
+import { TweetReactionChainBlockPageStatesContext, ExtraTargetContext } from './ui-states.js'
 import { TargetCheckResult, validateRequest } from '../../scripts/background/target-checker.js'
 
 const M = MaterialUI
@@ -30,11 +31,13 @@ function useSessionRequest(): TweetReactionBlockSessionRequest {
     wantBlockMentionedUsers,
   } = React.useContext(TweetReactionChainBlockPageStatesContext)
   const { cookieOptions } = React.useContext(TwitterAPIClientContext)
-  const { sessionOptions } = React.useContext(SessionOptionsContext)
+  const { extraTarget } = React.useContext(ExtraTargetContext)
   const myself = React.useContext(MyselfContext)!
+  const options = React.useContext(RedBlockOptionsContext)
   return {
     purpose,
-    options: sessionOptions,
+    options,
+    extraTarget,
     target: {
       type: 'tweet_reaction',
       tweet: currentTweet!,

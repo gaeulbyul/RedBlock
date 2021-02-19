@@ -27,7 +27,7 @@ class SimpleScraper implements UserScraper {
     scraper = ExtraScraper.scrapeUsersOnBio(
       this.scrapingClient,
       scraper,
-      this.request.options.includeUsersInBio
+      this.request.extraTarget.bioBlock
     )
     yield* scraper
   }
@@ -47,7 +47,7 @@ class MutualFollowerScraper implements UserScraper {
     scraper = ExtraScraper.scrapeUsersOnBio(
       this.scrapingClient,
       scraper,
-      this.request.options.includeUsersInBio
+      this.request.extraTarget.bioBlock
     )
     yield* scraper
   }
@@ -104,7 +104,7 @@ class AntiBlockScraper implements UserScraper {
     scraper = ExtraScraper.scrapeUsersOnBio(
       this.scrapingClient,
       scraper,
-      this.request.options.includeUsersInBio
+      this.request.extraTarget.bioBlock
     )
     yield* scraper
   }
@@ -128,7 +128,7 @@ class TweetReactedUserScraper implements UserScraper {
       scraper = ExtraScraper.scrapeUsersOnBio(
         this.scrapingClient,
         scraper,
-        this.request.options.includeUsersInBio
+        this.request.extraTarget.bioBlock
       )
       yield* scraper
     }
@@ -137,7 +137,7 @@ class TweetReactedUserScraper implements UserScraper {
       scraper = ExtraScraper.scrapeUsersOnBio(
         this.scrapingClient,
         scraper,
-        this.request.options.includeUsersInBio
+        this.request.extraTarget.bioBlock
       )
       yield* scraper
     }
@@ -148,7 +148,7 @@ class TweetReactedUserScraper implements UserScraper {
       scraper = ExtraScraper.scrapeUsersOnBio(
         this.scrapingClient,
         scraper,
-        this.request.options.includeUsersInBio
+        this.request.extraTarget.bioBlock
       )
       yield* scraper
     }
@@ -168,7 +168,7 @@ class ImportUserScraper implements UserScraper {
       scraper = ExtraScraper.scrapeUsersOnBio(
         this.scrapingClient,
         scraper,
-        this.request.options.includeUsersInBio
+        this.request.extraTarget.bioBlock
       )
       yield* scraper
     }
@@ -177,7 +177,7 @@ class ImportUserScraper implements UserScraper {
       scraper = ExtraScraper.scrapeUsersOnBio(
         this.scrapingClient,
         scraper,
-        this.request.options.includeUsersInBio
+        this.request.extraTarget.bioBlock
       )
       yield* scraper
     }
@@ -195,7 +195,7 @@ class UserSearchScraper implements UserScraper {
     scraper = ExtraScraper.scrapeUsersOnBio(
       this.scrapingClient,
       scraper,
-      this.request.options.includeUsersInBio
+      this.request.extraTarget.bioBlock
     )
     yield* scraper
   }

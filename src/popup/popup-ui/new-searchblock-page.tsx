@@ -2,12 +2,13 @@ import * as i18n from '../../scripts/i18n.js'
 import * as TextGenerate from '../../scripts/text-generate.js'
 import { startNewChainBlockSession } from '../../scripts/background/request-sender.js'
 import {
+  UIContext,
   MyselfContext,
   BlockLimiterContext,
-  UIContext,
   TwitterAPIClientContext,
+  RedBlockOptionsContext,
 } from './contexts.js'
-import { UserSearchChainBlockPageStatesContext, SessionOptionsContext } from './ui-states.js'
+import { UserSearchChainBlockPageStatesContext, ExtraTargetContext } from './ui-states.js'
 import {
   RBExpansionPanel,
   BigExecuteButton,
@@ -23,11 +24,13 @@ const T = MaterialUI.Typography
 function useSessionRequest(): UserSearchBlockSessionRequest {
   const { purpose, searchQuery } = React.useContext(UserSearchChainBlockPageStatesContext)
   const { cookieOptions } = React.useContext(TwitterAPIClientContext)
-  const { sessionOptions } = React.useContext(SessionOptionsContext)
+  const { extraTarget } = React.useContext(ExtraTargetContext)
   const myself = React.useContext(MyselfContext)!
+  const options = React.useContext(RedBlockOptionsContext)
   return {
     purpose,
-    options: sessionOptions,
+    options,
+    extraTarget,
     target: {
       type: 'user_search',
       query: searchQuery!,

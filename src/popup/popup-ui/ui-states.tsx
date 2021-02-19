@@ -1,10 +1,10 @@
 import {
   defaultPurposeOptions,
-  defaultSessionOptions,
+  defaultExtraTarget,
 } from '../../scripts/background/chainblock-session/default-options.js'
 import { Blocklist, emptyBlocklist } from '../../scripts/background/blocklist-process.js'
 import { determineInitialPurposeType } from '../popup.js'
-import { RedBlockOptionsContext, MyselfContext } from './contexts.js'
+import { MyselfContext } from './contexts.js'
 
 export type SelectUserGroup = 'invalid' | 'current' | 'saved' | 'other tab'
 
@@ -20,33 +20,32 @@ function usePurpose<T extends Purpose>(initialPurposeType: T['type']) {
   return [purpose, changePurposeType, mutatePurposeOptions] as const
 }
 
-interface SessionOptionsContextType {
-  sessionOptions: SessionOptions
-  mutateOptions(partialOptions: Partial<SessionOptions>): void
+type ExtraTarget = SessionRequest['extraTarget']
+
+interface ExtraTargetContextType {
+  extraTarget: ExtraTarget
+  mutate(partialOptions: Partial<ExtraTarget>): void
 }
 
-export const SessionOptionsContext = React.createContext<SessionOptionsContextType>(null!)
+export const ExtraTargetContext = React.createContext<ExtraTargetContextType>(null!)
 
-function SessionOptionsContextProvider(props: { children: React.ReactNode }) {
-  const { skipInactiveUser, enableAntiBlock } = React.useContext(RedBlockOptionsContext)
-  const [sessionOptions, setTargetOptions] = React.useState<SessionOptions>({
-    ...defaultSessionOptions,
-    skipInactiveUser,
-    enableAntiBlock,
+function ExtraTargetContextProvider(props: { children: React.ReactNode }) {
+  const [extraTarget, setTargetOptions] = React.useState<ExtraTarget>({
+    ...defaultExtraTarget,
   })
-  function mutateOptions(newOptionsPart: Partial<SessionOptions>) {
-    const newOptions = { ...sessionOptions, ...newOptionsPart }
+  function mutate(newOptionsPart: Partial<ExtraTarget>) {
+    const newOptions = { ...extraTarget, ...newOptionsPart }
     setTargetOptions(newOptions)
   }
   return (
-    <SessionOptionsContext.Provider
+    <ExtraTargetContext.Provider
       value={{
-        sessionOptions,
-        mutateOptions,
+        extraTarget,
+        mutate,
       }}
     >
       {props.children}
-    </SessionOptionsContext.Provider>
+    </ExtraTargetContext.Provider>
   )
 }
 
@@ -171,7 +170,7 @@ export function FollowerChainBlockPageStatesProvider(props: {
         availablePurposeTypes,
       }}
     >
-      <SessionOptionsContextProvider>{props.children}</SessionOptionsContextProvider>
+      <ExtraTargetContextProvider>{props.children}</ExtraTargetContextProvider>
     </FollowerChainBlockPageStatesContext.Provider>
   )
 }
@@ -209,7 +208,7 @@ export function TweetReactionChainBlockPageStatesProvider(props: {
         availablePurposeTypes,
       }}
     >
-      <SessionOptionsContextProvider>{props.children}</SessionOptionsContextProvider>
+      <ExtraTargetContextProvider>{props.children}</ExtraTargetContextProvider>
     </TweetReactionChainBlockPageStatesContext.Provider>
   )
 }
@@ -240,7 +239,7 @@ export function ImportChainBlockPageStatesProvider(props: { children: React.Reac
         availablePurposeTypes,
       }}
     >
-      <SessionOptionsContextProvider>{props.children}</SessionOptionsContextProvider>
+      <ExtraTargetContextProvider>{props.children}</ExtraTargetContextProvider>
     </ImportChainBlockPageStatesContext.Provider>
   )
 }
@@ -269,7 +268,7 @@ export function UserSearchChainBlockPageStatesProvider(props: {
         availablePurposeTypes,
       }}
     >
-      <SessionOptionsContextProvider>{props.children}</SessionOptionsContextProvider>
+      <ExtraTargetContextProvider>{props.children}</ExtraTargetContextProvider>
     </UserSearchChainBlockPageStatesContext.Provider>
   )
 }
@@ -287,7 +286,7 @@ export function LockPickerPageStatesProvider(props: { children: React.ReactNode 
         availablePurposeTypes: ['lockpicker'],
       }}
     >
-      <SessionOptionsContextProvider>{props.children}</SessionOptionsContextProvider>
+      <ExtraTargetContextProvider>{props.children}</ExtraTargetContextProvider>
     </LockPickerPageStatesContext.Provider>
   )
 }

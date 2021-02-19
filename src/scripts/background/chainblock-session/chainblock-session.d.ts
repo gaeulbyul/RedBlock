@@ -14,7 +14,10 @@ type Session = import('./session').ChainBlockSession | import('./session').Expor
 interface BaseRequest {
   myself: TwitterUser
   cookieOptions: CookieOptions
-  options: SessionOptions
+  options: RedBlockOptions
+  extraTarget: {
+    bioBlock: BioBlockMode
+  }
 }
 
 type Purpose =
@@ -59,13 +62,6 @@ interface UnChainMutePurpose {
 
 interface ExportPurpose {
   type: 'export'
-}
-
-interface SessionOptions {
-  includeUsersInBio: BioBlockMode
-  skipInactiveUser: InactivePeriod
-  enableAntiBlock: boolean
-  throttleBlockRequest: boolean
 }
 
 interface FollowerBlockSessionRequest extends BaseRequest {
