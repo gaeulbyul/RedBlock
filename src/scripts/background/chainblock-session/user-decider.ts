@@ -3,7 +3,7 @@ export function decideWhatToDoGivenUser(
   follower: TwitterUser,
   now: Dayjs
 ): UserAction | 'Skip' | 'AlreadyDone' {
-  const { purpose } = request
+  const { purpose, options } = request
   if (purpose.type === 'export') {
     throw new Error('unreachable')
   }
@@ -11,7 +11,7 @@ export function decideWhatToDoGivenUser(
   if (!(typeof following === 'boolean' && typeof followed_by === 'boolean')) {
     throw new Error('following/followed_by property missing?')
   }
-  if (checkUserInactivity(follower, now, request.options.skipInactiveUser) === 'inactive') {
+  if (checkUserInactivity(follower, now, options.skipInactiveUser) === 'inactive') {
     return 'Skip'
   }
   let whatToDo: UserAction
@@ -37,6 +37,9 @@ export function decideWhatToDoGivenUser(
   }
   if (whatToDo === 'Skip') {
     return whatToDo
+  }
+  if (whatToDo === 'Mute' && follower.blocking) {
+    return options.muteEvenAlreadyBlocking ? 'Mute' : 'Skip'
   }
   if (isAlreadyDone(follower, whatToDo)) {
     return 'AlreadyDone'

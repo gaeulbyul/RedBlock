@@ -791,5 +791,8 @@
   },
   "users_in_other_tab": {
     "message": "Users in other tab"
+  },
+  "mute_even_already_blocked": {
+    "message": "Chain-mute: Mute already blocked user"
   }
 }

@@ -10,6 +10,7 @@ interface RedBlockStorage {
     enableChainMute: boolean
     firstPartyIsolationCompatibleMode: boolean
     throttleBlockRequest: boolean
+    muteEvenAlreadyBlocking: boolean
   }
   badWords: BadWordItem[]
 }

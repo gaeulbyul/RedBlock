@@ -42,6 +42,18 @@ export default function ChainBlockOptionsPage() {
               label={i18n.getMessage('throttle_block')}
             />
           </M.FormGroup>
+          <M.FormGroup>
+            <M.FormControlLabel
+              control={<M.Checkbox size="small" />}
+              onChange={(_event, checked) =>
+                updateOptions({
+                  muteEvenAlreadyBlocking: checked,
+                })
+              }
+              checked={options.muteEvenAlreadyBlocking}
+              label={i18n.getMessage('mute_even_already_blocked')}
+            />
+          </M.FormGroup>
           <M.FormControl>
             <M.FormLabel>
               <T>{i18n.getMessage('skip_inactive_users')}</T>

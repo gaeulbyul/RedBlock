@@ -791,5 +791,8 @@
   },
   "users_in_other_tab": {
     "message": "다른 탭에 띄운 유저"
+  },
+  "mute_even_already_blocked": {
+    "message": "체인뮤트: 이미 차단한 유저를 굳이 뮤트하기"
   }
 }
