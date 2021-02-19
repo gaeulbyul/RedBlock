@@ -5,11 +5,12 @@ import {
   defaultSessionOptions,
 } from './chainblock-session/default-options.js'
 import * as TwitterAPI from './twitter-api.js'
-import type ChainBlocker from './chainblock.js'
 import { TargetCheckResult } from './target-checker.js'
 import { generateConfirmMessage, checkResultToString, objToString } from '../text-generate.js'
 import { alertToTab } from './background.js'
 import { getCookieStoreIdFromTab } from './cookie-handler.js'
+import { loadOptions } from './storage.js'
+import type ChainBlocker from './chainblock.js'
 
 type BrowserTab = browser.tabs.Tab
 
@@ -25,6 +26,16 @@ const tweetUrlPatterns = ['https://twitter.com/*/status/*', 'https://mobile.twit
 function getTweetIdFromUrl(url: URL) {
   const match = /\/status\/(\d+)/.exec(url.pathname)
   return match && match[1]
+}
+
+async function getSessionOptionsFromStorage(): Promise<SessionOptions> {
+  const { skipInactiveUser, enableAntiBlock, throttleBlockRequest } = await loadOptions()
+  return {
+    ...defaultSessionOptions,
+    skipInactiveUser,
+    enableAntiBlock,
+    throttleBlockRequest,
+  }
 }
 
 async function sendConfirmToTab(tab: BrowserTab, request: SessionRequest) {
@@ -50,9 +61,10 @@ async function confirmFollowerChainBlockRequest(
     return alertToTab(tab, i18n.getMessage('error_occured_check_login'))
   }
   const user = await twClient.getSingleUser({ screen_name: userName })
+  const options = await getSessionOptionsFromStorage()
   const request: FollowerBlockSessionRequest = {
     purpose: defaultChainBlockPurposeOptions,
-    options: defaultSessionOptions,
+    options,
     target: {
       type: 'follower',
       list: followKind,
@@ -87,9 +99,10 @@ async function confirmTweetReactionChainBlockRequest(
     return alertToTab(tab, i18n.getMessage('error_occured_check_login'))
   }
   const tweet = await twClient.getTweetById(tweetId)
+  const options = await getSessionOptionsFromStorage()
   const request: TweetReactionBlockSessionRequest = {
     purpose: defaultChainBlockPurposeOptions,
-    options: defaultSessionOptions,
+    options,
     target: {
       type: 'tweet_reaction',
       tweet,
