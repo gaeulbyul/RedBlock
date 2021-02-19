@@ -133,6 +133,7 @@ interface SessionInfo<ReqT = SessionRequest> {
   }
   status: import('../../common').SessionStatus
   limit: import('../twitter-api').Limit | null
+  exported?: boolean
 }
 
 interface ExportResult {

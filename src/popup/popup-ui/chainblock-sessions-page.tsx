@@ -50,9 +50,6 @@ const useStylesForSessionItem = MaterialUI.makeStyles(() =>
   })
 )
 
-const downloadedIdsStr = sessionStorage.getItem('exported sessions') || ''
-const downloadedIds = downloadedIdsStr.split('\n')
-
 function ChainBlockSessionItem(props: { sessionInfo: SessionInfo }) {
   const { sessionInfo } = props
   const { sessionId } = sessionInfo
@@ -60,12 +57,8 @@ function ChainBlockSessionItem(props: { sessionInfo: SessionInfo }) {
   const uiContext = React.useContext(UIContext)
   const classes = useStylesForSessionItem()
   const [expanded, setExpanded] = React.useState(false)
-  const downloaded = downloadedIds.includes(sessionId)
+  const downloaded = sessionInfo.exported || false
   const running = isRunningSession(sessionInfo)
-  function markAsDownloaded() {
-    downloadedIds.push(sessionId)
-    sessionStorage.setItem('exported sessions', downloadedIds.join('\n'))
-  }
   function toggleExpand() {
     setExpanded(!expanded)
   }
@@ -181,7 +174,6 @@ function ChainBlockSessionItem(props: { sessionInfo: SessionInfo }) {
           },
         })
       }
-      markAsDownloaded()
     }
     let closeButtonTitleText = i18n.getMessage('tooltip_close_session')
     let closeButtonIcon = 'close'

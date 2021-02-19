@@ -192,8 +192,7 @@ export default class ChainBlocker {
         continue
       }
       if (sessionInfo.request.purpose.type === 'export') {
-        const exportSession = session as ExportSession
-        if (!exportSession.downloaded) {
+        if (!sessionInfo.exported) {
           continue
         }
       }
@@ -209,7 +208,7 @@ export default class ChainBlocker {
     const exportResult = session.getExportResult()
     if (exportResult.userIds.size > 0) {
       exportBlocklist(exportResult)
-      session.downloaded = true
+      session.markAsExported()
     } else {
       alertToCurrentTab(i18n.getMessage('blocklist_is_empty'))
     }

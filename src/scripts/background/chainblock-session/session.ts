@@ -298,12 +298,14 @@ export class ExportSession extends BaseSession {
     filename: this.generateFilename(this.request.target),
     userIds: new Set<string>(),
   }
-  public downloaded = false
   public constructor(protected twClient: TwClient, protected request: ExportableSessionRequest) {
     super(twClient, request)
   }
   public getExportResult(): ExportResult {
     return this.exportResult
+  }
+  public markAsExported() {
+    this.sessionInfo.exported = true
   }
   public async start() {
     let stopped = false
