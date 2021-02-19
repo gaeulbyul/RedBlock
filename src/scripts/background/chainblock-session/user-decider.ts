@@ -132,7 +132,7 @@ function isAlreadyDone(follower: TwitterUser, action: UserAction): boolean {
     case muting && action === 'Mute':
     case !muting && action === 'UnMute':
     case !following && action === 'UnFollow':
-    case !followed_by && action === 'BlockAndUnBlock':
+    case !followed_by && !following && action === 'BlockAndUnBlock':
       return true
     default:
       return false
