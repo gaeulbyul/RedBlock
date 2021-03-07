@@ -76,6 +76,8 @@ interface TweetReactionChainBlockPageStates {
   setWantBlockLikers(b: boolean): void
   wantBlockMentionedUsers: boolean
   setWantBlockMentionedUsers(b: boolean): void
+  wantBlockQuotedUsers: boolean
+  setWantBlockQuotedUsers(b: boolean): void
   purpose: TweetReactionBlockSessionRequest['purpose']
   changePurposeType(purposeType: TweetReactionBlockSessionRequest['purpose']['type']): void
   mutatePurposeOptions(
@@ -182,6 +184,7 @@ export function TweetReactionChainBlockPageStatesProvider(props: {
   const [wantBlockRetweeters, setWantBlockRetweeters] = React.useState<boolean>(false)
   const [wantBlockLikers, setWantBlockLikers] = React.useState<boolean>(false)
   const [wantBlockMentionedUsers, setWantBlockMentionedUsers] = React.useState<boolean>(false)
+  const [wantBlockQuotedUsers, setWantBlockQuotedUsers] = React.useState<boolean>(false)
   const availablePurposeTypes: TweetReactionBlockSessionRequest['purpose']['type'][] = [
     'chainblock',
     'chainmute',
@@ -202,6 +205,8 @@ export function TweetReactionChainBlockPageStatesProvider(props: {
         setWantBlockLikers,
         wantBlockMentionedUsers,
         setWantBlockMentionedUsers,
+        wantBlockQuotedUsers,
+        setWantBlockQuotedUsers,
         purpose,
         changePurposeType,
         mutatePurposeOptions,

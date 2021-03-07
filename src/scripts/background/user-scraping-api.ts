@@ -76,10 +76,33 @@ export class UserScrapingAPIClient {
     while (true) {
       const response = await this.twClient.searchUsers(query, cursor)
       cursor = getNextCursorFromAPIv2Response(response) || undefined
-      const { users } = response.globalObjects
-      const usersArray = Object.values(users)
-      if (usersArray.length > 0) {
-        yield wrapEitherRight({ users: usersArray })
+      const users = Object.values(response.globalObjects.users)
+      if (users.length > 0) {
+        yield wrapEitherRight({ users })
+        await sleep(DELAY)
+      } else {
+        break
+      }
+    }
+  }
+  public async *getQuotedUsers(tweet: Tweet): ScrapedUsersIterator {
+    // 한 유저가 같은 트윗에 2개 이상의 인용트윗을 작성하면
+    // 여러건이 scrape될것이다.
+    const seenUserIds = new Set<string>()
+    let cursor: string | undefined
+    while (true) {
+      const response = await this.twClient.searchQuotedUsers(tweet.id_str, cursor)
+      cursor = getNextCursorFromAPIv2Response(response) || undefined
+      const users: TwitterUser[] = []
+      for (const user of Object.values(response.globalObjects.users)) {
+        if (seenUserIds.has(user.id_str)) {
+          continue
+        }
+        seenUserIds.add(user.id_str)
+        users.push(user)
+      }
+      if (users.length > 0) {
+        yield wrapEitherRight({ users })
         await sleep(DELAY)
       } else {
         break

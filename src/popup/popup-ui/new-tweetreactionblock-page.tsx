@@ -29,6 +29,7 @@ function useSessionRequest(): TweetReactionBlockSessionRequest {
     wantBlockRetweeters,
     wantBlockLikers,
     wantBlockMentionedUsers,
+    wantBlockQuotedUsers,
   } = React.useContext(TweetReactionChainBlockPageStatesContext)
   const { cookieOptions } = React.useContext(TwitterAPIClientContext)
   const { extraTarget } = React.useContext(ExtraTargetContext)
@@ -44,6 +45,7 @@ function useSessionRequest(): TweetReactionBlockSessionRequest {
       blockRetweeters: wantBlockRetweeters,
       blockLikers: wantBlockLikers,
       blockMentionedUsers: wantBlockMentionedUsers,
+      blockQuotedUsers: wantBlockQuotedUsers,
     },
     myself,
     cookieOptions,
@@ -58,12 +60,15 @@ function TargetTweetUI(props: { tweet: Tweet }) {
     setWantBlockLikers,
     wantBlockMentionedUsers,
     setWantBlockMentionedUsers,
+    wantBlockQuotedUsers,
+    setWantBlockQuotedUsers,
   } = React.useContext(TweetReactionChainBlockPageStatesContext)
   const { tweet } = props
   const mentions = tweet.entities.user_mentions || []
   const nobodyRetweeted = tweet.retweet_count <= 0
   const nobodyLiked = tweet.favorite_count <= 0
   const nobodyMentioned = mentions.length <= 0
+  const nobodyQuoted = tweet.quote_count <= 0
   return (
     <TwitterUserProfile user={tweet.user}>
       <div className="profile-right-targettweet">
@@ -92,6 +97,13 @@ function TargetTweetUI(props: { tweet: Tweet }) {
             checked={wantBlockMentionedUsers}
             disabled={nobodyMentioned}
             label={`${i18n.getMessage('mentioned')} (${mentions.length.toLocaleString()})`}
+          />
+          <M.FormControlLabel
+            control={<M.Checkbox size="small" />}
+            onChange={() => setWantBlockQuotedUsers(!wantBlockQuotedUsers)}
+            checked={wantBlockQuotedUsers}
+            disabled={nobodyQuoted}
+            label={`${i18n.getMessage('quoted')} (${tweet.quote_count.toLocaleString()})`}
           />
         </M.FormGroup>
       </div>

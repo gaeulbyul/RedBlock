@@ -121,7 +121,13 @@ class TweetReactedUserScraper implements UserScraper {
     this.totalCount = getReactionsCount(request.target)
   }
   public async *[Symbol.asyncIterator]() {
-    const { tweet, blockRetweeters, blockLikers, blockMentionedUsers } = this.request.target
+    const {
+      tweet,
+      blockRetweeters,
+      blockLikers,
+      blockMentionedUsers,
+      blockQuotedUsers,
+    } = this.request.target
     let scraper: ScrapedUsersIterator
     if (blockRetweeters) {
       scraper = this.scrapingClient.getAllReactedUserList('retweeted', tweet)
@@ -145,6 +151,15 @@ class TweetReactedUserScraper implements UserScraper {
       const mentions = tweet.entities.user_mentions || []
       const mentionedUserIds = mentions.map(e => e.id_str)
       scraper = this.scrapingClient.lookupUsersByIds(mentionedUserIds)
+      scraper = ExtraScraper.scrapeUsersOnBio(
+        this.scrapingClient,
+        scraper,
+        this.request.extraTarget.bioBlock
+      )
+      yield* scraper
+    }
+    if (blockQuotedUsers) {
+      scraper = this.scrapingClient.getQuotedUsers(tweet)
       scraper = ExtraScraper.scrapeUsersOnBio(
         this.scrapingClient,
         scraper,

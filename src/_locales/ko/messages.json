@@ -41,6 +41,9 @@
   "mentioned": {
     "message": "멘션한 유저"
   },
+  "quoted": {
+    "message": "인용한 유저"
+  },
   "chainblock": {
     "message": "체인블락"
   },

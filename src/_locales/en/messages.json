@@ -41,6 +41,9 @@
   "mentioned": {
     "message": "Mentioned Users"
   },
+  "quoted": {
+    "message": "Quoted Users"
+  },
   "chainblock": {
     "message": "Chain-block"
   },

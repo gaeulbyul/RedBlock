@@ -217,6 +217,16 @@ export class TwClient {
       // ext: 'mediaStats,highlightedLabel',
     })
   }
+  public async searchQuotedUsers(tweetId: string, cursor?: string): Promise<APIv2Response> {
+    return await this.request2('get', '/search/adaptive.json', {
+      q: `quoted_tweet_id:${tweetId}`,
+      vertial: 'tweet_detail_quote',
+      count: 200,
+      pc: 1,
+      spelling_corrections: 0,
+      cursor,
+    })
+  }
   private async sendRequest(request: RequestInit, url: URL) {
     let newCsrfToken = ''
     let maxRetryCount = 3
@@ -334,6 +344,7 @@ function setDefaultParams(params: URLSearchParams): void {
   params.set('include_want_retweets', '1')
   params.set('include_mute_edge', '1')
   params.set('include_can_dm', '1')
+  params.set('include_quote_count', '1')
 }
 
 function prepareParams(params: URLSearchParams, additional: URLParamsObj = {}): void {
@@ -501,6 +512,7 @@ export interface Tweet {
   favorite_count: number
   favorited: boolean
   retweeted: boolean
+  quote_count: number
   is_quote_status: boolean
   quoted_status?: Tweet
   quoted_status_permalink?: {

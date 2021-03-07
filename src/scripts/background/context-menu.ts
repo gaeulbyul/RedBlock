@@ -81,6 +81,7 @@ async function confirmTweetReactionChainBlockRequest(
     blockRetweeters: boolean
     blockLikers: boolean
     blockMentionedUsers: boolean
+    blockQuotedUsers: boolean
   }
 ) {
   const cookieStoreId = await getCookieStoreIdFromTab(tab)
@@ -176,6 +177,7 @@ export async function initializeContextMenu(chainblocker: ChainBlocker) {
         blockRetweeters: true,
         blockLikers: false,
         blockMentionedUsers: false,
+        blockQuotedUsers: false,
       })
     },
   })
@@ -191,6 +193,7 @@ export async function initializeContextMenu(chainblocker: ChainBlocker) {
         blockRetweeters: false,
         blockLikers: true,
         blockMentionedUsers: false,
+        blockQuotedUsers: false,
       })
     },
   })
@@ -206,6 +209,7 @@ export async function initializeContextMenu(chainblocker: ChainBlocker) {
         blockRetweeters: true,
         blockLikers: true,
         blockMentionedUsers: false,
+        blockQuotedUsers: false,
       })
     },
   })
@@ -221,6 +225,7 @@ export async function initializeContextMenu(chainblocker: ChainBlocker) {
         blockRetweeters: false,
         blockLikers: false,
         blockMentionedUsers: true,
+        blockQuotedUsers: false,
       })
     },
   })

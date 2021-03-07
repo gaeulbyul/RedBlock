@@ -58,12 +58,12 @@ function checkFollowerBlockRequest({
 function checkTweetReactionBlockRequest({
   target,
 }: TweetReactionBlockSessionRequest): TargetCheckResult {
-  const { blockRetweeters, blockLikers, blockMentionedUsers } = target
+  const { blockRetweeters, blockLikers, blockMentionedUsers, blockQuotedUsers } = target
   const mentions = target.tweet.entities.user_mentions || []
-  if (!(blockRetweeters || blockLikers || blockMentionedUsers)) {
+  if (!(blockRetweeters || blockLikers || blockMentionedUsers || blockQuotedUsers)) {
     return TargetCheckResult.ChooseAtLeastOneOfReaction
   }
-  const { retweet_count, favorite_count } = target.tweet
+  const { retweet_count, favorite_count, quote_count } = target.tweet
   let totalCountToBlock = 0
   if (blockRetweeters) {
     totalCountToBlock += retweet_count
@@ -73,6 +73,9 @@ function checkTweetReactionBlockRequest({
   }
   if (blockMentionedUsers) {
     totalCountToBlock += mentions.length
+  }
+  if (blockQuotedUsers) {
+    totalCountToBlock += quote_count
   }
   if (totalCountToBlock <= 0) {
     return TargetCheckResult.NobodyWillBlocked
