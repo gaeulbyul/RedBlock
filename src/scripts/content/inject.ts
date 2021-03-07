@@ -8,6 +8,10 @@ interface ReduxStore {
   let reduxStore: ReduxStore
   let myselfUserId = ''
 
+  function isLoggedIn(): boolean {
+    return (window as any)?.__META_DATA__?.isLoggedIn
+  }
+
   function* getAddedElementsFromMutations(
     mutations: MutationRecord[]
   ): IterableIterator<HTMLElement> {
@@ -139,7 +143,6 @@ interface ReduxStore {
       const customEvent = event as CustomEvent<string>
       toastMessage(customEvent.detail)
     })
-    console.debug('[RedBlock] page script: injected!')
   }
 
   function inspectTweetElement(elem: HTMLElement) {
@@ -256,17 +259,19 @@ interface ReduxStore {
   }
 
   function initialize() {
+    if (!isLoggedIn()) {
+      console.info('redblock: not logged in. does nothing.')
+      return
+    }
     const reactRoot = document.getElementById('react-root')
     if (!reactRoot) {
       return
     }
     if ('_reactRootContainer' in reactRoot) {
-      console.debug('[RedBlock] inject')
       initializeListener()
       initializeTweetElementInspecter(reactRoot)
       initializeUserCellElementInspecter(reactRoot)
     } else {
-      console.debug('[RedBlock] waiting...')
       setTimeout(initialize, 500)
     }
   }
