@@ -188,7 +188,7 @@ class TweetReactedUserScraper implements UserScraper {
 
 class ImportUserScraper implements UserScraper {
   private scrapingClient = new UserScrapingAPI.UserScrapingAPIClient(this.twClient)
-  public totalCount = this.request.target.userIds.length
+  public totalCount = this.request.target.userIds.length + this.request.target.userNames.length
   public constructor(private twClient: TwClient, private request: ImportBlockSessionRequest) {}
   public async *[Symbol.asyncIterator]() {
     // 여러 파일을 import한다면 유저ID와 유저네임 둘 다 있을 수 있다.

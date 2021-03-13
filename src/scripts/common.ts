@@ -184,7 +184,7 @@ export function getCountOfUsersToBlock({ target }: SessionRequest): number | nul
     case 'tweet_reaction':
       return getReactionsCount(target)
     case 'import':
-      return target.userIds.length
+      return target.userIds.length + target.userNames.length
     case 'user_search':
       return null
   }
