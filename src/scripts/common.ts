@@ -160,7 +160,7 @@ export function getFollowersCount(user: TwitterUser, followKind: FollowKind): nu
   }
 }
 
-export function getReactionsCount(target: TweetReactionBlockSessionRequest['target']): number {
+export function getReactionsCount(target: TweetReactionSessionTarget): number {
   let result = 0
   const { retweet_count, favorite_count } = target.tweet
   const mentions = target.tweet.entities.user_mentions || []

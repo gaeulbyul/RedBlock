@@ -26,7 +26,7 @@ export default class ChainBlocker {
     )
     return currentRunningSessions
   }
-  private getSessionByTarget(target: SessionInfo['request']['target']): Session | null {
+  private getSessionByTarget(target: SessionTarget): Session | null {
     return (
       this.getCurrentRunningSessions().find(session =>
         isSameTarget(session.getSessionInfo().request.target, target)
@@ -83,7 +83,7 @@ export default class ChainBlocker {
       }
     }
   }
-  private checkAlreadyRunningOnSameTarget(target: SessionRequest['target']): boolean {
+  private checkAlreadyRunningOnSameTarget(target: SessionTarget): boolean {
     const sameTargetSession = this.getSessionByTarget(target)
     if (sameTargetSession) {
       const sessionInfo = sameTargetSession.getSessionInfo()

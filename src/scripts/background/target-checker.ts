@@ -125,17 +125,17 @@ function checkUserSearchBlockRequest({ target }: UserSearchBlockSessionRequest):
   return TargetCheckResult.Ok
 }
 
-export function isSameTarget(target1: SessionRequest['target'], target2: SessionRequest['target']) {
+export function isSameTarget(target1: SessionTarget, target2: SessionTarget) {
   if (target1.type !== target2.type) {
     return false
   }
   switch (target1.type) {
     case 'follower': {
-      const givenUser = (target2 as FollowerBlockSessionRequest['target']).user
+      const givenUser = (target2 as FollowerSessionTarget).user
       return target1.user.id_str === givenUser.id_str
     }
     case 'tweet_reaction': {
-      const givenTweet = (target2 as TweetReactionBlockSessionRequest['target']).tweet
+      const givenTweet = (target2 as TweetReactionSessionTarget).tweet
       return target1.tweet.id_str === givenTweet.id_str
     }
     case 'lockpicker':
@@ -145,7 +145,7 @@ export function isSameTarget(target1: SessionRequest['target'], target2: Session
     case 'user_search': {
       // Q: 대소문자가 같으면 같은 target으로 취급해야 하나?
       // A: OR AND 등 대소문자 가리는 연산자 있다. 다르게 취급하자
-      const givenQuery = (target2 as UserSearchBlockSessionRequest['target']).query
+      const givenQuery = (target2 as UserSearchBlockSessionTarget).query
       return target1.query === givenQuery
     }
   }
