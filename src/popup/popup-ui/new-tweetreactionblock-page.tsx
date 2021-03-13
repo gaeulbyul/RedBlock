@@ -1,4 +1,3 @@
-// import * as Storage from '../../scripts/background/storage.js'
 import * as i18n from '../../scripts/i18n.js'
 import * as TextGenerate from '../../scripts/text-generate.js'
 import {
@@ -19,6 +18,7 @@ import {
 } from './components.js'
 import { TweetReactionChainBlockPageStatesContext, ExtraTargetContext } from './ui-states.js'
 import { TargetCheckResult, validateRequest } from '../../scripts/background/target-checker.js'
+import { findNonLinkedMentions } from '../../scripts/common.js'
 
 const M = MaterialUI
 
@@ -30,6 +30,7 @@ function useSessionRequest(): TweetReactionBlockSessionRequest {
     wantBlockLikers,
     wantBlockMentionedUsers,
     wantBlockQuotedUsers,
+    wantBlockNonLinkedMentions,
   } = React.useContext(TweetReactionChainBlockPageStatesContext)
   const { cookieOptions } = React.useContext(TwitterAPIClientContext)
   const { extraTarget } = React.useContext(ExtraTargetContext)
@@ -46,6 +47,7 @@ function useSessionRequest(): TweetReactionBlockSessionRequest {
       blockLikers: wantBlockLikers,
       blockMentionedUsers: wantBlockMentionedUsers,
       blockQuotedUsers: wantBlockQuotedUsers,
+      blockNonLinkedMentions: wantBlockNonLinkedMentions,
     },
     myself,
     cookieOptions,
@@ -62,6 +64,8 @@ function TargetTweetUI(props: { tweet: Tweet }) {
     setWantBlockMentionedUsers,
     wantBlockQuotedUsers,
     setWantBlockQuotedUsers,
+    wantBlockNonLinkedMentions,
+    setWantBlockNonLinkedMentions,
   } = React.useContext(TweetReactionChainBlockPageStatesContext)
   const { tweet } = props
   const mentions = tweet.entities.user_mentions || []
@@ -69,6 +73,7 @@ function TargetTweetUI(props: { tweet: Tweet }) {
   const nobodyLiked = tweet.favorite_count <= 0
   const nobodyMentioned = mentions.length <= 0
   const nobodyQuoted = tweet.quote_count <= 0
+  const nonLinkedMentions = findNonLinkedMentions(tweet)
   return (
     <TwitterUserProfile user={tweet.user}>
       <div className="profile-right-targettweet">
@@ -104,6 +109,15 @@ function TargetTweetUI(props: { tweet: Tweet }) {
             checked={wantBlockQuotedUsers}
             disabled={nobodyQuoted}
             label={`${i18n.getMessage('quoted')} (${tweet.quote_count.toLocaleString()})`}
+          />
+          <M.FormControlLabel
+            control={<M.Checkbox size="small" />}
+            onChange={() => setWantBlockNonLinkedMentions(!wantBlockNonLinkedMentions)}
+            checked={wantBlockNonLinkedMentions}
+            disabled={nonLinkedMentions.length <= 0}
+            label={`${i18n.getMessage(
+              'non_linked_mentions'
+            )} (${nonLinkedMentions.length.toLocaleString()})`}
           />
         </M.FormGroup>
       </div>

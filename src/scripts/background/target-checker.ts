@@ -1,3 +1,5 @@
+import { findNonLinkedMentions } from '../common.js'
+
 export const enum TargetCheckResult {
   Ok,
   AlreadyRunningOnSameTarget,
@@ -58,9 +60,23 @@ function checkFollowerBlockRequest({
 function checkTweetReactionBlockRequest({
   target,
 }: TweetReactionBlockSessionRequest): TargetCheckResult {
-  const { blockRetweeters, blockLikers, blockMentionedUsers, blockQuotedUsers } = target
+  const {
+    blockRetweeters,
+    blockLikers,
+    blockMentionedUsers,
+    blockQuotedUsers,
+    blockNonLinkedMentions,
+  } = target
   const mentions = target.tweet.entities.user_mentions || []
-  if (!(blockRetweeters || blockLikers || blockMentionedUsers || blockQuotedUsers)) {
+  if (
+    !(
+      blockRetweeters ||
+      blockLikers ||
+      blockMentionedUsers ||
+      blockQuotedUsers ||
+      blockNonLinkedMentions
+    )
+  ) {
     return TargetCheckResult.ChooseAtLeastOneOfReaction
   }
   const { retweet_count, favorite_count, quote_count } = target.tweet
@@ -76,6 +92,9 @@ function checkTweetReactionBlockRequest({
   }
   if (blockQuotedUsers) {
     totalCountToBlock += quote_count
+  }
+  if (blockNonLinkedMentions) {
+    totalCountToBlock += findNonLinkedMentions(target.tweet).length
   }
   if (totalCountToBlock <= 0) {
     return TargetCheckResult.NobodyWillBlocked

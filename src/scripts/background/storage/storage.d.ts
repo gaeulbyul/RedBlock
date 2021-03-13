@@ -1,4 +1,5 @@
 type InactivePeriod = 'never' | '1y' | '2y' | '3y'
+type NonLinkedMentionPattern = 'common' | 'aggressive'
 
 interface RedBlockStorage {
   savedUsers: TwitterUser[]

@@ -2,7 +2,12 @@ import { TwClient } from '../twitter-api.js'
 import * as i18n from '../../i18n.js'
 import * as UserScrapingAPI from '../user-scraping-api.js'
 import * as ExtraScraper from './extra-scraper.js'
-import { getFollowersCount, getReactionsCount, assertNever } from '../../common.js'
+import {
+  getFollowersCount,
+  getReactionsCount,
+  assertNever,
+  findNonLinkedMentions,
+} from '../../common.js'
 import { prepareActor } from '../antiblock.js'
 
 export interface UserScraper {
@@ -127,6 +132,7 @@ class TweetReactedUserScraper implements UserScraper {
       blockLikers,
       blockMentionedUsers,
       blockQuotedUsers,
+      blockNonLinkedMentions,
     } = this.request.target
     let scraper: ScrapedUsersIterator
     if (blockRetweeters) {
@@ -160,6 +166,16 @@ class TweetReactedUserScraper implements UserScraper {
     }
     if (blockQuotedUsers) {
       scraper = this.scrapingClient.getQuotedUsers(tweet)
+      scraper = ExtraScraper.scrapeUsersOnBio(
+        this.scrapingClient,
+        scraper,
+        this.request.extraTarget.bioBlock
+      )
+      yield* scraper
+    }
+    if (blockNonLinkedMentions) {
+      const userNames = findNonLinkedMentions(this.request.target.tweet)
+      scraper = this.scrapingClient.lookupUsersByNames(userNames)
       scraper = ExtraScraper.scrapeUsersOnBio(
         this.scrapingClient,
         scraper,

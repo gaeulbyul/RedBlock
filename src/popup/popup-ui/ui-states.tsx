@@ -78,6 +78,8 @@ interface TweetReactionChainBlockPageStates {
   setWantBlockMentionedUsers(b: boolean): void
   wantBlockQuotedUsers: boolean
   setWantBlockQuotedUsers(b: boolean): void
+  wantBlockNonLinkedMentions: boolean
+  setWantBlockNonLinkedMentions(b: boolean): void
   purpose: TweetReactionBlockSessionRequest['purpose']
   changePurposeType(purposeType: TweetReactionBlockSessionRequest['purpose']['type']): void
   mutatePurposeOptions(
@@ -181,10 +183,11 @@ export function TweetReactionChainBlockPageStatesProvider(props: {
   children: React.ReactNode
   initialTweet: Tweet | null
 }) {
-  const [wantBlockRetweeters, setWantBlockRetweeters] = React.useState<boolean>(false)
-  const [wantBlockLikers, setWantBlockLikers] = React.useState<boolean>(false)
-  const [wantBlockMentionedUsers, setWantBlockMentionedUsers] = React.useState<boolean>(false)
-  const [wantBlockQuotedUsers, setWantBlockQuotedUsers] = React.useState<boolean>(false)
+  const [wantBlockRetweeters, setWantBlockRetweeters] = React.useState(false)
+  const [wantBlockLikers, setWantBlockLikers] = React.useState(false)
+  const [wantBlockMentionedUsers, setWantBlockMentionedUsers] = React.useState(false)
+  const [wantBlockQuotedUsers, setWantBlockQuotedUsers] = React.useState(false)
+  const [wantBlockNonLinkedMentions, setWantBlockNonLinkedMentions] = React.useState(false)
   const availablePurposeTypes: TweetReactionBlockSessionRequest['purpose']['type'][] = [
     'chainblock',
     'chainmute',
@@ -207,6 +210,8 @@ export function TweetReactionChainBlockPageStatesProvider(props: {
         setWantBlockMentionedUsers,
         wantBlockQuotedUsers,
         setWantBlockQuotedUsers,
+        wantBlockNonLinkedMentions,
+        setWantBlockNonLinkedMentions,
         purpose,
         changePurposeType,
         mutatePurposeOptions,

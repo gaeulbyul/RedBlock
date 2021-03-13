@@ -44,6 +44,9 @@
   "quoted": {
     "message": "인용한 유저"
   },
+  "non_linked_mentions": {
+    "message": "링크 안 걸린 멘션"
+  },
   "chainblock": {
     "message": "체인블락"
   },

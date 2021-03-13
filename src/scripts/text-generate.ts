@@ -135,7 +135,13 @@ function generateTweetReactionBlockConfirmMessage(
   request: TweetReactionBlockSessionRequest
 ): DialogMessageObj {
   const { purpose } = request
-  const { blockRetweeters, blockLikers, blockMentionedUsers } = request.target
+  const {
+    blockRetweeters,
+    blockLikers,
+    blockMentionedUsers,
+    blockQuotedUsers,
+    blockNonLinkedMentions,
+  } = request.target
   const contents = []
   const warnings = []
   const targets = []
@@ -147,6 +153,12 @@ function generateTweetReactionBlockConfirmMessage(
   }
   if (blockMentionedUsers) {
     targets.push(i18n.getMessage('mentioned'))
+  }
+  if (blockQuotedUsers) {
+    targets.push(i18n.getMessage('quoted'))
+  }
+  if (blockNonLinkedMentions) {
+    targets.push(i18n.getMessage('non_linked_mentions'))
   }
   contents.push(`${i18n.getMessage('block_target')}: ${targets.join(', ')}`)
   if (canBlockMyFollowers(purpose)) {

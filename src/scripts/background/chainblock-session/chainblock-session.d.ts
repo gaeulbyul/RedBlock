@@ -88,6 +88,7 @@ interface TweetReactionBlockSessionRequest extends BaseRequest {
     blockLikers: boolean
     blockMentionedUsers: boolean
     blockQuotedUsers: boolean
+    blockNonLinkedMentions: boolean
   }
 }
 

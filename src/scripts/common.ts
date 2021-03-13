@@ -262,3 +262,30 @@ export async function* resumableAsyncIterate<T>(asyncGenerator: AsyncIterableIte
     }
   }
 }
+
+function* iterateRegExpMatches(pattern: RegExp, text: string): Generator<string[]> {
+  if (!pattern.global) {
+    throw new TypeError('TypeError: pattern must set global flag')
+  }
+  let matches: RegExpExecArray | null
+  let limitcounter = 5000
+  while ((matches = pattern.exec(text))) {
+    if (limitcounter-- <= 0) {
+      throw new Error('too many loops?')
+    }
+    yield matches
+  }
+}
+
+export function findNonLinkedMentions({ full_text }: Tweet): string[] {
+  const iterator = iterateRegExpMatches(/@[ ./]([A-Za-z0-9_]{1,15})\b/gi, full_text)
+  const result = new Set<string>()
+  for (const matches of iterator) {
+    const userName = matches[1]
+    if (!validateUserName(userName)) {
+      continue
+    }
+    result.add(userName)
+  }
+  return Array.from(result)
+}
