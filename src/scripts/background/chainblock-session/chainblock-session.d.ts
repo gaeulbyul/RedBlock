@@ -78,6 +78,7 @@ interface LockPickerSessionTarget {
 
 interface ImportSessionTarget {
   type: 'import'
+  source: 'file' | 'text'
   userIds: string[]
   userNames: string[]
 }

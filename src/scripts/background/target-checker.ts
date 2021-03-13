@@ -1,4 +1,4 @@
-import { findNonLinkedMentions } from '../common.js'
+import { findNonLinkedMentionsFromTweet } from '../common.js'
 
 export const enum TargetCheckResult {
   Ok,
@@ -94,7 +94,7 @@ function checkTweetReactionBlockRequest({
     totalCountToBlock += quote_count
   }
   if (blockNonLinkedMentions) {
-    totalCountToBlock += findNonLinkedMentions(target.tweet).length
+    totalCountToBlock += findNonLinkedMentionsFromTweet(target.tweet).length
   }
   if (totalCountToBlock <= 0) {
     return TargetCheckResult.NobodyWillBlocked

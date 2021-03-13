@@ -1,4 +1,4 @@
-import { getUserNameFromURL } from '../common.js'
+import { getUserNameFromURL, findMentionsFromText, findNonLinkedMentions } from '../common.js'
 import * as i18n from '../i18n.js'
 import { defaultChainBlockPurposeOptions } from './chainblock-session/default-options.js'
 import * as TwitterAPI from './twitter-api.js'
@@ -100,6 +100,40 @@ async function confirmTweetReactionChainBlockRequest(
       type: 'tweet_reaction',
       tweet,
       ...whoToBlock,
+    },
+    myself,
+    extraTarget,
+    cookieOptions: twClient.cookieOptions,
+  }
+  const checkResult = chainblocker.checkRequest(request)
+  if (checkResult === TargetCheckResult.Ok) {
+    return sendConfirmToTab(tab, request)
+  } else {
+    const alertMessage = checkResultToString(checkResult)
+    return alertToTab(tab, alertMessage)
+  }
+}
+
+async function confirmTextSelectionImportRequest(
+  tab: BrowserTab,
+  chainblocker: ChainBlocker,
+  userNames: string[]
+) {
+  const cookieStoreId = await getCookieStoreIdFromTab(tab)
+  const twClient = new TwitterAPI.TwClient({ cookieStoreId })
+  const myself = await twClient.getMyself().catch(() => null)
+  if (!myself) {
+    return alertToTab(tab, i18n.getMessage('error_occured_check_login'))
+  }
+  const options = await loadOptions()
+  const request: ImportBlockSessionRequest = {
+    purpose: defaultChainBlockPurposeOptions,
+    options,
+    target: {
+      type: 'import',
+      source: 'text',
+      userIds: [],
+      userNames,
     },
     myself,
     extraTarget,
@@ -251,6 +285,22 @@ export async function initializeContextMenu(chainblocker: ChainBlocker) {
     title: i18n.getMessage('options'),
     onclick(_clickEvent, _tab) {
       browser.runtime.openOptionsPage()
+    },
+  })
+  // 텍스트 체인블락
+  menus.create({
+    contexts: ['selection'],
+    title: i18n.getMessage('run_chainblock_from_text_selection'),
+    onclick(clickEvent, tab) {
+      const text = clickEvent.selectionText || ''
+      const mentions = findMentionsFromText(text)
+      const nonLinkedMentions = findNonLinkedMentions(text)
+      const userNames = [...mentions, ...nonLinkedMentions]
+      if (userNames.length <= 0) {
+        alertToTab(tab, i18n.getMessage('cant_chainblock_no_mentions_in_selected_text', text))
+        return
+      }
+      confirmTextSelectionImportRequest(tab, chainblocker, userNames)
     },
   })
 }

@@ -175,17 +175,31 @@ function generateTweetReactionBlockConfirmMessage(
 }
 
 function generateImportBlockConfirmMessage(request: ImportBlockSessionRequest): DialogMessageObj {
+  const usersCount = (
+    request.target.userIds.length + request.target.userNames.length
+  ).toLocaleString()
+  const contents = [`${i18n.getMessage('user_count')}: ${usersCount}`]
   const warnings = []
+  if (request.target.source === 'text') {
+    const { userNames } = request.target
+    contents.push(`${i18n.getMessage('mentioned')}:`)
+    const max = 5
+    for (let i = 0; i < Math.min(userNames.length, max); i++) {
+      contents.push(`@${userNames[i]}`)
+    }
+    if (userNames.length > max) {
+      contents.push('etc...')
+    }
+  }
   if (canBlockMyFollowers(request.purpose)) {
     warnings.push(`\u26a0 ${i18n.getMessage('warning_maybe_you_block_your_followers')}`)
   }
   if (canBlockMyFollowings(request.purpose)) {
     warnings.push(`\u26a0 ${i18n.getMessage('warning_maybe_you_block_your_followings')}`)
   }
-  const usersCount = request.target.userIds.length.toLocaleString()
   return {
     title: titleByPurposeType(request.purpose),
-    contentLines: [`${i18n.getMessage('user_count')}: ${usersCount}`],
+    contentLines: contents,
     warningLines: warnings,
   }
 }

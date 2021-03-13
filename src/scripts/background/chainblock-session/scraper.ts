@@ -6,7 +6,7 @@ import {
   getFollowersCount,
   getReactionsCount,
   assertNever,
-  findNonLinkedMentions,
+  findNonLinkedMentionsFromTweet,
 } from '../../common.js'
 import { prepareActor } from '../antiblock.js'
 
@@ -174,7 +174,7 @@ class TweetReactedUserScraper implements UserScraper {
       yield* scraper
     }
     if (blockNonLinkedMentions) {
-      const userNames = findNonLinkedMentions(this.request.target.tweet)
+      const userNames = findNonLinkedMentionsFromTweet(this.request.target.tweet)
       scraper = this.scrapingClient.lookupUsersByNames(userNames)
       scraper = ExtraScraper.scrapeUsersOnBio(
         this.scrapingClient,

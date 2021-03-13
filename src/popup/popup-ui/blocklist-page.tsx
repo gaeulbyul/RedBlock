@@ -36,6 +36,7 @@ function useSessionRequest(): ImportBlockSessionRequest {
     purpose,
     target: {
       type: 'import',
+      source: 'file',
       userIds: Array.from(blocklist.userIds),
       userNames: Array.from(blocklist.userNames),
     },

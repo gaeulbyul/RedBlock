@@ -18,7 +18,7 @@ import {
 } from './components.js'
 import { TweetReactionChainBlockPageStatesContext, ExtraTargetContext } from './ui-states.js'
 import { TargetCheckResult, validateRequest } from '../../scripts/background/target-checker.js'
-import { findNonLinkedMentions } from '../../scripts/common.js'
+import { findNonLinkedMentionsFromTweet } from '../../scripts/common.js'
 
 const M = MaterialUI
 
@@ -73,7 +73,7 @@ function TargetTweetUI(props: { tweet: Tweet }) {
   const nobodyLiked = tweet.favorite_count <= 0
   const nobodyMentioned = mentions.length <= 0
   const nobodyQuoted = tweet.quote_count <= 0
-  const nonLinkedMentions = findNonLinkedMentions(tweet)
+  const nonLinkedMentions = findNonLinkedMentionsFromTweet(tweet)
   return (
     <TwitterUserProfile user={tweet.user}>
       <div className="profile-right-targettweet">

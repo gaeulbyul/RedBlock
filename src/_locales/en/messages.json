@@ -549,6 +549,9 @@
   "run_mentioned_users_chainblock_to_this_tweet": {
     "message": "Run Chain-block on users who mentioned on this tweet"
   },
+  "run_chainblock_from_text_selection": {
+    "message": "Import Blocklist from selected text"
+  },
   "already_running_to_same_target": {
     "message": "Already running on the same target."
   },
@@ -575,6 +578,14 @@
   },
   "cant_chainblock_searchquery_invalid": {
     "message": "Search query is not valid."
+  },
+  "cant_chainblock_no_mentions_in_selected_text": {
+    "message": "Can't find any mentions in selected text. (Text: '$text$')",
+    "placeholders": {
+      "text": {
+        "content": "$1"
+      }
+    }
   },
   "wtf_twitter": {
     "message": "To avoid problem(force-logout, account suspension), Red Block won't block over 500 users."

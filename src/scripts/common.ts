@@ -277,15 +277,30 @@ function* iterateRegExpMatches(pattern: RegExp, text: string): Generator<string[
   }
 }
 
-export function findNonLinkedMentions({ full_text }: Tweet): string[] {
-  const iterator = iterateRegExpMatches(/@[ ./]([A-Za-z0-9_]{1,15})\b/gi, full_text)
+export function findMentionsFromText(text: string): string[] {
+  const iterator = iterateRegExpMatches(/@([A-Za-z0-9_]{1,15})/gi, text)
   const result = new Set<string>()
   for (const matches of iterator) {
     const userName = matches[1]
-    if (!validateUserName(userName)) {
-      continue
+    if (validateUserName(userName)) {
+      result.add(userName)
     }
-    result.add(userName)
   }
   return Array.from(result)
+}
+
+export function findNonLinkedMentions(text: string): string[] {
+  const iterator = iterateRegExpMatches(/@[ ./]([A-Za-z0-9_]{1,15})\b/gi, text)
+  const result = new Set<string>()
+  for (const matches of iterator) {
+    const userName = matches[1]
+    if (validateUserName(userName)) {
+      result.add(userName)
+    }
+  }
+  return Array.from(result)
+}
+
+export function findNonLinkedMentionsFromTweet(tweet: Tweet) {
+  return findNonLinkedMentions(tweet.full_text)
 }
