@@ -42,10 +42,22 @@ function calculatePercentage(session: SessionInfo): number | null {
   }
 }
 
-const useStylesForSessionItem = MaterialUI.makeStyles(() =>
+const useStylesForSessionItem = MaterialUI.makeStyles(theme =>
   MaterialUI.createStyles({
     expand: {
       marginLeft: 'auto',
+    },
+    redAvatar: {
+      backgroundColor: MaterialUI.colors.red[700],
+      color: theme.palette.getContrastText(MaterialUI.colors.red[700]),
+    },
+    greenAvatar: {
+      backgroundColor: MaterialUI.colors.green[700],
+      color: theme.palette.getContrastText(MaterialUI.colors.green[700]),
+    },
+    grayAvatar: {
+      backgroundColor: MaterialUI.colors.blueGrey[700],
+      color: theme.palette.getContrastText(MaterialUI.colors.blueGrey[700]),
     },
   })
 )
@@ -202,32 +214,44 @@ function ChainBlockSessionItem(props: { sessionInfo: SessionInfo }) {
         </M.IconButton>
       )
     }
+    let avatar: React.ReactNode
     if (user) {
-      return (
-        <M.CardHeader
-          action={
-            <React.Fragment>
-              {downloadButton}
-              {expandButton}
-              <M.IconButton title={closeButtonTitleText} onClick={requestStopChainBlock}>
-                <M.Icon>{closeButtonIcon}</M.Icon>
-              </M.IconButton>
-            </React.Fragment>
-          }
-          avatar={<M.Avatar src={biggerProfileImageUrl} />}
-          title={cardTitle}
-          subheader={localizedTarget}
-        />
-      )
+      avatar = <M.Avatar src={biggerProfileImageUrl} />
     } else {
-      return (
-        <M.CardHeader
-          avatar={<M.Icon>import_export</M.Icon>}
-          title={cardTitle}
-          subheader={localizedTarget}
-        />
-      )
+      let className: keyof typeof classes
+      switch (purpose.type) {
+        case 'chainblock':
+        case 'chainmute':
+        case 'chainunfollow':
+        case 'lockpicker':
+          className = 'redAvatar'
+          break
+        case 'unchainblock':
+        case 'unchainmute':
+          className = 'greenAvatar'
+          break
+        case 'export':
+          className = 'grayAvatar'
+          break
+      }
+      avatar = <M.Avatar className={classes[className]} children={<M.Icon>import_export</M.Icon>} />
     }
+    return (
+      <M.CardHeader
+        action={
+          <React.Fragment>
+            {downloadButton}
+            {expandButton}
+            <M.IconButton title={closeButtonTitleText} onClick={requestStopChainBlock}>
+              <M.Icon>{closeButtonIcon}</M.Icon>
+            </M.IconButton>
+          </React.Fragment>
+        }
+        avatar={avatar}
+        title={cardTitle}
+        subheader={localizedTarget}
+      />
+    )
   }
   let name = ''
   let biggerProfileImageUrl = ''
