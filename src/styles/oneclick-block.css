@@ -35,15 +35,16 @@ span > .redblock-btn-tweet {
   visibility: hidden;
 }
 
-.redblock-block-btn.manual {
-  background-color: transparent;
-  color: firebrick;
+.redblock-block-btn {
+  background-color: firebrick;
+  color: white;
 }
 
 .redblock-block-btn.suggested {
   display: inline-block;
-  background-color: firebrick;
-  color: white;
+  border-width: 2px;
+  font-weight: bold;
+  background-color: crimson;
 }
 
 .redblock-unblock-btn {
