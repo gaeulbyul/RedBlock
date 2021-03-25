@@ -1,7 +1,6 @@
 import BlockLimiter from './block-limiter.js'
 import type { ActAsExtraCookies } from './cookie-handler.js'
 import { notify } from './background.js'
-import * as i18n from '../i18n.js'
 
 const extraInfoSpec: any = ['requestHeaders', 'blocking']
 const extraInfoSpecResponse: any = ['responseHeaders', 'blocking']

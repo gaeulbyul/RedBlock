@@ -6,8 +6,6 @@ import {
 import { loadOptions, onStorageChanged } from '../scripts/background/storage.js'
 import { TwClient } from '../scripts/background/twitter-api.js'
 import { isRunningSession, UI_UPDATE_DELAY } from '../scripts/common.js'
-import * as i18n from '../scripts/i18n.js'
-
 import BlocklistPage from './popup-ui/blocklist-page.js'
 import ChainBlockSessionsPage from './popup-ui/chainblock-sessions-page.js'
 import { PageEnum, pageIcon, pageLabel } from './popup-ui/pages.js'

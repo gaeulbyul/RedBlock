@@ -1,5 +1,4 @@
 import { getUserNameFromURL, findMentionsFromText, findNonLinkedMentions } from '../common.js'
-import * as i18n from '../i18n.js'
 import { defaultChainBlockPurposeOptions } from './chainblock-session/default-options.js'
 import * as TwitterAPI from './twitter-api.js'
 import { TargetCheckResult } from './target-checker.js'

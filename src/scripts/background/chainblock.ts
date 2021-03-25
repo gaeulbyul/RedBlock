@@ -1,7 +1,6 @@
 import { SessionStatus, isRunningSession, isRewindableSession } from '../common.js'
 import { TwClient } from './twitter-api.js'
 import * as TextGenerate from '../text-generate.js'
-import * as i18n from '../i18n.js'
 import { alertToCurrentTab, notify, updateExtensionBadge } from './background.js'
 import { markUser } from './misc.js'
 import { TargetCheckResult, validateRequest, isSameTarget } from './target-checker.js'

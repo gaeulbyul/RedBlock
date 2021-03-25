@@ -1,5 +1,4 @@
 import * as Storage from '../../scripts/background/storage.js'
-import * as i18n from '../../scripts/i18n.js'
 
 const M = MaterialUI
 

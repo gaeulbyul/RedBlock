@@ -1,6 +1,5 @@
 import { TargetCheckResult } from './background/target-checker.js'
 import { SessionStatus, getCountOfUsersToBlock } from './common.js'
-import * as i18n from './i18n.js'
 
 const actionsThatNeedWarning: UserAction[] = ['Block', 'UnFollow', 'BlockAndUnBlock']
 
@@ -458,5 +457,16 @@ export function checkResultToString(result: TargetCheckResult): string {
       return i18n.getMessage('cant_lockpicker_to_others')
     case TargetCheckResult.InvalidSearchQuery:
       return i18n.getMessage('cant_chainblock_searchquery_invalid')
+  }
+}
+
+export function formatFollowsCount(followKind: FollowKind, count: number): string {
+  switch (followKind) {
+    case 'followers':
+      return i18n.getMessage('followers_with_count', count)
+    case 'friends':
+      return i18n.getMessage('followings_with_count', count)
+    case 'mutual-followers':
+      return i18n.getMessage('mutual_followers')
   }
 }

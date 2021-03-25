@@ -1,7 +1,6 @@
 import { toggleOneClickBlockMode } from '../popup.js'
 import { UIContext, TwitterAPIClientContext, MyselfContext } from './contexts.js'
 import { RBExpansionPanel } from './components.js'
-import * as i18n from '../../scripts/i18n.js'
 import { getAllCookies, removeCookie } from '../../scripts/background/cookie-handler.js'
 
 const M = MaterialUI

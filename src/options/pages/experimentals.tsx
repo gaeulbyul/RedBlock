@@ -1,5 +1,4 @@
 import { RedBlockOptionsContext } from './contexts.js'
-import * as i18n from '../../scripts/i18n.js'
 
 function checkFirstPartyIsolationSupport() {
   try {

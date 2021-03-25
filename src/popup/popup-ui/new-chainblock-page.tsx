@@ -1,7 +1,6 @@
 import * as Storage from '../../scripts/background/storage.js'
 import type { TwClient } from '../../scripts/background/twitter-api.js'
 import { TwitterUserMap } from '../../scripts/common.js'
-import * as i18n from '../../scripts/i18n.js'
 import * as TextGenerate from '../../scripts/text-generate.js'
 import {
   insertUserToStorage,
@@ -205,8 +204,8 @@ function TargetUserProfile() {
           {selectedMyself && <div>&#10071; {i18n.getMessage('its_you')}</div>}
         </M.Box>
         <M.RadioGroup row>
-          {radio('followers', i18n.formatFollowsCount('followers', user.followers_count))}
-          {radio('friends', i18n.formatFollowsCount('friends', user.friends_count))}
+          {radio('followers', TextGenerate.formatFollowsCount('followers', user.followers_count))}
+          {radio('friends', TextGenerate.formatFollowsCount('friends', user.friends_count))}
           {radio('mutual-followers', i18n.getMessage('mutual_followers'))}
         </M.RadioGroup>
       </div>

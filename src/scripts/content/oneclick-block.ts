@@ -1,23 +1,4 @@
 {
-  // Content scripts에선 ECMAScript Module import를 지원하지 않는다.
-  // 그래서 복붙함...
-  type I18NMessages = typeof import('../../_locales/ko/messages.json')
-  type SubstItem = number | string
-  type Substitutions = SubstItem | SubstItem[] | undefined
-  type I18NMessageKeys = keyof I18NMessages
-  function i18nGetMessage(key: string & I18NMessageKeys, substs: Substitutions = undefined) {
-    if (Array.isArray(substs)) {
-      return browser.i18n.getMessage(
-        key,
-        substs.map(s => s.toLocaleString())
-      )
-    } else if (typeof substs === 'number') {
-      return browser.i18n.getMessage(key, substs.toLocaleString())
-    } else {
-      return browser.i18n.getMessage(key, substs)
-    }
-  }
-
   const setOfBadWords: BadWordItem[] = []
 
   function loadBadWords(badWords: BadWordItem[]) {
@@ -107,13 +88,13 @@
     const btn: HTMLButtonElement = document.createElement('button')
     btn.type = 'button'
     btn.className = 'redblock-btn redblock-block-btn'
-    btn.textContent = i18nGetMessage('block')
-    btn.title = `[Red Block] ${i18nGetMessage('block_xxx', user.screen_name)}`
+    btn.textContent = i18n.getMessage('block')
+    btn.title = `[Red Block] ${i18n.getMessage('block_xxx', user.screen_name)}`
     const badWordCheckResult = checkBadWordFromUserProfile(user)
     if (badWordCheckResult) {
       btn.className += ' suggested'
       btn.title += '\n'
-      btn.title += i18nGetMessage('user_profile_contains', badWordCheckResult.word)
+      btn.title += i18n.getMessage('user_profile_contains', badWordCheckResult.word)
     } else {
       btn.className += ' manual'
     }
@@ -125,7 +106,7 @@
         userAction: 'Block',
         userId: user.id_str,
       })
-      toastMessage(`[Red Block] ${i18nGetMessage('blocked_xxx', user.screen_name)}`)
+      toastMessage(`[Red Block] ${i18n.getMessage('blocked_xxx', user.screen_name)}`)
     })
     return btn
   }

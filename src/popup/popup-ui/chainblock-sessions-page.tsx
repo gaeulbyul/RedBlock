@@ -15,7 +15,6 @@ import {
 import { UIContext, MyselfContext, AvailablePages } from './contexts.js'
 import { statusToString } from '../../scripts/text-generate.js'
 import { BlockLimiterUI, PleaseLoginBox, LinearProgressWithLabel } from './components.js'
-import * as i18n from '../../scripts/i18n.js'
 
 const M = MaterialUI
 const T = MaterialUI.Typography

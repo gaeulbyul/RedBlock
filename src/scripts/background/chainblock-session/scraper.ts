@@ -1,5 +1,4 @@
 import { TwClient } from '../twitter-api.js'
-import * as i18n from '../../i18n.js'
 import * as UserScrapingAPI from '../user-scraping-api.js'
 import * as ExtraScraper from './extra-scraper.js'
 import {

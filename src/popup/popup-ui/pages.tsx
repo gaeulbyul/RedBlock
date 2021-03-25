@@ -1,5 +1,3 @@
-import * as i18n from '../../scripts/i18n.js'
-
 // NOTE:
 // 아래의 값을 변경할 때,
 // popup-ui.tsx의 initialPageMatch 정규식 부분도 수정할 것.

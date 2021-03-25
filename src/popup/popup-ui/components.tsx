@@ -1,5 +1,4 @@
 import { DialogMessageObj, checkResultToString } from '../../scripts/text-generate.js'
-import * as i18n from '../../scripts/i18n.js'
 import { requestResetCounter } from '../../scripts/background/request-sender.js'
 import { MyselfContext, BlockLimiterContext, RedBlockOptionsContext } from './contexts.js'
 import { ExtraTargetContext } from './ui-states.js'

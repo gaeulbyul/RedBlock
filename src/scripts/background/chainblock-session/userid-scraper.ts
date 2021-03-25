@@ -1,6 +1,5 @@
 import { TwClient } from '../twitter-api.js'
 import * as UserScrapingAPI from '../user-scraping-api.js'
-import * as i18n from '../../i18n.js'
 import { getFollowersCount, getReactionsCount, wrapEitherRight } from '../../common.js'
 import { prepareActor } from '../antiblock.js'
 
