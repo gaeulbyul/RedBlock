@@ -40,6 +40,12 @@ span > .redblock-btn-tweet {
   color: white;
 }
 
+/* Shinigami-eyes compatibility */
+.assigned-label-transphobic .redblock-block-btn {
+  display: inline-block;
+  color: white !important;
+}
+
 .redblock-block-btn.suggested {
   display: inline-block;
   border-width: 2px;
