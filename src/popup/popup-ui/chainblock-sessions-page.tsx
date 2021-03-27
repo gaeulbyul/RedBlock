@@ -360,7 +360,7 @@ function GlobalControls() {
           onClick={openMenu}
           variant="contained"
         >
-          새 세션
+          {i18n.getMessage('new_session')}
         </M.Button>
       </M.ButtonGroup>
       <NewSessionMenu {...{ anchorEl, setAnchorEl }} />
