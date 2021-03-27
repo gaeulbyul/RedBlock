@@ -60,6 +60,11 @@
       detail,
     })
     document.dispatchEvent(event)
+    const { userId, userAction } = detail
+    if (userAction === 'Block') {
+      const oneclickButton = document.querySelector(`[data-redblock-btn-user="${userId}"]`)
+      oneclickButton?.remove()
+    }
   }
 
   function toastMessage(detail: string) {
@@ -85,7 +90,7 @@
   //}
 
   function generateBlockButton(user: TwitterUser): HTMLButtonElement {
-    const btn: HTMLButtonElement = document.createElement('button')
+    const btn = document.createElement('button')
     btn.type = 'button'
     btn.className = 'redblock-btn redblock-block-btn'
     btn.textContent = i18n.getMessage('block')
@@ -98,6 +103,7 @@
     } else {
       btn.className += ' manual'
     }
+    btn.setAttribute('data-redblock-btn-user', user.id_str)
     btn.addEventListener('click', event => {
       event.preventDefault()
       blockUser(user)
