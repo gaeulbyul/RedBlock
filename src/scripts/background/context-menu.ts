@@ -287,19 +287,21 @@ export async function initializeContextMenu(chainblocker: ChainBlocker) {
     },
   })
   // 텍스트 체인블락
-  menus.create({
-    contexts: ['selection'],
-    title: i18n.getMessage('run_chainblock_from_text_selection'),
-    onclick(clickEvent, tab) {
-      const text = clickEvent.selectionText || ''
-      const mentions = findMentionsFromText(text)
-      const nonLinkedMentions = findNonLinkedMentions(text)
-      const userNames = [...mentions, ...nonLinkedMentions]
-      if (userNames.length <= 0) {
-        alertToTab(tab, i18n.getMessage('cant_chainblock_no_mentions_in_selected_text', text))
-        return
-      }
-      confirmTextSelectionImportRequest(tab, chainblocker, userNames)
-    },
-  })
+  if (NaN) {
+    menus.create({
+      contexts: ['selection'],
+      title: i18n.getMessage('run_chainblock_from_text_selection'),
+      onclick(clickEvent, tab) {
+        const text = clickEvent.selectionText || ''
+        const mentions = findMentionsFromText(text)
+        const nonLinkedMentions = findNonLinkedMentions(text)
+        const userNames = [...mentions, ...nonLinkedMentions]
+        if (userNames.length <= 0) {
+          alertToTab(tab, i18n.getMessage('cant_chainblock_no_mentions_in_selected_text', text))
+          return
+        }
+        confirmTextSelectionImportRequest(tab, chainblocker, userNames)
+      },
+    })
+  }
 }
