@@ -61,6 +61,41 @@ const useStylesForSessionItem = MaterialUI.makeStyles(theme =>
   })
 )
 
+function progressTableRow(left: string, right: string | number) {
+  const rightCell = typeof right === 'string' ? right : right.toLocaleString()
+  return (
+    <M.TableRow>
+      <M.TableCell>{left}</M.TableCell>
+      <M.TableCell align="right">{rightCell}</M.TableCell>
+    </M.TableRow>
+  )
+}
+
+function ChainBlockSessionProgressTable(props: { sessionInfo: SessionInfo }) {
+  const {
+    sessionInfo: { progress: p },
+  } = props
+  const { TableContainer, Table, TableBody } = MaterialUI
+  const { success: s } = p
+  return (
+    <TableContainer>
+      <Table size="small">
+        <TableBody>
+          {progressTableRow(i18n.getMessage('block'), s.Block)}
+          {progressTableRow(i18n.getMessage('unblock'), s.UnBlock)}
+          {progressTableRow(i18n.getMessage('mute'), s.Mute)}
+          {progressTableRow(i18n.getMessage('unmute'), s.UnMute)}
+          {progressTableRow(i18n.getMessage('unfollow'), s.UnFollow)}
+          {progressTableRow(i18n.getMessage('block_and_unblock'), s.BlockAndUnBlock)}
+          {progressTableRow(i18n.getMessage('already_done'), p.already)}
+          {progressTableRow(i18n.getMessage('skipped'), p.skipped)}
+          {progressTableRow(i18n.getMessage('failed'), p.failure)}
+        </TableBody>
+      </Table>
+    </TableContainer>
+  )
+}
+
 function ChainBlockSessionItem(props: { sessionInfo: SessionInfo }) {
   const { sessionInfo } = props
   const { sessionId } = sessionInfo
@@ -106,38 +141,6 @@ function ChainBlockSessionItem(props: { sessionInfo: SessionInfo }) {
   }
   const localizedPurpose = i18n.getMessage(purpose.type)
   const cardTitle = `${localizedPurpose} ${statusToString(sessionInfo.status)}`
-  function progressTableRow(left: string, right: string | number) {
-    const rightCell = typeof right === 'string' ? right : right.toLocaleString()
-    return (
-      <M.TableRow>
-        <M.TableCell>{left}</M.TableCell>
-        <M.TableCell align="right">{rightCell}</M.TableCell>
-      </M.TableRow>
-    )
-  }
-  function renderTable() {
-    const { progress: p } = sessionInfo
-    const { TableContainer, Table, TableBody } = MaterialUI
-    const { success: s } = p
-    return (
-      <TableContainer>
-        <Table size="small">
-          <TableBody>
-            {progressTableRow(
-              `${i18n.getMessage('block')} / ${i18n.getMessage('unblock')}`,
-              `${s.Block.toLocaleString()} / ${s.UnBlock.toLocaleString()}`
-            )}
-            {progressTableRow(i18n.getMessage('mute'), s.Mute)}
-            {progressTableRow(i18n.getMessage('unfollow'), s.UnFollow)}
-            {progressTableRow(i18n.getMessage('block_and_unblock'), s.BlockAndUnBlock)}
-            {progressTableRow(i18n.getMessage('already_done'), p.already)}
-            {progressTableRow(i18n.getMessage('skipped'), p.skipped)}
-            {progressTableRow(i18n.getMessage('failed'), p.failure)}
-          </TableBody>
-        </Table>
-      </TableContainer>
-    )
-  }
   function renderCardHeader(user: TwitterUser | null) {
     //function requestRewindChainBlock() {
     //  rewindChainBlock(sessionId)
@@ -317,7 +320,9 @@ function ChainBlockSessionItem(props: { sessionInfo: SessionInfo }) {
           )}
         </M.CardContent>
         <M.Collapse in={expanded} unmountOnExit>
-          <M.CardContent>{renderTable()}</M.CardContent>
+          <M.CardContent>
+            <ChainBlockSessionProgressTable {...{ sessionInfo }} />
+          </M.CardContent>
         </M.Collapse>
       </M.Card>
     </M.Box>
