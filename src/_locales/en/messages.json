@@ -152,7 +152,7 @@
     "message": "Unfollow"
   },
   "block_and_unblock": {
-    "message": "Block and unblock"
+    "message": "Softblock"
   },
   "skipped": {
     "message": "Skipped"
@@ -386,7 +386,7 @@
     "message": "Do you want to block protected followers?"
   },
   "confirm_lockpicker_bnb_title": {
-    "message": "Do you want to block-and-unblock protected followers?"
+    "message": "Do you want to softblock(block and then unblock) protected followers?"
   },
   "confirm_export_title": {
     "message": "Do you want to export user lists?"
@@ -455,7 +455,7 @@
     }
   },
   "bnbed_n_users": {
-    "message": "Block-and-unblocked $count$ users.",
+    "message": "Softblocked $count$ users.",
     "placeholders": {
       "count": {
         "content": "$1"
