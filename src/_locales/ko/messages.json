@@ -791,9 +791,6 @@
   "enable_bioblock": {
     "message": "BioBlock 기능 활성화"
   },
-  "enable_chainmute": {
-    "message": "체인뮤트 기능 활성화"
-  },
   "1st_party_isolation_compatible_mode": {
     "message": "Firefox의 1st-party Isolation 기능 호환모드"
   },

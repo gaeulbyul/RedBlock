@@ -791,9 +791,6 @@
   "enable_bioblock": {
     "message": "Enable BioBlock"
   },
-  "enable_chainmute": {
-    "message": "Enable Chain-mute"
-  },
   "1st_party_isolation_compatible_mode": {
     "message": "Compatible Firefox's 1st-party isolation mode."
   },

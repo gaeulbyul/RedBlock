@@ -383,14 +383,13 @@ export function PurposeSelectionUI(props: {
   availablePurposeTypes: SessionRequest['purpose']['type'][]
 }) {
   const { purpose, changePurposeType, mutatePurposeOptions, availablePurposeTypes } = props
-  const { enableChainMute } = React.useContext(RedBlockOptionsContext)
   const chainblockable = availablePurposeTypes.includes('chainblock')
   const unchainblockable = availablePurposeTypes.includes('unchainblock')
   const exportable = availablePurposeTypes.includes('export')
   const lockpickable = availablePurposeTypes.includes('lockpicker')
   const chainunfollowable = availablePurposeTypes.includes('chainunfollow')
-  const chainmutable = availablePurposeTypes.includes('chainmute') && enableChainMute
-  const unchainmutable = availablePurposeTypes.includes('unchainmute') && enableChainMute
+  const chainmutable = availablePurposeTypes.includes('chainmute')
+  const unchainmutable = availablePurposeTypes.includes('unchainmute')
   //const narrow = MaterialUI.useMediaQuery('(max-width:500px)')
   return (
     <div style={{ width: '100%' }}>
@@ -433,14 +432,14 @@ export function PurposeSelectionUI(props: {
           <PurposeTab
             value="chainmute"
             icon={purposeTypeToIcon('chainmute')}
-            label={i18n.getMessage('chainmute') + '\u1d5d'}
+            label={i18n.getMessage('chainmute')}
           />
         )}
         {unchainmutable && (
           <PurposeTab
             value="unchainmute"
             icon={purposeTypeToIcon('unchainmute')}
-            label={i18n.getMessage('unchainmute') + '\u1d5d'}
+            label={i18n.getMessage('unchainmute')}
           />
         )}
         {exportable && (

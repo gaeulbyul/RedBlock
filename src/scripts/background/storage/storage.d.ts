@@ -8,7 +8,6 @@ interface RedBlockStorage {
     skipInactiveUser: InactivePeriod
     revealBioBlockMode: boolean
     enableAntiBlock: boolean
-    enableChainMute: boolean
     firstPartyIsolationCompatibleMode: boolean
     throttleBlockRequest: boolean
     muteEvenAlreadyBlocking: boolean

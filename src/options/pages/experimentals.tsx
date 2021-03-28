@@ -54,18 +54,6 @@ export default function ExperimentalOptionsPages() {
           <M.Divider variant="middle" />
           <M.FormGroup>
             <SwitchItem
-              checked={options.enableChainMute}
-              label={i18n.getMessage('enable_chainmute')}
-              onChange={checked =>
-                updateOptions({
-                  enableChainMute: checked,
-                })
-              }
-            />
-          </M.FormGroup>
-          <M.Divider variant="middle" />
-          <M.FormGroup>
-            <SwitchItem
               checked={options.revealBioBlockMode}
               label={i18n.getMessage('enable_bioblock')}
               onChange={checked =>
