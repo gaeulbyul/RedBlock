@@ -364,6 +364,7 @@ function GlobalControls() {
           startIcon={<M.Icon>add_circle_outline</M.Icon>}
           onClick={openMenu}
           variant="contained"
+          disableElevation
         >
           {i18n.getMessage('new_session')}
         </M.Button>
