@@ -17,8 +17,8 @@
   },
   "devDependencies": {
     "@material-ui/core": "^4.10.2",
-    "@swc/cli": "^0.1.35",
-    "@swc/core": "^1.2.49",
+    "@swc/cli": "^0.1.36",
+    "@swc/core": "^1.2.51",
     "@types/lodash": "^4.14.117",
     "@types/prop-types": "^15.7.3",
     "@types/react": "^16.8.20",
@@ -28,7 +28,6 @@
     "husky": "^4.2.5",
     "just-scripts": "0.43.0",
     "mkdirp": "1.0.4",
-    "ncp": "2.0.0",
     "prettier": "^2.0.5",
     "pretty-quick": "^2.0.1",
     "rimraf": "3.0.2",
