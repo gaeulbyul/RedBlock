@@ -470,8 +470,6 @@ export default function ChainBlockSessionsPage() {
       browser.runtime.onMessage.removeListener(messageListener)
     }
   }, [twClient])
-  const runningSessions = sessions.filter(session => isRunningSession(session))
-  uiContext.setCountOfSessions(runningSessions.length)
   function renderSessions() {
     return (
       <div>

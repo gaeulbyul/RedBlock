@@ -22,7 +22,6 @@ interface UIContextType {
   setMenuAnchorElem(elem: HTMLElement | null): void
   availablePages: AvailablePages
   initialLoading: boolean
-  setCountOfSessions(count: number): void
 }
 
 export const UIContext = React.createContext<UIContextType>(null!)

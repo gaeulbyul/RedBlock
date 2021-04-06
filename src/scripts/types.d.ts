@@ -172,12 +172,19 @@ declare namespace RBMessageToPopup {
     messageTo: 'popup'
     page: PageEnum[keyof PageEnum]
   }
+
+  interface CountOfRunningSessions {
+    messageType: 'CountOfRunningSessions'
+    messageTo: 'popup'
+    count: number
+  }
 }
 
 declare type RBMessageToPopupType =
   | RBMessageToPopup.ChainBlockInfo
   | RBMessageToPopup.BlockLimiterInfo
   | RBMessageToPopup.PopupSwitchTab
+  | RBMessageToPopup.CountOfRunningSessions
 
 declare namespace RBMessageToContent {
   interface MarkUser {

@@ -29,15 +29,14 @@ export async function alertToCurrentTab(message: string) {
   return alertToTab(currentTab, message)
 }
 
-export function updateExtensionBadge(sessions: SessionInfo[]) {
+export function updateExtensionBadge(sessionsCount: number) {
   const manifest = browser.runtime.getManifest()
   if (typeof browser.browserAction.setBadgeText !== 'function') {
     // 안드로이드용 Firefox에선 뱃지 관련 API를 사용할 수 없다.
     return
   }
-  const runningSessionsCount = sessions.length
   // Chromium에선 setBadgeText의 text에 null을 허용하지 않음
-  const text: string = runningSessionsCount ? runningSessionsCount.toString() : ''
+  const text: string = sessionsCount ? sessionsCount.toString() : ''
   browser.browserAction.setBadgeText({
     text,
   })
@@ -45,7 +44,7 @@ export function updateExtensionBadge(sessions: SessionInfo[]) {
     color: '#3d5afe',
   })
   let title = `Red Block v${manifest.version}\n`
-  title += `* ${i18n.getMessage('running_sessions')}: ${runningSessionsCount}`
+  title += `* ${i18n.getMessage('running_sessions')}: ${sessionsCount}`
   browser.browserAction.setTitle({
     title,
   })

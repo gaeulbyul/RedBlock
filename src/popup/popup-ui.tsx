@@ -276,6 +276,9 @@ function PopupApp({
         case 'PopupSwitchTab':
           setTabIndex(msg.page)
           break
+        case 'CountOfRunningSessions':
+          setCountOfSessions(msg.count)
+          break
         default:
           break
       }
@@ -314,7 +317,6 @@ function PopupApp({
           setMenuAnchorElem,
           availablePages,
           initialLoading,
-          setCountOfSessions,
         }}
       >
         <TwitterAPIClientContext.Provider value={twClient}>
