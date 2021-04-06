@@ -12,9 +12,10 @@ import {
   downloadFromExportSession,
   requestProgress,
 } from '../../scripts/background/request-sender.js'
-import { UIContext, MyselfContext, AvailablePages } from './contexts.js'
+import { UIContext, MyselfContext, AvailablePages, TwitterAPIClientContext } from './contexts.js'
 import { statusToString } from '../../scripts/text-generate.js'
 import { BlockLimiterUI, PleaseLoginBox, LinearProgressWithLabel } from './components.js'
+import { checkMessage } from '../popup.js'
 
 const M = MaterialUI
 const T = MaterialUI.Typography
@@ -446,10 +447,31 @@ function NewSessionButtons() {
   )
 }
 
-export default function ChainBlockSessionsPage(props: { sessions: SessionInfo[] }) {
-  const { sessions } = props
+export default function ChainBlockSessionsPage() {
+  const [sessions, setSessions] = React.useState<SessionInfo[]>([])
   const myself = React.useContext(MyselfContext)
   const uiContext = React.useContext(UIContext)
+  const twClient = React.useContext(TwitterAPIClientContext)
+  React.useEffect(() => {
+    const messageListener = (msg: object) => {
+      if (!checkMessage(msg)) {
+        console.debug('unknown message?', msg)
+        return
+      }
+      if (msg.messageType !== 'ChainBlockInfo') {
+        return
+      }
+      setSessions(msg.sessions)
+    }
+    browser.runtime.onMessage.addListener(messageListener)
+    requestProgress().catch(() => null)
+    // clean-up
+    return () => {
+      browser.runtime.onMessage.removeListener(messageListener)
+    }
+  }, [twClient])
+  const runningSessions = sessions.filter(session => isRunningSession(session))
+  uiContext.setCountOfSessions(runningSessions.length)
   function renderSessions() {
     return (
       <div>

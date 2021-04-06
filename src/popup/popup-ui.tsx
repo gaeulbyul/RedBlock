@@ -5,7 +5,6 @@ import {
 } from '../scripts/background/request-sender.js'
 import { loadOptions, onStorageChanged } from '../scripts/background/storage.js'
 import { TwClient } from '../scripts/background/twitter-api.js'
-import { isRunningSession, UI_UPDATE_DELAY } from '../scripts/common.js'
 import BlocklistPage from './popup-ui/blocklist-page.js'
 import ChainBlockSessionsPage from './popup-ui/chainblock-sessions-page.js'
 import { PageEnum, pageIcon, pageLabel } from './popup-ui/pages.js'
@@ -43,23 +42,13 @@ import {
   getUserNameFromTab,
   getUserIdFromTab,
   getCurrentSearchQueryFromTab,
+  checkMessage,
 } from './popup.js'
 import { getCookieStoreIdFromTab } from '../scripts/background/cookie-handler.js'
 
-const M = MaterialUI
+const UI_UPDATE_DELAY = 750
 
-function checkMessage(msg: object): msg is RBMessageToPopupType {
-  if (msg == null) {
-    return false
-  }
-  if (!('messageTo' in msg)) {
-    return false
-  }
-  if ((msg as any).messageTo !== 'popup') {
-    return false
-  }
-  return true
-}
+const M = MaterialUI
 
 const PopupTopTab = MaterialUI.withStyles({
   root: {
@@ -82,11 +71,11 @@ interface PopupAppProps {
 }
 
 function PopupUITopMenu(props: {
-  runningSessions: SessionInfo[]
+  countOfSessions: number
   currentTweet: Tweet | null
   currentSearchQuery: string | null
 }) {
-  const { runningSessions } = props
+  const { countOfSessions } = props
   const {
     menuAnchorElem,
     setMenuAnchorElem,
@@ -121,7 +110,7 @@ function PopupUITopMenu(props: {
     >
       <M.MenuItem dense onClick={() => switchPageFromMenu(PageEnum.Sessions)}>
         <M.ListItemIcon>{pageIcon(PageEnum.Sessions)}</M.ListItemIcon>
-        {pageLabel(PageEnum.Sessions, runningSessions.length)}
+        {pageLabel(PageEnum.Sessions, countOfSessions)}
       </M.MenuItem>
       <M.MenuItem
         dense
@@ -213,7 +202,6 @@ function PopupApp({
   initialRedBlockOptions,
 }: PopupAppProps) {
   const [tabIndex, setTabIndex] = React.useState<PageEnum>(initialPage)
-  const [sessions, setSessions] = React.useState<SessionInfo[]>([])
   const [limiterStatus, setLimiterStatus] = React.useState<BlockLimiterStatus>({
     current: 0,
     max: 500,
@@ -229,6 +217,7 @@ function PopupApp({
   // 참고: popup.css
   const [initialLoading, setInitialLoading] = React.useState(true)
   const [redblockOptions, setRedBlockOptions] = React.useState(initialRedBlockOptions)
+  const [countOfSessions, setCountOfSessions] = React.useState(0)
   const shrinkedPopup = MaterialUI.useMediaQuery('(width:348px), (width:425px)')
   const theme = React.useMemo(() => RedBlockPopupUITheme(darkMode), [darkMode])
   function openDialog(content: DialogContent) {
@@ -273,11 +262,15 @@ function PopupApp({
       switch (msg.messageType) {
         case 'ChainBlockInfo':
           setInitialLoading(false)
-          setSessions(msg.sessions)
+          // setSessions(msg.sessions) --> chainblock-sessions-page 로 이동
           break
         case 'BlockLimiterInfo':
           if (myself && msg.userId === myself.id_str) {
-            setLimiterStatus(msg.status)
+            const oldValue = limiterStatus.current
+            const newValue = msg.status.current
+            if (oldValue !== newValue) {
+              setLimiterStatus(msg.status)
+            }
           }
           break
         case 'PopupSwitchTab':
@@ -296,11 +289,10 @@ function PopupApp({
   React.useEffect(() => {
     return onStorageChanged('options', setRedBlockOptions)
   }, [])
-  const runningSessions = sessions.filter(session => isRunningSession(session))
   const runningSessionsTabIcon = (
     <M.Badge
       color="secondary"
-      badgeContent={runningSessions.length}
+      badgeContent={countOfSessions}
       anchorOrigin={{
         vertical: 'bottom',
         horizontal: 'right',
@@ -322,6 +314,7 @@ function PopupApp({
           setMenuAnchorElem,
           availablePages,
           initialLoading,
+          setCountOfSessions,
         }}
       >
         <TwitterAPIClientContext.Provider value={twClient}>
@@ -338,7 +331,7 @@ function PopupApp({
                       value={tabIndex}
                       onChange={(_ev, val) => setTabIndex(val)}
                     >
-                      <MyTooltip arrow title={pageLabel(PageEnum.Sessions, runningSessions.length)}>
+                      <MyTooltip arrow title={pageLabel(PageEnum.Sessions, countOfSessions)}>
                         <PopupTopTab icon={runningSessionsTabIcon} />
                       </MyTooltip>
                       <MyTooltip arrow title={pageLabel(PageEnum.NewSession)}>
@@ -381,11 +374,11 @@ function PopupApp({
                     {myself && <PopupMyselfIcon {...{ myself }} />}
                   </M.Toolbar>
                 </M.AppBar>
-                <PopupUITopMenu {...{ runningSessions, currentTweet, currentSearchQuery }} />
+                <PopupUITopMenu {...{ countOfSessions, currentTweet, currentSearchQuery }} />
                 <div className="page">
                   <M.Container maxWidth="sm" disableGutters>
                     <TabPanel value={tabIndex} index={PageEnum.Sessions}>
-                      <ChainBlockSessionsPage sessions={sessions} />
+                      <ChainBlockSessionsPage />
                     </TabPanel>
                     <FollowerChainBlockPageStatesProvider initialUser={currentUser}>
                       <TabPanel value={tabIndex} index={PageEnum.NewSession}>
@@ -530,7 +523,6 @@ export async function initializeUI() {
   } else {
     document.body.classList.add('ui-popup')
   }
-  requestProgress().catch(() => {})
   if (myself) {
     requestBlockLimiterStatus(myself.id_str).catch(() => {})
   }

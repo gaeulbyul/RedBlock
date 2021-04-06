@@ -105,3 +105,16 @@ export function determineInitialPurposeType<T extends Purpose>(
   }
   return 'chainblock'
 }
+
+export function checkMessage(msg: object): msg is RBMessageToPopupType {
+  if (msg == null) {
+    return false
+  }
+  if (!('messageTo' in msg)) {
+    return false
+  }
+  if ((msg as any).messageTo !== 'popup') {
+    return false
+  }
+  return true
+}
