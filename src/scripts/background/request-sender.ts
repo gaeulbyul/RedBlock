@@ -44,30 +44,6 @@ export async function cleanupInactiveSessions() {
   })
 }
 
-export async function insertUserToStorage(user: TwitterUser) {
-  return browser.runtime.sendMessage<RBMessageToBackground.InsertUserToStorage>({
-    messageType: 'InsertUserToStorage',
-    messageTo: 'background',
-    user,
-  })
-}
-
-export async function removeUserFromStorage(user: TwitterUser) {
-  return browser.runtime.sendMessage<RBMessageToBackground.RemoveUserFromStorage>({
-    messageType: 'RemoveUserFromStorage',
-    messageTo: 'background',
-    user,
-  })
-}
-
-export async function refreshSavedUsers(cookieOptions: CookieOptions) {
-  return browser.runtime.sendMessage<RBMessageToBackground.RefreshSavedUsers>({
-    messageType: 'RefreshSavedUsers',
-    messageTo: 'background',
-    cookieOptions,
-  })
-}
-
 export async function requestBlockLimiterStatus(userId: string) {
   return browser.runtime.sendMessage<RBMessageToBackground.RequestBlockLimiterStatus>({
     messageType: 'RequestBlockLimiterStatus',

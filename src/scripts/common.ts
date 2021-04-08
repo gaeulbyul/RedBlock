@@ -302,3 +302,14 @@ export function findNonLinkedMentions(text: string): string[] {
 export function findNonLinkedMentionsFromTweet(tweet: Tweet) {
   return findNonLinkedMentions(tweet.full_text)
 }
+
+export function deleteSensitiveInfo(user: TwitterUser): TwitterUser {
+  const userAsAny = user as any
+  if (Object.isFrozen(userAsAny)) {
+    const clonedUser = Object.assign({}, userAsAny)
+    return deleteSensitiveInfo(clonedUser)
+  }
+  delete userAsAny.email
+  delete userAsAny.phone
+  return user
+}

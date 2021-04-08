@@ -76,18 +76,6 @@ declare namespace RBMessageToBackground {
     sessionId: string
   }
 
-  interface InsertUserToStorage {
-    messageType: 'InsertUserToStorage'
-    messageTo: 'background'
-    user: TwitterUser
-  }
-
-  interface RemoveUserFromStorage {
-    messageType: 'RemoveUserFromStorage'
-    messageTo: 'background'
-    user: TwitterUser
-  }
-
   interface RequestProgress {
     messageType: 'RequestProgress'
     messageTo: 'background'
@@ -97,12 +85,6 @@ declare namespace RBMessageToBackground {
     messageType: 'RequestCleanup'
     messageTo: 'background'
     cleanupWhat: 'inactive'
-  }
-
-  interface RefreshSavedUsers {
-    messageType: 'RefreshSavedUsers'
-    messageTo: 'background'
-    cookieOptions: CookieOptions
   }
 
   interface RequestBlockLimiterStatus {
@@ -142,11 +124,8 @@ declare type RBMessageToBackgroundType =
   | RBMessageToBackground.StopSession
   | RBMessageToBackground.StopAllSessions
   | RBMessageToBackground.RewindSession
-  | RBMessageToBackground.InsertUserToStorage
-  | RBMessageToBackground.RemoveUserFromStorage
   | RBMessageToBackground.RequestProgress
   | RBMessageToBackground.RequestCleanup
-  | RBMessageToBackground.RefreshSavedUsers
   | RBMessageToBackground.RequestBlockLimiterStatus
   | RBMessageToBackground.RequestResetCounter
   | RBMessageToBackground.BlockSingleUser
@@ -263,6 +242,22 @@ interface BlockLimiterStatus {
   max: number
   remained: number
 }
+
+// ---- bookmark ----
+
+interface BookmarkTweetItem {
+  type: 'tweet'
+  itemId: string
+  tweetId: string
+}
+
+interface BookmarkUserItem {
+  type: 'user'
+  itemId: string
+  userId: string
+}
+
+type BookmarkItem = BookmarkTweetItem | BookmarkUserItem
 
 // ---- import chainblock ----
 

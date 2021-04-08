@@ -2,11 +2,7 @@ import * as Storage from '../../scripts/background/storage.js'
 import type { TwClient } from '../../scripts/background/twitter-api.js'
 import { TwitterUserMap } from '../../scripts/common.js'
 import * as TextGenerate from '../../scripts/text-generate.js'
-import {
-  insertUserToStorage,
-  removeUserFromStorage,
-  startNewChainBlockSession,
-} from '../../scripts/background/request-sender.js'
+import { startNewChainBlockSession } from '../../scripts/background/request-sender.js'
 import {
   UIContext,
   MyselfContext,
@@ -76,7 +72,7 @@ function TargetSavedUsers(props: { savedUsers: TwitterUserMap; usersInOtherTab: 
       uiContext.openSnackBar(i18n.getMessage('user_xxx_already_exists', selectedUser.screen_name))
       return
     }
-    insertUserToStorage(selectedUser)
+    Storage.insertItemToBookmark(Storage.createBookmarkUserItem(selectedUser))
     uiContext.openSnackBar(i18n.getMessage('user_xxx_added', selectedUser.screen_name))
   }
   async function removeUser() {
@@ -84,7 +80,18 @@ function TargetSavedUsers(props: { savedUsers: TwitterUserMap; usersInOtherTab: 
       console.warn("attempted remove user that doesn't exist?")
       return
     }
-    removeUserFromStorage(selectedUser)
+    const userId = selectedUser.id_str
+    Storage.modifyBookmarksWith(bookmarks => {
+      const itemToRemove = Array.from(bookmarks.values()).find(
+        item => item.type === 'user' && item.userId === userId
+      )
+      if (itemToRemove) {
+        bookmarks.delete(itemToRemove.itemId)
+      } else {
+        console.warn('item already removed? user-id:"%s"', userId)
+      }
+      return bookmarks
+    })
     uiContext.openSnackBar(i18n.getMessage('user_xxx_removed', selectedUser.screen_name))
   }
   const sortedByName = (usersMap: TwitterUserMap): TwitterUser[] =>
@@ -272,16 +279,21 @@ function TargetUserSelectUI() {
     }
   }
   React.useEffect(() => {
-    Storage.loadUsers().then(users => {
+    Storage.loadBookmarks('user').then(async bookmarks => {
+      const userIds = Array.from(bookmarks.values())
+        .filter(item => item.type === 'user')
+        .map(item => (item as BookmarkUserItem).userId)
+      const users = await getMultipleUsersByIdWithCache(twClient, userIds)
       setSavedUsers(users)
-      userCache.merge(users)
     })
-    return Storage.onStorageChanged('savedUsers', async users => {
-      const usersMap = TwitterUserMap.fromUsersArray(users)
-      setSavedUsers(usersMap)
-      users.forEach(user => userCache.addUser(user))
+    return Storage.onStorageChanged('bookmarks', async bookmarks => {
+      const userIds = bookmarks
+        .filter(item => item.type === 'user')
+        .map(item => (item as BookmarkUserItem).userId)
+      const users = await getMultipleUsersByIdWithCache(twClient, userIds)
+      setSavedUsers(users)
       // 스토리지에서 불러올 때 직전에 선택했었던 유저가 없는 경우
-      if (!(selectedUser && usersMap.hasUser(selectedUser))) {
+      if (!(selectedUser && users.hasUser(selectedUser))) {
         setUserSelection({
           user: currentUser,
           group: 'current',
@@ -368,6 +380,31 @@ async function getUserByIdWithCache(twClient: TwClient, userId: string): Promise
   const user = await twClient.getSingleUser({ user_id: userId })
   userCache.addUser(user)
   return user
+}
+
+async function getMultipleUsersByIdWithCache(
+  twClient: TwClient,
+  userIds: string[]
+): Promise<TwitterUserMap> {
+  const result = new TwitterUserMap()
+  const nonCachedUserIds = new Set<string>()
+  for (const id of userIds) {
+    const cachedUser = userCache.get(id)
+    if (cachedUser) {
+      result.addUser(cachedUser)
+      continue
+    } else {
+      nonCachedUserIds.add(id)
+    }
+  }
+  const newlyFetchedUsers = await twClient
+    .getMultipleUsers({ user_id: Array.from(nonCachedUserIds) })
+    .catch(() => [])
+  newlyFetchedUsers.forEach(user => {
+    userCache.addUser(user)
+    result.addUser(user)
+  })
+  return result
 }
 
 function TargetExecutionButtonUI() {

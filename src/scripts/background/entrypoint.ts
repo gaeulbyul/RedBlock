@@ -1,17 +1,14 @@
 import { PageEnum } from '../../popup/popup-ui/pages.js'
 import { alertToCurrentTab } from './background.js'
 import ChainBlocker from './chainblock.js'
-import * as Storage from './storage.js'
 import * as TwitterAPI from './twitter-api.js'
 import { checkResultToString } from '../text-generate.js'
-import { refreshSavedUsers } from './misc.js'
 import { initializeContextMenu } from './context-menu.js'
 import { initializeWebRequest } from './webrequest.js'
 import BlockLimiter from './block-limiter.js'
 import { assertNever } from '../common.js'
 import { getCookieStoreIdFromTab } from './cookie-handler.js'
 
-let storageQueue = Promise.resolve()
 const chainblocker = new ChainBlocker()
 
 // for debug
@@ -61,16 +58,6 @@ async function sendBlockLimiterStatus(userId: string) {
       },
     })
     .catch(() => {})
-}
-
-async function saveUserToStorage(user: TwitterUser) {
-  storageQueue = storageQueue.then(() => Storage.insertUser(user))
-  return storageQueue
-}
-
-async function removeUserFromStorage(user: TwitterUser) {
-  storageQueue = storageQueue.then(() => Storage.removeUser(user))
-  return storageQueue
 }
 
 async function twClientFromTab(tab: browser.tabs.Tab): Promise<TwitterAPI.TwClient> {
@@ -123,20 +110,11 @@ function handleExtensionMessage(
           break
       }
       break
-    case 'InsertUserToStorage':
-      saveUserToStorage(message.user)
-      break
-    case 'RemoveUserFromStorage':
-      removeUserFromStorage(message.user)
-      break
     case 'BlockSingleUser':
       twClientFromTab(sender.tab!).then(twClient => twClient.blockUser(message.user))
       break
     case 'UnblockSingleUser':
       twClientFromTab(sender.tab!).then(twClient => twClient.unblockUser(message.user))
-      break
-    case 'RefreshSavedUsers':
-      refreshSavedUsers(message.cookieOptions)
       break
     case 'RequestBlockLimiterStatus':
       sendBlockLimiterStatus(message.userId)
