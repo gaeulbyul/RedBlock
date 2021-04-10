@@ -7,10 +7,10 @@ import { PageEnum, pageIcon, pageLabel } from './popup-ui/pages.js'
 import {
   UIContext,
   RedBlockOptionsContext,
-  MyselfContext,
   BlockLimiterContext,
   AvailablePages,
-  TwitterAPIClientContext,
+  ActorsContext,
+  ActorsContextType,
 } from './popup-ui/contexts.js'
 import {
   FollowerChainBlockPageStatesProvider,
@@ -49,8 +49,8 @@ const PopupTopTab = MaterialUI.withStyles({
 })(MaterialUI.Tab)
 
 interface PopupAppProps {
-  myself: TwitterUser | null
-  twClient: TwClient
+  primaryActor: Actor | null
+  retrieverActor: Actor | null
   currentUser: TwitterUser | null
   currentTweet: Tweet | null
   currentSearchQuery: string | null
@@ -181,8 +181,8 @@ function PopupMyselfIcon(props: { myself: TwitterUser }) {
 }
 
 function PopupApp({
-  myself,
-  twClient,
+  primaryActor,
+  retrieverActor,
   currentUser,
   currentTweet,
   currentSearchQuery,
@@ -207,6 +207,14 @@ function PopupApp({
   const [initialLoading, setInitialLoading] = React.useState(true)
   const [redblockOptions, setRedBlockOptions] = React.useState(initialRedBlockOptions)
   const [countOfSessions, setCountOfSessions] = React.useState(0)
+  let actors: ActorsContextType | null = null
+  if (primaryActor) {
+    actors = {
+      primary: primaryActor,
+      executor: primaryActor, // <- TODO: state화
+      retriever: retrieverActor!,
+    }
+  }
   const shrinkedPopup = MaterialUI.useMediaQuery('(width:348px), (width:425px)')
   const theme = React.useMemo(() => RedBlockPopupUITheme(darkMode), [darkMode])
   function openDialog(content: DialogContent) {
@@ -234,14 +242,15 @@ function PopupApp({
     setSnackBarOpen(false)
   }
   const availablePages: AvailablePages = {
-    followerChainBlock: !!myself,
-    tweetReactionChainBlock: !!(myself && currentTweet),
-    userSearchChainBlock: !!(myself && currentSearchQuery),
-    importChainBlock: !!myself,
-    lockPicker: !!myself,
+    followerChainBlock: !!actors,
+    tweetReactionChainBlock: !!(actors && currentTweet),
+    userSearchChainBlock: !!(actors && currentSearchQuery),
+    importChainBlock: !!actors,
+    lockPicker: !!actors,
     // 쿠키삭제 메뉴는 트위터 로그인상태가 아니어도 사용할 수 있도록
     miscellaneous: true,
   }
+  const myself = primaryActor?.user
   React.useEffect(() => {
     const messageListener = (msg: object) => {
       if (!checkMessage(msg)) {
@@ -277,10 +286,8 @@ function PopupApp({
     return () => {
       browser.runtime.onMessage.removeListener(messageListener)
     }
-  }, [twClient])
-  React.useEffect(() => {
-    return onStorageChanged('options', setRedBlockOptions)
   }, [])
+  React.useEffect(() => onStorageChanged('options', setRedBlockOptions), [])
   const runningSessionsTabIcon = (
     <M.Badge
       color="secondary"
@@ -308,103 +315,101 @@ function PopupApp({
           initialLoading,
         }}
       >
-        <TwitterAPIClientContext.Provider value={twClient}>
-          <MyselfContext.Provider value={myself}>
-            <RedBlockOptionsContext.Provider value={redblockOptions}>
-              <BlockLimiterContext.Provider value={limiterStatus}>
-                <M.AppBar position="fixed">
-                  <M.Toolbar variant="dense" disableGutters>
-                    <M.IconButton color="inherit" onClick={handleMenuButtonClick}>
-                      <M.Icon>menu</M.Icon>
-                    </M.IconButton>
-                    <M.Tabs
-                      style={{ flexGrow: 1 }}
-                      value={tabIndex}
-                      onChange={(_ev, val) => setTabIndex(val)}
-                    >
-                      <MyTooltip arrow title={pageLabel(PageEnum.Sessions, countOfSessions)}>
-                        <PopupTopTab icon={runningSessionsTabIcon} />
-                      </MyTooltip>
-                      <MyTooltip arrow title={pageLabel(PageEnum.NewSession)}>
-                        <PopupTopTab
-                          icon={pageIcon(PageEnum.NewSession)}
-                          disabled={!availablePages.followerChainBlock}
-                        />
-                      </MyTooltip>
-                      <MyTooltip arrow title={pageLabel(PageEnum.NewTweetReactionBlock)}>
-                        <PopupTopTab
-                          icon={pageIcon(PageEnum.NewTweetReactionBlock)}
-                          disabled={!availablePages.tweetReactionChainBlock}
-                        />
-                      </MyTooltip>
-                      <MyTooltip arrow title={pageLabel(PageEnum.NewSearchChainBlock)}>
-                        <PopupTopTab
-                          icon={pageIcon(PageEnum.NewSearchChainBlock)}
-                          disabled={!availablePages.userSearchChainBlock}
-                        />
-                      </MyTooltip>
-                      <MyTooltip arrow title={pageLabel(PageEnum.Blocklist)}>
-                        <PopupTopTab
-                          icon={pageIcon(PageEnum.Blocklist)}
-                          disabled={!availablePages.importChainBlock}
-                        />
-                      </MyTooltip>
-                      <MyTooltip arrow title={pageLabel(PageEnum.LockPicker)}>
-                        <PopupTopTab
-                          icon={pageIcon(PageEnum.LockPicker)}
-                          disabled={!availablePages.lockPicker}
-                        />
-                      </MyTooltip>
-                      <MyTooltip arrow title={pageLabel(PageEnum.Utilities)}>
-                        <PopupTopTab
-                          icon={pageIcon(PageEnum.Utilities)}
-                          disabled={!availablePages.miscellaneous}
-                        />
-                      </MyTooltip>
-                    </M.Tabs>
-                    {myself && <PopupMyselfIcon {...{ myself }} />}
-                  </M.Toolbar>
-                </M.AppBar>
-                <PopupUITopMenu {...{ countOfSessions, currentTweet, currentSearchQuery }} />
-                <div className="page">
-                  <M.Container maxWidth="sm" disableGutters>
-                    <TabPanel value={tabIndex} index={PageEnum.Sessions}>
-                      <ChainBlockSessionsPage />
+        <ActorsContext.Provider value={actors}>
+          <RedBlockOptionsContext.Provider value={redblockOptions}>
+            <BlockLimiterContext.Provider value={limiterStatus}>
+              <M.AppBar position="fixed">
+                <M.Toolbar variant="dense" disableGutters>
+                  <M.IconButton color="inherit" onClick={handleMenuButtonClick}>
+                    <M.Icon>menu</M.Icon>
+                  </M.IconButton>
+                  <M.Tabs
+                    style={{ flexGrow: 1 }}
+                    value={tabIndex}
+                    onChange={(_ev, val) => setTabIndex(val)}
+                  >
+                    <MyTooltip arrow title={pageLabel(PageEnum.Sessions, countOfSessions)}>
+                      <PopupTopTab icon={runningSessionsTabIcon} />
+                    </MyTooltip>
+                    <MyTooltip arrow title={pageLabel(PageEnum.NewSession)}>
+                      <PopupTopTab
+                        icon={pageIcon(PageEnum.NewSession)}
+                        disabled={!availablePages.followerChainBlock}
+                      />
+                    </MyTooltip>
+                    <MyTooltip arrow title={pageLabel(PageEnum.NewTweetReactionBlock)}>
+                      <PopupTopTab
+                        icon={pageIcon(PageEnum.NewTweetReactionBlock)}
+                        disabled={!availablePages.tweetReactionChainBlock}
+                      />
+                    </MyTooltip>
+                    <MyTooltip arrow title={pageLabel(PageEnum.NewSearchChainBlock)}>
+                      <PopupTopTab
+                        icon={pageIcon(PageEnum.NewSearchChainBlock)}
+                        disabled={!availablePages.userSearchChainBlock}
+                      />
+                    </MyTooltip>
+                    <MyTooltip arrow title={pageLabel(PageEnum.Blocklist)}>
+                      <PopupTopTab
+                        icon={pageIcon(PageEnum.Blocklist)}
+                        disabled={!availablePages.importChainBlock}
+                      />
+                    </MyTooltip>
+                    <MyTooltip arrow title={pageLabel(PageEnum.LockPicker)}>
+                      <PopupTopTab
+                        icon={pageIcon(PageEnum.LockPicker)}
+                        disabled={!availablePages.lockPicker}
+                      />
+                    </MyTooltip>
+                    <MyTooltip arrow title={pageLabel(PageEnum.Utilities)}>
+                      <PopupTopTab
+                        icon={pageIcon(PageEnum.Utilities)}
+                        disabled={!availablePages.miscellaneous}
+                      />
+                    </MyTooltip>
+                  </M.Tabs>
+                  {myself && <PopupMyselfIcon {...{ myself }} />}
+                </M.Toolbar>
+              </M.AppBar>
+              <PopupUITopMenu {...{ countOfSessions, currentTweet, currentSearchQuery }} />
+              <div className="page">
+                <M.Container maxWidth="sm" disableGutters>
+                  <TabPanel value={tabIndex} index={PageEnum.Sessions}>
+                    <ChainBlockSessionsPage />
+                  </TabPanel>
+                  <FollowerChainBlockPageStatesProvider initialUser={currentUser}>
+                    <TabPanel value={tabIndex} index={PageEnum.NewSession}>
+                      <NewChainBlockPage />
                     </TabPanel>
-                    <FollowerChainBlockPageStatesProvider initialUser={currentUser}>
-                      <TabPanel value={tabIndex} index={PageEnum.NewSession}>
-                        <NewChainBlockPage />
-                      </TabPanel>
-                    </FollowerChainBlockPageStatesProvider>
-                    <TweetReactionChainBlockPageStatesProvider initialTweet={currentTweet}>
-                      <TabPanel value={tabIndex} index={PageEnum.NewTweetReactionBlock}>
-                        <NewTweetReactionBlockPage />
-                      </TabPanel>
-                    </TweetReactionChainBlockPageStatesProvider>
-                    <UserSearchChainBlockPageStatesProvider currentSearchQuery={currentSearchQuery}>
-                      <TabPanel value={tabIndex} index={PageEnum.NewSearchChainBlock}>
-                        <NewSearchChainBlockPage />
-                      </TabPanel>
-                    </UserSearchChainBlockPageStatesProvider>
-                    <LockPickerPageStatesProvider>
-                      <TabPanel value={tabIndex} index={PageEnum.LockPicker}>
-                        <LockPickerPage />
-                      </TabPanel>
-                    </LockPickerPageStatesProvider>
-                    <ImportChainBlockPageStatesProvider>
-                      <TabPanel value={tabIndex} index={PageEnum.Blocklist}>
-                        <BlocklistPage />
-                      </TabPanel>
-                    </ImportChainBlockPageStatesProvider>
-                    <TabPanel value={tabIndex} index={PageEnum.Utilities}>
-                      <MiscPage />
+                  </FollowerChainBlockPageStatesProvider>
+                  <TweetReactionChainBlockPageStatesProvider initialTweet={currentTweet}>
+                    <TabPanel value={tabIndex} index={PageEnum.NewTweetReactionBlock}>
+                      <NewTweetReactionBlockPage />
                     </TabPanel>
-                  </M.Container>
-                </div>
-              </BlockLimiterContext.Provider>
-            </RedBlockOptionsContext.Provider>
-          </MyselfContext.Provider>
-        </TwitterAPIClientContext.Provider>
+                  </TweetReactionChainBlockPageStatesProvider>
+                  <UserSearchChainBlockPageStatesProvider currentSearchQuery={currentSearchQuery}>
+                    <TabPanel value={tabIndex} index={PageEnum.NewSearchChainBlock}>
+                      <NewSearchChainBlockPage />
+                    </TabPanel>
+                  </UserSearchChainBlockPageStatesProvider>
+                  <LockPickerPageStatesProvider>
+                    <TabPanel value={tabIndex} index={PageEnum.LockPicker}>
+                      <LockPickerPage />
+                    </TabPanel>
+                  </LockPickerPageStatesProvider>
+                  <ImportChainBlockPageStatesProvider>
+                    <TabPanel value={tabIndex} index={PageEnum.Blocklist}>
+                      <BlocklistPage />
+                    </TabPanel>
+                  </ImportChainBlockPageStatesProvider>
+                  <TabPanel value={tabIndex} index={PageEnum.Utilities}>
+                    <MiscPage />
+                  </TabPanel>
+                </M.Container>
+              </div>
+            </BlockLimiterContext.Provider>
+          </RedBlockOptionsContext.Provider>
+        </ActorsContext.Provider>
       </UIContext.Provider>
       <M.Snackbar
         anchorOrigin={{
@@ -450,16 +455,19 @@ export async function initializeUI() {
   const currentTab = await getCurrentTab()
   const cookieStoreId = await getCookieStoreIdFromTab(currentTab)
   const twClient = new TwClient({ cookieStoreId })
-  const { myself, currentTweet, currentUser, currentSearchQuery } = await getTabContext(
-    currentTab,
-    twClient
-  )
+  const {
+    primaryActor,
+    retrieverActor,
+    currentTweet,
+    currentUser,
+    currentSearchQuery,
+  } = await getTabContext(currentTab, twClient)
   const appRoot = document.getElementById('app')!
   const app = (
     <PopupApp
       {...{
-        myself,
-        twClient,
+        primaryActor,
+        retrieverActor,
         currentUser,
         currentTweet,
         currentSearchQuery,
@@ -476,6 +484,7 @@ export async function initializeUI() {
   } else {
     document.body.classList.add('ui-popup')
   }
+  const myself = primaryActor?.user
   if (myself) {
     requestBlockLimiterStatus(myself.id_str).catch(() => {})
   }

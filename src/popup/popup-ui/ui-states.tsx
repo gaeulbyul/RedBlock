@@ -4,7 +4,7 @@ import {
 } from '../../scripts/background/chainblock-session/default-options.js'
 import { Blocklist, emptyBlocklist } from '../../scripts/background/blocklist-process.js'
 import { determineInitialPurposeType } from '../popup.js'
-import { MyselfContext } from './contexts.js'
+import { ActorsContext } from './contexts.js'
 
 export type SelectUserGroup = 'invalid' | 'current' | 'saved' | 'other tab'
 
@@ -139,13 +139,13 @@ export function FollowerChainBlockPageStatesProvider(props: {
   children: React.ReactNode
   initialUser: TwitterUser | null
 }) {
-  const myself = React.useContext(MyselfContext)
+  const actors = React.useContext(ActorsContext)!
   const [userSelection, setUserSelection] = React.useState<UserSelectionState>({
     user: props.initialUser,
     group: props.initialUser ? 'current' : 'invalid',
   })
   const initialPurposeType = determineInitialPurposeType<FollowerBlockSessionRequest['purpose']>(
-    myself,
+    actors.primary.user,
     props.initialUser
   )
   const [targetList, setTargetList] = React.useState<FollowKind>('followers')

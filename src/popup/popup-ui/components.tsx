@@ -1,6 +1,6 @@
 import { DialogMessageObj, checkResultToString } from '../../scripts/text-generate.js'
 import { requestResetCounter } from '../../scripts/background/request-sender.js'
-import { MyselfContext, BlockLimiterContext, RedBlockOptionsContext } from './contexts.js'
+import { ActorsContext, BlockLimiterContext, RedBlockOptionsContext } from './contexts.js'
 import { ExtraTargetContext } from './ui-states.js'
 import { TargetCheckResult, validateRequest } from '../../scripts/background/target-checker.js'
 
@@ -217,10 +217,10 @@ export function RBExpansionPanel(props: {
 
 export function BlockLimiterUI() {
   const { current, max } = React.useContext(BlockLimiterContext)
-  const myself = React.useContext(MyselfContext)
+  const actors = React.useContext(ActorsContext)!
   function handleResetButtonClick(event: React.MouseEvent<HTMLButtonElement>) {
     event.preventDefault()
-    requestResetCounter(myself!.id_str)
+    requestResetCounter(actors.primary.user.id_str)
   }
   const exceed = current >= max
   const warningIcon = exceed ? '\u26a0\ufe0f' : ''

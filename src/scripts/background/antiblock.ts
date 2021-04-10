@@ -46,6 +46,7 @@ export async function examineRetrieverByTargetUser(
       return { user: clientSelf, cookieOptions: client.cookieOptions }
     }
   }
+  // TODO: unreachable 처리? (차단당해도 유저정보정도는 가져올 수 있다.)
   return null
 }
 
@@ -61,6 +62,7 @@ export async function examineRetrieverByTweetId(
     return {
       ...primaryActor,
       targetTweet: tweetRetrievedFromPrimaryActor,
+      tweetRetrievedFromPrimary: true,
     }
   }
   const twClients = iterateAvailableTwClients()
@@ -79,6 +81,7 @@ export async function examineRetrieverByTweetId(
       console.debug('[AntiBlock]: Found! will use %o', client)
       return {
         targetTweet,
+        tweetRetrievedFromPrimary: false,
         user: clientSelf,
         cookieOptions: client.cookieOptions,
       }
@@ -89,4 +92,5 @@ export async function examineRetrieverByTweetId(
 
 type ExamineTweetResult = Actor & {
   targetTweet: Tweet
+  tweetRetrievedFromPrimary: boolean
 }

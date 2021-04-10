@@ -1,8 +1,7 @@
 import {
   UIContext,
-  MyselfContext,
+  ActorsContext,
   BlockLimiterContext,
-  TwitterAPIClientContext,
   RedBlockOptionsContext,
 } from './contexts.js'
 import {
@@ -22,21 +21,19 @@ const M = MaterialUI
 
 function useSessionRequest(): LockPickerSessionRequest {
   const { purpose } = React.useContext(LockPickerPageStatesContext)
-  const { cookieOptions } = React.useContext(TwitterAPIClientContext)
   const { extraTarget } = React.useContext(ExtraTargetContext)
-  const myself = React.useContext(MyselfContext)!
+  const { primary } = React.useContext(ActorsContext)!
   const options = React.useContext(RedBlockOptionsContext)
-  const retriever = { user: myself, cookieOptions }
   return {
     purpose,
     options,
     target: {
       type: 'lockpicker',
-      user: myself,
+      user: primary.user,
       list: 'followers',
     },
-    retriever,
-    executor: retriever,
+    retriever: primary,
+    executor: primary,
     extraTarget,
   }
 }
@@ -91,13 +88,13 @@ function TargetExecutionButtonUI() {
 }
 
 export default function LockPickerPage() {
-  const myself = React.useContext(MyselfContext)!
+  const { primary } = React.useContext(ActorsContext)!
   const request = useSessionRequest()
   return (
     <div>
       <RBExpansionPanel summary={i18n.getMessage('lockpicker')} defaultExpanded>
         <div style={{ width: '100%' }}>
-          <TwitterUserProfile user={myself} />
+          <TwitterUserProfile user={primary.user} />
         </div>
       </RBExpansionPanel>
       <TargetOptionsUI />

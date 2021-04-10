@@ -1,9 +1,8 @@
 import * as TextGenerate from '../../scripts/text-generate.js'
 import {
   UIContext,
-  MyselfContext,
+  ActorsContext,
   BlockLimiterContext,
-  TwitterAPIClientContext,
   RedBlockOptionsContext,
 } from './contexts.js'
 import { startNewChainBlockSession } from '../../scripts/background/request-sender.js'
@@ -31,11 +30,9 @@ function useSessionRequest(): TweetReactionBlockSessionRequest {
     wantBlockQuotedUsers,
     wantBlockNonLinkedMentions,
   } = React.useContext(TweetReactionChainBlockPageStatesContext)
-  const { cookieOptions } = React.useContext(TwitterAPIClientContext)
   const { extraTarget } = React.useContext(ExtraTargetContext)
-  const myself = React.useContext(MyselfContext)!
+  const { retriever, executor } = React.useContext(ActorsContext)!
   const options = React.useContext(RedBlockOptionsContext)
-  const retriever = { user: myself, cookieOptions }
   return {
     purpose,
     options,
@@ -50,7 +47,7 @@ function useSessionRequest(): TweetReactionBlockSessionRequest {
       blockNonLinkedMentions: wantBlockNonLinkedMentions,
     },
     retriever,
-    executor: retriever,
+    executor,
   }
 }
 

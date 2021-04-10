@@ -12,7 +12,7 @@ import {
   downloadFromExportSession,
   requestProgress,
 } from '../../scripts/background/request-sender.js'
-import { UIContext, MyselfContext, AvailablePages, TwitterAPIClientContext } from './contexts.js'
+import { UIContext, ActorsContext, AvailablePages } from './contexts.js'
 import { statusToString } from '../../scripts/text-generate.js'
 import { BlockLimiterUI, PleaseLoginBox, LinearProgressWithLabel } from './components.js'
 import { checkMessage } from '../popup.js'
@@ -449,9 +449,8 @@ function NewSessionButtons() {
 
 export default function ChainBlockSessionsPage() {
   const [sessions, setSessions] = React.useState<SessionInfo[]>([])
-  const myself = React.useContext(MyselfContext)
+  const actors = React.useContext(ActorsContext)
   const uiContext = React.useContext(UIContext)
-  const twClient = React.useContext(TwitterAPIClientContext)
   React.useEffect(() => {
     const messageListener = (msg: object) => {
       if (!checkMessage(msg)) {
@@ -469,7 +468,7 @@ export default function ChainBlockSessionsPage() {
     return () => {
       browser.runtime.onMessage.removeListener(messageListener)
     }
-  }, [twClient])
+  }, [])
   function renderSessions() {
     return (
       <div>
@@ -506,7 +505,7 @@ export default function ChainBlockSessionsPage() {
   const isSessionExist = sessions.length > 0
   return (
     <div>
-      {myself ? (
+      {actors ? (
         <React.Fragment>
           <BlockLimiterUI />
           {isSessionExist && (

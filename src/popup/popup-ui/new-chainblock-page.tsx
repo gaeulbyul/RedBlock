@@ -1,13 +1,12 @@
 import * as Storage from '../../scripts/background/storage.js'
-import type { TwClient } from '../../scripts/background/twitter-api.js'
+import { TwClient } from '../../scripts/background/twitter-api.js'
 import { TwitterUserMap } from '../../scripts/common.js'
 import * as TextGenerate from '../../scripts/text-generate.js'
 import { startNewChainBlockSession } from '../../scripts/background/request-sender.js'
 import {
   UIContext,
-  MyselfContext,
+  ActorsContext,
   BlockLimiterContext,
-  TwitterAPIClientContext,
   RedBlockOptionsContext,
 } from './contexts.js'
 import {
@@ -39,12 +38,11 @@ function useSessionRequest(): FollowerBlockSessionRequest {
   const { purpose, targetList, userSelection } = React.useContext(
     FollowerChainBlockPageStatesContext
   )
-  const { cookieOptions } = React.useContext(TwitterAPIClientContext)
+  const actors = React.useContext(ActorsContext)!
   const { extraTarget } = React.useContext(ExtraTargetContext)
   const options = React.useContext(RedBlockOptionsContext)
-  const myself = React.useContext(MyselfContext)!
   const selectedUser = userSelection.user!
-  const retriever = { user: myself, cookieOptions }
+  const { executor, retriever } = actors
   return {
     purpose,
     target: {
@@ -55,7 +53,7 @@ function useSessionRequest(): FollowerBlockSessionRequest {
     options,
     extraTarget,
     retriever,
-    executor: retriever,
+    executor,
   }
 }
 
@@ -192,9 +190,9 @@ function TargetUserProfile() {
     FollowerChainBlockPageStatesContext
   )
   // selectedUser가 null일 땐 이 컴포넌트를 렌더링하지 않으므로
-  const user = userSelection.user!
-  const myself = React.useContext(MyselfContext)
-  const selectedMyself = myself && user.id_str === myself.id_str
+  const selectedUser = userSelection.user!
+  const actors = React.useContext(ActorsContext)!
+  const selectedMyself = selectedUser.id_str === actors.primary.user.id_str
   function radio(fk: FollowKind, label: string) {
     return (
       <M.FormControlLabel
@@ -206,14 +204,17 @@ function TargetUserProfile() {
     )
   }
   return (
-    <TwitterUserProfile user={user}>
+    <TwitterUserProfile user={selectedUser}>
       <div>
         <M.Box display="flex" flexDirection="column">
           {selectedMyself && <div>&#10071; {i18n.getMessage('its_you')}</div>}
         </M.Box>
         <M.RadioGroup row>
-          {radio('followers', TextGenerate.formatFollowsCount('followers', user.followers_count))}
-          {radio('friends', TextGenerate.formatFollowsCount('friends', user.friends_count))}
+          {radio(
+            'followers',
+            TextGenerate.formatFollowsCount('followers', selectedUser.followers_count)
+          )}
+          {radio('friends', TextGenerate.formatFollowsCount('friends', selectedUser.friends_count))}
           {radio('mutual-followers', i18n.getMessage('mutual_followers'))}
         </M.RadioGroup>
       </div>
@@ -241,12 +242,13 @@ function TargetUserSelectUI() {
   const { currentUser, targetList, userSelection, setUserSelection } = React.useContext(
     FollowerChainBlockPageStatesContext
   )
-  const twClient = React.useContext(TwitterAPIClientContext)
+  const actors = React.useContext(ActorsContext)!
   const { openDialog } = React.useContext(UIContext)
   const [savedUsers, setSavedUsers] = React.useState(new TwitterUserMap())
   const [usersInOtherTab, setUsersInOtherTab] = React.useState(new TwitterUserMap())
   const [isLoading, setLoadingState] = React.useState(false)
   const { user: selectedUser } = userSelection
+  const twClient = new TwClient(actors.primary.cookieOptions)
   async function changeSelectedUser(userId: string, userName: string, group: SelectUserGroup) {
     if (!/^\d+$/.test(userId)) {
       setUserSelection({

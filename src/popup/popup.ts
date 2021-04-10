@@ -1,4 +1,9 @@
 import { getUserNameFromURL } from '../scripts/common.js'
+import {
+  examineRetrieverByTargetUser,
+  examineRetrieverByTweetId,
+} from '../scripts/background/antiblock.js'
+import { loadOptions } from '../scripts/background/storage.js'
 import type { TwClient } from '../scripts/background/twitter-api.js'
 
 type Tab = browser.tabs.Tab
@@ -121,7 +126,8 @@ export function checkMessage(msg: object): msg is RBMessageToPopupType {
 }
 
 interface TabContext {
-  myself: TwitterUser | null
+  primaryActor: Actor | null
+  retrieverActor: Actor | null
   currentUser: TwitterUser | null
   currentTweet: Tweet | null
   currentSearchQuery: string | null
@@ -134,12 +140,22 @@ export async function getTabContext(
   const myself = await twClient.getMyself().catch(() => null)
   if (!myself) {
     return {
-      myself,
+      primaryActor: null,
+      retrieverActor: null,
       currentUser: null,
       currentTweet: null,
       currentSearchQuery: null,
     }
   }
+  const options = await loadOptions()
+  if (options.enableAntiBlock) {
+    return getTabContextWithAntiblock(myself, tab, twClient)
+  }
+  const primaryActor: Actor = {
+    user: myself,
+    cookieOptions: twClient.cookieOptions,
+  }
+  const retrieverActor = Object.assign({}, primaryActor)
   const tweetId = getTweetIdFromTab(tab)
   const userId = getUserIdFromTab(tab)
   const userName = getUserNameFromTab(tab)
@@ -154,7 +170,62 @@ export async function getTabContext(
   }
   const currentSearchQuery = getCurrentSearchQueryFromTab(tab)
   return {
-    myself,
+    primaryActor,
+    retrieverActor,
+    currentTweet,
+    currentUser,
+    currentSearchQuery,
+  }
+}
+
+async function getTabContextWithAntiblock(
+  myself: TwitterUser,
+  tab: browser.tabs.Tab,
+  twClient: TwClient
+): Promise<TabContext> {
+  const primaryActor: Actor = {
+    user: myself,
+    cookieOptions: twClient.cookieOptions,
+  }
+  const retrieverActor = Object.assign({}, primaryActor)
+  const tweetId = getTweetIdFromTab(tab)
+  const userId = getUserIdFromTab(tab)
+  const userName = getUserNameFromTab(tab)
+  let currentTweet: Tweet | null = null
+  let currentUser: TwitterUser | null = null
+  let usingAlternativeRetriever = false
+  if (tweetId) {
+    const result = await examineRetrieverByTweetId(primaryActor, tweetId)
+    if (result) {
+      currentTweet = result.targetTweet
+      if (result.tweetRetrievedFromPrimary) {
+        currentUser = currentTweet.user
+      } else {
+        usingAlternativeRetriever = true
+        retrieverActor.user = result.user
+        retrieverActor.cookieOptions = result.cookieOptions
+      }
+    }
+  }
+  if (!currentUser) {
+    if (userName) {
+      currentUser = await twClient.getSingleUser({ screen_name: userName }).catch(() => null)
+    } else if (userId) {
+      currentUser = await twClient.getSingleUser({ user_id: userId }).catch(() => null)
+    }
+  }
+  if (currentUser && currentUser.blocked_by && !usingAlternativeRetriever) {
+    const result = await examineRetrieverByTargetUser(primaryActor, currentUser)
+    if (result) {
+      usingAlternativeRetriever = true
+      retrieverActor.user = result.user
+      retrieverActor.cookieOptions = result.cookieOptions
+    }
+  }
+  const currentSearchQuery = getCurrentSearchQueryFromTab(tab)
+  return {
+    primaryActor,
+    retrieverActor,
     currentTweet,
     currentUser,
     currentSearchQuery,

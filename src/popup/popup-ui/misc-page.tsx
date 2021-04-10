@@ -1,12 +1,17 @@
-import { toggleOneClickBlockMode } from '../popup.js'
-import { UIContext, TwitterAPIClientContext, MyselfContext } from './contexts.js'
+import { toggleOneClickBlockMode, getCurrentTab } from '../popup.js'
+import { UIContext, ActorsContext } from './contexts.js'
 import { RBExpansionPanel } from './components.js'
-import { getAllCookies, removeCookie } from '../../scripts/background/cookie-handler.js'
+import {
+  getAllCookies,
+  removeCookie,
+  getCookieStoreIdFromTab,
+} from '../../scripts/background/cookie-handler.js'
 
 const M = MaterialUI
 
-async function deleteTwitterRelatedCookies(cookieOptions: CookieOptions) {
-  const storeId = cookieOptions.cookieStoreId
+async function deleteTwitterRelatedCookies() {
+  const currentTab = await getCurrentTab()
+  const storeId = await getCookieStoreIdFromTab(currentTab)
   const cookies = await getAllCookies({
     storeId,
   })
@@ -29,8 +34,7 @@ function openOptions() {
 
 export default function MiscPage() {
   const uiContext = React.useContext(UIContext)
-  const myself = React.useContext(MyselfContext)
-  const { cookieOptions } = React.useContext(TwitterAPIClientContext)
+  const actors = React.useContext(ActorsContext)
   function onClickOneClickBlockModeButtons(enable: boolean) {
     toggleOneClickBlockMode(enable)
     const modeState = enable ? 'ON' : 'OFF'
@@ -44,13 +48,13 @@ export default function MiscPage() {
         contentLines: [i18n.getMessage('confirm_delete_cookie')],
       },
       callbackOnOk() {
-        deleteTwitterRelatedCookies(cookieOptions).then(() => {
+        deleteTwitterRelatedCookies().then(() => {
           uiContext.openSnackBar(i18n.getMessage('cookie_delete_complete'))
         })
       },
     })
   }
-  const disabledOneClickBlockRelatedButtons = !myself
+  const disabledOneClickBlockRelatedButtons = !actors
   return (
     <div>
       <RBExpansionPanel summary={i18n.getMessage('oneclick_block_mode')} defaultExpanded>

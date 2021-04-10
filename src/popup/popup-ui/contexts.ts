@@ -1,7 +1,6 @@
-import { PageEnum } from './pages.js'
 import { defaultOptions } from '../../scripts/background/storage.js'
+import type { PageEnum } from './pages.js'
 import type { DialogContent } from './components.js'
-import { TwClient, TwitterUser } from '../../scripts/background/twitter-api.js'
 
 export interface AvailablePages {
   followerChainBlock: boolean
@@ -30,12 +29,20 @@ export const RedBlockOptionsContext = React.createContext({
   ...defaultOptions,
 })
 
-export const MyselfContext = React.createContext<TwitterUser | null>(null)
-
 export const BlockLimiterContext = React.createContext<BlockLimiterStatus>({
   current: 0,
   max: 500,
   remained: 500,
 })
 
-export const TwitterAPIClientContext = React.createContext<TwClient>(null!)
+//export const MyselfContext = React.createContext<TwitterUser | null>(null)
+//export const TwitterAPIClientContext = React.createContext<TwClient>(null!)
+
+// null일 경우 비로그인으로 간주한다 (구 MyselfContext가 null인 것처럼 취급)
+export interface ActorsContextType {
+  primary: Actor
+  executor: Actor
+  retriever: Actor
+}
+
+export const ActorsContext = React.createContext<ActorsContextType | null>(null)
