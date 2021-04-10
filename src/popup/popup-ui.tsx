@@ -32,14 +32,7 @@ import {
   MyTooltip,
 } from './popup-ui/components.js'
 
-import {
-  getCurrentTab,
-  getTweetIdFromTab,
-  getUserNameFromTab,
-  getUserIdFromTab,
-  getCurrentSearchQueryFromTab,
-  checkMessage,
-} from './popup.js'
+import { getCurrentTab, checkMessage, getTabContext } from './popup.js'
 import { getCookieStoreIdFromTab } from '../scripts/background/cookie-handler.js'
 
 const UI_UPDATE_DELAY = 750
@@ -442,44 +435,6 @@ function showVersionOnFooter() {
   const manifest = browser.runtime.getManifest()
   const footer = document.querySelector('footer.info')!
   footer.textContent = `${manifest.name} v${manifest.version}`
-}
-
-interface TabContext {
-  myself: TwitterUser | null
-  currentUser: TwitterUser | null
-  currentTweet: Tweet | null
-  currentSearchQuery: string | null
-}
-
-async function getTabContext(tab: browser.tabs.Tab, twClient: TwClient): Promise<TabContext> {
-  const myself = await twClient.getMyself().catch(() => null)
-  if (!myself) {
-    return {
-      myself,
-      currentUser: null,
-      currentTweet: null,
-      currentSearchQuery: null,
-    }
-  }
-  const tweetId = getTweetIdFromTab(tab)
-  const userId = getUserIdFromTab(tab)
-  const userName = getUserNameFromTab(tab)
-  const currentTweet = await (tweetId ? twClient.getTweetById(tweetId).catch(() => null) : null)
-  let currentUser: TwitterUser | null = null
-  if (currentTweet) {
-    currentUser = currentTweet.user
-  } else if (userName) {
-    currentUser = await twClient.getSingleUser({ screen_name: userName }).catch(() => null)
-  } else if (userId) {
-    currentUser = await twClient.getSingleUser({ user_id: userId }).catch(() => null)
-  }
-  const currentSearchQuery = getCurrentSearchQueryFromTab(tab)
-  return {
-    myself,
-    currentTweet,
-    currentUser,
-    currentSearchQuery,
-  }
 }
 
 export async function initializeUI() {

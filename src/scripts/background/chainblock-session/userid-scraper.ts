@@ -1,7 +1,7 @@
 import { TwClient } from '../twitter-api.js'
 import * as UserScrapingAPI from '../user-scraping-api.js'
 import { getFollowersCount, getReactionsCount, wrapEitherRight } from '../../common.js'
-import { prepareActor } from '../antiblock.js'
+import { prepareActorByTargetUserId } from '../antiblock.js'
 
 export interface UserIdScraper {
   totalCount: number | null
@@ -64,7 +64,7 @@ class AntiBlockScraper implements UserIdScraper {
     }
   }
   public async *[Symbol.asyncIterator]() {
-    const secondaryTwClient = await prepareActor(this.request, this.request.target.user.id_str)
+    const secondaryTwClient = await prepareActorByTargetUserId(this.request.target.user.id_str)
     if (!secondaryTwClient) {
       throw new Error(i18n.getMessage('cant_chainblock_to_blocked'))
     }

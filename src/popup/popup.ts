@@ -1,4 +1,5 @@
 import { getUserNameFromURL } from '../scripts/common.js'
+import type { TwClient } from '../scripts/background/twitter-api.js'
 
 type Tab = browser.tabs.Tab
 
@@ -32,7 +33,7 @@ export function getUserNameFromTab(tab: Tab): string | null {
   return getUserNameFromURL(url)
 }
 
-export function getCurrentSearchQueryFromTab(tab: Tab): string | null {
+function getCurrentSearchQueryFromTab(tab: Tab): string | null {
   if (!tab.url) {
     return null
   }
@@ -50,7 +51,7 @@ export function getCurrentSearchQueryFromTab(tab: Tab): string | null {
 }
 
 // 트윗 신고화면에선 사용자 이름 대신 ID가 나타난다.
-export function getUserIdFromTab(tab: Tab): string | null {
+function getUserIdFromTab(tab: Tab): string | null {
   if (!tab.url) {
     return null
   }
@@ -71,7 +72,7 @@ export function getUserIdFromTab(tab: Tab): string | null {
   return null
 }
 
-export function getTweetIdFromTab(tab: Tab): string | null {
+function getTweetIdFromTab(tab: Tab): string | null {
   if (!tab.url) {
     return null
   }
@@ -117,4 +118,45 @@ export function checkMessage(msg: object): msg is RBMessageToPopupType {
     return false
   }
   return true
+}
+
+interface TabContext {
+  myself: TwitterUser | null
+  currentUser: TwitterUser | null
+  currentTweet: Tweet | null
+  currentSearchQuery: string | null
+}
+
+export async function getTabContext(
+  tab: browser.tabs.Tab,
+  twClient: TwClient
+): Promise<TabContext> {
+  const myself = await twClient.getMyself().catch(() => null)
+  if (!myself) {
+    return {
+      myself,
+      currentUser: null,
+      currentTweet: null,
+      currentSearchQuery: null,
+    }
+  }
+  const tweetId = getTweetIdFromTab(tab)
+  const userId = getUserIdFromTab(tab)
+  const userName = getUserNameFromTab(tab)
+  const currentTweet = await (tweetId ? twClient.getTweetById(tweetId).catch(() => null) : null)
+  let currentUser: TwitterUser | null = null
+  if (currentTweet) {
+    currentUser = currentTweet.user
+  } else if (userName) {
+    currentUser = await twClient.getSingleUser({ screen_name: userName }).catch(() => null)
+  } else if (userId) {
+    currentUser = await twClient.getSingleUser({ user_id: userId }).catch(() => null)
+  }
+  const currentSearchQuery = getCurrentSearchQueryFromTab(tab)
+  return {
+    myself,
+    currentTweet,
+    currentUser,
+    currentSearchQuery,
+  }
 }

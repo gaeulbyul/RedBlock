@@ -7,7 +7,7 @@ import {
   assertNever,
   findNonLinkedMentionsFromTweet,
 } from '../../common.js'
-import { prepareActor } from '../antiblock.js'
+import { prepareActorByTargetUserId } from '../antiblock.js'
 
 export interface UserScraper {
   totalCount: number | null
@@ -98,7 +98,7 @@ class AntiBlockScraper implements UserScraper {
     return userIds
   }
   public async *[Symbol.asyncIterator]() {
-    const secondaryTwClient = await prepareActor(this.request, this.request.target.user.id_str)
+    const secondaryTwClient = await prepareActorByTargetUserId(this.request.target.user.id_str)
     if (!secondaryTwClient) {
       throw new Error(i18n.getMessage('cant_chainblock_to_blocked'))
     }
