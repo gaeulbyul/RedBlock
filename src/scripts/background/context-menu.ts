@@ -51,6 +51,7 @@ async function confirmFollowerChainBlockRequest(
   }
   const user = await twClient.getSingleUser({ screen_name: userName })
   const options = await loadOptions()
+  const retriever = { user: myself, twClient }
   const request: FollowerBlockSessionRequest = {
     purpose: defaultChainBlockPurposeOptions,
     options,
@@ -59,9 +60,9 @@ async function confirmFollowerChainBlockRequest(
       list: followKind,
       user,
     },
-    myself,
+    retriever,
+    executor: retriever,
     extraTarget,
-    cookieOptions: twClient.cookieOptions,
   }
   const checkResult = chainblocker.checkRequest(request)
   if (checkResult === TargetCheckResult.Ok) {
@@ -92,6 +93,7 @@ async function confirmTweetReactionChainBlockRequest(
   }
   const tweet = await twClient.getTweetById(tweetId)
   const options = await loadOptions()
+  const retriever = { user: myself, twClient }
   const request: TweetReactionBlockSessionRequest = {
     purpose: defaultChainBlockPurposeOptions,
     options,
@@ -100,9 +102,9 @@ async function confirmTweetReactionChainBlockRequest(
       tweet,
       ...whoToBlock,
     },
-    myself,
+    retriever,
+    executor: retriever,
     extraTarget,
-    cookieOptions: twClient.cookieOptions,
   }
   const checkResult = chainblocker.checkRequest(request)
   if (checkResult === TargetCheckResult.Ok) {
@@ -125,6 +127,7 @@ async function confirmTextSelectionImportRequest(
     return alertToTab(tab, i18n.getMessage('error_occured_check_login'))
   }
   const options = await loadOptions()
+  const retriever = { user: myself, twClient }
   const request: ImportBlockSessionRequest = {
     purpose: defaultChainBlockPurposeOptions,
     options,
@@ -134,9 +137,9 @@ async function confirmTextSelectionImportRequest(
       userIds: [],
       userNames,
     },
-    myself,
+    retriever,
+    executor: retriever,
     extraTarget,
-    cookieOptions: twClient.cookieOptions,
   }
   const checkResult = chainblocker.checkRequest(request)
   if (checkResult === TargetCheckResult.Ok) {

@@ -1,4 +1,5 @@
 type Session = import('./session').ChainBlockSession | import('./session').ExportSession
+type TwClient = import('../twitter-api').TwClient
 
 type Purpose =
   | ChainBlockPurpose
@@ -91,8 +92,14 @@ interface UserSearchBlockSessionTarget {
 // NOTE: myself: TwitterUser는 락피커 구현하면서 넣은 것
 // 자신에게 일반 체인블락걸면 안 되므로 체크용으로 넣어둠
 interface BaseRequest {
-  myself: TwitterUser
-  cookieOptions: CookieOptions
+  retriever: {
+    user: TwitterUser
+    twClient: TwClient
+  }
+  executor: {
+    user: TwitterUser
+    twClient: TwClient
+  }
   options: RedBlockOptions
   extraTarget: {
     bioBlock: BioBlockMode

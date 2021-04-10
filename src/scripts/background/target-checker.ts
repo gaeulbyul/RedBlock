@@ -34,14 +34,15 @@ export function validateRequest(request: SessionRequest): TargetCheckResult {
 
 function checkFollowerBlockRequest({
   target,
-  myself,
   options,
+  retriever,
+  executor,
 }: FollowerBlockSessionRequest): TargetCheckResult {
   const { followers_count, friends_count } = target.user
   if (target.user.protected && !target.user.following) {
     return TargetCheckResult.Protected
   }
-  if (target.user.id_str === myself.id_str) {
+  if (target.user.id_str === retriever.user.id_str || target.user.id_str === executor.user.id_str) {
     return TargetCheckResult.CantChainBlockYourself
   }
   if (target.user.blocked_by && !options.enableAntiBlock) {
@@ -108,11 +109,17 @@ function checkImportBlockRequest({ target }: ImportBlockSessionRequest): TargetC
   }
   return TargetCheckResult.Ok
 }
-function checkLockPickerRequest({ target, myself }: LockPickerSessionRequest): TargetCheckResult {
+function checkLockPickerRequest({
+  target,
+  retriever,
+  executor,
+}: LockPickerSessionRequest): TargetCheckResult {
   if (target.user.followers_count <= 0) {
     return TargetCheckResult.NoFollowers
   }
-  if (target.user.id_str !== myself.id_str) {
+  const idCheck =
+    target.user.id_str === retriever.user.id_str && retriever.user.id_str === executor.user.id_str
+  if (!idCheck) {
     return TargetCheckResult.CantLockPickerToOther
   }
   return TargetCheckResult.Ok

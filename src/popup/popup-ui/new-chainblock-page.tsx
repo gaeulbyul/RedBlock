@@ -39,11 +39,12 @@ function useSessionRequest(): FollowerBlockSessionRequest {
   const { purpose, targetList, userSelection } = React.useContext(
     FollowerChainBlockPageStatesContext
   )
-  const { cookieOptions } = React.useContext(TwitterAPIClientContext)
+  const twClient = React.useContext(TwitterAPIClientContext)
   const { extraTarget } = React.useContext(ExtraTargetContext)
   const options = React.useContext(RedBlockOptionsContext)
   const myself = React.useContext(MyselfContext)!
   const selectedUser = userSelection.user!
+  const retriever = { user: myself, twClient }
   return {
     purpose,
     target: {
@@ -53,8 +54,8 @@ function useSessionRequest(): FollowerBlockSessionRequest {
     },
     options,
     extraTarget,
-    myself,
-    cookieOptions,
+    retriever,
+    executor: retriever,
   }
 }
 

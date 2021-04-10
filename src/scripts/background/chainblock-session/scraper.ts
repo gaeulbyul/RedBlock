@@ -231,8 +231,9 @@ class UserSearchScraper implements UserScraper {
   }
 }
 
-export function initScraper(twClient: TwClient, request: SessionRequest): UserScraper {
+export function initScraper(request: SessionRequest): UserScraper {
   const { target } = request
+  const { twClient } = request.retriever
   switch (target.type) {
     case 'import':
       return new ImportUserScraper(twClient, request as ImportBlockSessionRequest)

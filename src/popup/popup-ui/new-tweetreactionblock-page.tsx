@@ -31,10 +31,11 @@ function useSessionRequest(): TweetReactionBlockSessionRequest {
     wantBlockQuotedUsers,
     wantBlockNonLinkedMentions,
   } = React.useContext(TweetReactionChainBlockPageStatesContext)
-  const { cookieOptions } = React.useContext(TwitterAPIClientContext)
+  const twClient = React.useContext(TwitterAPIClientContext)
   const { extraTarget } = React.useContext(ExtraTargetContext)
   const myself = React.useContext(MyselfContext)!
   const options = React.useContext(RedBlockOptionsContext)
+  const retriever = { user: myself, twClient }
   return {
     purpose,
     options,
@@ -48,8 +49,8 @@ function useSessionRequest(): TweetReactionBlockSessionRequest {
       blockQuotedUsers: wantBlockQuotedUsers,
       blockNonLinkedMentions: wantBlockNonLinkedMentions,
     },
-    myself,
-    cookieOptions,
+    retriever,
+    executor: retriever,
   }
 }
 

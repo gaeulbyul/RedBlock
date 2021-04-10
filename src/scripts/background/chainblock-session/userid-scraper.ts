@@ -113,11 +113,9 @@ class TweetReactedUserScraper implements UserIdScraper {
 }
 
 // NOTE: 나중가면 export 외의 다른 목적으로 id scraper를 사용할 지도 모른다.
-export function initIdScraper(
-  twClient: TwClient,
-  request: ExportableSessionRequest
-): UserIdScraper {
+export function initIdScraper(request: ExportableSessionRequest): UserIdScraper {
   const { target } = request
+  const { twClient } = request.retriever
   if (target.type === 'tweet_reaction') {
     return new TweetReactedUserScraper(twClient, request as TweetReactionBlockSessionRequest)
   }

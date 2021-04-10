@@ -1,5 +1,4 @@
 import { SessionStatus, isRunningSession, isRewindableSession } from '../common.js'
-import { TwClient } from './twitter-api.js'
 import * as TextGenerate from '../text-generate.js'
 import { alertToCurrentTab, notify, updateExtensionBadge } from './background.js'
 import { markUser } from './misc.js'
@@ -106,7 +105,6 @@ export default class ChainBlocker {
     this.updateBadge()
   }
   private createSession(request: SessionRequest) {
-    const twClient = new TwClient(request.cookieOptions)
     let session: Session
     switch (request.purpose.type) {
       case 'chainblock':
@@ -115,10 +113,10 @@ export default class ChainBlocker {
       case 'chainunfollow':
       case 'chainmute':
       case 'unchainmute':
-        session = new ChainBlockSession(twClient, request)
+        session = new ChainBlockSession(request)
         break
       case 'export':
-        session = new ExportSession(twClient, request as ExportableSessionRequest)
+        session = new ExportSession(request as ExportableSessionRequest)
         break
     }
     this.handleEvents(session)
