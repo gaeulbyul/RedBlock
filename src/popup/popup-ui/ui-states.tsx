@@ -113,8 +113,7 @@ interface UserSearchChainBlockPageStates {
 
 interface LockPickerPageStates {
   purpose: LockPickerSessionRequest['purpose']
-  // TODO: 이거 없어도 되게?
-  changePurposeType(purposeType: UserSearchBlockSessionRequest['purpose']['type']): void
+  changePurposeType(__: any): void // <- 실제론 안 씀
   mutatePurposeOptions(
     partialOptions: Partial<Omit<LockPickerSessionRequest['purpose'], 'type'>>
   ): void
