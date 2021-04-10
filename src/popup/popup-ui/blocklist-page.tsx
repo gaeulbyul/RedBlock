@@ -29,9 +29,9 @@ function useSessionRequest(): ImportBlockSessionRequest {
   const { purpose, blocklist } = React.useContext(ImportChainBlockPageStatesContext)
   const myself = React.useContext(MyselfContext)!
   const { extraTarget } = React.useContext(ExtraTargetContext)
-  const twClient = React.useContext(TwitterAPIClientContext)
+  const { cookieOptions } = React.useContext(TwitterAPIClientContext)
   const options = React.useContext(RedBlockOptionsContext)
-  const retriever = { user: myself, twClient }
+  const retriever = { user: myself, cookieOptions }
   return {
     purpose,
     target: {

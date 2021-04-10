@@ -116,7 +116,8 @@ abstract class BaseSession {
         break
     }
     sessionInfo.status = SessionStatus.RateLimited
-    const limitStatuses = await this.request.retriever.twClient.getRateLimitStatus()
+    const retrieverTwClient = new TwitterAPI.TwClient(this.request.retriever.cookieOptions)
+    const limitStatuses = await retrieverTwClient.getRateLimitStatus()
     const limit = extractRateLimit(limitStatuses, apiKind)
     sessionInfo.limit = limit
     eventEmitter.emit('rate-limit', limit)
@@ -205,7 +206,7 @@ export class ChainBlockSession extends BaseSession {
             if (DBG_dontActuallyCallAPI) {
               promise = Promise.resolve(user)
             } else {
-              const { twClient } = this.request.executor
+              const twClient = new TwitterAPI.TwClient(this.request.executor.cookieOptions)
               switch (whatToDo) {
                 case 'Block':
                   promise = twClient.blockUser(user)

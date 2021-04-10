@@ -22,11 +22,11 @@ const M = MaterialUI
 
 function useSessionRequest(): LockPickerSessionRequest {
   const { purpose } = React.useContext(LockPickerPageStatesContext)
-  const twClient = React.useContext(TwitterAPIClientContext)
+  const { cookieOptions } = React.useContext(TwitterAPIClientContext)
   const { extraTarget } = React.useContext(ExtraTargetContext)
   const myself = React.useContext(MyselfContext)!
   const options = React.useContext(RedBlockOptionsContext)
-  const retriever = { user: myself, twClient }
+  const retriever = { user: myself, cookieOptions }
   return {
     purpose,
     options,

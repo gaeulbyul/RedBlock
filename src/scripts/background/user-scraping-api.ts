@@ -5,6 +5,9 @@ const DELAY = 100
 
 export class UserScrapingAPIClient {
   public constructor(private twClient: TwClient) {}
+  public static fromCookieOptions(cookieOptions: CookieOptions) {
+    return new UserScrapingAPIClient(new TwClient(cookieOptions))
+  }
   public async *getAllFollowsIds(
     followKind: FollowKind,
     user: TwitterUser

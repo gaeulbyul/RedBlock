@@ -14,11 +14,11 @@ export interface UserScraper {
 
 // 단순 스크래퍼. 기존 체인블락 방식
 class SimpleScraper implements UserScraper {
-  private retrieverScrapingClient = new UserScrapingAPI.UserScrapingAPIClient(
-    this.request.retriever.twClient
+  private retrieverScrapingClient = UserScrapingAPI.UserScrapingAPIClient.fromCookieOptions(
+    this.request.retriever.cookieOptions
   )
-  private executorScrapingClient = new UserScrapingAPI.UserScrapingAPIClient(
-    this.request.executor.twClient
+  private executorScrapingClient = UserScrapingAPI.UserScrapingAPIClient.fromCookieOptions(
+    this.request.executor.cookieOptions
   )
   public totalCount: number
   public constructor(private request: FollowerBlockSessionRequest | LockPickerSessionRequest) {
@@ -67,11 +67,11 @@ class SimpleScraper implements UserScraper {
 
 // 맞팔로우 스크래퍼
 class MutualFollowerScraper implements UserScraper {
-  private retrieverScrapingClient = new UserScrapingAPI.UserScrapingAPIClient(
-    this.request.retriever.twClient
+  private retrieverScrapingClient = UserScrapingAPI.UserScrapingAPIClient.fromCookieOptions(
+    this.request.retriever.cookieOptions
   )
-  private executorScrapingClient = new UserScrapingAPI.UserScrapingAPIClient(
-    this.request.executor.twClient
+  private executorScrapingClient = UserScrapingAPI.UserScrapingAPIClient.fromCookieOptions(
+    this.request.executor.cookieOptions
   )
   public totalCount: number | null = null
   public constructor(private request: FollowerBlockSessionRequest) {}
@@ -104,11 +104,11 @@ class MutualFollowerScraper implements UserScraper {
 
 // 트윗반응 유저 스크래퍼
 class TweetReactedUserScraper implements UserScraper {
-  private retrieverScrapingClient = new UserScrapingAPI.UserScrapingAPIClient(
-    this.request.retriever.twClient
+  private retrieverScrapingClient = UserScrapingAPI.UserScrapingAPIClient.fromCookieOptions(
+    this.request.retriever.cookieOptions
   )
-  private executorScrapingClient = new UserScrapingAPI.UserScrapingAPIClient(
-    this.request.executor.twClient
+  private executorScrapingClient = UserScrapingAPI.UserScrapingAPIClient.fromCookieOptions(
+    this.request.executor.cookieOptions
   )
   public totalCount: number
   public constructor(private request: TweetReactionBlockSessionRequest) {
@@ -174,7 +174,9 @@ class TweetReactedUserScraper implements UserScraper {
 }
 
 class ImportUserScraper implements UserScraper {
-  private scrapingClient = new UserScrapingAPI.UserScrapingAPIClient(this.request.executor.twClient)
+  private scrapingClient = UserScrapingAPI.UserScrapingAPIClient.fromCookieOptions(
+    this.request.executor.cookieOptions
+  )
   public totalCount = this.request.target.userIds.length + this.request.target.userNames.length
   public constructor(private request: ImportBlockSessionRequest) {}
   public async *[Symbol.asyncIterator]() {
@@ -203,7 +205,9 @@ class ImportUserScraper implements UserScraper {
 }
 
 class UserSearchScraper implements UserScraper {
-  private scrapingClient = new UserScrapingAPI.UserScrapingAPIClient(this.request.executor.twClient)
+  private scrapingClient = UserScrapingAPI.UserScrapingAPIClient.fromCookieOptions(
+    this.request.executor.cookieOptions
+  )
   public totalCount = null
   public constructor(private request: UserSearchBlockSessionRequest) {}
   public async *[Symbol.asyncIterator]() {

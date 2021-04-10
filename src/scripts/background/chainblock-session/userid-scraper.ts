@@ -5,6 +5,7 @@ import {
   wrapEitherRight,
   findNonLinkedMentionsFromTweet,
 } from '../../common.js'
+import { TwClient } from '../twitter-api.js'
 
 export interface UserIdScraper {
   totalCount: number | null
@@ -18,8 +19,8 @@ function convertUsersObjectToIdsObject({ users }: UsersObject): UserIdsObject {
 
 // 단순 스크래퍼. 기존 체인블락 방식
 class SimpleScraper implements UserIdScraper {
-  private scrapingClient = new UserScrapingAPI.UserScrapingAPIClient(
-    this.request.retriever.twClient
+  private scrapingClient = UserScrapingAPI.UserScrapingAPIClient.fromCookieOptions(
+    this.request.retriever.cookieOptions
   )
   public totalCount: number
   public constructor(private request: FollowerBlockSessionRequest) {
@@ -34,8 +35,8 @@ class SimpleScraper implements UserIdScraper {
 
 // 맞팔로우 스크래퍼
 class MutualFollowerScraper implements UserIdScraper {
-  private scrapingClient = new UserScrapingAPI.UserScrapingAPIClient(
-    this.request.retriever.twClient
+  private scrapingClient = UserScrapingAPI.UserScrapingAPIClient.fromCookieOptions(
+    this.request.retriever.cookieOptions
   )
   public totalCount: number | null = null
   public constructor(private request: FollowerBlockSessionRequest) {}
@@ -50,8 +51,8 @@ class MutualFollowerScraper implements UserIdScraper {
 
 // 트윗반응 유저 스크래퍼
 class TweetReactedUserScraper implements UserIdScraper {
-  private scrapingClient = new UserScrapingAPI.UserScrapingAPIClient(
-    this.request.retriever.twClient
+  private scrapingClient = UserScrapingAPI.UserScrapingAPIClient.fromCookieOptions(
+    this.request.retriever.cookieOptions
   )
   public totalCount: number
   public constructor(private request: TweetReactionBlockSessionRequest) {
@@ -67,7 +68,8 @@ class TweetReactedUserScraper implements UserIdScraper {
       blockNonLinkedMentions,
     } = this.request.target
     if (blockRetweeters) {
-      const { ids } = await this.request.retriever.twClient.getRetweetersIds(tweet)
+      const retrieverTwClient = new TwClient(this.request.retriever.cookieOptions)
+      const { ids } = await retrieverTwClient.getRetweetersIds(tweet)
       yield wrapEitherRight({ ids })
     }
     if (blockLikers) {

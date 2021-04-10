@@ -528,6 +528,9 @@
   "error_occured": {
     "message": "Error occured."
   },
+  "error_occured_on_retrieving_tweet": {
+    "message": "Error occured while retrieving tweet."
+  },
   "error_rate_limited": {
     "message": "Rate limited. Please try again later."
   },

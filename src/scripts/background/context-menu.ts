@@ -6,6 +6,7 @@ import { generateConfirmMessage, checkResultToString, objToString } from '../tex
 import { alertToTab } from './background.js'
 import { getCookieStoreIdFromTab } from './cookie-handler.js'
 import { loadOptions } from './storage.js'
+import { examineRetrieverByTargetUser } from './antiblock.js'
 import type ChainBlocker from './chainblock.js'
 
 type BrowserTab = browser.tabs.Tab
@@ -44,14 +45,21 @@ async function confirmFollowerChainBlockRequest(
   followKind: FollowKind
 ) {
   const cookieStoreId = await getCookieStoreIdFromTab(tab)
-  const twClient = new TwitterAPI.TwClient({ cookieStoreId })
+  const cookieOptions = { cookieStoreId }
+  const twClient = new TwitterAPI.TwClient(cookieOptions)
   const myself = await twClient.getMyself().catch(() => null)
   if (!myself) {
     return alertToTab(tab, i18n.getMessage('error_occured_check_login'))
   }
   const user = await twClient.getSingleUser({ screen_name: userName })
+  const executor = { user: myself, cookieOptions }
   const options = await loadOptions()
-  const retriever = { user: myself, twClient }
+  let retriever: Actor
+  if (options.enableAntiBlock) {
+    retriever = (await examineRetrieverByTargetUser(executor, user)) || executor
+  } else {
+    retriever = executor
+  }
   const request: FollowerBlockSessionRequest = {
     purpose: defaultChainBlockPurposeOptions,
     options,
@@ -61,7 +69,7 @@ async function confirmFollowerChainBlockRequest(
       user,
     },
     retriever,
-    executor: retriever,
+    executor,
     extraTarget,
   }
   const checkResult = chainblocker.checkRequest(request)
@@ -86,14 +94,21 @@ async function confirmTweetReactionChainBlockRequest(
   }
 ) {
   const cookieStoreId = await getCookieStoreIdFromTab(tab)
-  const twClient = new TwitterAPI.TwClient({ cookieStoreId })
+  const cookieOptions = { cookieStoreId }
+  const twClient = new TwitterAPI.TwClient(cookieOptions)
   const myself = await twClient.getMyself().catch(() => null)
   if (!myself) {
     return alertToTab(tab, i18n.getMessage('error_occured_check_login'))
   }
-  const tweet = await twClient.getTweetById(tweetId)
+  const executor = { user: myself, cookieOptions }
   const options = await loadOptions()
-  const retriever = { user: myself, twClient }
+  const tweet = await twClient.getTweetById(tweetId).catch(error => {
+    console.error(error)
+    return null
+  })
+  if (!tweet) {
+    return alertToTab(tab, i18n.getMessage('error_occured_on_retrieving_tweet'))
+  }
   const request: TweetReactionBlockSessionRequest = {
     purpose: defaultChainBlockPurposeOptions,
     options,
@@ -102,8 +117,10 @@ async function confirmTweetReactionChainBlockRequest(
       tweet,
       ...whoToBlock,
     },
-    retriever,
-    executor: retriever,
+    // 차단당한 경우 해당 작성자의 트윗 자체를 볼 수 없기때문에 context menu를 띄울 링크에 접근할 수 없다.
+    // 따라서 AntiBlock을 적용하지 않는다.
+    retriever: executor,
+    executor,
     extraTarget,
   }
   const checkResult = chainblocker.checkRequest(request)
@@ -121,13 +138,14 @@ async function confirmTextSelectionImportRequest(
   userNames: string[]
 ) {
   const cookieStoreId = await getCookieStoreIdFromTab(tab)
-  const twClient = new TwitterAPI.TwClient({ cookieStoreId })
+  const cookieOptions = { cookieStoreId }
+  const twClient = new TwitterAPI.TwClient(cookieOptions)
   const myself = await twClient.getMyself().catch(() => null)
   if (!myself) {
     return alertToTab(tab, i18n.getMessage('error_occured_check_login'))
   }
   const options = await loadOptions()
-  const retriever = { user: myself, twClient }
+  const retriever = { user: myself, cookieOptions }
   const request: ImportBlockSessionRequest = {
     purpose: defaultChainBlockPurposeOptions,
     options,
