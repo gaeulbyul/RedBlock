@@ -144,54 +144,31 @@ class TweetReactedUserScraper implements UserScraper {
       blockQuotedUsers,
       blockNonLinkedMentions,
     } = this.request.target
-    let scraper: ScrapedUsersIterator
+    const scrapers: ScrapedUsersIterator[] = []
     if (blockRetweeters) {
-      scraper = this.retrieverScrapingClient.getAllReactedUserList('retweeted', tweet)
-      scraper = ExtraScraper.scrapeUsersOnBio(
-        this.retrieverScrapingClient,
-        scraper,
-        this.request.extraTarget.bioBlock
-      )
-      yield* scraper
+      scrapers.push(this.retrieverScrapingClient.getAllReactedUserList('retweeted', tweet))
     }
     if (blockLikers) {
-      scraper = this.retrieverScrapingClient.getAllReactedUserList('liked', tweet)
-      scraper = ExtraScraper.scrapeUsersOnBio(
-        this.retrieverScrapingClient,
-        scraper,
-        this.request.extraTarget.bioBlock
-      )
-      yield* scraper
+      scrapers.push(this.retrieverScrapingClient.getAllReactedUserList('liked', tweet))
     }
     if (blockMentionedUsers) {
       const mentions = tweet.entities.user_mentions || []
       const mentionedUserIds = mentions.map(e => e.id_str)
-      scraper = this.retrieverScrapingClient.lookupUsersByIds(mentionedUserIds)
-      scraper = ExtraScraper.scrapeUsersOnBio(
-        this.retrieverScrapingClient,
-        scraper,
-        this.request.extraTarget.bioBlock
-      )
-      yield* scraper
+      scrapers.push(this.retrieverScrapingClient.lookupUsersByIds(mentionedUserIds))
     }
     if (blockQuotedUsers) {
-      scraper = this.retrieverScrapingClient.getQuotedUsers(tweet)
-      scraper = ExtraScraper.scrapeUsersOnBio(
-        this.retrieverScrapingClient,
-        scraper,
-        this.request.extraTarget.bioBlock
-      )
-      yield* scraper
+      scrapers.push(this.retrieverScrapingClient.getQuotedUsers(tweet))
     }
     if (blockNonLinkedMentions) {
       const userNames = findNonLinkedMentionsFromTweet(this.request.target.tweet)
-      scraper = this.retrieverScrapingClient.lookupUsersByNames(userNames)
-      scraper = ExtraScraper.scrapeUsersOnBio(
+      scrapers.push(this.retrieverScrapingClient.lookupUsersByNames(userNames))
+    }
+    for (const scraper of scrapers) {
+      yield* ExtraScraper.scrapeUsersOnBio(
         this.retrieverScrapingClient,
         scraper,
         this.request.extraTarget.bioBlock
       )
-      yield* scraper
     }
   }
 }
@@ -254,12 +231,12 @@ export function initScraper(request: SessionRequest): UserScraper {
     case 'lockpicker':
       return new SimpleScraper(request as LockPickerSessionRequest)
     case 'follower':
-      break
+      if (target.list === 'mutual-followers') {
+        return new MutualFollowerScraper(request as FollowerBlockSessionRequest)
+      } else {
+        return new SimpleScraper(request as FollowerBlockSessionRequest)
+      }
     default:
       assertNever(target)
   }
-  if (target.list === 'mutual-followers') {
-    return new MutualFollowerScraper(request as FollowerBlockSessionRequest)
-  }
-  return new SimpleScraper(request as FollowerBlockSessionRequest)
 }
