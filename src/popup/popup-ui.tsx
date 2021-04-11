@@ -30,6 +30,7 @@ import {
   RedBlockPopupUITheme,
   TabPanel,
   MyTooltip,
+  SmallAvatar,
 } from './popup-ui/components.js'
 
 import { getCurrentTab, checkMessage, getTabContext } from './popup.js'
@@ -49,8 +50,8 @@ const PopupTopTab = MaterialUI.withStyles({
 })(MaterialUI.Tab)
 
 interface PopupAppProps {
-  primaryActor: Actor | null
-  retrieverActor: Actor | null
+  executor: Actor | null
+  retriever: Actor | null
   currentUser: TwitterUser | null
   currentTweet: Tweet | null
   currentSearchQuery: string | null
@@ -168,21 +169,56 @@ function PopupUITopMenu(props: {
   )
 }
 
-function PopupMyselfIcon(props: { myself: TwitterUser }) {
-  const { myself } = props
-  const description = i18n.getMessage('current_account', [myself.screen_name, myself.name])
+function PopupMyselfIcon(props: { actors: ActorsContextType }) {
+  const { executor, retriever } = props.actors
+  const executorUser = executor.user
+  const retrieverUser = retriever.user
+  const usingSupplementaryAccount = executorUser.id_str !== retrieverUser.id_str
+  const description = (
+    <React.Fragment>
+      <span>
+        {i18n.getMessage('current_account', [executorUser.screen_name, executorUser.name])}
+      </span>
+      {usingSupplementaryAccount && (
+        <span>
+          <br />
+          {i18n.getMessage('supplementary_account', [
+            retrieverUser.screen_name,
+            retrieverUser.name,
+          ])}
+        </span>
+      )}
+    </React.Fragment>
+  )
   return (
-    <MyTooltip arrow placement="bottom-end" title={description}>
+    <MyTooltip arrow placement="left" title={description}>
       <M.Button>
-        <img width="24" style={{ borderRadius: '50%' }} src={myself.profile_image_url_https} />
+        <M.Badge
+          overlap="circle"
+          invisible={!usingSupplementaryAccount}
+          anchorOrigin={{
+            vertical: 'bottom',
+            horizontal: 'left',
+          }}
+          badgeContent={<SmallAvatar src={retriever.user.profile_image_url_https} />}
+        >
+          <M.Avatar
+            style={{
+              width: 24,
+              height: 24,
+              borderRadius: '50%',
+            }}
+            src={executor.user.profile_image_url_https}
+          />
+        </M.Badge>
       </M.Button>
     </MyTooltip>
   )
 }
 
 function PopupApp({
-  primaryActor,
-  retrieverActor,
+  executor,
+  retriever,
   currentUser,
   currentTweet,
   currentSearchQuery,
@@ -208,12 +244,8 @@ function PopupApp({
   const [redblockOptions, setRedBlockOptions] = React.useState(initialRedBlockOptions)
   const [countOfSessions, setCountOfSessions] = React.useState(0)
   let actors: ActorsContextType | null = null
-  if (primaryActor) {
-    actors = {
-      primary: primaryActor,
-      executor: primaryActor, // <- TODO: state화
-      retriever: retrieverActor!,
-    }
+  if (executor && retriever) {
+    actors = { executor, retriever }
   }
   const shrinkedPopup = MaterialUI.useMediaQuery('(width:348px), (width:425px)')
   const theme = React.useMemo(() => RedBlockPopupUITheme(darkMode), [darkMode])
@@ -250,7 +282,6 @@ function PopupApp({
     // 쿠키삭제 메뉴는 트위터 로그인상태가 아니어도 사용할 수 있도록
     miscellaneous: true,
   }
-  const myself = primaryActor?.user
   React.useEffect(() => {
     const messageListener = (msg: object) => {
       if (!checkMessage(msg)) {
@@ -263,6 +294,7 @@ function PopupApp({
           // setSessions(msg.sessions) --> chainblock-sessions-page 로 이동
           break
         case 'BlockLimiterInfo':
+          const myself = executor?.user
           if (myself && msg.userId === myself.id_str) {
             const oldValue = limiterStatus.current
             const newValue = msg.status.current
@@ -368,7 +400,7 @@ function PopupApp({
                       />
                     </MyTooltip>
                   </M.Tabs>
-                  {myself && <PopupMyselfIcon {...{ myself }} />}
+                  {actors && <PopupMyselfIcon {...{ actors }} />}
                 </M.Toolbar>
               </M.AppBar>
               <PopupUITopMenu {...{ countOfSessions, currentTweet, currentSearchQuery }} />
@@ -456,8 +488,8 @@ export async function initializeUI() {
   const cookieStoreId = await getCookieStoreIdFromTab(currentTab)
   const twClient = new TwClient({ cookieStoreId })
   const {
-    primaryActor,
-    retrieverActor,
+    executor,
+    retriever,
     currentTweet,
     currentUser,
     currentSearchQuery,
@@ -466,8 +498,8 @@ export async function initializeUI() {
   const app = (
     <PopupApp
       {...{
-        primaryActor,
-        retrieverActor,
+        executor,
+        retriever,
         currentUser,
         currentTweet,
         currentSearchQuery,
@@ -484,7 +516,7 @@ export async function initializeUI() {
   } else {
     document.body.classList.add('ui-popup')
   }
-  const myself = primaryActor?.user
+  const myself = executor?.user
   if (myself) {
     requestBlockLimiterStatus(myself.id_str).catch(() => {})
   }

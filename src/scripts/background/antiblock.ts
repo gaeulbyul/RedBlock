@@ -46,7 +46,6 @@ export async function examineRetrieverByTargetUser(
       return { user: clientSelf, cookieOptions: client.cookieOptions }
     }
   }
-  // TODO: unreachable 처리? (차단당해도 유저정보정도는 가져올 수 있다.)
   return null
 }
 

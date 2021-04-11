@@ -22,18 +22,18 @@ const M = MaterialUI
 function useSessionRequest(): LockPickerSessionRequest {
   const { purpose } = React.useContext(LockPickerPageStatesContext)
   const { extraTarget } = React.useContext(ExtraTargetContext)
-  const { primary } = React.useContext(ActorsContext)!
+  const { executor } = React.useContext(ActorsContext)!
   const options = React.useContext(RedBlockOptionsContext)
   return {
     purpose,
     options,
     target: {
       type: 'lockpicker',
-      user: primary.user,
+      user: executor.user,
       list: 'followers',
     },
-    retriever: primary,
-    executor: primary,
+    retriever: executor,
+    executor,
     extraTarget,
   }
 }
@@ -88,7 +88,7 @@ function TargetExecutionButtonUI() {
 }
 
 export default function LockPickerPage() {
-  const { primary } = React.useContext(ActorsContext)!
+  const { executor: primary } = React.useContext(ActorsContext)!
   const request = useSessionRequest()
   return (
     <div>

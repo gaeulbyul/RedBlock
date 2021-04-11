@@ -126,8 +126,8 @@ export function checkMessage(msg: object): msg is RBMessageToPopupType {
 }
 
 interface TabContext {
-  primaryActor: Actor | null
-  retrieverActor: Actor | null
+  executor: Actor | null
+  retriever: Actor | null
   currentUser: TwitterUser | null
   currentTweet: Tweet | null
   currentSearchQuery: string | null
@@ -140,8 +140,8 @@ export async function getTabContext(
   const myself = await twClient.getMyself().catch(() => null)
   if (!myself) {
     return {
-      primaryActor: null,
-      retrieverActor: null,
+      executor: null,
+      retriever: null,
       currentUser: null,
       currentTweet: null,
       currentSearchQuery: null,
@@ -151,11 +151,11 @@ export async function getTabContext(
   if (options.enableAntiBlock) {
     return getTabContextWithAntiblock(myself, tab, twClient)
   }
-  const primaryActor: Actor = {
+  const executor: Actor = {
     user: myself,
     cookieOptions: twClient.cookieOptions,
   }
-  const retrieverActor = Object.assign({}, primaryActor)
+  const retriever = Object.assign({}, executor)
   const tweetId = getTweetIdFromTab(tab)
   const userId = getUserIdFromTab(tab)
   const userName = getUserNameFromTab(tab)
@@ -170,8 +170,8 @@ export async function getTabContext(
   }
   const currentSearchQuery = getCurrentSearchQueryFromTab(tab)
   return {
-    primaryActor,
-    retrieverActor,
+    executor,
+    retriever,
     currentTweet,
     currentUser,
     currentSearchQuery,
@@ -183,11 +183,11 @@ async function getTabContextWithAntiblock(
   tab: browser.tabs.Tab,
   twClient: TwClient
 ): Promise<TabContext> {
-  const primaryActor: Actor = {
+  const executor: Actor = {
     user: myself,
     cookieOptions: twClient.cookieOptions,
   }
-  const retrieverActor = Object.assign({}, primaryActor)
+  const retriever = Object.assign({}, executor)
   const tweetId = getTweetIdFromTab(tab)
   const userId = getUserIdFromTab(tab)
   const userName = getUserNameFromTab(tab)
@@ -195,15 +195,15 @@ async function getTabContextWithAntiblock(
   let currentUser: TwitterUser | null = null
   let usingAlternativeRetriever = false
   if (tweetId) {
-    const result = await examineRetrieverByTweetId(primaryActor, tweetId)
+    const result = await examineRetrieverByTweetId(executor, tweetId)
     if (result) {
       currentTweet = result.targetTweet
       if (result.tweetRetrievedFromPrimary) {
         currentUser = currentTweet.user
       } else {
         usingAlternativeRetriever = true
-        retrieverActor.user = result.user
-        retrieverActor.cookieOptions = result.cookieOptions
+        retriever.user = result.user
+        retriever.cookieOptions = result.cookieOptions
       }
     }
   }
@@ -215,17 +215,17 @@ async function getTabContextWithAntiblock(
     }
   }
   if (currentUser && currentUser.blocked_by && !usingAlternativeRetriever) {
-    const result = await examineRetrieverByTargetUser(primaryActor, currentUser)
+    const result = await examineRetrieverByTargetUser(executor, currentUser)
     if (result) {
       usingAlternativeRetriever = true
-      retrieverActor.user = result.user
-      retrieverActor.cookieOptions = result.cookieOptions
+      retriever.user = result.user
+      retriever.cookieOptions = result.cookieOptions
     }
   }
   const currentSearchQuery = getCurrentSearchQueryFromTab(tab)
   return {
-    primaryActor,
-    retrieverActor,
+    executor,
+    retriever,
     currentTweet,
     currentUser,
     currentSearchQuery,

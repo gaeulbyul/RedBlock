@@ -767,6 +767,17 @@
       }
     }
   },
+  "supplementary_account": {
+    "message": "Supplemental Account: @$username$ ($name$)",
+    "placeholders": {
+      "username": {
+        "content": "$1"
+      },
+      "name": {
+        "content": "$1"
+      }
+    }
+  },
   "oneclick_block_mode_description": {
     "message": "Oneclick-block button will appear on users or tweets."
   },

@@ -40,7 +40,6 @@ export const BlockLimiterContext = React.createContext<BlockLimiterStatus>({
 
 // null일 경우 비로그인으로 간주한다 (구 MyselfContext가 null인 것처럼 취급)
 export interface ActorsContextType {
-  primary: Actor
   executor: Actor
   retriever: Actor
 }

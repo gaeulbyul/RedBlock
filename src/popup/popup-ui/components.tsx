@@ -33,6 +33,14 @@ export const MyTooltip = MaterialUI.withStyles(() => ({
   },
 }))(MaterialUI.Tooltip)
 
+export const SmallAvatar = MaterialUI.withStyles(theme => ({
+  root: {
+    width: 16,
+    height: 16,
+    border: `1px solid ${theme.palette.background.paper}`,
+  },
+}))(M.Avatar)
+
 function Icon({ name }: { name: string }) {
   // overflow: purpose 탭 아이콘 짤림 문제방지
   // (특히 탭 라벨이 두 줄이상으로 넘어갈때)
@@ -220,7 +228,7 @@ export function BlockLimiterUI() {
   const actors = React.useContext(ActorsContext)!
   function handleResetButtonClick(event: React.MouseEvent<HTMLButtonElement>) {
     event.preventDefault()
-    requestResetCounter(actors.primary.user.id_str)
+    requestResetCounter(actors.executor.user.id_str)
   }
   const exceed = current >= max
   const warningIcon = exceed ? '\u26a0\ufe0f' : ''

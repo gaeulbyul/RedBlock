@@ -22,7 +22,7 @@ const T = MaterialUI.Typography
 function useSessionRequest(): UserSearchBlockSessionRequest {
   const { purpose, searchQuery } = React.useContext(UserSearchChainBlockPageStatesContext)
   const { extraTarget } = React.useContext(ExtraTargetContext)
-  const { primary } = React.useContext(ActorsContext)!
+  const { executor } = React.useContext(ActorsContext)!
   const options = React.useContext(RedBlockOptionsContext)
   return {
     purpose,
@@ -32,8 +32,8 @@ function useSessionRequest(): UserSearchBlockSessionRequest {
       type: 'user_search',
       query: searchQuery!,
     },
-    retriever: primary,
-    executor: primary,
+    retriever: executor,
+    executor,
   }
 }
 

@@ -192,7 +192,7 @@ function TargetUserProfile() {
   // selectedUser가 null일 땐 이 컴포넌트를 렌더링하지 않으므로
   const selectedUser = userSelection.user!
   const actors = React.useContext(ActorsContext)!
-  const selectedMyself = selectedUser.id_str === actors.primary.user.id_str
+  const selectedMyself = selectedUser.id_str === actors.executor.user.id_str
   function radio(fk: FollowKind, label: string) {
     return (
       <M.FormControlLabel
@@ -248,7 +248,7 @@ function TargetUserSelectUI() {
   const [usersInOtherTab, setUsersInOtherTab] = React.useState(new TwitterUserMap())
   const [isLoading, setLoadingState] = React.useState(false)
   const { user: selectedUser } = userSelection
-  const twClient = new TwClient(actors.primary.cookieOptions)
+  const twClient = new TwClient(actors.executor.cookieOptions)
   async function changeSelectedUser(userId: string, userName: string, group: SelectUserGroup) {
     if (!/^\d+$/.test(userId)) {
       setUserSelection({

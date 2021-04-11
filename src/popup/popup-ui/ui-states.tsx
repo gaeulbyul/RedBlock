@@ -144,7 +144,7 @@ export function FollowerChainBlockPageStatesProvider(props: {
     group: props.initialUser ? 'current' : 'invalid',
   })
   const initialPurposeType = determineInitialPurposeType<FollowerBlockSessionRequest['purpose']>(
-    actors.primary.user,
+    actors.executor.user,
     props.initialUser
   )
   const [targetList, setTargetList] = React.useState<FollowKind>('followers')
