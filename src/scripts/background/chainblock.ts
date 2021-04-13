@@ -64,11 +64,6 @@ export default class ChainBlocker {
     )
     const count = runningSessions.length
     updateExtensionBadge(count)
-    browser.runtime.sendMessage<RBMessageToPopup.CountOfRunningSessions>({
-      messageType: 'CountOfRunningSessions',
-      messageTo: 'popup',
-      count,
-    })
   }
   private checkAvailableSessionsCount() {
     const runningSessions = this.getCurrentRunningSessions()

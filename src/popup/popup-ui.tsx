@@ -32,7 +32,7 @@ import {
   MyTooltip,
   SmallAvatar,
 } from './popup-ui/components.js'
-
+import { isRunningSession } from '../scripts/common.js'
 import { getCurrentTab, checkMessage, getTabContext } from './popup.js'
 import { getCookieStoreIdFromTab } from '../scripts/background/cookie-handler.js'
 
@@ -291,7 +291,7 @@ function PopupApp({
       switch (msg.messageType) {
         case 'ChainBlockInfo':
           setInitialLoading(false)
-          // setSessions(msg.sessions) --> chainblock-sessions-page 로 이동
+          setCountOfSessions(msg.sessions.filter(isRunningSession).length)
           break
         case 'BlockLimiterInfo':
           const myself = executor?.user
@@ -305,9 +305,6 @@ function PopupApp({
           break
         case 'PopupSwitchTab':
           setTabIndex(msg.page)
-          break
-        case 'CountOfRunningSessions':
-          setCountOfSessions(msg.count)
           break
         default:
           break
