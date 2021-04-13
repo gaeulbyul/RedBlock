@@ -1,4 +1,5 @@
 import { RedBlockOptionsContext } from './contexts.js'
+import { SwitchItem } from '../components.js'
 
 function checkFirstPartyIsolationSupport() {
   try {
@@ -13,22 +14,6 @@ function checkFirstPartyIsolationSupport() {
 }
 
 const M = MaterialUI
-
-function SwitchItem(props: {
-  label: string
-  onChange(checked: boolean): void
-  checked: boolean
-  disabled?: boolean
-}) {
-  const { checked, disabled, label } = props
-  return (
-    <M.FormControlLabel
-      control={<M.Switch />}
-      {...{ checked, disabled, label }}
-      onChange={(_event, checked) => props.onChange(checked)}
-    />
-  )
-}
 
 export default function ExperimentalOptionsPages() {
   const { options, updateOptions } = React.useContext(RedBlockOptionsContext)

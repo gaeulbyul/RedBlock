@@ -32,4 +32,13 @@ export const defaultOptions = Object.freeze<RedBlockOptions>({
   firstPartyIsolationCompatibleMode: false,
   throttleBlockRequest: false,
   muteEvenAlreadyBlocking: false,
+  menus: Object.freeze({
+    chainBlockFollowers: true,
+    chainBlockFollowings: true,
+    chainBlockMutualFollowers: true,
+    chainBlockRetweeters: true,
+    chainBlockLikers: true,
+    chainBlockRetweetersAndLikers: true,
+    chainBlockMentioned: true,
+  }),
 })

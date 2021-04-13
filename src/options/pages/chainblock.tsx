@@ -1,9 +1,10 @@
 import { RedBlockOptionsContext } from './contexts.js'
+import { CheckboxItem } from '../components.js'
 
 const M = MaterialUI
 const T = MaterialUI.Typography
 
-export default function ChainBlockOptionsPage() {
+function ChainBlockOptionsPaper() {
   const { options, updateOptions } = React.useContext(RedBlockOptionsContext)
   const inactivePeriods: Array<[InactivePeriod, string]> = [
     ['never', i18n.getMessage('dont_skip')],
@@ -15,7 +16,7 @@ export default function ChainBlockOptionsPage() {
     <M.Paper>
       <M.Box padding="10px" margin="10px">
         <M.FormControl component="fieldset" fullWidth>
-          <M.FormLabel component="legend">체인블락 / Chainblock</M.FormLabel>
+          <M.FormLabel component="legend">체인블락 / Chain-block</M.FormLabel>
           <M.Divider />
           <M.FormGroup>
             <M.FormControlLabel
@@ -79,5 +80,115 @@ export default function ChainBlockOptionsPage() {
         </M.FormControl>
       </M.Box>
     </M.Paper>
+  )
+}
+
+function RightClickMenusPaper() {
+  const { options, updateOptions } = React.useContext(RedBlockOptionsContext)
+  const currentMenus = options.menus
+  function updateMenusOption(newOptionsPart: Partial<RedBlockOptions['menus']>) {
+    updateOptions({
+      menus: {
+        ...currentMenus,
+        ...newOptionsPart,
+      },
+    })
+  }
+  return (
+    <M.Paper>
+      <M.Box padding="10px" margin="10px">
+        <M.FormControl component="fieldset" fullWidth>
+          <M.FormLabel component="legend">우클릭 메뉴 / Right click menus</M.FormLabel>
+          <M.Divider />
+          <M.FormGroup>
+            <CheckboxItem
+              checked={currentMenus.chainBlockFollowers}
+              label={i18n.getMessage('run_followers_chainblock_to_this_user')}
+              onChange={checked =>
+                updateMenusOption({
+                  chainBlockFollowers: checked,
+                })
+              }
+            />
+          </M.FormGroup>
+          <M.FormGroup>
+            <CheckboxItem
+              checked={currentMenus.chainBlockFollowings}
+              label={i18n.getMessage('run_followings_chainblock_to_this_user')}
+              onChange={checked =>
+                updateMenusOption({
+                  chainBlockFollowings: checked,
+                })
+              }
+            />
+          </M.FormGroup>
+          <M.FormGroup>
+            <CheckboxItem
+              checked={currentMenus.chainBlockMutualFollowers}
+              label={i18n.getMessage('run_mutual_followers_chainblock_to_this_user')}
+              onChange={checked =>
+                updateMenusOption({
+                  chainBlockMutualFollowers: checked,
+                })
+              }
+            />
+          </M.FormGroup>
+          <M.Divider variant="middle" />
+          <M.FormGroup>
+            <CheckboxItem
+              checked={currentMenus.chainBlockRetweeters}
+              label={i18n.getMessage('run_retweeters_chainblock_to_this_tweet')}
+              onChange={checked =>
+                updateMenusOption({
+                  chainBlockRetweeters: checked,
+                })
+              }
+            />
+          </M.FormGroup>
+          <M.FormGroup>
+            <CheckboxItem
+              checked={currentMenus.chainBlockLikers}
+              label={i18n.getMessage('run_likers_chainblock_to_this_tweet')}
+              onChange={checked =>
+                updateMenusOption({
+                  chainBlockLikers: checked,
+                })
+              }
+            />
+          </M.FormGroup>
+          <M.FormGroup>
+            <CheckboxItem
+              checked={currentMenus.chainBlockRetweetersAndLikers}
+              label={i18n.getMessage('run_retweeters_and_likers_chainblock_to_this_tweet')}
+              onChange={checked =>
+                updateMenusOption({
+                  chainBlockRetweetersAndLikers: checked,
+                })
+              }
+            />
+          </M.FormGroup>
+          <M.FormGroup>
+            <CheckboxItem
+              checked={currentMenus.chainBlockMentioned}
+              label={i18n.getMessage('run_mentioned_users_chainblock_to_this_tweet')}
+              onChange={checked =>
+                updateMenusOption({
+                  chainBlockMentioned: checked,
+                })
+              }
+            />
+          </M.FormGroup>
+        </M.FormControl>
+      </M.Box>
+    </M.Paper>
+  )
+}
+
+export default function ChainBlockOptionsPage() {
+  return (
+    <React.Fragment>
+      <ChainBlockOptionsPaper />
+      <RightClickMenusPaper />
+    </React.Fragment>
   )
 }

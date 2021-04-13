@@ -178,10 +178,23 @@ const menus = new Proxy<typeof browser.menus>({} as any, {
   },
 })
 
+function optionallyCreateMenu(
+  visible: boolean,
+  menuCreateParameter: Parameters<typeof browser.menus.create>[0]
+) {
+  if (visible) {
+    menus.create(menuCreateParameter)
+  }
+}
+
+let connectedChainblocker: ChainBlocker | null = null
+
 export async function initializeContextMenu(chainblocker: ChainBlocker) {
+  connectedChainblocker = chainblocker
   await menus.removeAll()
+  const { menus: enabledMenus } = await loadOptions()
   // 우클릭 - 유저
-  menus.create({
+  optionallyCreateMenu(enabledMenus.chainBlockFollowers, {
     contexts: ['link'],
     documentUrlPatterns,
     targetUrlPatterns: urlPatterns,
@@ -192,7 +205,7 @@ export async function initializeContextMenu(chainblocker: ChainBlocker) {
       confirmFollowerChainBlockRequest(tab, chainblocker, userName, 'followers')
     },
   })
-  menus.create({
+  optionallyCreateMenu(enabledMenus.chainBlockFollowings, {
     contexts: ['link'],
     documentUrlPatterns,
     targetUrlPatterns: urlPatterns,
@@ -203,7 +216,7 @@ export async function initializeContextMenu(chainblocker: ChainBlocker) {
       confirmFollowerChainBlockRequest(tab, chainblocker, userName, 'friends')
     },
   })
-  menus.create({
+  optionallyCreateMenu(enabledMenus.chainBlockMutualFollowers, {
     contexts: ['link'],
     documentUrlPatterns,
     targetUrlPatterns: urlPatterns,
@@ -220,7 +233,7 @@ export async function initializeContextMenu(chainblocker: ChainBlocker) {
     type: 'separator',
   })
   // 우클릭 - 트윗
-  menus.create({
+  optionallyCreateMenu(enabledMenus.chainBlockRetweeters, {
     contexts: ['link'],
     documentUrlPatterns,
     targetUrlPatterns: tweetUrlPatterns,
@@ -237,7 +250,7 @@ export async function initializeContextMenu(chainblocker: ChainBlocker) {
       })
     },
   })
-  menus.create({
+  optionallyCreateMenu(enabledMenus.chainBlockLikers, {
     contexts: ['link'],
     documentUrlPatterns,
     targetUrlPatterns: tweetUrlPatterns,
@@ -254,7 +267,7 @@ export async function initializeContextMenu(chainblocker: ChainBlocker) {
       })
     },
   })
-  menus.create({
+  optionallyCreateMenu(enabledMenus.chainBlockRetweetersAndLikers, {
     contexts: ['link'],
     documentUrlPatterns,
     targetUrlPatterns: tweetUrlPatterns,
@@ -271,7 +284,7 @@ export async function initializeContextMenu(chainblocker: ChainBlocker) {
       })
     },
   })
-  menus.create({
+  optionallyCreateMenu(enabledMenus.chainBlockMentioned, {
     contexts: ['link'],
     documentUrlPatterns,
     targetUrlPatterns: tweetUrlPatterns,
@@ -326,3 +339,14 @@ export async function initializeContextMenu(chainblocker: ChainBlocker) {
     })
   }
 }
+
+browser.storage.onChanged.addListener((changes: Partial<RedBlockStorageChanges>) => {
+  if (!changes.options) {
+    return
+  }
+  if (!connectedChainblocker) {
+    console.warn('warning: failed to refresh context menus (chainblocker missing?)')
+    return
+  }
+  initializeContextMenu(connectedChainblocker)
+})

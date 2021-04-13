@@ -12,6 +12,15 @@ interface RedBlockStorage {
     firstPartyIsolationCompatibleMode: boolean
     throttleBlockRequest: boolean
     muteEvenAlreadyBlocking: boolean
+    menus: {
+      chainBlockFollowers: boolean
+      chainBlockFollowings: boolean
+      chainBlockMutualFollowers: boolean
+      chainBlockRetweeters: boolean
+      chainBlockLikers: boolean
+      chainBlockRetweetersAndLikers: boolean
+      chainBlockMentioned: boolean
+    }
   }
   badWords: BadWordItem[]
 }

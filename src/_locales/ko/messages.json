@@ -553,7 +553,7 @@
     "message": "이 트윗을 리트윗하거나 마음에 들어한 유저에게 체인블락 실행"
   },
   "run_mentioned_users_chainblock_to_this_tweet": {
-    "message": "이 트윗이 멘션한 유저에게 체인블락 실행"
+    "message": "이 트윗에서 멘션한 유저에게 체인블락 실행"
   },
   "run_chainblock_from_text_selection": {
     "message": "선택한 텍스트에서 차단목록 불러오기"
