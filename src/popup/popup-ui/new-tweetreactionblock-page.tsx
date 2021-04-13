@@ -20,6 +20,11 @@ import { findNonLinkedMentionsFromTweet } from '../../scripts/common.js'
 
 const M = MaterialUI
 
+// 트윗을 실제 트위터에서 보이는대로 잘라줌
+function showTextLikeTwitter({ full_text, display_text_range: [start, end] }: Tweet): string {
+  return Array.from(full_text).slice(start, end).join('')
+}
+
 function useSessionRequest(): TweetReactionBlockSessionRequest {
   const {
     purpose,
@@ -71,12 +76,12 @@ function TargetTweetUI(props: { tweet: Tweet }) {
   const nobodyMentioned = mentions.length <= 0
   const nobodyQuoted = tweet.quote_count <= 0
   const nonLinkedMentions = findNonLinkedMentionsFromTweet(tweet)
+  const displayText = showTextLikeTwitter(tweet)
   return (
     <TwitterUserProfile user={tweet.user}>
       <div className="profile-right-targettweet">
         <div>
-          <span>{i18n.getMessage('tweet')}:</span>
-          <blockquote className="tweet-content">{tweet.full_text}</blockquote>
+          <blockquote className="tweet-content">{displayText}</blockquote>
         </div>
         <M.FormGroup row>
           <M.FormControlLabel

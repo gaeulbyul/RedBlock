@@ -512,6 +512,7 @@ export interface Tweet {
   favorite_count: number
   favorited: boolean
   retweeted: boolean
+  display_text_range: [number, number]
   quote_count: number
   is_quote_status: boolean
   quoted_status?: Tweet
