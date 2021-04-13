@@ -79,6 +79,7 @@ export default function BlocklistPage() {
   } = React.useContext(ImportChainBlockPageStatesContext)
   const [fileInput] = React.useState(React.createRef<HTMLInputElement>())
   const request = useSessionRequest()
+  const blocklistSize = blocklist.userIds.size + blocklist.userNames.size
   function isAvailable() {
     if (limiterStatus.remained <= 0) {
       return false
@@ -96,14 +97,14 @@ export default function BlocklistPage() {
     const filesArray = Array.from(files)
     setNameOfSelectedFiles(filesArray.map(file => file.name))
     const texts = await Promise.all(filesArray.map(file => file.text()))
-    const blocklist = texts
+    const newBlocklist = texts
       .map(parseBlocklist)
       .reduce((list1, list2) => concatBlockList(list1, list2))
-    setBlocklist(blocklist)
+    setBlocklist(newBlocklist)
   }
   async function onSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault()
-    if (blocklist.userIds.size <= 0) {
+    if (blocklistSize <= 0) {
       uiContext.openSnackBar(i18n.getMessage('cant_chainblock_empty_list'))
       return
     }
@@ -130,8 +131,7 @@ export default function BlocklistPage() {
   }
   const usersToBlock = (
     <span>
-      {i18n.getMessage('count_of_users')}:{' '}
-      <strong>{blocklist.userIds.size.toLocaleString()}</strong>
+      {i18n.getMessage('count_of_users')}: <strong>{blocklistSize.toLocaleString()}</strong>
     </span>
   )
   const duplicatedUsers = (
