@@ -5,7 +5,10 @@ import {
 import { Blocklist, emptyBlocklist } from '../../scripts/background/blocklist-process.js'
 import { determineInitialPurposeType } from '../popup.js'
 import { MyselfContext, RetrieverContext, RedBlockOptionsContext } from './contexts.js'
-import { examineRetrieverByTargetUser, examineRetrieverByTweetId } from '../../scripts/background/antiblock.js'
+import {
+  examineRetrieverByTargetUser,
+  examineRetrieverByTweetId,
+} from '../../scripts/background/antiblock.js'
 
 export type SelectUserGroup = 'invalid' | 'current' | 'saved' | 'other tab'
 
@@ -135,6 +138,8 @@ export const UserSearchChainBlockPageStatesContext = React.createContext<UserSea
 )
 export const LockPickerPageStatesContext = React.createContext<LockPickerPageStates>(null!)
 
+const examineResultCache = new Map<string, Actor>()
+
 export function FollowerChainBlockPageStatesProvider(props: {
   children: React.ReactNode
   initialUser: TwitterUser | null
@@ -164,8 +169,17 @@ export function FollowerChainBlockPageStatesProvider(props: {
   const [retriever, setRetriever] = React.useState(myself)
   React.useEffect(() => {
     async function examine(selectedUser: TwitterUser) {
-      const newRetriever = await examineRetrieverByTargetUser(myself, selectedUser)
-      setRetriever(newRetriever || myself)
+      const key = `user-${selectedUser.id_str}`
+      const cached = examineResultCache.get(key)
+      if (cached) {
+        setRetriever(cached)
+      } else {
+        const newRetriever = await examineRetrieverByTargetUser(myself, selectedUser).then(
+          result => result || myself
+        )
+        examineResultCache.set(key, newRetriever)
+        setRetriever(newRetriever)
+      }
     }
     const selectedUser = userSelection.user
     if (enableAntiBlock && selectedUser) {
@@ -211,20 +225,32 @@ export function TweetReactionChainBlockPageStatesProvider(props: {
     'chainunfollow',
     'export',
   ]
-  const [purpose, changePurposeType, mutatePurposeOptions] =
-    usePurpose<TweetReactionBlockSessionRequest['purpose']>('chainblock')
+  const [purpose, changePurposeType, mutatePurposeOptions] = usePurpose<
+    TweetReactionBlockSessionRequest['purpose']
+  >('chainblock')
   const selectedTweet = props.initialTweet // TODO: make it state
   const myself = React.useContext(MyselfContext)!
   const { enableAntiBlock } = React.useContext(RedBlockOptionsContext)
-  const [retriever, setRetriever] = React.useState(myself)
+  const [retriever, setRetriever] = React.useState<Actor>(myself)
   React.useEffect(() => {
     async function examine(tweetId: string) {
-      const result = await examineRetrieverByTweetId(myself, tweetId)
-      const newRetriever: Actor | null = result ? {
-        user: result.user,
-        cookieOptions: result.cookieOptions,
-      } : null
-      setRetriever(newRetriever || myself)
+      const key = `tweet-${tweetId}`
+      const cached = examineResultCache.get(key)
+      if (cached) {
+        setRetriever(cached)
+      } else {
+        const newRetriever = await examineRetrieverByTweetId(myself, tweetId).then(
+          (result): Actor =>
+            result
+              ? {
+                  user: result.user,
+                  cookieOptions: result.cookieOptions,
+                }
+              : myself
+        )
+        examineResultCache.set(key, newRetriever)
+        setRetriever(newRetriever)
+      }
     }
     const selectedTweetId = selectedTweet?.id_str
     if (enableAntiBlock && selectedTweetId) {
