@@ -774,7 +774,7 @@
         "content": "$1"
       },
       "name": {
-        "content": "$1"
+        "content": "$2"
       }
     }
   },
