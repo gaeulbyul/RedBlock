@@ -4,7 +4,8 @@ import {
 } from '../../scripts/background/chainblock-session/default-options.js'
 import { Blocklist, emptyBlocklist } from '../../scripts/background/blocklist-process.js'
 import { determineInitialPurposeType } from '../popup.js'
-import { ActorsContext } from './contexts.js'
+import { MyselfContext, RetrieverContext, RedBlockOptionsContext } from './contexts.js'
+import { examineRetrieverByTargetUser, examineRetrieverByTweetId } from '../../scripts/background/antiblock.js'
 
 export type SelectUserGroup = 'invalid' | 'current' | 'saved' | 'other tab'
 
@@ -138,13 +139,13 @@ export function FollowerChainBlockPageStatesProvider(props: {
   children: React.ReactNode
   initialUser: TwitterUser | null
 }) {
-  const actors = React.useContext(ActorsContext)!
+  const myself = React.useContext(MyselfContext)!
   const [userSelection, setUserSelection] = React.useState<UserSelectionState>({
     user: props.initialUser,
     group: props.initialUser ? 'current' : 'invalid',
   })
   const initialPurposeType = determineInitialPurposeType<FollowerBlockSessionRequest['purpose']>(
-    actors.executor.user,
+    myself.user,
     props.initialUser
   )
   const [targetList, setTargetList] = React.useState<FollowKind>('followers')
@@ -159,6 +160,20 @@ export function FollowerChainBlockPageStatesProvider(props: {
   const [purpose, changePurposeType, mutatePurposeOptions] = usePurpose<
     FollowerBlockSessionRequest['purpose']
   >(initialPurposeType)
+  const { enableAntiBlock } = React.useContext(RedBlockOptionsContext)
+  const [retriever, setRetriever] = React.useState(myself)
+  React.useEffect(() => {
+    async function examine(selectedUser: TwitterUser) {
+      const newRetriever = await examineRetrieverByTargetUser(myself, selectedUser)
+      setRetriever(newRetriever || myself)
+    }
+    const selectedUser = userSelection.user
+    if (enableAntiBlock && selectedUser) {
+      examine(selectedUser)
+    } else {
+      setRetriever(myself)
+    }
+  }, [userSelection.user])
   return (
     <FollowerChainBlockPageStatesContext.Provider
       value={{
@@ -173,7 +188,9 @@ export function FollowerChainBlockPageStatesProvider(props: {
         availablePurposeTypes,
       }}
     >
-      <ExtraTargetContextProvider>{props.children}</ExtraTargetContextProvider>
+      <RetrieverContext.Provider value={{ retriever, setRetriever }}>
+        <ExtraTargetContextProvider>{props.children}</ExtraTargetContextProvider>
+      </RetrieverContext.Provider>
     </FollowerChainBlockPageStatesContext.Provider>
   )
 }
@@ -194,9 +211,28 @@ export function TweetReactionChainBlockPageStatesProvider(props: {
     'chainunfollow',
     'export',
   ]
-  const [purpose, changePurposeType, mutatePurposeOptions] = usePurpose<
-    TweetReactionBlockSessionRequest['purpose']
-  >('chainblock')
+  const [purpose, changePurposeType, mutatePurposeOptions] =
+    usePurpose<TweetReactionBlockSessionRequest['purpose']>('chainblock')
+  const selectedTweet = props.initialTweet // TODO: make it state
+  const myself = React.useContext(MyselfContext)!
+  const { enableAntiBlock } = React.useContext(RedBlockOptionsContext)
+  const [retriever, setRetriever] = React.useState(myself)
+  React.useEffect(() => {
+    async function examine(tweetId: string) {
+      const result = await examineRetrieverByTweetId(myself, tweetId)
+      const newRetriever: Actor | null = result ? {
+        user: result.user,
+        cookieOptions: result.cookieOptions,
+      } : null
+      setRetriever(newRetriever || myself)
+    }
+    const selectedTweetId = selectedTweet?.id_str
+    if (enableAntiBlock && selectedTweetId) {
+      examine(selectedTweetId)
+    } else {
+      setRetriever(myself)
+    }
+  }, [selectedTweet])
   return (
     <TweetReactionChainBlockPageStatesContext.Provider
       value={{
@@ -217,7 +253,9 @@ export function TweetReactionChainBlockPageStatesProvider(props: {
         availablePurposeTypes,
       }}
     >
-      <ExtraTargetContextProvider>{props.children}</ExtraTargetContextProvider>
+      <RetrieverContext.Provider value={{ retriever, setRetriever }}>
+        <ExtraTargetContextProvider>{props.children}</ExtraTargetContextProvider>
+      </RetrieverContext.Provider>
     </TweetReactionChainBlockPageStatesContext.Provider>
   )
 }

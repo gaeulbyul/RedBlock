@@ -1,10 +1,7 @@
 import { getUserNameFromURL } from '../scripts/common.js'
-import {
-  examineRetrieverByTargetUser,
-  examineRetrieverByTweetId,
-} from '../scripts/background/antiblock.js'
 import { loadOptions } from '../scripts/background/storage.js'
 import type { TwClient } from '../scripts/background/twitter-api.js'
+import { examineRetrieverByTweetId } from '../scripts/background/antiblock.js'
 
 type Tab = browser.tabs.Tab
 
@@ -125,9 +122,7 @@ export function checkMessage(msg: object): msg is RBMessageToPopupType {
   return true
 }
 
-interface TabContext {
-  executor: Actor | null
-  retriever: Actor | null
+export interface TabContext {
   currentUser: TwitterUser | null
   currentTweet: Tweet | null
   currentSearchQuery: string | null
@@ -135,77 +130,30 @@ interface TabContext {
 
 export async function getTabContext(
   tab: browser.tabs.Tab,
+  myself: Actor,
   twClient: TwClient
 ): Promise<TabContext> {
-  const myself = await twClient.getMyself().catch(() => null)
-  if (!myself) {
-    return {
-      executor: null,
-      retriever: null,
-      currentUser: null,
-      currentTweet: null,
-      currentSearchQuery: null,
-    }
-  }
+  const tweetId = getTweetIdFromTab(tab)
+  const userId = getUserIdFromTab(tab)
+  const userName = getUserNameFromTab(tab)
   const options = await loadOptions()
-  if (options.enableAntiBlock) {
-    return getTabContextWithAntiblock(myself, tab, twClient)
-  }
-  const executor: Actor = {
-    user: myself,
-    cookieOptions: twClient.cookieOptions,
-  }
-  const retriever = Object.assign({}, executor)
-  const tweetId = getTweetIdFromTab(tab)
-  const userId = getUserIdFromTab(tab)
-  const userName = getUserNameFromTab(tab)
-  const currentTweet = await (tweetId ? twClient.getTweetById(tweetId).catch(() => null) : null)
-  let currentUser: TwitterUser | null = null
-  if (currentTweet) {
-    currentUser = currentTweet.user
-  } else if (userName) {
-    currentUser = await twClient.getSingleUser({ screen_name: userName }).catch(() => null)
-  } else if (userId) {
-    currentUser = await twClient.getSingleUser({ user_id: userId }).catch(() => null)
-  }
-  const currentSearchQuery = getCurrentSearchQueryFromTab(tab)
-  return {
-    executor,
-    retriever,
-    currentTweet,
-    currentUser,
-    currentSearchQuery,
-  }
-}
-
-async function getTabContextWithAntiblock(
-  myself: TwitterUser,
-  tab: browser.tabs.Tab,
-  twClient: TwClient
-): Promise<TabContext> {
-  const executor: Actor = {
-    user: myself,
-    cookieOptions: twClient.cookieOptions,
-  }
-  const retriever = Object.assign({}, executor)
-  const tweetId = getTweetIdFromTab(tab)
-  const userId = getUserIdFromTab(tab)
-  const userName = getUserNameFromTab(tab)
   let currentTweet: Tweet | null = null
   let currentUser: TwitterUser | null = null
-  let usingAlternativeRetriever = false
   if (tweetId) {
-    const result = await examineRetrieverByTweetId(executor, tweetId)
-    if (result) {
-      currentTweet = result.targetTweet
-      if (result.tweetRetrievedFromPrimary) {
-        currentUser = currentTweet.user
-      } else {
-        usingAlternativeRetriever = true
-        retriever.user = result.user
-        retriever.cookieOptions = result.cookieOptions
+    if (options.enableAntiBlock) {
+      const result = await examineRetrieverByTweetId(myself, tweetId)
+      if (result) {
+        currentTweet = result.targetTweet
+        if (result.tweetRetrievedFromPrimary) {
+          currentUser = currentTweet.user
+        }
       }
+    } else {
+      currentTweet = await twClient.getTweetById(tweetId).catch(() => null)
+      currentUser = currentTweet?.user || null
     }
+  } else {
+    currentTweet = null
   }
   if (!currentUser) {
     if (userName) {
@@ -214,18 +162,8 @@ async function getTabContextWithAntiblock(
       currentUser = await twClient.getSingleUser({ user_id: userId }).catch(() => null)
     }
   }
-  if (currentUser && currentUser.blocked_by && !usingAlternativeRetriever) {
-    const result = await examineRetrieverByTargetUser(executor, currentUser)
-    if (result) {
-      usingAlternativeRetriever = true
-      retriever.user = result.user
-      retriever.cookieOptions = result.cookieOptions
-    }
-  }
   const currentSearchQuery = getCurrentSearchQueryFromTab(tab)
   return {
-    executor,
-    retriever,
     currentTweet,
     currentUser,
     currentSearchQuery,

@@ -1,6 +1,6 @@
 import {
   UIContext,
-  ActorsContext,
+  MyselfContext,
   BlockLimiterContext,
   RedBlockOptionsContext,
 } from './contexts.js'
@@ -27,7 +27,7 @@ const M = MaterialUI
 function useSessionRequest(): ImportBlockSessionRequest {
   const { purpose, blocklist } = React.useContext(ImportChainBlockPageStatesContext)
   const { extraTarget } = React.useContext(ExtraTargetContext)
-  const { retriever, executor } = React.useContext(ActorsContext)!
+  const myself = React.useContext(MyselfContext)!
   const options = React.useContext(RedBlockOptionsContext)
   return {
     purpose,
@@ -38,8 +38,8 @@ function useSessionRequest(): ImportBlockSessionRequest {
       userNames: Array.from(blocklist.userNames),
     },
     extraTarget,
-    retriever,
-    executor,
+    retriever: myself,
+    executor: myself,
     options,
   }
 }

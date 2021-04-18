@@ -12,7 +12,7 @@ import {
   downloadFromExportSession,
   requestProgress,
 } from '../../scripts/background/request-sender.js'
-import { UIContext, ActorsContext, AvailablePages } from './contexts.js'
+import { UIContext, MyselfContext, AvailablePages } from './contexts.js'
 import { statusToString } from '../../scripts/text-generate.js'
 import { BlockLimiterUI, PleaseLoginBox, LinearProgressWithLabel } from './components.js'
 import { checkMessage } from '../popup.js'
@@ -449,7 +449,7 @@ function NewSessionButtons() {
 
 export default function ChainBlockSessionsPage() {
   const [sessions, setSessions] = React.useState<SessionInfo[]>([])
-  const actors = React.useContext(ActorsContext)
+  const myself = React.useContext(MyselfContext)
   const uiContext = React.useContext(UIContext)
   React.useEffect(() => {
     const messageListener = (msg: object) => {
@@ -505,7 +505,7 @@ export default function ChainBlockSessionsPage() {
   const isSessionExist = sessions.length > 0
   return (
     <div>
-      {actors ? (
+      {myself ? (
         <React.Fragment>
           <BlockLimiterUI />
           {isSessionExist && (

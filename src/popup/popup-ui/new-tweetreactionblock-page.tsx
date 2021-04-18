@@ -1,7 +1,8 @@
 import * as TextGenerate from '../../scripts/text-generate.js'
 import {
   UIContext,
-  ActorsContext,
+  MyselfContext,
+  RetrieverContext,
   BlockLimiterContext,
   RedBlockOptionsContext,
 } from './contexts.js'
@@ -36,7 +37,8 @@ function useSessionRequest(): TweetReactionBlockSessionRequest {
     wantBlockNonLinkedMentions,
   } = React.useContext(TweetReactionChainBlockPageStatesContext)
   const { extraTarget } = React.useContext(ExtraTargetContext)
-  const { retriever, executor } = React.useContext(ActorsContext)!
+  const myself = React.useContext(MyselfContext)!
+  const { retriever } = React.useContext(RetrieverContext)!
   const options = React.useContext(RedBlockOptionsContext)
   return {
     purpose,
@@ -52,7 +54,7 @@ function useSessionRequest(): TweetReactionBlockSessionRequest {
       blockNonLinkedMentions: wantBlockNonLinkedMentions,
     },
     retriever,
-    executor,
+    executor: myself,
   }
 }
 

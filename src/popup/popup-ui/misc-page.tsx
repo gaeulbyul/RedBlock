@@ -1,5 +1,5 @@
 import { toggleOneClickBlockMode, getCurrentTab } from '../popup.js'
-import { UIContext, ActorsContext } from './contexts.js'
+import { UIContext, MyselfContext } from './contexts.js'
 import { RBExpansionPanel } from './components.js'
 import {
   getAllCookies,
@@ -34,7 +34,7 @@ function openOptions() {
 
 export default function MiscPage() {
   const uiContext = React.useContext(UIContext)
-  const actors = React.useContext(ActorsContext)
+  const myself = React.useContext(MyselfContext)
   function onClickOneClickBlockModeButtons(enable: boolean) {
     toggleOneClickBlockMode(enable)
     const modeState = enable ? 'ON' : 'OFF'
@@ -54,7 +54,7 @@ export default function MiscPage() {
       },
     })
   }
-  const disabledOneClickBlockRelatedButtons = !actors
+  const disabledOneClickBlockRelatedButtons = !myself
   return (
     <div>
       <RBExpansionPanel summary={i18n.getMessage('oneclick_block_mode')} defaultExpanded>

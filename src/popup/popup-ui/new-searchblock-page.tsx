@@ -2,7 +2,7 @@ import * as TextGenerate from '../../scripts/text-generate.js'
 import { startNewChainBlockSession } from '../../scripts/background/request-sender.js'
 import {
   UIContext,
-  ActorsContext,
+  MyselfContext,
   BlockLimiterContext,
   RedBlockOptionsContext,
 } from './contexts.js'
@@ -22,7 +22,7 @@ const T = MaterialUI.Typography
 function useSessionRequest(): UserSearchBlockSessionRequest {
   const { purpose, searchQuery } = React.useContext(UserSearchChainBlockPageStatesContext)
   const { extraTarget } = React.useContext(ExtraTargetContext)
-  const { executor } = React.useContext(ActorsContext)!
+  const myself = React.useContext(MyselfContext)!
   const options = React.useContext(RedBlockOptionsContext)
   return {
     purpose,
@@ -32,8 +32,8 @@ function useSessionRequest(): UserSearchBlockSessionRequest {
       type: 'user_search',
       query: searchQuery!,
     },
-    retriever: executor,
-    executor,
+    retriever: myself,
+    executor: myself,
   }
 }
 

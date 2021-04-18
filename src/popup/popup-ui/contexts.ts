@@ -35,13 +35,12 @@ export const BlockLimiterContext = React.createContext<BlockLimiterStatus>({
   remained: 500,
 })
 
-//export const MyselfContext = React.createContext<TwitterUser | null>(null)
 //export const TwitterAPIClientContext = React.createContext<TwClient>(null!)
+export const MyselfContext = React.createContext<Actor | null>(null)
 
-// null일 경우 비로그인으로 간주한다 (구 MyselfContext가 null인 것처럼 취급)
-export interface ActorsContextType {
-  executor: Actor
+interface RetrieverContextType {
   retriever: Actor
+  setRetriever(retriever: Actor): void
 }
 
-export const ActorsContext = React.createContext<ActorsContextType | null>(null)
+export const RetrieverContext = React.createContext<RetrieverContextType>(null!)

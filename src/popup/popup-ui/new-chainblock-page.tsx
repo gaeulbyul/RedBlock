@@ -5,7 +5,8 @@ import * as TextGenerate from '../../scripts/text-generate.js'
 import { startNewChainBlockSession } from '../../scripts/background/request-sender.js'
 import {
   UIContext,
-  ActorsContext,
+  MyselfContext,
+  RetrieverContext,
   BlockLimiterContext,
   RedBlockOptionsContext,
 } from './contexts.js'
@@ -38,11 +39,11 @@ function useSessionRequest(): FollowerBlockSessionRequest {
   const { purpose, targetList, userSelection } = React.useContext(
     FollowerChainBlockPageStatesContext
   )
-  const actors = React.useContext(ActorsContext)!
+  const myself = React.useContext(MyselfContext)!
+  const { retriever } = React.useContext(RetrieverContext)!
   const { extraTarget } = React.useContext(ExtraTargetContext)
   const options = React.useContext(RedBlockOptionsContext)
   const selectedUser = userSelection.user!
-  const { executor, retriever } = actors
   return {
     purpose,
     target: {
@@ -53,7 +54,7 @@ function useSessionRequest(): FollowerBlockSessionRequest {
     options,
     extraTarget,
     retriever,
-    executor,
+    executor: myself,
   }
 }
 
@@ -191,8 +192,8 @@ function TargetUserProfile() {
   )
   // selectedUser가 null일 땐 이 컴포넌트를 렌더링하지 않으므로
   const selectedUser = userSelection.user!
-  const actors = React.useContext(ActorsContext)!
-  const selectedMyself = selectedUser.id_str === actors.executor.user.id_str
+  const myself = React.useContext(MyselfContext)!
+  const selectedMyself = selectedUser.id_str === myself.user.id_str
   function radio(fk: FollowKind, label: string) {
     return (
       <M.FormControlLabel
@@ -242,13 +243,13 @@ function TargetUserSelectUI() {
   const { currentUser, targetList, userSelection, setUserSelection } = React.useContext(
     FollowerChainBlockPageStatesContext
   )
-  const actors = React.useContext(ActorsContext)!
+  const myself = React.useContext(MyselfContext)!
   const { openDialog } = React.useContext(UIContext)
   const [savedUsers, setSavedUsers] = React.useState(new TwitterUserMap())
   const [usersInOtherTab, setUsersInOtherTab] = React.useState(new TwitterUserMap())
   const [isLoading, setLoadingState] = React.useState(false)
   const { user: selectedUser } = userSelection
-  const twClient = new TwClient(actors.executor.cookieOptions)
+  const twClient = new TwClient(myself.cookieOptions)
   async function changeSelectedUser(userId: string, userName: string, group: SelectUserGroup) {
     if (!/^\d+$/.test(userId)) {
       setUserSelection({
