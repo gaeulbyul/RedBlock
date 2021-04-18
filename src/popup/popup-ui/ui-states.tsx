@@ -240,13 +240,7 @@ export function TweetReactionChainBlockPageStatesProvider(props: {
         setRetriever(cached)
       } else {
         const newRetriever = await examineRetrieverByTweetId(myself, tweetId).then(
-          (result): Actor =>
-            result
-              ? {
-                  user: result.user,
-                  cookieOptions: result.cookieOptions,
-                }
-              : myself
+          result => result || myself
         )
         examineResultCache.set(key, newRetriever)
         setRetriever(newRetriever)
