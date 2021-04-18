@@ -16,6 +16,7 @@
     "https://api.twitter.com/*",
     "https://mobile.twitter.com/*",
     "https://tweetdeck.twitter.com/*",
+    "https://*.twimg.com/*",
     "storage",
     "notifications",
     "cookies",
