@@ -187,7 +187,7 @@ export function FollowerChainBlockPageStatesProvider(props: {
     } else {
       setRetriever(myself)
     }
-  }, [userSelection.user])
+  }, [userSelection.user, enableAntiBlock])
   return (
     <FollowerChainBlockPageStatesContext.Provider
       value={{
@@ -252,7 +252,7 @@ export function TweetReactionChainBlockPageStatesProvider(props: {
     } else {
       setRetriever(myself)
     }
-  }, [selectedTweet])
+  }, [selectedTweet, enableAntiBlock])
   return (
     <TweetReactionChainBlockPageStatesContext.Provider
       value={{
