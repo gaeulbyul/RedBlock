@@ -353,7 +353,7 @@
     "message": "Unblock all users according to the options you set."
   },
   "lockpicker_description": {
-    "message": "Unlike Chain-block, it will block *only* protected followers who doesn't follow back to you, and nobody else will be blocked."
+    "message": "Unlike Chain-block, it will block *only* protected followers who don't follow back to you, and nobody else will be blocked."
   },
   "chainunfollow_description": {
     "message": "Unfollow all users that followed by you. Your mutual-followers won't be unfollowed."
@@ -407,7 +407,7 @@
     "message": "Pick blocklist file first."
   },
   "blocklist_import_description": {
-    "message": "You can block users from blocklist file. Currently Red Block supports CSV, JSON(from original Twitter Block Chain's export-chain feature), and JS(\"block.js\" from Twitter's archive)."
+    "message": "You can block users from the blocklist file. Currently, Red Block supports CSV, JSON(from the original Twitter Block Chain's export-chain feature), and JS(\"block.js\" from Twitter's archive)."
   },
   "select_rt_or_like": {
     "message": "Please select retweet and/or like"
@@ -648,22 +648,22 @@
     "message": "Add"
   },
   "sbs_description": {
-    "message": "Red Block Simple Block Suggestion: If user contains specifid words, Red Block will show oneclick-block button"
+    "message": "Red Block Simple Block Suggestion: If the user contains specified words, Red Block will show an oneclick-block button"
   },
   "sbs_please_refresh": {
-    "message": "Please refresh Twitter after editing words list."
+    "message": "Please refresh Twitter after editing the word list."
   },
   "remove_session_after_complete": {
     "message": "Remove session after complete"
   },
   "open_new_tab_for_file_picker": {
-    "message": "If the Red Block's UI closes while selecting a file, please open UI in tab."
+    "message": "If the Red Block's UI closes while selecting a file, please open UI in the tab."
   },
   "refreshing_saved_users": {
     "message": "Refreshing saved user's profile data"
   },
   "please_check_login": {
-    "message": "You need to be logged in Twitter to use Red Block."
+    "message": "You need to be logged in to Twitter to use Red Block."
   },
   "block_counter": {
     "message": "Block counter"
@@ -687,7 +687,7 @@
     "message": "Selected Files"
   },
   "notify_on_block_limit": {
-    "message": "To avoid problem(force-logout, account suspension), Red Block won't block over 500 users. If you want to reset counter, open Red Block's UI and press \"Reset\" button."
+    "message": "To avoid problem(force-logout, account suspension), Red Block won't block over 500 users. If you want to reset the counter, open Red Block's UI and press the \"Reset\" button."
   },
   "bioblock_never": {
     "message": "Disable"
@@ -699,7 +699,7 @@
     "message": "Enable (Smart)"
   },
   "bioblock_description": {
-    "message": "When Red Block block a user, It also block other accounts that mentioned in user's profile."
+    "message": "When Red Block blocks a user, It also blocks other accounts mentioned in the user's profile."
   },
   "dont_skip": {
     "message": "Don't skip"
@@ -719,7 +719,7 @@
     "message": "Skip inactive users"
   },
   "skip_inactive_users_description": {
-    "message": "Inactivity will be determined from last tweeted time or account creation time. Note that protected user won't skip because there's no way to determine last tweeted time."
+    "message": "Red Block determines the user's inactivity from the last tweeted time or account creation time. Note that protected users won't skip because there's no way to determine the last tweeted time."
   },
   "export": {
     "message": "Export"
@@ -736,7 +736,7 @@
     }
   },
   "export_description": {
-    "message": "Generate blocklist file from users."
+    "message": "Generate a blocklist file from users."
   },
   "save": {
     "message": "Save"
@@ -751,7 +751,7 @@
     "message": "Blocklist is empty."
   },
   "confirm_closing_export_session_notyet_save": {
-    "message": "Looks like you don't saved blocklist file yet. Are you sure to close this session?"
+    "message": "Looks like you didn't save a blocklist file yet. Are you sure to close this session?"
   },
   "protected_follower": {
     "message": "Protected Follower"
@@ -779,7 +779,7 @@
     }
   },
   "oneclick_block_mode_description": {
-    "message": "Oneclick-block button will appear on users or tweets."
+    "message": "A Oneclick-block button will appear on users or tweets."
   },
   "troubleshooting": {
     "message": "Troubleshooting"
@@ -812,7 +812,7 @@
     "message": "You can run Chain-block to the user, even they block you. Note that this feature requires logged in with two or more accounts and at least one of the accounts should be able to see their's followers list."
   },
   "1st_party_isolation_compatible_mode_description": {
-    "message": "Be compatible with Firefox's 1st-party isolation mode. If you're on the non-Firefox browser, Enabling this option makes Red Block's most features became unavailable."
+    "message": "Be compatible with Firefox's 1st-party isolation mode. If you're on the browser any other than Firefox, Enabling this option will make Red Block's most features became unavailable."
   },
   "muted_and_also_blocked": {
     "message": "Blocked user"
