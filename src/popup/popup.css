@@ -146,7 +146,7 @@ hr {
   color: var(--mui-color-text-secondary);
   white-space: break-spaces;
   overflow-x: hidden;
-  overflow-y: scroll;
+  overflow-y: auto;
   max-height: 110px;
 }
 
