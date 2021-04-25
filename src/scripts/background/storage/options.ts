@@ -57,13 +57,4 @@ export const defaultUIOptions = Object.freeze<RedBlockUIOptions>({
     chainBlockRetweetersAndLikers: true,
     chainBlockMentioned: true,
   }),
-  purposes: Object.freeze({
-    chainblock: true,
-    unchainblock: true,
-    export: true,
-    lockpicker: true,
-    chainunfollow: true,
-    chainmute: true,
-    unchainmute: true,
-  }),
 })

@@ -23,15 +23,6 @@ interface RedBlockStorage {
       chainBlockRetweetersAndLikers: boolean
       chainBlockMentioned: boolean
     }
-    purposes: {
-      chainblock: boolean
-      unchainblock: boolean
-      export: boolean
-      lockpicker: boolean
-      chainunfollow: boolean
-      chainmute: boolean
-      unchainmute: boolean
-    }
   }
   badWords: BadWordItem[]
 }
