@@ -27,19 +27,31 @@ function OptionsApp() {
   const darkMode = MaterialUI.useMediaQuery('(prefers-color-scheme:dark)')
   const theme = React.useMemo(() => RedBlockOptionsUITheme(darkMode), [darkMode])
   const [options, setOptions] = React.useState<RedBlockOptions>(Storage.defaultOptions)
+  const [uiOptions, setUIOptions] = React.useState<RedBlockUIOptions>(Storage.defaultUIOptions)
   const [tabPage, setTabPage] = React.useState<OptionsTabPage>('chainblock')
   async function updateOptions(newOptionsPart: Partial<RedBlockOptions>) {
     const newOptions: RedBlockOptions = { ...options, ...newOptionsPart }
     await Storage.saveOptions(newOptions)
     setOptions(newOptions)
   }
+  async function updateUIOptions(newOptionsPart: Partial<RedBlockUIOptions>) {
+    const newOptions: RedBlockUIOptions = { ...uiOptions, ...newOptionsPart }
+    await Storage.saveUIOptions(newOptions)
+    setUIOptions(newOptions)
+  }
   React.useEffect(() => {
     Storage.loadOptions().then(setOptions)
     return Storage.onStorageChanged('options', setOptions)
   }, [])
+  React.useEffect(() => {
+    Storage.loadUIOptions().then(setUIOptions)
+    return Storage.onStorageChanged('uiOptions', setUIOptions)
+  }, [])
   return (
     <M.ThemeProvider theme={theme}>
-      <RedBlockOptionsContext.Provider value={{ options, updateOptions }}>
+      <RedBlockOptionsContext.Provider
+        value={{ options, updateOptions, uiOptions, updateUIOptions }}
+      >
         <M.AppBar position="static">
           <M.Tabs value={tabPage} onChange={(_ev, val) => setTabPage(val)}>
             {optionsTabPages.map((value, index) => (

@@ -205,11 +205,11 @@ function PopupApp({
   const [snackBarOpen, setSnackBarOpen] = React.useState(false)
   const [menuAnchorElem, setMenuAnchorElem] = React.useState<HTMLElement | null>(null)
   const darkMode = MaterialUI.useMediaQuery('(prefers-color-scheme:dark)')
-  // 파이어폭스의 팝업 가로폭 문제
-  // 참고: popup.css
   const [initialLoading, setInitialLoading] = React.useState(true)
   const [redblockOptions, setRedBlockOptions] = React.useState(initialRedBlockOptions)
   const [countOfSessions, setCountOfSessions] = React.useState(0)
+  // 파이어폭스의 팝업 가로폭 문제
+  // 참고: popup.css
   const shrinkedPopup = MaterialUI.useMediaQuery('(width:348px), (width:425px)')
   const theme = React.useMemo(() => RedBlockPopupUITheme(darkMode), [darkMode])
   function openDialog(content: DialogContent) {

@@ -84,10 +84,10 @@ function ChainBlockOptionsPaper() {
 }
 
 function RightClickMenusPaper() {
-  const { options, updateOptions } = React.useContext(RedBlockOptionsContext)
-  const currentMenus = options.menus
-  function updateMenusOption(newOptionsPart: Partial<RedBlockOptions['menus']>) {
-    updateOptions({
+  const { uiOptions, updateUIOptions } = React.useContext(RedBlockOptionsContext)
+  const currentMenus = uiOptions.menus
+  function updateMenusOption(newOptionsPart: Partial<RedBlockUIOptions['menus']>) {
+    updateUIOptions({
       menus: {
         ...currentMenus,
         ...newOptionsPart,

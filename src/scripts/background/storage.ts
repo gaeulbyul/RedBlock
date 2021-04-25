@@ -5,7 +5,14 @@ export {
   insertBadWord,
   removeBadWord,
 } from './storage/badwords.js'
-export { loadOptions, saveOptions, defaultOptions } from './storage/options.js'
+export {
+  loadOptions,
+  saveOptions,
+  defaultOptions,
+  loadUIOptions,
+  saveUIOptions,
+  defaultUIOptions,
+} from './storage/options.js'
 export {
   loadBookmarks,
   createBookmarkUserItem,

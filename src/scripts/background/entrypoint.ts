@@ -8,6 +8,7 @@ import { initializeWebRequest } from './webrequest.js'
 import BlockLimiter from './block-limiter.js'
 import { assertNever } from '../common.js'
 import { getCookieStoreIdFromTab } from './cookie-handler.js'
+import { loadUIOptions } from './storage.js'
 
 const chainblocker = new ChainBlocker()
 
@@ -162,7 +163,7 @@ function initialize() {
       return true
     }
   )
-  initializeContextMenu(chainblocker)
+  loadUIOptions().then(({ menus }) => initializeContextMenu(chainblocker, menus))
   initializeWebRequest()
 }
 

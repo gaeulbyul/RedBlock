@@ -189,10 +189,12 @@ function optionallyCreateMenu(
 
 let connectedChainblocker: ChainBlocker | null = null
 
-export async function initializeContextMenu(chainblocker: ChainBlocker) {
+export async function initializeContextMenu(
+  chainblocker: ChainBlocker,
+  enabledMenus: RedBlockUIOptions['menus']
+) {
   connectedChainblocker = chainblocker
   await menus.removeAll()
-  const { menus: enabledMenus } = await loadOptions()
   // 우클릭 - 유저
   optionallyCreateMenu(enabledMenus.chainBlockFollowers, {
     contexts: ['link'],
@@ -341,12 +343,12 @@ export async function initializeContextMenu(chainblocker: ChainBlocker) {
 }
 
 browser.storage.onChanged.addListener((changes: Partial<RedBlockStorageChanges>) => {
-  if (!changes.options) {
+  if (!changes.uiOptions) {
     return
   }
   if (!connectedChainblocker) {
     console.warn('warning: failed to refresh context menus (chainblocker missing?)')
     return
   }
-  initializeContextMenu(connectedChainblocker)
+  initializeContextMenu(connectedChainblocker, changes.uiOptions.newValue.menus)
 })

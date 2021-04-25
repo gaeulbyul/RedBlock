@@ -12,6 +12,8 @@ interface RedBlockStorage {
     firstPartyIsolationCompatibleMode: boolean
     throttleBlockRequest: boolean
     muteEvenAlreadyBlocking: boolean
+  }
+  uiOptions: {
     menus: {
       chainBlockFollowers: boolean
       chainBlockFollowings: boolean
@@ -21,11 +23,21 @@ interface RedBlockStorage {
       chainBlockRetweetersAndLikers: boolean
       chainBlockMentioned: boolean
     }
+    purposes: {
+      chainblock: boolean
+      unchainblock: boolean
+      export: boolean
+      lockpicker: boolean
+      chainunfollow: boolean
+      chainmute: boolean
+      unchainmute: boolean
+    }
   }
   badWords: BadWordItem[]
 }
 
 type RedBlockOptions = RedBlockStorage['options']
+type RedBlockUIOptions = RedBlockStorage['uiOptions']
 
 type RedBlockStorageChanges = {
   [key in keyof RedBlockStorage]: {

@@ -24,6 +24,19 @@ export async function saveOptions(newOptions: RedBlockOptions): Promise<void> {
   return browser.storage.local.set(storageObject as any)
 }
 
+export async function loadUIOptions(): Promise<RedBlockUIOptions> {
+  const { uiOptions } = ((await browser.storage.local.get(
+    'uiOptions'
+  )) as unknown) as RedBlockStorage
+  return Object.assign({}, defaultUIOptions, uiOptions)
+}
+
+export async function saveUIOptions(newOptions: RedBlockUIOptions): Promise<void> {
+  const uiOptions: RedBlockUIOptions = Object.assign({}, defaultOptions, newOptions)
+  const storageObject = { uiOptions }
+  return browser.storage.local.set(storageObject as any)
+}
+
 export const defaultOptions = Object.freeze<RedBlockOptions>({
   removeSessionAfterComplete: false,
   skipInactiveUser: 'never',
@@ -32,6 +45,9 @@ export const defaultOptions = Object.freeze<RedBlockOptions>({
   firstPartyIsolationCompatibleMode: false,
   throttleBlockRequest: false,
   muteEvenAlreadyBlocking: false,
+})
+
+export const defaultUIOptions = Object.freeze<RedBlockUIOptions>({
   menus: Object.freeze({
     chainBlockFollowers: true,
     chainBlockFollowings: true,
@@ -40,5 +56,14 @@ export const defaultOptions = Object.freeze<RedBlockOptions>({
     chainBlockLikers: true,
     chainBlockRetweetersAndLikers: true,
     chainBlockMentioned: true,
+  }),
+  purposes: Object.freeze({
+    chainblock: true,
+    unchainblock: true,
+    export: true,
+    lockpicker: true,
+    chainunfollow: true,
+    chainmute: true,
+    unchainmute: true,
   }),
 })
