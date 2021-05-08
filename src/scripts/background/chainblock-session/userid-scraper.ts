@@ -114,14 +114,30 @@ class TweetReactedUserScraper implements UserIdScraper {
   }
 }
 
+class ExportMyBlocklistScraper implements UserIdScraper {
+  private scrapingClient = UserScrapingAPI.UserScrapingAPIClient.fromCookieOptions(
+    this.request.retriever.cookieOptions
+  )
+  public totalCount: null
+  public constructor(private request: ExportMyBlocklistSessionRequest) {}
+  public async *[Symbol.asyncIterator]() {
+    yield* this.scrapingClient.getAllBlockedUsersIds()
+  }
+}
+
 // NOTE: 나중가면 export 외의 다른 목적으로 id scraper를 사용할 지도 모른다.
 export function initIdScraper(request: ExportableSessionRequest): UserIdScraper {
   const { target } = request
-  if (target.type === 'tweet_reaction') {
-    return new TweetReactedUserScraper(request as TweetReactionBlockSessionRequest)
+  switch (target.type) {
+    case 'export_my_blocklist':
+      return new ExportMyBlocklistScraper(request as ExportMyBlocklistSessionRequest)
+    case 'tweet_reaction':
+      return new TweetReactedUserScraper(request as TweetReactionBlockSessionRequest)
+    case 'follower':
+      if (target.list === 'mutual-followers') {
+        return new MutualFollowerScraper(request as FollowerBlockSessionRequest)
+      } else {
+        return new SimpleScraper(request as FollowerBlockSessionRequest)
+      }
   }
-  if (target.list === 'mutual-followers') {
-    return new MutualFollowerScraper(request as FollowerBlockSessionRequest)
-  }
-  return new SimpleScraper(request as FollowerBlockSessionRequest)
 }

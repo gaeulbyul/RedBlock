@@ -100,7 +100,7 @@ function ChainBlockSessionProgressTable(props: { sessionInfo: SessionInfo }) {
 function ChainBlockSessionItem(props: { sessionInfo: SessionInfo }) {
   const { sessionInfo } = props
   const { sessionId } = sessionInfo
-  const { purpose, target } = sessionInfo.request
+  const { purpose, target, executor } = sessionInfo.request
   const uiContext = React.useContext(UIContext)
   const classes = useStylesForSessionItem()
   const [expanded, setExpanded] = React.useState(false)
@@ -138,6 +138,10 @@ function ChainBlockSessionItem(props: { sessionInfo: SessionInfo }) {
     case 'user_search':
       user = null
       localizedTarget = i18n.getMessage('from_user_search_result')
+      break
+    case 'export_my_blocklist':
+      user = executor.user
+      localizedTarget = i18n.getMessage('exporting_my_blocklist')
       break
   }
   const localizedPurpose = i18n.getMessage(purpose.type)

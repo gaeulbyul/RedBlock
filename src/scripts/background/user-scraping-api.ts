@@ -74,6 +74,22 @@ export class UserScrapingAPIClient {
       }
     }
   }
+  public async *getAllBlockedUsersIds(): ScrapedUserIdsIterator {
+    let cursor = '-1'
+    while (cursor !== '0') {
+      try {
+        const json = await this.twClient.getBlockedUsersIds(cursor)
+        cursor = json.next_cursor_str
+        yield wrapEitherRight(json)
+        await sleep(DELAY)
+      } catch (error) {
+        yield {
+          ok: false,
+          error,
+        }
+      }
+    }
+  }
   public async *getUserSearchResults(query: string): ScrapedUsersIterator {
     let cursor: string | undefined
     while (true) {

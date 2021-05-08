@@ -51,6 +51,7 @@ type SessionTarget =
   | ImportSessionTarget
   | LockPickerSessionTarget
   | UserSearchBlockSessionTarget
+  | ExportMyBlocklistTarget
 
 interface FollowerSessionTarget {
   type: 'follower'
@@ -89,6 +90,10 @@ interface UserSearchBlockSessionTarget {
   query: string
 }
 
+interface ExportMyBlocklistTarget {
+  type: 'export_my_blocklist'
+}
+
 interface Actor {
   user: TwitterUser
   // TwClient는 클래스이기에 message로 주고받으면 메서드 등에 접근할 수 없다.
@@ -111,8 +116,12 @@ type SessionRequest =
   | ImportBlockSessionRequest
   | LockPickerSessionRequest
   | UserSearchBlockSessionRequest
+  | ExportMyBlocklistSessionRequest
 
-type ExportableSessionRequest = FollowerBlockSessionRequest | TweetReactionBlockSessionRequest
+type ExportableSessionRequest =
+  | FollowerBlockSessionRequest
+  | TweetReactionBlockSessionRequest
+  | ExportMyBlocklistSessionRequest
 
 interface FollowerBlockSessionRequest extends BaseRequest {
   purpose: Exclude<Purpose, LockPickerPurpose>
@@ -141,6 +150,11 @@ interface UserSearchBlockSessionRequest extends BaseRequest {
   // TODO: export는 나중으로 미루자
   purpose: Exclude<Purpose, ExportPurpose | LockPickerPurpose>
   target: UserSearchBlockSessionTarget
+}
+
+interface ExportMyBlocklistSessionRequest extends BaseRequest {
+  purpose: ExportPurpose
+  target: ExportMyBlocklistTarget
 }
 
 interface SessionInfo<ReqT = SessionRequest> {

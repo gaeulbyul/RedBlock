@@ -205,6 +205,14 @@ export class TwClient {
       stringify_ids: true,
     })
   }
+
+  public async getBlockedUsersIds(cursor = '-1'): Promise<UserIdsResponse> {
+    return await this.request1('get', '/blocks/ids.json', {
+      stringify_ids: true,
+      cursor,
+    })
+  }
+
   public async searchUsers(query: string, cursor?: string): Promise<APIv2Response> {
     return await this.request2('get', '/search/adaptive.json', {
       q: query,

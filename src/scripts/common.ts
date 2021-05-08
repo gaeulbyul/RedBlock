@@ -184,6 +184,7 @@ export function getCountOfUsersToBlock({ target }: SessionRequest): number | nul
     case 'import':
       return target.userIds.length + target.userNames.length
     case 'user_search':
+    case 'export_my_blocklist':
       return null
   }
 }

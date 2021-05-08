@@ -29,6 +29,8 @@ export function validateRequest(request: SessionRequest): TargetCheckResult {
       return checkImportBlockRequest(request as ImportBlockSessionRequest)
     case 'user_search':
       return checkUserSearchBlockRequest(request as UserSearchBlockSessionRequest)
+    case 'export_my_blocklist':
+      return TargetCheckResult.Ok
   }
 }
 
@@ -155,5 +157,7 @@ export function isSameTarget(target1: SessionTarget, target2: SessionTarget) {
       const givenQuery = (target2 as UserSearchBlockSessionTarget).query
       return target1.query === givenQuery
     }
+    case 'export_my_blocklist':
+      return true
   }
 }
