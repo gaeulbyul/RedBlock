@@ -277,7 +277,7 @@ function PopupApp({
     return () => {
       browser.runtime.onMessage.removeListener(messageListener)
     }
-  }, [])
+  }, [limiterStatus])
   React.useEffect(() => onStorageChanged('options', setRedBlockOptions), [])
   const runningSessionsTabIcon = (
     <M.Badge
