@@ -15,7 +15,7 @@
     "message": "Running"
   },
   "blocklist_page": {
-    "message": "Blocklist"
+    "message": "Blocklist Import/Export"
   },
   "miscellaneous": {
     "message": "Misc."
@@ -246,6 +246,9 @@
   },
   "target": {
     "message": "Target"
+  },
+  "blocklist": {
+    "message": "Blocklist"
   },
   "go_to_url": {
     "message": "Open $url$",

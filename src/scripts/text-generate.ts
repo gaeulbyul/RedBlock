@@ -1,5 +1,5 @@
 import { TargetCheckResult } from './background/target-checker.js'
-import { SessionStatus, getCountOfUsersToBlock } from './common.js'
+import { SessionStatus, getCountOfUsersToBlock, findNonLinkedMentionsFromTweet } from './common.js'
 
 const actionsThatNeedWarning: UserAction[] = ['Block', 'UnFollow', 'BlockAndUnBlock']
 
@@ -82,377 +82,6 @@ export function objToString(msg: DialogMessageObj): string {
   return result
 }
 
-function generateFollowerBlockConfirmMessage(
-  request: FollowerBlockSessionRequest
-): DialogMessageObj {
-  const { purpose } = request
-  const { user, list: targetList } = request.target
-  const targetUserName = user.screen_name
-  let count = getCountOfUsersToBlock(request) ?? '?'
-  const contents = []
-  const warnings = []
-  switch (targetList) {
-    case 'followers':
-      contents.push(
-        `${i18n.getMessage('target')}: ${i18n.getMessage('followers_with_targets_name_and_count', [
-          targetUserName,
-          count,
-        ])}`
-      )
-      break
-    case 'friends':
-      contents.push(
-        `${i18n.getMessage('target')}: ${i18n.getMessage('followings_with_targets_name_and_count', [
-          targetUserName,
-          count,
-        ])}`
-      )
-      break
-    case 'mutual-followers':
-      contents.push(
-        `${i18n.getMessage('target')}: ${i18n.getMessage(
-          'mutual_followers_of_xxx',
-          targetUserName
-        )}`
-      )
-      break
-  }
-  if (canBlockMyFollowers(purpose)) {
-    warnings.push(`\u26a0 ${i18n.getMessage('warning_maybe_you_block_your_followers')}`)
-  }
-  if (canBlockMyFollowings(purpose)) {
-    warnings.push(`\u26a0 ${i18n.getMessage('warning_maybe_you_block_your_followings')}`)
-  }
-  return {
-    title: titleByPurposeType(purpose),
-    contentLines: contents,
-    warningLines: warnings,
-  }
-}
-
-function generateTweetReactionBlockConfirmMessage(
-  request: TweetReactionBlockSessionRequest
-): DialogMessageObj {
-  const { purpose } = request
-  const {
-    blockRetweeters,
-    blockLikers,
-    blockMentionedUsers,
-    blockQuotedUsers,
-    blockNonLinkedMentions,
-  } = request.target
-  const contents = []
-  const warnings = []
-  const targets = []
-  if (blockRetweeters) {
-    targets.push(i18n.getMessage('retweet'))
-  }
-  if (blockLikers) {
-    targets.push(i18n.getMessage('like'))
-  }
-  if (blockMentionedUsers) {
-    targets.push(i18n.getMessage('mentioned'))
-  }
-  if (blockQuotedUsers) {
-    targets.push(i18n.getMessage('quoted'))
-  }
-  if (blockNonLinkedMentions) {
-    targets.push(i18n.getMessage('non_linked_mentions'))
-  }
-  contents.push(`${i18n.getMessage('block_target')}: ${targets.join(', ')}`)
-  if (canBlockMyFollowers(purpose)) {
-    warnings.push(`\u26a0 ${i18n.getMessage('warning_maybe_you_block_your_followers')}`)
-  }
-  if (canBlockMyFollowings(purpose)) {
-    warnings.push(`\u26a0 ${i18n.getMessage('warning_maybe_you_block_your_followings')}`)
-  }
-  return {
-    title: titleByPurposeType(purpose),
-    contentLines: contents,
-    warningLines: warnings,
-  }
-}
-
-function generateImportBlockConfirmMessage(request: ImportBlockSessionRequest): DialogMessageObj {
-  const usersCount = (
-    request.target.userIds.length + request.target.userNames.length
-  ).toLocaleString()
-  const contents = [`${i18n.getMessage('user_count')}: ${usersCount}`]
-  const warnings = []
-  if (request.target.source === 'text') {
-    const { userNames } = request.target
-    contents.push(`${i18n.getMessage('mentioned')}:`)
-    const max = 5
-    for (let i = 0; i < Math.min(userNames.length, max); i++) {
-      contents.push(`@${userNames[i]}`)
-    }
-    if (userNames.length > max) {
-      contents.push('etc...')
-    }
-  }
-  if (canBlockMyFollowers(request.purpose)) {
-    warnings.push(`\u26a0 ${i18n.getMessage('warning_maybe_you_block_your_followers')}`)
-  }
-  if (canBlockMyFollowings(request.purpose)) {
-    warnings.push(`\u26a0 ${i18n.getMessage('warning_maybe_you_block_your_followings')}`)
-  }
-  return {
-    title: titleByPurposeType(request.purpose),
-    contentLines: contents,
-    warningLines: warnings,
-  }
-}
-
-function generateLockPickerConfirmMessage(request: LockPickerSessionRequest): DialogMessageObj {
-  let title: string
-  const { purpose } = request
-  switch (purpose.protectedFollowers) {
-    case 'Block':
-      title = i18n.getMessage('confirm_lockpicker_block_title')
-      break
-    case 'BlockAndUnBlock':
-      title = i18n.getMessage('confirm_lockpicker_bnb_title')
-      break
-  }
-  return { title }
-}
-
-function generateUserSearchBlockConfirmMessage(
-  request: UserSearchBlockSessionRequest
-): DialogMessageObj {
-  const targetDescription = `${i18n.getMessage('query')}: '${request.target.query}'`
-  const warningLines = []
-  if (canBlockMyFollowers(request.purpose)) {
-    warningLines.push(`\u26a0 ${i18n.getMessage('warning_maybe_you_block_your_followers')}`)
-  }
-  if (canBlockMyFollowings(request.purpose)) {
-    warningLines.push(`\u26a0 ${i18n.getMessage('warning_maybe_you_block_your_followings')}`)
-  }
-  return {
-    title: titleByPurposeType(request.purpose),
-    contentLines: [targetDescription],
-    warningLines,
-  }
-}
-
-function generateExportingMyBlocklistConfirmMessage(
-  request: ExportMyBlocklistSessionRequest
-): DialogMessageObj {
-  const myUserName = request.executor.user.screen_name
-  return {
-    title: i18n.getMessage('confirm_export_title'),
-    contentLines: [i18n.getMessage('from_blocked_by_you', myUserName)],
-    warningLines: [],
-  }
-}
-
-export function generateConfirmMessage(request: SessionRequest): DialogMessageObj {
-  switch (request.target.type) {
-    case 'follower':
-      return generateFollowerBlockConfirmMessage(request as FollowerBlockSessionRequest)
-    case 'tweet_reaction':
-      return generateTweetReactionBlockConfirmMessage(request as TweetReactionBlockSessionRequest)
-    case 'lockpicker':
-      return generateLockPickerConfirmMessage(request as LockPickerSessionRequest)
-    case 'import':
-      return generateImportBlockConfirmMessage(request as ImportBlockSessionRequest)
-    case 'user_search':
-      return generateUserSearchBlockConfirmMessage(request as UserSearchBlockSessionRequest)
-    case 'export_my_blocklist':
-      return generateExportingMyBlocklistConfirmMessage(request as ExportMyBlocklistSessionRequest)
-  }
-}
-
-export function chainBlockResultNotification(sessionInfo: SessionInfo): string {
-  const { target } = sessionInfo.request
-  switch (target.type) {
-    case 'follower':
-      return followerBlockResultNotification(
-        sessionInfo as SessionInfo<FollowerBlockSessionRequest>
-      )
-    case 'tweet_reaction':
-      return tweetReactionBlockResultNotification(
-        sessionInfo as SessionInfo<TweetReactionBlockSessionRequest>
-      )
-    case 'lockpicker':
-      return lockpickerResultNotification(sessionInfo as SessionInfo<LockPickerSessionRequest>)
-    case 'import':
-      return importBlockResultNotification(sessionInfo as SessionInfo<ImportBlockSessionRequest>)
-    case 'user_search':
-      return userSearchBlockResultNotification(
-        sessionInfo as SessionInfo<UserSearchBlockSessionRequest>
-      )
-    case 'export_my_blocklist':
-      return exportingMyBlocklistResultNotification(
-        sessionInfo as SessionInfo<ExportMyBlocklistSessionRequest>
-      )
-  }
-}
-
-function followerBlockResultNotification(sessionInfo: SessionInfo<FollowerBlockSessionRequest>) {
-  const { purpose } = sessionInfo.request
-  const { success, already, skipped, failure, scraped } = sessionInfo.progress
-  let localizedPurposeCompleted: string
-  let howMany: string
-  let howManyAlready: string
-  switch (purpose.type) {
-    case 'chainblock':
-      howMany = i18n.getMessage('blocked_n_users', success.Block)
-      howManyAlready = `${i18n.getMessage('already_blocked')}: ${already}`
-      localizedPurposeCompleted = i18n.getMessage('chainblock_completed')
-      break
-    case 'unchainblock':
-      howMany = i18n.getMessage('unblocked_n_users', success.UnBlock)
-      howManyAlready = `${i18n.getMessage('already_unblocked')}: ${already}`
-      localizedPurposeCompleted = i18n.getMessage('unchainblock_completed')
-      break
-    case 'export':
-      howMany = i18n.getMessage('exported_n_users', scraped)
-      howManyAlready = ''
-      localizedPurposeCompleted = i18n.getMessage('export_completed')
-      break
-    case 'chainunfollow':
-      howMany = i18n.getMessage('unfollowed_n_users', success.UnFollow)
-      howManyAlready = ''
-      localizedPurposeCompleted = i18n.getMessage('lockpicker_completed')
-      break
-    case 'chainmute':
-      howMany = i18n.getMessage('muted_n_users', success.Mute)
-      howManyAlready = `${i18n.getMessage('already_muted')}: ${already}`
-      localizedPurposeCompleted = i18n.getMessage('chainmute_completed')
-      break
-    case 'unchainmute':
-      howMany = i18n.getMessage('unmuted_n_users', success.UnMute)
-      howManyAlready = `${i18n.getMessage('already_unmuted')}: ${already}`
-      localizedPurposeCompleted = i18n.getMessage('unchainmute_completed')
-      break
-  }
-  let message = `${localizedPurposeCompleted} ${howMany}\n`
-  if (howManyAlready) {
-    message += '('
-    message += `${howManyAlready}, `
-    message += `${i18n.getMessage('skipped')}: ${skipped}, `
-    message += `${i18n.getMessage('failed')}: ${failure}`
-    message += ')'
-  }
-  return message
-}
-
-function tweetReactionBlockResultNotification(
-  sessionInfo: SessionInfo<TweetReactionBlockSessionRequest>
-) {
-  const { purpose } = sessionInfo.request
-  const { success, skipped, failure } = sessionInfo.progress
-  let message = `${i18n.getMessage('chainblock_completed')} ${i18n.getMessage(
-    'blocked_n_users',
-    success.Block
-  )}.\n`
-  if (purpose.type !== 'export') {
-    message += '('
-    message += `${i18n.getMessage('skipped')}: ${skipped}, `
-    message += `${i18n.getMessage('failed')}: ${failure}`
-    message += ')'
-  }
-  return message
-}
-
-function importBlockResultNotification(sessionInfo: SessionInfo<ImportBlockSessionRequest>) {
-  const { purpose } = sessionInfo.request
-  const { success, already, skipped, failure } = sessionInfo.progress
-  let localizedPurposeCompleted = ''
-  let howMany = ''
-  let howManyAlready = ''
-  switch (purpose.type) {
-    case 'chainblock':
-      howMany = i18n.getMessage('blocked_n_users', success.Block)
-      howManyAlready = `${i18n.getMessage('already_blocked')}: ${already}`
-      localizedPurposeCompleted = i18n.getMessage('chainblock_completed')
-      break
-    case 'unchainblock':
-      howMany = i18n.getMessage('unblocked_n_users', success.UnBlock)
-      howManyAlready = `${i18n.getMessage('already_unblocked')}: ${already}`
-      localizedPurposeCompleted = i18n.getMessage('unchainblock_completed')
-      break
-  }
-  let message = `${localizedPurposeCompleted} ${howMany}\n`
-  message += '('
-  message += `${howManyAlready}, `
-  message += `${i18n.getMessage('skipped')}: ${skipped}, `
-  message += `${i18n.getMessage('failed')}: ${failure}`
-  message += ')'
-  return message
-}
-
-function lockpickerResultNotification(sessionInfo: SessionInfo<LockPickerSessionRequest>) {
-  const { success } = sessionInfo.progress
-  const localizedPurposeCompleted = i18n.getMessage('lockpicker_completed')
-  let howMany: string
-  switch (sessionInfo.request.purpose.protectedFollowers) {
-    case 'Block':
-      howMany = i18n.getMessage('blocked_n_users', success.Block)
-      break
-    case 'BlockAndUnBlock':
-      howMany = i18n.getMessage('bnbed_n_users', success.BlockAndUnBlock)
-      break
-  }
-  let message = `${localizedPurposeCompleted} ${howMany}\n`
-  return message
-}
-
-function userSearchBlockResultNotification(
-  sessionInfo: SessionInfo<UserSearchBlockSessionRequest>
-) {
-  const { purpose } = sessionInfo.request
-  const { success, already, skipped, failure } = sessionInfo.progress
-  let localizedPurposeCompleted: string
-  let howMany: string
-  let howManyAlready: string
-  switch (purpose.type) {
-    case 'chainblock':
-      howMany = i18n.getMessage('blocked_n_users', success.Block)
-      howManyAlready = `${i18n.getMessage('already_blocked')}: ${already}`
-      localizedPurposeCompleted = i18n.getMessage('chainblock_completed')
-      break
-    case 'unchainblock':
-      howMany = i18n.getMessage('unblocked_n_users', success.UnBlock)
-      howManyAlready = `${i18n.getMessage('already_unblocked')}: ${already}`
-      localizedPurposeCompleted = i18n.getMessage('unchainblock_completed')
-      break
-    case 'chainunfollow':
-      howMany = i18n.getMessage('unfollowed_n_users', success.Block)
-      howManyAlready = ''
-      localizedPurposeCompleted = i18n.getMessage('chainunfollow_completed')
-      break
-    case 'chainmute':
-      howMany = i18n.getMessage('muted_n_users', success.Mute)
-      howManyAlready = `${i18n.getMessage('already_muted')}: ${already}`
-      localizedPurposeCompleted = i18n.getMessage('chainmute_completed')
-      break
-    case 'unchainmute':
-      howMany = i18n.getMessage('unmuted_n_users', success.UnMute)
-      howManyAlready = `${i18n.getMessage('already_unmuted')}: ${already}`
-      localizedPurposeCompleted = i18n.getMessage('unchainmute_completed')
-      break
-  }
-  let message = `${localizedPurposeCompleted} ${howMany}\n`
-  if (howManyAlready) {
-    message += '('
-    message += `${howManyAlready}, `
-    message += `${i18n.getMessage('skipped')}: ${skipped}, `
-    message += `${i18n.getMessage('failed')}: ${failure}`
-    message += ')'
-  }
-
-  return message
-}
-
-function exportingMyBlocklistResultNotification(
-  sessionInfo: SessionInfo<ExportMyBlocklistSessionRequest>
-) {
-  const { scraped } = sessionInfo.progress
-  return `${i18n.getMessage('export_completed')} ${i18n.getMessage('exported_n_users', scraped)}\n`
-}
-
 export function checkResultToString(result: TargetCheckResult): string {
   switch (result) {
     case TargetCheckResult.Ok:
@@ -493,4 +122,140 @@ export function formatFollowsCount(followKind: FollowKind, count: number): strin
     case 'mutual-followers':
       return i18n.getMessage('mutual_followers')
   }
+}
+
+function describeReactionTargets(target: TweetReactionSessionTarget): string {
+  const reactionsToBlock: string[] = []
+  const { tweet } = target
+  const mentions = tweet.entities.user_mentions || []
+  const nonLinkedMentions = findNonLinkedMentionsFromTweet(tweet)
+  if (target.blockRetweeters) {
+    reactionsToBlock.push(`${i18n.getMessage('retweet')} (${tweet.retweet_count.toLocaleString()})`)
+  }
+  if (target.blockLikers) {
+    reactionsToBlock.push(`${i18n.getMessage('like')} (${tweet.favorite_count.toLocaleString()})`)
+  }
+  if (target.blockMentionedUsers) {
+    reactionsToBlock.push(`${i18n.getMessage('mentioned')} (${mentions.length.toLocaleString()})`)
+  }
+  if (target.blockQuotedUsers) {
+    reactionsToBlock.push(`${i18n.getMessage('quoted')} (${tweet.quote_count.toLocaleString()})`)
+  }
+  if (target.blockNonLinkedMentions) {
+    reactionsToBlock.push(
+      `${i18n.getMessage('non_linked_mentions')} (${nonLinkedMentions.length.toLocaleString()})`
+    )
+  }
+  return reactionsToBlock.join(', ')
+}
+
+function describeTarget({ target }: SessionRequest): string {
+  // @ts-ignore
+  const count = getCountOfUsersToBlock({ target })
+  switch (target.type) {
+    case 'follower':
+      switch (target.list) {
+        case 'followers':
+          return i18n.getMessage('followers_with_targets_name_and_count', [
+            target.user.screen_name,
+            count!,
+          ])
+        case 'friends':
+          return i18n.getMessage('followings_with_targets_name_and_count', [
+            target.user.screen_name,
+            count!,
+          ])
+        case 'mutual-followers':
+          return i18n.getMessage('mutual_followers_with_targets_name', target.user.screen_name)
+      }
+    case 'tweet_reaction':
+      return describeReactionTargets(target)
+    case 'import':
+      return i18n.getMessage('from_imported_blocklist')
+    case 'lockpicker':
+      return `${i18n.getMessage('lockpicker')} (@${target.user.screen_name})`
+    case 'user_search':
+      return `${i18n.getMessage('from_user_search_result')} (${i18n.getMessage('query')}: ${
+        target.query
+      })`
+    case 'export_my_blocklist':
+      return i18n.getMessage('exporting_my_blocklist')
+  }
+}
+
+export function generateConfirmMessage(request: SessionRequest): DialogMessageObj {
+  const target = `${i18n.getMessage('target')}: ${describeTarget(request)}`
+  const warnings: string[] = []
+  if (canBlockMyFollowers(request.purpose)) {
+    warnings.push(`\u26a0 ${i18n.getMessage('warning_maybe_you_block_your_followers')}`)
+  }
+  if (canBlockMyFollowings(request.purpose)) {
+    warnings.push(`\u26a0 ${i18n.getMessage('warning_maybe_you_block_your_followings')}`)
+  }
+  return {
+    title: titleByPurposeType(request.purpose),
+    contentLines: [target],
+    warningLines: warnings,
+  }
+}
+
+export function generateSessionCompleteNotificationMessage(sessionInfo: SessionInfo): string {
+  const { purpose } = sessionInfo.request
+  const { success, already, skipped, failure, scraped } = sessionInfo.progress
+  let localizedPurposeCompleted: string
+  let howMany: string
+  let howManyAlready: string
+  switch (purpose.type) {
+    case 'chainblock':
+      howMany = i18n.getMessage('blocked_n_users', success.Block)
+      howManyAlready = `${i18n.getMessage('already_blocked')}: ${already}`
+      localizedPurposeCompleted = i18n.getMessage('chainblock_completed')
+      break
+    case 'unchainblock':
+      howMany = i18n.getMessage('unblocked_n_users', success.UnBlock)
+      howManyAlready = `${i18n.getMessage('already_unblocked')}: ${already}`
+      localizedPurposeCompleted = i18n.getMessage('unchainblock_completed')
+      break
+    case 'export':
+      howMany = i18n.getMessage('exported_n_users', scraped)
+      howManyAlready = ''
+      localizedPurposeCompleted = i18n.getMessage('export_completed')
+      break
+    case 'chainunfollow':
+      howMany = i18n.getMessage('unfollowed_n_users', success.UnFollow)
+      howManyAlready = ''
+      localizedPurposeCompleted = i18n.getMessage('lockpicker_completed')
+      break
+    case 'chainmute':
+      howMany = i18n.getMessage('muted_n_users', success.Mute)
+      howManyAlready = `${i18n.getMessage('already_muted')}: ${already}`
+      localizedPurposeCompleted = i18n.getMessage('chainmute_completed')
+      break
+    case 'unchainmute':
+      howMany = i18n.getMessage('unmuted_n_users', success.UnMute)
+      howManyAlready = `${i18n.getMessage('already_unmuted')}: ${already}`
+      localizedPurposeCompleted = i18n.getMessage('unchainmute_completed')
+      break
+    case 'lockpicker':
+      switch (purpose.protectedFollowers) {
+        case 'Block':
+          howMany = i18n.getMessage('blocked_n_users', success.Block)
+          break
+        case 'BlockAndUnBlock':
+          howMany = i18n.getMessage('bnbed_n_users', success.BlockAndUnBlock)
+          break
+      }
+      howManyAlready = ''
+      localizedPurposeCompleted = i18n.getMessage('lockpicker_completed')
+      break
+  }
+  let message = `${localizedPurposeCompleted} ${howMany}\n`
+  if (howManyAlready) {
+    message += '('
+    message += `${howManyAlready}, `
+    message += `${i18n.getMessage('skipped')}: ${skipped}, `
+    message += `${i18n.getMessage('failed')}: ${failure}`
+    message += ')'
+  }
+  return message
 }

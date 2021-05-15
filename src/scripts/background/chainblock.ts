@@ -37,7 +37,7 @@ export default class ChainBlocker {
     })
     session.eventEmitter.on('complete', async info => {
       const { sessionId } = info
-      const message = TextGenerate.chainBlockResultNotification(info)
+      const message = TextGenerate.generateSessionCompleteNotificationMessage(info)
       notify(message)
       this.startRemainingSessions()
       this.updateBadge()

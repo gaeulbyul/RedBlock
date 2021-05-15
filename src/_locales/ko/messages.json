@@ -15,7 +15,7 @@
     "message": "실행중인 세션"
   },
   "blocklist_page": {
-    "message": "차단목록"
+    "message": "차단목록 가져오기/내보내기"
   },
   "miscellaneous": {
     "message": "기타 도구"
@@ -246,6 +246,9 @@
   },
   "target": {
     "message": "대상"
+  },
+  "blocklist": {
+    "message": "차단목록"
   },
   "go_to_url": {
     "message": "$url$로 이동",
