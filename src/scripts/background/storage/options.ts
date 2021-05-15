@@ -9,6 +9,7 @@ function deleteUnusedOptions(options: RedBlockOptions | null) {
   delete optionsAsAny.enableRailgun
   delete optionsAsAny.useStandardBlockAPI
   delete optionsAsAny.enableChainMute
+  delete optionsAsAny.throttleBlockRequest
 }
 
 export async function loadOptions(): Promise<RedBlockOptions> {
@@ -43,7 +44,7 @@ export const defaultOptions = Object.freeze<RedBlockOptions>({
   revealBioBlockMode: false,
   enableAntiBlock: false,
   firstPartyIsolationCompatibleMode: false,
-  throttleBlockRequest: false,
+  delayBlockRequest: 0,
   muteEvenAlreadyBlocking: false,
 })
 

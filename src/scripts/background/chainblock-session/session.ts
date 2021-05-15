@@ -263,10 +263,21 @@ export class ChainBlockSession extends BaseSession {
               default:
                 assertNever(whatToDo)
             }
-            if (this.request.options.throttleBlockRequest && miniBuffer.length >= 1) {
+            if (this.request.options.delayBlockRequest > 0 && miniBuffer.length >= 1) {
               await Promise.allSettled(miniBuffer)
               miniBuffer.length = 0
-              await sleep(1000)
+              // 단위가 초(second)이므로 밀리초(ms)단위로 쓰기 위해 곱한다.
+              // 그냥 sleep을 하면 끝나는동안 shouldStop을 체크하지 못하므로
+              // 조금씩 sleep하면서 체크하도록 한다.
+              const delay = this.request.options.delayBlockRequest * 1000
+              const waitUntil = Date.now() + delay
+              while (Date.now() < waitUntil) {
+                if (this.shouldStop) {
+                  stopped = true
+                  break
+                }
+                await sleep(100)
+              }
             }
           }
           await Promise.allSettled([...miniBuffer, ...promisesBuffer])

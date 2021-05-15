@@ -10,7 +10,7 @@ interface RedBlockStorage {
     revealBioBlockMode: boolean
     enableAntiBlock: boolean
     firstPartyIsolationCompatibleMode: boolean
-    throttleBlockRequest: boolean
+    delayBlockRequest: number
     muteEvenAlreadyBlocking: boolean
   }
   uiOptions: {

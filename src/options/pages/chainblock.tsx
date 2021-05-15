@@ -3,6 +3,42 @@ import { RedBlockOptionsContext } from './contexts.js'
 const M = MaterialUI
 const T = MaterialUI.Typography
 
+function BlockDelaySlider() {
+  const {
+    options: { delayBlockRequest },
+    updateOptions,
+  } = React.useContext(RedBlockOptionsContext)
+  function onChange(_event: unknown, newValue_: number | number[]) {
+    const newValue = typeof newValue_ === 'number' ? newValue_ : newValue_[0]
+    updateOptions({
+      delayBlockRequest: newValue,
+    })
+  }
+  function onChangeCommitted(_event: unknown, newValue_: number | number[]) {
+    const newValue = typeof newValue_ === 'number' ? newValue_ : newValue_[0]
+    updateOptions({
+      delayBlockRequest: newValue,
+    })
+  }
+  return (
+    <M.FormControl>
+      <M.FormLabel>
+        <T>
+          {i18n.getMessage('throttle_block')} (+{delayBlockRequest}s)
+        </T>
+      </M.FormLabel>
+      <M.Slider
+        {...{ onChange, onChangeCommitted }}
+        value={delayBlockRequest}
+        min={0}
+        max={10}
+        step={0.1}
+        valueLabelDisplay="auto"
+      />
+    </M.FormControl>
+  )
+}
+
 function ChainBlockOptionsPaper() {
   const { options, updateOptions } = React.useContext(RedBlockOptionsContext)
   const inactivePeriods: Array<[InactivePeriod, string]> = [
@@ -34,18 +70,6 @@ function ChainBlockOptionsPaper() {
               control={<M.Checkbox size="small" />}
               onChange={(_event, checked) =>
                 updateOptions({
-                  throttleBlockRequest: checked,
-                })
-              }
-              checked={options.throttleBlockRequest}
-              label={i18n.getMessage('throttle_block')}
-            />
-          </M.FormGroup>
-          <M.FormGroup>
-            <M.FormControlLabel
-              control={<M.Checkbox size="small" />}
-              onChange={(_event, checked) =>
-                updateOptions({
                   muteEvenAlreadyBlocking: checked,
                 })
               }
@@ -53,6 +77,9 @@ function ChainBlockOptionsPaper() {
               label={i18n.getMessage('mute_even_already_blocked')}
             />
           </M.FormGroup>
+          <br />
+          <BlockDelaySlider />
+          <br />
           <M.FormControl>
             <M.FormLabel>
               <T>{i18n.getMessage('skip_inactive_users')}</T>

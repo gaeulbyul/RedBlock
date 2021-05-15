@@ -30,15 +30,17 @@ function OptionsApp() {
   const [options, setOptions] = React.useState<RedBlockOptions>(Storage.defaultOptions)
   const [uiOptions, setUIOptions] = React.useState<RedBlockUIOptions>(Storage.defaultUIOptions)
   const [tabPage, setTabPage] = React.useState<OptionsTabPage>('chainblock')
+  const throttledSaveOptions = _.throttle(
+    (newOptions: RedBlockOptions) => Storage.saveOptions(newOptions),
+    50
+  )
   async function updateOptions(newOptionsPart: Partial<RedBlockOptions>) {
     const newOptions: RedBlockOptions = { ...options, ...newOptionsPart }
-    await Storage.saveOptions(newOptions)
-    setOptions(newOptions)
+    throttledSaveOptions(newOptions)
   }
   async function updateUIOptions(newOptionsPart: Partial<RedBlockUIOptions>) {
     const newOptions: RedBlockUIOptions = { ...uiOptions, ...newOptionsPart }
     await Storage.saveUIOptions(newOptions)
-    setUIOptions(newOptions)
   }
   React.useEffect(() => {
     Storage.loadOptions().then(setOptions)
