@@ -191,10 +191,3 @@ hr {
   font-size: smaller;
   color: var(--warning-text-color);
 }
-
-footer.info {
-  padding: 10px 20px;
-  border-top: 1px solid var(--mui-color-divider);
-  text-align: right;
-  font-size: small;
-}

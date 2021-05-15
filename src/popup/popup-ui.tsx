@@ -38,6 +38,11 @@ const UI_UPDATE_DELAY = 750
 
 const M = MaterialUI
 
+function getVersionAndName() {
+  const manifest = browser.runtime.getManifest()
+  return `${manifest.name} v${manifest.version}`
+}
+
 const PopupTopTab = MaterialUI.withStyles({
   root: {
     minWidth: '48px',
@@ -162,6 +167,8 @@ function PopupUITopMenu(props: {
         </M.ListItemIcon>
         {i18n.getMessage('open_settings_ui')}
       </M.MenuItem>
+      <M.Divider />
+      <M.MenuItem disabled>{getVersionAndName()}</M.MenuItem>
     </M.Menu>
   )
 }
@@ -427,12 +434,6 @@ function PopupApp({
   )
 }
 
-function showVersionOnFooter() {
-  const manifest = browser.runtime.getManifest()
-  const footer = document.querySelector('footer.info')!
-  footer.textContent = `${manifest.name} v${manifest.version}`
-}
-
 export async function initializeUI() {
   const initialRedBlockOptions = await loadOptions()
   const popupOpenedInTab = /\bistab=1\b/.test(location.search)
@@ -484,7 +485,6 @@ export async function initializeUI() {
     />
   )
   ReactDOM.render(app, appRoot)
-  showVersionOnFooter()
   if (popupOpenedInTab) {
     document.body.classList.add('ui-tab')
   } else {
