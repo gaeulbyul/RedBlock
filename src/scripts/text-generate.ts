@@ -235,6 +235,17 @@ function generateUserSearchBlockConfirmMessage(
   }
 }
 
+function generateExportingMyBlocklistConfirmMessage(
+  request: ExportMyBlocklistSessionRequest
+): DialogMessageObj {
+  const myUserName = request.executor.user.screen_name
+  return {
+    title: i18n.getMessage('confirm_export_title'),
+    contentLines: [i18n.getMessage('from_blocked_by_you', myUserName)],
+    warningLines: [],
+  }
+}
+
 export function generateConfirmMessage(request: SessionRequest): DialogMessageObj {
   switch (request.target.type) {
     case 'follower':
@@ -247,6 +258,8 @@ export function generateConfirmMessage(request: SessionRequest): DialogMessageOb
       return generateImportBlockConfirmMessage(request as ImportBlockSessionRequest)
     case 'user_search':
       return generateUserSearchBlockConfirmMessage(request as UserSearchBlockSessionRequest)
+    case 'export_my_blocklist':
+      return generateExportingMyBlocklistConfirmMessage(request as ExportMyBlocklistSessionRequest)
   }
 }
 
@@ -268,6 +281,10 @@ export function chainBlockResultNotification(sessionInfo: SessionInfo): string {
     case 'user_search':
       return userSearchBlockResultNotification(
         sessionInfo as SessionInfo<UserSearchBlockSessionRequest>
+      )
+    case 'export_my_blocklist':
+      return exportingMyBlocklistResultNotification(
+        sessionInfo as SessionInfo<ExportMyBlocklistSessionRequest>
       )
   }
 }
@@ -427,6 +444,13 @@ function userSearchBlockResultNotification(
   }
 
   return message
+}
+
+function exportingMyBlocklistResultNotification(
+  sessionInfo: SessionInfo<ExportMyBlocklistSessionRequest>
+) {
+  const { scraped } = sessionInfo.progress
+  return `${i18n.getMessage('export_completed')} ${i18n.getMessage('exported_n_users', scraped)}\n`
 }
 
 export function checkResultToString(result: TargetCheckResult): string {

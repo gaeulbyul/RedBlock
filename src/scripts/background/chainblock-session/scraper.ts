@@ -240,6 +240,9 @@ export function initScraper(request: SessionRequest): UserScraper {
       } else {
         return new SimpleScraper(request as FollowerBlockSessionRequest)
       }
+    case 'export_my_blocklist':
+      // 오로지 export만 쓰므로 userScraper는 안 쓴다 (user-id scraper만 쓰지)
+      throw new Error('unreachable')
     default:
       assertNever(target)
   }

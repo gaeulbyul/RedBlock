@@ -24,7 +24,7 @@ interface SessionEventEmitter {
 }
 
 // 더 나은 타입이름 없을까...
-type ApiKind = FollowKind | 'tweet-reactions' | 'lookup-users' | 'search'
+type ApiKind = FollowKind | 'tweet-reactions' | 'lookup-users' | 'search' | 'block-ids'
 
 function extractRateLimit(
   limitStatuses: TwitterAPI.LimitStatus,
@@ -43,6 +43,8 @@ function extractRateLimit(
       return limitStatuses.users['/users/lookup']
     case 'search':
       return limitStatuses.search['/search/adaptive']
+    case 'block-ids':
+      return limitStatuses.blocks['/blocks/ids']
   }
 }
 
@@ -113,6 +115,9 @@ abstract class BaseSession {
         break
       case 'user_search':
         apiKind = 'search'
+        break
+      case 'export_my_blocklist':
+        apiKind = 'block-ids'
         break
     }
     sessionInfo.status = SessionStatus.RateLimited
@@ -257,7 +262,6 @@ export class ChainBlockSession extends BaseSession {
                 break
               default:
                 assertNever(whatToDo)
-                break
             }
             if (this.request.options.throttleBlockRequest && miniBuffer.length >= 1) {
               await Promise.allSettled(miniBuffer)
@@ -359,16 +363,23 @@ export class ExportSession extends BaseSession {
   }
   private generateFilename(target: ExportableSessionRequest['target']): string {
     const now = dayjs()
+    let prefix: string
     let targetStr: string
     switch (target.type) {
       case 'follower':
+        prefix = 'blocklist-'
         targetStr = `user-${target.user.screen_name}`
         break
       case 'tweet_reaction':
+        prefix = 'blocklist-'
         targetStr = `tweet-${target.tweet.user.screen_name}-${target.tweet.id_str}`
+        break
+      case 'export_my_blocklist':
+        prefix = 'blocked-users'
+        targetStr = ''
         break
     }
     const datetime = now.format('YYYY-MM-DD_HHmmss')
-    return `blocklist-${targetStr}[${datetime}].csv`
+    return `${prefix}${targetStr}[${datetime}].csv`
   }
 }

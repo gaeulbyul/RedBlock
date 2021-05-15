@@ -131,11 +131,21 @@ export function RBDialog(props: {
 }
 
 // from https://material-ui.com/components/tabs/#SimpleTabs.tsx
-export function TabPanel(props: { children?: React.ReactNode; index: any; value: any }) {
+export function TabPanel(props: {
+  children?: React.ReactNode
+  index: any
+  value: any
+  noPadding?: boolean
+}) {
   const { children, value, index } = props
+  const padding = props.noPadding ? 0 : 1
   return (
     <T component="div" role="tabpanel" hidden={value !== index}>
-      {value === index && <M.Box p={1}>{children}</M.Box>}
+      {value === index && (
+        <M.Box py={1} px={padding}>
+          {children}
+        </M.Box>
+      )}
     </T>
   )
 }

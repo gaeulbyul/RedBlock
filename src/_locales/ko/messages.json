@@ -104,10 +104,13 @@
     }
   },
   "from_imported_blocklist": {
-    "message": "차단목록에서"
+    "message": "차단목록 가져오기"
   },
   "from_user_search_result": {
     "message": "유저 검색결과에서"
+  },
+  "exporting_my_blocklist": {
+    "message": "내 차단목록 내보내기"
   },
   "session_status_initial": {
     "message": "대기 중"
@@ -390,6 +393,14 @@
   },
   "confirm_export_title": {
     "message": "차단목록 생성을 실행하시겠습니까?"
+  },
+  "from_blocked_by_you": {
+    "message": "내가(@$myname$) 차단한 유저",
+    "placeholders": {
+      "myname": {
+        "content": "$1"
+      }
+    }
   },
   "user_count": {
     "message": "유저수"
@@ -737,6 +748,9 @@
   },
   "export_description": {
     "message": "유저들을 수집하여 차단목록 파일을 만들어냅니다. (100,000명까지)"
+  },
+  "exporting_my_blocklist_description": {
+    "message": "내가 차단한 유저목록 파일을 만들어냅니다. (100,000명까지)"
   },
   "save": {
     "message": "저장하기"

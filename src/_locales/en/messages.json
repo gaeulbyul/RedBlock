@@ -104,10 +104,13 @@
     }
   },
   "from_imported_blocklist": {
-    "message": "From blocklist"
+    "message": "Importing blocklist"
   },
   "from_user_search_result": {
     "message": "From user search result"
+  },
+  "exporting_my_blocklist": {
+    "message": "Exporting your blocklist"
   },
   "session_status_initial": {
     "message": "Waiting..."
@@ -390,6 +393,14 @@
   },
   "confirm_export_title": {
     "message": "Do you want to export user lists?"
+  },
+  "from_blocked_by_you": {
+    "message": "From: Users that blocked by you(@$myname$).",
+    "placeholders": {
+      "myname": {
+        "content": "$1"
+      }
+    }
   },
   "user_count": {
     "message": "Users"
@@ -736,7 +747,10 @@
     }
   },
   "export_description": {
-    "message": "Generate a blocklist file from users."
+    "message": "Generate a blocklist file from users. (up to 100,000)"
+  },
+  "exporting_my_blocklist_description": {
+    "message": "Generate a blocklist file that contains a list of users blocked by you. (up to 100,000)"
   },
   "save": {
     "message": "Save"
