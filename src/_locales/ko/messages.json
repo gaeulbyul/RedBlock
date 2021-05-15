@@ -749,6 +749,9 @@
   "export_description": {
     "message": "유저들을 수집하여 차단목록 파일을 만들어냅니다. (100,000명까지)"
   },
+  "exporting_my_blocklist_description": {
+    "message": "내가 차단한 유저목록 파일을 만들어냅니다. (100,000명까지)"
+  },
   "save": {
     "message": "저장하기"
   },

@@ -10,6 +10,7 @@ import {
   BigExecuteButton,
   PurposeSelectionUI,
   RequestCheckResultUI,
+  TabPanel,
 } from './components.js'
 import { PageEnum } from './pages.js'
 import { generateConfirmMessage } from '../../scripts/text-generate.js'
@@ -24,7 +25,7 @@ import { TargetCheckResult, validateRequest } from '../../scripts/background/tar
 
 const M = MaterialUI
 
-function useSessionRequest(): ImportBlockSessionRequest {
+function useImportSessionRequest(): ImportBlockSessionRequest {
   const { purpose, blocklist } = React.useContext(ImportChainBlockPageStatesContext)
   const { extraTarget } = React.useContext(ExtraTargetContext)
   const myself = React.useContext(MyselfContext)!
@@ -38,6 +39,25 @@ function useSessionRequest(): ImportBlockSessionRequest {
       userNames: Array.from(blocklist.userNames),
     },
     extraTarget,
+    retriever: myself,
+    executor: myself,
+    options,
+  }
+}
+
+function useExportSessionRequest(): ExportMyBlocklistSessionRequest {
+  const myself = React.useContext(MyselfContext)!
+  const options = React.useContext(RedBlockOptionsContext)
+  return {
+    purpose: {
+      type: 'export',
+    },
+    target: {
+      type: 'export_my_blocklist',
+    },
+    extraTarget: {
+      bioBlock: 'never',
+    },
     retriever: myself,
     executor: myself,
     options,
@@ -66,7 +86,7 @@ function TargetOptionsUI() {
   )
 }
 
-export default function BlocklistPage() {
+function ImportBlocklistUI() {
   const uiContext = React.useContext(UIContext)
   const limiterStatus = React.useContext(BlockLimiterContext)
   const { openDialog } = React.useContext(UIContext)
@@ -78,7 +98,7 @@ export default function BlocklistPage() {
     purpose,
   } = React.useContext(ImportChainBlockPageStatesContext)
   const [fileInput] = React.useState(React.createRef<HTMLInputElement>())
-  const request = useSessionRequest()
+  const request = useImportSessionRequest()
   const blocklistSize = blocklist.userIds.size + blocklist.userNames.size
   function isAvailable() {
     if (limiterStatus.remained <= 0) {
@@ -214,5 +234,52 @@ export default function BlocklistPage() {
       <RequestCheckResultUI {...{ request }} />
       <BigExecuteButton {...{ purpose }} type="submit" disabled={!isAvailable()} />
     </form>
+  )
+}
+
+function ExportBlocklistUI() {
+  const request = useExportSessionRequest()
+  const uiContext = React.useContext(UIContext)
+  const { purpose } = request
+  function executeSession() {
+    if (!request) {
+      uiContext.openSnackBar(i18n.getMessage('error_occured_check_login'))
+      return
+    }
+    uiContext.openDialog({
+      dialogType: 'confirm',
+      message: generateConfirmMessage(request),
+      callbackOnOk() {
+        startNewChainBlockSession<ExportMyBlocklistSessionRequest>(request)
+      },
+    })
+  }
+  return (
+    <div style={{ width: '100%' }}>
+      <RBExpansionPanel summary={i18n.getMessage('exporting_my_blocklist')} defaultExpanded>
+        <p>{i18n.getMessage('exporting_my_blocklist_description')}</p>
+      </RBExpansionPanel>
+      <BigExecuteButton disabled={false} {...{ purpose }} onClick={executeSession} />
+    </div>
+  )
+}
+
+type BlocklistPageTab = 'importing' | 'exporting'
+
+export default function BlocklistPage() {
+  const [tab, setTab] = React.useState<BlocklistPageTab>('importing')
+  return (
+    <div style={{ width: '100%' }}>
+      <M.Tabs variant="fullWidth" value={tab} onChange={(_ev, val) => setTab(val)}>
+        <M.Tab label="Import" value="importing" />
+        <M.Tab label="Export" value="exporting" />
+      </M.Tabs>
+      <TabPanel value={tab} index="importing" noPadding>
+        <ImportBlocklistUI />
+      </TabPanel>
+      <TabPanel value={tab} index="exporting" noPadding>
+        <ExportBlocklistUI />
+      </TabPanel>
+    </div>
   )
 }

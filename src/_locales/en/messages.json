@@ -747,7 +747,10 @@
     }
   },
   "export_description": {
-    "message": "Generate a blocklist file from users."
+    "message": "Generate a blocklist file from users. (up to 100,000)"
+  },
+  "exporting_my_blocklist_description": {
+    "message": "Generate a blocklist file that contains a list of users blocked by you. (up to 100,000)"
   },
   "save": {
     "message": "Save"
