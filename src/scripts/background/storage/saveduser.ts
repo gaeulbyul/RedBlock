@@ -1,11 +1,11 @@
-import { TwitterUserMap, deleteSensitiveInfo } from '../../common.js'
+import { TwitterUserMap, stripSensitiveInfo } from '../../common.js'
 
 export async function loadUsers(): Promise<TwitterUserMap> {
   const { savedUsers } = ((await browser.storage.local.get(
     'savedUsers'
   )) as unknown) as RedBlockStorage
   if (savedUsers) {
-    return TwitterUserMap.fromUsersArray(savedUsers.map(deleteSensitiveInfo))
+    return TwitterUserMap.fromUsersArray(savedUsers.map(stripSensitiveInfo))
   } else {
     return new TwitterUserMap()
   }

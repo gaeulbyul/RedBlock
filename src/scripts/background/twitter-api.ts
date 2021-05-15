@@ -1,4 +1,5 @@
 import { getAllCookies, generateCookiesForAltAccountRequest } from './cookie-handler.js'
+import { stripSensitiveInfo } from '../common.js'
 
 const BEARER_TOKEN = `AAAAAAAAAAAAAAAAAAAAANRILgAAAAAAnNwIzUejRCOuH5E6I8xnZz4puTs%3D1Zv7ttfk8LF81IUq16cHjhLTvJu4FA33AGWWjCpTnA`
 
@@ -18,6 +19,17 @@ interface ErrorResponse {
 type GetMultipleUsersOption = { user_id: string[] } | { screen_name: string[] }
 type GetSingleUserOption = { user_id: string } | { screen_name: string }
 
+function stripSensitiveInfoFromArrayOfUsers(users: TwitterUser[]): TwitterUser[] {
+  return users.map(stripSensitiveInfo)
+}
+
+function stripSensitiveInfoFromResponse(response: UserListResponse): UserListResponse {
+  return {
+    users: stripSensitiveInfoFromArrayOfUsers(response.users),
+    next_cursor_str: response.next_cursor_str,
+  }
+}
+
 export class TwClient {
   public prefix = 'api.twitter.com'
   // prefix = 'twitter.com/i/api'
@@ -27,7 +39,7 @@ export class TwClient {
     return { actAsUserId, cookieStoreId }
   }
   public async getMyself(): Promise<TwitterUser> {
-    return await this.request1('get', '/account/verify_credentials.json')
+    return await this.request1('get', '/account/verify_credentials.json').then(stripSensitiveInfo)
   }
   public async getRateLimitStatus(): Promise<LimitStatus> {
     const response = await this.request1('get', '/application/rate_limit_status.json')
@@ -115,7 +127,7 @@ export class TwClient {
       skip_status: false,
       include_user_entities: false,
       cursor,
-    })
+    }).then(stripSensitiveInfoFromResponse)
   }
   public async getMultipleUsers(options: GetMultipleUsersOption): Promise<TwitterUser[]> {
     const user_id = 'user_id' in options ? options.user_id : []
@@ -135,7 +147,9 @@ export class TwClient {
     } else {
       throw new Error('unreachable')
     }
-    return await this.request1('get', '/users/lookup.json', requestParams)
+    return await this.request1('get', '/users/lookup.json', requestParams).then(
+      stripSensitiveInfoFromArrayOfUsers
+    )
   }
   public async getSingleUser(options: GetSingleUserOption): Promise<TwitterUser> {
     const requestParams: URLParamsObj = {
@@ -147,7 +161,7 @@ export class TwClient {
     } else if ('screen_name' in options) {
       requestParams.screen_name = options.screen_name
     }
-    return await this.request1('get', '/users/show.json', requestParams)
+    return await this.request1('get', '/users/show.json', requestParams).then(stripSensitiveInfo)
   }
 
   public async getFriendships(users: TwitterUser[]): Promise<FriendshipResponse> {
@@ -194,7 +208,7 @@ export class TwClient {
       id: tweet.id_str,
       count: 200,
       cursor,
-    })
+    }).then(stripSensitiveInfoFromResponse)
   }
 
   public async getRetweetersIds(tweet: Tweet): Promise<UserIdsResponse> {
