@@ -1,42 +1,62 @@
-# Red Block
+[README in English](./README.en.md)
 
-- Firefox: https://addons.mozilla.org/en-US/firefox/addon/red-block/
+---
+
+# Red Block (레드블락)
+
+- Firefox: https://addons.mozilla.org/ko/firefox/addon/red-block/
 - Chrome/Chromium: https://chrome.google.com/webstore/detail/red-block/knjpopecjigkkaddmoahjcfpbgedkibf
-- Edge: https://microsoftedge.microsoft.com/addons/detail/red-block/pfafjkemefoedhcdlhbniejjealpglbj
+- MS Edge: https://microsoftedge.microsoft.com/addons/detail/red-block/pfafjkemefoedhcdlhbniejjealpglbj
+- Whale: https://store.whale.naver.com/detail/laokmejddmpcelebbplgenhdgafelmgn
 
-Red Block(레드블락)은 트위터에서 특정 사용자의 팔로워를 일괄적으로 차단하는 [Twitter Block Chain](https://github.com/satsukitv/twitter-block-chain) (aka. 체인블락)이나 [BlockThemAll](https://github.com/u1-liquid/BlockThemAll)을 대체할 수 있는 웹 브라우저 확장기능입니다.
-
-Red Block is an extension for blocking users from Twitter. It is intended to replace [Twitter Block Chain](https://github.com/satsukitv/twitter-block-chain) or [BlockThemAll](https://github.com/u1-liquid/BlockThemAll).
-
-## 주의!!
-
-(2020-08-16)
-
-트위터에서 (레드블락이 내부적으로 사용했던) `block_all` API를 종료하게 되었습니다. 이 때문에 레드블락은 공식 차단API를 사용하게 되어 강제 로그아웃이나 계정정지 등의 문제가 발생할 가능성이 있습니다. 이러한 문제를 줄이고자 **레드블락은 500명 미만의 유저만 차단하는 제한을 두게 습니다.**
-
-Twitter discontinued `block_all` API that used by Red Block internally. So Red Block has to use its official block API that has known problems like force-logout and account suspension. To avoid this problem as possible, **Red Block will limit blocking over 500 users.**
+레드블락은 여러 유저를 차단·차단해제·뮤트·언뮤트를 할 수 있는 확장기능으로 [Twitter Block Chain](https://github.com/satsukitv/twitter-block-chain)의 대체제로 사용할 수 있습니다.
 
 ## 기능
 
-- 멀티 세션: 체인블락 사용 도중 트위터를 사용하거나 다른 사용자에게 체인블락을 실행할 수 있습니다. - **주의**: 단, 체인블락 사용 중 로그아웃을 하거나 계정전환을 하면 오작동이 일어납니다.
-- API 리밋대응: 리밋에 도달했을 때 오류를 내며 정지하지 않고 대기한 뒤 리밋이 풀릴 때 다시 실행할 수 있습니다.
-- 맞팔로우 체인블락기능: 상대방과 맞팔로우한 사용자만 골라서 차단합니다.
-- 언체인블락 (팔로워 전체를 차단**해제**하기)
-- 사용자 저장기능: 특정 사용자에게 자주 (언)체인블락을 실행한다면, 그 사용자의 프로필을 직접 들어가지 않아도 실행할 수 있는 기능입니다.
-- 트윗반응 기반 체인블락: 특정 트윗을 리트윗하거나 마음에 들어한 사용자를 일괄적으로 차단합니다.
+- 체인블락 뿐만 아니라 언체인블락, 체인뮤트, 언체인뮤트를 할 수 있습니다.
+- 여러 체인블락 세션을 실행할 수 있습니다.
+- 내 맞팔로워는 차단하지 않습니다.
+- 내 팔로워를 냅두거나, 뮤트하거나, 차단하도록 설정할 수 있습니다.
+- 상대방의 맞팔로워를 골라 차단하는 기능이 있습니다.
+- 특정 트윗을 리트윗하거나 마음에 들어한 유저를 차단할 수 있습니다.
+- 북마크를 통해 체인블락할 유저를 저장할 수 있습니다. (트윗 저장기능도 계획하고 있습니다.)
+- 트위터 외 다른 외부 서비스에 접근하지 않습니다.
 
-## 비교
+## 제한
 
-| 기능                  | Red Block | Twitter Block Chain | BlockThemAll |
-| --------------------- | --------- | ------------------- | ------------ |
-| 팔로워 체인블락       | O         | O                   | O            |
-| 팔로잉 체인블락       | O         | O                   | O            |
-| 맞팔로우 체인블락     | O         | X                   | X            |
-| 내 팔로잉/팔로워 필터 | O         | \* [^1]             | \* [^2]      |
-| API 리밋대응          | O         | X                   | O            |
-| 사용자 저장           | O         | X                   | X            |
-| 언체인블락            | O         | X                   | X            |
-| 트윗반응 체인블락     | O         | X                   | X            |
+현재 레드블락엔 다음과 같은 제한사항이 있습니다.
 
-[^1]: 내 팔로잉만 필터링 (옵션 X)
-[^2]: 내 팔로워만 필터링 가능(옵션 O)
+### 500명 차단제한
+
+레드블락은 체인블락 도중 차단한 유저가 500명에 도달하면 경고하도록 했습니다. 이는 트위터에서 차단을 지나치게 많이 실행할 경우 발생할 수 있는 강제로그아웃이나 계정정지를 피하기 위하여 만들었습니다. "RESET" 버튼을 눌러 카운터를 초기화할 수 있으나 권장하지 않습니다. (특히 계정복구를 위한 휴대전화나 이메일에 접근할 수 없는 경우라면 더욱 주의해주세요.)
+
+### 트윗의 리트윗/마음에 들어요 체인블락이 전체유저를 차단하지 않음.
+
+이는 트위터 API를 통해 리트윗하거나 마음에 들어한 유저의 목록을 요청할 때 전체 유저목록을 제공하지 않아서 발생하는 제한입니다.
+
+### `webRequest` API (크롬 및 크로미움 계 브라우저만 해당)
+
+현재 레드블락은 다음과 같은 기능을 위해 `webRequest` API를 사용합니다.
+
+- 파이어폭스의 컨테이너 탭 기능 지원.
+- Incognito (사생활 보호) 모드 지원.
+- 500명 차단리미터 기능.
+- 상대방에게 차단당해도 체인블락 세션 실행 (실험적 기능)
+
+하지만 크롬에선 이 `webRequest` API를 제한할 예정입니다. (참고: https://developer.chrome.com/docs/extensions/mv3/intro/mv3-migration/#modifying-network-requests ). 따라서 레드블락에서 위의 기능을 변경하거나 제거할 수도 있습니다. 참고로 이 제한은 파이어폭스 및 파이어폭스 기반의 다른 웹 브라우저(Ghostery Dawn, Librewolf Browser 등)에는 영향받지 않습니다.
+
+## 빌드
+
+1. `yarn` (또는 `npm install`)을 통해 의존성 패키지를 설치합니다.
+1. `yarn build` (또는 `npm run build`)을 실행하면 "build/" 디렉토리에 빌드를 합니다. 현재 레드블락은 [swc](https://swc.rs)를 사용하고 있으나 [TypeScript](https://github.com/microsoft/typescript)의 `tsc`명령어를 사용할 수도 있습니다.
+
+## 대체재
+
+여러 유저를 차단하는 데 도움을 주는 다른 프로그램도 있습니다.
+
+- 트윗지기 - https://github.com/SasarinoMARi/Tweeper
+- Twitter-Block-With-Love - https://github.com/E011011101001/Twitter-Block-With-Love
+- Secataur - https://secateur.app/
+- Likers Blocker - https://dmstern.github.io/likers-blocker/
+- Blockasaurus - https://blockasaurus.glitch.me/
+- Poop blocker - https://poop-blocker.glitch.me/
