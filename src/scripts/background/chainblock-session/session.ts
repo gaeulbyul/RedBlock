@@ -26,6 +26,9 @@ interface SessionEventEmitter {
 // 더 나은 타입이름 없을까...
 type ApiKind = FollowKind | 'tweet-reactions' | 'lookup-users' | 'search' | 'block-ids'
 
+// NOTE: 사이즈 올리게 되면 번역파일도 수정할것
+const EXPORT_MAX_SIZE = 100_000
+
 function extractRateLimit(
   limitStatuses: TwitterAPI.LimitStatus,
   apiKind: ApiKind
@@ -62,7 +65,7 @@ abstract class BaseSession {
       this.eventEmitter.on('stopped', resolve)
     })
   }
-  public async rewind() {
+  public rewind() {
     this.resetCounts()
     this.sessionInfo.status = SessionStatus.Initial
   }
@@ -154,7 +157,7 @@ export class ChainBlockSession extends BaseSession {
     let stopped = false
     if (this.checkBlockLimiter() !== 'ok') {
       this.stop()
-    } else
+    } else {
       try {
         const scrapedUserIds = new Set<string>()
         for await (const scraperResponse of this.scraper) {
@@ -296,6 +299,7 @@ export class ChainBlockSession extends BaseSession {
         this.eventEmitter.emit('error', error.toString())
         throw error
       }
+    }
   }
   private calculateScrapedCount() {
     const { success, already, failure, error, skipped } = this.sessionInfo.progress
@@ -332,8 +336,7 @@ export class ExportSession extends BaseSession {
     try {
       const scrapedUserIds = this.exportResult.userIds
       for await (const scraperResponse of this.scraper) {
-        // NOTE: 사이즈 올리게 되면 번역파일도 수정할것
-        if (this.shouldStop || scrapedUserIds.size > 100000) {
+        if (this.shouldStop || scrapedUserIds.size > EXPORT_MAX_SIZE) {
           stopped = this.shouldStop
           break
         }
@@ -352,7 +355,12 @@ export class ExportSession extends BaseSession {
           this.sessionInfo.progress.total = this.scraper.totalCount
         }
         this.handleRunning()
-        scraperResponse.value.ids.forEach(id => scrapedUserIds.add(id))
+        for (const userId of scraperResponse.value.ids) {
+          if (scrapedUserIds.size >= EXPORT_MAX_SIZE) {
+            break
+          }
+          scrapedUserIds.add(userId)
+        }
         this.sessionInfo.progress.scraped = scrapedUserIds.size
       }
       if (stopped) {
