@@ -242,7 +242,7 @@ export class TwClient {
   public async searchQuotedUsers(tweetId: string, cursor?: string): Promise<APIv2Response> {
     return await this.request2('get', '/search/adaptive.json', {
       q: `quoted_tweet_id:${tweetId}`,
-      vertial: 'tweet_detail_quote',
+      vertical: 'tweet_detail_quote',
       count: 200,
       pc: 1,
       spelling_corrections: 0,
