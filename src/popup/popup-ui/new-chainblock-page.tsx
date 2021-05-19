@@ -19,6 +19,15 @@ import {
   RequestCheckResultUI,
 } from './components.js'
 import {
+  TargetSelector,
+  ItemsGroup,
+  UserItem,
+  Options as TargetSelectorOptions,
+  Controls as TargetSelectorControls,
+  identifierOfItem,
+  TargetSelectorItem,
+} from './components/target-selector.js'
+import {
   SelectUserGroup,
   FollowerChainBlockPageStatesContext,
   ExtraTargetContext,
@@ -58,44 +67,102 @@ function useSessionRequest(): FollowerBlockSessionRequest {
   }
 }
 
-function TargetSavedUsers(props: { savedUsers: TwitterUserMap; usersInOtherTab: TwitterUserMap }) {
-  const { savedUsers, usersInOtherTab } = props
+// TODO: tweet에서도 재활용할 수 있도록 수정
+function useBookmarkModifier(bookmarkedUsers: TwitterUserMap) {
   const uiContext = React.useContext(UIContext)
+  return {
+    async addUserToBookmark(user: TwitterUser) {
+      if (bookmarkedUsers.hasUser(user)) {
+        uiContext.openSnackBar(i18n.getMessage('user_xxx_already_exists', user.screen_name))
+        return
+      }
+      await Storage.insertItemToBookmark(Storage.createBookmarkUserItem(user))
+      uiContext.openSnackBar(i18n.getMessage('user_xxx_added', user.screen_name))
+    },
+    async removeUserFromBookmark(user: TwitterUser) {
+      const userId = user.id_str
+      await Storage.modifyBookmarksWith(bookmarks => {
+        const itemToRemove = Array.from(bookmarks.values()).find(
+          item => item.type === 'user' && item.userId === userId
+        )
+        if (itemToRemove) {
+          bookmarks.delete(itemToRemove.itemId)
+        } else {
+          console.warn('item already removed? user-id:"%s"', userId)
+        }
+        return bookmarks
+      })
+      uiContext.openSnackBar(i18n.getMessage('user_xxx_removed', user.screen_name))
+    },
+  }
+}
+
+function sortedByName(usersMap: TwitterUserMap): TwitterUser[] {
+  return _.sortBy(usersMap.toUserArray(), user => user.screen_name.toLowerCase())
+}
+
+function TargetSavedUsers({
+  savedUsers,
+  usersInOtherTab,
+}: {
+  savedUsers: TwitterUserMap
+  usersInOtherTab: TwitterUserMap
+}) {
+  const { currentUser, userSelection } = React.useContext(FollowerChainBlockPageStatesContext)
+  const { changeSelectedUser } = React.useContext(UserSelectorContext)
+  const { user: selectedUser, group: selectedUserGroup } = userSelection
+  const { addUserToBookmark, removeUserFromBookmark } = useBookmarkModifier(savedUsers)
+  let selectedItemIdentifier = ''
+  if (selectedUser && selectedUserGroup !== 'invalid') {
+    selectedItemIdentifier = identifierOfItem({
+      type: 'user',
+      group: selectedUserGroup == 'saved' ? 'bookmarked' : selectedUserGroup,
+      idStr: selectedUser.id_str,
+    })
+  }
+  function onSelectTarget(item: TargetSelectorItem) {
+    changeSelectedUser(item.idStr, '@--name--', item.group == 'bookmarked' ? 'saved' : item.group)
+  }
+  return (
+    <TargetSelector
+      type="user"
+      selectedItemIdentifier={selectedItemIdentifier}
+      onSelectTarget={onSelectTarget}
+    >
+      <TargetSelectorOptions label={i18n.getMessage('select_user') + ':'}>
+        {currentUser && <UserItem group="current" user={currentUser} />}
+        <ItemsGroup
+          group="other tab"
+          label={`${i18n.getMessage('users_in_other_tab')} (${usersInOtherTab.size})`}
+        >
+          {sortedByName(usersInOtherTab).map((user, index) => (
+            <UserItem key={index} user={user} />
+          ))}
+        </ItemsGroup>
+        <ItemsGroup
+          group="bookmarked"
+          label={`${i18n.getMessage('saved_user')} (${savedUsers.size})`}
+        >
+          {sortedByName(savedUsers).map((user, index) => (
+            <UserItem key={index} user={user} />
+          ))}
+        </ItemsGroup>
+      </TargetSelectorOptions>
+      <TargetSelectorControls>TODO</TargetSelectorControls>
+    </TargetSelector>
+  )
+}
+
+// @ts-ignore
+function $remove_me$__TargetSavedUsers(props: {
+  savedUsers: TwitterUserMap
+  usersInOtherTab: TwitterUserMap
+}) {
+  const { savedUsers, usersInOtherTab } = props
   const { changeSelectedUser } = React.useContext(UserSelectorContext)
   const { currentUser, userSelection } = React.useContext(FollowerChainBlockPageStatesContext)
   const { user: selectedUser, group: selectedUserGroup } = userSelection
-  async function insertUser() {
-    if (!selectedUser) {
-      return
-    }
-    if (savedUsers.hasUser(selectedUser)) {
-      uiContext.openSnackBar(i18n.getMessage('user_xxx_already_exists', selectedUser.screen_name))
-      return
-    }
-    Storage.insertItemToBookmark(Storage.createBookmarkUserItem(selectedUser))
-    uiContext.openSnackBar(i18n.getMessage('user_xxx_added', selectedUser.screen_name))
-  }
-  async function removeUser() {
-    if (!selectedUser) {
-      console.warn("attempted remove user that doesn't exist?")
-      return
-    }
-    const userId = selectedUser.id_str
-    Storage.modifyBookmarksWith(bookmarks => {
-      const itemToRemove = Array.from(bookmarks.values()).find(
-        item => item.type === 'user' && item.userId === userId
-      )
-      if (itemToRemove) {
-        bookmarks.delete(itemToRemove.itemId)
-      } else {
-        console.warn('item already removed? user-id:"%s"', userId)
-      }
-      return bookmarks
-    })
-    uiContext.openSnackBar(i18n.getMessage('user_xxx_removed', selectedUser.screen_name))
-  }
-  const sortedByName = (usersMap: TwitterUserMap): TwitterUser[] =>
-    _.sortBy(usersMap.toUserArray(), user => user.screen_name.toLowerCase())
+  const { addUserToBookmark, removeUserFromBookmark } = useBookmarkModifier(savedUsers)
   const selectUserFromOption = (elem: EventTarget) => {
     if (!(elem instanceof HTMLSelectElement)) {
       throw new Error('unreachable')
@@ -167,14 +234,14 @@ function TargetSavedUsers(props: { savedUsers: TwitterUserMap; usersInOtherTab: 
           <M.ButtonGroup>
             <M.Button
               disabled={addButtonDisabledGroup.includes(selectedUserGroup)}
-              onClick={insertUser}
+              onClick={() => addUserToBookmark(selectedUser)}
               startIcon={<M.Icon>add_circle</M.Icon>}
             >
               {i18n.getMessage('add')}
             </M.Button>
             <M.Button
               disabled={selectedUserGroup !== 'saved'}
-              onClick={removeUser}
+              onClick={() => removeUserFromBookmark(selectedUser)}
               startIcon={<M.Icon>delete</M.Icon>}
             >
               {i18n.getMessage('remove')}
