@@ -9,8 +9,7 @@ import {
   examineRetrieverByTargetUser,
   examineRetrieverByTweetId,
 } from '../../scripts/background/antiblock.js'
-
-export type SelectUserGroup = 'invalid' | 'current' | 'saved' | 'other tab'
+import type { TargetGroup } from './components/target-selector.js'
 
 function usePurpose<T extends Purpose>(initialPurposeType: T['type']) {
   const initialPurpose = defaultPurposeOptions[initialPurposeType] as T
@@ -54,14 +53,14 @@ function ExtraTargetContextProvider(props: { children: React.ReactNode }) {
 }
 
 interface UserSelectionState {
-  user: TwitterUser | null
-  group: SelectUserGroup
+  user: TwitterUser
+  group: TargetGroup
 }
 
 interface FollowerChainBlockPageStates {
   currentUser: TwitterUser | null
-  userSelection: UserSelectionState
-  setUserSelection(userSelection: UserSelectionState): void
+  userSelection: UserSelectionState | null
+  setUserSelection(userSelection: UserSelectionState | null): void
   targetList: FollowKind
   setTargetList(fk: FollowKind): void
   purpose: FollowerBlockSessionRequest['purpose']
@@ -145,10 +144,16 @@ export function FollowerChainBlockPageStatesProvider(props: {
   initialUser: TwitterUser | null
 }) {
   const myself = React.useContext(MyselfContext)!
-  const [userSelection, setUserSelection] = React.useState<UserSelectionState>({
-    user: props.initialUser,
-    group: props.initialUser ? 'current' : 'invalid',
-  })
+  let initialSelectionState: UserSelectionState | null
+  if (props.initialUser) {
+    initialSelectionState = {
+      user: props.initialUser,
+      group: 'current',
+    }
+  } else {
+    initialSelectionState = null
+  }
+  const [userSelection, setUserSelection] = React.useState(initialSelectionState)
   const initialPurposeType = determineInitialPurposeType<FollowerBlockSessionRequest['purpose']>(
     myself.user,
     props.initialUser
@@ -181,13 +186,13 @@ export function FollowerChainBlockPageStatesProvider(props: {
         setRetriever(newRetriever)
       }
     }
-    const selectedUser = userSelection.user
+    const selectedUser = userSelection?.user
     if (enableAntiBlock && selectedUser) {
       examine(selectedUser)
     } else {
       setRetriever(myself)
     }
-  }, [userSelection.user, enableAntiBlock])
+  }, [userSelection, enableAntiBlock])
   return (
     <FollowerChainBlockPageStatesContext.Provider
       value={{

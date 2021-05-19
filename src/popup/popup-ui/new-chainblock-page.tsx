@@ -20,6 +20,7 @@ import {
 } from './components.js'
 import {
   TargetSelector,
+  TargetGroup,
   ItemsGroup,
   UserItem,
   Options as TargetSelectorOptions,
@@ -27,11 +28,7 @@ import {
   identifierOfItem,
   TargetSelectorItem,
 } from './components/target-selector.js'
-import {
-  SelectUserGroup,
-  FollowerChainBlockPageStatesContext,
-  ExtraTargetContext,
-} from './ui-states.js'
+import { FollowerChainBlockPageStatesContext, ExtraTargetContext } from './ui-states.js'
 import { TargetCheckResult, validateRequest } from '../../scripts/background/target-checker.js'
 import { getUserNameFromTab } from '../popup.js'
 
@@ -40,7 +37,7 @@ const M = MaterialUI
 const userCache = new TwitterUserMap()
 
 interface UserSelectorContextType {
-  changeSelectedUser(userId: string, userName: string, group: SelectUserGroup): void
+  changeSelectedUser(userId: string, userName: string, group: TargetGroup): void
 }
 const UserSelectorContext = React.createContext<UserSelectorContextType>(null!)
 
@@ -52,7 +49,7 @@ function useSessionRequest(): FollowerBlockSessionRequest {
   const { retriever } = React.useContext(RetrieverContext)!
   const { extraTarget } = React.useContext(ExtraTargetContext)
   const options = React.useContext(RedBlockOptionsContext)
-  const selectedUser = userSelection.user!
+  const selectedUser = userSelection?.user!
   return {
     purpose,
     target: {
@@ -110,18 +107,17 @@ function TargetSavedUsers({
 }) {
   const { currentUser, userSelection } = React.useContext(FollowerChainBlockPageStatesContext)
   const { changeSelectedUser } = React.useContext(UserSelectorContext)
-  const { user: selectedUser, group: selectedUserGroup } = userSelection
   const { addUserToBookmark, removeUserFromBookmark } = useBookmarkModifier(savedUsers)
   let selectedItemIdentifier = ''
-  if (selectedUser && selectedUserGroup !== 'invalid') {
+  if (userSelection) {
     selectedItemIdentifier = identifierOfItem({
       type: 'user',
-      group: selectedUserGroup == 'saved' ? 'bookmarked' : selectedUserGroup,
-      idStr: selectedUser.id_str,
+      group: userSelection.group,
+      idStr: userSelection.user.id_str,
     })
   }
   function onSelectTarget(item: TargetSelectorItem) {
-    changeSelectedUser(item.idStr, '@--name--', item.group == 'bookmarked' ? 'saved' : item.group)
+    changeSelectedUser(item.idStr, '@--name--', item.group)
   }
   return (
     <TargetSelector
@@ -148,119 +144,30 @@ function TargetSavedUsers({
           ))}
         </ItemsGroup>
       </TargetSelectorOptions>
-      <TargetSelectorControls>TODO</TargetSelectorControls>
+      <TargetSelectorControls>
+        <M.Button
+          disabled={!userSelection || userSelection.group === 'bookmarked'}
+          onClick={() => addUserToBookmark(userSelection!.user!)}
+          startIcon={<M.Icon>add_circle</M.Icon>}
+        >
+          {i18n.getMessage('add')}
+        </M.Button>
+        <M.Button
+          disabled={!userSelection || userSelection.group !== 'bookmarked'}
+          onClick={() => removeUserFromBookmark(userSelection!.user!)}
+          startIcon={<M.Icon>delete</M.Icon>}
+        >
+          {i18n.getMessage('remove')}
+        </M.Button>
+      </TargetSelectorControls>
     </TargetSelector>
   )
 }
 
-// @ts-ignore
-function $remove_me$__TargetSavedUsers(props: {
-  savedUsers: TwitterUserMap
-  usersInOtherTab: TwitterUserMap
-}) {
-  const { savedUsers, usersInOtherTab } = props
-  const { changeSelectedUser } = React.useContext(UserSelectorContext)
-  const { currentUser, userSelection } = React.useContext(FollowerChainBlockPageStatesContext)
-  const { user: selectedUser, group: selectedUserGroup } = userSelection
-  const { addUserToBookmark, removeUserFromBookmark } = useBookmarkModifier(savedUsers)
-  const selectUserFromOption = (elem: EventTarget) => {
-    if (!(elem instanceof HTMLSelectElement)) {
-      throw new Error('unreachable')
-    }
-    const selectedOption = elem.selectedOptions[0]
-    const group = selectedOption.getAttribute('data-group') as SelectUserGroup
-    const userId = selectedOption.getAttribute('data-userid')!
-    const userName = selectedOption.getAttribute('data-username')!
-    changeSelectedUser(userId, userName, group)
-  }
-  const currentUserOption = ({ id_str, screen_name, name }: TwitterUser) => (
-    <optgroup label={i18n.getMessage('current_user')}>
-      <option
-        value={`current/${id_str}`}
-        data-group="current"
-        data-userid={id_str}
-        data-username={screen_name}
-      >
-        @{screen_name} &lt;{name}&gt;
-      </option>
-    </optgroup>
-  )
-  function UserOptionItem(props: { user: TwitterUser; optgroup: SelectUserGroup; label?: string }) {
-    const { user, optgroup } = props
-    const label = props.label || `@${user.screen_name} <${user.name}>`
-    return (
-      <option
-        value={`${optgroup}/${user.id_str}`}
-        data-group={optgroup}
-        data-userid={user.id_str}
-        data-username={user.screen_name}
-      >
-        {label}
-      </option>
-    )
-  }
-  const addButtonDisabledGroup: SelectUserGroup[] = ['invalid', 'saved']
-  return (
-    <div style={{ width: '100%' }}>
-      <M.FormControl fullWidth>
-        <M.InputLabel shrink htmlFor="target-user-select">
-          {i18n.getMessage('select_user')}:
-        </M.InputLabel>
-        <M.Select
-          native
-          id="target-user-select"
-          fullWidth
-          value={selectedUser ? `${selectedUserGroup}/${selectedUser.id_str}` : 'invalid/???'}
-          onChange={({ target }) => selectUserFromOption(target)}
-        >
-          <option value="invalid/???" data-group="invalid" data-userid="???" data-username="???">
-            {i18n.getMessage('user_not_selected')}
-          </option>
-          {currentUser && currentUserOption(currentUser)}
-          <optgroup label={`${i18n.getMessage('users_in_other_tab')} (${usersInOtherTab.size})`}>
-            {sortedByName(usersInOtherTab).map((user, index) => (
-              <UserOptionItem key={index} user={user} optgroup="other tab" />
-            ))}
-          </optgroup>
-          <optgroup label={`${i18n.getMessage('saved_user')} (${savedUsers.size})`}>
-            {sortedByName(savedUsers).map((user, index) => (
-              <UserOptionItem key={index} user={user} optgroup="saved" />
-            ))}
-          </optgroup>
-        </M.Select>
-      </M.FormControl>
-      {selectedUser && (
-        <M.Box my={1} display="flex" flexDirection="row-reverse">
-          <M.ButtonGroup>
-            <M.Button
-              disabled={addButtonDisabledGroup.includes(selectedUserGroup)}
-              onClick={() => addUserToBookmark(selectedUser)}
-              startIcon={<M.Icon>add_circle</M.Icon>}
-            >
-              {i18n.getMessage('add')}
-            </M.Button>
-            <M.Button
-              disabled={selectedUserGroup !== 'saved'}
-              onClick={() => removeUserFromBookmark(selectedUser)}
-              startIcon={<M.Icon>delete</M.Icon>}
-            >
-              {i18n.getMessage('remove')}
-            </M.Button>
-          </M.ButtonGroup>
-        </M.Box>
-      )}
-    </div>
-  )
-}
-
-function TargetUserProfile() {
-  const { targetList, setTargetList, userSelection } = React.useContext(
-    FollowerChainBlockPageStatesContext
-  )
-  // selectedUser가 null일 땐 이 컴포넌트를 렌더링하지 않으므로
-  const selectedUser = userSelection.user!
+function TargetUserProfile({ user }: { user: TwitterUser }) {
+  const { targetList, setTargetList } = React.useContext(FollowerChainBlockPageStatesContext)
   const myself = React.useContext(MyselfContext)!
-  const selectedMyself = selectedUser.id_str === myself.user.id_str
+  const selectedMyself = user.id_str === myself.user.id_str
   function radio(fk: FollowKind, label: string) {
     return (
       <M.FormControlLabel
@@ -272,17 +179,14 @@ function TargetUserProfile() {
     )
   }
   return (
-    <TwitterUserProfile user={selectedUser}>
+    <TwitterUserProfile user={user}>
       <div>
         <M.Box display="flex" flexDirection="column">
           {selectedMyself && <div>&#10071; {i18n.getMessage('its_you')}</div>}
         </M.Box>
         <M.RadioGroup row>
-          {radio(
-            'followers',
-            TextGenerate.formatFollowsCount('followers', selectedUser.followers_count)
-          )}
-          {radio('friends', TextGenerate.formatFollowsCount('friends', selectedUser.friends_count))}
+          {radio('followers', TextGenerate.formatFollowsCount('followers', user.followers_count))}
+          {radio('friends', TextGenerate.formatFollowsCount('friends', user.friends_count))}
           {radio('mutual-followers', i18n.getMessage('mutual_followers'))}
         </M.RadioGroup>
       </div>
@@ -315,14 +219,10 @@ function TargetUserSelectUI() {
   const [savedUsers, setSavedUsers] = React.useState(new TwitterUserMap())
   const [usersInOtherTab, setUsersInOtherTab] = React.useState(new TwitterUserMap())
   const [isLoading, setLoadingState] = React.useState(false)
-  const { user: selectedUser } = userSelection
   const twClient = new TwClient(myself.cookieOptions)
-  async function changeSelectedUser(userId: string, userName: string, group: SelectUserGroup) {
+  async function changeSelectedUser(userId: string, userName: string, group: TargetGroup) {
     if (!/^\d+$/.test(userId)) {
-      setUserSelection({
-        user: null,
-        group: 'invalid',
-      })
+      setUserSelection(null)
       return
     }
     try {
@@ -340,10 +240,7 @@ function TargetUserSelectUI() {
             title: i18n.getMessage('failed_to_get_user_info', userName),
           },
         })
-        setUserSelection({
-          user: null,
-          group: 'invalid',
-        })
+        setUserSelection(null)
       }
     } finally {
       setLoadingState(false)
@@ -364,14 +261,18 @@ function TargetUserSelectUI() {
       const users = await getMultipleUsersByIdWithCache(twClient, userIds)
       setSavedUsers(users)
       // 스토리지에서 불러올 때 직전에 선택했었던 유저가 없는 경우
-      if (!(selectedUser && users.hasUser(selectedUser))) {
-        setUserSelection({
-          user: currentUser,
-          group: 'current',
-        })
+      if (!(userSelection && users.hasUser(userSelection.user))) {
+        if (currentUser) {
+          setUserSelection({
+            user: currentUser,
+            group: 'current',
+          })
+        } else {
+          setUserSelection(null)
+        }
       }
     })
-  }, [])
+  }, [currentUser, userSelection])
   React.useEffect(() => {
     browser.tabs
       .query({
@@ -388,8 +289,8 @@ function TargetUserSelectUI() {
       })
   }, [])
   let targetSummary = ''
-  if (selectedUser) {
-    const userName = selectedUser.screen_name
+  if (userSelection) {
+    const userName = userSelection.user.screen_name
     switch (targetList) {
       case 'followers':
         targetSummary = i18n.getMessage('followers_with_targets_name', userName)
@@ -411,8 +312,8 @@ function TargetUserSelectUI() {
             <TargetSavedUsers {...{ savedUsers, usersInOtherTab }} />
           </UserSelectorContext.Provider>
           <M.Divider />
-          {selectedUser ? (
-            <TargetUserProfile />
+          {userSelection ? (
+            <TargetUserProfile user={userSelection.user} />
           ) : (
             <TargetUserProfileEmpty reason={isLoading ? 'loading' : 'invalid-user'} />
           )}
@@ -515,9 +416,9 @@ export default function NewChainBlockPage() {
   return (
     <div>
       <TargetUserSelectUI />
-      {userSelection.user && <TargetOptionsUI />}
+      {userSelection && <TargetOptionsUI />}
       <BlockLimiterUI />
-      {userSelection.user && (
+      {userSelection && (
         <div>
           <RequestCheckResultUI {...{ request }} />
           <TargetExecutionButtonUI />

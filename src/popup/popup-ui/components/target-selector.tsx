@@ -3,8 +3,7 @@
 const M = MaterialUI
 
 type TargetType = 'user' | 'tweet'
-type TargetGroup = 'current' | 'bookmarked' | 'other tab'
-// type Item = typeof UserItem | typeof TweetItem
+export type TargetGroup = 'current' | 'bookmarked' | 'other tab'
 
 export interface TargetSelectorItem {
   type: TargetType
@@ -17,6 +16,7 @@ interface TargetSelectorContextType {
   selectedItemIdentifier: string
   onChange(event: React.ChangeEvent<{ name?: string; value: unknown }>): void
 }
+
 const TargetSelectorContext = React.createContext<TargetSelectorContextType>(null!)
 
 export function identifierOfItem(item: TargetSelectorItem): string {
@@ -125,7 +125,7 @@ export function Options({ label, children }: { label: string; children: React.Re
         value={selectedItemIdentifier}
         onChange={onChange}
       >
-        <option hidden disabled>
+        <option hidden disabled value="">
           {i18n.getMessage('user_not_selected')}
         </option>
         {children}
