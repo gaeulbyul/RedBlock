@@ -65,12 +65,15 @@ function purposeTypeToIcon(purposeType: Purpose['type']): JSX.Element {
   }
 }
 
-export function RBDialog(props: {
+export function RBDialog({
+  isOpen,
+  content,
+  closeModal,
+}: {
   isOpen: boolean
   content: DialogContent | null
   closeModal(): void
 }) {
-  const { isOpen, content, closeModal } = props
   if (!content) {
     return <div></div>
   }
@@ -131,14 +134,18 @@ export function RBDialog(props: {
 }
 
 // from https://material-ui.com/components/tabs/#SimpleTabs.tsx
-export function TabPanel(props: {
+export function TabPanel({
+  children,
+  value,
+  index,
+  noPadding,
+}: {
   children?: React.ReactNode
   index: any
   value: any
   noPadding?: boolean
 }) {
-  const { children, value, index } = props
-  const padding = props.noPadding ? 0 : 1
+  const padding = noPadding ? 0 : 1
   return (
     <T component="div" role="tabpanel" hidden={value !== index}>
       {value === index && (
@@ -214,7 +221,12 @@ const useStylesForExpansionPanels = MaterialUI.makeStyles(theme =>
   })
 )
 
-export function RBExpansionPanel(props: {
+export function RBExpansionPanel({
+  summary,
+  children,
+  defaultExpanded,
+  warning,
+}: {
   summary: string
   children: React.ReactNode
   defaultExpanded?: boolean
@@ -222,13 +234,11 @@ export function RBExpansionPanel(props: {
 }) {
   const classes = useStylesForExpansionPanels()
   return (
-    <DenseExpansionPanel defaultExpanded={props.defaultExpanded}>
+    <DenseExpansionPanel defaultExpanded={defaultExpanded}>
       <DenseExpansionPanelSummary expandIcon={<M.Icon>expand_more</M.Icon>}>
-        <T color={props.warning ? 'error' : 'initial'}>{props.summary}</T>
+        <T color={warning ? 'error' : 'initial'}>{summary}</T>
       </DenseExpansionPanelSummary>
-      <M.ExpansionPanelDetails className={classes.details}>
-        {props.children}
-      </M.ExpansionPanelDetails>
+      <M.ExpansionPanelDetails className={classes.details}>{children}</M.ExpansionPanelDetails>
     </DenseExpansionPanel>
   )
 }
@@ -266,8 +276,13 @@ export function BlockLimiterUI() {
   )
 }
 
-export function TwitterUserProfile(props: { user: TwitterUser; children?: React.ReactNode }) {
-  const { user } = props
+export function TwitterUserProfile({
+  user,
+  children,
+}: {
+  user: TwitterUser
+  children?: React.ReactNode
+}) {
   const biggerProfileImageUrl = user.profile_image_url_https.replace('_normal', '_bigger')
   return (
     <div className="target-user-info">
@@ -294,7 +309,7 @@ export function TwitterUserProfile(props: { user: TwitterUser; children?: React.
             </a>
           </div>
         </div>
-        {props.children}
+        {children}
       </div>
     </div>
   )
@@ -308,14 +323,17 @@ const BigBaseButton = MaterialUI.withStyles(theme => ({
   },
 }))(MaterialUI.Button)
 
-export function BigExecuteButton(props: {
+export function BigExecuteButton({
+  purpose,
+  disabled,
+  type = 'button',
+  onClick,
+}: {
   purpose: Purpose
   disabled: boolean
   type?: 'button' | 'submit'
   onClick?(event: React.MouseEvent): void
 }): JSX.Element {
-  const { purpose, disabled, onClick } = props
-  const type = props.type || 'button'
   const label = i18n.getMessage('run_xxx', i18n.getMessage(purpose.type))
   let BigButton: typeof BigBaseButton
   switch (purpose.type) {
@@ -381,26 +399,30 @@ const PurposeTab = MaterialUI.withStyles(theme => ({
   },
 }))(MaterialUI.Tab)
 
-export function LinearProgressWithLabel(props: { value: number }) {
+export function LinearProgressWithLabel({ value }: { value: number }) {
   return (
     <M.Box display="flex" alignItems="center">
       <M.Box width="100%" mr={1}>
-        <M.LinearProgress variant="determinate" {...props} />
+        <M.LinearProgress variant="determinate" value={value} />
       </M.Box>
       <M.Box minWidth={35}>
-        <T variant="body2" color="textSecondary">{`${Math.round(props.value)}%`}</T>
+        <T variant="body2" color="textSecondary">{`${Math.round(value)}%`}</T>
       </M.Box>
     </M.Box>
   )
 }
 
-export function PurposeSelectionUI(props: {
+export function PurposeSelectionUI({
+  purpose,
+  changePurposeType,
+  mutatePurposeOptions,
+  availablePurposeTypes,
+}: {
   purpose: SessionRequest['purpose']
   changePurposeType(purposeType: SessionRequest['purpose']['type']): void
   mutatePurposeOptions(partialOptions: Partial<Omit<SessionRequest['purpose'], 'type'>>): void
   availablePurposeTypes: SessionRequest['purpose']['type'][]
 }) {
-  const { purpose, changePurposeType, mutatePurposeOptions, availablePurposeTypes } = props
   const chainblockable = availablePurposeTypes.includes('chainblock')
   const unchainblockable = availablePurposeTypes.includes('unchainblock')
   const exportable = availablePurposeTypes.includes('export')
@@ -543,7 +565,12 @@ const useStylesForFormControl = MaterialUI.makeStyles(() =>
   })
 )
 
-function RadioOptionItem(props: {
+function RadioOptionItem({
+  legend,
+  options,
+  selectedValue,
+  onChange,
+}: {
   legend: React.ReactNode
   options: { [label: string]: string }
   selectedValue: string
@@ -552,14 +579,14 @@ function RadioOptionItem(props: {
   const classes = useStylesForFormControl()
   return (
     <M.FormControl component="fieldset" className={classes.fieldset}>
-      <M.FormLabel component="legend">{props.legend}</M.FormLabel>
+      <M.FormLabel component="legend">{legend}</M.FormLabel>
       <M.RadioGroup row>
-        {Object.entries(props.options).map(([label, value], index) => (
+        {Object.entries(options).map(([label, value], index) => (
           <M.FormControlLabel
             key={index}
             control={<M.Radio size="small" />}
-            checked={props.selectedValue === value}
-            onChange={() => props.onChange(value)}
+            checked={selectedValue === value}
+            onChange={() => onChange(value)}
             label={label}
           />
         ))}
@@ -590,11 +617,13 @@ function ExtraTargetUI() {
   )
 }
 
-function ChainBlockPurposeUI(props: {
+function ChainBlockPurposeUI({
+  purpose,
+  mutatePurposeOptions,
+}: {
   purpose: ChainBlockPurpose
   mutatePurposeOptions(partialOptions: Partial<Omit<ChainBlockPurpose, 'type'>>): void
 }) {
-  const { purpose, mutatePurposeOptions } = props
   const userActions = {
     [i18n.getMessage('skip')]: 'Skip',
     [i18n.getMessage('do_mute')]: 'Mute',
@@ -630,11 +659,13 @@ function ChainBlockPurposeUI(props: {
   )
 }
 
-function UnChainBlockOptionsUI(props: {
+function UnChainBlockOptionsUI({
+  purpose,
+  mutatePurposeOptions,
+}: {
   purpose: UnChainBlockPurpose
   mutatePurposeOptions(partialOptions: Partial<Omit<UnChainBlockPurpose, 'type'>>): void
 }) {
-  const { purpose, mutatePurposeOptions } = props
   const userActions: { [label: string]: UnChainBlockPurpose['mutualBlocked'] } = {
     [i18n.getMessage('skip')]: 'Skip',
     [i18n.getMessage('do_unblock')]: 'UnBlock',
@@ -653,11 +684,13 @@ function UnChainBlockOptionsUI(props: {
   )
 }
 
-function LockPickerOptionsUI(props: {
+function LockPickerOptionsUI({
+  purpose,
+  mutatePurposeOptions,
+}: {
   purpose: LockPickerPurpose
   mutatePurposeOptions(partialOptions: Partial<Omit<LockPickerPurpose, 'type'>>): void
 }) {
-  const { purpose, mutatePurposeOptions } = props
   const userActions: { [label: string]: LockPickerPurpose['protectedFollowers'] } = {
     [i18n.getMessage('do_block')]: 'Block',
     [i18n.getMessage('block_and_unblock')]: 'BlockAndUnBlock',
@@ -676,11 +709,13 @@ function LockPickerOptionsUI(props: {
   )
 }
 
-function ChainMutePurposeUI(props: {
+function ChainMutePurposeUI({
+  purpose,
+  mutatePurposeOptions,
+}: {
   purpose: ChainMutePurpose
   mutatePurposeOptions(partialOptions: Partial<Omit<ChainMutePurpose, 'type'>>): void
 }) {
-  const { purpose, mutatePurposeOptions } = props
   const userActions = {
     [i18n.getMessage('skip')]: 'Skip',
     [i18n.getMessage('do_mute')]: 'Mute',
@@ -707,11 +742,13 @@ function ChainMutePurposeUI(props: {
   )
 }
 
-function UnChainMuteOptionsUI(props: {
+function UnChainMuteOptionsUI({
+  purpose,
+  mutatePurposeOptions,
+}: {
   purpose: UnChainMutePurpose
   mutatePurposeOptions(partialOptions: Partial<Omit<UnChainMutePurpose, 'type'>>): void
 }) {
-  const { purpose, mutatePurposeOptions } = props
   const userActions: { [label: string]: UnChainMutePurpose['mutedAndAlsoBlocked'] } = {
     [i18n.getMessage('skip')]: 'Skip',
     [i18n.getMessage('unmute')]: 'UnMute',
@@ -730,8 +767,8 @@ function UnChainMuteOptionsUI(props: {
   )
 }
 
-export function RequestCheckResultUI(props: { request: SessionRequest }) {
-  const checkResult = validateRequest(props.request)
+export function RequestCheckResultUI({ request }: { request: SessionRequest }) {
+  const checkResult = validateRequest(request)
   const checkResultMsg = checkResultToString(checkResult)
   const isOk = checkResult === TargetCheckResult.Ok
   return (

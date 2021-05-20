@@ -32,7 +32,7 @@ interface ExtraTargetContextType {
 
 export const ExtraTargetContext = React.createContext<ExtraTargetContextType>(null!)
 
-function ExtraTargetContextProvider(props: { children: React.ReactNode }) {
+function ExtraTargetContextProvider({ children }: { children: React.ReactNode }) {
   const [extraTarget, setTargetOptions] = React.useState<ExtraTarget>({
     ...defaultExtraTarget,
   })
@@ -47,7 +47,7 @@ function ExtraTargetContextProvider(props: { children: React.ReactNode }) {
         mutate,
       }}
     >
-      {props.children}
+      {children}
     </ExtraTargetContext.Provider>
   )
 }
@@ -139,15 +139,18 @@ export const LockPickerPageStatesContext = React.createContext<LockPickerPageSta
 
 const examineResultCache = new Map<string, Actor>()
 
-export function FollowerChainBlockPageStatesProvider(props: {
+export function FollowerChainBlockPageStatesProvider({
+  children,
+  initialUser,
+}: {
   children: React.ReactNode
   initialUser: TwitterUser | null
 }) {
   const myself = React.useContext(MyselfContext)!
   let initialSelectionState: UserSelectionState | null
-  if (props.initialUser) {
+  if (initialUser) {
     initialSelectionState = {
-      user: props.initialUser,
+      user: initialUser,
       group: 'current',
     }
   } else {
@@ -156,7 +159,7 @@ export function FollowerChainBlockPageStatesProvider(props: {
   const [userSelection, setUserSelection] = React.useState(initialSelectionState)
   const initialPurposeType = determineInitialPurposeType<FollowerBlockSessionRequest['purpose']>(
     myself.user,
-    props.initialUser
+    initialUser
   )
   const [targetList, setTargetList] = React.useState<FollowKind>('followers')
   const availablePurposeTypes: FollowerBlockSessionRequest['purpose']['type'][] = [
@@ -196,7 +199,7 @@ export function FollowerChainBlockPageStatesProvider(props: {
   return (
     <FollowerChainBlockPageStatesContext.Provider
       value={{
-        currentUser: props.initialUser,
+        currentUser: initialUser,
         userSelection,
         setUserSelection,
         targetList,
@@ -208,13 +211,16 @@ export function FollowerChainBlockPageStatesProvider(props: {
       }}
     >
       <RetrieverContext.Provider value={{ retriever, setRetriever }}>
-        <ExtraTargetContextProvider>{props.children}</ExtraTargetContextProvider>
+        <ExtraTargetContextProvider>{children}</ExtraTargetContextProvider>
       </RetrieverContext.Provider>
     </FollowerChainBlockPageStatesContext.Provider>
   )
 }
 
-export function TweetReactionChainBlockPageStatesProvider(props: {
+export function TweetReactionChainBlockPageStatesProvider({
+  children,
+  initialTweet,
+}: {
   children: React.ReactNode
   initialTweet: Tweet | null
 }) {
@@ -233,7 +239,7 @@ export function TweetReactionChainBlockPageStatesProvider(props: {
   const [purpose, changePurposeType, mutatePurposeOptions] = usePurpose<
     TweetReactionBlockSessionRequest['purpose']
   >('chainblock')
-  const selectedTweet = props.initialTweet // TODO: make it state
+  const selectedTweet = initialTweet // TODO: make it state
   const myself = React.useContext(MyselfContext)!
   const { enableAntiBlock } = React.useContext(RedBlockOptionsContext)
   const [retriever, setRetriever] = React.useState<Actor>(myself)
@@ -261,7 +267,7 @@ export function TweetReactionChainBlockPageStatesProvider(props: {
   return (
     <TweetReactionChainBlockPageStatesContext.Provider
       value={{
-        currentTweet: props.initialTweet,
+        currentTweet: initialTweet,
         wantBlockRetweeters,
         setWantBlockRetweeters,
         wantBlockLikers,
@@ -279,13 +285,13 @@ export function TweetReactionChainBlockPageStatesProvider(props: {
       }}
     >
       <RetrieverContext.Provider value={{ retriever, setRetriever }}>
-        <ExtraTargetContextProvider>{props.children}</ExtraTargetContextProvider>
+        <ExtraTargetContextProvider>{children}</ExtraTargetContextProvider>
       </RetrieverContext.Provider>
     </TweetReactionChainBlockPageStatesContext.Provider>
   )
 }
 
-export function ImportChainBlockPageStatesProvider(props: { children: React.ReactNode }) {
+export function ImportChainBlockPageStatesProvider({ children }: { children: React.ReactNode }) {
   const [blocklist, setBlocklist] = React.useState<Blocklist>(emptyBlocklist)
   const [nameOfSelectedFiles, setNameOfSelectedFiles] = React.useState<string[]>([])
   const availablePurposeTypes: ImportBlockSessionRequest['purpose']['type'][] = [
@@ -311,12 +317,15 @@ export function ImportChainBlockPageStatesProvider(props: { children: React.Reac
         availablePurposeTypes,
       }}
     >
-      <ExtraTargetContextProvider>{props.children}</ExtraTargetContextProvider>
+      <ExtraTargetContextProvider>{children}</ExtraTargetContextProvider>
     </ImportChainBlockPageStatesContext.Provider>
   )
 }
 
-export function UserSearchChainBlockPageStatesProvider(props: {
+export function UserSearchChainBlockPageStatesProvider({
+  children,
+  currentSearchQuery,
+}: {
   children: React.ReactNode
   currentSearchQuery: string | null
 }) {
@@ -333,19 +342,19 @@ export function UserSearchChainBlockPageStatesProvider(props: {
   return (
     <UserSearchChainBlockPageStatesContext.Provider
       value={{
-        searchQuery: props.currentSearchQuery,
+        searchQuery: currentSearchQuery,
         purpose,
         changePurposeType,
         mutatePurposeOptions,
         availablePurposeTypes,
       }}
     >
-      <ExtraTargetContextProvider>{props.children}</ExtraTargetContextProvider>
+      <ExtraTargetContextProvider>{children}</ExtraTargetContextProvider>
     </UserSearchChainBlockPageStatesContext.Provider>
   )
 }
 
-export function LockPickerPageStatesProvider(props: { children: React.ReactNode }) {
+export function LockPickerPageStatesProvider({ children }: { children: React.ReactNode }) {
   const [purpose, changePurposeType, mutatePurposeOptions] = usePurpose<
     LockPickerSessionRequest['purpose']
   >('lockpicker')
@@ -358,7 +367,7 @@ export function LockPickerPageStatesProvider(props: { children: React.ReactNode 
         availablePurposeTypes: ['lockpicker'],
       }}
     >
-      <ExtraTargetContextProvider>{props.children}</ExtraTargetContextProvider>
+      <ExtraTargetContextProvider>{children}</ExtraTargetContextProvider>
     </LockPickerPageStatesContext.Provider>
   )
 }

@@ -1,33 +1,41 @@
 const M = MaterialUI
 
-export function SwitchItem(props: {
+export function SwitchItem({
+  checked,
+  disabled,
+  label,
+  onChange,
+}: {
   label: string
   onChange(checked: boolean): void
   checked: boolean
   disabled?: boolean
 }) {
-  const { checked, disabled, label } = props
   return (
     <M.FormControlLabel
       control={<M.Switch />}
       {...{ checked, disabled, label }}
-      onChange={(_event, checked) => props.onChange(checked)}
+      onChange={(_event, checked) => onChange(checked)}
     />
   )
 }
 
-export function CheckboxItem(props: {
+export function CheckboxItem({
+  checked,
+  disabled,
+  label,
+  onChange,
+}: {
   label: string
   onChange(checked: boolean): void
   checked: boolean
   disabled?: boolean
 }) {
-  const { checked, disabled, label } = props
   return (
     <M.FormControlLabel
       control={<M.Checkbox size="small" />}
       {...{ checked, disabled, label }}
-      onChange={(_event, checked) => props.onChange(checked)}
+      onChange={(_event, checked) => onChange(checked)}
     />
   )
 }

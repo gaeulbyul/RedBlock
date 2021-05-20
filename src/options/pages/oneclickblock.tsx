@@ -15,7 +15,12 @@ const useStylesForRow = MaterialUI.makeStyles(_theme => ({
   },
 }))
 
-function BadWordRow(props: {
+function BadWordRow({
+  badWord,
+  removeWordById,
+  editWordById,
+  modifyAbilityOfWordById,
+}: {
   badWord: BadWordItem
   removeWordById(wordId: string): void
   editWordById(wordId: string): void
@@ -23,7 +28,6 @@ function BadWordRow(props: {
 }) {
   const { TableCell, TableRow } = MaterialUI
   const classes = useStylesForRow()
-  const { badWord, removeWordById, editWordById, modifyAbilityOfWordById } = props
   return (
     <TableRow>
       <TableCell padding="checkbox">

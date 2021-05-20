@@ -201,10 +201,10 @@ const useStylesForCircularProgress = MaterialUI.makeStyles(theme =>
     },
   })
 )
-function TargetUserProfileEmpty(props: { reason: 'invalid-user' | 'loading' }) {
+function TargetUserProfileEmpty({ reason }: { reason: 'invalid-user' | 'loading' }) {
   const classes = useStylesForCircularProgress()
   let message = ''
-  if (props.reason === 'loading') {
+  if (reason === 'loading') {
     return <M.CircularProgress className={classes.center} color="secondary" />
   }
   return <div>{message}</div>

@@ -62,12 +62,7 @@ interface PopupAppProps {
   initialRedBlockOptions: RedBlockStorage['options']
 }
 
-function PopupUITopMenu(props: {
-  countOfSessions: number
-  currentTweet: Tweet | null
-  currentSearchQuery: string | null
-}) {
-  const { countOfSessions } = props
+function PopupUITopMenu({ countOfSessions }: { countOfSessions: number }) {
   const {
     menuAnchorElem,
     setMenuAnchorElem,
@@ -369,7 +364,7 @@ function PopupApp({
                   {myself && <PopupMyselfIcon {...{ myself: myself.user }} />}
                 </M.Toolbar>
               </M.AppBar>
-              <PopupUITopMenu {...{ countOfSessions, currentTweet, currentSearchQuery }} />
+              <PopupUITopMenu {...{ countOfSessions }} />
               <div className="page">
                 <M.Container maxWidth="sm" disableGutters>
                   <TabPanel value={tabIndex} index={PageEnum.Sessions}>

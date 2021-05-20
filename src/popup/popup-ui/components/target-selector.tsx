@@ -134,10 +134,10 @@ export function Options({ label, children }: { label: string; children: React.Re
   )
 }
 
-export function Controls(props: { children: React.ReactNode }) {
+export function Controls({ children }: { children: React.ReactNode }) {
   return (
     <M.Box my={1} display="flex" flexDirection="row-reverse">
-      <M.ButtonGroup>{props.children}</M.ButtonGroup>
+      <M.ButtonGroup>{children}</M.ButtonGroup>
     </M.Box>
   )
 }

@@ -58,7 +58,7 @@ function useSessionRequest(): TweetReactionBlockSessionRequest {
   }
 }
 
-function TargetTweetUI(props: { tweet: Tweet }) {
+function TargetTweetUI({ tweet }: { tweet: Tweet }) {
   const {
     wantBlockRetweeters,
     setWantBlockRetweeters,
@@ -71,7 +71,6 @@ function TargetTweetUI(props: { tweet: Tweet }) {
     wantBlockNonLinkedMentions,
     setWantBlockNonLinkedMentions,
   } = React.useContext(TweetReactionChainBlockPageStatesContext)
-  const { tweet } = props
   const mentions = tweet.entities.user_mentions || []
   const nobodyRetweeted = tweet.retweet_count <= 0
   const nobodyLiked = tweet.favorite_count <= 0

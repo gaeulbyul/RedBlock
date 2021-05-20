@@ -72,10 +72,8 @@ function progressTableRow(left: string, right: string | number) {
   )
 }
 
-function ChainBlockSessionProgressTable(props: { sessionInfo: SessionInfo }) {
-  const {
-    sessionInfo: { progress: p },
-  } = props
+function ChainBlockSessionProgressTable({ sessionInfo }: { sessionInfo: SessionInfo }) {
+  const { progress: p } = sessionInfo
   const { TableContainer, Table, TableBody } = MaterialUI
   const { success: s } = p
   return (
@@ -97,8 +95,7 @@ function ChainBlockSessionProgressTable(props: { sessionInfo: SessionInfo }) {
   )
 }
 
-function ChainBlockSessionItem(props: { sessionInfo: SessionInfo }) {
-  const { sessionInfo } = props
+function ChainBlockSessionItem({ sessionInfo }: { sessionInfo: SessionInfo }) {
   const { sessionId } = sessionInfo
   const { purpose, target, executor } = sessionInfo.request
   const uiContext = React.useContext(UIContext)
@@ -379,11 +376,13 @@ function GlobalControls() {
   )
 }
 
-function NewSessionMenu(props: {
+function NewSessionMenu({
+  anchorEl,
+  setAnchorEl,
+}: {
   anchorEl: Element | null
   setAnchorEl(elem: Element | null): void
 }) {
-  const { anchorEl, setAnchorEl } = props
   const uiContext = React.useContext(UIContext)
   function handleClose() {
     setAnchorEl(null)
