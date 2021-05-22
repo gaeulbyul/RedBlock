@@ -249,7 +249,7 @@ export class TwClient {
       cursor,
     })
   }
-  public async getAudioSpaceById(spaceId: string): Promise<AudioSpaceResponse> {
+  public async getAudioSpaceById(spaceId: string): Promise<AudioSpace> {
     const queryId = await examineQueryIdOfAudioSpaceByIdGraphQLRequest()
     return await this.requestGraphQL(queryId, 'AudioSpaceById', {
       id: spaceId,
@@ -259,7 +259,7 @@ export class TwClient {
       withUserResults: true,
       withBirdwatchPivots: true,
       withScheduledSpaces: true,
-    })
+    }).then(response => response.data.audioSpace)
   }
   private async sendRequest(request: RequestInit, url: URL) {
     let newCsrfToken = ''
@@ -601,12 +601,6 @@ interface UrlEntity {
   expanded_url: string
 }
 
-interface AudioSpaceResponse {
-  data: {
-    audioSpace: AudioSpace
-  }
-}
-
 interface AudioSpace {
   rest_id: string
   state: 'Ended' // TODO
@@ -617,7 +611,7 @@ interface AudioSpace {
   is_locked: boolean
   participants: {
     total: number
-    admin: AudioSpaceParticipant[]
+    admins: AudioSpaceParticipant[]
     speakers: AudioSpaceParticipant[]
     listeners: AudioSpaceParticipant[]
   }

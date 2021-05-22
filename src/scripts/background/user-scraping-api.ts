@@ -128,6 +128,44 @@ export class UserScrapingAPIClient {
       }
     }
   }
+  public async *getParticipantsOfAudioSpace({
+    spaceId,
+    hostsAndSpeakers,
+    listeners,
+  }: {
+    spaceId: string
+    hostsAndSpeakers: boolean
+    listeners: boolean
+  }): ScrapedUsersIterator {
+    if (hostsAndSpeakers === false && listeners === false) {
+      console.warn('neither speakers nor listeners should fetch?')
+      return
+    }
+    const users: TwitterUser[] = []
+    const audioSpace = await this.twClient.getAudioSpaceById(spaceId)
+    if (hostsAndSpeakers) {
+      const participants = audioSpace.participants.admins.concat(audioSpace.participants.speakers)
+      for (const participant of participants) {
+        const maybeUser = participant.user_results.result
+        if (maybeUser.__typename !== 'User') {
+          continue
+        }
+        const user = { ...maybeUser.legacy, id_str: maybeUser.rest_id }
+        users.push(user)
+      }
+    }
+    if (listeners) {
+      for (const participant of audioSpace.participants.listeners) {
+        const maybeUser = participant.user_results.result
+        if (maybeUser.__typename !== 'User') {
+          continue
+        }
+        const user = { ...maybeUser.legacy, id_str: maybeUser.rest_id }
+        users.push(user)
+      }
+    }
+    yield wrapEitherRight({ users })
+  }
   public async *lookupUsersByIds(userIds: string[]): ScrapedUsersIterator {
     const chunks = _.chunk(userIds, 100)
     for (const chunk of chunks) {
