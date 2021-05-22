@@ -249,6 +249,18 @@ export class TwClient {
       cursor,
     })
   }
+  public async getAudioSpaceById(spaceId: string): Promise<AudioSpaceResponse> {
+    const queryId = await examineQueryIdOfAudioSpaceByIdGraphQLRequest()
+    return await this.requestGraphQL(queryId, 'AudioSpaceById', {
+      id: spaceId,
+      withNonLegacyCard: true,
+      withTweetResult: true,
+      withReactions: true,
+      withUserResults: true,
+      withBirdwatchPivots: true,
+      withScheduledSpaces: true,
+    })
+  }
   private async sendRequest(request: RequestInit, url: URL) {
     let newCsrfToken = ''
     let maxRetryCount = 3
@@ -273,7 +285,7 @@ export class TwClient {
   }
   private async request1(method: HTTPMethods, path: string, paramsObj: URLParamsObj = {}) {
     const fetchOptions = await generateTwitterAPIOptions({ method }, this.cookieOptions)
-    const url = new URL(`https://${this.prefix}` + '/1.1' + path)
+    const url = new URL(`https://${this.prefix}/1.1${path}`)
     let params: URLSearchParams
     if (method === 'get') {
       params = url.searchParams
@@ -295,7 +307,7 @@ export class TwClient {
   }
   private async request2(method: HTTPMethods, path: string, paramsObj: URLParamsObj = {}) {
     const fetchOptions = await generateTwitterAPIOptions({ method }, this.cookieOptions)
-    const url = new URL(`https://${this.prefix}` + '/2' + path)
+    const url = new URL(`https://${this.prefix}/2${path}`)
     let params: URLSearchParams
     if (method === 'get') {
       params = url.searchParams
@@ -305,6 +317,17 @@ export class TwClient {
     }
     prepareParams(params, paramsObj)
     prepareMoreParams(params)
+    return this.sendRequest(fetchOptions, url)
+  }
+  private async requestGraphQL(
+    queryId: string,
+    operationName: string,
+    variables: URLParamsObj = {}
+  ) {
+    const fetchOptions = await generateTwitterAPIOptions({ method: 'get' }, this.cookieOptions)
+    const url = new URL(`https://${this.prefix}/graphql/${queryId}/${operationName}`)
+    const encodedVariables = JSON.stringify(variables)
+    url.searchParams.set('variables', encodedVariables)
     return this.sendRequest(fetchOptions, url)
   }
 }
@@ -429,6 +452,23 @@ export class RateLimitError extends Error {
   }
 }
 
+let audioSpaceByIdQueryId = ''
+
+async function examineQueryIdOfAudioSpaceByIdGraphQLRequest(): Promise<string> {
+  if (audioSpaceByIdQueryId) {
+    return audioSpaceByIdQueryId
+  }
+  const twitter = await fetch('https://twitter.com/').then(resp => resp.text())
+  const domparser = new DOMParser()
+  const parsed = domparser.parseFromString(twitter, 'text/html')
+  const mainScriptTag = parsed.querySelector<HTMLScriptElement>('script[src*="client-web/main."]')!
+  const mainScript = await fetch(mainScriptTag.src).then(resp => resp.text())
+  const match1 = /\.exports=({[^}]*?\boperationName:"AudioSpaceById"[^}]*?})/.exec(mainScript)!
+  const match2 = /queryId:"([^"]+)"/.exec(match1[1])!
+  audioSpaceByIdQueryId = match2[1]
+  return audioSpaceByIdQueryId
+}
+
 type HTTPMethods = 'get' | 'delete' | 'post' | 'put'
 type URLParamsObj = {
   [key: string]: string | number | boolean | null | undefined | string[] | number[]
@@ -547,6 +587,7 @@ export interface Tweet {
   in_reply_to_screen_name?: string
   entities: {
     user_mentions?: UserMentionEntity[]
+    urls?: UrlEntity[]
   }
 }
 
@@ -554,6 +595,49 @@ interface UserMentionEntity {
   id_str: string
   name: string
   screen_name: string
+}
+
+interface UrlEntity {
+  expanded_url: string
+}
+
+interface AudioSpaceResponse {
+  data: {
+    audioSpace: AudioSpace
+  }
+}
+
+interface AudioSpace {
+  rest_id: string
+  state: 'Ended' // TODO
+  title: string
+  created_at: number // timestamp (ex. 1621037312345)
+  started_at: number
+  updated_at: number
+  is_locked: boolean
+  participants: {
+    total: number
+    admin: AudioSpaceParticipant[]
+    speakers: AudioSpaceParticipant[]
+    listeners: AudioSpaceParticipant[]
+  }
+}
+
+interface AudioSpaceUser {
+  __typename: 'User'
+  rest_id: string // id_str
+  legacy: Omit<TwitterUser, 'id_str'>
+}
+
+interface AudioSpaceUserUnAvailable {
+  __typename: 'UserUnavailable'
+  reason: string // ex. 'Protected'
+}
+
+interface AudioSpaceParticipant {
+  user_results: {
+    result: AudioSpaceUser | AudioSpaceUserUnAvailable
+  }
 }
 
 export interface Limit {
