@@ -41,20 +41,17 @@ interface UserSelectorContextType {
 }
 const UserSelectorContext = React.createContext<UserSelectorContextType>(null!)
 
-function useSessionRequest(): FollowerBlockSessionRequest {
-  const { purpose, targetList, userSelection } = React.useContext(
-    FollowerChainBlockPageStatesContext
-  )
+function useSessionRequest(targetUser: TwitterUser): FollowerBlockSessionRequest {
+  const { purpose, targetList } = React.useContext(FollowerChainBlockPageStatesContext)
   const myself = React.useContext(MyselfContext)!
   const { retriever } = React.useContext(RetrieverContext)!
   const { extraTarget } = React.useContext(ExtraTargetContext)
   const options = React.useContext(RedBlockOptionsContext)
-  const selectedUser = userSelection?.user!
   return {
     purpose,
     target: {
       type: 'follower',
-      user: selectedUser,
+      user: targetUser,
       list: targetList,
     },
     options,
@@ -380,17 +377,25 @@ async function getMultipleUsersByIdWithCache(
 }
 
 function TargetExecutionButtonUI() {
-  const { purpose } = React.useContext(FollowerChainBlockPageStatesContext)
+  const { purpose, userSelection } = React.useContext(FollowerChainBlockPageStatesContext)
   const uiContext = React.useContext(UIContext)
   const limiterStatus = React.useContext(BlockLimiterContext)
-  const request = useSessionRequest()
   function isAvailable() {
+    if (!userSelection) {
+      return false
+    }
+    const request = useSessionRequest(userSelection.user)
     if (limiterStatus.remained <= 0 && purpose.type === 'chainblock') {
       return false
     }
     return validateRequest(request) === TargetCheckResult.Ok
   }
   function executeSession() {
+    if (!userSelection) {
+      // userSelection이 없으면 button이 disabled됨
+      throw new Error('unreachable')
+    }
+    const request = useSessionRequest(userSelection.user)
     if (!request) {
       uiContext.openSnackBar(i18n.getMessage('error_occured_check_login'))
       return
@@ -410,20 +415,28 @@ function TargetExecutionButtonUI() {
   )
 }
 
-export default function NewChainBlockPage() {
-  const { userSelection } = React.useContext(FollowerChainBlockPageStatesContext)
-  const request = useSessionRequest()
+function NewChainBlockPageWithoutSelectedUser() {
   return (
     <div>
       <TargetUserSelectUI />
-      {userSelection && <TargetOptionsUI />}
       <BlockLimiterUI />
-      {userSelection && (
-        <div>
-          <RequestCheckResultUI {...{ request }} />
-          <TargetExecutionButtonUI />
-        </div>
-      )}
+    </div>
+  )
+}
+
+export default function NewChainBlockPage() {
+  const { userSelection } = React.useContext(FollowerChainBlockPageStatesContext)
+  if (!userSelection) {
+    return NewChainBlockPageWithoutSelectedUser()
+  }
+  const request = useSessionRequest(userSelection.user)
+  return (
+    <div>
+      <TargetUserSelectUI />
+      <TargetOptionsUI />
+      <BlockLimiterUI />
+      <RequestCheckResultUI {...{ request }} />
+      <TargetExecutionButtonUI />
     </div>
   )
 }
