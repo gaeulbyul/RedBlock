@@ -8,7 +8,7 @@ function checkFirstPartyIsolationSupport() {
     // @ts-ignore
     chrome.cookies.getAll({ firstPartyDomain: undefined })
     return true
-  } catch (err) {
+  } catch {
     return false
   }
 }

@@ -13,7 +13,7 @@ try {
     extraInfoSpec.push('extraHeaders')
     extraInfoSpecResponse.push('extraHeaders')
   }
-} catch (e) {}
+} catch {}
 
 const blockLimitReachedNotifyMessage = i18n.getMessage('notify_on_block_limit')
 const notifyAboutBlockLimitation = _.debounce(
