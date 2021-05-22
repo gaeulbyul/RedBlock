@@ -123,7 +123,11 @@ function TargetSavedUsers({
       onSelectTarget={onSelectTarget}
     >
       <TargetSelectorOptions label={i18n.getMessage('select_user') + ':'}>
-        {currentUser && <UserItem group="current" user={currentUser} />}
+        {currentUser && (
+          <ItemsGroup group="current" label={i18n.getMessage('current_user')}>
+            <UserItem user={currentUser} />
+          </ItemsGroup>
+        )}
         <ItemsGroup
           group="other tab"
           label={`${i18n.getMessage('users_in_other_tab')} (${usersInOtherTab.size})`}
