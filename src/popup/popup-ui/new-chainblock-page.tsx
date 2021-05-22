@@ -37,7 +37,7 @@ const M = MaterialUI
 const userCache = new TwitterUserMap()
 
 interface UserSelectorContextType {
-  changeSelectedUser(userId: string, userName: string, group: TargetGroup): void
+  changeSelectedUser(userId: string, group: TargetGroup): void
 }
 const UserSelectorContext = React.createContext<UserSelectorContextType>(null!)
 
@@ -95,16 +95,16 @@ function sortedByName(usersMap: TwitterUserMap): TwitterUser[] {
   return _.sortBy(usersMap.toUserArray(), user => user.screen_name.toLowerCase())
 }
 
-function TargetSavedUsers({
-  savedUsers,
+function FollowerChainBlockTargetSelector({
+  bookmarkedUsers,
   usersInOtherTab,
 }: {
-  savedUsers: TwitterUserMap
+  bookmarkedUsers: TwitterUserMap
   usersInOtherTab: TwitterUserMap
 }) {
   const { currentUser, userSelection } = React.useContext(FollowerChainBlockPageStatesContext)
   const { changeSelectedUser } = React.useContext(UserSelectorContext)
-  const { addUserToBookmark, removeUserFromBookmark } = useBookmarkModifier(savedUsers)
+  const { addUserToBookmark, removeUserFromBookmark } = useBookmarkModifier(bookmarkedUsers)
   let selectedItemIdentifier = ''
   if (userSelection) {
     selectedItemIdentifier = identifierOfItem({
@@ -114,7 +114,7 @@ function TargetSavedUsers({
     })
   }
   function onSelectTarget(item: TargetSelectorItem) {
-    changeSelectedUser(item.idStr, '@--name--', item.group)
+    changeSelectedUser(item.idStr, item.group)
   }
   return (
     <TargetSelector
@@ -138,9 +138,9 @@ function TargetSavedUsers({
         </ItemsGroup>
         <ItemsGroup
           group="bookmarked"
-          label={`${i18n.getMessage('saved_user')} (${savedUsers.size})`}
+          label={`${i18n.getMessage('saved_user')} (${bookmarkedUsers.size})`}
         >
-          {sortedByName(savedUsers).map((user, index) => (
+          {sortedByName(bookmarkedUsers).map((user, index) => (
             <UserItem key={index} user={user} />
           ))}
         </ItemsGroup>
@@ -217,11 +217,11 @@ function TargetUserSelectUI() {
   )
   const myself = React.useContext(MyselfContext)!
   const { openDialog } = React.useContext(UIContext)
-  const [savedUsers, setSavedUsers] = React.useState(new TwitterUserMap())
+  const [bookmarkedUsers, setBookmarkedUsers] = React.useState(new TwitterUserMap())
   const [usersInOtherTab, setUsersInOtherTab] = React.useState(new TwitterUserMap())
   const [isLoading, setLoadingState] = React.useState(false)
   const twClient = new TwClient(myself.cookieOptions)
-  async function changeSelectedUser(userId: string, userName: string, group: TargetGroup) {
+  async function changeSelectedUser(userId: string, group: TargetGroup) {
     if (!/^\d+$/.test(userId)) {
       setUserSelection(null)
       return
@@ -238,7 +238,7 @@ function TargetUserSelectUI() {
         openDialog({
           dialogType: 'alert',
           message: {
-            title: i18n.getMessage('failed_to_get_user_info', userName),
+            title: i18n.getMessage('failed_to_get_user_info'),
           },
         })
         setUserSelection(null)
@@ -253,14 +253,14 @@ function TargetUserSelectUI() {
         .filter(item => item.type === 'user')
         .map(item => (item as BookmarkUserItem).userId)
       const users = await getMultipleUsersByIdWithCache(twClient, userIds)
-      setSavedUsers(users)
+      setBookmarkedUsers(users)
     })
     return Storage.onStorageChanged('bookmarks', async bookmarks => {
       const userIds = bookmarks
         .filter(item => item.type === 'user')
         .map(item => (item as BookmarkUserItem).userId)
       const users = await getMultipleUsersByIdWithCache(twClient, userIds)
-      setSavedUsers(users)
+      setBookmarkedUsers(users)
       // 스토리지에서 불러올 때 직전에 선택했었던 유저가 없는 경우
       if (!(userSelection && users.hasUser(userSelection.user))) {
         if (currentUser) {
@@ -310,7 +310,7 @@ function TargetUserSelectUI() {
       <div style={{ width: '100%' }}>
         <M.FormControl component="fieldset" fullWidth>
           <UserSelectorContext.Provider value={{ changeSelectedUser }}>
-            <TargetSavedUsers {...{ savedUsers, usersInOtherTab }} />
+            <FollowerChainBlockTargetSelector {...{ bookmarkedUsers, usersInOtherTab }} />
           </UserSelectorContext.Provider>
           <M.Divider />
           {userSelection ? (
