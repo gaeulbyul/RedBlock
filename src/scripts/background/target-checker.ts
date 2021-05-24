@@ -16,19 +16,19 @@ export const enum TargetCheckResult {
   InvalidSearchQuery,
 }
 
-export function validateRequest(request: SessionRequest): TargetCheckResult {
+export function validateRequest(request: SessionRequest<AnySessionTarget>): TargetCheckResult {
   const { target } = request
   switch (target.type) {
     case 'follower':
-      return checkFollowerBlockRequest(request as FollowerBlockSessionRequest)
+      return checkFollowerBlockRequest(request as SessionRequest<FollowerSessionTarget>)
     case 'tweet_reaction':
-      return checkTweetReactionBlockRequest(request as TweetReactionBlockSessionRequest)
+      return checkTweetReactionBlockRequest(request as SessionRequest<TweetReactionSessionTarget>)
     case 'lockpicker':
-      return checkLockPickerRequest(request as LockPickerSessionRequest)
+      return checkLockPickerRequest(request as SessionRequest<LockPickerSessionTarget>)
     case 'import':
-      return checkImportBlockRequest(request as ImportBlockSessionRequest)
+      return checkImportBlockRequest(request as SessionRequest<ImportSessionTarget>)
     case 'user_search':
-      return checkUserSearchBlockRequest(request as UserSearchBlockSessionRequest)
+      return checkUserSearchBlockRequest(request as SessionRequest<UserSearchBlockSessionTarget>)
     case 'export_my_blocklist':
       return TargetCheckResult.Ok
   }
@@ -39,7 +39,7 @@ function checkFollowerBlockRequest({
   options,
   retriever,
   executor,
-}: FollowerBlockSessionRequest): TargetCheckResult {
+}: SessionRequest<FollowerSessionTarget>): TargetCheckResult {
   const { followers_count, friends_count } = target.user
   if (target.user.protected && !target.user.following) {
     return TargetCheckResult.Protected
@@ -62,7 +62,7 @@ function checkFollowerBlockRequest({
 
 function checkTweetReactionBlockRequest({
   target,
-}: TweetReactionBlockSessionRequest): TargetCheckResult {
+}: SessionRequest<TweetReactionSessionTarget>): TargetCheckResult {
   const {
     blockRetweeters,
     blockLikers,
@@ -105,7 +105,9 @@ function checkTweetReactionBlockRequest({
   return TargetCheckResult.Ok
 }
 
-function checkImportBlockRequest({ target }: ImportBlockSessionRequest): TargetCheckResult {
+function checkImportBlockRequest({
+  target,
+}: SessionRequest<ImportSessionTarget>): TargetCheckResult {
   if (target.userIds.length <= 0 && target.userNames.length <= 0) {
     return TargetCheckResult.EmptyList
   }
@@ -115,7 +117,7 @@ function checkLockPickerRequest({
   target,
   retriever,
   executor,
-}: LockPickerSessionRequest): TargetCheckResult {
+}: SessionRequest<LockPickerSessionTarget>): TargetCheckResult {
   if (target.user.followers_count <= 0) {
     return TargetCheckResult.NoFollowers
   }
@@ -127,14 +129,16 @@ function checkLockPickerRequest({
   return TargetCheckResult.Ok
 }
 
-function checkUserSearchBlockRequest({ target }: UserSearchBlockSessionRequest): TargetCheckResult {
+function checkUserSearchBlockRequest({
+  target,
+}: SessionRequest<UserSearchBlockSessionTarget>): TargetCheckResult {
   if (!target.query) {
     return TargetCheckResult.InvalidSearchQuery
   }
   return TargetCheckResult.Ok
 }
 
-export function isSameTarget(target1: SessionTarget, target2: SessionTarget) {
+export function isSameTarget(target1: AnySessionTarget, target2: AnySessionTarget) {
   if (target1.type !== target2.type) {
     return false
   }

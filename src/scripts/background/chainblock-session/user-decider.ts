@@ -1,5 +1,5 @@
 export function decideWhatToDoGivenUser(
-  request: SessionRequest,
+  request: SessionRequest<AnySessionTarget>,
   follower: TwitterUser,
   now: Dayjs
 ): UserAction | 'Skip' | 'AlreadyDone' {

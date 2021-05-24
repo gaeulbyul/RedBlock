@@ -25,7 +25,7 @@ import { TargetCheckResult, validateRequest } from '../../scripts/background/tar
 
 const M = MaterialUI
 
-function useImportSessionRequest(): ImportBlockSessionRequest {
+function useImportSessionRequest(): SessionRequest<ImportSessionTarget> {
   const { purpose, blocklist } = React.useContext(ImportChainBlockPageStatesContext)
   const { extraTarget } = React.useContext(ExtraTargetContext)
   const myself = React.useContext(MyselfContext)!
@@ -45,7 +45,7 @@ function useImportSessionRequest(): ImportBlockSessionRequest {
   }
 }
 
-function useExportSessionRequest(): ExportMyBlocklistSessionRequest {
+function useExportSessionRequest(): SessionRequest<ExportMyBlocklistTarget> {
   const myself = React.useContext(MyselfContext)!
   const options = React.useContext(RedBlockOptionsContext)
   return {
@@ -132,7 +132,7 @@ function ImportBlocklistUI() {
       dialogType: 'confirm',
       message: generateConfirmMessage(request),
       callbackOnOk() {
-        startNewChainBlockSession<ImportBlockSessionRequest>(request)
+        startNewChainBlockSession<ImportSessionTarget>(request)
       },
     })
   }
@@ -250,7 +250,7 @@ function ExportBlocklistUI() {
       dialogType: 'confirm',
       message: generateConfirmMessage(request),
       callbackOnOk() {
-        startNewChainBlockSession<ExportMyBlocklistSessionRequest>(request)
+        startNewChainBlockSession<ExportMyBlocklistTarget>(request)
       },
     })
   }

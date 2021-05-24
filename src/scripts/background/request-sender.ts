@@ -1,4 +1,6 @@
-export async function startNewChainBlockSession<T extends SessionRequest>(request: T) {
+export async function startNewChainBlockSession<T extends AnySessionTarget>(
+  request: SessionRequest<T>
+) {
   return browser.runtime.sendMessage<RBMessageToBackground.CreateChainBlockSession>({
     messageType: 'CreateChainBlockSession',
     messageTo: 'background',

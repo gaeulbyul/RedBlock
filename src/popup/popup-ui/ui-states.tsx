@@ -23,7 +23,7 @@ function usePurpose<T extends Purpose>(initialPurposeType: T['type']) {
   return [purpose, changePurposeType, mutatePurposeOptions] as const
 }
 
-type ExtraTarget = SessionRequest['extraTarget']
+type ExtraTarget = SessionRequest<AnySessionTarget>['extraTarget']
 
 interface ExtraTargetContextType {
   extraTarget: ExtraTarget
@@ -63,12 +63,12 @@ interface FollowerChainBlockPageStates {
   setUserSelection(userSelection: UserSelectionState | null): void
   targetList: FollowKind
   setTargetList(fk: FollowKind): void
-  purpose: FollowerBlockSessionRequest['purpose']
-  changePurposeType(purposeType: FollowerBlockSessionRequest['purpose']['type']): void
+  purpose: SessionRequest<FollowerSessionTarget>['purpose']
+  changePurposeType(purposeType: SessionRequest<FollowerSessionTarget>['purpose']['type']): void
   mutatePurposeOptions(
-    partialOptions: Partial<Omit<FollowerBlockSessionRequest['purpose'], 'type'>>
+    partialOptions: Partial<Omit<SessionRequest<FollowerSessionTarget>['purpose'], 'type'>>
   ): void
-  availablePurposeTypes: FollowerBlockSessionRequest['purpose']['type'][]
+  availablePurposeTypes: SessionRequest<FollowerSessionTarget>['purpose']['type'][]
 }
 
 interface TweetReactionChainBlockPageStates {
@@ -83,12 +83,14 @@ interface TweetReactionChainBlockPageStates {
   setWantBlockQuotedUsers(b: boolean): void
   wantBlockNonLinkedMentions: boolean
   setWantBlockNonLinkedMentions(b: boolean): void
-  purpose: TweetReactionBlockSessionRequest['purpose']
-  changePurposeType(purposeType: TweetReactionBlockSessionRequest['purpose']['type']): void
-  mutatePurposeOptions(
-    partialOptions: Partial<Omit<TweetReactionBlockSessionRequest['purpose'], 'type'>>
+  purpose: SessionRequest<TweetReactionSessionTarget>['purpose']
+  changePurposeType(
+    purposeType: SessionRequest<TweetReactionSessionTarget>['purpose']['type']
   ): void
-  availablePurposeTypes: TweetReactionBlockSessionRequest['purpose']['type'][]
+  mutatePurposeOptions(
+    partialOptions: Partial<Omit<SessionRequest<TweetReactionSessionTarget>['purpose'], 'type'>>
+  ): void
+  availablePurposeTypes: SessionRequest<TweetReactionSessionTarget>['purpose']['type'][]
 }
 
 interface ImportChainBlockPageStates {
@@ -96,31 +98,33 @@ interface ImportChainBlockPageStates {
   setBlocklist(blocklist: Blocklist): void
   nameOfSelectedFiles: string[]
   setNameOfSelectedFiles(nameOfSelectedFiles: string[]): void
-  purpose: ImportBlockSessionRequest['purpose']
-  changePurposeType(purposeType: ImportBlockSessionRequest['purpose']['type']): void
+  purpose: SessionRequest<ImportSessionTarget>['purpose']
+  changePurposeType(purposeType: SessionRequest<ImportSessionTarget>['purpose']['type']): void
   mutatePurposeOptions(
-    partialOptions: Partial<Omit<ImportBlockSessionRequest['purpose'], 'type'>>
+    partialOptions: Partial<Omit<SessionRequest<ImportSessionTarget>['purpose'], 'type'>>
   ): void
-  availablePurposeTypes: ImportBlockSessionRequest['purpose']['type'][]
+  availablePurposeTypes: SessionRequest<ImportSessionTarget>['purpose']['type'][]
 }
 
 interface UserSearchChainBlockPageStates {
   searchQuery: string | null
-  purpose: UserSearchBlockSessionRequest['purpose']
-  changePurposeType(purposeType: UserSearchBlockSessionRequest['purpose']['type']): void
-  mutatePurposeOptions(
-    partialOptions: Partial<Omit<UserSearchBlockSessionRequest['purpose'], 'type'>>
+  purpose: SessionRequest<UserSearchBlockSessionTarget>['purpose']
+  changePurposeType(
+    purposeType: SessionRequest<UserSearchBlockSessionTarget>['purpose']['type']
   ): void
-  availablePurposeTypes: UserSearchBlockSessionRequest['purpose']['type'][]
+  mutatePurposeOptions(
+    partialOptions: Partial<Omit<SessionRequest<UserSearchBlockSessionTarget>['purpose'], 'type'>>
+  ): void
+  availablePurposeTypes: SessionRequest<UserSearchBlockSessionTarget>['purpose']['type'][]
 }
 
 interface LockPickerPageStates {
-  purpose: LockPickerSessionRequest['purpose']
+  purpose: SessionRequest<LockPickerSessionTarget>['purpose']
   changePurposeType(__: any): void // <- 실제론 안 씀
   mutatePurposeOptions(
-    partialOptions: Partial<Omit<LockPickerSessionRequest['purpose'], 'type'>>
+    partialOptions: Partial<Omit<SessionRequest<LockPickerSessionTarget>['purpose'], 'type'>>
   ): void
-  availablePurposeTypes: LockPickerSessionRequest['purpose']['type'][]
+  availablePurposeTypes: SessionRequest<LockPickerSessionTarget>['purpose']['type'][]
 }
 
 export const FollowerChainBlockPageStatesContext = React.createContext<FollowerChainBlockPageStates>(
@@ -157,12 +161,11 @@ export function FollowerChainBlockPageStatesProvider({
     initialSelectionState = null
   }
   const [userSelection, setUserSelection] = React.useState(initialSelectionState)
-  const initialPurposeType = determineInitialPurposeType<FollowerBlockSessionRequest['purpose']>(
-    myself.user,
-    initialUser
-  )
+  const initialPurposeType = determineInitialPurposeType<
+    SessionRequest<FollowerSessionTarget>['purpose']
+  >(myself.user, initialUser)
   const [targetList, setTargetList] = React.useState<FollowKind>('followers')
-  const availablePurposeTypes: FollowerBlockSessionRequest['purpose']['type'][] = [
+  const availablePurposeTypes: SessionRequest<FollowerSessionTarget>['purpose']['type'][] = [
     'chainblock',
     'unchainblock',
     'chainmute',
@@ -171,7 +174,7 @@ export function FollowerChainBlockPageStatesProvider({
     'export',
   ]
   const [purpose, changePurposeType, mutatePurposeOptions] = usePurpose<
-    FollowerBlockSessionRequest['purpose']
+    SessionRequest<FollowerSessionTarget>['purpose']
   >(initialPurposeType)
   const { enableAntiBlock } = React.useContext(RedBlockOptionsContext)
   const [retriever, setRetriever] = React.useState(myself)
@@ -229,7 +232,7 @@ export function TweetReactionChainBlockPageStatesProvider({
   const [wantBlockMentionedUsers, setWantBlockMentionedUsers] = React.useState(false)
   const [wantBlockQuotedUsers, setWantBlockQuotedUsers] = React.useState(false)
   const [wantBlockNonLinkedMentions, setWantBlockNonLinkedMentions] = React.useState(false)
-  const availablePurposeTypes: TweetReactionBlockSessionRequest['purpose']['type'][] = [
+  const availablePurposeTypes: SessionRequest<TweetReactionSessionTarget>['purpose']['type'][] = [
     'chainblock',
     'chainmute',
     'unchainmute',
@@ -237,7 +240,7 @@ export function TweetReactionChainBlockPageStatesProvider({
     'export',
   ]
   const [purpose, changePurposeType, mutatePurposeOptions] = usePurpose<
-    TweetReactionBlockSessionRequest['purpose']
+    SessionRequest<TweetReactionSessionTarget>['purpose']
   >('chainblock')
   const selectedTweet = initialTweet // TODO: make it state
   const myself = React.useContext(MyselfContext)!
@@ -294,7 +297,7 @@ export function TweetReactionChainBlockPageStatesProvider({
 export function ImportChainBlockPageStatesProvider({ children }: { children: React.ReactNode }) {
   const [blocklist, setBlocklist] = React.useState<Blocklist>(emptyBlocklist)
   const [nameOfSelectedFiles, setNameOfSelectedFiles] = React.useState<string[]>([])
-  const availablePurposeTypes: ImportBlockSessionRequest['purpose']['type'][] = [
+  const availablePurposeTypes: SessionRequest<ImportSessionTarget>['purpose']['type'][] = [
     'chainblock',
     'unchainblock',
     'chainmute',
@@ -302,7 +305,7 @@ export function ImportChainBlockPageStatesProvider({ children }: { children: Rea
     'chainunfollow',
   ]
   const [purpose, changePurposeType, mutatePurposeOptions] = usePurpose<
-    ImportBlockSessionRequest['purpose']
+    SessionRequest<ImportSessionTarget>['purpose']
   >('chainblock')
   return (
     <ImportChainBlockPageStatesContext.Provider
@@ -329,7 +332,7 @@ export function UserSearchChainBlockPageStatesProvider({
   children: React.ReactNode
   currentSearchQuery: string | null
 }) {
-  const availablePurposeTypes: UserSearchBlockSessionRequest['purpose']['type'][] = [
+  const availablePurposeTypes: SessionRequest<UserSearchBlockSessionTarget>['purpose']['type'][] = [
     'chainblock',
     'unchainblock',
     'chainmute',
@@ -337,7 +340,7 @@ export function UserSearchChainBlockPageStatesProvider({
     'chainunfollow',
   ]
   const [purpose, changePurposeType, mutatePurposeOptions] = usePurpose<
-    UserSearchBlockSessionRequest['purpose']
+    SessionRequest<UserSearchBlockSessionTarget>['purpose']
   >('chainblock')
   return (
     <UserSearchChainBlockPageStatesContext.Provider
@@ -356,7 +359,7 @@ export function UserSearchChainBlockPageStatesProvider({
 
 export function LockPickerPageStatesProvider({ children }: { children: React.ReactNode }) {
   const [purpose, changePurposeType, mutatePurposeOptions] = usePurpose<
-    LockPickerSessionRequest['purpose']
+    SessionRequest<LockPickerSessionTarget>['purpose']
   >('lockpicker')
   return (
     <LockPickerPageStatesContext.Provider

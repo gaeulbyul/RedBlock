@@ -23,8 +23,8 @@ class SimpleScraper implements UserIdScraper {
     this.request.retriever.cookieOptions
   )
   public totalCount: number
-  public constructor(private request: FollowerBlockSessionRequest) {
-    const { user, list: followKind } = this.request.target
+  public constructor(private request: SessionRequest<FollowerSessionTarget>) {
+    const { user, list: followKind } = request.target
     this.totalCount = getFollowersCount(user, followKind)!
   }
   public async *[Symbol.asyncIterator]() {
@@ -39,7 +39,7 @@ class MutualFollowerScraper implements UserIdScraper {
     this.request.retriever.cookieOptions
   )
   public totalCount: number | null = null
-  public constructor(private request: FollowerBlockSessionRequest) {}
+  public constructor(private request: SessionRequest<FollowerSessionTarget>) {}
   public async *[Symbol.asyncIterator]() {
     const mutualFollowersIds = await this.scrapingClient.getAllMutualFollowersIds(
       this.request.target.user
@@ -55,7 +55,7 @@ class TweetReactedUserScraper implements UserIdScraper {
     this.request.retriever.cookieOptions
   )
   public totalCount: number
-  public constructor(private request: TweetReactionBlockSessionRequest) {
+  public constructor(private request: SessionRequest<TweetReactionSessionTarget>) {
     this.totalCount = getReactionsCount(request.target)
   }
   public async *[Symbol.asyncIterator]() {
@@ -119,25 +119,27 @@ class ExportMyBlocklistScraper implements UserIdScraper {
     this.request.retriever.cookieOptions
   )
   public totalCount: null
-  public constructor(private request: ExportMyBlocklistSessionRequest) {}
+  public constructor(private request: SessionRequest<ExportMyBlocklistTarget>) {
+    this.request.target
+  }
   public async *[Symbol.asyncIterator]() {
     yield* this.scrapingClient.getAllBlockedUsersIds()
   }
 }
 
 // NOTE: 나중가면 export 외의 다른 목적으로 id scraper를 사용할 지도 모른다.
-export function initIdScraper(request: ExportableSessionRequest): UserIdScraper {
+export function initIdScraper(request: SessionRequest<ExportableSessionTarget>): UserIdScraper {
   const { target } = request
   switch (target.type) {
     case 'export_my_blocklist':
-      return new ExportMyBlocklistScraper(request as ExportMyBlocklistSessionRequest)
+      return new ExportMyBlocklistScraper(request as SessionRequest<ExportMyBlocklistTarget>)
     case 'tweet_reaction':
-      return new TweetReactedUserScraper(request as TweetReactionBlockSessionRequest)
+      return new TweetReactedUserScraper(request as SessionRequest<TweetReactionSessionTarget>)
     case 'follower':
       if (target.list === 'mutual-followers') {
-        return new MutualFollowerScraper(request as FollowerBlockSessionRequest)
+        return new MutualFollowerScraper(request as SessionRequest<FollowerSessionTarget>)
       } else {
-        return new SimpleScraper(request as FollowerBlockSessionRequest)
+        return new SimpleScraper(request as SessionRequest<FollowerSessionTarget>)
       }
   }
 }

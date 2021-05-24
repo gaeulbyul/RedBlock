@@ -41,7 +41,7 @@ interface UserSelectorContextType {
 }
 const UserSelectorContext = React.createContext<UserSelectorContextType>(null!)
 
-function useSessionRequest(targetUser: TwitterUser): FollowerBlockSessionRequest {
+function useSessionRequest(targetUser: TwitterUser): SessionRequest<FollowerSessionTarget> {
   const { purpose, targetList } = React.useContext(FollowerChainBlockPageStatesContext)
   const myself = React.useContext(MyselfContext)!
   const { retriever } = React.useContext(RetrieverContext)!
@@ -408,7 +408,7 @@ function TargetExecutionButtonUI() {
       dialogType: 'confirm',
       message: TextGenerate.generateConfirmMessage(request),
       callbackOnOk() {
-        startNewChainBlockSession<FollowerBlockSessionRequest>(request)
+        startNewChainBlockSession<FollowerSessionTarget>(request)
       },
     })
   }

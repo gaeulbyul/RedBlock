@@ -174,7 +174,9 @@ export function getReactionsCount(target: TweetReactionSessionTarget): number {
   return result
 }
 
-export function getCountOfUsersToBlock({ target }: SessionRequest): number | null {
+export function getCountOfUsersToBlock({
+  target,
+}: SessionRequest<AnySessionTarget>): number | null {
   switch (target.type) {
     case 'follower':
     case 'lockpicker':
@@ -317,4 +319,17 @@ export function stripSensitiveInfo(user: TwitterUser): TwitterUser {
     console.error(err)
   }
   return user
+}
+
+export function isExportableTarget(target: AnySessionTarget): target is ExportableSessionTarget {
+  switch (target.type) {
+    case 'follower':
+    case 'tweet_reaction':
+    case 'export_my_blocklist':
+      return true
+    case 'import':
+    case 'lockpicker':
+    case 'user_search':
+      return false
+  }
 }

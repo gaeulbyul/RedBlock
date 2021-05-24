@@ -55,7 +55,7 @@ abstract class BaseSession {
   protected shouldStop = false
   protected readonly sessionInfo = this.initSessionInfo()
   public readonly eventEmitter = new EventEmitter<SessionEventEmitter>()
-  public constructor(protected request: SessionRequest) {}
+  public constructor(protected request: SessionRequest<AnySessionTarget>) {}
   public getSessionInfo() {
     return copyFrozenObject(this.sessionInfo)
   }
@@ -145,7 +145,7 @@ abstract class BaseSession {
 
 export class ChainBlockSession extends BaseSession {
   private readonly scraper = Scraper.initScraper(this.request)
-  public constructor(protected request: SessionRequest) {
+  public constructor(protected request: SessionRequest<AnySessionTarget>) {
     super(request)
   }
   public async start() {
@@ -322,7 +322,7 @@ export class ExportSession extends BaseSession {
     filename: this.generateFilename(this.request.target),
     userIds: new Set<string>(),
   }
-  public constructor(protected request: ExportableSessionRequest) {
+  public constructor(protected request: SessionRequest<ExportableSessionTarget>) {
     super(request)
   }
   public getExportResult(): ExportResult {
@@ -380,7 +380,7 @@ export class ExportSession extends BaseSession {
       throw error
     }
   }
-  private generateFilename(target: ExportableSessionRequest['target']): string {
+  private generateFilename(target: SessionRequest<ExportableSessionTarget>['target']): string {
     const now = dayjs()
     let prefix: string
     let targetStr: string

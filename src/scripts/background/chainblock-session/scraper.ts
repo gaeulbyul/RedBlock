@@ -21,8 +21,10 @@ class SimpleScraper implements UserScraper {
     this.request.executor.cookieOptions
   )
   public totalCount: number
-  public constructor(private request: FollowerBlockSessionRequest | LockPickerSessionRequest) {
-    const { user, list: followKind } = this.request.target
+  public constructor(
+    private request: SessionRequest<FollowerSessionTarget | LockPickerSessionTarget>
+  ) {
+    const { user, list: followKind } = request.target
     this.totalCount = getFollowersCount(user, followKind)!
   }
   public async *[Symbol.asyncIterator]() {
@@ -74,7 +76,7 @@ class MutualFollowerScraper implements UserScraper {
     this.request.executor.cookieOptions
   )
   public totalCount: number | null = null
-  public constructor(private request: FollowerBlockSessionRequest) {}
+  public constructor(private request: SessionRequest<FollowerSessionTarget>) {}
   public async *[Symbol.asyncIterator]() {
     const { user } = this.request.target
     let mutualFollowersIds: string[]
@@ -111,7 +113,7 @@ class TweetReactedUserScraper implements UserScraper {
     this.request.executor.cookieOptions
   )
   public totalCount: number
-  public constructor(private request: TweetReactionBlockSessionRequest) {
+  public constructor(private request: SessionRequest<TweetReactionSessionTarget>) {
     this.totalCount = getReactionsCount(request.target)
   }
   public async *[Symbol.asyncIterator]() {
@@ -178,7 +180,7 @@ class ImportUserScraper implements UserScraper {
     this.request.executor.cookieOptions
   )
   public totalCount = this.request.target.userIds.length + this.request.target.userNames.length
-  public constructor(private request: ImportBlockSessionRequest) {}
+  public constructor(private request: SessionRequest<ImportSessionTarget>) {}
   public async *[Symbol.asyncIterator]() {
     // 여러 파일을 import한다면 유저ID와 유저네임 둘 다 있을 수 있다.
     const { userIds, userNames } = this.request.target
@@ -209,7 +211,7 @@ class UserSearchScraper implements UserScraper {
     this.request.executor.cookieOptions
   )
   public totalCount = null
-  public constructor(private request: UserSearchBlockSessionRequest) {}
+  public constructor(private request: SessionRequest<UserSearchBlockSessionTarget>) {}
   public async *[Symbol.asyncIterator]() {
     let scraper: ScrapedUsersIterator = this.scrapingClient.getUserSearchResults(
       this.request.target.query
@@ -223,22 +225,22 @@ class UserSearchScraper implements UserScraper {
   }
 }
 
-export function initScraper(request: SessionRequest): UserScraper {
+export function initScraper(request: SessionRequest<AnySessionTarget>): UserScraper {
   const { target } = request
   switch (target.type) {
     case 'import':
-      return new ImportUserScraper(request as ImportBlockSessionRequest)
+      return new ImportUserScraper(request as SessionRequest<ImportSessionTarget>)
     case 'tweet_reaction':
-      return new TweetReactedUserScraper(request as TweetReactionBlockSessionRequest)
+      return new TweetReactedUserScraper(request as SessionRequest<TweetReactionSessionTarget>)
     case 'user_search':
-      return new UserSearchScraper(request as UserSearchBlockSessionRequest)
+      return new UserSearchScraper(request as SessionRequest<UserSearchBlockSessionTarget>)
     case 'lockpicker':
-      return new SimpleScraper(request as LockPickerSessionRequest)
+      return new SimpleScraper(request as SessionRequest<LockPickerSessionTarget>)
     case 'follower':
       if (target.list === 'mutual-followers') {
-        return new MutualFollowerScraper(request as FollowerBlockSessionRequest)
+        return new MutualFollowerScraper(request as SessionRequest<FollowerSessionTarget>)
       } else {
-        return new SimpleScraper(request as FollowerBlockSessionRequest)
+        return new SimpleScraper(request as SessionRequest<FollowerSessionTarget>)
       }
     case 'export_my_blocklist':
       // 오로지 export만 쓰므로 userScraper는 안 쓴다 (user-id scraper만 쓰지)

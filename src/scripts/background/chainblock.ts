@@ -1,4 +1,9 @@
-import { SessionStatus, isRunningSession, isRewindableSession } from '../common.js'
+import {
+  SessionStatus,
+  isRunningSession,
+  isRewindableSession,
+  isExportableTarget,
+} from '../common.js'
 import * as TextGenerate from '../text-generate.js'
 import { alertToCurrentTab, notify, updateExtensionBadge } from './background.js'
 import { markUser } from './misc.js'
@@ -24,7 +29,7 @@ export default class ChainBlocker {
     )
     return currentRunningSessions
   }
-  private getSessionByTarget(target: SessionTarget): Session | null {
+  private getSessionByTarget(target: AnySessionTarget): Session | null {
     return (
       this.getCurrentRunningSessions().find(session =>
         isSameTarget(session.getSessionInfo().request.target, target)
@@ -81,7 +86,7 @@ export default class ChainBlocker {
       }
     }
   }
-  private checkAlreadyRunningOnSameTarget(target: SessionTarget): boolean {
+  private checkAlreadyRunningOnSameTarget(target: AnySessionTarget): boolean {
     const sameTargetSession = this.getSessionByTarget(target)
     if (sameTargetSession) {
       const sessionInfo = sameTargetSession.getSessionInfo()
@@ -99,7 +104,7 @@ export default class ChainBlocker {
     this.sessions.delete(sessionId)
     this.updateBadge()
   }
-  private createSession(request: SessionRequest) {
+  private createSession(request: SessionRequest<AnySessionTarget>) {
     let session: Session
     switch (request.purpose.type) {
       case 'chainblock':
@@ -111,14 +116,17 @@ export default class ChainBlocker {
         session = new ChainBlockSession(request)
         break
       case 'export':
-        session = new ExportSession(request as ExportableSessionRequest)
+        if (!isExportableTarget(request.target)) {
+          throw new Error('attempted to start export session with non-exportable request')
+        }
+        session = new ExportSession(request as SessionRequest<ExportableSessionTarget>)
         break
     }
     this.handleEvents(session)
     this.sessions.set(session.getSessionInfo().sessionId, session)
     return session
   }
-  public add(request: SessionRequest): Either<TargetCheckResult, string> {
+  public add(request: SessionRequest<AnySessionTarget>): Either<TargetCheckResult, string> {
     const isValidTarget = validateRequest(request)
     if (isValidTarget !== TargetCheckResult.Ok) {
       throw new Error(TextGenerate.checkResultToString(isValidTarget))
@@ -210,7 +218,7 @@ export default class ChainBlocker {
       alertToCurrentTab(i18n.getMessage('blocklist_is_empty'))
     }
   }
-  public checkRequest(request: SessionRequest): TargetCheckResult {
+  public checkRequest(request: SessionRequest<AnySessionTarget>): TargetCheckResult {
     if (this.checkAlreadyRunningOnSameTarget(request.target)) {
       return TargetCheckResult.AlreadyRunningOnSameTarget
     }

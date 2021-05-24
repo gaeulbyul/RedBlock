@@ -50,7 +50,7 @@ declare namespace RBMessageToBackground {
   interface CreateChainBlockSession {
     messageType: 'CreateChainBlockSession'
     messageTo: 'background'
-    request: SessionRequest
+    request: SessionRequest<AnySessionTarget>
   }
 
   interface StartSession {
@@ -176,7 +176,7 @@ declare namespace RBMessageToContent {
     messageType: 'ConfirmChainBlock'
     messageTo: 'content'
     confirmMessage: string
-    request: SessionRequest
+    request: SessionRequest<AnySessionTarget>
     // sessionId: string
   }
 

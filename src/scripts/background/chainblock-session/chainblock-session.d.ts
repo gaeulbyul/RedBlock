@@ -45,12 +45,17 @@ interface ExportPurpose {
   type: 'export'
 }
 
-type SessionTarget =
+type AnySessionTarget =
   | FollowerSessionTarget
   | TweetReactionSessionTarget
   | ImportSessionTarget
   | LockPickerSessionTarget
   | UserSearchBlockSessionTarget
+  | ExportMyBlocklistTarget
+
+type ExportableSessionTarget =
+  | FollowerSessionTarget
+  | TweetReactionSessionTarget
   | ExportMyBlocklistTarget
 
 interface FollowerSessionTarget {
@@ -101,65 +106,20 @@ interface Actor {
   cookieOptions: CookieOptions
 }
 
-interface BaseRequest {
+interface SessionRequest<Target extends AnySessionTarget> {
   retriever: Actor
   executor: Actor
   options: RedBlockOptions
   extraTarget: {
     bioBlock: BioBlockMode
   }
+  purpose: Purpose
+  target: Target
 }
 
-type SessionRequest =
-  | FollowerBlockSessionRequest
-  | TweetReactionBlockSessionRequest
-  | ImportBlockSessionRequest
-  | LockPickerSessionRequest
-  | UserSearchBlockSessionRequest
-  | ExportMyBlocklistSessionRequest
-
-type ExportableSessionRequest =
-  | FollowerBlockSessionRequest
-  | TweetReactionBlockSessionRequest
-  | ExportMyBlocklistSessionRequest
-
-interface FollowerBlockSessionRequest extends BaseRequest {
-  purpose: Exclude<Purpose, LockPickerPurpose>
-  target: FollowerSessionTarget
-}
-
-interface TweetReactionBlockSessionRequest extends BaseRequest {
-  // 이미 차단한 사용자의 RT/마음은 확인할 수 없다.
-  // 따라서, 언체인블락은 구현할 수 없다.
-  // 또한 프로텍트팔로워 역시 확인할 수 없으므로
-  purpose: Exclude<Purpose, UnChainBlockPurpose | LockPickerPurpose>
-  target: TweetReactionSessionTarget
-}
-
-interface LockPickerSessionRequest extends BaseRequest {
-  purpose: LockPickerPurpose
-  target: LockPickerSessionTarget
-}
-
-interface ImportBlockSessionRequest extends BaseRequest {
-  purpose: Exclude<Purpose, ExportPurpose | LockPickerPurpose>
-  target: ImportSessionTarget
-}
-
-interface UserSearchBlockSessionRequest extends BaseRequest {
-  // TODO: export는 나중으로 미루자
-  purpose: Exclude<Purpose, ExportPurpose | LockPickerPurpose>
-  target: UserSearchBlockSessionTarget
-}
-
-interface ExportMyBlocklistSessionRequest extends BaseRequest {
-  purpose: ExportPurpose
-  target: ExportMyBlocklistTarget
-}
-
-interface SessionInfo<ReqT = SessionRequest> {
+interface SessionInfo {
   sessionId: string
-  request: ReqT
+  request: SessionRequest<AnySessionTarget>
   progress: {
     success: {
       [action in Exclude<UserAction, 'Skip'>]: number

@@ -418,10 +418,12 @@ export function PurposeSelectionUI({
   mutatePurposeOptions,
   availablePurposeTypes,
 }: {
-  purpose: SessionRequest['purpose']
-  changePurposeType(purposeType: SessionRequest['purpose']['type']): void
-  mutatePurposeOptions(partialOptions: Partial<Omit<SessionRequest['purpose'], 'type'>>): void
-  availablePurposeTypes: SessionRequest['purpose']['type'][]
+  purpose: SessionRequest<AnySessionTarget>['purpose']
+  changePurposeType(purposeType: SessionRequest<AnySessionTarget>['purpose']['type']): void
+  mutatePurposeOptions(
+    partialOptions: Partial<Omit<SessionRequest<AnySessionTarget>['purpose'], 'type'>>
+  ): void
+  availablePurposeTypes: SessionRequest<AnySessionTarget>['purpose']['type'][]
 }) {
   const chainblockable = availablePurposeTypes.includes('chainblock')
   const unchainblockable = availablePurposeTypes.includes('unchainblock')
@@ -767,7 +769,7 @@ function UnChainMuteOptionsUI({
   )
 }
 
-export function RequestCheckResultUI({ request }: { request: SessionRequest }) {
+export function RequestCheckResultUI({ request }: { request: SessionRequest<AnySessionTarget> }) {
   const checkResult = validateRequest(request)
   const checkResultMsg = checkResultToString(checkResult)
   const isOk = checkResult === TargetCheckResult.Ok

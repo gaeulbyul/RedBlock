@@ -51,6 +51,6 @@ export const defaultPurposeOptions = Object.freeze({
   export: defaultExportPurposeOptions,
 })
 
-export const defaultExtraTarget = Object.freeze<SessionRequest['extraTarget']>({
+export const defaultExtraTarget = Object.freeze<SessionRequest<AnySessionTarget>['extraTarget']>({
   bioBlock,
 })

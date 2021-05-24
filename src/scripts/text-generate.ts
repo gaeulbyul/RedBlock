@@ -149,7 +149,7 @@ function describeReactionTargets(target: TweetReactionSessionTarget): string {
   return reactionsToBlock.join(', ')
 }
 
-function describeTarget({ target }: SessionRequest): string {
+function describeTarget({ target }: SessionRequest<AnySessionTarget>): string {
   // @ts-ignore
   const count = getCountOfUsersToBlock({ target })
   switch (target.type) {
@@ -183,7 +183,9 @@ function describeTarget({ target }: SessionRequest): string {
   }
 }
 
-export function generateConfirmMessage(request: SessionRequest): DialogMessageObj {
+export function generateConfirmMessage(
+  request: SessionRequest<AnySessionTarget>
+): DialogMessageObj {
   const target = `${i18n.getMessage('target')}: ${describeTarget(request)}`
   const warnings: string[] = []
   if (canBlockMyFollowers(request.purpose)) {

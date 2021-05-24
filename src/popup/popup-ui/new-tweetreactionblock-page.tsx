@@ -26,7 +26,7 @@ function showTextLikeTwitter({ full_text, display_text_range: [start, end] }: Tw
   return Array.from(full_text).slice(start, end).join('')
 }
 
-function useSessionRequest(): TweetReactionBlockSessionRequest {
+function useSessionRequest(): SessionRequest<TweetReactionSessionTarget> {
   const {
     purpose,
     currentTweet,
@@ -187,7 +187,7 @@ function TargetExecutionButtonUI() {
       dialogType: 'confirm',
       message: TextGenerate.generateConfirmMessage(request),
       callbackOnOk() {
-        startNewChainBlockSession<TweetReactionBlockSessionRequest>(request)
+        startNewChainBlockSession<TweetReactionSessionTarget>(request)
       },
     })
   }

@@ -545,6 +545,14 @@
   "error_occured_on_retrieving_tweet": {
     "message": "Error occured while retrieving tweet."
   },
+  "error_occured_on_retrieving_user": {
+    "message": "Error occured while retrieveing user @$username$",
+    "placeholders": {
+      "username": {
+        "content": "$1"
+      }
+    }
+  },
   "error_rate_limited": {
     "message": "Rate limited. Please try again later."
   },

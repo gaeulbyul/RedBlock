@@ -19,7 +19,7 @@ import { TargetCheckResult, validateRequest } from '../../scripts/background/tar
 
 const M = MaterialUI
 
-function useSessionRequest(): LockPickerSessionRequest {
+function useSessionRequest(): SessionRequest<LockPickerSessionTarget> {
   const { purpose } = React.useContext(LockPickerPageStatesContext)
   const { extraTarget } = React.useContext(ExtraTargetContext)
   const myself = React.useContext(MyselfContext)!
@@ -76,7 +76,7 @@ function TargetExecutionButtonUI() {
       dialogType: 'confirm',
       message: generateConfirmMessage(request),
       callbackOnOk() {
-        startNewChainBlockSession<LockPickerSessionRequest>(request)
+        startNewChainBlockSession<LockPickerSessionTarget>(request)
       },
     })
   }

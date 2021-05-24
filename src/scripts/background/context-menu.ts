@@ -1,4 +1,4 @@
-import { getUserNameFromURL, findMentionsFromText, findNonLinkedMentions } from '../common.js'
+import { getUserNameFromURL } from '../common.js'
 import { defaultChainBlockPurposeOptions } from './chainblock-session/default-options.js'
 import * as TwitterAPI from './twitter-api.js'
 import { TargetCheckResult } from './target-checker.js'
@@ -19,7 +19,7 @@ const documentUrlPatterns = [
 ]
 const tweetUrlPatterns = ['https://twitter.com/*/status/*', 'https://mobile.twitter.com/*/status/*']
 
-const extraTarget: SessionRequest['extraTarget'] = {
+const extraTarget: SessionRequest<AnySessionTarget>['extraTarget'] = {
   bioBlock: 'never',
 }
 
@@ -28,7 +28,7 @@ function getTweetIdFromUrl(url: URL) {
   return match && match[1]
 }
 
-async function sendConfirmToTab(tab: BrowserTab, request: SessionRequest) {
+async function sendConfirmToTab(tab: BrowserTab, request: SessionRequest<AnySessionTarget>) {
   const confirmMessage = objToString(generateConfirmMessage(request))
   browser.tabs.sendMessage<RBMessageToContent.ConfirmChainBlock>(tab.id!, {
     messageType: 'ConfirmChainBlock',
@@ -38,36 +38,35 @@ async function sendConfirmToTab(tab: BrowserTab, request: SessionRequest) {
   })
 }
 
-async function confirmFollowerChainBlockRequest(
-  tab: BrowserTab,
-  chainblocker: ChainBlocker,
-  userName: string,
-  followKind: FollowKind
-) {
+async function initExecutorActor(tab: BrowserTab): Promise<Actor | null> {
   const cookieStoreId = await getCookieStoreIdFromTab(tab)
   const cookieOptions = { cookieStoreId }
   const twClient = new TwitterAPI.TwClient(cookieOptions)
   const myself = await twClient.getMyself().catch(() => null)
-  if (!myself) {
-    return alertToTab(tab, i18n.getMessage('error_occured_check_login'))
+  if (myself) {
+    return { user: myself, cookieOptions }
+  } else {
+    return null
   }
-  const user = await twClient.getSingleUser({ screen_name: userName })
-  const executor = { user: myself, cookieOptions }
+}
+
+async function confirmChainBlockRequest(
+  tab: BrowserTab,
+  chainblocker: ChainBlocker,
+  executor: Actor,
+  target: FollowerSessionTarget | TweetReactionSessionTarget
+) {
   const options = await loadOptions()
   let retriever: Actor
-  if (options.enableAntiBlock) {
-    retriever = (await examineRetrieverByTargetUser(executor, user)) || executor
+  if (target.type === 'follower' && options.enableAntiBlock) {
+    retriever = (await examineRetrieverByTargetUser(executor, target.user)) || executor
   } else {
     retriever = executor
   }
-  const request: FollowerBlockSessionRequest = {
+  const request: SessionRequest<FollowerSessionTarget | TweetReactionSessionTarget> = {
     purpose: defaultChainBlockPurposeOptions,
     options,
-    target: {
-      type: 'follower',
-      list: followKind,
-      user,
-    },
+    target,
     retriever,
     executor,
     extraTarget,
@@ -79,6 +78,30 @@ async function confirmFollowerChainBlockRequest(
     const alertMessage = checkResultToString(checkResult)
     return alertToTab(tab, alertMessage)
   }
+}
+
+async function confirmFollowerChainBlockRequest(
+  tab: BrowserTab,
+  chainblocker: ChainBlocker,
+  userName: string,
+  followKind: FollowKind
+) {
+  const executor = await initExecutorActor(tab)
+  if (!executor) {
+    alertToTab(tab, i18n.getMessage('error_occured_check_login'))
+    return
+  }
+  const twClient = new TwitterAPI.TwClient(executor.cookieOptions)
+  const user = await twClient.getSingleUser({ screen_name: userName }).catch(() => null)
+  if (!user) {
+    alertToTab(tab, i18n.getMessage('error_occured_on_retrieving_user', userName))
+    return
+  }
+  return confirmChainBlockRequest(tab, chainblocker, executor, {
+    type: 'follower',
+    list: followKind,
+    user,
+  })
 }
 
 async function confirmTweetReactionChainBlockRequest(
@@ -93,79 +116,22 @@ async function confirmTweetReactionChainBlockRequest(
     blockNonLinkedMentions: boolean
   }
 ) {
-  const cookieStoreId = await getCookieStoreIdFromTab(tab)
-  const cookieOptions = { cookieStoreId }
-  const twClient = new TwitterAPI.TwClient(cookieOptions)
-  const myself = await twClient.getMyself().catch(() => null)
-  if (!myself) {
-    return alertToTab(tab, i18n.getMessage('error_occured_check_login'))
+  const executor = await initExecutorActor(tab)
+  if (!executor) {
+    alertToTab(tab, i18n.getMessage('error_occured_check_login'))
+    return
   }
-  const executor = { user: myself, cookieOptions }
-  const options = await loadOptions()
-  const tweet = await twClient.getTweetById(tweetId).catch(error => {
-    console.error(error)
-    return null
-  })
+  const twClient = new TwitterAPI.TwClient(executor.cookieOptions)
+  const tweet = await twClient.getTweetById(tweetId).catch(() => null)
   if (!tweet) {
-    return alertToTab(tab, i18n.getMessage('error_occured_on_retrieving_tweet'))
+    alertToTab(tab, i18n.getMessage('error_occured_on_retrieving_tweet'))
+    return
   }
-  const request: TweetReactionBlockSessionRequest = {
-    purpose: defaultChainBlockPurposeOptions,
-    options,
-    target: {
-      type: 'tweet_reaction',
-      tweet,
-      ...whoToBlock,
-    },
-    // 차단당한 경우 해당 작성자의 트윗 자체를 볼 수 없기때문에 context menu를 띄울 링크에 접근할 수 없다.
-    // 따라서 AntiBlock을 적용하지 않는다.
-    retriever: executor,
-    executor,
-    extraTarget,
-  }
-  const checkResult = chainblocker.checkRequest(request)
-  if (checkResult === TargetCheckResult.Ok) {
-    return sendConfirmToTab(tab, request)
-  } else {
-    const alertMessage = checkResultToString(checkResult)
-    return alertToTab(tab, alertMessage)
-  }
-}
-
-async function confirmTextSelectionImportRequest(
-  tab: BrowserTab,
-  chainblocker: ChainBlocker,
-  userNames: string[]
-) {
-  const cookieStoreId = await getCookieStoreIdFromTab(tab)
-  const cookieOptions = { cookieStoreId }
-  const twClient = new TwitterAPI.TwClient(cookieOptions)
-  const myself = await twClient.getMyself().catch(() => null)
-  if (!myself) {
-    return alertToTab(tab, i18n.getMessage('error_occured_check_login'))
-  }
-  const options = await loadOptions()
-  const retriever = { user: myself, cookieOptions }
-  const request: ImportBlockSessionRequest = {
-    purpose: defaultChainBlockPurposeOptions,
-    options,
-    target: {
-      type: 'import',
-      source: 'text',
-      userIds: [],
-      userNames,
-    },
-    retriever,
-    executor: retriever,
-    extraTarget,
-  }
-  const checkResult = chainblocker.checkRequest(request)
-  if (checkResult === TargetCheckResult.Ok) {
-    return sendConfirmToTab(tab, request)
-  } else {
-    const alertMessage = checkResultToString(checkResult)
-    return alertToTab(tab, alertMessage)
-  }
+  return confirmChainBlockRequest(tab, chainblocker, executor, {
+    type: 'tweet_reaction',
+    tweet,
+    ...whoToBlock,
+  })
 }
 
 // 크롬에선 browser.menus 대신 비표준 이름(browser.contextMenus)을 쓴다.
@@ -322,24 +288,6 @@ export async function initializeContextMenu(
       browser.runtime.openOptionsPage()
     },
   })
-  // 텍스트 체인블락
-  if (NaN) {
-    menus.create({
-      contexts: ['selection'],
-      title: i18n.getMessage('run_chainblock_from_text_selection'),
-      onclick(clickEvent, tab) {
-        const text = clickEvent.selectionText || ''
-        const mentions = findMentionsFromText(text)
-        const nonLinkedMentions = findNonLinkedMentions(text)
-        const userNames = [...mentions, ...nonLinkedMentions]
-        if (userNames.length <= 0) {
-          alertToTab(tab, i18n.getMessage('cant_chainblock_no_mentions_in_selected_text', text))
-          return
-        }
-        confirmTextSelectionImportRequest(tab, chainblocker, userNames)
-      },
-    })
-  }
 }
 
 browser.storage.onChanged.addListener((changes: Partial<RedBlockStorageChanges>) => {
