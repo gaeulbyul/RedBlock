@@ -50,7 +50,7 @@ type AnySessionTarget =
   | TweetReactionSessionTarget
   | ImportSessionTarget
   | LockPickerSessionTarget
-  | UserSearchBlockSessionTarget
+  | UserSearchSessionTarget
   | ExportMyBlocklistTarget
 
 type ExportableSessionTarget =
@@ -66,15 +66,12 @@ interface FollowerSessionTarget {
 
 interface TweetReactionSessionTarget {
   type: 'tweet_reaction'
-  // author of tweet
-  // user: TwitterUser
   tweet: Tweet
-  // reaction: ReactionKind
-  blockRetweeters: boolean
-  blockLikers: boolean
-  blockMentionedUsers: boolean
-  blockQuotedUsers: boolean
-  blockNonLinkedMentions: boolean
+  includeRetweeters: boolean
+  includeLikers: boolean
+  includeMentionedUsers: boolean
+  includeQuotedUsers: boolean
+  includeNonLinkedMentions: boolean
 }
 
 interface LockPickerSessionTarget {
@@ -90,7 +87,7 @@ interface ImportSessionTarget {
   userNames: string[]
 }
 
-interface UserSearchBlockSessionTarget {
+interface UserSearchSessionTarget {
   type: 'user_search'
   query: string
 }

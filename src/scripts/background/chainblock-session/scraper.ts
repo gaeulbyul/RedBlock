@@ -140,11 +140,11 @@ class TweetReactedUserScraper implements UserScraper {
   private async *fetchReactions(): ScrapedUsersIterator {
     const {
       tweet,
-      blockRetweeters,
-      blockLikers,
-      blockMentionedUsers,
-      blockQuotedUsers,
-      blockNonLinkedMentions,
+      includeRetweeters: blockRetweeters,
+      includeLikers: blockLikers,
+      includeMentionedUsers: blockMentionedUsers,
+      includeQuotedUsers: blockQuotedUsers,
+      includeNonLinkedMentions: blockNonLinkedMentions,
     } = this.request.target
     const scrapers: ScrapedUsersIterator[] = []
     if (blockRetweeters) {
@@ -211,7 +211,7 @@ class UserSearchScraper implements UserScraper {
     this.request.executor.cookieOptions
   )
   public totalCount = null
-  public constructor(private request: SessionRequest<UserSearchBlockSessionTarget>) {}
+  public constructor(private request: SessionRequest<UserSearchSessionTarget>) {}
   public async *[Symbol.asyncIterator]() {
     let scraper: ScrapedUsersIterator = this.scrapingClient.getUserSearchResults(
       this.request.target.query
@@ -233,7 +233,7 @@ export function initScraper(request: SessionRequest<AnySessionTarget>): UserScra
     case 'tweet_reaction':
       return new TweetReactedUserScraper(request as SessionRequest<TweetReactionSessionTarget>)
     case 'user_search':
-      return new UserSearchScraper(request as SessionRequest<UserSearchBlockSessionTarget>)
+      return new UserSearchScraper(request as SessionRequest<UserSearchSessionTarget>)
     case 'lockpicker':
       return new SimpleScraper(request as SessionRequest<LockPickerSessionTarget>)
     case 'follower':

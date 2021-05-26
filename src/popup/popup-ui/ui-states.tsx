@@ -73,16 +73,16 @@ interface FollowerChainBlockPageStates {
 
 interface TweetReactionChainBlockPageStates {
   currentTweet: Tweet | null
-  wantBlockRetweeters: boolean
-  setWantBlockRetweeters(b: boolean): void
-  wantBlockLikers: boolean
-  setWantBlockLikers(b: boolean): void
-  wantBlockMentionedUsers: boolean
-  setWantBlockMentionedUsers(b: boolean): void
-  wantBlockQuotedUsers: boolean
-  setWantBlockQuotedUsers(b: boolean): void
-  wantBlockNonLinkedMentions: boolean
-  setWantBlockNonLinkedMentions(b: boolean): void
+  includeRetweeters: boolean
+  setIncludeRetweeters(b: boolean): void
+  includeLikers: boolean
+  setIncludeLikers(b: boolean): void
+  includeMentionedUsers: boolean
+  setIncludeMentionedUsers(b: boolean): void
+  includeQuotedUsers: boolean
+  setIncludeQuotedUsers(b: boolean): void
+  includeNonLinkedMentions: boolean
+  setIncludeNonLinkedMentions(b: boolean): void
   purpose: SessionRequest<TweetReactionSessionTarget>['purpose']
   changePurposeType(
     purposeType: SessionRequest<TweetReactionSessionTarget>['purpose']['type']
@@ -108,14 +108,12 @@ interface ImportChainBlockPageStates {
 
 interface UserSearchChainBlockPageStates {
   searchQuery: string | null
-  purpose: SessionRequest<UserSearchBlockSessionTarget>['purpose']
-  changePurposeType(
-    purposeType: SessionRequest<UserSearchBlockSessionTarget>['purpose']['type']
-  ): void
+  purpose: SessionRequest<UserSearchSessionTarget>['purpose']
+  changePurposeType(purposeType: SessionRequest<UserSearchSessionTarget>['purpose']['type']): void
   mutatePurposeOptions(
-    partialOptions: Partial<Omit<SessionRequest<UserSearchBlockSessionTarget>['purpose'], 'type'>>
+    partialOptions: Partial<Omit<SessionRequest<UserSearchSessionTarget>['purpose'], 'type'>>
   ): void
-  availablePurposeTypes: SessionRequest<UserSearchBlockSessionTarget>['purpose']['type'][]
+  availablePurposeTypes: SessionRequest<UserSearchSessionTarget>['purpose']['type'][]
 }
 
 interface LockPickerPageStates {
@@ -227,11 +225,11 @@ export function TweetReactionChainBlockPageStatesProvider({
   children: React.ReactNode
   initialTweet: Tweet | null
 }) {
-  const [wantBlockRetweeters, setWantBlockRetweeters] = React.useState(false)
-  const [wantBlockLikers, setWantBlockLikers] = React.useState(false)
-  const [wantBlockMentionedUsers, setWantBlockMentionedUsers] = React.useState(false)
-  const [wantBlockQuotedUsers, setWantBlockQuotedUsers] = React.useState(false)
-  const [wantBlockNonLinkedMentions, setWantBlockNonLinkedMentions] = React.useState(false)
+  const [includeRetweeters, setIncludeRetweeters] = React.useState(false)
+  const [includeLikers, setIncludeLikers] = React.useState(false)
+  const [includeMentionedUsers, setIncludeMentionedUsers] = React.useState(false)
+  const [includeQuotedUsers, setIncludeQuotedUsers] = React.useState(false)
+  const [includeNonLinkedMentions, setIncludeNonLinkedMentions] = React.useState(false)
   const availablePurposeTypes: SessionRequest<TweetReactionSessionTarget>['purpose']['type'][] = [
     'chainblock',
     'chainmute',
@@ -271,16 +269,16 @@ export function TweetReactionChainBlockPageStatesProvider({
     <TweetReactionChainBlockPageStatesContext.Provider
       value={{
         currentTweet: initialTweet,
-        wantBlockRetweeters,
-        setWantBlockRetweeters,
-        wantBlockLikers,
-        setWantBlockLikers,
-        wantBlockMentionedUsers,
-        setWantBlockMentionedUsers,
-        wantBlockQuotedUsers,
-        setWantBlockQuotedUsers,
-        wantBlockNonLinkedMentions,
-        setWantBlockNonLinkedMentions,
+        includeRetweeters,
+        setIncludeRetweeters,
+        includeLikers,
+        setIncludeLikers,
+        includeMentionedUsers,
+        setIncludeMentionedUsers,
+        includeQuotedUsers,
+        setIncludeQuotedUsers,
+        includeNonLinkedMentions,
+        setIncludeNonLinkedMentions,
         purpose,
         changePurposeType,
         mutatePurposeOptions,
@@ -332,7 +330,7 @@ export function UserSearchChainBlockPageStatesProvider({
   children: React.ReactNode
   currentSearchQuery: string | null
 }) {
-  const availablePurposeTypes: SessionRequest<UserSearchBlockSessionTarget>['purpose']['type'][] = [
+  const availablePurposeTypes: SessionRequest<UserSearchSessionTarget>['purpose']['type'][] = [
     'chainblock',
     'unchainblock',
     'chainmute',
@@ -340,7 +338,7 @@ export function UserSearchChainBlockPageStatesProvider({
     'chainunfollow',
   ]
   const [purpose, changePurposeType, mutatePurposeOptions] = usePurpose<
-    SessionRequest<UserSearchBlockSessionTarget>['purpose']
+    SessionRequest<UserSearchSessionTarget>['purpose']
   >('chainblock')
   return (
     <UserSearchChainBlockPageStatesContext.Provider

@@ -109,11 +109,11 @@ async function confirmTweetReactionChainBlockRequest(
   chainblocker: ChainBlocker,
   tweetId: string,
   whoToBlock: {
-    blockRetweeters: boolean
-    blockLikers: boolean
-    blockMentionedUsers: boolean
-    blockQuotedUsers: boolean
-    blockNonLinkedMentions: boolean
+    includeRetweeters: boolean
+    includeLikers: boolean
+    includeMentionedUsers: boolean
+    includeQuotedUsers: boolean
+    includeNonLinkedMentions: boolean
   }
 ) {
   const executor = await initExecutorActor(tab)
@@ -210,11 +210,11 @@ export async function initializeContextMenu(
       const url = new URL(clickEvent.linkUrl!)
       const tweetId = getTweetIdFromUrl(url)!
       confirmTweetReactionChainBlockRequest(tab, chainblocker, tweetId, {
-        blockRetweeters: true,
-        blockLikers: false,
-        blockMentionedUsers: false,
-        blockQuotedUsers: false,
-        blockNonLinkedMentions: false,
+        includeRetweeters: true,
+        includeLikers: false,
+        includeMentionedUsers: false,
+        includeQuotedUsers: false,
+        includeNonLinkedMentions: false,
       })
     },
   })
@@ -227,11 +227,11 @@ export async function initializeContextMenu(
       const url = new URL(clickEvent.linkUrl!)
       const tweetId = getTweetIdFromUrl(url)!
       confirmTweetReactionChainBlockRequest(tab, chainblocker, tweetId, {
-        blockRetweeters: false,
-        blockLikers: true,
-        blockMentionedUsers: false,
-        blockQuotedUsers: false,
-        blockNonLinkedMentions: false,
+        includeRetweeters: false,
+        includeLikers: true,
+        includeMentionedUsers: false,
+        includeQuotedUsers: false,
+        includeNonLinkedMentions: false,
       })
     },
   })
@@ -244,11 +244,11 @@ export async function initializeContextMenu(
       const url = new URL(clickEvent.linkUrl!)
       const tweetId = getTweetIdFromUrl(url)!
       confirmTweetReactionChainBlockRequest(tab, chainblocker, tweetId, {
-        blockRetweeters: true,
-        blockLikers: true,
-        blockMentionedUsers: false,
-        blockQuotedUsers: false,
-        blockNonLinkedMentions: false,
+        includeRetweeters: true,
+        includeLikers: true,
+        includeMentionedUsers: false,
+        includeQuotedUsers: false,
+        includeNonLinkedMentions: false,
       })
     },
   })
@@ -261,11 +261,11 @@ export async function initializeContextMenu(
       const url = new URL(clickEvent.linkUrl!)
       const tweetId = getTweetIdFromUrl(url)!
       confirmTweetReactionChainBlockRequest(tab, chainblocker, tweetId, {
-        blockRetweeters: false,
-        blockLikers: false,
-        blockMentionedUsers: true,
-        blockQuotedUsers: false,
-        blockNonLinkedMentions: false,
+        includeRetweeters: false,
+        includeLikers: false,
+        includeMentionedUsers: true,
+        includeQuotedUsers: false,
+        includeNonLinkedMentions: false,
       })
     },
   })

@@ -61,11 +61,11 @@ class TweetReactedUserScraper implements UserIdScraper {
   public async *[Symbol.asyncIterator]() {
     const {
       tweet,
-      blockRetweeters,
-      blockLikers,
-      blockMentionedUsers,
-      blockQuotedUsers,
-      blockNonLinkedMentions,
+      includeRetweeters: blockRetweeters,
+      includeLikers: blockLikers,
+      includeMentionedUsers: blockMentionedUsers,
+      includeQuotedUsers: blockQuotedUsers,
+      includeNonLinkedMentions: blockNonLinkedMentions,
     } = this.request.target
     if (blockRetweeters) {
       const retrieverTwClient = new TwClient(this.request.retriever.cookieOptions)

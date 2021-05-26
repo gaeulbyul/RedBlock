@@ -128,7 +128,7 @@ export class UserScrapingAPIClient {
       }
     }
   }
-  public async *getParticipantsOfAudioSpace({
+  public async *getParticipantsInAudioSpace({
     spaceId,
     hostsAndSpeakers,
     listeners,

@@ -129,19 +129,19 @@ function describeReactionTargets(target: TweetReactionSessionTarget): string {
   const { tweet } = target
   const mentions = tweet.entities.user_mentions || []
   const nonLinkedMentions = findNonLinkedMentionsFromTweet(tweet)
-  if (target.blockRetweeters) {
+  if (target.includeRetweeters) {
     reactionsToBlock.push(`${i18n.getMessage('retweet')} (${tweet.retweet_count.toLocaleString()})`)
   }
-  if (target.blockLikers) {
+  if (target.includeLikers) {
     reactionsToBlock.push(`${i18n.getMessage('like')} (${tweet.favorite_count.toLocaleString()})`)
   }
-  if (target.blockMentionedUsers) {
+  if (target.includeMentionedUsers) {
     reactionsToBlock.push(`${i18n.getMessage('mentioned')} (${mentions.length.toLocaleString()})`)
   }
-  if (target.blockQuotedUsers) {
+  if (target.includeQuotedUsers) {
     reactionsToBlock.push(`${i18n.getMessage('quoted')} (${tweet.quote_count.toLocaleString()})`)
   }
-  if (target.blockNonLinkedMentions) {
+  if (target.includeNonLinkedMentions) {
     reactionsToBlock.push(
       `${i18n.getMessage('non_linked_mentions')} (${nonLinkedMentions.length.toLocaleString()})`
     )

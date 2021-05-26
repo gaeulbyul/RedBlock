@@ -30,11 +30,11 @@ function useSessionRequest(): SessionRequest<TweetReactionSessionTarget> {
   const {
     purpose,
     currentTweet,
-    wantBlockRetweeters,
-    wantBlockLikers,
-    wantBlockMentionedUsers,
-    wantBlockQuotedUsers,
-    wantBlockNonLinkedMentions,
+    includeRetweeters,
+    includeLikers,
+    includeMentionedUsers,
+    includeQuotedUsers,
+    includeNonLinkedMentions,
   } = React.useContext(TweetReactionChainBlockPageStatesContext)
   const { extraTarget } = React.useContext(ExtraTargetContext)
   const myself = React.useContext(MyselfContext)!
@@ -47,11 +47,11 @@ function useSessionRequest(): SessionRequest<TweetReactionSessionTarget> {
     target: {
       type: 'tweet_reaction',
       tweet: currentTweet!,
-      blockRetweeters: wantBlockRetweeters,
-      blockLikers: wantBlockLikers,
-      blockMentionedUsers: wantBlockMentionedUsers,
-      blockQuotedUsers: wantBlockQuotedUsers,
-      blockNonLinkedMentions: wantBlockNonLinkedMentions,
+      includeRetweeters,
+      includeLikers,
+      includeMentionedUsers,
+      includeQuotedUsers,
+      includeNonLinkedMentions,
     },
     retriever,
     executor: myself,
@@ -60,16 +60,16 @@ function useSessionRequest(): SessionRequest<TweetReactionSessionTarget> {
 
 function TargetTweetUI({ tweet }: { tweet: Tweet }) {
   const {
-    wantBlockRetweeters,
-    setWantBlockRetweeters,
-    wantBlockLikers,
-    setWantBlockLikers,
-    wantBlockMentionedUsers,
-    setWantBlockMentionedUsers,
-    wantBlockQuotedUsers,
-    setWantBlockQuotedUsers,
-    wantBlockNonLinkedMentions,
-    setWantBlockNonLinkedMentions,
+    includeRetweeters,
+    setIncludeRetweeters,
+    includeLikers,
+    setIncludeLikers,
+    includeMentionedUsers,
+    setIncludeMentionedUsers,
+    includeQuotedUsers,
+    setIncludeQuotedUsers,
+    includeNonLinkedMentions,
+    setIncludeNonLinkedMentions,
   } = React.useContext(TweetReactionChainBlockPageStatesContext)
   const mentions = tweet.entities.user_mentions || []
   const nobodyRetweeted = tweet.retweet_count <= 0
@@ -87,36 +87,36 @@ function TargetTweetUI({ tweet }: { tweet: Tweet }) {
         <M.FormGroup row>
           <M.FormControlLabel
             control={<M.Checkbox size="small" />}
-            onChange={() => setWantBlockRetweeters(!wantBlockRetweeters)}
-            checked={wantBlockRetweeters}
+            onChange={() => setIncludeRetweeters(!includeRetweeters)}
+            checked={includeRetweeters}
             disabled={nobodyRetweeted}
             label={`${i18n.getMessage('retweet')} (${tweet.retweet_count.toLocaleString()})`}
           />
           <M.FormControlLabel
             control={<M.Checkbox size="small" />}
-            onChange={() => setWantBlockLikers(!wantBlockLikers)}
-            checked={wantBlockLikers}
+            onChange={() => setIncludeLikers(!includeLikers)}
+            checked={includeLikers}
             disabled={nobodyLiked}
             label={`${i18n.getMessage('like')} (${tweet.favorite_count.toLocaleString()})`}
           />
           <M.FormControlLabel
             control={<M.Checkbox size="small" />}
-            onChange={() => setWantBlockMentionedUsers(!wantBlockMentionedUsers)}
-            checked={wantBlockMentionedUsers}
+            onChange={() => setIncludeMentionedUsers(!includeMentionedUsers)}
+            checked={includeMentionedUsers}
             disabled={nobodyMentioned}
             label={`${i18n.getMessage('mentioned')} (${mentions.length.toLocaleString()})`}
           />
           <M.FormControlLabel
             control={<M.Checkbox size="small" />}
-            onChange={() => setWantBlockQuotedUsers(!wantBlockQuotedUsers)}
-            checked={wantBlockQuotedUsers}
+            onChange={() => setIncludeQuotedUsers(!includeQuotedUsers)}
+            checked={includeQuotedUsers}
             disabled={nobodyQuoted}
             label={`${i18n.getMessage('quoted')} (${tweet.quote_count.toLocaleString()})`}
           />
           <M.FormControlLabel
             control={<M.Checkbox size="small" />}
-            onChange={() => setWantBlockNonLinkedMentions(!wantBlockNonLinkedMentions)}
-            checked={wantBlockNonLinkedMentions}
+            onChange={() => setIncludeNonLinkedMentions(!includeNonLinkedMentions)}
+            checked={includeNonLinkedMentions}
             disabled={nonLinkedMentions.length <= 0}
             label={`${i18n.getMessage(
               'non_linked_mentions'

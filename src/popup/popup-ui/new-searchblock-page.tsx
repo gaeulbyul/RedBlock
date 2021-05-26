@@ -19,7 +19,7 @@ import { TargetCheckResult, validateRequest } from '../../scripts/background/tar
 const M = MaterialUI
 const T = MaterialUI.Typography
 
-function useSessionRequest(): SessionRequest<UserSearchBlockSessionTarget> {
+function useSessionRequest(): SessionRequest<UserSearchSessionTarget> {
   const { purpose, searchQuery } = React.useContext(UserSearchChainBlockPageStatesContext)
   const { extraTarget } = React.useContext(ExtraTargetContext)
   const myself = React.useContext(MyselfContext)!
@@ -53,7 +53,7 @@ function TargetExecutionButtonUI() {
       dialogType: 'confirm',
       message: TextGenerate.generateConfirmMessage(request),
       callbackOnOk() {
-        startNewChainBlockSession<UserSearchBlockSessionTarget>(request)
+        startNewChainBlockSession<UserSearchSessionTarget>(request)
       },
     })
   }

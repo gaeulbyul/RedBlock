@@ -162,13 +162,13 @@ export function getReactionsCount(target: TweetReactionSessionTarget): number {
   let result = 0
   const { retweet_count, favorite_count } = target.tweet
   const mentions = target.tweet.entities.user_mentions || []
-  if (target.blockRetweeters) {
+  if (target.includeRetweeters) {
     result += retweet_count
   }
-  if (target.blockLikers) {
+  if (target.includeLikers) {
     result += favorite_count
   }
-  if (target.blockMentionedUsers) {
+  if (target.includeMentionedUsers) {
     result += mentions.length
   }
   return result

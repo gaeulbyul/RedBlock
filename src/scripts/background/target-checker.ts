@@ -28,7 +28,7 @@ export function validateRequest(request: SessionRequest<AnySessionTarget>): Targ
     case 'import':
       return checkImportBlockRequest(request as SessionRequest<ImportSessionTarget>)
     case 'user_search':
-      return checkUserSearchBlockRequest(request as SessionRequest<UserSearchBlockSessionTarget>)
+      return checkUserSearchBlockRequest(request as SessionRequest<UserSearchSessionTarget>)
     case 'export_my_blocklist':
       return TargetCheckResult.Ok
   }
@@ -64,11 +64,11 @@ function checkTweetReactionBlockRequest({
   target,
 }: SessionRequest<TweetReactionSessionTarget>): TargetCheckResult {
   const {
-    blockRetweeters,
-    blockLikers,
-    blockMentionedUsers,
-    blockQuotedUsers,
-    blockNonLinkedMentions,
+    includeRetweeters: blockRetweeters,
+    includeLikers: blockLikers,
+    includeMentionedUsers: blockMentionedUsers,
+    includeQuotedUsers: blockQuotedUsers,
+    includeNonLinkedMentions: blockNonLinkedMentions,
   } = target
   const mentions = target.tweet.entities.user_mentions || []
   if (
@@ -131,7 +131,7 @@ function checkLockPickerRequest({
 
 function checkUserSearchBlockRequest({
   target,
-}: SessionRequest<UserSearchBlockSessionTarget>): TargetCheckResult {
+}: SessionRequest<UserSearchSessionTarget>): TargetCheckResult {
   if (!target.query) {
     return TargetCheckResult.InvalidSearchQuery
   }
@@ -158,7 +158,7 @@ export function isSameTarget(target1: AnySessionTarget, target2: AnySessionTarge
     case 'user_search': {
       // Q: 대소문자가 같으면 같은 target으로 취급해야 하나?
       // A: OR AND 등 대소문자 가리는 연산자 있다. 다르게 취급하자
-      const givenQuery = (target2 as UserSearchBlockSessionTarget).query
+      const givenQuery = (target2 as UserSearchSessionTarget).query
       return target1.query === givenQuery
     }
     case 'export_my_blocklist':
