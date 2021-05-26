@@ -2,6 +2,7 @@ import * as UserScrapingAPI from '../user-scraping-api.js'
 import {
   getFollowersCount,
   getReactionsCount,
+  getParticipantsInAudioSpaceCount,
   wrapEitherRight,
   findNonLinkedMentionsFromTweet,
 } from '../../common.js'
@@ -114,6 +115,30 @@ class TweetReactedUserScraper implements UserIdScraper {
   }
 }
 
+class AudioSpaceScraper implements UserIdScraper {
+  private scrapingClient = UserScrapingAPI.UserScrapingAPIClient.fromCookieOptions(
+    this.request.executor.cookieOptions
+  )
+  public totalCount = getParticipantsInAudioSpaceCount(this.request.target)
+  public constructor(private request: SessionRequest<AudioSpaceSessionTarget>) {}
+  public async *[Symbol.asyncIterator]() {
+    const { audioSpace, includeHostsAndSpeakers, includeListeners } = this.request.target
+    const scraper: ScrapedUsersIterator = this.scrapingClient.getParticipantsInAudioSpace({
+      audioSpace,
+      hostsAndSpeakers: includeHostsAndSpeakers,
+      listeners: includeListeners,
+    })
+    for await (const response of scraper) {
+      if (response.ok) {
+        const ids = convertUsersObjectToIdsObject(response.value)
+        yield wrapEitherRight(ids)
+      } else {
+        yield response
+      }
+    }
+  }
+}
+
 class ExportMyBlocklistScraper implements UserIdScraper {
   private scrapingClient = UserScrapingAPI.UserScrapingAPIClient.fromCookieOptions(
     this.request.retriever.cookieOptions
@@ -141,5 +166,7 @@ export function initIdScraper(request: SessionRequest<ExportableSessionTarget>):
       } else {
         return new SimpleScraper(request as SessionRequest<FollowerSessionTarget>)
       }
+    case 'audio_space':
+      return new AudioSpaceScraper(request as SessionRequest<AudioSpaceSessionTarget>)
   }
 }

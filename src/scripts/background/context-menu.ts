@@ -18,6 +18,10 @@ const documentUrlPatterns = [
   'https://tweetdeck.twitter.com/*',
 ]
 const tweetUrlPatterns = ['https://twitter.com/*/status/*', 'https://mobile.twitter.com/*/status/*']
+const audioSpaceUrlPatterns = [
+  'https://twitter.com/i/spaces/*',
+  'https://mobile.twitter.com/i/spaces/*',
+]
 
 const extraTarget: SessionRequest<AnySessionTarget>['extraTarget'] = {
   bioBlock: 'never',
@@ -25,6 +29,11 @@ const extraTarget: SessionRequest<AnySessionTarget>['extraTarget'] = {
 
 function getTweetIdFromUrl(url: URL) {
   const match = /\/status\/(\d+)/.exec(url.pathname)
+  return match && match[1]
+}
+
+function getAudioSpaceIdFromUrl(url: URL) {
+  const match = /^\/i\/spaces\/([A-Za-z0-9]+)/.exec(url.pathname)
   return match && match[1]
 }
 
@@ -54,7 +63,7 @@ async function confirmChainBlockRequest(
   tab: BrowserTab,
   chainblocker: ChainBlocker,
   executor: Actor,
-  target: FollowerSessionTarget | TweetReactionSessionTarget
+  target: AnySessionTarget
 ) {
   const options = await loadOptions()
   let retriever: Actor
@@ -63,7 +72,7 @@ async function confirmChainBlockRequest(
   } else {
     retriever = executor
   }
-  const request: SessionRequest<FollowerSessionTarget | TweetReactionSessionTarget> = {
+  const request: SessionRequest<AnySessionTarget> = {
     purpose: defaultChainBlockPurposeOptions,
     options,
     target,
@@ -134,6 +143,34 @@ async function confirmTweetReactionChainBlockRequest(
   })
 }
 
+async function confirmAudioSpaceChainBlockRequest(
+  tab: BrowserTab,
+  chainblocker: ChainBlocker,
+  audioSpaceId: string,
+  includesWho: {
+    includeHostsAndSpeakers: boolean
+    includeListeners: boolean
+  }
+) {
+  const executor = await initExecutorActor(tab)
+  if (!executor) {
+    alertToTab(tab, i18n.getMessage('error_occured_check_login'))
+    return
+  }
+  const twClient = new TwitterAPI.TwClient(executor.cookieOptions)
+  const audioSpace = await twClient.getAudioSpaceById(audioSpaceId).catch(() => null)
+  if (!audioSpace) {
+    // TODO: L10N-ME: error on twitter space
+    // alertToTab(tab, i18n.getMessage('error_occured_on_retrieving_tweet'))
+    return
+  }
+  return confirmChainBlockRequest(tab, chainblocker, executor, {
+    type: 'audio_space',
+    audioSpace,
+    ...includesWho,
+  })
+}
+
 // 크롬에선 browser.menus 대신 비표준 이름(browser.contextMenus)을 쓴다.
 // 이를 파이어폭스와 맞추기 위해 이걸 함
 const menus = new Proxy<typeof browser.menus>({} as any, {
@@ -161,6 +198,7 @@ export async function initializeContextMenu(
 ) {
   connectedChainblocker = chainblocker
   await menus.removeAll()
+  const redblockOptions = await loadOptions()
   // 우클릭 - 유저
   optionallyCreateMenu(enabledMenus.chainBlockFollowers, {
     contexts: ['link'],
@@ -269,6 +307,42 @@ export async function initializeContextMenu(
       })
     },
   })
+  optionallyCreateMenu(
+    enabledMenus.chainBlockAudioSpaceSpeakers && redblockOptions.experimentallyEnableAudioSpace,
+    {
+      contexts: ['link'],
+      documentUrlPatterns,
+      targetUrlPatterns: audioSpaceUrlPatterns,
+      // L10N-ME
+      title: 'Run ChainBlock on This Space (Host & Speakers only)',
+      onclick(clickEvent, tab) {
+        const url = new URL(clickEvent.linkUrl!)
+        const audioSpaceId = getAudioSpaceIdFromUrl(url)!
+        confirmAudioSpaceChainBlockRequest(tab, chainblocker, audioSpaceId, {
+          includeHostsAndSpeakers: true,
+          includeListeners: false,
+        })
+      },
+    }
+  )
+  optionallyCreateMenu(
+    enabledMenus.chainBlockAudioSpaceSpeakers && redblockOptions.experimentallyEnableAudioSpace,
+    {
+      contexts: ['link'],
+      documentUrlPatterns,
+      targetUrlPatterns: audioSpaceUrlPatterns,
+      // L10N-ME
+      title: 'Run ChainBlock on This Space (All Participants)',
+      onclick(clickEvent, tab) {
+        const url = new URL(clickEvent.linkUrl!)
+        const audioSpaceId = getAudioSpaceIdFromUrl(url)!
+        confirmAudioSpaceChainBlockRequest(tab, chainblocker, audioSpaceId, {
+          includeHostsAndSpeakers: true,
+          includeListeners: true,
+        })
+      },
+    }
+  )
   // 확장기능버튼
   menus.create({
     contexts: ['browser_action'],

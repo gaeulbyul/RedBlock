@@ -46,6 +46,7 @@ export const defaultOptions = Object.freeze<RedBlockOptions>({
   firstPartyIsolationCompatibleMode: false,
   delayBlockRequest: 0,
   muteEvenAlreadyBlocking: false,
+  experimentallyEnableAudioSpace: false,
 })
 
 export const defaultUIOptions = Object.freeze<RedBlockUIOptions>({
@@ -57,5 +58,7 @@ export const defaultUIOptions = Object.freeze<RedBlockUIOptions>({
     chainBlockLikers: true,
     chainBlockRetweetersAndLikers: true,
     chainBlockMentioned: true,
+    chainBlockAudioSpaceSpeakers: true,
+    chainBlockAudioSpaceSpeakersAndListeners: true,
   }),
 })

@@ -174,6 +174,19 @@ export function getReactionsCount(target: TweetReactionSessionTarget): number {
   return result
 }
 
+export function getParticipantsInAudioSpaceCount(target: AudioSpaceSessionTarget): number {
+  const { audioSpace, includeHostsAndSpeakers, includeListeners } = target
+  let count = 0
+  if (includeHostsAndSpeakers) {
+    count += audioSpace.participants.admins.length
+    count += audioSpace.participants.speakers.length
+  }
+  if (includeListeners) {
+    count += audioSpace.participants.listeners.length
+  }
+  return count
+}
+
 export function getCountOfUsersToBlock({
   target,
 }: SessionRequest<AnySessionTarget>): number | null {
@@ -185,6 +198,8 @@ export function getCountOfUsersToBlock({
       return getReactionsCount(target)
     case 'import':
       return target.userIds.length + target.userNames.length
+    case 'audio_space':
+      return getParticipantsInAudioSpaceCount(target)
     case 'user_search':
     case 'export_my_blocklist':
       return null
@@ -325,6 +340,7 @@ export function isExportableTarget(target: AnySessionTarget): target is Exportab
   switch (target.type) {
     case 'follower':
     case 'tweet_reaction':
+    case 'audio_space':
     case 'export_my_blocklist':
       return true
     case 'import':

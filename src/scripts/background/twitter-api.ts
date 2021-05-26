@@ -601,9 +601,9 @@ interface UrlEntity {
   expanded_url: string
 }
 
-interface AudioSpace {
+export interface AudioSpace {
   rest_id: string
-  state: 'Ended' // TODO
+  state: 'Running' | 'Ended' // TODO
   title: string
   created_at: number // timestamp (ex. 1621037312345)
   started_at: number
@@ -617,21 +617,9 @@ interface AudioSpace {
   }
 }
 
-interface AudioSpaceUser {
-  __typename: 'User'
-  rest_id: string // id_str
-  legacy: Omit<TwitterUser, 'id_str'>
-}
-
-interface AudioSpaceUserUnAvailable {
-  __typename: 'UserUnavailable'
-  reason: string // ex. 'Protected'
-}
-
 interface AudioSpaceParticipant {
-  user_results: {
-    result: AudioSpaceUser | AudioSpaceUserUnAvailable
-  }
+  twitter_screen_name: string
+  display_name: string
 }
 
 export interface Limit {

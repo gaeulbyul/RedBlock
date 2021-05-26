@@ -136,6 +136,13 @@ function ChainBlockSessionItem({ sessionInfo }: { sessionInfo: SessionInfo }) {
       user = null
       localizedTarget = i18n.getMessage('from_user_search_result')
       break
+    case 'audio_space':
+      user = null
+      localizedTarget = i18n.getMessage(
+        'from_audio_space_by_xxx',
+        target.audioSpace.participants.admins[0].twitter_screen_name
+      )
+      break
     case 'export_my_blocklist':
       user = executor.user
       localizedTarget = i18n.getMessage('exporting_my_blocklist')

@@ -114,6 +114,7 @@ abstract class BaseSession {
         apiKind = 'tweet-reactions'
         break
       case 'import':
+      case 'audio_space':
         apiKind = 'lookup-users'
         break
       case 'user_search':
@@ -393,11 +394,16 @@ export class ExportSession extends BaseSession {
         prefix = 'blocklist-'
         targetStr = `tweet-${target.tweet.user.screen_name}-${target.tweet.id_str}`
         break
+      case 'audio_space':
+        prefix = 'blocklist-'
+        targetStr = `audiospace-${target.audioSpace.title}`
+        break
       case 'export_my_blocklist':
         prefix = 'blocked-users'
         targetStr = ''
         break
     }
+    targetStr = targetStr.replace(/[<>:"|?*\\/]/g, '_')
     const datetime = now.format('YYYY-MM-DD_HHmmss')
     return `${prefix}${targetStr}[${datetime}].csv`
   }

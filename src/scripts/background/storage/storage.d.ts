@@ -12,6 +12,7 @@ interface RedBlockStorage {
     firstPartyIsolationCompatibleMode: boolean
     delayBlockRequest: number
     muteEvenAlreadyBlocking: boolean
+    experimentallyEnableAudioSpace: boolean
   }
   uiOptions: {
     menus: {
@@ -22,6 +23,8 @@ interface RedBlockStorage {
       chainBlockLikers: boolean
       chainBlockRetweetersAndLikers: boolean
       chainBlockMentioned: boolean
+      chainBlockAudioSpaceSpeakers: boolean
+      chainBlockAudioSpaceSpeakersAndListeners: boolean
     }
   }
   badWords: BadWordItem[]

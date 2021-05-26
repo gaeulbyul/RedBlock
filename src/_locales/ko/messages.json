@@ -112,6 +112,14 @@
   "exporting_my_blocklist": {
     "message": "내 차단목록 내보내기"
   },
+  "from_audio_space_by_xxx": {
+    "message": "@$username$이(가) 진행하는 스페이스",
+    "placeholders": {
+      "username": {
+        "content": "$1"
+      }
+    }
+  },
   "session_status_initial": {
     "message": "대기 중"
   },
@@ -171,6 +179,9 @@
   },
   "status": {
     "message": "상태"
+  },
+  "audio_space": {
+    "message": "스페이스"
   },
   "rate_limit_reset_time": {
     "message": "예상 리밋해제 시각"
@@ -593,7 +604,7 @@
     "message": "맞팔로워가 0명입니다."
   },
   "cant_chainblock_nobody_will_blocked": {
-    "message": "이 트윗에 차단할 유저가 없습니다."
+    "message": "해당 조건에서 차단할 유저가 없습니다."
   },
   "cant_chainblock_empty_list": {
     "message": "차단목록 파일을 아직 선택하지 않았거나, 선택한 파일에서 유저ID를 찾을 수 없습니다."
@@ -614,6 +625,9 @@
         "content": "$1"
       }
     }
+  },
+  "choose_either_speakers_or_listeners": {
+    "message": "발화자나 청취자 중 적어도 하나 이상은 선택해주세요."
   },
   "wtf_twitter": {
     "message": "강제 로그아웃이나 계정정지 등의 문제를 피하기 위해 누적 차단횟수를 500회 미만으로 제한하고 있습니다."

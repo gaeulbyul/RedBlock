@@ -97,7 +97,9 @@ export function checkResultToString(result: TargetCheckResult): string {
     case TargetCheckResult.NoMutualFollowers:
       return i18n.getMessage('cant_chainblock_mutual_follower_is_zero')
     case TargetCheckResult.ChooseAtLeastOneOfReaction:
-      return i18n.getMessage('select_rt_or_like')
+      return i18n.getMessage('select_rt_or_like') // TODO: 메시지 고치기 (멘션/인용 등이 들어가는 경우)
+    case TargetCheckResult.ChooseEitherSpeakersOrListeners:
+      return i18n.getMessage('choose_either_speakers_or_listeners')
     case TargetCheckResult.NobodyWillBlocked:
       return i18n.getMessage('cant_chainblock_nobody_will_blocked')
     case TargetCheckResult.EmptyList:
@@ -149,6 +151,16 @@ function describeReactionTargets(target: TweetReactionSessionTarget): string {
   return reactionsToBlock.join(', ')
 }
 
+function describeAudioSpaceTarget(target: AudioSpaceSessionTarget): string {
+  const {
+    audioSpace: { participants },
+  } = target
+  const firstHost = participants.admins[0]
+  const nameOfHost = firstHost ? firstHost.display_name : '???'
+  // TODO: speakers / listeners
+  return i18n.getMessage('from_audio_space_by_xxx', nameOfHost)
+}
+
 function describeTarget({ target }: SessionRequest<AnySessionTarget>): string {
   // @ts-ignore
   const count = getCountOfUsersToBlock({ target })
@@ -178,6 +190,8 @@ function describeTarget({ target }: SessionRequest<AnySessionTarget>): string {
       return `${i18n.getMessage('from_user_search_result')} (${i18n.getMessage('query')}: ${
         target.query
       })`
+    case 'audio_space':
+      return describeAudioSpaceTarget(target)
     case 'export_my_blocklist':
       return i18n.getMessage('exporting_my_blocklist')
   }

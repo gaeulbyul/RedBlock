@@ -1,6 +1,7 @@
 type PageEnum = typeof import('../popup/popup-ui/pages').PageEnum
 type TwitterUser = import('./background/twitter-api').TwitterUser
 type Tweet = import('./background/twitter-api').Tweet
+type AudioSpace = import('./background/twitter-api').AudioSpace
 type DialogMessageObj = import('./text-generate').DialogMessageObj
 
 // ---- vendor modules ----

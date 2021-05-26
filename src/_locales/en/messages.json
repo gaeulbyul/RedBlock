@@ -109,6 +109,14 @@
   "from_user_search_result": {
     "message": "From user search result"
   },
+  "from_audio_space_by_xxx": {
+    "message": "Twitter Space that hosted by @$username$",
+    "placeholders": {
+      "username": {
+        "content": "$1"
+      }
+    }
+  },
   "exporting_my_blocklist": {
     "message": "Exporting your blocklist"
   },
@@ -171,6 +179,9 @@
   },
   "status": {
     "message": "Status"
+  },
+  "audio_space": {
+    "message": "Space"
   },
   "rate_limit_reset_time": {
     "message": "Rate limit reset time"
@@ -578,10 +589,10 @@
     "message": "Run Chain-block on users who mentioned on this tweet"
   },
   "run_chainblock_from_text_selection": {
-    "message": "Import Blocklist from selected text"
+    "message": "Import Blocklist from the selected text"
   },
   "already_running_to_same_target": {
-    "message": "Already running on the same target."
+    "message": "Already running on a same target."
   },
   "cant_chainblock_follower_is_zero": {
     "message": "This user doesn't have followers."
@@ -593,7 +604,7 @@
     "message": "This user doesn't have mutual-followers."
   },
   "cant_chainblock_nobody_will_blocked": {
-    "message": "There's no user to block on this tweet."
+    "message": "No user will be included with the given conditions."
   },
   "cant_chainblock_empty_list": {
     "message": "You didn't select blocklist file yet, or can't find any user ID in selected blocklist."
@@ -614,6 +625,9 @@
         "content": "$1"
       }
     }
+  },
+  "choose_either_speakers_or_listeners": {
+    "message": "Please choose either speakers or listeners."
   },
   "wtf_twitter": {
     "message": "To avoid problem(force-logout, account suspension), Red Block won't block over 500 users."

@@ -3,7 +3,7 @@ import * as ExtraScraper from './extra-scraper.js'
 import {
   getFollowersCount,
   getReactionsCount,
-  assertNever,
+  getParticipantsInAudioSpaceCount,
   findNonLinkedMentionsFromTweet,
 } from '../../common.js'
 
@@ -225,6 +225,28 @@ class UserSearchScraper implements UserScraper {
   }
 }
 
+class AudioSpaceScraper implements UserScraper {
+  private scrapingClient = UserScrapingAPI.UserScrapingAPIClient.fromCookieOptions(
+    this.request.executor.cookieOptions
+  )
+  public totalCount = getParticipantsInAudioSpaceCount(this.request.target)
+  public constructor(private request: SessionRequest<AudioSpaceSessionTarget>) {}
+  public async *[Symbol.asyncIterator]() {
+    const { audioSpace, includeHostsAndSpeakers, includeListeners } = this.request.target
+    let scraper: ScrapedUsersIterator = this.scrapingClient.getParticipantsInAudioSpace({
+      audioSpace,
+      hostsAndSpeakers: includeHostsAndSpeakers,
+      listeners: includeListeners,
+    })
+    scraper = ExtraScraper.scrapeUsersOnBio(
+      this.scrapingClient,
+      scraper,
+      this.request.extraTarget.bioBlock
+    )
+    yield* scraper
+  }
+}
+
 export function initScraper(request: SessionRequest<AnySessionTarget>): UserScraper {
   const { target } = request
   switch (target.type) {
@@ -242,10 +264,10 @@ export function initScraper(request: SessionRequest<AnySessionTarget>): UserScra
       } else {
         return new SimpleScraper(request as SessionRequest<FollowerSessionTarget>)
       }
+    case 'audio_space':
+      return new AudioSpaceScraper(request as SessionRequest<AudioSpaceSessionTarget>)
     case 'export_my_blocklist':
       // 오로지 export만 쓰므로 userScraper는 안 쓴다 (user-id scraper만 쓰지)
       throw new Error('unreachable')
-    default:
-      assertNever(target)
   }
 }

@@ -8,6 +8,7 @@ export const enum TargetCheckResult {
   NoFollowings,
   NoMutualFollowers,
   ChooseAtLeastOneOfReaction,
+  ChooseEitherSpeakersOrListeners,
   NobodyWillBlocked,
   EmptyList,
   TheyBlocksYou,
@@ -29,6 +30,8 @@ export function validateRequest(request: SessionRequest<AnySessionTarget>): Targ
       return checkImportBlockRequest(request as SessionRequest<ImportSessionTarget>)
     case 'user_search':
       return checkUserSearchBlockRequest(request as SessionRequest<UserSearchSessionTarget>)
+    case 'audio_space':
+      return checkAudioSpaceBlockRequest(request as SessionRequest<AudioSpaceSessionTarget>)
     case 'export_my_blocklist':
       return TargetCheckResult.Ok
   }
@@ -138,6 +141,27 @@ function checkUserSearchBlockRequest({
   return TargetCheckResult.Ok
 }
 
+function checkAudioSpaceBlockRequest({
+  target,
+}: SessionRequest<AudioSpaceSessionTarget>): TargetCheckResult {
+  const { audioSpace, includeHostsAndSpeakers, includeListeners } = target
+  let count = 0
+  if (!includeHostsAndSpeakers && !includeListeners) {
+    return TargetCheckResult.ChooseEitherSpeakersOrListeners
+  }
+  if (includeHostsAndSpeakers) {
+    count += audioSpace.participants.admins.length
+    count += audioSpace.participants.speakers.length
+  }
+  if (includeListeners) {
+    count += audioSpace.participants.listeners.length
+  }
+  if (count <= 0) {
+    return TargetCheckResult.NobodyWillBlocked
+  }
+  return TargetCheckResult.Ok
+}
+
 export function isSameTarget(target1: AnySessionTarget, target2: AnySessionTarget) {
   if (target1.type !== target2.type) {
     return false
@@ -161,6 +185,8 @@ export function isSameTarget(target1: AnySessionTarget, target2: AnySessionTarge
       const givenQuery = (target2 as UserSearchSessionTarget).query
       return target1.query === givenQuery
     }
+    case 'audio_space':
+      return target1.audioSpace.rest_id === (target2 as AudioSpaceSessionTarget).audioSpace.rest_id
     case 'export_my_blocklist':
       return true
   }

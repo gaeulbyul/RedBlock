@@ -51,11 +51,13 @@ type AnySessionTarget =
   | ImportSessionTarget
   | LockPickerSessionTarget
   | UserSearchSessionTarget
+  | AudioSpaceSessionTarget
   | ExportMyBlocklistTarget
 
 type ExportableSessionTarget =
   | FollowerSessionTarget
   | TweetReactionSessionTarget
+  | AudioSpaceSessionTarget
   | ExportMyBlocklistTarget
 
 interface FollowerSessionTarget {
@@ -90,6 +92,13 @@ interface ImportSessionTarget {
 interface UserSearchSessionTarget {
   type: 'user_search'
   query: string
+}
+
+interface AudioSpaceSessionTarget {
+  type: 'audio_space'
+  audioSpace: AudioSpace
+  includeHostsAndSpeakers: boolean
+  includeListeners: boolean
 }
 
 interface ExportMyBlocklistTarget {
