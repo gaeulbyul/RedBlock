@@ -564,6 +564,9 @@
       }
     }
   },
+  "error_occured_on_retrieving_audio_space": {
+    "message": "오류가 발생하여 이 스페이스의 정보를 가져오지 못했습니다."
+  },
   "error_rate_limited": {
     "message": "현재 리밋이 걸린 상태입니다. 나중에 다시 시도해주세요."
   },
@@ -590,6 +593,12 @@
   },
   "run_chainblock_from_text_selection": {
     "message": "선택한 텍스트에서 차단목록 불러오기"
+  },
+  "run_chainblock_from_audio_space_hosts_and_speakers": {
+    "message": "이 스페이스에서 체인블락 실행 (진행자 및 발표자)"
+  },
+  "run_chainblock_from_audio_space_all": {
+    "message": "이 스페이스에서 체인블락 실행 (모든 참가자)"
   },
   "already_running_to_same_target": {
     "message": "이미 같은 대상에게 (언)체인블락이 실행중입니다."
@@ -864,5 +873,8 @@
   },
   "mute_even_already_blocked": {
     "message": "체인뮤트: 이미 차단한 유저를 굳이 뮤트하기"
+  },
+  "enable_audiospace_chainblock": {
+    "message": "트위터 스페이스 지원"
   }
 }

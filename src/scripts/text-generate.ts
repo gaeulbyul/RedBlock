@@ -156,7 +156,7 @@ function describeAudioSpaceTarget(target: AudioSpaceSessionTarget): string {
     audioSpace: { participants },
   } = target
   const firstHost = participants.admins[0]
-  const nameOfHost = firstHost ? firstHost.display_name : '???'
+  const nameOfHost = firstHost ? firstHost.twitter_screen_name : '???'
   // TODO: speakers / listeners
   return i18n.getMessage('from_audio_space_by_xxx', nameOfHost)
 }

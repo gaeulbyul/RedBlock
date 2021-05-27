@@ -564,6 +564,9 @@
       }
     }
   },
+  "error_occured_on_retrieving_audio_space": {
+    "message": "Error occured while retrieving this Space."
+  },
   "error_rate_limited": {
     "message": "Rate limited. Please try again later."
   },
@@ -590,6 +593,12 @@
   },
   "run_chainblock_from_text_selection": {
     "message": "Import Blocklist from the selected text"
+  },
+  "run_chainblock_from_audio_space_hosts_and_speakers": {
+    "message": "Run Chain-block on this Space (Hosts and Speakers)"
+  },
+  "run_chainblock_from_audio_space_all": {
+    "message": "Run Chain-block on this Space (All participants)"
   },
   "already_running_to_same_target": {
     "message": "Already running on a same target."
@@ -864,5 +873,8 @@
   },
   "mute_even_already_blocked": {
     "message": "Chain-mute: Mute already blocked user"
+  },
+  "enable_audiospace_chainblock": {
+    "message": "Enable ChainBlock on Twitter Space"
   }
 }

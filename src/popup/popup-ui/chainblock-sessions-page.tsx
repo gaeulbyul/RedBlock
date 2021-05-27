@@ -272,6 +272,9 @@ function ChainBlockSessionItem({ sessionInfo }: { sessionInfo: SessionInfo }) {
     if (target.type === 'tweet_reaction') {
       name = `<${i18n.getMessage('tweet')}> ${name}`
     }
+  } else if (target.type === 'audio_space') {
+    const firstHost = target.audioSpace.participants.admins[0]
+    biggerProfileImageUrl = firstHost.avatar_url.replace('_normal', '_bigger')
   }
   const percentage = calculatePercentage(sessionInfo)
   const progressBar =

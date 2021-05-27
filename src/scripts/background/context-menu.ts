@@ -5,7 +5,7 @@ import { TargetCheckResult } from './target-checker.js'
 import { generateConfirmMessage, checkResultToString, objToString } from '../text-generate.js'
 import { alertToTab } from './background.js'
 import { getCookieStoreIdFromTab } from './cookie-handler.js'
-import { loadOptions } from './storage.js'
+import { loadOptions, loadUIOptions } from './storage.js'
 import { examineRetrieverByTargetUser } from './antiblock.js'
 import type ChainBlocker from './chainblock.js'
 
@@ -313,8 +313,7 @@ export async function initializeContextMenu(
       contexts: ['link'],
       documentUrlPatterns,
       targetUrlPatterns: audioSpaceUrlPatterns,
-      // L10N-ME
-      title: 'Run ChainBlock on This Space (Host & Speakers only)',
+      title: i18n.getMessage('run_chainblock_from_audio_space_hosts_and_speakers'),
       onclick(clickEvent, tab) {
         const url = new URL(clickEvent.linkUrl!)
         const audioSpaceId = getAudioSpaceIdFromUrl(url)!
@@ -331,8 +330,7 @@ export async function initializeContextMenu(
       contexts: ['link'],
       documentUrlPatterns,
       targetUrlPatterns: audioSpaceUrlPatterns,
-      // L10N-ME
-      title: 'Run ChainBlock on This Space (All Participants)',
+      title: i18n.getMessage('run_chainblock_from_audio_space_all'),
       onclick(clickEvent, tab) {
         const url = new URL(clickEvent.linkUrl!)
         const audioSpaceId = getAudioSpaceIdFromUrl(url)!
@@ -365,12 +363,15 @@ export async function initializeContextMenu(
 }
 
 browser.storage.onChanged.addListener((changes: Partial<RedBlockStorageChanges>) => {
-  if (!changes.uiOptions) {
-    return
-  }
   if (!connectedChainblocker) {
     console.warn('warning: failed to refresh context menus (chainblocker missing?)')
     return
   }
-  initializeContextMenu(connectedChainblocker, changes.uiOptions.newValue.menus)
+  if (changes.uiOptions) {
+    initializeContextMenu(connectedChainblocker, changes.uiOptions.newValue.menus)
+  } else if (changes.options) {
+    loadUIOptions().then(uiOptions =>
+      initializeContextMenu(connectedChainblocker!, uiOptions.menus)
+    )
+  }
 })

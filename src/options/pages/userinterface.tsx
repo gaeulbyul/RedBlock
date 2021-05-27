@@ -4,7 +4,7 @@ import { CheckboxItem } from '../components.js'
 const M = MaterialUI
 
 function RightClickMenusPaper() {
-  const { uiOptions, updateUIOptions } = React.useContext(RedBlockOptionsContext)
+  const { options, uiOptions, updateUIOptions } = React.useContext(RedBlockOptionsContext)
   const currentMenus = uiOptions.menus
   function updateMenusOption(newOptionsPart: Partial<RedBlockUIOptions['menus']>) {
     updateUIOptions({
@@ -98,6 +98,32 @@ function RightClickMenusPaper() {
               }
             />
           </M.FormGroup>
+          {options.experimentallyEnableAudioSpace && (
+            <React.Fragment>
+              <M.FormGroup>
+                <CheckboxItem
+                  checked={currentMenus.chainBlockAudioSpaceSpeakers}
+                  label={i18n.getMessage('run_chainblock_from_audio_space_hosts_and_speakers')}
+                  onChange={checked =>
+                    updateMenusOption({
+                      chainBlockAudioSpaceSpeakers: checked,
+                    })
+                  }
+                />
+              </M.FormGroup>
+              <M.FormGroup>
+                <CheckboxItem
+                  checked={currentMenus.chainBlockAudioSpaceSpeakersAndListeners}
+                  label={i18n.getMessage('run_chainblock_from_audio_space_all')}
+                  onChange={checked =>
+                    updateMenusOption({
+                      chainBlockAudioSpaceSpeakersAndListeners: checked,
+                    })
+                  }
+                />
+              </M.FormGroup>
+            </React.Fragment>
+          )}
         </M.FormControl>
       </M.Box>
     </M.Paper>

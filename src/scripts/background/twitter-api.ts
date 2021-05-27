@@ -620,6 +620,7 @@ export interface AudioSpace {
 interface AudioSpaceParticipant {
   twitter_screen_name: string
   display_name: string
+  avatar_url: string
 }
 
 export interface Limit {
