@@ -33,7 +33,7 @@ export async function loadUIOptions(): Promise<RedBlockUIOptions> {
 }
 
 export async function saveUIOptions(newOptions: RedBlockUIOptions): Promise<void> {
-  const uiOptions: RedBlockUIOptions = Object.assign({}, defaultOptions, newOptions)
+  const uiOptions: RedBlockUIOptions = Object.assign({}, defaultUIOptions, newOptions)
   const storageObject = { uiOptions }
   return browser.storage.local.set(storageObject as any)
 }
