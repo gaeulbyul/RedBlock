@@ -24,6 +24,7 @@ function usePurpose<T extends Purpose>(initialPurposeType: T['type']) {
 }
 
 type ExtraTarget = SessionRequest<AnySessionTarget>['extraTarget']
+type IncludedAudioSpaceParticipants = 'hosts_and_speakers' | 'all_participants'
 
 interface ExtraTargetContextType {
   extraTarget: ExtraTarget
@@ -116,6 +117,18 @@ interface UserSearchChainBlockPageStates {
   availablePurposeTypes: SessionRequest<UserSearchSessionTarget>['purpose']['type'][]
 }
 
+interface AudioSpaceChainBlockPageStates {
+  audioSpace: AudioSpace
+  includedParticipants: IncludedAudioSpaceParticipants
+  setIncludedParticipants(p: IncludedAudioSpaceParticipants): void
+  purpose: SessionRequest<AudioSpaceSessionTarget>['purpose']
+  changePurposeType(purposeType: SessionRequest<AudioSpaceSessionTarget>['purpose']['type']): void
+  mutatePurposeOptions(
+    partialOptions: Partial<Omit<SessionRequest<AudioSpaceSessionTarget>['purpose'], 'type'>>
+  ): void
+  availablePurposeTypes: SessionRequest<AudioSpaceSessionTarget>['purpose']['type'][]
+}
+
 interface LockPickerPageStates {
   purpose: SessionRequest<LockPickerSessionTarget>['purpose']
   changePurposeType(__: any): void // <- 실제론 안 씀
@@ -135,6 +148,9 @@ export const ImportChainBlockPageStatesContext = React.createContext<ImportChain
   null!
 )
 export const UserSearchChainBlockPageStatesContext = React.createContext<UserSearchChainBlockPageStates>(
+  null!
+)
+export const AudioSpaceChainBlockPageStatesContext = React.createContext<AudioSpaceChainBlockPageStates>(
   null!
 )
 export const LockPickerPageStatesContext = React.createContext<LockPickerPageStates>(null!)
@@ -352,6 +368,43 @@ export function UserSearchChainBlockPageStatesProvider({
     >
       <ExtraTargetContextProvider>{children}</ExtraTargetContextProvider>
     </UserSearchChainBlockPageStatesContext.Provider>
+  )
+}
+
+export function AudioSpaceChainBlockPageStatesProvider({
+  audioSpace,
+  children,
+}: {
+  audioSpace: AudioSpace
+  children: React.ReactNode
+}) {
+  const [purpose, changePurposeType, mutatePurposeOptions] = usePurpose<
+    SessionRequest<AudioSpaceSessionTarget>['purpose']
+  >('chainblock')
+  const [includedParticipants, setIncludedParticipants] = React.useState<
+    AudioSpaceChainBlockPageStates['includedParticipants']
+  >('hosts_and_speakers')
+  return (
+    <AudioSpaceChainBlockPageStatesContext.Provider
+      value={{
+        audioSpace,
+        includedParticipants,
+        setIncludedParticipants,
+        purpose,
+        changePurposeType,
+        mutatePurposeOptions,
+        availablePurposeTypes: [
+          'chainblock',
+          'unchainblock',
+          'chainmute',
+          'unchainmute',
+          'chainunfollow',
+          'export',
+        ],
+      }}
+    >
+      <ExtraTargetContextProvider>{children}</ExtraTargetContextProvider>
+    </AudioSpaceChainBlockPageStatesContext.Provider>
   )
 }
 

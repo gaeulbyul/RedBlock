@@ -131,6 +131,14 @@ export function validateUserName(userName: string): boolean {
   return pattern.test(userName)
 }
 
+export function getAudioSpaceIdFromUrl(url: URL) {
+  if (!['twitter.com', 'mobile.twitter.com'].includes(url.hostname)) {
+    return null
+  }
+  const match = /^\/i\/spaces\/([A-Za-z0-9]+)/.exec(url.pathname)
+  return match && match[1]
+}
+
 export function sleep(time: number): Promise<void> {
   return new Promise(resolve => window.setTimeout(resolve, time))
 }

@@ -6,6 +6,7 @@ export const enum PageEnum {
   NewSession,
   NewTweetReactionBlock,
   NewSearchChainBlock,
+  NewAudioSpaceSession,
   Blocklist,
   LockPicker,
   Utilities,
@@ -22,6 +23,8 @@ export function pageIcon(page: PageEnum): React.ReactElement {
       return <M.Icon>repeat</M.Icon>
     case PageEnum.NewSearchChainBlock:
       return <M.Icon>search</M.Icon>
+    case PageEnum.NewAudioSpaceSession:
+      return <M.Icon>surround_sound</M.Icon>
     case PageEnum.Blocklist:
       return <M.Icon>list_alt</M.Icon>
     case PageEnum.LockPicker:
@@ -41,6 +44,8 @@ export function pageLabel(page: PageEnum, sessionsCount = 0): string {
       return i18n.getMessage('new_tweetreaction_session')
     case PageEnum.NewSearchChainBlock:
       return i18n.getMessage('new_searchblock_session')
+    case PageEnum.NewAudioSpaceSession:
+      return i18n.getMessage('audio_space')
     case PageEnum.Blocklist:
       return i18n.getMessage('blocklist_page')
     case PageEnum.LockPicker:

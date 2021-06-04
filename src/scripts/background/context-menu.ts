@@ -1,4 +1,4 @@
-import { getUserNameFromURL } from '../common.js'
+import { getUserNameFromURL, getAudioSpaceIdFromUrl } from '../common.js'
 import { defaultChainBlockPurposeOptions } from './chainblock-session/default-options.js'
 import * as TwitterAPI from './twitter-api.js'
 import { TargetCheckResult } from './target-checker.js'
@@ -29,11 +29,6 @@ const extraTarget: SessionRequest<AnySessionTarget>['extraTarget'] = {
 
 function getTweetIdFromUrl(url: URL) {
   const match = /\/status\/(\d+)/.exec(url.pathname)
-  return match && match[1]
-}
-
-function getAudioSpaceIdFromUrl(url: URL) {
-  const match = /^\/i\/spaces\/([A-Za-z0-9]+)/.exec(url.pathname)
   return match && match[1]
 }
 

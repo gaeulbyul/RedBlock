@@ -1,4 +1,4 @@
-import { getUserNameFromURL } from '../scripts/common.js'
+import { getUserNameFromURL, getAudioSpaceIdFromUrl } from '../scripts/common.js'
 import { loadOptions } from '../scripts/background/storage.js'
 import type { TwClient } from '../scripts/background/twitter-api.js'
 import { examineRetrieverByTweetId } from '../scripts/background/antiblock.js'
@@ -126,6 +126,7 @@ export interface TabContext {
   currentUser: TwitterUser | null
   currentTweet: Tweet | null
   currentSearchQuery: string | null
+  currentAudioSpace: AudioSpace | null
 }
 
 export async function getTabContext(
@@ -139,6 +140,7 @@ export async function getTabContext(
   const options = await loadOptions()
   let currentTweet: Tweet | null = null
   let currentUser: TwitterUser | null = null
+  let currentAudioSpace: AudioSpace | null = null
   if (tweetId) {
     if (options.enableAntiBlock) {
       const result = await examineRetrieverByTweetId(myself, tweetId)
@@ -163,9 +165,22 @@ export async function getTabContext(
     }
   }
   const currentSearchQuery = getCurrentSearchQueryFromTab(tab)
+  const audioSpaceId = getAudioSpaceIdFromUrl(new URL(tab.url!))
+  if (audioSpaceId) {
+    currentAudioSpace = await twClient.getAudioSpaceById(audioSpaceId)
+  } else if (currentTweet) {
+    const spaceUrl = (currentTweet.entities.urls || [])
+      .map(({ expanded_url }) => new URL(expanded_url))
+      .find(getAudioSpaceIdFromUrl)
+    if (spaceUrl) {
+      const audioSpaceId = getAudioSpaceIdFromUrl(spaceUrl)!
+      currentAudioSpace = await twClient.getAudioSpaceById(audioSpaceId)
+    }
+  }
   return {
     currentTweet,
     currentUser,
     currentSearchQuery,
+    currentAudioSpace,
   }
 }

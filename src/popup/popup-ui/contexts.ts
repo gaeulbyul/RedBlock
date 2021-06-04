@@ -7,6 +7,7 @@ export interface AvailablePages {
   tweetReactionChainBlock: boolean
   userSearchChainBlock: boolean
   importChainBlock: boolean
+  newAudioSpaceSession: boolean
   lockPicker: boolean
   miscellaneous: boolean
 }

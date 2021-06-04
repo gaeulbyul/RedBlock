@@ -16,12 +16,14 @@ import {
   TweetReactionChainBlockPageStatesProvider,
   ImportChainBlockPageStatesProvider,
   UserSearchChainBlockPageStatesProvider,
+  AudioSpaceChainBlockPageStatesProvider,
   LockPickerPageStatesProvider,
 } from './popup-ui/ui-states.js'
 import MiscPage from './popup-ui/misc-page.js'
 import NewChainBlockPage from './popup-ui/new-chainblock-page.js'
 import NewTweetReactionBlockPage from './popup-ui/new-tweetreactionblock-page.js'
 import NewSearchChainBlockPage from './popup-ui/new-searchblock-page.js'
+import NewAudioSpaceBlockPage from './popup-ui/new-audiospaceblock-page.js'
 import LockPickerPage from './popup-ui/lockpicker-page.js'
 import {
   DialogContent,
@@ -54,9 +56,10 @@ const PopupTopTab = MaterialUI.withStyles({
 
 interface PopupAppProps {
   myself: Actor | null
-  currentUser: TwitterUser | null
-  currentTweet: Tweet | null
-  currentSearchQuery: string | null
+  tabContext: TabContext
+  // currentUser: TwitterUser | null
+  // currentTweet: Tweet | null
+  // currentSearchQuery: string | null
   popupOpenedInTab: boolean
   initialPage: PageEnum
   initialRedBlockOptions: RedBlockStorage['options']
@@ -125,6 +128,14 @@ function PopupUITopMenu({ countOfSessions }: { countOfSessions: number }) {
       </M.MenuItem>
       <M.MenuItem
         dense
+        disabled={!availablePages.newAudioSpaceSession}
+        onClick={() => switchPageFromMenu(PageEnum.NewAudioSpaceSession)}
+      >
+        <M.ListItemIcon>{pageIcon(PageEnum.NewAudioSpaceSession)}</M.ListItemIcon>
+        {pageLabel(PageEnum.NewAudioSpaceSession)}
+      </M.MenuItem>
+      <M.MenuItem
+        dense
         disabled={!availablePages.importChainBlock}
         onClick={() => switchPageFromMenu(PageEnum.Blocklist)}
       >
@@ -188,9 +199,7 @@ function PopupMyselfIcon({ myself }: { myself: TwitterUser }) {
 
 function PopupApp({
   myself,
-  currentUser,
-  currentTweet,
-  currentSearchQuery,
+  tabContext: { currentUser, currentTweet, currentSearchQuery, currentAudioSpace },
   popupOpenedInTab,
   initialPage,
   initialRedBlockOptions,
@@ -243,6 +252,11 @@ function PopupApp({
     tweetReactionChainBlock: !!(myself && currentTweet),
     userSearchChainBlock: !!(myself && currentSearchQuery),
     importChainBlock: !!myself,
+    newAudioSpaceSession: !!(
+      myself &&
+      currentAudioSpace &&
+      redblockOptions.experimentallyEnableAudioSpace
+    ),
     lockPicker: !!myself,
     // 쿠키삭제 메뉴는 트위터 로그인상태가 아니어도 사용할 수 있도록
     miscellaneous: true,
@@ -342,6 +356,14 @@ function PopupApp({
                         disabled={!availablePages.userSearchChainBlock}
                       />
                     </MyTooltip>
+                    {availablePages.newAudioSpaceSession && (
+                      <MyTooltip arrow title={pageLabel(PageEnum.NewAudioSpaceSession)}>
+                        <PopupTopTab
+                          icon={pageIcon(PageEnum.NewAudioSpaceSession)}
+                          disabled={!availablePages.newAudioSpaceSession}
+                        />
+                      </MyTooltip>
+                    )}
                     <MyTooltip arrow title={pageLabel(PageEnum.Blocklist)}>
                       <PopupTopTab
                         icon={pageIcon(PageEnum.Blocklist)}
@@ -385,6 +407,13 @@ function PopupApp({
                       <NewSearchChainBlockPage />
                     </TabPanel>
                   </UserSearchChainBlockPageStatesProvider>
+                  {availablePages.newAudioSpaceSession && (
+                    <AudioSpaceChainBlockPageStatesProvider audioSpace={currentAudioSpace!}>
+                      <TabPanel value={tabIndex} index={PageEnum.NewAudioSpaceSession}>
+                        <NewAudioSpaceBlockPage />
+                      </TabPanel>
+                    </AudioSpaceChainBlockPageStatesProvider>
+                  )}
                   <LockPickerPageStatesProvider>
                     <TabPanel value={tabIndex} index={PageEnum.LockPicker}>
                       <LockPickerPage />
@@ -433,7 +462,7 @@ export async function initializeUI() {
   const initialRedBlockOptions = await loadOptions()
   const popupOpenedInTab = /\bistab=1\b/.test(location.search)
   let initialPage: PageEnum
-  const initialPageMatch = /\bpage=([0-6])\b/.exec(location.search)
+  const initialPageMatch = /\bpage=([0-7])\b/.exec(location.search)
   if (initialPageMatch) {
     initialPage = parseInt(initialPageMatch[1]) as PageEnum
   } else {
@@ -443,6 +472,7 @@ export async function initializeUI() {
     currentUser: null,
     currentTweet: null,
     currentSearchQuery: null,
+    currentAudioSpace: null,
   }
   const currentTab = await getCurrentTab()
   const cookieStoreId = await getCookieStoreIdFromTab(currentTab)
@@ -454,15 +484,17 @@ export async function initializeUI() {
       user: me,
       cookieOptions: twClient.cookieOptions,
     }
-    const { currentTweet, currentUser, currentSearchQuery } = await getTabContext(
-      currentTab,
-      myself,
-      twClient
-    )
+    const {
+      currentTweet,
+      currentUser,
+      currentSearchQuery,
+      currentAudioSpace,
+    } = await getTabContext(currentTab, myself, twClient)
     Object.assign(tabContext, {
       currentTweet,
       currentUser,
       currentSearchQuery,
+      currentAudioSpace,
     })
   } else {
     myself = null
@@ -470,9 +502,9 @@ export async function initializeUI() {
   const appRoot = document.getElementById('app')!
   const app = (
     <PopupApp
-      {...tabContext}
       {...{
         myself,
+        tabContext,
         popupOpenedInTab,
         initialPage,
         initialRedBlockOptions,
