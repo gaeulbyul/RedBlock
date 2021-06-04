@@ -131,7 +131,7 @@ function TargetOptionsUI() {
   )
 }
 
-export default function NewAudioSpaceChainBlockPage() {
+export default function NewSessionAudioSpacePage() {
   const request = useSessionRequest()
   const { audioSpace } = React.useContext(AudioSpaceChainBlockPageStatesContext)
   const hostUserName = audioSpace.participants.admins[0].twitter_screen_name

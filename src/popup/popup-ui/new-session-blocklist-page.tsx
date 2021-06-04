@@ -266,7 +266,7 @@ function ExportBlocklistUI() {
 
 type BlocklistPageTab = 'importing' | 'exporting'
 
-export default function BlocklistPage() {
+export default function NewSessionBlocklistPage() {
   const [tab, setTab] = React.useState<BlocklistPageTab>('importing')
   return (
     <div style={{ width: '100%' }}>

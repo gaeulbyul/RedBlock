@@ -198,7 +198,7 @@ function TargetExecutionButtonUI() {
   )
 }
 
-export default function NewTweetReactionBlockPage() {
+export default function NewSessionTweetPage() {
   const request = useSessionRequest()
   return (
     <div>

@@ -87,7 +87,7 @@ function TargetExecutionButtonUI() {
   )
 }
 
-export default function LockPickerPage() {
+export default function NewSessionLockpickerPage() {
   const myself = React.useContext(MyselfContext)!
   const request = useSessionRequest()
   return (

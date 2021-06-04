@@ -419,7 +419,7 @@ function TargetExecutionButtonUI() {
   )
 }
 
-function NewChainBlockPageWithoutSelectedUser() {
+function NewSessionFollowersPageWithoutSelectedUser() {
   return (
     <div>
       <TargetUserSelectUI />
@@ -428,10 +428,10 @@ function NewChainBlockPageWithoutSelectedUser() {
   )
 }
 
-export default function NewChainBlockPage() {
+export default function NewSessionFollowersPage() {
   const { userSelection } = React.useContext(FollowerChainBlockPageStatesContext)
   if (!userSelection) {
-    return NewChainBlockPageWithoutSelectedUser()
+    return NewSessionFollowersPageWithoutSelectedUser()
   }
   const request = useSessionRequest(userSelection.user)
   return (

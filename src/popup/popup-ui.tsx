@@ -1,7 +1,7 @@
 import { requestProgress, requestBlockLimiterStatus } from '../scripts/background/request-sender.js'
 import { loadOptions, onStorageChanged } from '../scripts/background/storage.js'
 import { TwClient } from '../scripts/background/twitter-api.js'
-import BlocklistPage from './popup-ui/blocklist-page.js'
+import BlocklistPage from './popup-ui/new-session-blocklist-page.js'
 import ChainBlockSessionsPage from './popup-ui/chainblock-sessions-page.js'
 import { PageEnum, pageIcon, pageLabel } from './popup-ui/pages.js'
 import {
@@ -20,11 +20,11 @@ import {
   LockPickerPageStatesProvider,
 } from './popup-ui/ui-states.js'
 import MiscPage from './popup-ui/misc-page.js'
-import NewChainBlockPage from './popup-ui/new-chainblock-page.js'
-import NewTweetReactionBlockPage from './popup-ui/new-tweetreactionblock-page.js'
-import NewSearchChainBlockPage from './popup-ui/new-searchblock-page.js'
-import NewAudioSpaceBlockPage from './popup-ui/new-audiospaceblock-page.js'
-import LockPickerPage from './popup-ui/lockpicker-page.js'
+import NewSessionFollowersPage from './popup-ui/new-session-followers-page.js'
+import NewSessionTweetPage from './popup-ui/new-session-tweet-page.js'
+import NewSessionSearchresultPage from './popup-ui/new-session-searchresult-page.js'
+import NewSessionAudioSpacePage from './popup-ui/new-session-audiospace-page.js'
+import NewSessionLockPickerPage from './popup-ui/new-session-lockpicker-page.js'
 import {
   DialogContent,
   RBDialog,
@@ -394,29 +394,29 @@ function PopupApp({
                   </TabPanel>
                   <FollowerChainBlockPageStatesProvider initialUser={currentUser}>
                     <TabPanel value={tabIndex} index={PageEnum.NewSession}>
-                      <NewChainBlockPage />
+                      <NewSessionFollowersPage />
                     </TabPanel>
                   </FollowerChainBlockPageStatesProvider>
                   <TweetReactionChainBlockPageStatesProvider initialTweet={currentTweet}>
                     <TabPanel value={tabIndex} index={PageEnum.NewTweetReactionBlock}>
-                      <NewTweetReactionBlockPage />
+                      <NewSessionTweetPage />
                     </TabPanel>
                   </TweetReactionChainBlockPageStatesProvider>
                   <UserSearchChainBlockPageStatesProvider currentSearchQuery={currentSearchQuery}>
                     <TabPanel value={tabIndex} index={PageEnum.NewSearchChainBlock}>
-                      <NewSearchChainBlockPage />
+                      <NewSessionSearchresultPage />
                     </TabPanel>
                   </UserSearchChainBlockPageStatesProvider>
                   {availablePages.newAudioSpaceSession && (
                     <AudioSpaceChainBlockPageStatesProvider audioSpace={currentAudioSpace!}>
                       <TabPanel value={tabIndex} index={PageEnum.NewAudioSpaceSession}>
-                        <NewAudioSpaceBlockPage />
+                        <NewSessionAudioSpacePage />
                       </TabPanel>
                     </AudioSpaceChainBlockPageStatesProvider>
                   )}
                   <LockPickerPageStatesProvider>
                     <TabPanel value={tabIndex} index={PageEnum.LockPicker}>
-                      <LockPickerPage />
+                      <NewSessionLockPickerPage />
                     </TabPanel>
                   </LockPickerPageStatesProvider>
                   <ImportChainBlockPageStatesProvider>

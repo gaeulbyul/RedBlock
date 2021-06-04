@@ -86,7 +86,7 @@ function TargetOptionsUI() {
   )
 }
 
-export default function NewSearchChainBlockPage() {
+export default function NewSessionSearchResultPage() {
   const request = useSessionRequest()
   const { searchQuery } = React.useContext(UserSearchChainBlockPageStatesContext)
   return (
