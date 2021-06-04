@@ -109,9 +109,6 @@
   "from_user_search_result": {
     "message": "유저 검색결과에서"
   },
-  "exporting_my_blocklist": {
-    "message": "내 차단목록 내보내기"
-  },
   "from_audio_space_by_xxx": {
     "message": "@$username$이(가) 진행하는 스페이스",
     "placeholders": {
@@ -119,6 +116,12 @@
         "content": "$1"
       }
     }
+  },
+  "includes_listeners": {
+    "message": "청취자 포함"
+  },
+  "exporting_my_blocklist": {
+    "message": "내 차단목록 내보내기"
   },
   "session_status_initial": {
     "message": "대기 중"
@@ -435,7 +438,7 @@
     "message": "차단목록 파일을 가져와 사용자를 차단할 수 있습니다. 현재 CSV, JSON(오리지널 체인블락의 export chain 차단목록), JS(트위터의 데이터 내보내기 기능에서 \"block.js\") 파일을 읽을 수 있습니다."
   },
   "select_rt_or_like": {
-    "message": "'리트윗'이나 '마음에 들어요' 중 하나 이상을 선택해주세요."
+    "message": "세션을 시작하려면 대상(리트윗, 마음에 들어요 등)을 선택해주세요."
   },
   "warning_maybe_you_block_your_followers": {
     "message": "주의! 내 팔로워가 줄어들 수 있습니다."

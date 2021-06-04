@@ -117,6 +117,9 @@
       }
     }
   },
+  "includes_listeners": {
+    "message": "Includes Listeners"
+  },
   "exporting_my_blocklist": {
     "message": "Exporting your blocklist"
   },
@@ -435,7 +438,7 @@
     "message": "You can block users from the blocklist file. Currently, Red Block supports CSV, JSON(from the original Twitter Block Chain's export-chain feature), and JS(\"block.js\" from Twitter's archive)."
   },
   "select_rt_or_like": {
-    "message": "Please select retweet and/or like"
+    "message": "Please select a target (retweets, likes, mentions, ...) to start session."
   },
   "warning_maybe_you_block_your_followers": {
     "message": "Caution! This option may lose your followers."

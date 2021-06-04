@@ -97,7 +97,7 @@ export function checkResultToString(result: TargetCheckResult): string {
     case TargetCheckResult.NoMutualFollowers:
       return i18n.getMessage('cant_chainblock_mutual_follower_is_zero')
     case TargetCheckResult.ChooseAtLeastOneOfReaction:
-      return i18n.getMessage('select_rt_or_like') // TODO: 메시지 고치기 (멘션/인용 등이 들어가는 경우)
+      return i18n.getMessage('select_rt_or_like')
     case TargetCheckResult.ChooseEitherSpeakersOrListeners:
       return i18n.getMessage('choose_either_speakers_or_listeners')
     case TargetCheckResult.NobodyWillBlocked:
@@ -154,11 +154,15 @@ function describeReactionTargets(target: TweetReactionSessionTarget): string {
 function describeAudioSpaceTarget(target: AudioSpaceSessionTarget): string {
   const {
     audioSpace: { participants },
+    includeListeners,
   } = target
   const firstHost = participants.admins[0]
   const nameOfHost = firstHost ? firstHost.twitter_screen_name : '???'
-  // TODO: speakers / listeners
-  return i18n.getMessage('from_audio_space_by_xxx', nameOfHost)
+  let result = i18n.getMessage('from_audio_space_by_xxx', nameOfHost)
+  if (includeListeners) {
+    result += ` (${i18n.getMessage('includes_listeners')})`
+  }
+  return result
 }
 
 function describeTarget({ target }: SessionRequest<AnySessionTarget>): string {

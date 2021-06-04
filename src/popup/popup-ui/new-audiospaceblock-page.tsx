@@ -97,10 +97,14 @@ function TargetOptionsUI() {
 export default function NewAudioSpaceChainBlockPage() {
   const request = useSessionRequest()
   const { audioSpace } = React.useContext(AudioSpaceChainBlockPageStatesContext)
-  // TODO: 적절한 summary 제공
+  const hostUserName = audioSpace.participants.admins[0].twitter_screen_name
+  const targetSummary = `${i18n.getMessage('target')} (${i18n.getMessage(
+    'from_audio_space_by_xxx',
+    hostUserName
+  )})`
   return (
     <div>
-      <RBExpansionPanel summary={i18n.getMessage('audio_space')} defaultExpanded>
+      <RBExpansionPanel summary={targetSummary} defaultExpanded>
         <div style={{ width: '100%' }}>
           <T>
             {`${i18n.getMessage('audio_space')}: `}

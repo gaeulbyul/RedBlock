@@ -603,7 +603,7 @@ interface UrlEntity {
 
 export interface AudioSpace {
   rest_id: string
-  state: 'Running' | 'Ended' // TODO
+  state: 'Running' | 'Ended'
   title: string
   created_at: number // timestamp (ex. 1621037312345)
   started_at: number

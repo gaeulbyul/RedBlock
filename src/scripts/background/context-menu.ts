@@ -155,8 +155,7 @@ async function confirmAudioSpaceChainBlockRequest(
   const twClient = new TwitterAPI.TwClient(executor.cookieOptions)
   const audioSpace = await twClient.getAudioSpaceById(audioSpaceId).catch(() => null)
   if (!audioSpace) {
-    // TODO: L10N-ME: error on twitter space
-    // alertToTab(tab, i18n.getMessage('error_occured_on_retrieving_tweet'))
+    alertToTab(tab, i18n.getMessage('error_occured_on_retrieving_audio_space'))
     return
   }
   return confirmChainBlockRequest(tab, chainblocker, executor, {
