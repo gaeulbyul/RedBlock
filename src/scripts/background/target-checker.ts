@@ -9,6 +9,7 @@ export const enum TargetCheckResult {
   NoMutualFollowers,
   ChooseAtLeastOneOfReaction,
   ChooseEitherSpeakersOrListeners,
+  SpaceIsntStartedYet,
   NobodyWillBlocked,
   EmptyList,
   TheyBlocksYou,
@@ -145,6 +146,9 @@ function checkAudioSpaceBlockRequest({
   target,
 }: SessionRequest<AudioSpaceSessionTarget>): TargetCheckResult {
   const { audioSpace, includeHostsAndSpeakers, includeListeners } = target
+  if (audioSpace.state === 'NotStarted') {
+    return TargetCheckResult.SpaceIsntStartedYet
+  }
   let count = 0
   if (!includeHostsAndSpeakers && !includeListeners) {
     return TargetCheckResult.ChooseEitherSpeakersOrListeners

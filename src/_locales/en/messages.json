@@ -647,6 +647,9 @@
   "choose_either_speakers_or_listeners": {
     "message": "Please choose either speakers or listeners."
   },
+  "audio_space_not_started_yet": {
+    "message": "This space is not started yet."
+  },
   "wtf_twitter": {
     "message": "To avoid problem(force-logout, account suspension), Red Block won't block over 500 users."
   },

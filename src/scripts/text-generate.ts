@@ -100,6 +100,8 @@ export function checkResultToString(result: TargetCheckResult): string {
       return i18n.getMessage('select_rt_or_like')
     case TargetCheckResult.ChooseEitherSpeakersOrListeners:
       return i18n.getMessage('choose_either_speakers_or_listeners')
+    case TargetCheckResult.SpaceIsntStartedYet:
+      return i18n.getMessage('audio_space_not_started_yet')
     case TargetCheckResult.NobodyWillBlocked:
       return i18n.getMessage('cant_chainblock_nobody_will_blocked')
     case TargetCheckResult.EmptyList:
