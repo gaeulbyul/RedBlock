@@ -12,7 +12,7 @@ import {
   RequestCheckResultUI,
   TabPanel,
 } from './components.js'
-import { PageEnum } from './pages.js'
+import type { PageId } from './pages.js'
 import { generateConfirmMessage } from '../../scripts/text-generate.js'
 import { startNewChainBlockSession } from '../../scripts/background/request-sender.js'
 import {
@@ -143,9 +143,10 @@ function ImportBlocklistUI() {
   }
   async function openPopupUIInTab(event: React.MouseEvent<HTMLButtonElement, MouseEvent>) {
     event.preventDefault()
+    const blocklistPage: PageId = 'new-session-blocklist-page'
     browser.tabs.create({
       active: true,
-      url: `/popup/popup.html?istab=1&page=${PageEnum.Blocklist}`,
+      url: `/popup/popup.html?istab=1&page=${blocklistPage}`,
     })
     window.close()
   }

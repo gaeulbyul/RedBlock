@@ -1,4 +1,3 @@
-import { PageEnum } from '../../popup/popup-ui/pages.js'
 import { alertToCurrentTab } from './background.js'
 import ChainBlocker from './chainblock.js'
 import * as TwitterAPI from './twitter-api.js'
@@ -22,7 +21,7 @@ async function startSession(sessionId: string) {
     .sendMessage<RBMessageToPopup.PopupSwitchTab>({
       messageType: 'PopupSwitchTab',
       messageTo: 'popup',
-      page: PageEnum.Sessions,
+      page: 'chainblock-sessions-page',
     })
     .catch(() => {}) // 우클릭 체인블락의 경우 팝업이 없음
   return chainblocker.start(sessionId).catch(err => {

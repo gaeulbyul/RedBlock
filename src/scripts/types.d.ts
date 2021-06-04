@@ -1,4 +1,4 @@
-type PageEnum = typeof import('../popup/popup-ui/pages').PageEnum
+type PageId = import('../popup/popup-ui/pages').PageId
 type TwitterUser = import('./background/twitter-api').TwitterUser
 type Tweet = import('./background/twitter-api').Tweet
 type AudioSpace = import('./background/twitter-api').AudioSpace
@@ -150,7 +150,7 @@ declare namespace RBMessageToPopup {
   interface PopupSwitchTab {
     messageType: 'PopupSwitchTab'
     messageTo: 'popup'
-    page: PageEnum[keyof PageEnum]
+    page: PageId
   }
 }
 

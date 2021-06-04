@@ -1,56 +1,69 @@
-// NOTE:
-// 아래의 값을 변경할 때,
-// popup-ui.tsx의 initialPageMatch 정규식 부분도 수정할 것.
-export const enum PageEnum {
-  Sessions,
-  NewSession,
-  NewTweetReactionBlock,
-  NewSearchChainBlock,
-  NewAudioSpaceSession,
-  Blocklist,
-  LockPicker,
-  Utilities,
+const availablePageIds = [
+  'chainblock-sessions-page',
+  'new-session-followers-page',
+  'new-session-tweet-page',
+  'new-session-searchresult-page',
+  'new-session-audiospace-page',
+  'new-session-blocklist-page',
+  'new-session-lockpicker-page',
+  'misc-page',
+] as const
+
+export type PageId = typeof availablePageIds[number]
+
+export function isValidPageId(pid: string): pid is PageId {
+  // @ts-ignore
+  return availablePageIds.includes(pid)
 }
 
-export function pageIcon(page: PageEnum): React.ReactElement {
+export interface AvailablePages {
+  'new-session-followers-page': boolean
+  'new-session-tweet-page': boolean
+  'new-session-searchresult-page': boolean
+  'new-session-blocklist-page': boolean
+  'new-session-audiospace-page': boolean
+  'new-session-lockpicker-page': boolean
+}
+
+export function pageIcon(page: PageId): React.ReactElement {
   const M = MaterialUI
   switch (page) {
-    case PageEnum.Sessions:
+    case 'chainblock-sessions-page':
       return <M.Icon>play_circle_filled_white_icon</M.Icon>
-    case PageEnum.NewSession:
+    case 'new-session-followers-page':
       return <M.Icon>group</M.Icon>
-    case PageEnum.NewTweetReactionBlock:
+    case 'new-session-tweet-page':
       return <M.Icon>repeat</M.Icon>
-    case PageEnum.NewSearchChainBlock:
+    case 'new-session-searchresult-page':
       return <M.Icon>search</M.Icon>
-    case PageEnum.NewAudioSpaceSession:
+    case 'new-session-audiospace-page':
       return <M.Icon>surround_sound</M.Icon>
-    case PageEnum.Blocklist:
+    case 'new-session-blocklist-page':
       return <M.Icon>list_alt</M.Icon>
-    case PageEnum.LockPicker:
+    case 'new-session-lockpicker-page':
       return <M.Icon>no_encryption</M.Icon>
-    case PageEnum.Utilities:
+    case 'misc-page':
       return <M.Icon>build</M.Icon>
   }
 }
 
-export function pageLabel(page: PageEnum, sessionsCount = 0): string {
+export function pageLabel(page: PageId, sessionsCount = 0): string {
   switch (page) {
-    case PageEnum.Sessions:
+    case 'chainblock-sessions-page':
       return `${i18n.getMessage('running_sessions')} (${sessionsCount})`
-    case PageEnum.NewSession:
+    case 'new-session-followers-page':
       return i18n.getMessage('new_follower_session')
-    case PageEnum.NewTweetReactionBlock:
+    case 'new-session-tweet-page':
       return i18n.getMessage('new_tweetreaction_session')
-    case PageEnum.NewSearchChainBlock:
+    case 'new-session-searchresult-page':
       return i18n.getMessage('new_searchblock_session')
-    case PageEnum.NewAudioSpaceSession:
+    case 'new-session-audiospace-page':
       return i18n.getMessage('audio_space')
-    case PageEnum.Blocklist:
+    case 'new-session-blocklist-page':
       return i18n.getMessage('blocklist_page')
-    case PageEnum.LockPicker:
+    case 'new-session-lockpicker-page':
       return i18n.getMessage('lockpicker')
-    case PageEnum.Utilities:
+    case 'misc-page':
       return i18n.getMessage('miscellaneous')
   }
 }

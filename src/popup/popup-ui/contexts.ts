@@ -1,21 +1,11 @@
 import { defaultOptions } from '../../scripts/background/storage.js'
-import type { PageEnum } from './pages.js'
+import type { PageId, AvailablePages } from './pages.js'
 import type { DialogContent } from './components.js'
-
-export interface AvailablePages {
-  followerChainBlock: boolean
-  tweetReactionChainBlock: boolean
-  userSearchChainBlock: boolean
-  importChainBlock: boolean
-  newAudioSpaceSession: boolean
-  lockPicker: boolean
-  miscellaneous: boolean
-}
 
 interface UIContextType {
   openDialog(content: DialogContent): void
   openSnackBar(message: string): void
-  switchPage(tabIndex: PageEnum): void
+  switchPage(pageId: PageId): void
   shrinkedPopup: boolean
   popupOpenedInTab: boolean
   menuAnchorElem: HTMLElement | null

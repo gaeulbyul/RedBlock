@@ -4,7 +4,7 @@ import {
   getLimitResetTime,
   getCountOfUsersToBlock,
 } from '../../scripts/common.js'
-import { PageEnum, pageIcon, pageLabel } from './pages.js'
+import { PageId, pageIcon, pageLabel } from './pages.js'
 import {
   cleanupInactiveSessions,
   stopAllChainBlock,
@@ -12,7 +12,7 @@ import {
   downloadFromExportSession,
   requestProgress,
 } from '../../scripts/background/request-sender.js'
-import { UIContext, MyselfContext, AvailablePages } from './contexts.js'
+import { UIContext, MyselfContext } from './contexts.js'
 import { statusToString } from '../../scripts/text-generate.js'
 import { BlockLimiterUI, PleaseLoginBox, LinearProgressWithLabel } from './components.js'
 import { checkMessage } from '../popup.js'
@@ -20,11 +20,11 @@ import { checkMessage } from '../popup.js'
 const M = MaterialUI
 const T = MaterialUI.Typography
 
-const newSessionTypesToShow = [
-  PageEnum.NewSession,
-  PageEnum.NewTweetReactionBlock,
-  PageEnum.NewSearchChainBlock,
-]
+const newSessionPagesToShow = [
+  'new-session-followers-page',
+  'new-session-tweet-page',
+  'new-session-searchresult-page',
+] as const
 
 function calculatePercentage(session: SessionInfo): number | null {
   const { status } = session
@@ -397,18 +397,18 @@ function NewSessionMenu({
   function handleClose() {
     setAnchorEl(null)
   }
-  function handleNewSessionButton(event: React.MouseEvent, page: PageEnum) {
+  function handleNewSessionButton(event: React.MouseEvent, page: PageId) {
     event.preventDefault()
     uiContext.switchPage(page)
     handleClose()
   }
   return (
     <M.Menu keepMounted anchorEl={anchorEl} open={Boolean(anchorEl)} onClose={handleClose}>
-      {newSessionTypesToShow.map((page, index) => (
+      {newSessionPagesToShow.map((page, index) => (
         <M.MenuItem
           key={index}
           dense
-          disabled={!uiContext.availablePages[pageAvailabilityKey(page)]}
+          disabled={!uiContext.availablePages[page]}
           onClick={e => handleNewSessionButton(e, page)}
         >
           <M.ListItemIcon>{pageIcon(page)}</M.ListItemIcon>
@@ -419,36 +419,22 @@ function NewSessionMenu({
   )
 }
 
-function pageAvailabilityKey(page: PageEnum): keyof AvailablePages {
-  switch (page) {
-    case PageEnum.NewSession:
-      return 'followerChainBlock'
-    case PageEnum.NewTweetReactionBlock:
-      return 'tweetReactionChainBlock'
-    case PageEnum.NewSearchChainBlock:
-      return 'userSearchChainBlock'
-    default:
-      // 위에 3가지만 쓸 거다.
-      throw new Error('unreachable')
-  }
-}
-
 function NewSessionButtons() {
   const uiContext = React.useContext(UIContext)
-  function handleNewSessionButton(event: React.MouseEvent, page: PageEnum) {
+  function handleNewSessionButton(event: React.MouseEvent, page: PageId) {
     event.preventDefault()
     uiContext.switchPage(page)
   }
   return (
     <M.Box display="flex" flexDirection="row" justifyContent="center" my={1}>
       <M.Box width="100%" minWidth="150px" maxWidth="300px">
-        {newSessionTypesToShow.map((page, index) => (
+        {newSessionPagesToShow.map((page, index) => (
           <M.Box key={index} my={1}>
             <M.Button
               fullWidth
               variant="contained"
               startIcon={pageIcon(page)}
-              disabled={!uiContext.availablePages[pageAvailabilityKey(page)]}
+              disabled={!uiContext.availablePages[page]}
               onClick={e => handleNewSessionButton(e, page)}
             >
               {pageLabel(page)}
