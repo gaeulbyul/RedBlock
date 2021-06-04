@@ -150,7 +150,7 @@ function ChainBlockSessionItem({ sessionInfo }: { sessionInfo: SessionInfo }) {
   }
   const localizedPurpose = i18n.getMessage(purpose.type)
   const cardTitle = `${localizedPurpose} ${statusToString(sessionInfo.status)}`
-  function renderCardHeader(user: TwitterUser | null) {
+  function renderCardHeader(profileImageUrl: string | null) {
     //function requestRewindChainBlock() {
     //  rewindChainBlock(sessionId)
     //}
@@ -226,8 +226,8 @@ function ChainBlockSessionItem({ sessionInfo }: { sessionInfo: SessionInfo }) {
       )
     }
     let avatar: React.ReactNode
-    if (user) {
-      avatar = <M.Avatar src={biggerProfileImageUrl} />
+    if (profileImageUrl) {
+      avatar = <M.Avatar src={profileImageUrl} />
     } else {
       let className: keyof typeof classes
       switch (purpose.type) {
@@ -317,7 +317,7 @@ function ChainBlockSessionItem({ sessionInfo }: { sessionInfo: SessionInfo }) {
   return (
     <M.Box my={1}>
       <M.Card>
-        {renderCardHeader(user)}
+        {renderCardHeader(biggerProfileImageUrl)}
         <M.CardContent>
           {progressBar}
           <T>

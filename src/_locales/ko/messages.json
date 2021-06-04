@@ -186,6 +186,12 @@
   "audio_space": {
     "message": "스페이스"
   },
+  "hosts_and_speakers": {
+    "message": "진행자 및 발표자"
+  },
+  "all_participants": {
+    "message": "참여자 전원"
+  },
   "rate_limit_reset_time": {
     "message": "예상 리밋해제 시각"
   },
@@ -639,7 +645,7 @@
     }
   },
   "choose_either_speakers_or_listeners": {
-    "message": "발화자나 청취자 중 적어도 하나 이상은 선택해주세요."
+    "message": "발표자나 청취자 중 적어도 하나 이상은 선택해주세요."
   },
   "wtf_twitter": {
     "message": "강제 로그아웃이나 계정정지 등의 문제를 피하기 위해 누적 차단횟수를 500회 미만으로 제한하고 있습니다."

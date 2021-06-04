@@ -8,6 +8,7 @@ import {
 } from './contexts.js'
 import { AudioSpaceChainBlockPageStatesContext, ExtraTargetContext } from './ui-states.js'
 import {
+  TwitterUserProfile,
   RBExpansionPanel,
   BigExecuteButton,
   BlockLimiterUI,
@@ -43,6 +44,42 @@ function useSessionRequest(): SessionRequest<AudioSpaceSessionTarget> {
     retriever: myself,
     executor: myself,
   }
+}
+
+function TargetAudioSpace({ audioSpace }: { audioSpace: AudioSpace }) {
+  const { includedParticipants, setIncludedParticipants } = React.useContext(
+    AudioSpaceChainBlockPageStatesContext
+  )
+  const host = audioSpace.participants.admins[0]
+  const user = {
+    name: host.display_name,
+    screen_name: host.twitter_screen_name,
+    profile_image_url_https: host.avatar_url,
+  }
+  return (
+    <TwitterUserProfile user={user}>
+      <div style={{ width: '100%' }}>
+        <T>
+          {`${i18n.getMessage('audio_space')}: `}
+          <strong>{audioSpace.title}</strong>
+        </T>
+        <M.FormGroup row>
+          <M.FormControlLabel
+            control={<M.Radio size="small" />}
+            onChange={() => setIncludedParticipants('hosts_and_speakers')}
+            checked={includedParticipants === 'hosts_and_speakers'}
+            label={i18n.getMessage('hosts_and_speakers')}
+          />
+          <M.FormControlLabel
+            control={<M.Radio size="small" />}
+            onChange={() => setIncludedParticipants('all_participants')}
+            checked={includedParticipants === 'all_participants'}
+            label={i18n.getMessage('all_participants')}
+          />
+        </M.FormGroup>
+      </div>
+    </TwitterUserProfile>
+  )
 }
 
 function TargetExecutionButtonUI() {
@@ -105,12 +142,7 @@ export default function NewAudioSpaceChainBlockPage() {
   return (
     <div>
       <RBExpansionPanel summary={targetSummary} defaultExpanded>
-        <div style={{ width: '100%' }}>
-          <T>
-            {`${i18n.getMessage('audio_space')}: `}
-            <strong>{audioSpace.title}</strong>
-          </T>
-        </div>
+        <TargetAudioSpace audioSpace={audioSpace} />
       </RBExpansionPanel>
       <TargetOptionsUI />
       <BlockLimiterUI />

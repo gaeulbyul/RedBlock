@@ -276,11 +276,18 @@ export function BlockLimiterUI() {
   )
 }
 
+// AudioSpace에는 요것만 있음. 이걸로도 TwitterUserProfile을 사용하는 데 지장이 없으니까.
+interface UserWithOnlyNameAndProfileImages {
+  name: string
+  screen_name: string
+  profile_image_url_https: string
+}
+
 export function TwitterUserProfile({
   user,
   children,
 }: {
-  user: TwitterUser
+  user: TwitterUser | UserWithOnlyNameAndProfileImages
   children?: React.ReactNode
 }) {
   const biggerProfileImageUrl = user.profile_image_url_https.replace('_normal', '_bigger')
@@ -309,7 +316,7 @@ export function TwitterUserProfile({
             </a>
           </div>
         </div>
-        {children}
+        <div style={{ margin: '5px 0' }}>{children}</div>
       </div>
     </div>
   )

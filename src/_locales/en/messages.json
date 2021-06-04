@@ -186,6 +186,12 @@
   "audio_space": {
     "message": "Space"
   },
+  "hosts_and_speakers": {
+    "message": "Hosts and Speakers"
+  },
+  "all_participants": {
+    "message": "All Participants"
+  },
   "rate_limit_reset_time": {
     "message": "Rate limit reset time"
   },
