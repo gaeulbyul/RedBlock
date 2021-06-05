@@ -19,12 +19,18 @@ import { TargetCheckResult, validateRequest } from '../../scripts/background/tar
 const M = MaterialUI
 const T = MaterialUI.Typography
 
-function useSessionRequest(): SessionRequest<UserSearchSessionTarget> {
+function useSessionRequest(): Either<TargetCheckResult, SessionRequest<UserSearchSessionTarget>> {
   const { purpose, searchQuery } = React.useContext(UserSearchChainBlockPageStatesContext)
   const { extraTarget } = React.useContext(ExtraTargetContext)
-  const myself = React.useContext(MyselfContext)!
+  const myself = React.useContext(MyselfContext)
   const options = React.useContext(RedBlockOptionsContext)
-  return {
+  if (!myself) {
+    return {
+      ok: false,
+      error: TargetCheckResult.MaybeNotLoggedIn,
+    }
+  }
+  const request: SessionRequest<UserSearchSessionTarget> = {
     purpose,
     options,
     extraTarget,
@@ -35,27 +41,45 @@ function useSessionRequest(): SessionRequest<UserSearchSessionTarget> {
     retriever: myself,
     executor: myself,
   }
+  const requestCheckResult = validateRequest(request)
+  if (requestCheckResult === TargetCheckResult.Ok) {
+    return {
+      ok: true,
+      value: request,
+    }
+  } else {
+    return {
+      ok: false,
+      error: requestCheckResult,
+    }
+  }
 }
 
 function TargetExecutionButtonUI() {
   const { purpose } = React.useContext(UserSearchChainBlockPageStatesContext)
   const limiterStatus = React.useContext(BlockLimiterContext)
   const uiContext = React.useContext(UIContext)
-  const request = useSessionRequest()
+  const maybeRequest = useSessionRequest()
   function isAvailable() {
     if (limiterStatus.remained <= 0) {
       return false
     }
-    return validateRequest(request) === TargetCheckResult.Ok
+    return maybeRequest.ok
   }
   function executeSession() {
-    uiContext.openDialog({
-      dialogType: 'confirm',
-      message: TextGenerate.generateConfirmMessage(request),
-      callbackOnOk() {
-        startNewChainBlockSession<UserSearchSessionTarget>(request)
-      },
-    })
+    if (maybeRequest.ok) {
+      const { value: request } = maybeRequest
+      return uiContext.openDialog({
+        dialogType: 'confirm',
+        message: TextGenerate.generateConfirmMessage(request),
+        callbackOnOk() {
+          startNewChainBlockSession<UserSearchSessionTarget>(request)
+        },
+      })
+    } else {
+      const message = TextGenerate.checkResultToString(maybeRequest.error)
+      return uiContext.openSnackBar(message)
+    }
   }
   return (
     <M.Box>
@@ -87,7 +111,7 @@ function TargetOptionsUI() {
 }
 
 export default function NewSessionSearchResultPage() {
-  const request = useSessionRequest()
+  const maybeRequest = useSessionRequest()
   const { searchQuery } = React.useContext(UserSearchChainBlockPageStatesContext)
   return (
     <div>
@@ -101,7 +125,7 @@ export default function NewSessionSearchResultPage() {
       </RBExpansionPanel>
       <TargetOptionsUI />
       <BlockLimiterUI />
-      <RequestCheckResultUI {...{ request }} />
+      <RequestCheckResultUI {...{ maybeRequest }} />
       <TargetExecutionButtonUI />
     </div>
   )

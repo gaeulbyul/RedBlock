@@ -13,7 +13,7 @@ import {
   TabPanel,
 } from './components.js'
 import type { PageId } from './pages.js'
-import { generateConfirmMessage } from '../../scripts/text-generate.js'
+import * as TextGenerate from '../../scripts/text-generate.js'
 import { startNewChainBlockSession } from '../../scripts/background/request-sender.js'
 import {
   emptyBlocklist,
@@ -25,12 +25,18 @@ import { TargetCheckResult, validateRequest } from '../../scripts/background/tar
 
 const M = MaterialUI
 
-function useImportSessionRequest(): SessionRequest<ImportSessionTarget> {
+function useImportSessionRequest(): Either<TargetCheckResult, SessionRequest<ImportSessionTarget>> {
   const { purpose, blocklist } = React.useContext(ImportChainBlockPageStatesContext)
   const { extraTarget } = React.useContext(ExtraTargetContext)
-  const myself = React.useContext(MyselfContext)!
+  const myself = React.useContext(MyselfContext)
   const options = React.useContext(RedBlockOptionsContext)
-  return {
+  if (!myself) {
+    return {
+      ok: false,
+      error: TargetCheckResult.MaybeNotLoggedIn,
+    }
+  }
+  const request: SessionRequest<ImportSessionTarget> = {
     purpose,
     target: {
       type: 'import',
@@ -43,12 +49,33 @@ function useImportSessionRequest(): SessionRequest<ImportSessionTarget> {
     executor: myself,
     options,
   }
+  const requestCheckResult = validateRequest(request)
+  if (requestCheckResult === TargetCheckResult.Ok) {
+    return {
+      ok: true,
+      value: request,
+    }
+  } else {
+    return {
+      ok: false,
+      error: requestCheckResult,
+    }
+  }
 }
 
-function useExportSessionRequest(): SessionRequest<ExportMyBlocklistTarget> {
-  const myself = React.useContext(MyselfContext)!
+function useExportSessionRequest(): Either<
+  TargetCheckResult,
+  SessionRequest<ExportMyBlocklistTarget>
+> {
+  const myself = React.useContext(MyselfContext)
   const options = React.useContext(RedBlockOptionsContext)
-  return {
+  if (!myself) {
+    return {
+      ok: false,
+      error: TargetCheckResult.MaybeNotLoggedIn,
+    }
+  }
+  const request: SessionRequest<ExportMyBlocklistTarget> = {
     purpose: {
       type: 'export',
     },
@@ -61,6 +88,18 @@ function useExportSessionRequest(): SessionRequest<ExportMyBlocklistTarget> {
     retriever: myself,
     executor: myself,
     options,
+  }
+  const requestCheckResult = validateRequest(request)
+  if (requestCheckResult === TargetCheckResult.Ok) {
+    return {
+      ok: true,
+      value: request,
+    }
+  } else {
+    return {
+      ok: false,
+      error: requestCheckResult,
+    }
   }
 }
 
@@ -89,7 +128,6 @@ function TargetOptionsUI() {
 function ImportBlocklistUI() {
   const uiContext = React.useContext(UIContext)
   const limiterStatus = React.useContext(BlockLimiterContext)
-  const { openDialog } = React.useContext(UIContext)
   const {
     blocklist,
     setBlocklist,
@@ -98,13 +136,13 @@ function ImportBlocklistUI() {
     purpose,
   } = React.useContext(ImportChainBlockPageStatesContext)
   const [fileInput] = React.useState(React.createRef<HTMLInputElement>())
-  const request = useImportSessionRequest()
+  const maybeRequest = useImportSessionRequest()
   const blocklistSize = blocklist.userIds.size + blocklist.userNames.size
   function isAvailable() {
     if (limiterStatus.remained <= 0) {
       return false
     }
-    return validateRequest(request) === TargetCheckResult.Ok
+    return maybeRequest.ok
   }
   async function onChange(event: React.FormEvent<HTMLInputElement>) {
     event.preventDefault()
@@ -124,17 +162,19 @@ function ImportBlocklistUI() {
   }
   async function onSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault()
-    if (blocklistSize <= 0) {
-      uiContext.openSnackBar(i18n.getMessage('cant_chainblock_empty_list'))
-      return
+    if (maybeRequest.ok) {
+      const { value: request } = maybeRequest
+      return uiContext.openDialog({
+        dialogType: 'confirm',
+        message: TextGenerate.generateConfirmMessage(request),
+        callbackOnOk() {
+          startNewChainBlockSession<ImportSessionTarget>(request)
+        },
+      })
+    } else {
+      const message = TextGenerate.checkResultToString(maybeRequest.error)
+      return uiContext.openSnackBar(message)
     }
-    openDialog({
-      dialogType: 'confirm',
-      message: generateConfirmMessage(request),
-      callbackOnOk() {
-        startNewChainBlockSession<ImportSessionTarget>(request)
-      },
-    })
   }
   function onReset(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault()
@@ -232,28 +272,32 @@ function ImportBlocklistUI() {
       </RBExpansionPanel>
       <TargetOptionsUI />
       <BlockLimiterUI />
-      <RequestCheckResultUI {...{ request }} />
+      <RequestCheckResultUI {...{ maybeRequest }} />
       <BigExecuteButton {...{ purpose }} type="submit" disabled={!isAvailable()} />
     </form>
   )
 }
 
 function ExportBlocklistUI() {
-  const request = useExportSessionRequest()
+  const maybeRequest = useExportSessionRequest()
   const uiContext = React.useContext(UIContext)
-  const { purpose } = request
+  const purpose: SessionRequest<ExportMyBlocklistTarget>['purpose'] = {
+    type: 'export',
+  }
   function executeSession() {
-    if (!request) {
-      uiContext.openSnackBar(i18n.getMessage('error_occured_check_login'))
-      return
+    if (maybeRequest.ok) {
+      const { value: request } = maybeRequest
+      return uiContext.openDialog({
+        dialogType: 'confirm',
+        message: TextGenerate.generateConfirmMessage(request),
+        callbackOnOk() {
+          startNewChainBlockSession<ExportMyBlocklistTarget>(request)
+        },
+      })
+    } else {
+      const message = TextGenerate.checkResultToString(maybeRequest.error)
+      return uiContext.openSnackBar(message)
     }
-    uiContext.openDialog({
-      dialogType: 'confirm',
-      message: generateConfirmMessage(request),
-      callbackOnOk() {
-        startNewChainBlockSession<ExportMyBlocklistTarget>(request)
-      },
-    })
   }
   return (
     <div style={{ width: '100%' }}>

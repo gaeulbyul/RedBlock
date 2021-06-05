@@ -26,7 +26,10 @@ function showTextLikeTwitter({ full_text, display_text_range: [start, end] }: Tw
   return Array.from(full_text).slice(start, end).join('')
 }
 
-function useSessionRequest(): SessionRequest<TweetReactionSessionTarget> {
+function useSessionRequest(): Either<
+  TargetCheckResult,
+  SessionRequest<TweetReactionSessionTarget>
+> {
   const {
     purpose,
     currentTweet,
@@ -37,10 +40,25 @@ function useSessionRequest(): SessionRequest<TweetReactionSessionTarget> {
     includeNonLinkedMentions,
   } = React.useContext(TweetReactionChainBlockPageStatesContext)
   const { extraTarget } = React.useContext(ExtraTargetContext)
-  const myself = React.useContext(MyselfContext)!
-  const { retriever } = React.useContext(RetrieverContext)!
+  const myself = React.useContext(MyselfContext)
+  const { retriever } = React.useContext(RetrieverContext)
   const options = React.useContext(RedBlockOptionsContext)
-  return {
+  if (!myself) {
+    return {
+      ok: false,
+      error: TargetCheckResult.MaybeNotLoggedIn,
+    }
+  }
+  if (!retriever) {
+    if (currentTweet?.user.blocked_by === false) {
+      throw new Error('unreachable')
+    }
+    return {
+      ok: false,
+      error: TargetCheckResult.TheyBlocksYou,
+    }
+  }
+  const request: SessionRequest<TweetReactionSessionTarget> = {
     purpose,
     options,
     extraTarget,
@@ -55,6 +73,18 @@ function useSessionRequest(): SessionRequest<TweetReactionSessionTarget> {
     },
     retriever,
     executor: myself,
+  }
+  const requestCheckResult = validateRequest(request)
+  if (requestCheckResult === TargetCheckResult.Ok) {
+    return {
+      ok: true,
+      value: request,
+    }
+  } else {
+    return {
+      ok: false,
+      error: requestCheckResult,
+    }
   }
 }
 
@@ -173,23 +203,29 @@ function TargetOptionsUI() {
 
 function TargetExecutionButtonUI() {
   const { purpose } = React.useContext(TweetReactionChainBlockPageStatesContext)
-  const { openDialog } = React.useContext(UIContext)
+  const uiContext = React.useContext(UIContext)
   const limiterStatus = React.useContext(BlockLimiterContext)
-  const request = useSessionRequest()
+  const maybeRequest = useSessionRequest()
   function isAvailable() {
     if (purpose.type === 'chainblock' && limiterStatus.remained <= 0) {
       return false
     }
-    return validateRequest(request) === TargetCheckResult.Ok
+    return maybeRequest.ok
   }
   function executeSession() {
-    openDialog({
-      dialogType: 'confirm',
-      message: TextGenerate.generateConfirmMessage(request),
-      callbackOnOk() {
-        startNewChainBlockSession<TweetReactionSessionTarget>(request)
-      },
-    })
+    if (maybeRequest.ok) {
+      const { value: request } = maybeRequest
+      return uiContext.openDialog({
+        dialogType: 'confirm',
+        message: TextGenerate.generateConfirmMessage(request),
+        callbackOnOk() {
+          startNewChainBlockSession<TweetReactionSessionTarget>(request)
+        },
+      })
+    } else {
+      const message = TextGenerate.checkResultToString(maybeRequest.error)
+      return uiContext.openSnackBar(message)
+    }
   }
   return (
     <M.Box>
@@ -199,13 +235,13 @@ function TargetExecutionButtonUI() {
 }
 
 export default function NewSessionTweetPage() {
-  const request = useSessionRequest()
+  const maybeRequest = useSessionRequest()
   return (
     <div>
       <TargetTweetOuterUI />
       <TargetOptionsUI />
       <BlockLimiterUI />
-      <RequestCheckResultUI {...{ request }} />
+      <RequestCheckResultUI {...{ maybeRequest }} />
       <TargetExecutionButtonUI />
     </div>
   )

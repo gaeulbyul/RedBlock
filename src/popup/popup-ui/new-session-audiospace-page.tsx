@@ -20,13 +20,19 @@ import { TargetCheckResult, validateRequest } from '../../scripts/background/tar
 const M = MaterialUI
 const T = MaterialUI.Typography
 
-function useSessionRequest(): SessionRequest<AudioSpaceSessionTarget> {
+function useSessionRequest(): Either<TargetCheckResult, SessionRequest<AudioSpaceSessionTarget>> {
   const { purpose, audioSpace, includedParticipants } = React.useContext(
     AudioSpaceChainBlockPageStatesContext
   )
   const { extraTarget } = React.useContext(ExtraTargetContext)
-  const myself = React.useContext(MyselfContext)!
+  const myself = React.useContext(MyselfContext)
   const options = React.useContext(RedBlockOptionsContext)
+  if (!myself) {
+    return {
+      ok: false,
+      error: TargetCheckResult.MaybeNotLoggedIn,
+    }
+  }
   const target: AudioSpaceSessionTarget = {
     type: 'audio_space',
     audioSpace,
@@ -36,13 +42,25 @@ function useSessionRequest(): SessionRequest<AudioSpaceSessionTarget> {
   if (includedParticipants === 'all_participants') {
     target.includeListeners = true
   }
-  return {
+  const request: SessionRequest<AudioSpaceSessionTarget> = {
     purpose,
     options,
     extraTarget,
     target,
     retriever: myself,
     executor: myself,
+  }
+  const requestCheckResult = validateRequest(request)
+  if (requestCheckResult === TargetCheckResult.Ok) {
+    return {
+      ok: true,
+      value: request,
+    }
+  } else {
+    return {
+      ok: false,
+      error: requestCheckResult,
+    }
   }
 }
 
@@ -86,21 +104,27 @@ function TargetExecutionButtonUI() {
   const { purpose } = React.useContext(AudioSpaceChainBlockPageStatesContext)
   const limiterStatus = React.useContext(BlockLimiterContext)
   const uiContext = React.useContext(UIContext)
-  const request = useSessionRequest()
+  const maybeRequest = useSessionRequest()
   function isAvailable() {
     if (limiterStatus.remained <= 0) {
       return false
     }
-    return validateRequest(request) === TargetCheckResult.Ok
+    return maybeRequest.ok
   }
   function executeSession() {
-    uiContext.openDialog({
-      dialogType: 'confirm',
-      message: TextGenerate.generateConfirmMessage(request),
-      callbackOnOk() {
-        startNewChainBlockSession<AudioSpaceSessionTarget>(request)
-      },
-    })
+    if (maybeRequest.ok) {
+      const { value: request } = maybeRequest
+      return uiContext.openDialog({
+        dialogType: 'confirm',
+        message: TextGenerate.generateConfirmMessage(request),
+        callbackOnOk() {
+          startNewChainBlockSession<AudioSpaceSessionTarget>(request)
+        },
+      })
+    } else {
+      const message = TextGenerate.checkResultToString(maybeRequest.error)
+      return uiContext.openSnackBar(message)
+    }
   }
   return (
     <M.Box>
@@ -132,7 +156,7 @@ function TargetOptionsUI() {
 }
 
 export default function NewSessionAudioSpacePage() {
-  const request = useSessionRequest()
+  const maybeRequest = useSessionRequest()
   const { audioSpace } = React.useContext(AudioSpaceChainBlockPageStatesContext)
   const hostUserName = audioSpace.participants.admins[0].twitter_screen_name
   const targetSummary = `${i18n.getMessage('target')} (${i18n.getMessage(
@@ -146,7 +170,7 @@ export default function NewSessionAudioSpacePage() {
       </RBExpansionPanel>
       <TargetOptionsUI />
       <BlockLimiterUI />
-      <RequestCheckResultUI {...{ request }} />
+      <RequestCheckResultUI {...{ maybeRequest }} />
       <TargetExecutionButtonUI />
     </div>
   )

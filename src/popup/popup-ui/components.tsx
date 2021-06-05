@@ -2,7 +2,7 @@ import { DialogMessageObj, checkResultToString } from '../../scripts/text-genera
 import { requestResetCounter } from '../../scripts/background/request-sender.js'
 import { MyselfContext, BlockLimiterContext, RedBlockOptionsContext } from './contexts.js'
 import { ExtraTargetContext } from './ui-states.js'
-import { TargetCheckResult, validateRequest } from '../../scripts/background/target-checker.js'
+import type { TargetCheckResult } from '../../scripts/background/target-checker.js'
 
 const M = MaterialUI
 const T = MaterialUI.Typography
@@ -776,17 +776,18 @@ function UnChainMuteOptionsUI({
   )
 }
 
-export function RequestCheckResultUI({ request }: { request: SessionRequest<AnySessionTarget> }) {
-  const checkResult = validateRequest(request)
-  const checkResultMsg = checkResultToString(checkResult)
-  const isOk = checkResult === TargetCheckResult.Ok
+export function RequestCheckResultUI({
+  maybeRequest,
+}: {
+  maybeRequest: Either<TargetCheckResult, SessionRequest<AnySessionTarget>>
+}) {
   return (
-    <div>
-      {!isOk && (
+    <div hidden={maybeRequest.ok}>
+      {!maybeRequest.ok && (
         <M.Paper square>
           <T component="div">
             <M.Box px={2} py={1} mb={1} color="warning.main">
-              {checkResultMsg}
+              {checkResultToString(maybeRequest.error)}
             </M.Box>
           </T>
         </M.Paper>

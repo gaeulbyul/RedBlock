@@ -1,7 +1,7 @@
 import { findNonLinkedMentionsFromTweet } from '../common.js'
 
 export const enum TargetCheckResult {
-  Ok,
+  Ok = 1, // 1: if (targetCheckResult) {} 에서 falsey하게 판단하는 걸 막기 위해.
   AlreadyRunningOnSameTarget,
   Protected,
   NoFollowers,
@@ -16,6 +16,7 @@ export const enum TargetCheckResult {
   CantChainBlockYourself,
   CantLockPickerToOther,
   InvalidSearchQuery,
+  MaybeNotLoggedIn,
 }
 
 export function validateRequest(request: SessionRequest<AnySessionTarget>): TargetCheckResult {

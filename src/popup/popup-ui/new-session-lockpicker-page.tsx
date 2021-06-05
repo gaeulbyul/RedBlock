@@ -12,19 +12,25 @@ import {
   TwitterUserProfile,
   RequestCheckResultUI,
 } from './components.js'
-import { generateConfirmMessage } from '../../scripts/text-generate.js'
+import * as TextGenerate from '../../scripts/text-generate.js'
 import { startNewChainBlockSession } from '../../scripts/background/request-sender.js'
 import { LockPickerPageStatesContext, ExtraTargetContext } from './ui-states.js'
 import { TargetCheckResult, validateRequest } from '../../scripts/background/target-checker.js'
 
 const M = MaterialUI
 
-function useSessionRequest(): SessionRequest<LockPickerSessionTarget> {
+function useSessionRequest(): Either<TargetCheckResult, SessionRequest<LockPickerSessionTarget>> {
   const { purpose } = React.useContext(LockPickerPageStatesContext)
   const { extraTarget } = React.useContext(ExtraTargetContext)
-  const myself = React.useContext(MyselfContext)!
+  const myself = React.useContext(MyselfContext)
   const options = React.useContext(RedBlockOptionsContext)
-  return {
+  if (!myself) {
+    return {
+      ok: false,
+      error: TargetCheckResult.MaybeNotLoggedIn,
+    }
+  }
+  const request: SessionRequest<LockPickerSessionTarget> = {
     purpose,
     options,
     target: {
@@ -35,6 +41,18 @@ function useSessionRequest(): SessionRequest<LockPickerSessionTarget> {
     retriever: myself,
     executor: myself,
     extraTarget,
+  }
+  const requestCheckResult = validateRequest(request)
+  if (requestCheckResult === TargetCheckResult.Ok) {
+    return {
+      ok: true,
+      value: request,
+    }
+  } else {
+    return {
+      ok: false,
+      error: requestCheckResult,
+    }
   }
 }
 
@@ -64,21 +82,27 @@ function TargetExecutionButtonUI() {
   const { purpose } = React.useContext(LockPickerPageStatesContext)
   const uiContext = React.useContext(UIContext)
   const limiterStatus = React.useContext(BlockLimiterContext)
-  const request = useSessionRequest()
+  const maybeRequest = useSessionRequest()
   function isAvailable() {
     if (limiterStatus.remained <= 0) {
       return false
     }
-    return validateRequest(request) === TargetCheckResult.Ok
+    return maybeRequest.ok
   }
   function executeSession() {
-    uiContext.openDialog({
-      dialogType: 'confirm',
-      message: generateConfirmMessage(request),
-      callbackOnOk() {
-        startNewChainBlockSession<LockPickerSessionTarget>(request)
-      },
-    })
+    if (maybeRequest.ok) {
+      const { value: request } = maybeRequest
+      return uiContext.openDialog({
+        dialogType: 'confirm',
+        message: TextGenerate.generateConfirmMessage(request),
+        callbackOnOk() {
+          startNewChainBlockSession<LockPickerSessionTarget>(request)
+        },
+      })
+    } else {
+      const message = TextGenerate.checkResultToString(maybeRequest.error)
+      return uiContext.openSnackBar(message)
+    }
   }
   return (
     <M.Box>
@@ -89,7 +113,7 @@ function TargetExecutionButtonUI() {
 
 export default function NewSessionLockpickerPage() {
   const myself = React.useContext(MyselfContext)!
-  const request = useSessionRequest()
+  const maybeRequest = useSessionRequest()
   return (
     <div>
       <RBExpansionPanel summary={i18n.getMessage('lockpicker')} defaultExpanded>
@@ -99,7 +123,7 @@ export default function NewSessionLockpickerPage() {
       </RBExpansionPanel>
       <TargetOptionsUI />
       <BlockLimiterUI />
-      <RequestCheckResultUI {...{ request }} />
+      <RequestCheckResultUI {...{ maybeRequest }} />
       <TargetExecutionButtonUI />
     </div>
   )

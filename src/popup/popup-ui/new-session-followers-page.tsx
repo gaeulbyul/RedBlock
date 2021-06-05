@@ -41,13 +41,30 @@ interface UserSelectorContextType {
 }
 const UserSelectorContext = React.createContext<UserSelectorContextType>(null!)
 
-function useSessionRequest(targetUser: TwitterUser): SessionRequest<FollowerSessionTarget> {
+function useSessionRequest(
+  targetUser: TwitterUser
+): Either<TargetCheckResult, SessionRequest<FollowerSessionTarget>> {
   const { purpose, targetList } = React.useContext(FollowerChainBlockPageStatesContext)
-  const myself = React.useContext(MyselfContext)!
-  const { retriever } = React.useContext(RetrieverContext)!
+  const myself = React.useContext(MyselfContext)
+  const { retriever } = React.useContext(RetrieverContext)
   const { extraTarget } = React.useContext(ExtraTargetContext)
   const options = React.useContext(RedBlockOptionsContext)
-  return {
+  if (!myself) {
+    return {
+      ok: false,
+      error: TargetCheckResult.MaybeNotLoggedIn,
+    }
+  }
+  if (!retriever) {
+    if (!targetUser.blocked_by) {
+      throw new Error('unreachable')
+    }
+    return {
+      ok: false,
+      error: TargetCheckResult.TheyBlocksYou,
+    }
+  }
+  const request: SessionRequest<FollowerSessionTarget> = {
     purpose,
     target: {
       type: 'follower',
@@ -58,6 +75,18 @@ function useSessionRequest(targetUser: TwitterUser): SessionRequest<FollowerSess
     extraTarget,
     retriever,
     executor: myself,
+  }
+  const requestCheckResult = validateRequest(request)
+  if (requestCheckResult === TargetCheckResult.Ok) {
+    return {
+      ok: true,
+      value: request,
+    }
+  } else {
+    return {
+      ok: false,
+      error: requestCheckResult,
+    }
   }
 }
 
@@ -388,29 +417,31 @@ function TargetExecutionButtonUI() {
     if (!userSelection) {
       return false
     }
-    const request = useSessionRequest(userSelection.user)
     if (limiterStatus.remained <= 0 && purpose.type === 'chainblock') {
       return false
     }
-    return validateRequest(request) === TargetCheckResult.Ok
+    const maybeRequest = useSessionRequest(userSelection.user)
+    return maybeRequest.ok
   }
   function executeSession() {
     if (!userSelection) {
       // userSelection이 없으면 button이 disabled됨
       throw new Error('unreachable')
     }
-    const request = useSessionRequest(userSelection.user)
-    if (!request) {
-      uiContext.openSnackBar(i18n.getMessage('error_occured_check_login'))
-      return
+    const maybeRequest = useSessionRequest(userSelection.user)
+    if (maybeRequest.ok) {
+      const { value: request } = maybeRequest
+      return uiContext.openDialog({
+        dialogType: 'confirm',
+        message: TextGenerate.generateConfirmMessage(request),
+        callbackOnOk() {
+          startNewChainBlockSession<FollowerSessionTarget>(request)
+        },
+      })
+    } else {
+      const message = TextGenerate.checkResultToString(maybeRequest.error)
+      return uiContext.openSnackBar(message)
     }
-    uiContext.openDialog({
-      dialogType: 'confirm',
-      message: TextGenerate.generateConfirmMessage(request),
-      callbackOnOk() {
-        startNewChainBlockSession<FollowerSessionTarget>(request)
-      },
-    })
   }
   return (
     <M.Box>
@@ -433,13 +464,13 @@ export default function NewSessionFollowersPage() {
   if (!userSelection) {
     return NewSessionFollowersPageWithoutSelectedUser()
   }
-  const request = useSessionRequest(userSelection.user)
+  const maybeRequest = useSessionRequest(userSelection.user)
   return (
     <div>
       <TargetUserSelectUI />
       <TargetOptionsUI />
       <BlockLimiterUI />
-      <RequestCheckResultUI {...{ request }} />
+      <RequestCheckResultUI {...{ maybeRequest }} />
       <TargetExecutionButtonUI />
     </div>
   )
