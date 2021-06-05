@@ -8,6 +8,9 @@
   "new_searchblock_session": {
     "message": "New Session (User Search)"
   },
+  "new_audiospace_session": {
+    "message": "New Session (Space)"
+  },
   "new_session": {
     "message": "New Session"
   },

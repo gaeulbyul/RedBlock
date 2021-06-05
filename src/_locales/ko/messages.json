@@ -8,6 +8,9 @@
   "new_searchblock_session": {
     "message": "새 세션 (유저 검색결과)"
   },
+  "new_audiospace_session": {
+    "message": "새 세션 (스페이스)"
+  },
   "new_session": {
     "message": "새 세션"
   },

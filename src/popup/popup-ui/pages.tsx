@@ -58,7 +58,7 @@ export function pageLabel(page: PageId, sessionsCount = 0): string {
     case 'new-session-searchresult-page':
       return i18n.getMessage('new_searchblock_session')
     case 'new-session-audiospace-page':
-      return i18n.getMessage('audio_space')
+      return i18n.getMessage('new_audiospace_session')
     case 'new-session-blocklist-page':
       return i18n.getMessage('blocklist_page')
     case 'new-session-lockpicker-page':
