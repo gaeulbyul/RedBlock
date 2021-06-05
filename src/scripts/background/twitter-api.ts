@@ -256,9 +256,11 @@ export class TwClient {
       withNonLegacyCard: true,
       withTweetResult: true,
       withReactions: true,
+      withSuperFollowsTweetFields: true,
       withUserResults: true,
       withBirdwatchPivots: true,
       withScheduledSpaces: true,
+      withTweetQuoteCount: true,
     }).then(response => response.data.audioSpace)
   }
   private async sendRequest(request: RequestInit, url: URL) {
