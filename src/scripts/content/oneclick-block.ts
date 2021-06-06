@@ -62,8 +62,8 @@
     document.dispatchEvent(event)
     const { userId, userAction } = detail
     if (userAction === 'Block') {
-      const oneclickButton = document.querySelector(`[data-redblock-btn-user="${userId}"]`)
-      oneclickButton?.remove()
+      const oneclickButtons = document.querySelectorAll(`[data-redblock-btn-user="${userId}"]`)
+      oneclickButtons.forEach(button => button.remove())
     }
   }
 
