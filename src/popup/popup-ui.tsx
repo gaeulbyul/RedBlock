@@ -35,13 +35,36 @@ import { isRunningSession } from '../scripts/common.js'
 import { getCurrentTab, checkMessage, getTabContext, TabContext } from './popup.js'
 import { getCookieStoreIdFromTab } from '../scripts/background/cookie-handler.js'
 
-const UI_UPDATE_DELAY = 750
+const UI_UPDATE_DELAY_ON_BUSY = 500
+const UI_UPDATE_DELAY_ON_IDLE = 1500
 
 const M = MaterialUI
 
 function getVersionAndName() {
   const manifest = browser.runtime.getManifest()
   return `${manifest.name} v${manifest.version}`
+}
+
+// https://overreacted.io/making-setinterval-declarative-with-react-hooks/
+function useInterval(callback: Function, delay: number | null) {
+  const savedCallback = React.useRef<Function>()
+
+  // Remember the latest callback.
+  React.useEffect(() => {
+    savedCallback.current = callback
+  }, [callback])
+
+  // Set up the interval.
+  React.useEffect(() => {
+    function tick() {
+      savedCallback.current?.()
+    }
+    if (delay === null) {
+      return () => {}
+    }
+    const id = setInterval(tick, delay)
+    return () => clearInterval(id)
+  }, [delay])
 }
 
 const StyledTab = MaterialUI.withStyles({
@@ -228,8 +251,16 @@ function PopupApp({
   const shrinkedPopup = MaterialUI.useMediaQuery('(width:348px), (width:425px)')
   const theme = React.useMemo(() => RedBlockPopupUITheme(darkMode), [darkMode])
   const [countOfRunningSessions, setCountOfRunningSessions] = React.useState(0)
+  const [delay, setDelay] = React.useState<number | null>(null)
+  useInterval(async () => {
+    if (!myself) {
+      setDelay(null)
+      return
+    }
+    requestProgress().catch(() => {})
+    requestBlockLimiterStatus(myself.user.id_str).catch(() => {})
+  }, delay)
   function openDialog(content: DialogContent) {
-    console.debug(content)
     setModalOpened(true)
     setModalContent(content)
   }
@@ -273,9 +304,17 @@ function PopupApp({
       switch (msg.messageType) {
         case 'ChainBlockInfo':
           setInitialLoading(false)
-          setCountOfRunningSessions(msg.sessions.filter(isRunningSession).length)
+          const runningSessionsLength = msg.sessions.filter(isRunningSession).length
+          setCountOfRunningSessions(runningSessionsLength)
           if (tabPage === 'chainblock-sessions-page') {
             setSessions(msg.sessions)
+            if (runningSessionsLength > 0) {
+              setDelay(UI_UPDATE_DELAY_ON_BUSY)
+            } else {
+              setDelay(UI_UPDATE_DELAY_ON_IDLE)
+            }
+          } else {
+            setDelay(UI_UPDATE_DELAY_ON_IDLE)
           }
           break
         case 'BlockLimiterInfo':
@@ -497,13 +536,8 @@ export async function initializeUI() {
   }
   if (me) {
     requestBlockLimiterStatus(me.id_str).catch(() => {})
-  }
-  window.setInterval(() => {
     requestProgress().catch(() => {})
-    if (me) {
-      requestBlockLimiterStatus(me.id_str).catch(() => {})
-    }
-  }, UI_UPDATE_DELAY)
+  }
 }
 
 initializeUI()
