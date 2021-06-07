@@ -15,7 +15,6 @@ import {
 import { UIContext, MyselfContext } from './contexts.js'
 import { statusToString } from '../../scripts/text-generate.js'
 import { BlockLimiterUI, PleaseLoginBox, LinearProgressWithLabel } from './components.js'
-import { checkMessage } from '../popup.js'
 
 const M = MaterialUI
 const T = MaterialUI.Typography
@@ -446,28 +445,9 @@ function NewSessionButtons() {
   )
 }
 
-export default function ChainBlockSessionsPage() {
-  const [sessions, setSessions] = React.useState<SessionInfo[]>([])
+export default function ChainBlockSessionsPage({ sessions }: { sessions: SessionInfo[] }) {
   const myself = React.useContext(MyselfContext)
   const uiContext = React.useContext(UIContext)
-  React.useEffect(() => {
-    const messageListener = (msg: object) => {
-      if (!checkMessage(msg)) {
-        console.debug('unknown message?', msg)
-        return
-      }
-      if (msg.messageType !== 'ChainBlockInfo') {
-        return
-      }
-      setSessions(msg.sessions)
-    }
-    browser.runtime.onMessage.addListener(messageListener)
-    requestProgress().catch(() => null)
-    // clean-up
-    return () => {
-      browser.runtime.onMessage.removeListener(messageListener)
-    }
-  }, [])
   function renderSessions() {
     return (
       <div>

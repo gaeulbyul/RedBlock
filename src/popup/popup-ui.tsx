@@ -79,7 +79,7 @@ function PopupTopTab({
   )
 }
 
-function PopupUITopMenu({ countOfSessions }: { countOfSessions: number }) {
+function PopupUITopMenu({ countOfRunningSessions }: { countOfRunningSessions: number }) {
   const {
     menuAnchorElem,
     setMenuAnchorElem,
@@ -131,7 +131,7 @@ function PopupUITopMenu({ countOfSessions }: { countOfSessions: number }) {
       open={Boolean(menuAnchorElem)}
       onClose={closeMenu}
     >
-      <MenuItem pageId="chainblock-sessions-page" count={countOfSessions} />
+      <MenuItem pageId="chainblock-sessions-page" count={countOfRunningSessions} />
       <MenuItem
         pageId="new-session-followers-page"
         disabled={!availablePages['new-session-followers-page']}
@@ -222,11 +222,12 @@ function PopupApp({
   const darkMode = MaterialUI.useMediaQuery('(prefers-color-scheme:dark)')
   const [initialLoading, setInitialLoading] = React.useState(true)
   const [redblockOptions, setRedBlockOptions] = React.useState(initialRedBlockOptions)
-  const [countOfSessions, setCountOfSessions] = React.useState(0)
+  const [sessions, setSessions] = React.useState<SessionInfo[]>([])
   // 파이어폭스의 팝업 가로폭 문제
   // 참고: popup.css
   const shrinkedPopup = MaterialUI.useMediaQuery('(width:348px), (width:425px)')
   const theme = React.useMemo(() => RedBlockPopupUITheme(darkMode), [darkMode])
+  const [countOfRunningSessions, setCountOfRunningSessions] = React.useState(0)
   function openDialog(content: DialogContent) {
     console.debug(content)
     setModalOpened(true)
@@ -272,7 +273,10 @@ function PopupApp({
       switch (msg.messageType) {
         case 'ChainBlockInfo':
           setInitialLoading(false)
-          setCountOfSessions(msg.sessions.filter(isRunningSession).length)
+          setCountOfRunningSessions(msg.sessions.filter(isRunningSession).length)
+          if (tabPage === 'chainblock-sessions-page') {
+            setSessions(msg.sessions)
+          }
           break
         case 'BlockLimiterInfo':
           if (myself && msg.userId === myself.user.id_str) {
@@ -295,7 +299,7 @@ function PopupApp({
     return () => {
       browser.runtime.onMessage.removeListener(messageListener)
     }
-  }, [limiterStatus])
+  }, [limiterStatus, tabPage])
   React.useEffect(() => onStorageChanged('options', setRedBlockOptions), [])
   return (
     <M.ThemeProvider theme={theme}>
@@ -328,7 +332,7 @@ function PopupApp({
                       setTabPage(val)
                     }}
                   >
-                    <PopupTopTab value="chainblock-sessions-page" count={countOfSessions} />
+                    <PopupTopTab value="chainblock-sessions-page" count={countOfRunningSessions} />
                     <PopupTopTab
                       value="new-session-followers-page"
                       disabled={!availablePages['new-session-followers-page']}
@@ -360,11 +364,11 @@ function PopupApp({
                   {myself && <PopupMyselfIcon {...{ myself: myself.user }} />}
                 </M.Toolbar>
               </M.AppBar>
-              <PopupUITopMenu {...{ countOfSessions }} />
+              <PopupUITopMenu {...{ countOfRunningSessions }} />
               <div className="page">
                 <M.Container maxWidth="sm" disableGutters>
                   <TabPanel value={tabPage} index="chainblock-sessions-page">
-                    <ChainBlockSessionsPage />
+                    <ChainBlockSessionsPage {...{ sessions }} />
                   </TabPanel>
                   <FollowerChainBlockPageStatesProvider initialUser={currentUser}>
                     <TabPanel value={tabPage} index="new-session-followers-page">
