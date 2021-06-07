@@ -97,10 +97,6 @@ export default class ChainBlocker {
     return false
   }
   public remove(sessionId: string) {
-    const session = this.sessions.get(sessionId)!
-    if (isRunningSession(session.getSessionInfo())) {
-      throw new Error(`attempted to remove running session! [id=${sessionId}]`)
-    }
     this.sessions.delete(sessionId)
     this.updateBadge()
   }

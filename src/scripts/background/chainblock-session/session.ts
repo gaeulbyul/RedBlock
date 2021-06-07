@@ -161,6 +161,7 @@ export class ChainBlockSession extends BaseSession {
     } else {
       try {
         const scrapedUserIds = new Set<string>()
+        const twClient = new TwitterAPI.TwClient(this.request.executor.cookieOptions)
         for await (const scraperResponse of this.scraper) {
           if (this.shouldStop) {
             stopped = true
@@ -215,7 +216,6 @@ export class ChainBlockSession extends BaseSession {
             if (DBG_dontActuallyCallAPI) {
               promise = Promise.resolve(user)
             } else {
-              const twClient = new TwitterAPI.TwClient(this.request.executor.cookieOptions)
               switch (whatToDo) {
                 case 'Block':
                   promise = twClient.blockUser(user)
