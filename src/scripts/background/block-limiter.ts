@@ -46,4 +46,7 @@ export default class BlockLimiter {
     localStorage.setItem(this.KEY_COUNT, '0')
     localStorage.setItem(this.KEY_TIMESTAMP, '0')
   }
+  public static resetCounterByUserId(userId: string) {
+    return new BlockLimiter(userId).reset()
+  }
 }

@@ -45,16 +45,16 @@ async function sendProgress() {
 }
 
 async function sendBlockLimiterStatus(userId: string) {
-  const blockLimiter = new BlockLimiter(userId)
+  const { count: current, max } = new BlockLimiter(userId)
   return browser.runtime
     .sendMessage<RBMessageToPopup.BlockLimiterInfo>({
       messageType: 'BlockLimiterInfo',
       messageTo: 'popup',
       userId,
       status: {
-        current: blockLimiter.count,
-        max: blockLimiter.max,
-        remained: blockLimiter.max - blockLimiter.count,
+        current,
+        max,
+        remained: max - current,
       },
     })
     .catch(() => {})
@@ -120,10 +120,8 @@ function handleExtensionMessage(
       sendBlockLimiterStatus(message.userId)
       break
     case 'RequestResetCounter':
-      {
-        const blockLimiter = new BlockLimiter(message.userId)
-        blockLimiter.reset()
-      }
+      BlockLimiter.resetCounterByUserId(message.userId)
+      sendBlockLimiterStatus(message.userId)
       break
     case 'DownloadFromExportSession':
       chainblocker.downloadFileFromExportSession(message.sessionId)
