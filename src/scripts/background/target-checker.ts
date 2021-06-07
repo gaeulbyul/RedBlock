@@ -17,6 +17,7 @@ export const enum TargetCheckResult {
   CantLockPickerToOther,
   InvalidSearchQuery,
   MaybeNotLoggedIn,
+  InvalidSelectedUserOrTweet,
 }
 
 export function validateRequest(request: SessionRequest<AnySessionTarget>): TargetCheckResult {

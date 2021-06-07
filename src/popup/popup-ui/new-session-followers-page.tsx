@@ -42,7 +42,7 @@ interface UserSelectorContextType {
 const UserSelectorContext = React.createContext<UserSelectorContextType>(null!)
 
 function useSessionRequest(
-  targetUser: TwitterUser
+  targetUser?: TwitterUser
 ): Either<TargetCheckResult, SessionRequest<FollowerSessionTarget>> {
   const { purpose, targetList } = React.useContext(FollowerChainBlockPageStatesContext)
   const myself = React.useContext(MyselfContext)
@@ -53,6 +53,12 @@ function useSessionRequest(
     return {
       ok: false,
       error: TargetCheckResult.MaybeNotLoggedIn,
+    }
+  }
+  if (!targetUser) {
+    return {
+      ok: false,
+      error: TargetCheckResult.InvalidSelectedUserOrTweet,
     }
   }
   if (!retriever) {
@@ -413,6 +419,7 @@ function TargetExecutionButtonUI() {
   const { purpose, userSelection } = React.useContext(FollowerChainBlockPageStatesContext)
   const uiContext = React.useContext(UIContext)
   const limiterStatus = React.useContext(BlockLimiterContext)
+  const maybeRequest = useSessionRequest(userSelection?.user)
   function isAvailable() {
     if (!userSelection) {
       return false
@@ -420,7 +427,7 @@ function TargetExecutionButtonUI() {
     if (limiterStatus.remained <= 0 && purpose.type === 'chainblock') {
       return false
     }
-    const maybeRequest = useSessionRequest(userSelection.user)
+
     return maybeRequest.ok
   }
   function executeSession() {
@@ -428,7 +435,6 @@ function TargetExecutionButtonUI() {
       // userSelection이 없으면 button이 disabled됨
       throw new Error('unreachable')
     }
-    const maybeRequest = useSessionRequest(userSelection.user)
     if (maybeRequest.ok) {
       const { value: request } = maybeRequest
       return uiContext.openDialog({
