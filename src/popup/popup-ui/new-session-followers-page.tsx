@@ -467,10 +467,10 @@ function NewSessionFollowersPageWithoutSelectedUser() {
 
 export default function NewSessionFollowersPage() {
   const { userSelection } = React.useContext(FollowerChainBlockPageStatesContext)
+  const maybeRequest = useSessionRequest(userSelection?.user)
   if (!userSelection) {
     return NewSessionFollowersPageWithoutSelectedUser()
   }
-  const maybeRequest = useSessionRequest(userSelection.user)
   return (
     <div>
       <TargetUserSelectUI />
