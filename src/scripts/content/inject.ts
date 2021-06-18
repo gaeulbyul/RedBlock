@@ -4,7 +4,7 @@ interface ReduxStore {
   subscribe(callback: () => void): void
 }
 
-{
+void (() => {
   let reduxStore: ReduxStore
   let myselfUserId = ''
 
@@ -279,4 +279,4 @@ interface ReduxStore {
   requestIdleCallback(initialize, {
     timeout: 10000,
   })
-}
+})()
