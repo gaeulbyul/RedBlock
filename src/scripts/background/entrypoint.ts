@@ -124,6 +124,7 @@ function handleExtensionMessage(
       {
         const blockLimiter = new BlockLimiter(message.userId)
         blockLimiter.reset()
+        sendBlockLimiterStatus(message.userId)
       }
       break
     case 'DownloadFromExportSession':
