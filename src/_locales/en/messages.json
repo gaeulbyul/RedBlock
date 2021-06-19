@@ -675,6 +675,14 @@
       }
     }
   },
+  "unblocked_xxx": {
+    "message": "Unblocked @$username$.",
+    "placeholders": {
+      "username": {
+        "content": "$1"
+      }
+    }
+  },
   "user_profile_contains": {
     "message": "This user's profile contains word '$word$'.",
     "placeholders": {

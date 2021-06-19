@@ -7,7 +7,7 @@
   }
 
   browser.storage.local.get('badWords').then(storage => {
-    const { badWords } = (storage as unknown) as Partial<RedBlockStorage>
+    const { badWords } = storage as unknown as Partial<RedBlockStorage>
     loadBadWords(badWords || [])
   })
 
@@ -67,8 +67,8 @@
     }
   }
 
-  function toastMessage(detail: string) {
-    const event = new CustomEvent<string>('RedBlock->ToastMessage', {
+  function toastMessage(detail: ToastMessageParam) {
+    const event = new CustomEvent<ToastMessageParam>('RedBlock->ToastMessage', {
       detail,
     })
     document.dispatchEvent(event)
@@ -82,12 +82,13 @@
     })
   }
 
-  //async function unblockUser(user: TwitterUser) {
-  //  return browser.runtime.sendMessage<RBActions.UnblockSingleUser>({
-  //    actionType: 'UnblockSingleUser',
-  //    user,
-  //  })
-  //}
+  async function unblockUserById(userId: string) {
+    return browser.runtime.sendMessage<RBMessageToBackground.UnblockUserById>({
+      messageType: 'UnblockUserById',
+      messageTo: 'background',
+      userId,
+    })
+  }
 
   function generateBlockButton(user: TwitterUser): HTMLButtonElement {
     const btn = document.createElement('button')
@@ -112,7 +113,10 @@
         userAction: 'Block',
         userId: user.id_str,
       })
-      toastMessage(`[Red Block] ${i18n.getMessage('blocked_xxx', user.screen_name)}`)
+      toastMessage({
+        text: `[Red Block] ${i18n.getMessage('blocked_xxx', user.screen_name)}`,
+        undoBlock: { userId: user.id_str, userName: user.screen_name },
+      })
     })
     return btn
   }
@@ -172,5 +176,14 @@
       return
     }
     addBlockButtonToUserCellElem(elem, user)
+  })
+
+  document.addEventListener('RedBlock<-RequestUnblockUserById', event => {
+    const customEvent = event as CustomEvent<UndoOneClickBlockByIdParam>
+    const { userId, userName } = customEvent.detail
+    unblockUserById(userId)
+    toastMessage({
+      text: `[Red Block] ${i18n.getMessage('unblocked_xxx', userName)}`,
+    })
   })
 }

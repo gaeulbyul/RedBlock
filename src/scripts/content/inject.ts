@@ -67,11 +67,26 @@ void (() => {
     return entities[userId] || null
   }
 
-  function toastMessage(text: string) {
+  function toastMessage({ text, undoBlock }: ToastMessageParam) {
+    let action: any
+    if (undoBlock) {
+      action = {
+        label: 'Unblock',
+        onAction() {
+          document.dispatchEvent(
+            new CustomEvent<UndoOneClickBlockByIdParam>('RedBlock<-RequestUnblockUserById', {
+              bubbles: true,
+              detail: undoBlock,
+            })
+          )
+        },
+      }
+    }
     findReduxStore().dispatch({
       type: `rweb/toasts/ADD_TOAST`,
       payload: {
         text,
+        action,
       },
     })
   }
@@ -140,7 +155,7 @@ void (() => {
       }, rafTimeout)
     })
     document.addEventListener('RedBlock->ToastMessage', event => {
-      const customEvent = event as CustomEvent<string>
+      const customEvent = event as CustomEvent<ToastMessageParam>
       toastMessage(customEvent.detail)
     })
   }

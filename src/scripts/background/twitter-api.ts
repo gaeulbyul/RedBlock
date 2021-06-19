@@ -89,6 +89,13 @@ export class TwClient {
       user_id: user.id_str,
     })
   }
+  public async unblockUserById(userId: string): Promise<TwitterUser> {
+    return await this.request1('post', '/blocks/destroy.json', {
+      user_id: userId,
+      include_entities: false,
+      skip_status: true,
+    })
+  }
   public async getTweetById(tweetId: string): Promise<Tweet> {
     return await this.request1('get', '/statuses/show.json', {
       id: tweetId,
@@ -368,7 +375,7 @@ async function generateTwitterAPIOptions(
   if (cookieOptions.actAsUserId) {
     const extraCookies = await generateCookiesForAltAccountRequest(cookieOptions)
     const encodedExtraCookies = new URLSearchParams(
-      (extraCookies as unknown) as Record<string, string>
+      extraCookies as unknown as Record<string, string>
     )
     headers.set('x-redblock-act-as-cookies', encodedExtraCookies.toString())
   }

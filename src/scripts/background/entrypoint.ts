@@ -113,8 +113,8 @@ function handleExtensionMessage(
     case 'BlockSingleUser':
       twClientFromTab(sender.tab!).then(twClient => twClient.blockUser(message.user))
       break
-    case 'UnblockSingleUser':
-      twClientFromTab(sender.tab!).then(twClient => twClient.unblockUser(message.user))
+    case 'UnblockUserById':
+      twClientFromTab(sender.tab!).then(twClient => twClient.unblockUserById(message.userId))
       break
     case 'RequestBlockLimiterStatus':
       sendBlockLimiterStatus(message.userId)

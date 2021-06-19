@@ -106,10 +106,10 @@ declare namespace RBMessageToBackground {
     user: TwitterUser
   }
 
-  interface UnblockSingleUser {
-    messageType: 'UnblockSingleUser'
+  interface UnblockUserById {
+    messageType: 'UnblockUserById'
     messageTo: 'background'
-    user: TwitterUser
+    userId: string
   }
 
   interface DownloadFromExportSession {
@@ -130,7 +130,7 @@ declare type RBMessageToBackgroundType =
   | RBMessageToBackground.RequestBlockLimiterStatus
   | RBMessageToBackground.RequestResetCounter
   | RBMessageToBackground.BlockSingleUser
-  | RBMessageToBackground.UnblockSingleUser
+  | RBMessageToBackground.UnblockUserById
   | RBMessageToBackground.DownloadFromExportSession
 
 declare namespace RBMessageToPopup {
@@ -218,6 +218,16 @@ interface OneClickBlockableTweetElement {
 
 interface OneClickBlockableUserCellElement {
   user: TwitterUser
+}
+
+interface UndoOneClickBlockByIdParam {
+  userId: string
+  userName: string // 차단해제 메시지에 띄울 유저이름
+}
+
+interface ToastMessageParam {
+  text: string
+  undoBlock?: UndoOneClickBlockByIdParam
 }
 
 // ---- 1click block related ----

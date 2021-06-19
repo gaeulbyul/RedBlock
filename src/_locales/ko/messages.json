@@ -675,6 +675,14 @@
       }
     }
   },
+  "unblocked_xxx": {
+    "message": "@$username$을 차단해제했습니다.",
+    "placeholders": {
+      "username": {
+        "content": "$1"
+      }
+    }
+  },
   "user_profile_contains": {
     "message": "이 사용자의 프로필에 '$word$'이(가) 포함되어있습니다.",
     "placeholders": {
