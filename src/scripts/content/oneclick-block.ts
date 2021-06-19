@@ -121,11 +121,24 @@
     return btn
   }
 
-  function addBlockButtonToTweetElem(elem: HTMLElement, user: TwitterUser) {
-    const caret = elem.querySelector('[data-testid=caret]')!
+  function addBlockButtonUnderProfileImage(elem: HTMLElement, user: TwitterUser) {
     const btn = generateBlockButton(user)
-    btn.classList.add('redblock-btn-tweet')
-    caret.before(btn)
+    btn.classList.add('redblock-btn-under-profile')
+    let elementToPlaceBlockButton: HTMLElement | null = null
+    const profileImage = elem.querySelector('a[role=link][href^="/"][style^="height:"]')
+    if (profileImage) {
+      elementToPlaceBlockButton = profileImage.parentElement!
+    }
+    const profileImagePlaceholder = elem.querySelector('div[style^="background-color:"]')
+    if (profileImagePlaceholder) {
+      const link = profileImagePlaceholder.closest('a[role=link]')!
+      elementToPlaceBlockButton = link.parentElement!
+    }
+    if (!elementToPlaceBlockButton) {
+      console.warn('failed to find element')
+      return
+    }
+    elementToPlaceBlockButton.appendChild(btn)
   }
 
   function addBlockButtonToQuotedTweetElem(elem: HTMLElement, user: TwitterUser) {
@@ -135,13 +148,6 @@
     const btn = generateBlockButton(user)
     btn.classList.add('redblock-btn-tweet')
     timestamp.after(btn)
-  }
-
-  function addBlockButtonToUserCellElem(elem: HTMLElement, user: TwitterUser) {
-    const maybeUserNameElem = elem.querySelector('[dir=ltr] > span')!
-    const btn = generateBlockButton(user)
-    btn.classList.add('redblock-btn-usercell')
-    maybeUserNameElem.after(btn)
   }
 
   function shouldSkip(user: TwitterUser) {
@@ -155,7 +161,7 @@
     if (shouldSkip(user)) {
       return
     }
-    addBlockButtonToTweetElem(elem, user)
+    addBlockButtonUnderProfileImage(elem, user)
   })
 
   document.addEventListener('RedBlock<-OnQuotedTweetElement', event => {
@@ -175,7 +181,7 @@
     if (shouldSkip(user)) {
       return
     }
-    addBlockButtonToUserCellElem(elem, user)
+    addBlockButtonUnderProfileImage(elem, user)
   })
 
   document.addEventListener('RedBlock<-RequestUnblockUserById', event => {

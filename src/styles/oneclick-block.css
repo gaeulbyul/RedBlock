@@ -9,6 +9,11 @@
   font-size: 11px;
 }
 
+.redblock-btn-under-profile {
+  white-space: nowrap;
+  margin-top: 5px;
+}
+
 /* 보통 트윗. 트윗메뉴의 왼쪽에 버튼이 붙는다. */
 div > .redblock-btn-tweet {
   margin-right: 15px;
@@ -41,6 +46,7 @@ span > .redblock-btn-tweet {
 }
 
 /* Shinigami-eyes compatibility */
+.assigned-label-transphobic + .redblock-block-btn,
 .assigned-label-transphobic .redblock-block-btn {
   display: inline-block;
   color: white !important;
