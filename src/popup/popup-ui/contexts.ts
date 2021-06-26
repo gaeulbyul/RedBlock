@@ -1,6 +1,8 @@
-import { defaultOptions } from '../../scripts/background/storage.js'
-import type { PageId, AvailablePages } from './pages.js'
-import type { DialogContent } from './components.js'
+import React from 'react'
+
+import { defaultOptions } from '../../scripts/background/storage'
+import type { PageId, AvailablePages } from './pages'
+import type { DialogContent } from './components'
 
 interface UIContextType {
   openDialog(content: DialogContent): void

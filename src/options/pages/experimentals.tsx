@@ -1,5 +1,9 @@
-import { RedBlockOptionsContext } from './contexts.js'
-import { SwitchItem } from '../components.js'
+import React from 'react'
+import * as MaterialUI from '@material-ui/core'
+import * as i18n from '~~/scripts/i18n'
+
+import { RedBlockOptionsContext } from './contexts'
+import { SwitchItem } from '../components'
 
 function checkFirstPartyIsolationSupport() {
   try {

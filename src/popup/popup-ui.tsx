@@ -1,15 +1,19 @@
-import { requestProgress, requestBlockLimiterStatus } from '../scripts/background/request-sender.js'
-import { loadOptions, onStorageChanged } from '../scripts/background/storage.js'
-import { TwClient } from '../scripts/background/twitter-api.js'
-import BlocklistPage from './popup-ui/new-session-blocklist-page.js'
-import ChainBlockSessionsPage from './popup-ui/chainblock-sessions-page.js'
-import { isValidPageId, PageId, AvailablePages, pageIcon, pageLabel } from './popup-ui/pages.js'
+import React from 'react'
+import ReactDOM from 'react-dom'
+import * as MaterialUI from '@material-ui/core'
+
+import { requestProgress, requestBlockLimiterStatus } from '../scripts/background/request-sender'
+import { loadOptions, onStorageChanged } from '../scripts/background/storage'
+import { TwClient } from '../scripts/background/twitter-api'
+import BlocklistPage from './popup-ui/new-session-blocklist-page'
+import ChainBlockSessionsPage from './popup-ui/chainblock-sessions-page'
+import { isValidPageId, PageId, AvailablePages, pageIcon, pageLabel } from './popup-ui/pages'
 import {
   UIContext,
   RedBlockOptionsContext,
   BlockLimiterContext,
   MyselfContext,
-} from './popup-ui/contexts.js'
+} from './popup-ui/contexts'
 import {
   FollowerChainBlockPageStatesProvider,
   TweetReactionChainBlockPageStatesProvider,
@@ -17,23 +21,24 @@ import {
   UserSearchChainBlockPageStatesProvider,
   AudioSpaceChainBlockPageStatesProvider,
   LockPickerPageStatesProvider,
-} from './popup-ui/ui-states.js'
-import MiscPage from './popup-ui/misc-page.js'
-import NewSessionFollowersPage from './popup-ui/new-session-followers-page.js'
-import NewSessionTweetPage from './popup-ui/new-session-tweet-page.js'
-import NewSessionSearchresultPage from './popup-ui/new-session-searchresult-page.js'
-import NewSessionAudioSpacePage from './popup-ui/new-session-audiospace-page.js'
-import NewSessionLockPickerPage from './popup-ui/new-session-lockpicker-page.js'
+} from './popup-ui/ui-states'
+import MiscPage from './popup-ui/misc-page'
+import NewSessionFollowersPage from './popup-ui/new-session-followers-page'
+import NewSessionTweetPage from './popup-ui/new-session-tweet-page'
+import NewSessionSearchresultPage from './popup-ui/new-session-searchresult-page'
+import NewSessionAudioSpacePage from './popup-ui/new-session-audiospace-page'
+import NewSessionLockPickerPage from './popup-ui/new-session-lockpicker-page'
 import {
   DialogContent,
   RBDialog,
   RedBlockPopupUITheme,
   TabPanel,
   MyTooltip,
-} from './popup-ui/components.js'
-import { isRunningSession } from '../scripts/common.js'
-import { getCurrentTab, checkMessage, getTabContext, TabContext } from './popup.js'
-import { getCookieStoreIdFromTab } from '../scripts/background/cookie-handler.js'
+} from './popup-ui/components'
+import { isRunningSession } from '../scripts/common'
+import { getCurrentTab, checkMessage, getTabContext, TabContext } from './popup'
+import { getCookieStoreIdFromTab } from '../scripts/background/cookie-handler'
+import * as i18n from '~~/scripts/i18n'
 
 const UI_UPDATE_DELAY_ON_BUSY = 500
 const UI_UPDATE_DELAY_ON_IDLE = 1500
@@ -103,13 +108,8 @@ function PopupTopTab({
 }
 
 function PopupUITopMenu({ countOfRunningSessions }: { countOfRunningSessions: number }) {
-  const {
-    menuAnchorElem,
-    setMenuAnchorElem,
-    switchPage,
-    popupOpenedInTab,
-    availablePages,
-  } = React.useContext(UIContext)
+  const { menuAnchorElem, setMenuAnchorElem, switchPage, popupOpenedInTab, availablePages } =
+    React.useContext(UIContext)
   function handleOpenInTabClick() {
     browser.tabs.create({
       active: true,
@@ -501,12 +501,8 @@ export async function initializeUI() {
       user: me,
       cookieOptions: twClient.cookieOptions,
     }
-    const {
-      currentTweet,
-      currentUser,
-      currentSearchQuery,
-      currentAudioSpace,
-    } = await getTabContext(currentTab, myself, twClient)
+    const { currentTweet, currentUser, currentSearchQuery, currentAudioSpace } =
+      await getTabContext(currentTab, myself, twClient)
     Object.assign(tabContext, {
       currentTweet,
       currentUser,

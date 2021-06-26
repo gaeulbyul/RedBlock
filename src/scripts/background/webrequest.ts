@@ -1,14 +1,16 @@
-import BlockLimiter from './block-limiter.js'
-import type { ActAsExtraCookies } from './cookie-handler.js'
-import { notify } from './background.js'
+import debounce from 'lodash-es/debounce'
+
+import BlockLimiter from './block-limiter'
+import type { ActAsExtraCookies } from './cookie-handler'
+import { notify } from './background'
+import * as i18n from '~~/scripts/i18n'
 
 const extraInfoSpec: any = ['requestHeaders', 'blocking']
 const extraInfoSpecResponse: any = ['responseHeaders', 'blocking']
 try {
   // @ts-ignore
-  const requireExtraHeadersSpec = browser.webRequest.OnBeforeSendHeadersOptions.hasOwnProperty(
-    'EXTRA_HEADERS'
-  )
+  const requireExtraHeadersSpec =
+    browser.webRequest.OnBeforeSendHeadersOptions.hasOwnProperty('EXTRA_HEADERS')
   if (requireExtraHeadersSpec) {
     extraInfoSpec.push('extraHeaders')
     extraInfoSpecResponse.push('extraHeaders')
@@ -16,7 +18,7 @@ try {
 } catch {}
 
 const blockLimitReachedNotifyMessage = i18n.getMessage('notify_on_block_limit')
-const notifyAboutBlockLimitation = _.debounce(
+const notifyAboutBlockLimitation = debounce(
   () => {
     notify(blockLimitReachedNotifyMessage)
   },
@@ -105,7 +107,7 @@ function extractActAsCookies(headers: Headers): ActAsExtraCookies | null {
   }
   const params = new URLSearchParams(actAsCookies)
   const decoded = Object.fromEntries(params.entries())
-  return (decoded as unknown) as ActAsExtraCookies
+  return decoded as unknown as ActAsExtraCookies
 }
 
 const redblockRequestIds = new Set<string>()
@@ -205,7 +207,7 @@ function initializeBlockAPILimiter() {
     details => {
       const { originUrl, method, requestHeaders } = details
       // Service Worker에서 실행한 건 안 쳐준다. (중복 카운팅 방지)
-      const shouldCount = originUrl !== 'https://twitter.com/sw.js' && method === 'POST'
+      const shouldCount = originUrl !== 'https://twitter.com/sw' && method === 'POST'
       if (!shouldCount) {
         return { cancel: false }
       }

@@ -1,16 +1,12 @@
-import {
-  SessionStatus,
-  isRunningSession,
-  isRewindableSession,
-  isExportableTarget,
-} from '../common.js'
-import * as TextGenerate from '../text-generate.js'
-import { alertToCurrentTab, notify, updateExtensionBadge } from './background.js'
-import { markUser } from './misc.js'
-import { TargetCheckResult, validateRequest, isSameTarget } from './target-checker.js'
-import { ChainBlockSession, ExportSession } from './chainblock-session/session.js'
-import { loadOptions } from './storage.js'
-import { exportBlocklist } from './blocklist-process.js'
+import { SessionStatus, isRunningSession, isRewindableSession, isExportableTarget } from '../common'
+import * as TextGenerate from '../text-generate'
+import { alertToCurrentTab, notify, updateExtensionBadge } from './background'
+import { markUser } from './misc'
+import { TargetCheckResult, validateRequest, isSameTarget } from './target-checker'
+import { ChainBlockSession, ExportSession } from './chainblock-session/session'
+import { loadOptions } from './storage'
+import { exportBlocklist } from './blocklist-process'
+import * as i18n from '~~/scripts/i18n'
 
 export default class ChainBlocker {
   private readonly MAX_RUNNING_SESSIONS = 5

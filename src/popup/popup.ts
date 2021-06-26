@@ -1,7 +1,7 @@
-import { getUserNameFromURL, getAudioSpaceIdFromUrl } from '../scripts/common.js'
-import { loadOptions } from '../scripts/background/storage.js'
-import type { TwClient } from '../scripts/background/twitter-api.js'
-import { examineRetrieverByTweetId } from '../scripts/background/antiblock.js'
+import { getUserNameFromURL, getAudioSpaceIdFromUrl } from '../scripts/common'
+import { loadOptions } from '../scripts/background/storage'
+import type { TwClient } from '../scripts/background/twitter-api'
+import { examineRetrieverByTweetId } from '../scripts/background/antiblock'
 
 type Tab = browser.tabs.Tab
 

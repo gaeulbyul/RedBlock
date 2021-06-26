@@ -1,9 +1,7 @@
 type BookmarksMap = Map<string, BookmarkItem>
 
 export async function loadBookmarks(desiredType?: BookmarkItem['type']): Promise<BookmarksMap> {
-  const { bookmarks } = ((await browser.storage.local.get(
-    'bookmarks'
-  )) as unknown) as RedBlockStorage
+  const { bookmarks } = (await browser.storage.local.get('bookmarks')) as unknown as RedBlockStorage
   if (bookmarks) {
     if (desiredType) {
       return arrayToMap(bookmarks.filter(({ type }) => type === desiredType))

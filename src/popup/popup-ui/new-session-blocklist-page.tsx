@@ -1,9 +1,7 @@
-import {
-  UIContext,
-  MyselfContext,
-  BlockLimiterContext,
-  RedBlockOptionsContext,
-} from './contexts.js'
+import React from 'react'
+import * as MaterialUI from '@material-ui/core'
+
+import { UIContext, MyselfContext, BlockLimiterContext, RedBlockOptionsContext } from './contexts'
 import {
   RBExpansionPanel,
   BlockLimiterUI,
@@ -11,17 +9,18 @@ import {
   PurposeSelectionUI,
   RequestCheckResultUI,
   TabPanel,
-} from './components.js'
-import type { PageId } from './pages.js'
-import * as TextGenerate from '../../scripts/text-generate.js'
-import { startNewChainBlockSession } from '../../scripts/background/request-sender.js'
+} from './components'
+import type { PageId } from './pages'
+import * as TextGenerate from '../../scripts/text-generate'
+import { startNewChainBlockSession } from '../../scripts/background/request-sender'
 import {
   emptyBlocklist,
   parseBlocklist,
   concatBlockList,
-} from '../../scripts/background/blocklist-process.js'
-import { ImportChainBlockPageStatesContext, ExtraTargetContext } from './ui-states.js'
-import { TargetCheckResult, validateRequest } from '../../scripts/background/target-checker.js'
+} from '../../scripts/background/blocklist-process'
+import { ImportChainBlockPageStatesContext, ExtraTargetContext } from './ui-states'
+import { TargetCheckResult, validateRequest } from '../../scripts/background/target-checker'
+import * as i18n from '~~/scripts/i18n'
 
 const M = MaterialUI
 
@@ -104,12 +103,8 @@ function useExportSessionRequest(): Either<
 }
 
 function TargetOptionsUI() {
-  const {
-    purpose,
-    changePurposeType,
-    mutatePurposeOptions,
-    availablePurposeTypes,
-  } = React.useContext(ImportChainBlockPageStatesContext)
+  const { purpose, changePurposeType, mutatePurposeOptions, availablePurposeTypes } =
+    React.useContext(ImportChainBlockPageStatesContext)
   const summary = `${i18n.getMessage('options')} (${i18n.getMessage(purpose.type)})`
   return (
     <RBExpansionPanel summary={summary} defaultExpanded>
@@ -128,13 +123,8 @@ function TargetOptionsUI() {
 function ImportBlocklistUI() {
   const uiContext = React.useContext(UIContext)
   const limiterStatus = React.useContext(BlockLimiterContext)
-  const {
-    blocklist,
-    setBlocklist,
-    nameOfSelectedFiles,
-    setNameOfSelectedFiles,
-    purpose,
-  } = React.useContext(ImportChainBlockPageStatesContext)
+  const { blocklist, setBlocklist, nameOfSelectedFiles, setNameOfSelectedFiles, purpose } =
+    React.useContext(ImportChainBlockPageStatesContext)
   const [fileInput] = React.useState(React.createRef<HTMLInputElement>())
   const maybeRequest = useImportSessionRequest()
   const blocklistSize = blocklist.userIds.size + blocklist.userNames.size

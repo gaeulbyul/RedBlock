@@ -1,4 +1,4 @@
-import { loadOptions } from './storage/options.js'
+import { loadOptions } from './storage/options'
 
 const url = 'https://twitter.com'
 const firstPartyDomain = 'twitter.com'

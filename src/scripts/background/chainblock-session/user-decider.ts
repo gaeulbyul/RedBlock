@@ -1,7 +1,9 @@
+import * as dayjs from 'dayjs'
+
 export function decideWhatToDoGivenUser(
   request: SessionRequest<AnySessionTarget>,
   follower: TwitterUser,
-  now: Dayjs
+  now: dayjs.Dayjs
 ): UserAction | 'Skip' | 'AlreadyDone' {
   const { purpose, options } = request
   if (purpose.type === 'export') {
@@ -141,7 +143,7 @@ function isAlreadyDone(follower: TwitterUser, action: UserAction): boolean {
 
 function checkUserInactivity(
   follower: TwitterUser,
-  now: Dayjs,
+  now: dayjs.Dayjs,
   inactivePeriod: InactivePeriod
 ): 'active' | 'inactive' {
   if (inactivePeriod === 'never') {
@@ -153,7 +155,7 @@ function checkUserInactivity(
     // 체크할 수 없으므로 active로 취급
     return 'active'
   }
-  let before: Dayjs
+  let before: dayjs.Dayjs
   switch (inactivePeriod) {
     case '1y':
     case '2y':

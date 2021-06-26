@@ -5,15 +5,6 @@ type AudioSpace = import('./background/twitter-api').AudioSpace
 type DialogMessageObj = import('./text-generate').DialogMessageObj
 
 // ---- vendor modules ----
-declare var _: typeof import('lodash')
-declare var React: typeof import('react')
-declare var ReactDOM: typeof import('react-dom')
-declare var MaterialUI: typeof import('@material-ui/core')
-declare namespace twttr {
-  export const txt: typeof import('twitter-text')
-}
-declare var dayjs: typeof import('dayjs')
-declare type Dayjs = import('dayjs').Dayjs
 
 declare namespace uuid {
   function v1(): string
@@ -312,6 +303,10 @@ interface BrowserNotification {
   items: BrowserNotificationItem[]
   imageUrl?: string
   progress?: number
+}
+
+declare module 'uuid' {
+  function v1(): string
 }
 
 // copied from https://github.com/Microsoft/TypeScript/issues/21309#issuecomment-376338415

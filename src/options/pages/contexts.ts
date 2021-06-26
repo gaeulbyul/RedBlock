@@ -1,3 +1,5 @@
+import React from 'react'
+
 interface RedBlockOptionsContextType {
   options: RedBlockOptions
   uiOptions: RedBlockUIOptions

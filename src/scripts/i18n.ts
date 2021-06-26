@@ -3,23 +3,21 @@ type SubstItem = number | string
 type Substitutions = SubstItem | SubstItem[] | undefined
 type I18NMessageKeys = keyof I18NMessages
 
-const i18n = {
-  getMessage(key: string & I18NMessageKeys, substs: Substitutions = undefined) {
-    if (Array.isArray(substs)) {
-      return browser.i18n.getMessage(
-        key,
-        substs.map(s => s.toLocaleString())
-      )
-    } else if (typeof substs === 'number') {
-      return browser.i18n.getMessage(key, substs.toLocaleString())
-    } else {
-      return browser.i18n.getMessage(key, substs)
-    }
-  },
+export function getMessage(key: string & I18NMessageKeys, substs: Substitutions = undefined) {
+  if (Array.isArray(substs)) {
+    return browser.i18n.getMessage(
+      key,
+      substs.map(s => s.toLocaleString())
+    )
+  } else if (typeof substs === 'number') {
+    return browser.i18n.getMessage(key, substs.toLocaleString())
+  } else {
+    return browser.i18n.getMessage(key, substs)
+  }
+}
 
-  getUILanguage(): browser.i18n.LanguageCode {
-    return browser.i18n.getUILanguage()
-  },
+export function getUILanguage(): browser.i18n.LanguageCode {
+  return browser.i18n.getUILanguage()
 }
 
 function checkMissingTranslations(

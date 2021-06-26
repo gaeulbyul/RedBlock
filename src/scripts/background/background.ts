@@ -1,3 +1,5 @@
+import * as i18n from '~~/scripts/i18n'
+
 export function notify(message: string): void {
   const notif: browser.notifications.NotificationOptions = {
     type: 'basic',

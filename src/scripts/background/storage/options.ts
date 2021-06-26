@@ -13,7 +13,7 @@ function deleteUnusedOptions(options: RedBlockOptions | null) {
 }
 
 export async function loadOptions(): Promise<RedBlockOptions> {
-  const { options } = ((await browser.storage.local.get('options')) as unknown) as RedBlockStorage
+  const { options } = (await browser.storage.local.get('options')) as unknown as RedBlockStorage
   deleteUnusedOptions(options)
   return Object.assign({}, defaultOptions, options)
 }
@@ -26,9 +26,7 @@ export async function saveOptions(newOptions: RedBlockOptions): Promise<void> {
 }
 
 export async function loadUIOptions(): Promise<RedBlockUIOptions> {
-  const { uiOptions } = ((await browser.storage.local.get(
-    'uiOptions'
-  )) as unknown) as RedBlockStorage
+  const { uiOptions } = (await browser.storage.local.get('uiOptions')) as unknown as RedBlockStorage
   return Object.assign({}, defaultUIOptions, uiOptions)
 }
 

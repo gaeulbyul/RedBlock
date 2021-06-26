@@ -1,20 +1,24 @@
+import React from 'react'
+import * as MaterialUI from '@material-ui/core'
+
 import {
   isRunningSession,
   SessionStatus,
   getLimitResetTime,
   getCountOfUsersToBlock,
-} from '../../scripts/common.js'
-import { PageId, pageIcon, pageLabel } from './pages.js'
+} from '../../scripts/common'
+import { PageId, pageIcon, pageLabel } from './pages'
 import {
   cleanupInactiveSessions,
   stopAllChainBlock,
   stopChainBlock,
   downloadFromExportSession,
   requestProgress,
-} from '../../scripts/background/request-sender.js'
-import { UIContext, MyselfContext } from './contexts.js'
-import { statusToString } from '../../scripts/text-generate.js'
-import { BlockLimiterUI, PleaseLoginBox, LinearProgressWithLabel } from './components.js'
+} from '../../scripts/background/request-sender'
+import { UIContext, MyselfContext } from './contexts'
+import { statusToString } from '../../scripts/text-generate'
+import { BlockLimiterUI, PleaseLoginBox, LinearProgressWithLabel } from './components'
+import * as i18n from '~~/scripts/i18n'
 
 const M = MaterialUI
 const T = MaterialUI.Typography

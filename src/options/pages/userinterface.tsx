@@ -1,5 +1,9 @@
-import { RedBlockOptionsContext } from './contexts.js'
-import { CheckboxItem } from '../components.js'
+import React from 'react'
+import * as MaterialUI from '@material-ui/core'
+
+import { RedBlockOptionsContext } from './contexts'
+import { CheckboxItem } from '../components'
+import * as i18n from '~~/scripts/i18n'
 
 const M = MaterialUI
 

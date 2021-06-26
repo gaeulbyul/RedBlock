@@ -1,6 +1,9 @@
-import * as Scraper from './scraper.js'
-import * as IdScraper from './userid-scraper.js'
-import * as TwitterAPI from '../twitter-api.js'
+import sum from 'lodash-es/sum'
+import * as dayjs from 'dayjs'
+
+import * as Scraper from './scraper'
+import * as IdScraper from './userid-scraper'
+import * as TwitterAPI from '../twitter-api'
 
 import {
   EventEmitter,
@@ -9,9 +12,9 @@ import {
   sleep,
   getCountOfUsersToBlock,
   assertNever,
-} from '../../common.js'
-import BlockLimiter from '../block-limiter.js'
-import { decideWhatToDoGivenUser } from './user-decider.js'
+} from '../../common'
+import BlockLimiter from '../block-limiter'
+import { decideWhatToDoGivenUser } from './user-decider'
 
 interface SessionEventEmitter {
   'mark-user': MarkUserParams
@@ -304,7 +307,7 @@ export class ChainBlockSession extends BaseSession {
   }
   private calculateScrapedCount() {
     const { success, already, failure, error, skipped } = this.sessionInfo.progress
-    return _.sum([...Object.values(success), already, failure, error, skipped])
+    return sum([...Object.values(success), already, failure, error, skipped])
   }
   private checkBlockLimiter() {
     const safePurposes: Purpose['type'][] = ['unchainblock', 'unchainmute', 'chainunfollow']

@@ -1,4 +1,4 @@
-import { TwitterUserEntities, Limit } from './background/twitter-api.js'
+import { TwitterUserEntities, Limit } from './background/twitter-api'
 
 const userNameBlacklist = [
   'about',

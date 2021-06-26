@@ -1,5 +1,6 @@
-import { TargetCheckResult } from './background/target-checker.js'
-import { SessionStatus, getCountOfUsersToBlock, findNonLinkedMentionsFromTweet } from './common.js'
+import { TargetCheckResult } from './background/target-checker'
+import { SessionStatus, getCountOfUsersToBlock, findNonLinkedMentionsFromTweet } from './common'
+import * as i18n from '~~/scripts/i18n'
 
 const actionsThatNeedWarning: UserAction[] = ['Block', 'UnFollow', 'BlockAndUnBlock']
 

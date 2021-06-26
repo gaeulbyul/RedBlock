@@ -1,11 +1,15 @@
-import { toggleOneClickBlockMode, getCurrentTab } from '../popup.js'
-import { UIContext, MyselfContext } from './contexts.js'
-import { RBExpansionPanel } from './components.js'
+import React from 'react'
+import * as MaterialUI from '@material-ui/core'
+
+import { toggleOneClickBlockMode, getCurrentTab } from '../popup'
+import { UIContext, MyselfContext } from './contexts'
+import { RBExpansionPanel } from './components'
 import {
   getAllCookies,
   removeCookie,
   getCookieStoreIdFromTab,
-} from '../../scripts/background/cookie-handler.js'
+} from '../../scripts/background/cookie-handler'
+import * as i18n from '~~/scripts/i18n'
 
 const M = MaterialUI
 

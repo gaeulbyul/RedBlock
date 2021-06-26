@@ -1,11 +1,11 @@
-import * as UserScrapingAPI from '../user-scraping-api.js'
-import * as ExtraScraper from './extra-scraper.js'
+import * as UserScrapingAPI from '../user-scraping-api'
+import * as ExtraScraper from './extra-scraper'
 import {
   getFollowersCount,
   getReactionsCount,
   getParticipantsInAudioSpaceCount,
   findNonLinkedMentionsFromTweet,
-} from '../../common.js'
+} from '../../common'
 
 export interface UserScraper {
   totalCount: number | null
@@ -86,9 +86,8 @@ class MutualFollowerScraper implements UserScraper {
       mutualFollowersIds = await this.getMutualFollowersIdsNormally()
     }
     this.totalCount = mutualFollowersIds.length
-    let scraper: ScrapedUsersIterator = this.executorScrapingClient.lookupUsersByIds(
-      mutualFollowersIds
-    )
+    let scraper: ScrapedUsersIterator =
+      this.executorScrapingClient.lookupUsersByIds(mutualFollowersIds)
     scraper = ExtraScraper.scrapeUsersOnBio(
       this.executorScrapingClient,
       scraper,

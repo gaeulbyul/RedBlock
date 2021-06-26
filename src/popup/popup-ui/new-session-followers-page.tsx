@@ -1,15 +1,19 @@
-import * as Storage from '../../scripts/background/storage.js'
-import { TwClient } from '../../scripts/background/twitter-api.js'
-import { TwitterUserMap } from '../../scripts/common.js'
-import * as TextGenerate from '../../scripts/text-generate.js'
-import { startNewChainBlockSession } from '../../scripts/background/request-sender.js'
+import React from 'react'
+import * as MaterialUI from '@material-ui/core'
+import sortBy from 'lodash-es/sortBy'
+
+import * as Storage from '../../scripts/background/storage'
+import { TwClient } from '../../scripts/background/twitter-api'
+import { TwitterUserMap } from '../../scripts/common'
+import * as TextGenerate from '../../scripts/text-generate'
+import { startNewChainBlockSession } from '../../scripts/background/request-sender'
 import {
   UIContext,
   MyselfContext,
   RetrieverContext,
   BlockLimiterContext,
   RedBlockOptionsContext,
-} from './contexts.js'
+} from './contexts'
 import {
   BlockLimiterUI,
   TwitterUserProfile,
@@ -17,7 +21,7 @@ import {
   BigExecuteButton,
   PurposeSelectionUI,
   RequestCheckResultUI,
-} from './components.js'
+} from './components'
 import {
   TargetSelector,
   TargetGroup,
@@ -27,10 +31,11 @@ import {
   Controls as TargetSelectorControls,
   identifierOfItem,
   TargetSelectorItem,
-} from './components/target-selector.js'
-import { FollowerChainBlockPageStatesContext, ExtraTargetContext } from './ui-states.js'
-import { TargetCheckResult, validateRequest } from '../../scripts/background/target-checker.js'
-import { getUserNameFromTab } from '../popup.js'
+} from './components/target-selector'
+import { FollowerChainBlockPageStatesContext, ExtraTargetContext } from './ui-states'
+import { TargetCheckResult, validateRequest } from '../../scripts/background/target-checker'
+import { getUserNameFromTab } from '../popup'
+import * as i18n from '~~/scripts/i18n'
 
 const M = MaterialUI
 
@@ -127,7 +132,7 @@ function useBookmarkModifier(bookmarkedUsers: TwitterUserMap) {
 }
 
 function sortedByName(usersMap: TwitterUserMap): TwitterUser[] {
-  return _.sortBy(usersMap.toUserArray(), user => user.screen_name.toLowerCase())
+  return sortBy(usersMap.toUserArray(), user => user.screen_name.toLowerCase())
 }
 
 function FollowerChainBlockTargetSelector({
@@ -360,12 +365,8 @@ function TargetUserSelectUI() {
 }
 
 function TargetOptionsUI() {
-  const {
-    purpose,
-    changePurposeType,
-    mutatePurposeOptions,
-    availablePurposeTypes,
-  } = React.useContext(FollowerChainBlockPageStatesContext)
+  const { purpose, changePurposeType, mutatePurposeOptions, availablePurposeTypes } =
+    React.useContext(FollowerChainBlockPageStatesContext)
   const summary = `${i18n.getMessage('options')} (${i18n.getMessage(purpose.type)})`
   return (
     <RBExpansionPanel summary={summary} defaultExpanded>

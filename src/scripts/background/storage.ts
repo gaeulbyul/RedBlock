@@ -4,7 +4,7 @@ export {
   editBadWord,
   insertBadWord,
   removeBadWord,
-} from './storage/badwords.js'
+} from './storage/badwords'
 export {
   loadOptions,
   saveOptions,
@@ -12,7 +12,7 @@ export {
   loadUIOptions,
   saveUIOptions,
   defaultUIOptions,
-} from './storage/options.js'
+} from './storage/options'
 export {
   loadBookmarks,
   createBookmarkUserItem,
@@ -20,10 +20,10 @@ export {
   insertItemToBookmark,
   removeBookmarkById,
   modifyBookmarksWith,
-} from './storage/bookmarks.js'
+} from './storage/bookmarks'
 
-import * as SavedUsers from './storage/saveduser.js'
-import * as Bookmarks from './storage/bookmarks.js'
+import * as SavedUsers from './storage/saveduser'
+import * as Bookmarks from './storage/bookmarks'
 
 async function migrateToBookmarks() {
   const savedUsers = await SavedUsers.loadUsers()

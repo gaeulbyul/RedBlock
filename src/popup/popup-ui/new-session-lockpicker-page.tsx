@@ -1,9 +1,7 @@
-import {
-  UIContext,
-  MyselfContext,
-  BlockLimiterContext,
-  RedBlockOptionsContext,
-} from './contexts.js'
+import React from 'react'
+import * as MaterialUI from '@material-ui/core'
+
+import { UIContext, MyselfContext, BlockLimiterContext, RedBlockOptionsContext } from './contexts'
 import {
   RBExpansionPanel,
   BlockLimiterUI,
@@ -11,11 +9,12 @@ import {
   PurposeSelectionUI,
   TwitterUserProfile,
   RequestCheckResultUI,
-} from './components.js'
-import * as TextGenerate from '../../scripts/text-generate.js'
-import { startNewChainBlockSession } from '../../scripts/background/request-sender.js'
-import { LockPickerPageStatesContext, ExtraTargetContext } from './ui-states.js'
-import { TargetCheckResult, validateRequest } from '../../scripts/background/target-checker.js'
+} from './components'
+import * as TextGenerate from '../../scripts/text-generate'
+import { startNewChainBlockSession } from '../../scripts/background/request-sender'
+import { LockPickerPageStatesContext, ExtraTargetContext } from './ui-states'
+import { TargetCheckResult, validateRequest } from '../../scripts/background/target-checker'
+import * as i18n from '~~/scripts/i18n'
 
 const M = MaterialUI
 
@@ -57,12 +56,8 @@ function useSessionRequest(): Either<TargetCheckResult, SessionRequest<LockPicke
 }
 
 function TargetOptionsUI() {
-  const {
-    purpose,
-    changePurposeType,
-    mutatePurposeOptions,
-    availablePurposeTypes,
-  } = React.useContext(LockPickerPageStatesContext)
+  const { purpose, changePurposeType, mutatePurposeOptions, availablePurposeTypes } =
+    React.useContext(LockPickerPageStatesContext)
   const summary = `${i18n.getMessage('options')} (${i18n.getMessage(purpose.type)})`
   return (
     <RBExpansionPanel summary={summary} defaultExpanded>

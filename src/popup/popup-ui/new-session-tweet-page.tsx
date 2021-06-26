@@ -1,12 +1,15 @@
-import * as TextGenerate from '../../scripts/text-generate.js'
+import React from 'react'
+import * as MaterialUI from '@material-ui/core'
+
+import * as TextGenerate from '../../scripts/text-generate'
 import {
   UIContext,
   MyselfContext,
   RetrieverContext,
   BlockLimiterContext,
   RedBlockOptionsContext,
-} from './contexts.js'
-import { startNewChainBlockSession } from '../../scripts/background/request-sender.js'
+} from './contexts'
+import { startNewChainBlockSession } from '../../scripts/background/request-sender'
 import {
   BlockLimiterUI,
   TwitterUserProfile,
@@ -14,10 +17,11 @@ import {
   BigExecuteButton,
   PurposeSelectionUI,
   RequestCheckResultUI,
-} from './components.js'
-import { TweetReactionChainBlockPageStatesContext, ExtraTargetContext } from './ui-states.js'
-import { TargetCheckResult, validateRequest } from '../../scripts/background/target-checker.js'
-import { findNonLinkedMentionsFromTweet } from '../../scripts/common.js'
+} from './components'
+import { TweetReactionChainBlockPageStatesContext, ExtraTargetContext } from './ui-states'
+import { TargetCheckResult, validateRequest } from '../../scripts/background/target-checker'
+import { findNonLinkedMentionsFromTweet } from '../../scripts/common'
+import * as i18n from '~~/scripts/i18n'
 
 const M = MaterialUI
 
@@ -180,12 +184,8 @@ function TargetTweetOuterUI() {
 }
 
 function TargetOptionsUI() {
-  const {
-    purpose,
-    changePurposeType,
-    mutatePurposeOptions,
-    availablePurposeTypes,
-  } = React.useContext(TweetReactionChainBlockPageStatesContext)
+  const { purpose, changePurposeType, mutatePurposeOptions, availablePurposeTypes } =
+    React.useContext(TweetReactionChainBlockPageStatesContext)
   const summary = `${i18n.getMessage('options')} (${i18n.getMessage(purpose.type)})`
   return (
     <RBExpansionPanel summary={summary} defaultExpanded>

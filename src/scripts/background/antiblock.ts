@@ -1,5 +1,5 @@
-import * as CookieHandler from './cookie-handler.js'
-import { TwClient } from './twitter-api.js'
+import * as CookieHandler from './cookie-handler'
+import { TwClient } from './twitter-api'
 
 async function* iterateAvailableTwClients(): AsyncIterableIterator<TwClient> {
   const cookieStores = await browser.cookies.getAllCookieStores()

@@ -1,5 +1,7 @@
-import { UserScrapingAPIClient } from '../user-scraping-api.js'
-// import * as TwitterAPI from '../twitter-api.js'
+import ttext from 'twitter-text'
+
+import { UserScrapingAPIClient } from '../user-scraping-api'
+// import * as TwitterAPI from '../twitter-api'
 
 const alternativeAccountIndicativePrefixes = [/[0-9a-z가-힣]+\s*계(?:는|정은?)?/i]
 
@@ -7,7 +9,7 @@ function extractMentionsInUsersBio(
   { description: bio }: TwitterUser,
   mode: 'all' | 'smart'
 ): string[] {
-  const mentionAndIndices = twttr.txt.extractMentionsWithIndices(bio)
+  const mentionAndIndices = ttext.extractMentionsWithIndices(bio)
   if (mode === 'all') {
     return mentionAndIndices.map(({ screenName }) => screenName)
   }

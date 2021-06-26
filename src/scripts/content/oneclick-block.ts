@@ -1,3 +1,5 @@
+import * as i18n from '~~/scripts/i18n'
+
 {
   const setOfBadWords: BadWordItem[] = []
 

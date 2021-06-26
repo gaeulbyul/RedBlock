@@ -1,4 +1,4 @@
-import { findNonLinkedMentionsFromTweet } from '../common.js'
+import { findNonLinkedMentionsFromTweet } from '../common'
 
 export const enum TargetCheckResult {
   Ok = 1, // 1: if (targetCheckResult) {} 에서 falsey하게 판단하는 걸 막기 위해.

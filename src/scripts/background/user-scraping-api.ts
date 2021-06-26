@@ -1,5 +1,8 @@
-import { sleep, collectAsync, unwrap, wrapEitherRight } from '../common.js'
-import { TwClient, getNextCursorFromAPIv2Response } from './twitter-api.js'
+import chunk from 'lodash-es/chunk'
+import intersection from 'lodash-es/intersection'
+
+import { sleep, collectAsync, unwrap, wrapEitherRight } from '../common'
+import { TwClient, getNextCursorFromAPIv2Response } from './twitter-api'
 
 const DELAY = 100
 
@@ -55,7 +58,7 @@ export class UserScrapingAPIClient {
       .map(unwrap)
       .map(resp => resp.ids)
       .flat()
-    const mutualIds = _.intersection(followingsIds, followersIds)
+    const mutualIds = intersection(followingsIds, followersIds)
     return mutualIds
   }
   public async *getAllReactedUserList(reaction: ReactionKind, tweet: Tweet): ScrapedUsersIterator {
@@ -156,14 +159,14 @@ export class UserScrapingAPIClient {
     yield* this.lookupUsersByNames(Array.from(userNames))
   }
   public async *lookupUsersByIds(userIds: string[]): ScrapedUsersIterator {
-    const chunks = _.chunk(userIds, 100)
+    const chunks = chunk(userIds, 100)
     for (const chunk of chunks) {
       const users = await this.twClient.getMultipleUsers({ user_id: chunk })
       yield wrapEitherRight({ users })
     }
   }
   public async *lookupUsersByNames(userNames: string[]): ScrapedUsersIterator {
-    const chunks = _.chunk(userNames, 100)
+    const chunks = chunk(userNames, 100)
     for (const chunk of chunks) {
       try {
         const users = await this.twClient.getMultipleUsers({ screen_name: chunk })

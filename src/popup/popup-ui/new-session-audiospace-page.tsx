@@ -1,12 +1,10 @@
-import * as TextGenerate from '../../scripts/text-generate.js'
-import { startNewChainBlockSession } from '../../scripts/background/request-sender.js'
-import {
-  UIContext,
-  MyselfContext,
-  BlockLimiterContext,
-  RedBlockOptionsContext,
-} from './contexts.js'
-import { AudioSpaceChainBlockPageStatesContext, ExtraTargetContext } from './ui-states.js'
+import React from 'react'
+import * as MaterialUI from '@material-ui/core'
+
+import * as TextGenerate from '../../scripts/text-generate'
+import { startNewChainBlockSession } from '../../scripts/background/request-sender'
+import { UIContext, MyselfContext, BlockLimiterContext, RedBlockOptionsContext } from './contexts'
+import { AudioSpaceChainBlockPageStatesContext, ExtraTargetContext } from './ui-states'
 import {
   TwitterUserProfile,
   RBExpansionPanel,
@@ -14,8 +12,9 @@ import {
   BlockLimiterUI,
   PurposeSelectionUI,
   RequestCheckResultUI,
-} from './components.js'
-import { TargetCheckResult, validateRequest } from '../../scripts/background/target-checker.js'
+} from './components'
+import { TargetCheckResult, validateRequest } from '../../scripts/background/target-checker'
+import * as i18n from '~~/scripts/i18n'
 
 const M = MaterialUI
 const T = MaterialUI.Typography
@@ -134,12 +133,8 @@ function TargetExecutionButtonUI() {
 }
 
 function TargetOptionsUI() {
-  const {
-    purpose,
-    changePurposeType,
-    mutatePurposeOptions,
-    availablePurposeTypes,
-  } = React.useContext(AudioSpaceChainBlockPageStatesContext)
+  const { purpose, changePurposeType, mutatePurposeOptions, availablePurposeTypes } =
+    React.useContext(AudioSpaceChainBlockPageStatesContext)
   const summary = `${i18n.getMessage('options')} (${i18n.getMessage(purpose.type)})`
   return (
     <RBExpansionPanel summary={summary} defaultExpanded>

@@ -1,10 +1,15 @@
-import * as Storage from '../scripts/background/storage.js'
-import { TabPanel } from '../popup/popup-ui/components.js'
-import { RedBlockOptionsContext } from './pages/contexts.js'
-import ChainBlockOptionsPage from './pages/chainblock.js'
-import OneClickBlockOptionsPage from './pages/oneclickblock.js'
-import ExperimentalOptionsPage from './pages/experimentals.js'
-import UserInterfaceOptionsPage from './pages/userinterface.js'
+import React from 'react'
+import ReactDOM from 'react-dom'
+import * as MaterialUI from '@material-ui/core'
+import throttle from 'lodash-es/throttle'
+
+import * as Storage from '../scripts/background/storage'
+import { TabPanel } from '../popup/popup-ui/components'
+import { RedBlockOptionsContext } from './pages/contexts'
+import ChainBlockOptionsPage from './pages/chainblock'
+import OneClickBlockOptionsPage from './pages/oneclickblock'
+import ExperimentalOptionsPage from './pages/experimentals'
+import UserInterfaceOptionsPage from './pages/userinterface'
 
 const M = MaterialUI
 
@@ -30,7 +35,7 @@ function OptionsApp() {
   const [options, setOptions] = React.useState<RedBlockOptions>(Storage.defaultOptions)
   const [uiOptions, setUIOptions] = React.useState<RedBlockUIOptions>(Storage.defaultUIOptions)
   const [tabPage, setTabPage] = React.useState<OptionsTabPage>('chainblock')
-  const throttledSaveOptions = _.throttle(
+  const throttledSaveOptions = throttle(
     (newOptions: RedBlockOptions) => Storage.saveOptions(newOptions),
     50
   )

@@ -73,6 +73,5 @@ const reactRoot = document.getElementById('react-root')
 listenExtensionMessages(reactRoot)
 
 if (reactRoot && location.hostname !== 'tweetdeck.twitter.com') {
-  injectScriptToPage('vendor/uuid.js')
-  injectScriptToPage('scripts/content/inject.js')
+  injectScriptToPage('bundled/twitter_inject.bun.js')
 }

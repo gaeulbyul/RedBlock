@@ -1,8 +1,12 @@
-import { DialogMessageObj, checkResultToString } from '../../scripts/text-generate.js'
-import { requestResetCounter } from '../../scripts/background/request-sender.js'
-import { MyselfContext, BlockLimiterContext, RedBlockOptionsContext } from './contexts.js'
-import { ExtraTargetContext } from './ui-states.js'
-import type { TargetCheckResult } from '../../scripts/background/target-checker.js'
+import React from 'react'
+import * as MaterialUI from '@material-ui/core'
+
+import { DialogMessageObj, checkResultToString } from '../../scripts/text-generate'
+import { requestResetCounter } from '../../scripts/background/request-sender'
+import { MyselfContext, BlockLimiterContext, RedBlockOptionsContext } from './contexts'
+import { ExtraTargetContext } from './ui-states'
+import type { TargetCheckResult } from '../../scripts/background/target-checker'
+import * as i18n from '~~/scripts/i18n'
 
 const M = MaterialUI
 const T = MaterialUI.Typography

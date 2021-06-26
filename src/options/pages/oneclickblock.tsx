@@ -1,4 +1,9 @@
-import * as Storage from '../../scripts/background/storage.js'
+import React from 'react'
+import * as MaterialUI from '@material-ui/core'
+import sortBy from 'lodash-es/sortBy'
+import * as i18n from '~~/scripts/i18n'
+
+import * as Storage from '../../scripts/background/storage'
 
 const M = MaterialUI
 
@@ -99,16 +104,9 @@ function BadwordsTable() {
     insertWord()
   }
   const classes = useStylesForTable()
-  const sortedBadWords = _.sortBy(badWords, 'word')
-  const {
-    Table,
-    TableHead,
-    TableBody,
-    TableCell,
-    TableContainer,
-    TableRow,
-    TableFooter,
-  } = MaterialUI
+  const sortedBadWords = sortBy(badWords, 'word')
+  const { Table, TableHead, TableBody, TableCell, TableContainer, TableRow, TableFooter } =
+    MaterialUI
   return (
     <M.Paper variant="outlined" className={classes.tablePaper}>
       <TableContainer>

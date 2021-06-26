@@ -1,4 +1,4 @@
-import { validateUserName } from '../common.js'
+import { validateUserName } from '../common'
 /*
 function* iterateRegexp(pattern: RegExp, text: string) {
   let match: RegExpExecArray | null

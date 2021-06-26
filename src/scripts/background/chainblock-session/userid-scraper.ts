@@ -1,12 +1,12 @@
-import * as UserScrapingAPI from '../user-scraping-api.js'
+import * as UserScrapingAPI from '../user-scraping-api'
 import {
   getFollowersCount,
   getReactionsCount,
   getParticipantsInAudioSpaceCount,
   wrapEitherRight,
   findNonLinkedMentionsFromTweet,
-} from '../../common.js'
-import { TwClient } from '../twitter-api.js'
+} from '../../common'
+import { TwClient } from '../twitter-api'
 
 export interface UserIdScraper {
   totalCount: number | null
