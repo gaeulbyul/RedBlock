@@ -8,9 +8,11 @@ import * as i18n from '~~/scripts/i18n'
 const extraInfoSpec: any = ['requestHeaders', 'blocking']
 const extraInfoSpecResponse: any = ['responseHeaders', 'blocking']
 try {
+  // prettier-ignore-start
   // @ts-ignore
   const requireExtraHeadersSpec =
     browser.webRequest.OnBeforeSendHeadersOptions.hasOwnProperty('EXTRA_HEADERS')
+  // prettier-ignore-end
   if (requireExtraHeadersSpec) {
     extraInfoSpec.push('extraHeaders')
     extraInfoSpecResponse.push('extraHeaders')
