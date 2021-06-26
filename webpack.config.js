@@ -10,7 +10,7 @@ module.exports = {
     tweetdeck: './src/scripts/content/tweetdeck.ts',
     twitter_inject: './src/scripts/inject/twitter-inject.ts',
     tweetdeck_inject: './src/scripts/inject/tweetdeck-inject.ts',
-    popup: './src/popup/popup.ts',
+    popup: './src/popup/popup-ui.tsx',
     options: './src/options/options.tsx',
   },
   output: {
