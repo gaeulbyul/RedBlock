@@ -1,14 +1,13 @@
 // 파이어폭스에서 CustomEvent의 detail 개체 전달용
 declare function cloneInto<T>(detail: T, view: Window | null): T
-function cloneDetail<T>(detail: T): T {
-  // typeof detail === 'object' && typeof cloneInto === 'function'
-  if (typeof detail + typeof cloneInto === 'objectfunction') {
+export function cloneDetail<T>(detail: T): T {
+  if (typeof detail === 'object' && typeof cloneInto === 'function') {
     return cloneInto(detail, document.defaultView)
   }
   return detail
 }
 
-function injectScriptToPage(path: string) {
+export function injectScriptToPage(path: string) {
   document.body
     .appendChild(
       Object.assign(document.createElement('script'), {
@@ -31,7 +30,7 @@ function checkMessage(msg: object): msg is RBMessageToContentType {
   return true
 }
 
-function listenExtensionMessages(reactRoot: Element | null) {
+export function listenExtensionMessages(reactRoot: Element | null) {
   browser.runtime.onMessage.addListener((msg: object) => {
     if (!checkMessage(msg)) {
       console.debug('unknown msg?', msg)
@@ -67,11 +66,4 @@ function listenExtensionMessages(reactRoot: Element | null) {
         break
     }
   })
-}
-
-const reactRoot = document.getElementById('react-root')
-listenExtensionMessages(reactRoot)
-
-if (reactRoot && location.hostname !== 'tweetdeck.twitter.com') {
-  injectScriptToPage('bundled/twitter_inject.bun.js')
 }
