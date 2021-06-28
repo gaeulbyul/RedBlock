@@ -49,21 +49,13 @@ export class TwClient {
     if (user.blocking) {
       return user
     }
-    return await this.request1('post', '/blocks/create.json', {
-      user_id: user.id_str,
-      include_entities: false,
-      skip_status: true,
-    })
+    return this.blockUserById(user.id_str)
   }
   public async unblockUser(user: TwitterUser): Promise<TwitterUser> {
     if (!user.blocking) {
       return user
     }
-    return await this.request1('post', '/blocks/destroy.json', {
-      user_id: user.id_str,
-      include_entities: false,
-      skip_status: true,
-    })
+    return this.unblockUserById(user.id_str)
   }
   public async muteUser(user: TwitterUser): Promise<TwitterUser> {
     if (user.muting) {
@@ -87,6 +79,13 @@ export class TwClient {
     }
     return await this.request1('post', '/friendships/destroy.json', {
       user_id: user.id_str,
+    })
+  }
+  public async blockUserById(userId: string): Promise<TwitterUser> {
+    return await this.request1('post', '/blocks/create.json', {
+      user_id: userId,
+      include_entities: false,
+      skip_status: true,
     })
   }
   public async unblockUserById(userId: string): Promise<TwitterUser> {

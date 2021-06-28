@@ -97,6 +97,12 @@ declare namespace RBMessageToBackground {
     user: TwitterUser
   }
 
+  interface BlockUserById {
+    messageType: 'BlockUserById'
+    messageTo: 'background'
+    userId: string
+  }
+
   interface UnblockUserById {
     messageType: 'UnblockUserById'
     messageTo: 'background'
@@ -121,6 +127,7 @@ declare type RBMessageToBackgroundType =
   | RBMessageToBackground.RequestBlockLimiterStatus
   | RBMessageToBackground.RequestResetCounter
   | RBMessageToBackground.BlockSingleUser
+  | RBMessageToBackground.BlockUserById
   | RBMessageToBackground.UnblockUserById
   | RBMessageToBackground.DownloadFromExportSession
 
