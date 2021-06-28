@@ -35,6 +35,6 @@ module.exports = {
     },
   },
   watchOptions: {
-    poll: 400,
+    poll: 1200,
   },
 }
