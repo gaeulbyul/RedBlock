@@ -34,7 +34,6 @@ function generateTweetDeckBlockButton(user: TweetDeckUser) {
       text: `${i18n.getMessage('blocked_xxx', user.screenName)}`,
     })
   })
-  console.info('generated ', btn)
   return btn
 }
 
