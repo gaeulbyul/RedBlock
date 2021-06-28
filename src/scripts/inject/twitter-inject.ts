@@ -81,6 +81,10 @@ void (() => {
               detail: undoBlock,
             })
           )
+          markUser({
+            userAction: 'UnBlock',
+            userId: undoBlock.userId,
+          })
         },
       }
     }

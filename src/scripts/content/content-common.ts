@@ -67,3 +67,18 @@ export function listenExtensionMessages(reactRoot: Element | null) {
     }
   })
 }
+
+export function toastMessage(detail: ToastMessageParam) {
+  const event = new CustomEvent<ToastMessageParam>('RedBlock->ToastMessage', {
+    detail,
+  })
+  document.dispatchEvent(event)
+}
+
+export async function blockUser(user: TwitterUser) {
+  return browser.runtime.sendMessage<RBMessageToBackground.BlockSingleUser>({
+    messageType: 'BlockSingleUser',
+    messageTo: 'background',
+    user,
+  })
+}
