@@ -60,7 +60,7 @@
     }
   ],
 
-  "web_accessible_resources": ["bundled/twitter-inject.bun.js", "bundled/tweetdeck-inject.bun.js"],
+  "web_accessible_resources": ["bundled/twitter_inject.bun.js", "bundled/tweetdeck_inject.bun.js"],
 
   "browser_action": {
     "default_icon": "icons/icon-48.png",
