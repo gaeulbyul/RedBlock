@@ -1,5 +1,5 @@
 import * as i18n from '~~/scripts/i18n'
-import { blockUser, toastMessage } from './content-common'
+import { blockUser, toastMessage, cloneDetail } from './content-common'
 
 const setOfBadWords: BadWordItem[] = []
 
@@ -59,7 +59,7 @@ function checkBadWordFromUserProfile({
 
 function markUser(detail: MarkUserParams) {
   const event = new CustomEvent<MarkUserParams>('RedBlock->MarkUser', {
-    detail,
+    detail: cloneDetail(detail),
   })
   document.dispatchEvent(event)
   const { userId, userAction } = detail

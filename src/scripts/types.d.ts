@@ -218,6 +218,10 @@ interface OneClickBlockableUserCellElement {
   user: TwitterUser
 }
 
+interface OneClickBlockTweetDeckUser {
+  tdUser: TweetDeckUser
+}
+
 interface UndoOneClickBlockByIdParam {
   userId: string
   userName: string // 차단해제 메시지에 띄울 유저이름
@@ -284,6 +288,36 @@ interface TwitterArchiveBlockItem {
 interface CookieOptions {
   cookieStoreId: string
   actAsUserId?: string
+}
+
+// ---- TweetDeck ----
+interface TweetDeckUser {
+  account: {
+    state: {
+      username: string
+      name: string
+      userId: string
+    }
+  }
+  id: string
+  screenName: string
+  profileURL: string
+  profileImageURL: string
+  name: string
+  location: string
+  description: string
+  // entities: { }
+  joinedDate: string // "2017-08-29T12:43:04.000Z"
+  friendsCount: number
+  listedCount: number
+  followersCount: number
+  statusesCount: number
+  url: string
+  isProtected: boolean
+  isVerified: boolean
+  isTranslator: boolean
+  isBadged: boolean
+  following: boolean
 }
 
 // ---- browser notification types ----

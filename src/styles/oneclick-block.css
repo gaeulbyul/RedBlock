@@ -14,9 +14,26 @@
   margin-top: 5px;
 }
 
-/* 보통 트윗. 트윗메뉴의 왼쪽에 버튼이 붙는다. */
-div > .redblock-btn-tweet {
-  margin-right: 15px;
+.js-tweet .redblock-btn {
+  position: absolute;
+  top: 3.5rem;
+  left: 10px;
+  width: 36px;
+  line-height: initial;
+  font-size: 10px;
+  padding: 1px;
+}
+
+.js-tweet .redblock-block-btn:active,
+.js-tweet .redblock-block-btn:focus,
+.js-tweet .redblock-block-btn:hover {
+  outline-color: firebrick;
+  background-color: firebrick;
+  color: white;
+}
+
+.js-tweet .tweet-context ~ header.tweet-header .redblock-btn {
+  top: 5rem;
 }
 
 /* 인용트윗 내부. 타임스탬프 오른쪽에 버튼이 붙는다. */
