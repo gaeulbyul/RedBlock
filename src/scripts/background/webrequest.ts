@@ -52,13 +52,6 @@ function toWebRequestHeaders(headers: Headers): browser.webRequest.HttpHeaders {
   return Array.from(headers.entries()).map(([name, value]) => ({ name, value }))
 }
 
-function stripOrigin(headers: Headers) {
-  const origin = headers.get('origin')
-  if (!/^https:/.test(origin || '')) {
-    headers.set('origin', 'https://twitter.com')
-  }
-}
-
 function filterInvalidHeaders(headers: Headers) {
   const keysToRemove = new Set<string>()
   for (const name of headers.keys()) {
@@ -125,7 +118,6 @@ function initializeTwitterAPIRequestHeaderModifier() {
         return {}
       }
       const headers = fromWebRequestHeaders(details.requestHeaders!)
-      stripOrigin(headers)
       overrideWholeCookiesWithCookieStore(headers)
       handleCsrfHeader(headers)
       const actAsCookies = extractActAsCookies(headers)
