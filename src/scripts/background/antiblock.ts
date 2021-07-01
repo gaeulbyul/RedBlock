@@ -9,13 +9,28 @@ async function* iterateAvailableTwClients(): AsyncIterableIterator<TwClient> {
     const multiCookies = await CookieHandler.getMultiAccountCookies({ cookieStoreId })
     // 컨테이너에 트위터 계정을 하나만 로그인한 경우, auth_multi 쿠키가 없어 서
     // getMultiAccountCookies 함수가 null 을 리턴한다.
-    if (!multiCookies) {
+    if (multiCookies) {
+      for (const actAsUserId of Object.keys(multiCookies)) {
+        yield new TwClient({
+          cookieStoreId,
+          actAsUserId,
+        })
+      }
+    }
+    const tdTwClient = new TwClient({
+      cookieStoreId,
+      asTweetDeck: true,
+    })
+    const contributees = await tdTwClient.getTweetDeckContributees().catch(() => [])
+    console.debug('[] contributees= %o', contributees)
+    if (contributees.length <= 0) {
       continue
     }
-    for (const actAsUserId of Object.keys(multiCookies)) {
+    for (const ctee of contributees) {
       yield new TwClient({
         cookieStoreId,
-        actAsUserId,
+        asTweetDeck: true,
+        actAsUserId: ctee.user.id_str,
       })
     }
   }
@@ -46,6 +61,7 @@ export async function examineRetrieverByTargetUser(
       return { user: clientSelf, clientOptions: client.options }
     }
   }
+  console.warn('[AntiBlock]: Failed to Found!')
   return null
 }
 
