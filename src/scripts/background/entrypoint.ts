@@ -15,6 +15,7 @@ const chainblocker = new ChainBlocker()
 // for debug
 Object.assign(window, {
   chainblocker,
+  TwitterAPI,
 })
 
 async function startSession(sessionId: string) {

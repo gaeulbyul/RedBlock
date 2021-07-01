@@ -289,6 +289,7 @@ interface TwClientOptions {
   // prefix: 'api.twitter.com' | 'twitter.com'
   cookieStoreId: string
   actAsUserId?: string
+  asTweetDeck?: boolean
 }
 
 // ---- TweetDeck ----

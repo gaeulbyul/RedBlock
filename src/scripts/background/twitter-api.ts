@@ -2,6 +2,7 @@ import { getAllCookies, generateCookiesForAltAccountRequest } from './cookie-han
 import { stripSensitiveInfo } from '../common'
 
 const BEARER_TOKEN = `AAAAAAAAAAAAAAAAAAAAANRILgAAAAAAnNwIzUejRCOuH5E6I8xnZz4puTs%3D1Zv7ttfk8LF81IUq16cHjhLTvJu4FA33AGWWjCpTnA`
+const TD_BEARER_TOKEN = `AAAAAAAAAAAAAAAAAAAAAF7aAAAAAAAASCiRjWvh7R5wxaKkFp7MM%2BhYBqM%3DbQ0JPmjU9F6ZoMhDfI4uTNAaQuTDm2uO9x3WFVr2xBZ2nhjdP0`
 
 interface ErrorResponseItem {
   code: number
@@ -31,8 +32,8 @@ export class TwClient {
   // prefix = 'twitter.com/i/api'
   public constructor(private readonly ctorOptions: TwClientOptions) {}
   public get options(): TwClientOptions {
-    const { actAsUserId, cookieStoreId } = this.ctorOptions
-    return { actAsUserId, cookieStoreId }
+    const { actAsUserId, cookieStoreId, asTweetDeck } = this.ctorOptions
+    return { actAsUserId, cookieStoreId, asTweetDeck }
   }
   public async getMyself(): Promise<TwitterUser> {
     return await this.request1('get', '/account/verify_credentials.json').then(stripSensitiveInfo)
@@ -265,6 +266,12 @@ export class TwClient {
       withTweetQuoteCount: true,
     }).then(response => response.data.audioSpace)
   }
+  public async getTweetDeckContributees(): Promise<Contributee[]> {
+    if (!this.options.asTweetDeck) {
+      throw new Error('this should call from tweetdeck')
+    }
+    return await this.request1('get', '/users/contributees.json')
+  }
   private async sendRequest(request: RequestInit, url: URL) {
     let newCsrfToken = ''
     let maxRetryCount = 3
@@ -288,7 +295,7 @@ export class TwClient {
     }
   }
   private async request1(method: HTTPMethods, path: string, paramsObj: URLParamsObj = {}) {
-    const fetchOptions = await generateTwitterAPIOptions({ method }, this.options)
+    const fetchOptions = await prepareTwitterRequest({ method }, this.options)
     const url = new URL(`https://${this.prefix}/1.1${path}`)
     let params: URLSearchParams
     if (method === 'get') {
@@ -306,7 +313,7 @@ export class TwClient {
     return this.sendRequest(fetchOptions, url)
   }
   private async request2(method: HTTPMethods, path: string, paramsObj: URLParamsObj = {}) {
-    const fetchOptions = await generateTwitterAPIOptions({ method }, this.options)
+    const fetchOptions = await prepareTwitterRequest({ method }, this.options)
     const url = new URL(`https://${this.prefix}/2${path}`)
     let params: URLSearchParams
     if (method === 'get') {
@@ -324,7 +331,7 @@ export class TwClient {
     operationName: string,
     variables: URLParamsObj = {}
   ) {
-    const fetchOptions = await generateTwitterAPIOptions({ method: 'get' }, this.options)
+    const fetchOptions = await prepareTwitterRequest({ method: 'get' }, this.options)
     const url = new URL(`https://${this.prefix}/graphql/${queryId}/${operationName}`)
     const encodedVariables = JSON.stringify(variables)
     url.searchParams.set('variables', encodedVariables)
@@ -345,13 +352,21 @@ function insertHeader(
     headers[name] = value
   }
 }
-async function generateTwitterAPIOptions(
+async function prepareTwitterRequest(
   obj: RequestInit,
   clientOptions: TwClientOptions
 ): Promise<RequestInit> {
   const headers = new Headers()
   // x-csrf-token 헤더는 webrequest.ts 에서 채워줌
-  headers.set('authorization', `Bearer ${BEARER_TOKEN}`)
+  if (clientOptions.asTweetDeck) {
+    headers.set('authorization', `Bearer ${TD_BEARER_TOKEN}`)
+    headers.set(
+      'x-twitter-client-version',
+      'Twitter-TweetDeck-blackbird-chrome/4.0.200604103812 web/'
+    )
+  } else {
+    headers.set('authorization', `Bearer ${BEARER_TOKEN}`)
+  }
   headers.set('x-twitter-active-user', 'yes')
   headers.set('x-twitter-auth-type', 'OAuth2Session')
   headers.set('x-redblock-request', 'UwU')
@@ -364,11 +379,15 @@ async function generateTwitterAPIOptions(
   )
   // 다계정 로그인 관련
   if (clientOptions.actAsUserId) {
-    const extraCookies = await generateCookiesForAltAccountRequest(clientOptions)
-    const encodedExtraCookies = new URLSearchParams(
-      extraCookies as unknown as Record<string, string>
-    )
-    headers.set('x-redblock-act-as-cookies', encodedExtraCookies.toString())
+    if (clientOptions.asTweetDeck) {
+      headers.set('x-act-as-user-id', clientOptions.actAsUserId)
+    } else {
+      const extraCookies = await generateCookiesForAltAccountRequest(clientOptions)
+      const encodedExtraCookies = new URLSearchParams(
+        extraCookies as unknown as Record<string, string>
+      )
+      headers.set('x-redblock-act-as-cookies', encodedExtraCookies.toString())
+    }
   }
   const result: RequestInit = {
     method: 'get',
@@ -376,6 +395,9 @@ async function generateTwitterAPIOptions(
     credentials: 'include',
     referrer: 'https://twitter.com/',
     headers,
+  }
+  if (clientOptions.asTweetDeck) {
+    result.referrer = 'https://tweetdeck.twitter.com/'
   }
   Object.assign(result, obj)
   return result
@@ -669,4 +691,9 @@ export interface APIv2Response {
     id: string
     instructions: any[]
   }
+}
+
+interface Contributee {
+  admin: boolean
+  user: TwitterUser
 }
