@@ -8,8 +8,8 @@ const DELAY = 100
 
 export class UserScrapingAPIClient {
   public constructor(private twClient: TwClient) {}
-  public static fromCookieOptions(cookieOptions: CookieOptions) {
-    return new UserScrapingAPIClient(new TwClient(cookieOptions))
+  public static fromClientOptions(clientOptions: TwClientOptions) {
+    return new UserScrapingAPIClient(new TwClient(clientOptions))
   }
   public async *getAllFollowsIds(
     followKind: FollowKind,

@@ -43,7 +43,7 @@ export async function removeCookie({ name, storeId }: { name: string; storeId: s
 
 export async function getMultiAccountCookies({
   cookieStoreId,
-}: CookieOptions): Promise<MultiAccountCookies | null> {
+}: TwClientOptions): Promise<MultiAccountCookies | null> {
   const authMultiCookie = await getCookie({
     name: 'auth_multi',
     storeId: cookieStoreId,
@@ -55,13 +55,13 @@ export async function getMultiAccountCookies({
 }
 
 export async function generateCookiesForAltAccountRequest(
-  cookieOptions: CookieOptions
+  clientOptions: TwClientOptions
 ): Promise<ActAsExtraCookies> {
-  const { actAsUserId } = cookieOptions
+  const { actAsUserId } = clientOptions
   if (!actAsUserId) {
     throw new Error('unreachable - `actAsUserId` is missing')
   }
-  const authMultiCookie = await getMultiAccountCookies(cookieOptions)
+  const authMultiCookie = await getMultiAccountCookies(clientOptions)
   if (!authMultiCookie) {
     throw new Error(
       'auth_multi cookie unavailable. this feature requires logged in with two or more account.'
@@ -69,11 +69,11 @@ export async function generateCookiesForAltAccountRequest(
   }
   const authTokenCookie = await getCookie({
     name: 'auth_token',
-    storeId: cookieOptions.cookieStoreId,
+    storeId: clientOptions.cookieStoreId,
   }).then(coo => coo!.value)
   const twidCookie = await getCookie({
     name: 'twid',
-    storeId: cookieOptions.cookieStoreId,
+    storeId: clientOptions.cookieStoreId,
   }).then(coo => /u%3D([0-9]+)\b/.exec(coo!.value)![1])
   const actAsUserToken = authMultiCookie![actAsUserId]
   // 새로 만들 auth_multi 쿠키엔 현재 계정인 twid를 넣고...

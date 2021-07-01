@@ -43,7 +43,7 @@ export async function examineRetrieverByTargetUser(
     const target = await client.getSingleUser({ user_id: targetUser.id_str }).catch(() => null)
     if (target && !target.blocked_by) {
       console.debug('[AntiBlock]: Found! will use %o', client)
-      return { user: clientSelf, cookieOptions: client.cookieOptions }
+      return { user: clientSelf, clientOptions: client.options }
     }
   }
   return null
@@ -53,7 +53,7 @@ export async function examineRetrieverByTweetId(
   primaryActor: Actor,
   tweetId: string
 ): Promise<ExamineTweetResult | null> {
-  const primaryTwClient = new TwClient(primaryActor.cookieOptions)
+  const primaryTwClient = new TwClient(primaryActor.clientOptions)
   const tweetRetrievedFromPrimaryActor = await primaryTwClient
     .getTweetById(tweetId)
     .catch(() => null)
@@ -82,7 +82,7 @@ export async function examineRetrieverByTweetId(
         targetTweet,
         tweetRetrievedFromPrimary: false,
         user: clientSelf,
-        cookieOptions: client.cookieOptions,
+        clientOptions: client.options,
       }
     }
   }

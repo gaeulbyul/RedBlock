@@ -45,11 +45,11 @@ async function sendConfirmToTab(tab: BrowserTab, request: SessionRequest<AnySess
 
 async function initExecutorActor(tab: BrowserTab): Promise<Actor | null> {
   const cookieStoreId = await getCookieStoreIdFromTab(tab)
-  const cookieOptions = { cookieStoreId }
-  const twClient = new TwitterAPI.TwClient(cookieOptions)
+  const clientOptions = { cookieStoreId }
+  const twClient = new TwitterAPI.TwClient(clientOptions)
   const myself = await twClient.getMyself().catch(() => null)
   if (myself) {
-    return { user: myself, cookieOptions }
+    return { user: myself, clientOptions }
   } else {
     return null
   }
@@ -96,7 +96,7 @@ async function confirmFollowerChainBlockRequest(
     alertToTab(tab, i18n.getMessage('error_occured_check_login'))
     return
   }
-  const twClient = new TwitterAPI.TwClient(executor.cookieOptions)
+  const twClient = new TwitterAPI.TwClient(executor.clientOptions)
   const user = await twClient.getSingleUser({ screen_name: userName }).catch(() => null)
   if (!user) {
     alertToTab(tab, i18n.getMessage('error_occured_on_retrieving_user', userName))
@@ -126,7 +126,7 @@ async function confirmTweetReactionChainBlockRequest(
     alertToTab(tab, i18n.getMessage('error_occured_check_login'))
     return
   }
-  const twClient = new TwitterAPI.TwClient(executor.cookieOptions)
+  const twClient = new TwitterAPI.TwClient(executor.clientOptions)
   const tweet = await twClient.getTweetById(tweetId).catch(() => null)
   if (!tweet) {
     alertToTab(tab, i18n.getMessage('error_occured_on_retrieving_tweet'))
@@ -153,7 +153,7 @@ async function confirmAudioSpaceChainBlockRequest(
     alertToTab(tab, i18n.getMessage('error_occured_check_login'))
     return
   }
-  const twClient = new TwitterAPI.TwClient(executor.cookieOptions)
+  const twClient = new TwitterAPI.TwClient(executor.clientOptions)
   const audioSpace = await twClient.getAudioSpaceById(audioSpaceId).catch(() => null)
   if (!audioSpace) {
     alertToTab(tab, i18n.getMessage('error_occured_on_retrieving_audio_space'))

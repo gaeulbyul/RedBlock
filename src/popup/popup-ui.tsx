@@ -499,7 +499,7 @@ export async function initializeUI() {
   if (me) {
     myself = {
       user: me,
-      cookieOptions: twClient.cookieOptions,
+      clientOptions: twClient.options,
     }
     const { currentTweet, currentUser, currentSearchQuery, currentAudioSpace } =
       await getTabContext(currentTab, myself, twClient)

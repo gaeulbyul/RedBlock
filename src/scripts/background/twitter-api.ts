@@ -3,10 +3,6 @@ import { stripSensitiveInfo } from '../common'
 
 const BEARER_TOKEN = `AAAAAAAAAAAAAAAAAAAAANRILgAAAAAAnNwIzUejRCOuH5E6I8xnZz4puTs%3D1Zv7ttfk8LF81IUq16cHjhLTvJu4FA33AGWWjCpTnA`
 
-interface TwClientOptions extends CookieOptions {
-  // prefix: 'api.twitter.com' | 'twitter.com'
-}
-
 interface ErrorResponseItem {
   code: number
   message: string
@@ -33,9 +29,9 @@ function stripSensitiveInfoFromResponse(response: UserListResponse): UserListRes
 export class TwClient {
   public prefix = 'api.twitter.com'
   // prefix = 'twitter.com/i/api'
-  public constructor(private options: TwClientOptions) {}
-  public get cookieOptions(): CookieOptions {
-    const { actAsUserId, cookieStoreId } = this.options
+  public constructor(private readonly ctorOptions: TwClientOptions) {}
+  public get options(): TwClientOptions {
+    const { actAsUserId, cookieStoreId } = this.ctorOptions
     return { actAsUserId, cookieStoreId }
   }
   public async getMyself(): Promise<TwitterUser> {
@@ -292,7 +288,7 @@ export class TwClient {
     }
   }
   private async request1(method: HTTPMethods, path: string, paramsObj: URLParamsObj = {}) {
-    const fetchOptions = await generateTwitterAPIOptions({ method }, this.cookieOptions)
+    const fetchOptions = await generateTwitterAPIOptions({ method }, this.options)
     const url = new URL(`https://${this.prefix}/1.1${path}`)
     let params: URLSearchParams
     if (method === 'get') {
@@ -305,16 +301,12 @@ export class TwClient {
     // 파이어폭스 외의 다른 브라우저에선 webRequest의 request details에서 cookieStoreId 속성이 없다.
     // 따라서 헤더를 통해 알아낼 수 있도록 여기서 헤더를 추가한다.
     if (path === '/blocks/create.json') {
-      insertHeader(
-        fetchOptions.headers!,
-        'x-redblock-cookie-store-id',
-        this.cookieOptions.cookieStoreId
-      )
+      insertHeader(fetchOptions.headers!, 'x-redblock-cookie-store-id', this.options.cookieStoreId)
     }
     return this.sendRequest(fetchOptions, url)
   }
   private async request2(method: HTTPMethods, path: string, paramsObj: URLParamsObj = {}) {
-    const fetchOptions = await generateTwitterAPIOptions({ method }, this.cookieOptions)
+    const fetchOptions = await generateTwitterAPIOptions({ method }, this.options)
     const url = new URL(`https://${this.prefix}/2${path}`)
     let params: URLSearchParams
     if (method === 'get') {
@@ -332,7 +324,7 @@ export class TwClient {
     operationName: string,
     variables: URLParamsObj = {}
   ) {
-    const fetchOptions = await generateTwitterAPIOptions({ method: 'get' }, this.cookieOptions)
+    const fetchOptions = await generateTwitterAPIOptions({ method: 'get' }, this.options)
     const url = new URL(`https://${this.prefix}/graphql/${queryId}/${operationName}`)
     const encodedVariables = JSON.stringify(variables)
     url.searchParams.set('variables', encodedVariables)
@@ -355,7 +347,7 @@ function insertHeader(
 }
 async function generateTwitterAPIOptions(
   obj: RequestInit,
-  cookieOptions: CookieOptions
+  clientOptions: TwClientOptions
 ): Promise<RequestInit> {
   const headers = new Headers()
   // x-csrf-token 헤더는 webrequest.ts 에서 채워줌
@@ -363,7 +355,7 @@ async function generateTwitterAPIOptions(
   headers.set('x-twitter-active-user', 'yes')
   headers.set('x-twitter-auth-type', 'OAuth2Session')
   headers.set('x-redblock-request', 'UwU')
-  const storeId = cookieOptions.cookieStoreId
+  const storeId = clientOptions.cookieStoreId
   // 컨테이너 탭의 인증정보를 담아 요청하기 위해 덮어씌우는 쿠키
   const cookies = await getAllCookies({ storeId })
   headers.set(
@@ -371,8 +363,8 @@ async function generateTwitterAPIOptions(
     cookies.map(({ name, value }) => `${name}=${value}`).join('; ')
   )
   // 다계정 로그인 관련
-  if (cookieOptions.actAsUserId) {
-    const extraCookies = await generateCookiesForAltAccountRequest(cookieOptions)
+  if (clientOptions.actAsUserId) {
+    const extraCookies = await generateCookiesForAltAccountRequest(clientOptions)
     const encodedExtraCookies = new URLSearchParams(
       extraCookies as unknown as Record<string, string>
     )

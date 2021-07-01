@@ -260,7 +260,7 @@ function TargetUserSelectUI() {
   const [bookmarkedUsers, setBookmarkedUsers] = React.useState(new TwitterUserMap())
   const [usersInOtherTab, setUsersInOtherTab] = React.useState(new TwitterUserMap())
   const [isLoading, setLoadingState] = React.useState(false)
-  const twClient = new TwClient(myself.cookieOptions)
+  const twClient = new TwClient(myself.clientOptions)
   async function changeSelectedUser(userId: string, group: TargetGroup) {
     if (!/^\d+$/.test(userId)) {
       setUserSelection(null)

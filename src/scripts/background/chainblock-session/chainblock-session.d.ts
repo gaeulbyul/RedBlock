@@ -108,8 +108,8 @@ interface ExportMyBlocklistTarget {
 interface Actor {
   user: TwitterUser
   // TwClient는 클래스이기에 message로 주고받으면 메서드 등에 접근할 수 없다.
-  // 대신 background에서 TwClient 개체를 만들 수 있도록 cookieOptions로 넘기자..
-  cookieOptions: CookieOptions
+  // 대신 background에서 TwClient 개체를 만들 수 있도록 options만 넘기자..
+  clientOptions: TwClientOptions
 }
 
 interface SessionRequest<Target extends AnySessionTarget> {

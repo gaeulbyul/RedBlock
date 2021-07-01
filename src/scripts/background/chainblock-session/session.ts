@@ -128,7 +128,7 @@ abstract class BaseSession {
         break
     }
     sessionInfo.status = SessionStatus.RateLimited
-    const retrieverTwClient = new TwitterAPI.TwClient(this.request.retriever.cookieOptions)
+    const retrieverTwClient = new TwitterAPI.TwClient(this.request.retriever.clientOptions)
     const limitStatuses = await retrieverTwClient.getRateLimitStatus()
     const limit = extractRateLimit(limitStatuses, apiKind)
     sessionInfo.limit = limit
@@ -164,7 +164,7 @@ export class ChainBlockSession extends BaseSession {
     } else {
       try {
         const scrapedUserIds = new Set<string>()
-        const twClient = new TwitterAPI.TwClient(this.request.executor.cookieOptions)
+        const twClient = new TwitterAPI.TwClient(this.request.executor.clientOptions)
         for await (const scraperResponse of this.scraper) {
           if (this.shouldStop) {
             stopped = true

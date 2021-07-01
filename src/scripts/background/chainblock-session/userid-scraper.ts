@@ -20,8 +20,8 @@ function convertUsersObjectToIdsObject({ users }: UsersObject): UserIdsObject {
 
 // 단순 스크래퍼. 기존 체인블락 방식
 class SimpleScraper implements UserIdScraper {
-  private scrapingClient = UserScrapingAPI.UserScrapingAPIClient.fromCookieOptions(
-    this.request.retriever.cookieOptions
+  private scrapingClient = UserScrapingAPI.UserScrapingAPIClient.fromClientOptions(
+    this.request.retriever.clientOptions
   )
   public totalCount: number
   public constructor(private request: SessionRequest<FollowerSessionTarget>) {
@@ -36,8 +36,8 @@ class SimpleScraper implements UserIdScraper {
 
 // 맞팔로우 스크래퍼
 class MutualFollowerScraper implements UserIdScraper {
-  private scrapingClient = UserScrapingAPI.UserScrapingAPIClient.fromCookieOptions(
-    this.request.retriever.cookieOptions
+  private scrapingClient = UserScrapingAPI.UserScrapingAPIClient.fromClientOptions(
+    this.request.retriever.clientOptions
   )
   public totalCount: number | null = null
   public constructor(private request: SessionRequest<FollowerSessionTarget>) {}
@@ -52,8 +52,8 @@ class MutualFollowerScraper implements UserIdScraper {
 
 // 트윗반응 유저 스크래퍼
 class TweetReactedUserScraper implements UserIdScraper {
-  private scrapingClient = UserScrapingAPI.UserScrapingAPIClient.fromCookieOptions(
-    this.request.retriever.cookieOptions
+  private scrapingClient = UserScrapingAPI.UserScrapingAPIClient.fromClientOptions(
+    this.request.retriever.clientOptions
   )
   public totalCount: number
   public constructor(private request: SessionRequest<TweetReactionSessionTarget>) {
@@ -69,7 +69,7 @@ class TweetReactedUserScraper implements UserIdScraper {
       includeNonLinkedMentions: blockNonLinkedMentions,
     } = this.request.target
     if (blockRetweeters) {
-      const retrieverTwClient = new TwClient(this.request.retriever.cookieOptions)
+      const retrieverTwClient = new TwClient(this.request.retriever.clientOptions)
       const { ids } = await retrieverTwClient.getRetweetersIds(tweet)
       yield wrapEitherRight({ ids })
     }
@@ -116,8 +116,8 @@ class TweetReactedUserScraper implements UserIdScraper {
 }
 
 class AudioSpaceScraper implements UserIdScraper {
-  private scrapingClient = UserScrapingAPI.UserScrapingAPIClient.fromCookieOptions(
-    this.request.executor.cookieOptions
+  private scrapingClient = UserScrapingAPI.UserScrapingAPIClient.fromClientOptions(
+    this.request.executor.clientOptions
   )
   public totalCount = getParticipantsInAudioSpaceCount(this.request.target)
   public constructor(private request: SessionRequest<AudioSpaceSessionTarget>) {}
@@ -140,8 +140,8 @@ class AudioSpaceScraper implements UserIdScraper {
 }
 
 class ExportMyBlocklistScraper implements UserIdScraper {
-  private scrapingClient = UserScrapingAPI.UserScrapingAPIClient.fromCookieOptions(
-    this.request.retriever.cookieOptions
+  private scrapingClient = UserScrapingAPI.UserScrapingAPIClient.fromClientOptions(
+    this.request.retriever.clientOptions
   )
   public totalCount: null
   public constructor(private request: SessionRequest<ExportMyBlocklistTarget>) {

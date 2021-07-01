@@ -285,7 +285,8 @@ interface TwitterArchiveBlockItem {
 
 // ---- cookie related ----
 
-interface CookieOptions {
+interface TwClientOptions {
+  // prefix: 'api.twitter.com' | 'twitter.com'
   cookieStoreId: string
   actAsUserId?: string
 }
