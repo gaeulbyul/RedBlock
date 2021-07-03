@@ -40,8 +40,14 @@ function generateTweetDeckBlockButton(user: TweetDeckUser) {
 function addBlockButtonForTweetDeck(elem: HTMLElement, user: TweetDeckUser) {
   const btn = generateTweetDeckBlockButton(user)
   btn.classList.add('redblock-btn-under-profile')
-  const tweetHeader = elem.querySelector('header.tweet-header')!
-  tweetHeader.appendChild(btn)
+  const accountSummary = elem.querySelector('.js-tweet-detail .account-summary')
+  if (accountSummary) {
+    return
+  }
+  const tweetHeader = elem.querySelector('header.tweet-header')
+  if (tweetHeader) {
+    tweetHeader.appendChild(btn)
+  }
 }
 
 document.addEventListener('RedBlock<-OneClickBlockTweetDeckUser', event => {

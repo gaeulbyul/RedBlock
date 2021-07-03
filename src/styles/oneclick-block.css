@@ -22,6 +22,7 @@
   line-height: initial;
   font-size: 10px;
   padding: 1px;
+  z-index: 10; /* 트윗 타래의 회색 세로선에 가려지는 걸 막음 */
 }
 
 .js-tweet .redblock-block-btn:active,
