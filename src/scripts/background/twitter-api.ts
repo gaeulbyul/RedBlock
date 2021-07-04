@@ -268,6 +268,13 @@ export class TwClient {
       withTweetQuoteCount: true,
     }).then(response => response.data.audioSpace)
   }
+  public async getTweetReactionV2Timeline(tweetId: string): Promise<ReactionV2Timeline> {
+    const queryData = await getQueryDataByOperationName('GetTweetReactionTimeline')
+    return await this.requestGraphQL(queryData, {
+      tweetId,
+      withHighlightedLabel: false,
+    }).then(response => response.data.tweet_result_by_rest_id.result.reaction_timeline)
+  }
   public async getTweetDeckContributees(): Promise<Contributee[]> {
     if (!this.options.asTweetDeck) {
       throw new Error('this should call from tweetdeck')
@@ -325,7 +332,6 @@ export class TwClient {
       fetchOptions.body = params
     }
     prepareParams(params, paramsObj)
-    prepareMoreParams(params)
     return this.sendRequest(fetchOptions, url)
   }
   private async requestGraphQL(
@@ -413,19 +419,6 @@ function setDefaultParams(params: URLSearchParams): void {
   params.set('include_mute_edge', '1')
   params.set('include_can_dm', '1')
   params.set('include_quote_count', '1')
-}
-
-function prepareParams(params: URLSearchParams, additional: URLParamsObj = {}): void {
-  setDefaultParams(params)
-  for (const [key, value] of Object.entries(additional)) {
-    if (value == null) {
-      continue
-    }
-    params.set(key, value.toString())
-  }
-}
-
-function prepareMoreParams(params: URLSearchParams) {
   params.set('include_can_media_tag', '1')
   params.set('skip_status', '1')
   params.set('cards_platform', 'Web-12')
@@ -440,6 +433,20 @@ function prepareMoreParams(params: URLSearchParams) {
   params.set('include_ext_media_availability', 'true')
   params.set('send_error_codes', 'true')
   params.set('simple_quoted_tweet', 'true')
+  params.set(
+    'ext',
+    'mediaStats,highlightedLabel,signalsReactionPerspective,signalsReactionMetadata,voiceInfo,birdwatchPivot,superFollowMetadata'
+  )
+}
+
+function prepareParams(params: URLSearchParams, additional: URLParamsObj = {}): void {
+  setDefaultParams(params)
+  for (const [key, value] of Object.entries(additional)) {
+    if (value == null) {
+      continue
+    }
+    params.set(key, value.toString())
+  }
 }
 
 export function getNextCursorFromAPIv2Response(response: APIv2Response): string | null {
@@ -629,6 +636,12 @@ export interface Tweet {
     user_mentions?: UserMentionEntity[]
     urls?: UrlEntity[]
   }
+  ext: {
+    // 남들의 반응
+    signalsReactionMetadata: SignalsReactionMetadata
+    // 내 반응. 당장 안 쓰이므로 생략
+    // signalsReactionPerspective
+  }
 }
 
 interface UserMentionEntity {
@@ -714,4 +727,37 @@ export interface APIv2Response {
 interface Contributee {
   admin: boolean
   user: TwitterUser
+}
+
+export type ReactionV2Kind = 'Like' | 'Cheer' | 'Hmm' | 'Sad' | 'Haha'
+
+interface SignalsReactionMetadata {
+  r: {
+    ok: {
+      reactionTypeMap: [ReactionV2Kind, number][]
+    }
+  }
+}
+
+interface ReactionV2MapItem {
+  type: ReactionV2Kind
+  count: number
+}
+
+interface ReactionV2TimelineEntry {
+  user_results: {
+    result:
+      | {
+          // id: string
+          rest_id: string
+          legacy: TwitterUser
+        }
+      | {}
+  }
+  reaction_type: ReactionV2Kind
+}
+
+interface ReactionV2Timeline {
+  reactionTypeMap: ReactionV2MapItem[]
+  tweet_reaction_timeline_entries: ReactionV2TimelineEntry[]
 }
