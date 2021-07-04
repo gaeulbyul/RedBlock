@@ -32,8 +32,8 @@ export const BlockLimiterContext = React.createContext<BlockLimiterStatus>({
 export const MyselfContext = React.createContext<Actor | null>(null)
 
 interface RetrieverContextType {
-  retriever: Actor | null
-  setRetriever(retriever: Actor | null): void
+  retriever: Actor
+  setRetriever(retriever: Actor): void
 }
 
 export const RetrieverContext = React.createContext<RetrieverContextType>(null!)

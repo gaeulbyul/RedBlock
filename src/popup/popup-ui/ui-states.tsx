@@ -153,7 +153,7 @@ export const AudioSpaceChainBlockPageStatesContext =
   React.createContext<AudioSpaceChainBlockPageStates>(null!)
 export const LockPickerPageStatesContext = React.createContext<LockPickerPageStates>(null!)
 
-const examineResultCache = new Map<string, Actor | null>()
+const examineResultCache = new Map<string, Actor>()
 
 export function FollowerChainBlockPageStatesProvider({
   children,
@@ -188,14 +188,14 @@ export function FollowerChainBlockPageStatesProvider({
   const [purpose, changePurposeType, mutatePurposeOptions] =
     usePurpose<SessionRequest<FollowerSessionTarget>['purpose']>(initialPurposeType)
   const { enableAntiBlock } = React.useContext(RedBlockOptionsContext)
-  const [retriever, setRetriever] = React.useState<Actor | null>(myself)
+  const [retriever, setRetriever] = React.useState<Actor>(myself)
   React.useEffect(() => {
     async function examine(selectedUser: TwitterUser) {
       const key = `user-${selectedUser.id_str}`
       if (examineResultCache.has(key)) {
         setRetriever(examineResultCache.get(key)!)
       } else {
-        const newRetriever = await examineRetrieverByTargetUser(myself, selectedUser)
+        const newRetriever = (await examineRetrieverByTargetUser(myself, selectedUser)) || myself
         examineResultCache.set(key, newRetriever)
         setRetriever(newRetriever)
       }
@@ -252,14 +252,14 @@ export function TweetReactionChainBlockPageStatesProvider({
   const selectedTweet = initialTweet // TODO: make it state
   const myself = React.useContext(MyselfContext)!
   const { enableAntiBlock } = React.useContext(RedBlockOptionsContext)
-  const [retriever, setRetriever] = React.useState<Actor | null>(myself)
+  const [retriever, setRetriever] = React.useState<Actor>(myself)
   React.useEffect(() => {
     async function examine(tweetId: string) {
       const key = `tweet-${tweetId}`
       if (examineResultCache.has(key)) {
         setRetriever(examineResultCache.get(key)!)
       } else {
-        const newRetriever = await examineRetrieverByTweetId(myself, tweetId)
+        const newRetriever = (await examineRetrieverByTweetId(myself, tweetId)) || myself
         examineResultCache.set(key, newRetriever)
         setRetriever(newRetriever)
       }

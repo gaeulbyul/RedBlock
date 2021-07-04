@@ -53,10 +53,11 @@ function useSessionRequest(): Either<
       error: TargetCheckResult.MaybeNotLoggedIn,
     }
   }
-  if (!retriever) {
-    if (currentTweet?.user.blocked_by === false) {
-      throw new Error('unreachable')
-    }
+  if (!currentTweet) {
+    // currentTweet이 없으면 트윗 체인블락 페이지를 안 띄우므로.
+    throw new Error('unreachable')
+  }
+  if (currentTweet.user.blocked_by) {
     return {
       ok: false,
       error: TargetCheckResult.TheyBlocksYou,
@@ -68,7 +69,7 @@ function useSessionRequest(): Either<
     extraTarget,
     target: {
       type: 'tweet_reaction',
-      tweet: currentTweet!,
+      tweet: currentTweet,
       includeRetweeters,
       includeLikers,
       includeMentionedUsers,

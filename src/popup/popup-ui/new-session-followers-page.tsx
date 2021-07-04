@@ -46,14 +46,15 @@ interface UserSelectorContextType {
 }
 const UserSelectorContext = React.createContext<UserSelectorContextType>(null!)
 
-function useSessionRequest(
-  targetUser?: TwitterUser
-): Either<TargetCheckResult, SessionRequest<FollowerSessionTarget>> {
-  const { purpose, targetList } = React.useContext(FollowerChainBlockPageStatesContext)
+function useSessionRequest(): Either<TargetCheckResult, SessionRequest<FollowerSessionTarget>> {
+  const { purpose, targetList, userSelection } = React.useContext(
+    FollowerChainBlockPageStatesContext
+  )
   const myself = React.useContext(MyselfContext)
   const { retriever } = React.useContext(RetrieverContext)
   const { extraTarget } = React.useContext(ExtraTargetContext)
   const options = React.useContext(RedBlockOptionsContext)
+  const targetUser = userSelection?.user
   if (!myself) {
     return {
       ok: false,
@@ -66,10 +67,7 @@ function useSessionRequest(
       error: TargetCheckResult.InvalidSelectedUserOrTweet,
     }
   }
-  if (!retriever) {
-    if (!targetUser.blocked_by) {
-      throw new Error('unreachable')
-    }
+  if (targetUser.blocked_by && myself.user.id_str === retriever.user.id_str) {
     return {
       ok: false,
       error: TargetCheckResult.TheyBlocksYou,
@@ -420,7 +418,7 @@ function TargetExecutionButtonUI() {
   const { purpose, userSelection } = React.useContext(FollowerChainBlockPageStatesContext)
   const uiContext = React.useContext(UIContext)
   const limiterStatus = React.useContext(BlockLimiterContext)
-  const maybeRequest = useSessionRequest(userSelection?.user)
+  const maybeRequest = useSessionRequest()
   function isAvailable() {
     if (!userSelection) {
       return false
@@ -468,7 +466,7 @@ function NewSessionFollowersPageWithoutSelectedUser() {
 
 export default function NewSessionFollowersPage() {
   const { userSelection } = React.useContext(FollowerChainBlockPageStatesContext)
-  const maybeRequest = useSessionRequest(userSelection?.user)
+  const maybeRequest = useSessionRequest()
   if (!userSelection) {
     return NewSessionFollowersPageWithoutSelectedUser()
   }
