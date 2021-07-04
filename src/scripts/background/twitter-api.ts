@@ -4,6 +4,8 @@ import { stripSensitiveInfo } from '../common'
 const BEARER_TOKEN = `AAAAAAAAAAAAAAAAAAAAANRILgAAAAAAnNwIzUejRCOuH5E6I8xnZz4puTs%3D1Zv7ttfk8LF81IUq16cHjhLTvJu4FA33AGWWjCpTnA`
 const TD_BEARER_TOKEN = `AAAAAAAAAAAAAAAAAAAAAF7aAAAAAAAASCiRjWvh7R5wxaKkFp7MM%2BhYBqM%3DbQ0JPmjU9F6ZoMhDfI4uTNAaQuTDm2uO9x3WFVr2xBZ2nhjdP0`
 
+const gqlDataMap = new Map<string, GraphQLQueryData>()
+
 interface ErrorResponseItem {
   code: number
   message: string
@@ -253,8 +255,8 @@ export class TwClient {
     })
   }
   public async getAudioSpaceById(spaceId: string): Promise<AudioSpace> {
-    const queryId = await examineQueryIdOfAudioSpaceByIdGraphQLRequest()
-    return await this.requestGraphQL(queryId, 'AudioSpaceById', {
+    const queryData = await getQueryDataByOperationName('AudioSpaceById')
+    return await this.requestGraphQL(queryData, {
       id: spaceId,
       withNonLegacyCard: true,
       withTweetResult: true,
@@ -327,8 +329,7 @@ export class TwClient {
     return this.sendRequest(fetchOptions, url)
   }
   private async requestGraphQL(
-    queryId: string,
-    operationName: string,
+    { queryId, operationName }: GraphQLQueryData,
     variables: URLParamsObj = {}
   ) {
     const fetchOptions = await prepareTwitterRequest({ method: 'get' }, this.options)
@@ -474,21 +475,38 @@ export class RateLimitError extends Error {
   }
 }
 
-let audioSpaceByIdQueryId = ''
+interface GraphQLQueryData {
+  queryId: string
+  operationName: string
+  operationType: 'query' | 'mutation'
+}
 
-async function examineQueryIdOfAudioSpaceByIdGraphQLRequest(): Promise<string> {
-  if (audioSpaceByIdQueryId) {
-    return audioSpaceByIdQueryId
+async function fetchGraphQLQueryData() {
+  if (gqlDataMap.size > 0) {
+    return
   }
   const twitter = await fetch('https://twitter.com/').then(resp => resp.text())
   const domparser = new DOMParser()
   const parsed = domparser.parseFromString(twitter, 'text/html')
   const mainScriptTag = parsed.querySelector<HTMLScriptElement>('script[src*="client-web/main."]')!
   const mainScript = await fetch(mainScriptTag.src).then(resp => resp.text())
-  const match1 = /\.exports=({[^}]*?\boperationName:"AudioSpaceById"[^}]*?})/.exec(mainScript)!
-  const match2 = /queryId:"([^"]+)"/.exec(match1[1])!
-  audioSpaceByIdQueryId = match2[1]
-  return audioSpaceByIdQueryId
+  const regexp =
+    /{queryId:"(?<queryId>[0-9A-Za-z_-]+)",operationName:"(?<operationName>\w+)",operationType:"(?<operationType>\w+)"/g
+  for (const match of mainScript.matchAll(regexp)) {
+    const { queryId, operationName, operationType } = match.groups as unknown as GraphQLQueryData
+    gqlDataMap.set(operationName, { queryId, operationName, operationType })
+  }
+}
+
+async function getQueryDataByOperationName(operationName: string): Promise<GraphQLQueryData> {
+  if (gqlDataMap.size <= 0) {
+    await fetchGraphQLQueryData()
+  }
+  const queryData = gqlDataMap.get(operationName)
+  if (!queryData) {
+    throw new Error('failed to find gql data for: ' + operationName)
+  }
+  return queryData
 }
 
 type HTTPMethods = 'get' | 'delete' | 'post' | 'put'
