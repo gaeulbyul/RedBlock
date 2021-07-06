@@ -87,8 +87,8 @@ interface TweetReactionChainBlockPageStates {
   setIncludeQuotedUsers(b: boolean): void
   includeNonLinkedMentions: boolean
   setIncludeNonLinkedMentions(b: boolean): void
-  includedReactions: ReactionV2Kind[]
-  setIncludedReactions(reactions: ReactionV2Kind[]): void
+  includedReactionsV2: ReactionV2Kind[]
+  setIncludedReactionsV2(reactions: ReactionV2Kind[]): void
   purpose: SessionRequest<TweetReactionSessionTarget>['purpose']
   changePurposeType(
     purposeType: SessionRequest<TweetReactionSessionTarget>['purpose']['type']
@@ -243,7 +243,7 @@ export function TweetReactionChainBlockPageStatesProvider({
   const [includeMentionedUsers, setIncludeMentionedUsers] = React.useState(false)
   const [includeQuotedUsers, setIncludeQuotedUsers] = React.useState(false)
   const [includeNonLinkedMentions, setIncludeNonLinkedMentions] = React.useState(false)
-  const [includedReactions, setIncludedReactions] = React.useState<ReactionV2Kind[]>([])
+  const [includedReactionsV2, setIncludedReactionsV2] = React.useState<ReactionV2Kind[]>([])
   const availablePurposeTypes: SessionRequest<TweetReactionSessionTarget>['purpose']['type'][] = [
     'chainblock',
     'chainmute',
@@ -289,8 +289,8 @@ export function TweetReactionChainBlockPageStatesProvider({
         setIncludeQuotedUsers,
         includeNonLinkedMentions,
         setIncludeNonLinkedMentions,
-        includedReactions,
-        setIncludedReactions,
+        includedReactionsV2,
+        setIncludedReactionsV2,
         purpose,
         changePurposeType,
         mutatePurposeOptions,

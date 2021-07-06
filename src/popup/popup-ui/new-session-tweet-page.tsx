@@ -42,6 +42,7 @@ function useSessionRequest(): Either<
     includeMentionedUsers,
     includeQuotedUsers,
     includeNonLinkedMentions,
+    includedReactionsV2,
   } = React.useContext(TweetReactionChainBlockPageStatesContext)
   const { extraTarget } = React.useContext(ExtraTargetContext)
   const myself = React.useContext(MyselfContext)
@@ -75,6 +76,7 @@ function useSessionRequest(): Either<
       includeMentionedUsers,
       includeQuotedUsers,
       includeNonLinkedMentions,
+      includedReactionsV2,
     },
     retriever,
     executor: myself,
