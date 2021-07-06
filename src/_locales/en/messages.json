@@ -899,5 +899,20 @@
   },
   "enable_audiospace_chainblock": {
     "message": "Enable ChainBlock on Twitter Space"
+  },
+  "reaction_like": {
+    "message": "Like"
+  },
+  "reaction_cheer": {
+    "message": "Cheer"
+  },
+  "reaction_hmm": {
+    "message": "Hmm"
+  },
+  "reaction_sad": {
+    "message": "Sad"
+  },
+  "reaction_haha": {
+    "message": "Haha"
   }
 }

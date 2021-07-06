@@ -899,5 +899,20 @@
   },
   "enable_audiospace_chainblock": {
     "message": "트위터 스페이스 지원"
+  },
+  "reaction_like": {
+    "message": "마음에 들어요"
+  },
+  "reaction_cheer": {
+    "message": "힘내요"
+  },
+  "reaction_hmm": {
+    "message": "생각 중"
+  },
+  "reaction_sad": {
+    "message": "슬퍼요"
+  },
+  "reaction_haha": {
+    "message": "재밌어요"
   }
 }

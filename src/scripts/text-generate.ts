@@ -1,5 +1,10 @@
 import { TargetCheckResult } from './background/target-checker'
-import { SessionStatus, getCountOfUsersToBlock, findNonLinkedMentionsFromTweet } from './common'
+import {
+  SessionStatus,
+  getCountOfUsersToBlock,
+  findNonLinkedMentionsFromTweet,
+  getReactionsV2CountFromTweet,
+} from './common'
 import * as i18n from '~~/scripts/i18n'
 
 const actionsThatNeedWarning: UserAction[] = ['Block', 'UnFollow', 'BlockAndUnBlock']
@@ -143,7 +148,14 @@ function describeReactionTargets(target: TweetReactionSessionTarget): string {
   }
   if (target.includeLikers) {
     reactionsToBlock.push(`${i18n.getMessage('like')} (${tweet.favorite_count.toLocaleString()})`)
+  } else {
+    const reactionCounts = getReactionsV2CountFromTweet(tweet)
+    target.includedReactionsV2.forEach(reaction => {
+      const count = reactionCounts[reaction]
+      reactionsToBlock.push(`${i18n.reaction(reaction)} (${count.toLocaleString()})`)
+    })
   }
+
   if (target.includeMentionedUsers) {
     reactionsToBlock.push(`${i18n.getMessage('mentioned')} (${mentions.length.toLocaleString()})`)
   }

@@ -1,4 +1,4 @@
-import { TwitterUserEntities, Limit } from './background/twitter-api'
+import type { TwitterUserEntities, Limit, ReactionV2Kind } from './background/twitter-api'
 
 const userNameBlacklist = [
   'about',
@@ -166,6 +166,20 @@ export function getFollowersCount(user: TwitterUser, followKind: FollowKind): nu
   }
 }
 
+// TODO 이름 바꾸자 ('counts')
+export function getReactionsV2CountFromTweet(tweet: Tweet): { [react in ReactionV2Kind]: number } {
+  const result: { [react in ReactionV2Kind]: number } = {
+    Like: 0,
+    Hmm: 0,
+    Haha: 0,
+    Sad: 0,
+    Cheer: 0,
+  } as const
+  Object.assign(result, Object.fromEntries(tweet.ext.signalsReactionMetadata.r.ok.reactionTypeMap))
+  return result
+}
+
+// TODO: 이름 바꾸자 ('total count')
 export function getReactionsCount(target: TweetReactionSessionTarget): number {
   let result = 0
   const { retweet_count, favorite_count } = target.tweet
@@ -175,9 +189,20 @@ export function getReactionsCount(target: TweetReactionSessionTarget): number {
   }
   if (target.includeLikers) {
     result += favorite_count
+  } else {
+    const v2Reactions = getReactionsV2CountFromTweet(target.tweet)
+    target.includedReactionsV2.forEach(reaction => {
+      result += v2Reactions[reaction]
+    })
   }
   if (target.includeMentionedUsers) {
     result += mentions.length
+  }
+  if (target.includeQuotedUsers) {
+    result += target.tweet.quote_count
+  }
+  if (target.includeNonLinkedMentions) {
+    result += findNonLinkedMentionsFromTweet(target.tweet).length
   }
   return result
 }

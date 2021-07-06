@@ -1,4 +1,4 @@
-import { findNonLinkedMentionsFromTweet } from '../common'
+import { getReactionsCount } from '../common'
 
 export const enum TargetCheckResult {
   Ok = 1, // 1: if (targetCheckResult) {} 에서 falsey하게 판단하는 걸 막기 위해.
@@ -75,12 +75,14 @@ function checkTweetReactionBlockRequest({
     includeMentionedUsers: blockMentionedUsers,
     includeQuotedUsers: blockQuotedUsers,
     includeNonLinkedMentions: blockNonLinkedMentions,
+    includedReactionsV2,
   } = target
-  const mentions = target.tweet.entities.user_mentions || []
+  const atLeastOneReaction = Object.values(includedReactionsV2).some(val => val)
   if (
     !(
       blockRetweeters ||
       blockLikers ||
+      atLeastOneReaction ||
       blockMentionedUsers ||
       blockQuotedUsers ||
       blockNonLinkedMentions
@@ -88,23 +90,7 @@ function checkTweetReactionBlockRequest({
   ) {
     return TargetCheckResult.ChooseAtLeastOneOfReaction
   }
-  const { retweet_count, favorite_count, quote_count } = target.tweet
-  let totalCountToBlock = 0
-  if (blockRetweeters) {
-    totalCountToBlock += retweet_count
-  }
-  if (blockLikers) {
-    totalCountToBlock += favorite_count
-  }
-  if (blockMentionedUsers) {
-    totalCountToBlock += mentions.length
-  }
-  if (blockQuotedUsers) {
-    totalCountToBlock += quote_count
-  }
-  if (blockNonLinkedMentions) {
-    totalCountToBlock += findNonLinkedMentionsFromTweet(target.tweet).length
-  }
+  const totalCountToBlock = getReactionsCount(target)
   if (totalCountToBlock <= 0) {
     return TargetCheckResult.NobodyWillBlocked
   }

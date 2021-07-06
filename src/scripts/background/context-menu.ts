@@ -136,6 +136,7 @@ async function confirmTweetReactionChainBlockRequest(
     type: 'tweet_reaction',
     tweet,
     ...whoToBlock,
+    includedReactionsV2: [], // TODO 반응별로 나누기
   })
 }
 

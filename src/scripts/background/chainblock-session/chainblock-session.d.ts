@@ -1,5 +1,6 @@
 type Session = import('./session').ChainBlockSession | import('./session').ExportSession
 type TwClient = import('../twitter-api').TwClient
+type ReactionV2Kind = import('../twitter-api').ReactionV2Kind
 
 type Purpose =
   | ChainBlockPurpose
@@ -74,6 +75,7 @@ interface TweetReactionSessionTarget {
   includeMentionedUsers: boolean
   includeQuotedUsers: boolean
   includeNonLinkedMentions: boolean
+  includedReactionsV2: ReactionV2Kind[]
 }
 
 interface LockPickerSessionTarget {

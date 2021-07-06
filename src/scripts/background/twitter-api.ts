@@ -268,10 +268,10 @@ export class TwClient {
       withTweetQuoteCount: true,
     }).then(response => response.data.audioSpace)
   }
-  public async getTweetReactionV2Timeline(tweetId: string): Promise<ReactionV2Timeline> {
+  public async getTweetReactionV2Timeline(tweet: Tweet): Promise<ReactionV2Timeline> {
     const queryData = await getQueryDataByOperationName('GetTweetReactionTimeline')
     return await this.requestGraphQL(queryData, {
-      tweetId,
+      tweetId: tweet.id_str,
       withHighlightedLabel: false,
     }).then(response => response.data.tweet_result_by_rest_id.result.reaction_timeline)
   }
@@ -746,6 +746,7 @@ interface ReactionV2MapItem {
 
 interface ReactionV2TimelineEntry {
   user_results: {
+    // 프로텍트 계정 등에서 반응한 경우 유저정보가 없는 빈 object가 온다.
     result:
       | {
           // id: string

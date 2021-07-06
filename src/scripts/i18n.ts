@@ -20,6 +20,21 @@ export function getUILanguage(): browser.i18n.LanguageCode {
   return browser.i18n.getUILanguage()
 }
 
+export function reaction(reaction: ReactionV2Kind): string {
+  switch (reaction) {
+    case 'Like':
+      return getMessage('reaction_like')
+    case 'Cheer':
+      return getMessage('reaction_cheer')
+    case 'Hmm':
+      return getMessage('reaction_hmm')
+    case 'Sad':
+      return getMessage('reaction_sad')
+    case 'Haha':
+      return getMessage('reaction_haha')
+  }
+}
+
 function checkMissingTranslations(
   // ko/messages.json 엔 있고 en/messages.json 엔 없는 키가 있으면
   // TypeScript 컴파일러가 타입에러를 일으킨다.

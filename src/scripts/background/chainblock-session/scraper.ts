@@ -144,6 +144,7 @@ class TweetReactedUserScraper implements UserScraper {
       includeMentionedUsers: blockMentionedUsers,
       includeQuotedUsers: blockQuotedUsers,
       includeNonLinkedMentions: blockNonLinkedMentions,
+      includedReactionsV2,
     } = this.request.target
     const scrapers: ScrapedUsersIterator[] = []
     if (blockRetweeters) {
@@ -151,6 +152,12 @@ class TweetReactedUserScraper implements UserScraper {
     }
     if (blockLikers) {
       scrapers.push(this.retrieverScrapingClient.getAllReactedUserList('liked', tweet))
+    } else if (includedReactionsV2.length > 0) {
+      const reactedUserIterator = this.retrieverScrapingClient.getAllReactedV2UserList(
+        tweet,
+        includedReactionsV2
+      )
+      scrapers.push(reactedUserIterator)
     }
     if (blockMentionedUsers) {
       const mentions = tweet.entities.user_mentions || []

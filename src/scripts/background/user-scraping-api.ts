@@ -77,6 +77,28 @@ export class UserScrapingAPIClient {
       }
     }
   }
+  public async *getAllReactedV2UserList(
+    tweet: Tweet,
+    reactions: ReactionV2Kind[]
+  ): ScrapedUsersIterator {
+    if (reactions.length <= 0) {
+      console.warn('empty reactions(v2)!')
+      return
+    }
+    const timeline = await this.twClient.getTweetReactionV2Timeline(tweet)
+    const users: TwitterUser[] = []
+    for (const entry of timeline.tweet_reaction_timeline_entries) {
+      if (!reactions.includes(entry.reaction_type)) {
+        continue
+      }
+      const maybeUser = entry.user_results.result
+      if (!('rest_id' in maybeUser)) {
+        continue
+      }
+      users.push(maybeUser.legacy)
+    }
+    yield wrapEitherRight({ users })
+  }
   public async *getAllBlockedUsersIds(): ScrapedUserIdsIterator {
     let cursor = '-1'
     while (cursor !== '0') {
