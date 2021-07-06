@@ -104,7 +104,7 @@ class MutualFollowerScraper implements UserScraper {
 }
 
 // 트윗반응 유저 스크래퍼
-class TweetReactedUserScraper implements UserScraper {
+export class TweetReactedUserScraper implements UserScraper {
   private retrieverScrapingClient = UserScrapingAPI.UserScrapingAPIClient.fromClientOptions(
     this.request.retriever.clientOptions
   )
@@ -231,7 +231,7 @@ class UserSearchScraper implements UserScraper {
   }
 }
 
-class AudioSpaceScraper implements UserScraper {
+export class AudioSpaceScraper implements UserScraper {
   private scrapingClient = UserScrapingAPI.UserScrapingAPIClient.fromClientOptions(
     this.request.executor.clientOptions
   )

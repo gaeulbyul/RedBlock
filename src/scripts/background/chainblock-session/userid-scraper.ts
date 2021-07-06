@@ -1,21 +1,26 @@
 import * as UserScrapingAPI from '../user-scraping-api'
-import {
-  getFollowersCount,
-  getReactionsCount,
-  getParticipantsInAudioSpaceCount,
-  wrapEitherRight,
-  findNonLinkedMentionsFromTweet,
-} from '../../common'
-import { TwClient } from '../twitter-api'
+import { getFollowersCount, wrapEitherRight } from '../../common'
+import { UserScraper, TweetReactedUserScraper, AudioSpaceScraper } from './scraper'
 
 export interface UserIdScraper {
   totalCount: number | null
   [Symbol.asyncIterator](): ScrapedUserIdsIterator
 }
-
-function convertUsersObjectToIdsObject({ users }: UsersObject): UserIdsObject {
-  const ids = users.map(({ id_str }) => id_str)
-  return { ids }
+class FromUserScraper implements UserIdScraper {
+  public get totalCount() {
+    return this.userScraper.totalCount
+  }
+  public constructor(private readonly userScraper: UserScraper) {}
+  public async *[Symbol.asyncIterator]() {
+    for await (const response of this.userScraper) {
+      if (response.ok) {
+        const ids = response.value.users.map(({ id_str }) => id_str)
+        yield wrapEitherRight({ ids })
+      } else {
+        yield response
+      }
+    }
+  }
 }
 
 // 단순 스크래퍼. 기존 체인블락 방식
@@ -50,95 +55,6 @@ class MutualFollowerScraper implements UserIdScraper {
   }
 }
 
-// 트윗반응 유저 스크래퍼
-class TweetReactedUserScraper implements UserIdScraper {
-  private scrapingClient = UserScrapingAPI.UserScrapingAPIClient.fromClientOptions(
-    this.request.retriever.clientOptions
-  )
-  public totalCount: number
-  public constructor(private request: SessionRequest<TweetReactionSessionTarget>) {
-    this.totalCount = getReactionsCount(request.target)
-  }
-  public async *[Symbol.asyncIterator]() {
-    const {
-      tweet,
-      includeRetweeters: blockRetweeters,
-      includeLikers: blockLikers,
-      includeMentionedUsers: blockMentionedUsers,
-      includeQuotedUsers: blockQuotedUsers,
-      includeNonLinkedMentions: blockNonLinkedMentions,
-    } = this.request.target
-    if (blockRetweeters) {
-      const retrieverTwClient = new TwClient(this.request.retriever.clientOptions)
-      const { ids } = await retrieverTwClient.getRetweetersIds(tweet)
-      yield wrapEitherRight({ ids })
-    }
-    if (blockLikers) {
-      // 마음에 들어하는 유저의 ID를 가져오는 API는 따로 없더라.
-      // 기존에 쓰던 API를 활용하여 user id만 yield해준다.
-      for await (const response of this.scrapingClient.getAllReactedUserList('liked', tweet)) {
-        if (response.ok) {
-          const ids = convertUsersObjectToIdsObject(response.value)
-          yield wrapEitherRight(ids)
-        } else {
-          yield response
-        }
-      }
-    }
-    if (blockMentionedUsers) {
-      const mentions = tweet.entities.user_mentions || []
-      yield wrapEitherRight({
-        ids: mentions.map(e => e.id_str),
-      })
-    }
-    if (blockQuotedUsers) {
-      for await (const response of this.scrapingClient.getQuotedUsers(tweet)) {
-        if (response.ok) {
-          const ids = convertUsersObjectToIdsObject(response.value)
-          yield wrapEitherRight(ids)
-        } else {
-          yield response
-        }
-      }
-    }
-    if (blockNonLinkedMentions) {
-      const userNames = findNonLinkedMentionsFromTweet(this.request.target.tweet)
-      for await (const response of this.scrapingClient.lookupUsersByNames(userNames)) {
-        if (response.ok) {
-          const ids = convertUsersObjectToIdsObject(response.value)
-          yield wrapEitherRight(ids)
-        } else {
-          yield response
-        }
-      }
-    }
-  }
-}
-
-class AudioSpaceScraper implements UserIdScraper {
-  private scrapingClient = UserScrapingAPI.UserScrapingAPIClient.fromClientOptions(
-    this.request.executor.clientOptions
-  )
-  public totalCount = getParticipantsInAudioSpaceCount(this.request.target)
-  public constructor(private request: SessionRequest<AudioSpaceSessionTarget>) {}
-  public async *[Symbol.asyncIterator]() {
-    const { audioSpace, includeHostsAndSpeakers, includeListeners } = this.request.target
-    const scraper: ScrapedUsersIterator = this.scrapingClient.getParticipantsInAudioSpace({
-      audioSpace,
-      hostsAndSpeakers: includeHostsAndSpeakers,
-      listeners: includeListeners,
-    })
-    for await (const response of scraper) {
-      if (response.ok) {
-        const ids = convertUsersObjectToIdsObject(response.value)
-        yield wrapEitherRight(ids)
-      } else {
-        yield response
-      }
-    }
-  }
-}
-
 class ExportMyBlocklistScraper implements UserIdScraper {
   private scrapingClient = UserScrapingAPI.UserScrapingAPIClient.fromClientOptions(
     this.request.retriever.clientOptions
@@ -159,7 +75,9 @@ export function initIdScraper(request: SessionRequest<ExportableSessionTarget>):
     case 'export_my_blocklist':
       return new ExportMyBlocklistScraper(request as SessionRequest<ExportMyBlocklistTarget>)
     case 'tweet_reaction':
-      return new TweetReactedUserScraper(request as SessionRequest<TweetReactionSessionTarget>)
+      return new FromUserScraper(
+        new TweetReactedUserScraper(request as SessionRequest<TweetReactionSessionTarget>)
+      )
     case 'follower':
       if (target.list === 'mutual-followers') {
         return new MutualFollowerScraper(request as SessionRequest<FollowerSessionTarget>)
@@ -167,6 +85,8 @@ export function initIdScraper(request: SessionRequest<ExportableSessionTarget>):
         return new SimpleScraper(request as SessionRequest<FollowerSessionTarget>)
       }
     case 'audio_space':
-      return new AudioSpaceScraper(request as SessionRequest<AudioSpaceSessionTarget>)
+      return new FromUserScraper(
+        new AudioSpaceScraper(request as SessionRequest<AudioSpaceSessionTarget>)
+      )
   }
 }
