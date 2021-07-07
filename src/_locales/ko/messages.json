@@ -900,6 +900,9 @@
   "enable_audiospace_chainblock": {
     "message": "트위터 스페이스 지원"
   },
+  "reaction": {
+    "message": "반응"
+  },
   "reaction_like": {
     "message": "마음에 들어요"
   },

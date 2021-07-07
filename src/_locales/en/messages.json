@@ -900,6 +900,9 @@
   "enable_audiospace_chainblock": {
     "message": "Enable ChainBlock on Twitter Space"
   },
+  "reaction": {
+    "message": "Reaction"
+  },
   "reaction_like": {
     "message": "Like"
   },

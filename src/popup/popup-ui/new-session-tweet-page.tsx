@@ -20,7 +20,7 @@ import {
 } from './components'
 import { TweetReactionChainBlockPageStatesContext, ExtraTargetContext } from './ui-states'
 import { TargetCheckResult, validateRequest } from '../../scripts/background/target-checker'
-import { findNonLinkedMentionsFromTweet } from '../../scripts/common'
+import { findNonLinkedMentionsFromTweet, getReactionsV2CountFromTweet } from '../../scripts/common'
 import * as i18n from '~~/scripts/i18n'
 
 const M = MaterialUI
@@ -95,6 +95,45 @@ function useSessionRequest(): Either<
   }
 }
 
+function TargetReactionsV2UI({ tweet }: { tweet: Tweet }) {
+  const { includedReactionsV2, setIncludedReactionsV2 } = React.useContext(
+    TweetReactionChainBlockPageStatesContext
+  )
+  const reactionCounts = getReactionsV2CountFromTweet(tweet)
+  const availableReactions: ReactionV2Kind[] = ['Like', 'Cheer', 'Hmm', 'Sad', 'Haha']
+  const emojis: { [reaction in ReactionV2Kind]: string } = {
+    Like: '\u2764\uFE0F',
+    Cheer: '\uD83D\uDC4F',
+    Hmm: '\uD83E\uDD14',
+    Sad: '\uD83D\uDE22',
+    Haha: '\uD83D\uDE02',
+  }
+  function onChange(reaction: ReactionV2Kind, checked: boolean) {
+    if (checked) {
+      setIncludedReactionsV2([...includedReactionsV2, reaction])
+    } else {
+      setIncludedReactionsV2(includedReactionsV2.filter(r => r !== reaction))
+    }
+  }
+  return (
+    <React.Fragment>
+      {availableReactions.map((reaction, index) => (
+        <M.FormControlLabel
+          key={index}
+          control={<M.Checkbox size="small" />}
+          onChange={(_event, checked) => onChange(reaction, checked)}
+          checked={includedReactionsV2.includes(reaction)}
+          disabled={reactionCounts[reaction] <= 0}
+          label={`${i18n.getMessage('reaction')}: ${emojis[reaction]} (${reactionCounts[
+            reaction
+          ].toLocaleString()})`}
+          title={i18n.reaction(reaction)}
+        />
+      ))}
+    </React.Fragment>
+  )
+}
+
 function TargetTweetUI({ tweet }: { tweet: Tweet }) {
   const {
     includeRetweeters,
@@ -108,6 +147,7 @@ function TargetTweetUI({ tweet }: { tweet: Tweet }) {
     includeNonLinkedMentions,
     setIncludeNonLinkedMentions,
   } = React.useContext(TweetReactionChainBlockPageStatesContext)
+  const { enableReactionsV2Support } = React.useContext(RedBlockOptionsContext)
   const mentions = tweet.entities.user_mentions || []
   const nobodyRetweeted = tweet.retweet_count <= 0
   const nobodyLiked = tweet.favorite_count <= 0
@@ -129,13 +169,17 @@ function TargetTweetUI({ tweet }: { tweet: Tweet }) {
             disabled={nobodyRetweeted}
             label={`${i18n.getMessage('retweet')} (${tweet.retweet_count.toLocaleString()})`}
           />
-          <M.FormControlLabel
-            control={<M.Checkbox size="small" />}
-            onChange={() => setIncludeLikers(!includeLikers)}
-            checked={includeLikers}
-            disabled={nobodyLiked}
-            label={`${i18n.getMessage('like')} (${tweet.favorite_count.toLocaleString()})`}
-          />
+          {enableReactionsV2Support ? (
+            <TargetReactionsV2UI {...{ tweet }} />
+          ) : (
+            <M.FormControlLabel
+              control={<M.Checkbox size="small" />}
+              onChange={() => setIncludeLikers(!includeLikers)}
+              checked={includeLikers}
+              disabled={nobodyLiked}
+              label={`${i18n.getMessage('like')} (${tweet.favorite_count.toLocaleString()})`}
+            />
+          )}
           <M.FormControlLabel
             control={<M.Checkbox size="small" />}
             onChange={() => setIncludeMentionedUsers(!includeMentionedUsers)}
