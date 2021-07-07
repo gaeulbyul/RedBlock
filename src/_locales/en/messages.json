@@ -914,5 +914,11 @@
   },
   "reaction_haha": {
     "message": "Haha"
+  },
+  "enable_reactions_v2": {
+    "message": "Enable new tweet reactions"
+  },
+  "enable_reactions_v2_description": {
+    "message": "Red Block can Chain-block to users who reacted with new reactions. (ex. \"Hmm\", \"Haha\", ...)"
   }
 }

@@ -13,6 +13,7 @@ interface RedBlockStorage {
     delayBlockRequest: number
     muteEvenAlreadyBlocking: boolean
     experimentallyEnableAudioSpace: boolean
+    enableReactionsV2Support: boolean
   }
   uiOptions: {
     menus: {

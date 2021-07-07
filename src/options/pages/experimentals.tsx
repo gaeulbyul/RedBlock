@@ -68,6 +68,19 @@ export default function ExperimentalOptionsPages() {
           <M.Divider variant="middle" />
           <M.FormGroup>
             <SwitchItem
+              checked={options.enableReactionsV2Support}
+              label={i18n.getMessage('enable_reactions_v2')}
+              onChange={checked =>
+                updateOptions({
+                  enableReactionsV2Support: checked,
+                })
+              }
+            />
+          </M.FormGroup>
+          <M.FormHelperText>{i18n.getMessage('enable_reactions_v2_description')}</M.FormHelperText>
+          <M.Divider variant="middle" />
+          <M.FormGroup>
+            <SwitchItem
               checked={options.firstPartyIsolationCompatibleMode}
               disabled={!firstPartyIsolatableBrowser}
               label={i18n.getMessage('1st_party_isolation_compatible_mode')}

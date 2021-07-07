@@ -914,5 +914,11 @@
   },
   "reaction_haha": {
     "message": "재밌어요"
+  },
+  "enable_reactions_v2": {
+    "message": "새로운 트윗반응 지원"
+  },
+  "enable_reactions_v2_description": {
+    "message": "트윗 체인블락이 새로운 트윗반응을 지원하도록 합니다. (예: \"생각 중\", \"재밌어요\")"
   }
 }
