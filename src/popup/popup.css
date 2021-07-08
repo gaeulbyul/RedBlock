@@ -88,6 +88,8 @@ hr {
   min-width: var(--popup-width);
   padding: 0;
   margin: 0 auto;
+  /* Whale 브라우저 + 오버레이 스크롤바에선 스크롤이 안 되는 버그가 있더라. */
+  overflow-y: auto;
 }
 
 #app {
