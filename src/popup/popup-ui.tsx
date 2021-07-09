@@ -63,13 +63,8 @@ function PopupUITopMenu(props: {
   currentSearchQuery: string | null
 }) {
   const { countOfSessions } = props
-  const {
-    menuAnchorElem,
-    setMenuAnchorElem,
-    switchPage,
-    popupOpenedInTab,
-    availablePages,
-  } = React.useContext(UIContext)
+  const { menuAnchorElem, setMenuAnchorElem, switchPage, popupOpenedInTab, availablePages } =
+    React.useContext(UIContext)
   function handleOpenInTabClick() {
     browser.tabs.create({
       active: true,
@@ -277,7 +272,7 @@ function PopupApp({
     return () => {
       browser.runtime.onMessage.removeListener(messageListener)
     }
-  }, [])
+  }, [limiterStatus])
   React.useEffect(() => onStorageChanged('options', setRedBlockOptions), [])
   const runningSessionsTabIcon = (
     <M.Badge
