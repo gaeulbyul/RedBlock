@@ -6,9 +6,8 @@ const extraInfoSpec: any = ['requestHeaders', 'blocking']
 const extraInfoSpecResponse: any = ['responseHeaders', 'blocking']
 try {
   // @ts-ignore
-  const requireExtraHeadersSpec = browser.webRequest.OnBeforeSendHeadersOptions.hasOwnProperty(
-    'EXTRA_HEADERS'
-  )
+  // prettier-ignore
+  const requireExtraHeadersSpec = browser.webRequest.OnBeforeSendHeadersOptions.hasOwnProperty('EXTRA_HEADERS')
   if (requireExtraHeadersSpec) {
     extraInfoSpec.push('extraHeaders')
     extraInfoSpecResponse.push('extraHeaders')
@@ -48,13 +47,6 @@ function fromWebRequestHeaders(headersArray: browser.webRequest.HttpHeaders): He
 
 function toWebRequestHeaders(headers: Headers): browser.webRequest.HttpHeaders {
   return Array.from(headers.entries()).map(([name, value]) => ({ name, value }))
-}
-
-function stripOrigin(headers: Headers) {
-  const origin = headers.get('origin')
-  if (!/^https:/.test(origin || '')) {
-    headers.set('origin', 'https://twitter.com')
-  }
 }
 
 function filterInvalidHeaders(headers: Headers) {
@@ -105,7 +97,7 @@ function extractActAsCookies(headers: Headers): ActAsExtraCookies | null {
   }
   const params = new URLSearchParams(actAsCookies)
   const decoded = Object.fromEntries(params.entries())
-  return (decoded as unknown) as ActAsExtraCookies
+  return decoded as unknown as ActAsExtraCookies
 }
 
 const redblockRequestIds = new Set<string>()
@@ -123,7 +115,6 @@ function initializeTwitterAPIRequestHeaderModifier() {
         return {}
       }
       const headers = fromWebRequestHeaders(details.requestHeaders!)
-      stripOrigin(headers)
       overrideWholeCookiesWithCookieStore(headers)
       handleCsrfHeader(headers)
       const actAsCookies = extractActAsCookies(headers)
