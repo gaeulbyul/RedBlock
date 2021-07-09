@@ -184,16 +184,20 @@ interface ReduxStore {
   function initializeTweetElementInspecter(reactRoot: Element) {
     new MutationObserver(mutations => {
       for (const elem of getAddedElementsFromMutations(mutations)) {
-        const tweetElems = elem.querySelectorAll<HTMLElement>('[data-testid=tweet]')
-        tweetElems.forEach(elem => {
-          if (elem.querySelector('.redblock-btn')) {
+        const carets = elem.querySelectorAll<HTMLElement>('[data-testid=tweet] [data-testid=caret]')
+        carets.forEach(caret => {
+          const tweetElem = caret.closest<HTMLElement>('[data-testid=tweet]')
+          if (!tweetElem) {
             return
           }
-          const tweet = inspectTweetElement(elem)
+          if (tweetElem.querySelector('.redblock-btn')) {
+            return
+          }
+          const tweet = inspectTweetElement(tweetElem)
           if (!tweet) {
             return
           }
-          elem.dispatchEvent(
+          tweetElem.dispatchEvent(
             new CustomEvent<OneClickBlockableTweetElement>('RedBlock<-OnTweetElement', {
               bubbles: true,
               detail: {
@@ -202,7 +206,7 @@ interface ReduxStore {
             })
           )
           if (tweet.is_quote_status && tweet.quoted_status) {
-            elem.dispatchEvent(
+            tweetElem.dispatchEvent(
               new CustomEvent<OneClickBlockableTweetElement>('RedBlock<-OnQuotedTweetElement', {
                 bubbles: true,
                 detail: {
