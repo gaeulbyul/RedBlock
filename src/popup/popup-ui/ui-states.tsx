@@ -166,6 +166,9 @@ export function FollowerChainBlockPageStatesProvider({
   initialUser: TwitterUser | null
 }) {
   const myself = React.useContext(MyselfContext)!
+  if (!myself) {
+    return <div />
+  }
   let initialSelectionState: UserSelectionState | null
   if (initialUser) {
     initialSelectionState = {
