@@ -2,7 +2,7 @@
   "manifest_version": 2,
   "name": "Red Block",
   "author": "Gaeulbyul <aeiou256@gmail.com>",
-  "version": "0.13.2.2",
+  "version": "0.13.2.3",
   "default_locale": "en",
   "homepage_url": "https://github.com/gaeulbyul/RedBlock",
   "description": "해로운 사용자를 막는 새로운 체인블락 확장기능",
