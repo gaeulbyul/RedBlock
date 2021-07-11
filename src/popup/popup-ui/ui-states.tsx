@@ -124,18 +124,15 @@ interface LockPickerPageStates {
   availablePurposeTypes: LockPickerSessionRequest['purpose']['type'][]
 }
 
-export const FollowerChainBlockPageStatesContext = React.createContext<FollowerChainBlockPageStates>(
-  null!
-)
-export const TweetReactionChainBlockPageStatesContext = React.createContext<TweetReactionChainBlockPageStates>(
-  null!
-)
+export const FollowerChainBlockPageStatesContext =
+  React.createContext<FollowerChainBlockPageStates>(null!)
+export const TweetReactionChainBlockPageStatesContext =
+  React.createContext<TweetReactionChainBlockPageStates>(null!)
 export const ImportChainBlockPageStatesContext = React.createContext<ImportChainBlockPageStates>(
   null!
 )
-export const UserSearchChainBlockPageStatesContext = React.createContext<UserSearchChainBlockPageStates>(
-  null!
-)
+export const UserSearchChainBlockPageStatesContext =
+  React.createContext<UserSearchChainBlockPageStates>(null!)
 export const LockPickerPageStatesContext = React.createContext<LockPickerPageStates>(null!)
 
 const examineResultCache = new Map<string, Actor>()
@@ -145,6 +142,9 @@ export function FollowerChainBlockPageStatesProvider(props: {
   initialUser: TwitterUser | null
 }) {
   const myself = React.useContext(MyselfContext)!
+  if (!myself) {
+    return <div />
+  }
   const [userSelection, setUserSelection] = React.useState<UserSelectionState>({
     user: props.initialUser,
     group: props.initialUser ? 'current' : 'invalid',
@@ -162,9 +162,8 @@ export function FollowerChainBlockPageStatesProvider(props: {
     'chainunfollow',
     'export',
   ]
-  const [purpose, changePurposeType, mutatePurposeOptions] = usePurpose<
-    FollowerBlockSessionRequest['purpose']
-  >(initialPurposeType)
+  const [purpose, changePurposeType, mutatePurposeOptions] =
+    usePurpose<FollowerBlockSessionRequest['purpose']>(initialPurposeType)
   const { enableAntiBlock } = React.useContext(RedBlockOptionsContext)
   const [retriever, setRetriever] = React.useState(myself)
   React.useEffect(() => {
@@ -225,9 +224,8 @@ export function TweetReactionChainBlockPageStatesProvider(props: {
     'chainunfollow',
     'export',
   ]
-  const [purpose, changePurposeType, mutatePurposeOptions] = usePurpose<
-    TweetReactionBlockSessionRequest['purpose']
-  >('chainblock')
+  const [purpose, changePurposeType, mutatePurposeOptions] =
+    usePurpose<TweetReactionBlockSessionRequest['purpose']>('chainblock')
   const selectedTweet = props.initialTweet // TODO: make it state
   const myself = React.useContext(MyselfContext)!
   const { enableAntiBlock } = React.useContext(RedBlockOptionsContext)
@@ -290,9 +288,8 @@ export function ImportChainBlockPageStatesProvider(props: { children: React.Reac
     'unchainmute',
     'chainunfollow',
   ]
-  const [purpose, changePurposeType, mutatePurposeOptions] = usePurpose<
-    ImportBlockSessionRequest['purpose']
-  >('chainblock')
+  const [purpose, changePurposeType, mutatePurposeOptions] =
+    usePurpose<ImportBlockSessionRequest['purpose']>('chainblock')
   return (
     <ImportChainBlockPageStatesContext.Provider
       value={{
@@ -322,9 +319,8 @@ export function UserSearchChainBlockPageStatesProvider(props: {
     'unchainmute',
     'chainunfollow',
   ]
-  const [purpose, changePurposeType, mutatePurposeOptions] = usePurpose<
-    UserSearchBlockSessionRequest['purpose']
-  >('chainblock')
+  const [purpose, changePurposeType, mutatePurposeOptions] =
+    usePurpose<UserSearchBlockSessionRequest['purpose']>('chainblock')
   return (
     <UserSearchChainBlockPageStatesContext.Provider
       value={{
@@ -341,9 +337,8 @@ export function UserSearchChainBlockPageStatesProvider(props: {
 }
 
 export function LockPickerPageStatesProvider(props: { children: React.ReactNode }) {
-  const [purpose, changePurposeType, mutatePurposeOptions] = usePurpose<
-    LockPickerSessionRequest['purpose']
-  >('lockpicker')
+  const [purpose, changePurposeType, mutatePurposeOptions] =
+    usePurpose<LockPickerSessionRequest['purpose']>('lockpicker')
   return (
     <LockPickerPageStatesContext.Provider
       value={{

@@ -494,6 +494,29 @@ export async function initializeUI() {
       requestBlockLimiterStatus(me.id_str).catch(() => {})
     }
   }, UI_UPDATE_DELAY)
+  appRoot.parentElement!.style.height = `${window.innerHeight}px`
 }
 
 initializeUI()
+fixOverlayScroll()
+
+// https://davidwalsh.name/detect-scrollbar-width
+// Whale 브라우저 등 Overlay 스크롤바 모드에선 스크롤이 안 되는 버그 고침
+function fixOverlayScroll() {
+  const div = document.createElement('div')
+  Object.assign(div.style, {
+    width: '100px',
+    height: '100px',
+    overflow: 'scroll',
+    position: 'absolute',
+    top: '-9999px',
+  })
+  document.body.appendChild(div)
+  const result = div.offsetWidth - div.clientWidth
+  document.body.removeChild(div)
+  if (result !== 0) {
+    return
+  }
+  const appRoot = document.getElementById('app')!
+  appRoot.parentElement!.style.overflowY = 'auto'
+}
