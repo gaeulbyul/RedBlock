@@ -1,4 +1,4 @@
-import { getReactionsCount } from '../common'
+import { getTotalCountOfReactions } from '../common'
 
 export const enum TargetCheckResult {
   Ok = 1, // 1: if (targetCheckResult) {} 에서 falsey하게 판단하는 걸 막기 위해.
@@ -90,7 +90,7 @@ function checkTweetReactionBlockRequest({
   ) {
     return TargetCheckResult.ChooseAtLeastOneOfReaction
   }
-  const totalCountToBlock = getReactionsCount(target)
+  const totalCountToBlock = getTotalCountOfReactions(target)
   if (totalCountToBlock <= 0) {
     return TargetCheckResult.NobodyWillBlocked
   }

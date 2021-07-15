@@ -20,7 +20,7 @@ import {
 } from './components'
 import { TweetReactionChainBlockPageStatesContext, ExtraTargetContext } from './ui-states'
 import { TargetCheckResult, validateRequest } from '../../scripts/background/target-checker'
-import { findNonLinkedMentionsFromTweet, getReactionsV2CountFromTweet } from '../../scripts/common'
+import { findNonLinkedMentionsFromTweet, getReactionsV2CountsFromTweet } from '../../scripts/common'
 import * as i18n from '~~/scripts/i18n'
 
 const M = MaterialUI
@@ -99,7 +99,7 @@ function TargetReactionsV2UI({ tweet }: { tweet: Tweet }) {
   const { includedReactionsV2, setIncludedReactionsV2 } = React.useContext(
     TweetReactionChainBlockPageStatesContext
   )
-  const reactionCounts = getReactionsV2CountFromTweet(tweet)
+  const reactionCounts = getReactionsV2CountsFromTweet(tweet)
   const availableReactions: ReactionV2Kind[] = ['Like', 'Cheer', 'Hmm', 'Sad', 'Haha']
   const emojis: { [reaction in ReactionV2Kind]: string } = {
     Like: '\u2764\uFE0F',

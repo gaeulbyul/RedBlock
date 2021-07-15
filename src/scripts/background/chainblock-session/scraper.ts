@@ -2,7 +2,7 @@ import * as UserScrapingAPI from '../user-scraping-api'
 import * as ExtraScraper from './extra-scraper'
 import {
   getFollowersCount,
-  getReactionsCount,
+  getTotalCountOfReactions,
   getParticipantsInAudioSpaceCount,
   findNonLinkedMentionsFromTweet,
 } from '../../common'
@@ -113,7 +113,7 @@ export class TweetReactedUserScraper implements UserScraper {
   )
   public totalCount: number
   public constructor(private request: SessionRequest<TweetReactionSessionTarget>) {
-    this.totalCount = getReactionsCount(request.target)
+    this.totalCount = getTotalCountOfReactions(request.target)
   }
   public async *[Symbol.asyncIterator]() {
     let reactions = this.fetchReactions()

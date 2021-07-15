@@ -3,7 +3,7 @@ import {
   SessionStatus,
   getCountOfUsersToBlock,
   findNonLinkedMentionsFromTweet,
-  getReactionsV2CountFromTweet,
+  getReactionsV2CountsFromTweet,
 } from './common'
 import * as i18n from '~~/scripts/i18n'
 
@@ -149,7 +149,7 @@ function describeReactionTargets(target: TweetReactionSessionTarget): string {
   if (target.includeLikers) {
     reactionsToBlock.push(`${i18n.getMessage('like')} (${tweet.favorite_count.toLocaleString()})`)
   } else {
-    const reactionCounts = getReactionsV2CountFromTweet(tweet)
+    const reactionCounts = getReactionsV2CountsFromTweet(tweet)
     target.includedReactionsV2.forEach(reaction => {
       const count = reactionCounts[reaction]
       reactionsToBlock.push(`${i18n.reaction(reaction)} (${count.toLocaleString()})`)

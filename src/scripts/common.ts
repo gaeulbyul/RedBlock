@@ -183,8 +183,7 @@ export function getFollowersCount(user: TwitterUser, followKind: FollowKind): nu
   }
 }
 
-// TODO 이름 바꾸자 ('counts')
-export function getReactionsV2CountFromTweet(tweet: Tweet): { [react in ReactionV2Kind]: number } {
+export function getReactionsV2CountsFromTweet(tweet: Tweet): { [react in ReactionV2Kind]: number } {
   const result: { [react in ReactionV2Kind]: number } = {
     Like: 0,
     Hmm: 0,
@@ -196,8 +195,7 @@ export function getReactionsV2CountFromTweet(tweet: Tweet): { [react in Reaction
   return result
 }
 
-// TODO: 이름 바꾸자 ('total count')
-export function getReactionsCount(target: TweetReactionSessionTarget): number {
+export function getTotalCountOfReactions(target: TweetReactionSessionTarget): number {
   let result = 0
   const { retweet_count, favorite_count } = target.tweet
   const mentions = target.tweet.entities.user_mentions || []
@@ -207,7 +205,7 @@ export function getReactionsCount(target: TweetReactionSessionTarget): number {
   if (target.includeLikers) {
     result += favorite_count
   } else {
-    const v2Reactions = getReactionsV2CountFromTweet(target.tweet)
+    const v2Reactions = getReactionsV2CountsFromTweet(target.tweet)
     target.includedReactionsV2.forEach(reaction => {
       result += v2Reactions[reaction]
     })
@@ -245,7 +243,7 @@ export function getCountOfUsersToBlock({
     case 'lockpicker':
       return getFollowersCount(target.user, target.list)
     case 'tweet_reaction':
-      return getReactionsCount(target)
+      return getTotalCountOfReactions(target)
     case 'import':
       return target.userIds.length + target.userNames.length
     case 'audio_space':
