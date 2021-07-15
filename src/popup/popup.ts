@@ -3,29 +3,9 @@ import { loadOptions } from '../scripts/background/storage'
 import type { TwClient } from '../scripts/background/twitter-api'
 import { examineRetrieverByTweetId } from '../scripts/background/antiblock'
 
+export { toggleOneClickBlockMode } from '../scripts/background/misc'
+
 type Tab = browser.tabs.Tab
-
-export async function toggleOneClickBlockMode(enabled: boolean) {
-  const tab = await getCurrentTab()
-  const tabId = tab && tab.id
-  if (typeof tabId !== 'number') {
-    throw new Error()
-  }
-  return browser.tabs.sendMessage<RBMessageToContent.ToggleOneClickBlockMode>(tabId, {
-    messageType: 'ToggleOneClickBlockMode',
-    messageTo: 'content',
-    enabled,
-  })
-}
-
-export async function getCurrentTab(): Promise<Tab> {
-  const tabs = await browser.tabs.query({
-    active: true,
-    currentWindow: true,
-  })
-  const currentTab = tabs[0]!
-  return currentTab
-}
 
 export function getUserNameFromTab(tab: Tab): string | null {
   if (!tab.url) {

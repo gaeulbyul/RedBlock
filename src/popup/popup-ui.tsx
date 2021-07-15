@@ -36,7 +36,8 @@ import {
   MyTooltip,
 } from './popup-ui/components'
 import { isRunningSession } from '../scripts/common'
-import { getCurrentTab, checkMessage, getTabContext, TabContext } from './popup'
+import { getCurrentTab } from '../scripts/background/misc'
+import { checkMessage, getTabContext, TabContext } from './popup'
 import { getCookieStoreIdFromTab } from '../scripts/background/cookie-handler'
 import * as i18n from '~~/scripts/i18n'
 

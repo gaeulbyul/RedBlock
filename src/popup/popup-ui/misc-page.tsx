@@ -1,7 +1,7 @@
 import React from 'react'
 import * as MaterialUI from '@material-ui/core'
 
-import { toggleOneClickBlockMode, getCurrentTab } from '../popup'
+import { toggleOneClickBlockMode, getCurrentTab } from '../../scripts/background/misc'
 import { UIContext, MyselfContext } from './contexts'
 import { RBExpansionPanel } from './components'
 import {
@@ -40,7 +40,9 @@ export default function MiscPage() {
   const uiContext = React.useContext(UIContext)
   const myself = React.useContext(MyselfContext)
   function onClickOneClickBlockModeButtons(enable: boolean) {
-    toggleOneClickBlockMode(enable)
+    getCurrentTab().then(tab => {
+      toggleOneClickBlockMode(tab, enable)
+    })
     const modeState = enable ? 'ON' : 'OFF'
     uiContext.openSnackBar(`${i18n.getMessage('oneclick_block_mode')}: ${modeState}!`)
   }

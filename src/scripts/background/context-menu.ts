@@ -7,6 +7,7 @@ import { alertToTab } from './background'
 import { getCookieStoreIdFromTab } from './cookie-handler'
 import { loadOptions, loadUIOptions } from './storage'
 import { examineRetrieverByTargetUser } from './antiblock'
+import { toggleOneClickBlockMode } from './misc'
 import type ChainBlocker from './chainblock'
 import * as i18n from '~~/scripts/i18n'
 
@@ -23,6 +24,7 @@ const audioSpaceUrlPatterns = [
   'https://twitter.com/i/spaces/*',
   'https://mobile.twitter.com/i/spaces/*',
 ]
+const validHostNames = ['twitter.com', 'mobile.twitter.com', 'tweetdeck.twitter.com']
 
 const extraTarget: SessionRequest<AnySessionTarget>['extraTarget'] = {
   bioBlock: 'never',
@@ -350,6 +352,30 @@ export async function initializeContextMenu(
     title: i18n.getMessage('options'),
     onclick(_clickEvent, _tab) {
       browser.runtime.openOptionsPage()
+    },
+  })
+  menus.create({
+    contexts: ['browser_action'],
+    type: 'separator',
+  })
+  menus.create({
+    contexts: ['browser_action'],
+    title: `${i18n.getMessage('oneclick_block_mode')}: ON`,
+    onclick(_clickEvent, tab) {
+      const url = new URL(tab.url!)
+      if (validHostNames.includes(url.hostname)) {
+        toggleOneClickBlockMode(tab, true)
+      }
+    },
+  })
+  menus.create({
+    contexts: ['browser_action'],
+    title: `${i18n.getMessage('oneclick_block_mode')}: OFF`,
+    onclick(_clickEvent, tab) {
+      const url = new URL(tab.url!)
+      if (validHostNames.includes(url.hostname)) {
+        toggleOneClickBlockMode(tab, false)
+      }
     },
   })
 }
