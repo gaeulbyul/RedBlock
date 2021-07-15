@@ -1,4 +1,4 @@
-import { getUserNameFromURL, getAudioSpaceIdFromUrl } from '../scripts/common'
+import { TwitterURL } from '../scripts/common'
 import { loadOptions } from '../scripts/background/storage'
 import type { TwClient } from '../scripts/background/twitter-api'
 import { examineRetrieverByTweetId } from '../scripts/background/antiblock'
@@ -11,25 +11,24 @@ export function getUserNameFromTab(tab: Tab): string | null {
   if (!tab.url) {
     return null
   }
-  const url = new URL(tab.url)
-  return getUserNameFromURL(url)
+  return new TwitterURL(tab.url).getUserName()
 }
 
 function getCurrentSearchQueryFromTab(tab: Tab): string | null {
   if (!tab.url) {
     return null
   }
-  const url = new URL(tab.url)
-  if (!['twitter.com', 'mobile.twitter.com'].includes(url.hostname)) {
+  const twURL = TwitterURL.nullable(tab.url)
+  if (!twURL) {
     return null
   }
-  if (url.pathname !== '/search') {
+  if (twURL.pathname !== '/search') {
     return null
   }
-  if (url.searchParams.get('f') !== 'user') {
+  if (twURL.searchParams.get('f') !== 'user') {
     return null
   }
-  return url.searchParams.get('q') || null
+  return twURL.searchParams.get('q') || null
 }
 
 // 트윗 신고화면에선 사용자 이름 대신 ID가 나타난다.
@@ -37,16 +36,16 @@ function getUserIdFromTab(tab: Tab): string | null {
   if (!tab.url) {
     return null
   }
-  const url = new URL(tab.url)
-  if (!['twitter.com', 'mobile.twitter.com'].includes(url.host)) {
+  const twURL = TwitterURL.nullable(tab.url)
+  if (!twURL) {
     return null
   }
-  const match1 = /^\/i\/report\/user\/(\d+)/.exec(url.pathname)
+  const match1 = /^\/i\/report\/user\/(\d+)/.exec(twURL.pathname)
   if (match1) {
     return match1[1]
   }
-  const reportedUserId = url.pathname.startsWith('/i/safety/report')
-    ? url.searchParams.get('reported_user_id')
+  const reportedUserId = twURL.pathname.startsWith('/i/safety/report')
+    ? twURL.searchParams.get('reported_user_id')
     : null
   if (reportedUserId) {
     return reportedUserId
@@ -58,17 +57,17 @@ function getTweetIdFromTab(tab: Tab): string | null {
   if (!tab.url) {
     return null
   }
-  const url = new URL(tab.url)
-  if (!['twitter.com', 'mobile.twitter.com'].includes(url.host)) {
+  const twURL = TwitterURL.nullable(tab.url)
+  if (!twURL) {
     return null
   }
-  const match1 = /\/status\/(\d+)/.exec(url.pathname)
-  if (match1) {
-    return match1[1]
+  const tweetId = twURL.getTweetId()
+  if (tweetId) {
+    return tweetId
   }
   // 신고화면에서
-  const reportedTweetId = url.pathname.startsWith('/i/safety/report')
-    ? url.searchParams.get('reported_tweet_id')
+  const reportedTweetId = twURL.pathname.startsWith('/i/safety/report')
+    ? twURL.searchParams.get('reported_tweet_id')
     : null
   if (reportedTweetId) {
     return reportedTweetId
@@ -145,15 +144,15 @@ export async function getTabContext(
     }
   }
   const currentSearchQuery = getCurrentSearchQueryFromTab(tab)
-  const audioSpaceId = getAudioSpaceIdFromUrl(new URL(tab.url!))
+  const audioSpaceId = new TwitterURL(tab.url!).getAudioSpaceId()
   if (audioSpaceId) {
     currentAudioSpace = await twClient.getAudioSpaceById(audioSpaceId)
   } else if (currentTweet) {
     const spaceUrl = (currentTweet.entities.urls || [])
-      .map(({ expanded_url }) => new URL(expanded_url))
-      .find(getAudioSpaceIdFromUrl)
+      .map(({ expanded_url }) => TwitterURL.nullable(expanded_url))
+      .find(twURL => twURL?.getAudioSpaceId())
     if (spaceUrl) {
-      const audioSpaceId = getAudioSpaceIdFromUrl(spaceUrl)!
+      const audioSpaceId = new TwitterURL(spaceUrl).getAudioSpaceId()!
       currentAudioSpace = await twClient.getAudioSpaceById(audioSpaceId)
     }
   }

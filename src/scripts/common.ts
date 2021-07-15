@@ -99,28 +99,53 @@ export class TwitterUserMap extends Map<string, TwitterUser> {
   }
 }
 
-export function getUserNameFromURL(url: URL | Location | HTMLAnchorElement): string | null {
-  const supportingHostname = ['twitter.com', 'mobile.twitter.com']
-  if (!/^https?/.test(url.protocol)) {
+export class TwitterURL extends URL {
+  public constructor(url: string | URL | Location | HTMLAnchorElement) {
+    super(url.toString())
+    this.validateURL(this)
+  }
+  public static nullable(url: string | URL | Location | HTMLAnchorElement): TwitterURL | null {
+    try {
+      const twURL = new TwitterURL(url)
+      return twURL
+    } catch {
+      return null
+    }
+  }
+  public getUserName(): string | null {
+    const { pathname } = this
+    const nonUserPagePattern = /^\/[a-z]{2}\/(?:tos|privacy)/
+    if (nonUserPagePattern.test(pathname)) {
+      return null
+    }
+    const pattern = /^\/([0-9A-Za-z_]{1,15})/i
+    const match = pattern.exec(pathname)
+    if (!match) {
+      return null
+    }
+    const userName = match[1]
+    if (validateUserName(userName)) {
+      return userName
+    }
     return null
   }
-  if (!supportingHostname.includes(url.hostname)) {
-    return null
+  public getTweetId(): string | null {
+    const match = /\/status\/(\d+)/.exec(this.pathname)
+    return match && match[1]
   }
-  const nonUserPagePattern = /^\/\w\w\/(?:tos|privacy)/
-  if (nonUserPagePattern.test(url.pathname)) {
-    return null
+  public getAudioSpaceId(): string | null {
+    const match = /^\/i\/spaces\/([A-Za-z0-9]+)/.exec(this.pathname)
+    return match && match[1]
   }
-  const pattern = /^\/([0-9A-Za-z_]{1,15})/i
-  const match = pattern.exec(url.pathname)
-  if (!match) {
-    return null
+  private validateURL(url: URL | Location | HTMLAnchorElement) {
+    if (url.protocol !== 'https:') {
+      throw new Error(`invalid protocol "${this.protocol}"!`)
+    }
+    const validHostnames = ['twitter.com', 'mobile.twitter.com', 'tweetdeck.twitter.com']
+    if (!validHostnames.includes(this.hostname)) {
+      throw new Error(`invalid hostname "${this.hostname}"!`)
+    }
   }
-  const userName = match[1]
-  if (validateUserName(userName)) {
-    return userName
-  }
-  return null
 }
 
 export function validateUserName(userName: string): boolean {
@@ -129,14 +154,6 @@ export function validateUserName(userName: string): boolean {
     return false
   }
   return pattern.test(userName)
-}
-
-export function getAudioSpaceIdFromUrl(url: URL) {
-  if (!['twitter.com', 'mobile.twitter.com'].includes(url.hostname)) {
-    return null
-  }
-  const match = /^\/i\/spaces\/([A-Za-z0-9]+)/.exec(url.pathname)
-  return match && match[1]
 }
 
 export function sleep(time: number): Promise<void> {

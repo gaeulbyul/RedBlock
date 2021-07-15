@@ -1,4 +1,4 @@
-import { getUserNameFromURL, getAudioSpaceIdFromUrl } from '../common'
+import { TwitterURL } from '../common'
 import { defaultChainBlockPurposeOptions } from './chainblock-session/default-options'
 import * as TwitterAPI from './twitter-api'
 import { TargetCheckResult } from './target-checker'
@@ -24,15 +24,9 @@ const audioSpaceUrlPatterns = [
   'https://twitter.com/i/spaces/*',
   'https://mobile.twitter.com/i/spaces/*',
 ]
-const validHostNames = ['twitter.com', 'mobile.twitter.com', 'tweetdeck.twitter.com']
 
 const extraTarget: SessionRequest<AnySessionTarget>['extraTarget'] = {
   bioBlock: 'never',
-}
-
-function getTweetIdFromUrl(url: URL) {
-  const match = /\/status\/(\d+)/.exec(url.pathname)
-  return match && match[1]
 }
 
 async function sendConfirmToTab(tab: BrowserTab, request: SessionRequest<AnySessionTarget>) {
@@ -196,8 +190,8 @@ export async function initializeContextMenu(
     title: i18n.getMessage('run_followers_chainblock_to_this_user'),
     visible: enabledMenus.chainBlockFollowers,
     onclick(clickEvent, tab) {
-      const url = new URL(clickEvent.linkUrl!)
-      const userName = getUserNameFromURL(url)!
+      const twURL = new TwitterURL(clickEvent.linkUrl!)
+      const userName = twURL.getUserName()!
       confirmFollowerChainBlockRequest(tab, chainblocker, userName, 'followers')
     },
   })
@@ -208,8 +202,8 @@ export async function initializeContextMenu(
     title: i18n.getMessage('run_followings_chainblock_to_this_user'),
     visible: enabledMenus.chainBlockFollowings,
     onclick(clickEvent, tab) {
-      const url = new URL(clickEvent.linkUrl!)
-      const userName = getUserNameFromURL(url)!
+      const twURL = new TwitterURL(clickEvent.linkUrl!)
+      const userName = twURL.getUserName()!
       confirmFollowerChainBlockRequest(tab, chainblocker, userName, 'friends')
     },
   })
@@ -220,8 +214,8 @@ export async function initializeContextMenu(
     title: i18n.getMessage('run_mutual_followers_chainblock_to_this_user'),
     visible: enabledMenus.chainBlockMutualFollowers,
     onclick(clickEvent, tab) {
-      const url = new URL(clickEvent.linkUrl!)
-      const userName = getUserNameFromURL(url)!
+      const twURL = new TwitterURL(clickEvent.linkUrl!)
+      const userName = twURL.getUserName()!
       confirmFollowerChainBlockRequest(tab, chainblocker, userName, 'mutual-followers')
     },
   })
@@ -238,8 +232,8 @@ export async function initializeContextMenu(
     title: i18n.getMessage('run_retweeters_chainblock_to_this_tweet'),
     visible: enabledMenus.chainBlockRetweeters,
     onclick(clickEvent, tab) {
-      const url = new URL(clickEvent.linkUrl!)
-      const tweetId = getTweetIdFromUrl(url)!
+      const twURL = new TwitterURL(clickEvent.linkUrl!)
+      const tweetId = twURL.getTweetId()!
       confirmTweetReactionChainBlockRequest(tab, chainblocker, tweetId, {
         includeRetweeters: true,
         includeLikers: false,
@@ -256,8 +250,8 @@ export async function initializeContextMenu(
     title: i18n.getMessage('run_likers_chainblock_to_this_tweet'),
     visible: enabledMenus.chainBlockLikers,
     onclick(clickEvent, tab) {
-      const url = new URL(clickEvent.linkUrl!)
-      const tweetId = getTweetIdFromUrl(url)!
+      const twURL = new TwitterURL(clickEvent.linkUrl!)
+      const tweetId = twURL.getTweetId()!
       confirmTweetReactionChainBlockRequest(tab, chainblocker, tweetId, {
         includeRetweeters: false,
         includeLikers: true,
@@ -274,8 +268,8 @@ export async function initializeContextMenu(
     title: i18n.getMessage('run_retweeters_and_likers_chainblock_to_this_tweet'),
     visible: enabledMenus.chainBlockRetweetersAndLikers,
     onclick(clickEvent, tab) {
-      const url = new URL(clickEvent.linkUrl!)
-      const tweetId = getTweetIdFromUrl(url)!
+      const twURL = new TwitterURL(clickEvent.linkUrl!)
+      const tweetId = twURL.getTweetId()!
       confirmTweetReactionChainBlockRequest(tab, chainblocker, tweetId, {
         includeRetweeters: true,
         includeLikers: true,
@@ -292,8 +286,8 @@ export async function initializeContextMenu(
     title: i18n.getMessage('run_mentioned_users_chainblock_to_this_tweet'),
     visible: enabledMenus.chainBlockMentioned,
     onclick(clickEvent, tab) {
-      const url = new URL(clickEvent.linkUrl!)
-      const tweetId = getTweetIdFromUrl(url)!
+      const twURL = new TwitterURL(clickEvent.linkUrl!)
+      const tweetId = twURL.getTweetId()!
       confirmTweetReactionChainBlockRequest(tab, chainblocker, tweetId, {
         includeRetweeters: false,
         includeLikers: false,
@@ -311,8 +305,8 @@ export async function initializeContextMenu(
     visible:
       enabledMenus.chainBlockAudioSpaceSpeakers && redblockOptions.experimentallyEnableAudioSpace,
     onclick(clickEvent, tab) {
-      const url = new URL(clickEvent.linkUrl!)
-      const audioSpaceId = getAudioSpaceIdFromUrl(url)!
+      const twURL = new TwitterURL(clickEvent.linkUrl!)
+      const audioSpaceId = twURL.getAudioSpaceId()!
       confirmAudioSpaceChainBlockRequest(tab, chainblocker, audioSpaceId, {
         includeHostsAndSpeakers: true,
         includeListeners: false,
@@ -327,8 +321,8 @@ export async function initializeContextMenu(
     visible:
       enabledMenus.chainBlockAudioSpaceSpeakers && redblockOptions.experimentallyEnableAudioSpace,
     onclick(clickEvent, tab) {
-      const url = new URL(clickEvent.linkUrl!)
-      const audioSpaceId = getAudioSpaceIdFromUrl(url)!
+      const twURL = new TwitterURL(clickEvent.linkUrl!)
+      const audioSpaceId = twURL.getAudioSpaceId()!
       confirmAudioSpaceChainBlockRequest(tab, chainblocker, audioSpaceId, {
         includeHostsAndSpeakers: true,
         includeListeners: true,
@@ -362,8 +356,7 @@ export async function initializeContextMenu(
     contexts: ['browser_action'],
     title: `${i18n.getMessage('oneclick_block_mode')}: ON`,
     onclick(_clickEvent, tab) {
-      const url = new URL(tab.url!)
-      if (validHostNames.includes(url.hostname)) {
+      if (TwitterURL.nullable(tab.url!)) {
         toggleOneClickBlockMode(tab, true)
       }
     },
@@ -372,8 +365,7 @@ export async function initializeContextMenu(
     contexts: ['browser_action'],
     title: `${i18n.getMessage('oneclick_block_mode')}: OFF`,
     onclick(_clickEvent, tab) {
-      const url = new URL(tab.url!)
-      if (validHostNames.includes(url.hostname)) {
+      if (TwitterURL.nullable(tab.url!)) {
         toggleOneClickBlockMode(tab, false)
       }
     },
