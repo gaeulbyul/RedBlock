@@ -177,15 +177,6 @@ const menus = new Proxy<typeof browser.menus>({} as any, {
   },
 })
 
-function optionallyCreateMenu(
-  visible: boolean,
-  menuCreateParameter: Parameters<typeof browser.menus.create>[0]
-) {
-  if (visible) {
-    menus.create(menuCreateParameter)
-  }
-}
-
 let connectedChainblocker: ChainBlocker | null = null
 
 export async function initializeContextMenu(
@@ -196,33 +187,36 @@ export async function initializeContextMenu(
   await menus.removeAll()
   const redblockOptions = await loadOptions()
   // 우클릭 - 유저
-  optionallyCreateMenu(enabledMenus.chainBlockFollowers, {
+  menus.create({
     contexts: ['link'],
     documentUrlPatterns,
     targetUrlPatterns: urlPatterns,
     title: i18n.getMessage('run_followers_chainblock_to_this_user'),
+    visible: enabledMenus.chainBlockFollowers,
     onclick(clickEvent, tab) {
       const url = new URL(clickEvent.linkUrl!)
       const userName = getUserNameFromURL(url)!
       confirmFollowerChainBlockRequest(tab, chainblocker, userName, 'followers')
     },
   })
-  optionallyCreateMenu(enabledMenus.chainBlockFollowings, {
+  menus.create({
     contexts: ['link'],
     documentUrlPatterns,
     targetUrlPatterns: urlPatterns,
     title: i18n.getMessage('run_followings_chainblock_to_this_user'),
+    visible: enabledMenus.chainBlockFollowings,
     onclick(clickEvent, tab) {
       const url = new URL(clickEvent.linkUrl!)
       const userName = getUserNameFromURL(url)!
       confirmFollowerChainBlockRequest(tab, chainblocker, userName, 'friends')
     },
   })
-  optionallyCreateMenu(enabledMenus.chainBlockMutualFollowers, {
+  menus.create({
     contexts: ['link'],
     documentUrlPatterns,
     targetUrlPatterns: urlPatterns,
     title: i18n.getMessage('run_mutual_followers_chainblock_to_this_user'),
+    visible: enabledMenus.chainBlockMutualFollowers,
     onclick(clickEvent, tab) {
       const url = new URL(clickEvent.linkUrl!)
       const userName = getUserNameFromURL(url)!
@@ -235,11 +229,12 @@ export async function initializeContextMenu(
     type: 'separator',
   })
   // 우클릭 - 트윗
-  optionallyCreateMenu(enabledMenus.chainBlockRetweeters, {
+  menus.create({
     contexts: ['link'],
     documentUrlPatterns,
     targetUrlPatterns: tweetUrlPatterns,
     title: i18n.getMessage('run_retweeters_chainblock_to_this_tweet'),
+    visible: enabledMenus.chainBlockRetweeters,
     onclick(clickEvent, tab) {
       const url = new URL(clickEvent.linkUrl!)
       const tweetId = getTweetIdFromUrl(url)!
@@ -252,11 +247,12 @@ export async function initializeContextMenu(
       })
     },
   })
-  optionallyCreateMenu(enabledMenus.chainBlockLikers, {
+  menus.create({
     contexts: ['link'],
     documentUrlPatterns,
     targetUrlPatterns: tweetUrlPatterns,
     title: i18n.getMessage('run_likers_chainblock_to_this_tweet'),
+    visible: enabledMenus.chainBlockLikers,
     onclick(clickEvent, tab) {
       const url = new URL(clickEvent.linkUrl!)
       const tweetId = getTweetIdFromUrl(url)!
@@ -269,11 +265,12 @@ export async function initializeContextMenu(
       })
     },
   })
-  optionallyCreateMenu(enabledMenus.chainBlockRetweetersAndLikers, {
+  menus.create({
     contexts: ['link'],
     documentUrlPatterns,
     targetUrlPatterns: tweetUrlPatterns,
     title: i18n.getMessage('run_retweeters_and_likers_chainblock_to_this_tweet'),
+    visible: enabledMenus.chainBlockRetweetersAndLikers,
     onclick(clickEvent, tab) {
       const url = new URL(clickEvent.linkUrl!)
       const tweetId = getTweetIdFromUrl(url)!
@@ -286,11 +283,12 @@ export async function initializeContextMenu(
       })
     },
   })
-  optionallyCreateMenu(enabledMenus.chainBlockMentioned, {
+  menus.create({
     contexts: ['link'],
     documentUrlPatterns,
     targetUrlPatterns: tweetUrlPatterns,
     title: i18n.getMessage('run_mentioned_users_chainblock_to_this_tweet'),
+    visible: enabledMenus.chainBlockMentioned,
     onclick(clickEvent, tab) {
       const url = new URL(clickEvent.linkUrl!)
       const tweetId = getTweetIdFromUrl(url)!
@@ -303,40 +301,38 @@ export async function initializeContextMenu(
       })
     },
   })
-  optionallyCreateMenu(
-    enabledMenus.chainBlockAudioSpaceSpeakers && redblockOptions.experimentallyEnableAudioSpace,
-    {
-      contexts: ['link'],
-      documentUrlPatterns,
-      targetUrlPatterns: audioSpaceUrlPatterns,
-      title: i18n.getMessage('run_chainblock_from_audio_space_hosts_and_speakers'),
-      onclick(clickEvent, tab) {
-        const url = new URL(clickEvent.linkUrl!)
-        const audioSpaceId = getAudioSpaceIdFromUrl(url)!
-        confirmAudioSpaceChainBlockRequest(tab, chainblocker, audioSpaceId, {
-          includeHostsAndSpeakers: true,
-          includeListeners: false,
-        })
-      },
-    }
-  )
-  optionallyCreateMenu(
-    enabledMenus.chainBlockAudioSpaceSpeakers && redblockOptions.experimentallyEnableAudioSpace,
-    {
-      contexts: ['link'],
-      documentUrlPatterns,
-      targetUrlPatterns: audioSpaceUrlPatterns,
-      title: i18n.getMessage('run_chainblock_from_audio_space_all'),
-      onclick(clickEvent, tab) {
-        const url = new URL(clickEvent.linkUrl!)
-        const audioSpaceId = getAudioSpaceIdFromUrl(url)!
-        confirmAudioSpaceChainBlockRequest(tab, chainblocker, audioSpaceId, {
-          includeHostsAndSpeakers: true,
-          includeListeners: true,
-        })
-      },
-    }
-  )
+  menus.create({
+    contexts: ['link'],
+    documentUrlPatterns,
+    targetUrlPatterns: audioSpaceUrlPatterns,
+    title: i18n.getMessage('run_chainblock_from_audio_space_hosts_and_speakers'),
+    visible:
+      enabledMenus.chainBlockAudioSpaceSpeakers && redblockOptions.experimentallyEnableAudioSpace,
+    onclick(clickEvent, tab) {
+      const url = new URL(clickEvent.linkUrl!)
+      const audioSpaceId = getAudioSpaceIdFromUrl(url)!
+      confirmAudioSpaceChainBlockRequest(tab, chainblocker, audioSpaceId, {
+        includeHostsAndSpeakers: true,
+        includeListeners: false,
+      })
+    },
+  })
+  menus.create({
+    contexts: ['link'],
+    documentUrlPatterns,
+    targetUrlPatterns: audioSpaceUrlPatterns,
+    title: i18n.getMessage('run_chainblock_from_audio_space_all'),
+    visible:
+      enabledMenus.chainBlockAudioSpaceSpeakers && redblockOptions.experimentallyEnableAudioSpace,
+    onclick(clickEvent, tab) {
+      const url = new URL(clickEvent.linkUrl!)
+      const audioSpaceId = getAudioSpaceIdFromUrl(url)!
+      confirmAudioSpaceChainBlockRequest(tab, chainblocker, audioSpaceId, {
+        includeHostsAndSpeakers: true,
+        includeListeners: true,
+      })
+    },
+  })
   // 확장기능버튼
   menus.create({
     contexts: ['browser_action'],
