@@ -8,7 +8,7 @@ interface RedBlockStorage {
     removeSessionAfterComplete: boolean
     skipInactiveUser: InactivePeriod
     revealBioBlockMode: boolean
-    enableAntiBlock: boolean
+    enableBlockBuster: boolean
     firstPartyIsolationCompatibleMode: boolean
     delayBlockRequest: number
     muteEvenAlreadyBlocking: boolean

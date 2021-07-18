@@ -30,7 +30,7 @@ class SimpleScraper implements UserScraper {
   public async *[Symbol.asyncIterator]() {
     const { user } = this.request.target
     if (user.blocked_by) {
-      yield* this.iterateAntiblock()
+      yield* this.iterateBlockBuster()
     } else {
       yield* this.iterateNormally()
     }
@@ -48,7 +48,7 @@ class SimpleScraper implements UserScraper {
     )
     yield* scraper
   }
-  private async *iterateAntiblock() {
+  private async *iterateBlockBuster() {
     const { user, list: followKind } = this.request.target
     const idsIterator = this.retrieverScrapingClient.getAllFollowsIds(followKind, user)
     for await (const response of idsIterator) {
@@ -81,7 +81,7 @@ class MutualFollowerScraper implements UserScraper {
     const { user } = this.request.target
     let mutualFollowersIds: string[]
     if (user.blocked_by) {
-      mutualFollowersIds = await this.getMutualFollowersIdsAntiblock()
+      mutualFollowersIds = await this.getMutualFollowersIdsBlockBuster()
     } else {
       mutualFollowersIds = await this.getMutualFollowersIdsNormally()
     }
@@ -98,7 +98,7 @@ class MutualFollowerScraper implements UserScraper {
   private async getMutualFollowersIdsNormally() {
     return this.executorScrapingClient.getAllMutualFollowersIds(this.request.target.user)
   }
-  private async getMutualFollowersIdsAntiblock() {
+  private async getMutualFollowersIdsBlockBuster() {
     return this.retrieverScrapingClient.getAllMutualFollowersIds(this.request.target.user)
   }
 }
@@ -117,8 +117,8 @@ export class TweetReactedUserScraper implements UserScraper {
   }
   public async *[Symbol.asyncIterator]() {
     let reactions = this.fetchReactions()
-    const isAntiblock = this.request.retriever.user.id_str !== this.request.executor.user.id_str
-    if (isAntiblock) {
+    const isBlockBuster = this.request.retriever.user.id_str !== this.request.executor.user.id_str
+    if (isBlockBuster) {
       reactions = this.rehydrate(reactions)
     }
     yield* reactions

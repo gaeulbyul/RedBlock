@@ -30,16 +30,16 @@ export default function ExperimentalOptionsPages() {
           <M.Divider />
           <M.FormGroup>
             <SwitchItem
-              checked={options.enableAntiBlock}
-              label={i18n.getMessage('enable_antiblock')}
+              checked={options.enableBlockBuster}
+              label={i18n.getMessage('enable_blockbuster')}
               onChange={checked =>
                 updateOptions({
-                  enableAntiBlock: checked,
+                  enableBlockBuster: checked,
                 })
               }
             />
           </M.FormGroup>
-          <M.FormHelperText>{i18n.getMessage('antiblock_description')}</M.FormHelperText>
+          <M.FormHelperText>{i18n.getMessage('blockbuster_description')}</M.FormHelperText>
           <M.Divider variant="middle" />
           <M.FormGroup>
             <SwitchItem

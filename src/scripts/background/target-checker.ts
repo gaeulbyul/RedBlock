@@ -53,7 +53,7 @@ function checkFollowerBlockRequest({
   if (target.user.id_str === retriever.user.id_str || target.user.id_str === executor.user.id_str) {
     return TargetCheckResult.CantChainBlockYourself
   }
-  if (target.user.blocked_by && !options.enableAntiBlock) {
+  if (target.user.blocked_by && !options.enableBlockBuster) {
     return TargetCheckResult.TheyBlocksYou
   }
   if (target.list === 'followers' && followers_count <= 0) {

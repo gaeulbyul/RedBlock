@@ -873,8 +873,8 @@
   "its_you": {
     "message": "It's you!"
   },
-  "enable_antiblock": {
-    "message": "Enable AntiBlock"
+  "enable_blockbuster": {
+    "message": "Enable BlockBuster"
   },
   "enable_bioblock": {
     "message": "Enable BioBlock"
@@ -882,7 +882,7 @@
   "1st_party_isolation_compatible_mode": {
     "message": "Compatible Firefox's 1st-party isolation mode."
   },
-  "antiblock_description": {
+  "blockbuster_description": {
     "message": "You can run Chain-block to the user, even they block you. Note that this feature requires logged in with two or more accounts and at least one of the accounts should be able to see their's followers list."
   },
   "1st_party_isolation_compatible_mode_description": {

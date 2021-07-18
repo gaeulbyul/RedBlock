@@ -41,7 +41,7 @@ Currently, Red Block uses the "webRequest" API for several features.
 - Supporting Firefox's container tab feature.
 - Supporting Incognito (Private) mode.
 - Detect and prevent blocking more than 500 users. (block limiter)
-- Run Chainblock to the user even they blocking you (Experimental feature called "AntiBlock")
+- Run Chainblock to the user even they blocking you (Experimental feature)
 
 But, Chrome will restrict this `webRequest` API in the future. (see: https://developer.chrome.com/docs/extensions/mv3/intro/mv3-migration/#modifying-network-requests ) so Red Block may change or remove these features. Note that it doesn't affect Firefox and other web browsers that based on Firefox (such as Ghostery Dawn, Librewolf Browser)
 

@@ -6,7 +6,7 @@ import { generateConfirmMessage, checkResultToString, objToString } from '../tex
 import { alertToTab } from './background'
 import { getCookieStoreIdFromTab } from './cookie-handler'
 import { loadOptions, loadUIOptions } from './storage'
-import { examineRetrieverByTargetUser } from './antiblock'
+import { examineRetrieverByTargetUser } from './blockbuster'
 import { toggleOneClickBlockMode } from './misc'
 import type ChainBlocker from './chainblock'
 import * as i18n from '~~/scripts/i18n'
@@ -59,7 +59,7 @@ async function confirmChainBlockRequest(
 ) {
   const options = await loadOptions()
   let retriever: Actor
-  if (target.type === 'follower' && options.enableAntiBlock) {
+  if (target.type === 'follower' && options.enableBlockBuster) {
     retriever = (await examineRetrieverByTargetUser(executor, target.user)) || executor
   } else {
     retriever = executor

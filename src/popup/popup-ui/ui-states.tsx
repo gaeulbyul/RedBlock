@@ -10,7 +10,7 @@ import { MyselfContext, RetrieverContext, RedBlockOptionsContext } from './conte
 import {
   examineRetrieverByTargetUser,
   examineRetrieverByTweetId,
-} from '../../scripts/background/antiblock'
+} from '../../scripts/background/blockbuster'
 import type { TargetGroup } from './components/target-selector'
 import type { ReactionV2Kind } from '../../scripts/background/twitter-api'
 
@@ -193,7 +193,7 @@ export function FollowerChainBlockPageStatesProvider({
   ]
   const [purpose, changePurposeType, mutatePurposeOptions] =
     usePurpose<SessionRequest<FollowerSessionTarget>['purpose']>(initialPurposeType)
-  const { enableAntiBlock } = React.useContext(RedBlockOptionsContext)
+  const { enableBlockBuster } = React.useContext(RedBlockOptionsContext)
   const [retriever, setRetriever] = React.useState<Actor>(myself)
   React.useEffect(() => {
     async function examine(selectedUser: TwitterUser) {
@@ -207,12 +207,12 @@ export function FollowerChainBlockPageStatesProvider({
       }
     }
     const selectedUser = userSelection?.user
-    if (enableAntiBlock && selectedUser) {
+    if (enableBlockBuster && selectedUser) {
       examine(selectedUser)
     } else {
       setRetriever(myself)
     }
-  }, [userSelection, enableAntiBlock])
+  }, [userSelection, enableBlockBuster])
   return (
     <FollowerChainBlockPageStatesContext.Provider
       value={{
@@ -258,7 +258,7 @@ export function TweetReactionChainBlockPageStatesProvider({
     usePurpose<SessionRequest<TweetReactionSessionTarget>['purpose']>('chainblock')
   const selectedTweet = initialTweet // TODO: make it state
   const myself = React.useContext(MyselfContext)!
-  const { enableAntiBlock } = React.useContext(RedBlockOptionsContext)
+  const { enableBlockBuster } = React.useContext(RedBlockOptionsContext)
   const [retriever, setRetriever] = React.useState<Actor>(myself)
   React.useEffect(() => {
     async function examine(tweetId: string) {
@@ -272,12 +272,12 @@ export function TweetReactionChainBlockPageStatesProvider({
       }
     }
     const selectedTweetId = selectedTweet?.id_str
-    if (enableAntiBlock && selectedTweetId) {
+    if (enableBlockBuster && selectedTweetId) {
       examine(selectedTweetId)
     } else {
       setRetriever(myself)
     }
-  }, [selectedTweet, enableAntiBlock])
+  }, [selectedTweet, enableBlockBuster])
   return (
     <TweetReactionChainBlockPageStatesContext.Provider
       value={{

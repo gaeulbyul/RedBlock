@@ -46,10 +46,10 @@ export async function examineRetrieverByTargetUser(
   }
   const twClients = iterateAvailableTwClients()
   for await (const client of twClients) {
-    console.debug('[AntiBlock]: secondaryTwClient:%o', client)
+    console.debug('[BlockBuster]: secondaryTwClient:%o', client)
     const clientSelf = await client.getMyself().catch(() => null)
     if (!clientSelf) {
-      console.debug('[AntiBlock]: login check fail. skip.')
+      console.debug('[BlockBuster]: login check fail. skip.')
       continue
     }
     if (clientSelf.id_str === primaryActor.user.id_str) {
@@ -57,11 +57,11 @@ export async function examineRetrieverByTargetUser(
     }
     const target = await client.getSingleUser({ user_id: targetUser.id_str }).catch(() => null)
     if (target && !target.blocked_by) {
-      console.debug('[AntiBlock]: Found! will use %o', client)
+      console.debug('[BlockBuster]: Found! will use %o', client)
       return { user: clientSelf, clientOptions: client.options }
     }
   }
-  console.warn('[AntiBlock]: Failed to Found!')
+  console.warn('[BlockBuster]: Failed to Found!')
   return null
 }
 
@@ -82,10 +82,10 @@ export async function examineRetrieverByTweetId(
   }
   const twClients = iterateAvailableTwClients()
   for await (const client of twClients) {
-    console.debug('[AntiBlock]: secondaryTwClient:%o', client)
+    console.debug('[BlockBuster]: secondaryTwClient:%o', client)
     const clientSelf = await client.getMyself().catch(() => null)
     if (!clientSelf) {
-      console.debug('[AntiBlock]: login check fail. skip.')
+      console.debug('[BlockBuster]: login check fail. skip.')
       continue
     }
     if (clientSelf.id_str === primaryActor.user.id_str) {
@@ -93,7 +93,7 @@ export async function examineRetrieverByTweetId(
     }
     const targetTweet = await client.getTweetById(tweetId).catch(() => null)
     if (targetTweet && !targetTweet.user.blocked_by) {
-      console.debug('[AntiBlock]: Found! will use %o', client)
+      console.debug('[BlockBuster]: Found! will use %o', client)
       return {
         targetTweet,
         tweetRetrievedFromPrimary: false,

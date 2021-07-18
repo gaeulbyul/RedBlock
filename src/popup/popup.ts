@@ -1,7 +1,7 @@
 import { TwitterURL } from '../scripts/common'
 import { loadOptions } from '../scripts/background/storage'
 import type { TwClient } from '../scripts/background/twitter-api'
-import { examineRetrieverByTweetId } from '../scripts/background/antiblock'
+import { examineRetrieverByTweetId } from '../scripts/background/blockbuster'
 
 export { toggleOneClickBlockMode } from '../scripts/background/misc'
 
@@ -121,7 +121,7 @@ export async function getTabContext(
   let currentUser: TwitterUser | null = null
   let currentAudioSpace: AudioSpace | null = null
   if (tweetId) {
-    if (options.enableAntiBlock) {
+    if (options.enableBlockBuster) {
       const result = await examineRetrieverByTweetId(myself, tweetId)
       if (result) {
         currentTweet = result.targetTweet
