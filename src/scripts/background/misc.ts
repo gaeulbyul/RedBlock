@@ -1,3 +1,5 @@
+import { loadOptions } from './storage'
+
 export async function markUser(params: MarkUserParams) {
   const tabs = await browser.tabs.query({
     discarded: false,
@@ -28,13 +30,35 @@ export async function getCurrentTab(): Promise<browser.tabs.Tab> {
 }
 
 export async function toggleOneClickBlockMode(tab: browser.tabs.Tab, enabled: boolean) {
-  const tabId = tab.id
-  if (typeof tabId !== 'number') {
-    throw new Error()
+  const tabIds: number[] = []
+  const { oneClickBlockModeForAllTabs } = await loadOptions()
+  if (oneClickBlockModeForAllTabs) {
+    const tabs = await browser.tabs.query({
+      discarded: false,
+      url: [
+        'https://twitter.com/*',
+        'https://mobile.twitter.com/*',
+        'https://tweetdeck.twitter.com/*',
+      ],
+    })
+    tabs.forEach(tab => {
+      if (typeof tab.id === 'number') {
+        tabIds.push(tab.id)
+      }
+    })
+  } else {
+    const tabId = tab.id
+    if (typeof tabId === 'number') {
+      tabIds.push(tabId)
+    }
   }
-  return browser.tabs.sendMessage<RBMessageToContent.ToggleOneClickBlockMode>(tabId, {
-    messageType: 'ToggleOneClickBlockMode',
-    messageTo: 'content',
-    enabled,
-  })
+  return await Promise.all(
+    tabIds.map(tabId =>
+      browser.tabs.sendMessage(tabId, {
+        messageType: 'ToggleOneClickBlockMode',
+        messageTo: 'content',
+        enabled,
+      })
+    )
+  )
 }

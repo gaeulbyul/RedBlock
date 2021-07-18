@@ -4,6 +4,7 @@ import sortBy from 'lodash-es/sortBy'
 import * as i18n from '~~/scripts/i18n'
 
 import * as Storage from '../../scripts/background/storage'
+import { RedBlockOptionsContext } from './contexts'
 
 const M = MaterialUI
 
@@ -185,11 +186,25 @@ function BadwordsTable() {
 }
 
 export default function OneClickBlockOptions() {
+  const { options, updateOptions } = React.useContext(RedBlockOptionsContext)
   return (
     <M.Paper>
       <M.Box padding="10px" margin="10px">
         <M.FormControl component="fieldset" fullWidth>
           <M.FormLabel component="legend">원클릭차단 / One-click block</M.FormLabel>
+          <M.Divider />
+          <M.FormGroup>
+            <M.FormControlLabel
+              control={<M.Checkbox size="small" />}
+              onChange={(_event, checked) =>
+                updateOptions({
+                  oneClickBlockModeForAllTabs: checked,
+                })
+              }
+              checked={options.oneClickBlockModeForAllTabs}
+              label={i18n.getMessage('oneclick_block_mode_apply_all_tabs')}
+            />
+          </M.FormGroup>
           <M.Divider />
           <BadwordsTable />
         </M.FormControl>

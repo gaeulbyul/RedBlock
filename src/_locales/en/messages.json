@@ -852,6 +852,9 @@
   "oneclick_block_mode_description": {
     "message": "A Oneclick-block button will appear on users or tweets."
   },
+  "oneclick_block_mode_apply_all_tabs": {
+    "message": "Toggling Oneclick-block mode will apply to all tabs."
+  },
   "troubleshooting": {
     "message": "Troubleshooting"
   },

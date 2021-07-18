@@ -46,6 +46,7 @@ export const defaultOptions = Object.freeze<RedBlockOptions>({
   muteEvenAlreadyBlocking: false,
   experimentallyEnableAudioSpace: false,
   enableReactionsV2Support: false,
+  oneClickBlockModeForAllTabs: false,
 })
 
 export const defaultUIOptions = Object.freeze<RedBlockUIOptions>({

@@ -14,6 +14,7 @@ interface RedBlockStorage {
     muteEvenAlreadyBlocking: boolean
     experimentallyEnableAudioSpace: boolean
     enableReactionsV2Support: boolean
+    oneClickBlockModeForAllTabs: boolean
   }
   uiOptions: {
     menus: {

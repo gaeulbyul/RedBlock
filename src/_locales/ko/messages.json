@@ -852,6 +852,9 @@
   "oneclick_block_mode_description": {
     "message": "유저나 트윗에 원클릭 차단버튼이 생깁니다."
   },
+  "oneclick_block_mode_apply_all_tabs": {
+    "message": "원클릭 차단모드 전환을 전체 탭에 적용합니다."
+  },
   "troubleshooting": {
     "message": "문제해결"
   },
