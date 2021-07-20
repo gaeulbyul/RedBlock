@@ -43,15 +43,18 @@ export function validateRequest(request: SessionRequest<AnySessionTarget>): Targ
 function checkFollowerBlockRequest({
   target,
   options,
-  retriever,
   executor,
 }: SessionRequest<FollowerSessionTarget>): TargetCheckResult {
   const { followers_count, friends_count } = target.user
-  if (target.user.protected && !target.user.following) {
+  const targetIsMe = target.user.id_str === executor.user.id_str
+  if (target.user.protected && !(target.user.following || targetIsMe)) {
     return TargetCheckResult.Protected
   }
-  if (target.user.id_str === retriever.user.id_str || target.user.id_str === executor.user.id_str) {
-    return TargetCheckResult.CantChainBlockYourself
+  if (targetIsMe) {
+    const { allowSelfChainBlock } = options
+    if (!allowSelfChainBlock) {
+      return TargetCheckResult.CantChainBlockYourself
+    }
   }
   if (target.user.blocked_by && !options.enableBlockBuster) {
     return TargetCheckResult.TheyBlocksYou

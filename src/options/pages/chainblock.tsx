@@ -81,6 +81,18 @@ function ChainBlockOptionsPaper() {
               label={i18n.getMessage('mute_even_already_blocked')}
             />
           </M.FormGroup>
+          <M.FormGroup>
+            <M.FormControlLabel
+              control={<M.Checkbox size="small" />}
+              onChange={(_event, checked) =>
+                updateOptions({
+                  allowSelfChainBlock: checked,
+                })
+              }
+              checked={options.allowSelfChainBlock}
+              label={i18n.getMessage('allow_self_chainblock')}
+            />
+          </M.FormGroup>
           <br />
           <BlockDelaySlider />
           <br />

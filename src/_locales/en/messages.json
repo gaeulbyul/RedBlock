@@ -926,5 +926,8 @@
   },
   "enable_reactions_v2_description": {
     "message": "Red Block can Chain-block to users who reacted with new reactions. (ex. \"Hmm\", \"Haha\", ...)"
+  },
+  "allow_self_chainblock": {
+    "message": "Allow running Chain-block to me."
   }
 }

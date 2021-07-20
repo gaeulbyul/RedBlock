@@ -926,5 +926,8 @@
   },
   "enable_reactions_v2_description": {
     "message": "트윗 체인블락이 새로운 트윗반응을 지원하도록 합니다. (예: \"생각 중\", \"재밌어요\")"
+  },
+  "allow_self_chainblock": {
+    "message": "나 자신에게 체인블락을 허용하기"
   }
 }

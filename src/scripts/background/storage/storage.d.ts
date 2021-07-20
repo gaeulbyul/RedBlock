@@ -15,6 +15,7 @@ interface RedBlockStorage {
     experimentallyEnableAudioSpace: boolean
     enableReactionsV2Support: boolean
     oneClickBlockModeForAllTabs: boolean
+    allowSelfChainBlock: boolean
   }
   uiOptions: {
     menus: {
