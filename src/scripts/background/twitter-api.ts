@@ -258,14 +258,14 @@ export class TwClient {
     const queryData = await getQueryDataByOperationName('AudioSpaceById')
     return await this.requestGraphQL(queryData, {
       id: spaceId,
-      withNonLegacyCard: true,
+      isMetatagsQuery: false,
       withTweetResult: true,
       withReactions: true,
       withSuperFollowsTweetFields: true,
+      withSuperFollowsUserFields: true,
       withUserResults: true,
       withBirdwatchPivots: true,
       withScheduledSpaces: true,
-      withTweetQuoteCount: true,
     }).then(response => response.data.audioSpace)
   }
   public async getTweetReactionV2Timeline(tweet: Tweet): Promise<ReactionV2Timeline> {
