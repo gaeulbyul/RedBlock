@@ -399,7 +399,7 @@ export class ExportSession extends BaseSession {
         break
       case 'audio_space':
         prefix = 'blocklist-'
-        targetStr = `audiospace-${target.audioSpace.title}`
+        targetStr = `audiospace-${target.audioSpace.metadata.title}`
         break
       case 'export_my_blocklist':
         prefix = 'blocked-users'

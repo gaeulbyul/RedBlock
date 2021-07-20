@@ -134,7 +134,7 @@ function checkAudioSpaceBlockRequest({
   target,
 }: SessionRequest<AudioSpaceSessionTarget>): TargetCheckResult {
   const { audioSpace, includeHostsAndSpeakers, includeListeners } = target
-  if (audioSpace.state === 'NotStarted') {
+  if (audioSpace.metadata.state === 'NotStarted') {
     return TargetCheckResult.SpaceIsntStartedYet
   }
   let count = 0
@@ -178,7 +178,10 @@ export function isSameTarget(target1: AnySessionTarget, target2: AnySessionTarge
       return target1.query === givenQuery
     }
     case 'audio_space':
-      return target1.audioSpace.rest_id === (target2 as AudioSpaceSessionTarget).audioSpace.rest_id
+      return (
+        target1.audioSpace.metadata.rest_id ===
+        (target2 as AudioSpaceSessionTarget).audioSpace.metadata.rest_id
+      )
     case 'export_my_blocklist':
       return true
   }

@@ -146,14 +146,14 @@ export async function getTabContext(
   const currentSearchQuery = getCurrentSearchQueryFromTab(tab)
   const audioSpaceId = new TwitterURL(tab.url!).getAudioSpaceId()
   if (audioSpaceId) {
-    currentAudioSpace = await twClient.getAudioSpaceById(audioSpaceId)
+    currentAudioSpace = await twClient.getAudioSpaceById(audioSpaceId).catch(() => null)
   } else if (currentTweet) {
     const spaceUrl = (currentTweet.entities.urls || [])
       .map(({ expanded_url }) => TwitterURL.nullable(expanded_url))
       .find(twURL => twURL?.getAudioSpaceId())
     if (spaceUrl) {
       const audioSpaceId = new TwitterURL(spaceUrl).getAudioSpaceId()!
-      currentAudioSpace = await twClient.getAudioSpaceById(audioSpaceId)
+      currentAudioSpace = await twClient.getAudioSpaceById(audioSpaceId).catch(() => null)
     }
   }
   return {

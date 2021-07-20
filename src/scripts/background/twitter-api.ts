@@ -266,7 +266,14 @@ export class TwClient {
       withUserResults: true,
       withBirdwatchPivots: true,
       withScheduledSpaces: true,
-    }).then(response => response.data.audioSpace)
+    }).then(response => {
+      const { audioSpace } = response.data
+      if ('metadata' in audioSpace) {
+        return audioSpace
+      } else {
+        throw new Error("This space is expired or doesn't exists.")
+      }
+    })
   }
   public async getTweetReactionV2Timeline(tweet: Tweet): Promise<ReactionV2Timeline> {
     const queryData = await getQueryDataByOperationName('GetTweetReactionTimeline')
@@ -655,13 +662,16 @@ interface UrlEntity {
 }
 
 export interface AudioSpace {
-  rest_id: string
-  state: 'Running' | 'Ended' | 'NotStarted'
-  title: string
-  created_at: number // timestamp (ex. 1621037312345)
-  started_at: number
-  updated_at: number
-  is_locked: boolean
+  metadata: {
+    rest_id: string
+    state: 'Running' | 'Ended' | 'NotStarted'
+    title: string
+    created_at: number // timestamp (ex. 1621037312345)
+    started_at: number
+    updated_at: number
+    scheduled_start: number
+    is_locked: boolean
+  }
   participants: {
     total: number
     admins: AudioSpaceParticipant[]

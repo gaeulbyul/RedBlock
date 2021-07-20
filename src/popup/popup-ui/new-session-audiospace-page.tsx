@@ -78,7 +78,7 @@ function TargetAudioSpace({ audioSpace }: { audioSpace: AudioSpace }) {
       <div style={{ width: '100%' }}>
         <T>
           {`${i18n.getMessage('audio_space')}: `}
-          <strong>{audioSpace.title}</strong>
+          <strong>{audioSpace.metadata.title}</strong>
         </T>
         <M.FormGroup row>
           <M.FormControlLabel
