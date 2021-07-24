@@ -34,6 +34,7 @@ function generateApiUrls(path: string) {
     'https://api.twitter.com/',
     'https://twitter.com/i/api/',
     'https://mobile.twitter.com/i/api/',
+    'https://tweetdeck.twitter.com/i/api/',
   ].map(prefix => prefix + path)
 }
 

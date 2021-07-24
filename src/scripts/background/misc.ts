@@ -3,7 +3,11 @@ import { loadOptions } from './storage'
 export async function markUser(params: MarkUserParams) {
   const tabs = await browser.tabs.query({
     discarded: false,
-    url: ['https://twitter.com/*', 'https://mobile.twitter.com/*'],
+    url: [
+      'https://twitter.com/*',
+      'https://mobile.twitter.com/*',
+      'https://tweetdeck.twitter.com/*',
+    ],
   })
   tabs.forEach(tab => {
     const id = tab.id
