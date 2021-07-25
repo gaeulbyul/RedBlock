@@ -113,6 +113,15 @@ export async function getTabContext(
   myself: Actor,
   twClient: TwClient
 ): Promise<TabContext> {
+  const turl = TwitterURL.nullable(tab.url!)
+  if (!turl) {
+    return {
+      currentTweet: null,
+      currentUser: null,
+      currentSearchQuery: null,
+      currentAudioSpace: null,
+    }
+  }
   const tweetId = getTweetIdFromTab(tab)
   const userId = getUserIdFromTab(tab)
   const userName = getUserNameFromTab(tab)

@@ -494,6 +494,7 @@ export async function initializeUI() {
     currentSearchQuery: null,
     currentAudioSpace: null,
   }
+  const contextless = { ...tabContext }
   const currentTab = await getCurrentTab()
   const cookieStoreId = await getCookieStoreIdFromTab(currentTab)
   const twClient = new TwClient({ cookieStoreId })
@@ -505,7 +506,7 @@ export async function initializeUI() {
       clientOptions: twClient.options,
     }
     const { currentTweet, currentUser, currentSearchQuery, currentAudioSpace } =
-      await getTabContext(currentTab, myself, twClient)
+      await getTabContext(currentTab, myself, twClient).catch(() => contextless)
     Object.assign(tabContext, {
       currentTweet,
       currentUser,
