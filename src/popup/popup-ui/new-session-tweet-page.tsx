@@ -13,7 +13,7 @@ import { startNewChainBlockSession } from '../../scripts/background/request-send
 import {
   BlockLimiterUI,
   TwitterUserProfile,
-  RBExpansionPanel,
+  RBAccordion,
   BigExecuteButton,
   PurposeSelectionUI,
   RequestCheckResultUI,
@@ -220,13 +220,13 @@ function TargetTweetOuterUI() {
     userName
   )})`
   return (
-    <RBExpansionPanel summary={targetSummary} defaultExpanded>
+    <RBAccordion summary={targetSummary} defaultExpanded>
       <div style={{ width: '100%' }}>
         <M.FormControl component="fieldset" fullWidth>
           <TargetTweetUI tweet={currentTweet} />
         </M.FormControl>
       </div>
-    </RBExpansionPanel>
+    </RBAccordion>
   )
 }
 
@@ -235,7 +235,7 @@ function TargetOptionsUI() {
     React.useContext(TweetReactionChainBlockPageStatesContext)
   const summary = `${i18n.getMessage('options')} (${i18n.getMessage(purpose.type)})`
   return (
-    <RBExpansionPanel summary={summary} defaultExpanded>
+    <RBAccordion summary={summary} defaultExpanded>
       <PurposeSelectionUI
         {...{
           purpose,
@@ -244,7 +244,7 @@ function TargetOptionsUI() {
           availablePurposeTypes,
         }}
       />
-    </RBExpansionPanel>
+    </RBAccordion>
   )
 }
 

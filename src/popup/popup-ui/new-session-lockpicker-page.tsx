@@ -3,7 +3,7 @@ import * as MaterialUI from '@material-ui/core'
 
 import { UIContext, MyselfContext, BlockLimiterContext, RedBlockOptionsContext } from './contexts'
 import {
-  RBExpansionPanel,
+  RBAccordion,
   BlockLimiterUI,
   BigExecuteButton,
   PurposeSelectionUI,
@@ -60,7 +60,7 @@ function TargetOptionsUI() {
     React.useContext(LockPickerPageStatesContext)
   const summary = `${i18n.getMessage('options')} (${i18n.getMessage(purpose.type)})`
   return (
-    <RBExpansionPanel summary={summary} defaultExpanded>
+    <RBAccordion summary={summary} defaultExpanded>
       <PurposeSelectionUI
         {...{
           purpose,
@@ -69,7 +69,7 @@ function TargetOptionsUI() {
           availablePurposeTypes,
         }}
       />
-    </RBExpansionPanel>
+    </RBAccordion>
   )
 }
 
@@ -111,11 +111,11 @@ export default function NewSessionLockpickerPage() {
   const maybeRequest = useSessionRequest()
   return (
     <div>
-      <RBExpansionPanel summary={i18n.getMessage('lockpicker')} defaultExpanded>
+      <RBAccordion summary={i18n.getMessage('lockpicker')} defaultExpanded>
         <div style={{ width: '100%' }}>
           <TwitterUserProfile user={myself.user} />
         </div>
-      </RBExpansionPanel>
+      </RBAccordion>
       <TargetOptionsUI />
       <BlockLimiterUI />
       <RequestCheckResultUI {...{ maybeRequest }} />

@@ -173,7 +173,7 @@ export function PleaseLoginBox() {
         <T component="div">{i18n.getMessage('please_check_login')}</T>
         <M.Box mt={1}>
           <a
-            rel="noopener noreferer"
+            rel="noopener noreferrer"
             target="_blank"
             href="https://twitter.com/login"
             onClick={closePopup}
@@ -189,7 +189,7 @@ export function PleaseLoginBox() {
   )
 }
 
-const DenseExpansionPanel = MaterialUI.withStyles(theme => ({
+const DenseAccordion = MaterialUI.withStyles(theme => ({
   root: {
     margin: theme.spacing(1, 0),
     '&:first-child': {
@@ -200,9 +200,9 @@ const DenseExpansionPanel = MaterialUI.withStyles(theme => ({
     },
   },
   expanded: {},
-}))(MaterialUI.ExpansionPanel)
+}))(MaterialUI.Accordion)
 
-const DenseExpansionPanelSummary = MaterialUI.withStyles({
+const DenseAccordionSummary = MaterialUI.withStyles({
   root: {
     minHeight: 16,
     '&$expanded': {
@@ -215,9 +215,9 @@ const DenseExpansionPanelSummary = MaterialUI.withStyles({
     },
   },
   expanded: {},
-})(MaterialUI.ExpansionPanelSummary)
+})(MaterialUI.AccordionSummary)
 
-const useStylesForExpansionPanels = MaterialUI.makeStyles(theme =>
+const useStylesForAccordions = MaterialUI.makeStyles(theme =>
   MaterialUI.createStyles({
     details: {
       padding: theme.spacing(1, 2),
@@ -225,7 +225,7 @@ const useStylesForExpansionPanels = MaterialUI.makeStyles(theme =>
   })
 )
 
-export function RBExpansionPanel({
+export function RBAccordion({
   summary,
   children,
   defaultExpanded,
@@ -236,14 +236,14 @@ export function RBExpansionPanel({
   defaultExpanded?: boolean
   warning?: boolean
 }) {
-  const classes = useStylesForExpansionPanels()
+  const classes = useStylesForAccordions()
   return (
-    <DenseExpansionPanel defaultExpanded={defaultExpanded}>
-      <DenseExpansionPanelSummary expandIcon={<M.Icon>expand_more</M.Icon>}>
+    <DenseAccordion defaultExpanded={defaultExpanded}>
+      <DenseAccordionSummary expandIcon={<M.Icon>expand_more</M.Icon>}>
         <T color={warning ? 'error' : 'initial'}>{summary}</T>
-      </DenseExpansionPanelSummary>
-      <M.ExpansionPanelDetails className={classes.details}>{children}</M.ExpansionPanelDetails>
-    </DenseExpansionPanel>
+      </DenseAccordionSummary>
+      <M.AccordionDetails className={classes.details}>{children}</M.AccordionDetails>
+    </DenseAccordion>
   )
 }
 
@@ -257,7 +257,7 @@ export function BlockLimiterUI() {
   const exceed = current >= max
   const warningIcon = exceed ? '\u26a0\ufe0f' : ''
   return (
-    <RBExpansionPanel
+    <RBAccordion
       summary={`${warningIcon} ${i18n.getMessage('block_counter')}: [${current} / ${max}]`}
       warning={exceed}
     >
@@ -276,7 +276,7 @@ export function BlockLimiterUI() {
           Reset
         </M.Button>
       </M.Box>
-    </RBExpansionPanel>
+    </RBAccordion>
   )
 }
 
@@ -312,7 +312,7 @@ export function TwitterUserProfile({
           <div className="username">
             <a
               target="_blank"
-              rel="noopener noreferer"
+              rel="noopener noreferrer"
               href={`https://twitter.com/${user.screen_name}`}
               title={i18n.getMessage('go_to_url', `https://twitter.com/${user.screen_name}`)}
             >

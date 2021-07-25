@@ -6,7 +6,7 @@ import { startNewChainBlockSession } from '../../scripts/background/request-send
 import { UIContext, MyselfContext, BlockLimiterContext, RedBlockOptionsContext } from './contexts'
 import { UserSearchChainBlockPageStatesContext, ExtraTargetContext } from './ui-states'
 import {
-  RBExpansionPanel,
+  RBAccordion,
   BigExecuteButton,
   BlockLimiterUI,
   PurposeSelectionUI,
@@ -92,7 +92,7 @@ function TargetOptionsUI() {
     React.useContext(UserSearchChainBlockPageStatesContext)
   const summary = `${i18n.getMessage('options')} (${i18n.getMessage(purpose.type)})`
   return (
-    <RBExpansionPanel summary={summary} defaultExpanded>
+    <RBAccordion summary={summary} defaultExpanded>
       <PurposeSelectionUI
         {...{
           purpose,
@@ -101,7 +101,7 @@ function TargetOptionsUI() {
           availablePurposeTypes,
         }}
       />
-    </RBExpansionPanel>
+    </RBAccordion>
   )
 }
 
@@ -110,14 +110,14 @@ export default function NewSessionSearchResultPage() {
   const { searchQuery } = React.useContext(UserSearchChainBlockPageStatesContext)
   return (
     <div>
-      <RBExpansionPanel summary={i18n.getMessage('usersearch_chainblock')} defaultExpanded>
+      <RBAccordion summary={i18n.getMessage('usersearch_chainblock')} defaultExpanded>
         <div style={{ width: '100%' }}>
           <T>
             {`${i18n.getMessage('query')}: `}
             <strong>{searchQuery}</strong>
           </T>
         </div>
-      </RBExpansionPanel>
+      </RBAccordion>
       <TargetOptionsUI />
       <BlockLimiterUI />
       <RequestCheckResultUI {...{ maybeRequest }} />

@@ -248,7 +248,11 @@ function ChainBlockSessionItem({ sessionInfo }: { sessionInfo: SessionInfo }) {
           className = 'grayAvatar'
           break
       }
-      avatar = <M.Avatar className={classes[className]} children={<M.Icon>import_export</M.Icon>} />
+      avatar = (
+        <M.Avatar className={classes[className]}>
+          <M.Icon>import_export</M.Icon>
+        </M.Avatar>
+      )
     }
     return (
       <M.CardHeader

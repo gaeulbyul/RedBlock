@@ -17,7 +17,7 @@ import {
 import {
   BlockLimiterUI,
   TwitterUserProfile,
-  RBExpansionPanel,
+  RBAccordion,
   BigExecuteButton,
   PurposeSelectionUI,
   RequestCheckResultUI,
@@ -344,7 +344,7 @@ function TargetUserSelectUI() {
   }
   targetSummary = `${i18n.getMessage('target')} (${targetSummary})`
   return (
-    <RBExpansionPanel summary={targetSummary} defaultExpanded>
+    <RBAccordion summary={targetSummary} defaultExpanded>
       <div style={{ width: '100%' }}>
         <M.FormControl component="fieldset" fullWidth>
           <UserSelectorContext.Provider value={{ changeSelectedUser }}>
@@ -358,7 +358,7 @@ function TargetUserSelectUI() {
           )}
         </M.FormControl>
       </div>
-    </RBExpansionPanel>
+    </RBAccordion>
   )
 }
 
@@ -367,7 +367,7 @@ function TargetOptionsUI() {
     React.useContext(FollowerChainBlockPageStatesContext)
   const summary = `${i18n.getMessage('options')} (${i18n.getMessage(purpose.type)})`
   return (
-    <RBExpansionPanel summary={summary} defaultExpanded>
+    <RBAccordion summary={summary} defaultExpanded>
       <PurposeSelectionUI
         {...{
           purpose,
@@ -376,7 +376,7 @@ function TargetOptionsUI() {
           availablePurposeTypes,
         }}
       />
-    </RBExpansionPanel>
+    </RBAccordion>
   )
 }
 

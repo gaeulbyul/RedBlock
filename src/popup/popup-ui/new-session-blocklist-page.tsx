@@ -3,7 +3,7 @@ import * as MaterialUI from '@material-ui/core'
 
 import { UIContext, MyselfContext, BlockLimiterContext, RedBlockOptionsContext } from './contexts'
 import {
-  RBExpansionPanel,
+  RBAccordion,
   BlockLimiterUI,
   BigExecuteButton,
   PurposeSelectionUI,
@@ -107,7 +107,7 @@ function TargetOptionsUI() {
     React.useContext(ImportChainBlockPageStatesContext)
   const summary = `${i18n.getMessage('options')} (${i18n.getMessage(purpose.type)})`
   return (
-    <RBExpansionPanel summary={summary} defaultExpanded>
+    <RBAccordion summary={summary} defaultExpanded>
       <PurposeSelectionUI
         {...{
           purpose,
@@ -116,7 +116,7 @@ function TargetOptionsUI() {
           availablePurposeTypes,
         }}
       />
-    </RBExpansionPanel>
+    </RBAccordion>
   )
 }
 
@@ -197,7 +197,7 @@ function ImportBlocklistUI() {
   )
   return (
     <form onSubmit={onSubmit} onReset={onReset}>
-      <RBExpansionPanel summary={i18n.getMessage('import_blocklist')} defaultExpanded>
+      <RBAccordion summary={i18n.getMessage('import_blocklist')} defaultExpanded>
         <div style={{ width: '100%' }}>
           <input
             required
@@ -259,7 +259,7 @@ function ImportBlocklistUI() {
             </div>
           </div>
         </div>
-      </RBExpansionPanel>
+      </RBAccordion>
       <TargetOptionsUI />
       <BlockLimiterUI />
       <RequestCheckResultUI {...{ maybeRequest }} />
@@ -291,9 +291,9 @@ function ExportBlocklistUI() {
   }
   return (
     <div style={{ width: '100%' }}>
-      <RBExpansionPanel summary={i18n.getMessage('exporting_my_blocklist')} defaultExpanded>
+      <RBAccordion summary={i18n.getMessage('exporting_my_blocklist')} defaultExpanded>
         <p>{i18n.getMessage('exporting_my_blocklist_description')}</p>
-      </RBExpansionPanel>
+      </RBAccordion>
       <BigExecuteButton disabled={false} {...{ purpose }} onClick={executeSession} />
     </div>
   )

@@ -103,7 +103,9 @@ function PopupTopTab({
   )
   return (
     <MyTooltip arrow title={pageLabel(value, count)}>
-      <StyledTab {...props} {...{ value, icon, disabled }} />
+      <div>
+        <StyledTab {...props} {...{ value, icon, disabled }} />
+      </div>
     </MyTooltip>
   )
 }

@@ -7,7 +7,7 @@ import { UIContext, MyselfContext, BlockLimiterContext, RedBlockOptionsContext }
 import { AudioSpaceChainBlockPageStatesContext, ExtraTargetContext } from './ui-states'
 import {
   TwitterUserProfile,
-  RBExpansionPanel,
+  RBAccordion,
   BigExecuteButton,
   BlockLimiterUI,
   PurposeSelectionUI,
@@ -137,7 +137,7 @@ function TargetOptionsUI() {
     React.useContext(AudioSpaceChainBlockPageStatesContext)
   const summary = `${i18n.getMessage('options')} (${i18n.getMessage(purpose.type)})`
   return (
-    <RBExpansionPanel summary={summary} defaultExpanded>
+    <RBAccordion summary={summary} defaultExpanded>
       <PurposeSelectionUI
         {...{
           purpose,
@@ -146,7 +146,7 @@ function TargetOptionsUI() {
           availablePurposeTypes,
         }}
       />
-    </RBExpansionPanel>
+    </RBAccordion>
   )
 }
 
@@ -160,9 +160,9 @@ export default function NewSessionAudioSpacePage() {
   )})`
   return (
     <div>
-      <RBExpansionPanel summary={targetSummary} defaultExpanded>
+      <RBAccordion summary={targetSummary} defaultExpanded>
         <TargetAudioSpace audioSpace={audioSpace} />
-      </RBExpansionPanel>
+      </RBAccordion>
       <TargetOptionsUI />
       <BlockLimiterUI />
       <RequestCheckResultUI {...{ maybeRequest }} />
