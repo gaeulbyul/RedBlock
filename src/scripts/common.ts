@@ -137,6 +137,10 @@ export class TwitterURL extends URL {
     const match = /^\/i\/spaces\/([A-Za-z0-9]+)/.exec(this.pathname)
     return match && match[1]
   }
+  public getHashTag(): string | null {
+    const match = /^\/hashtag\/(.+)$/.exec(this.pathname)
+    return match && decodeURIComponent(match[1])
+  }
   private validateURL(url: URL | Location | HTMLAnchorElement) {
     if (url.protocol !== 'https:') {
       throw new Error(`invalid protocol "${this.protocol}"!`)

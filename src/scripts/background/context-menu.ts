@@ -33,6 +33,11 @@ const audioSpaceUrlPatterns = [
   'https://mobile.twitter.com/i/spaces/*',
   'https://tweetdeck.twitter.com/i/spaces/*',
 ]
+const hashtagUrlPatterns = [
+  'https://twitter.com/hashtag/*',
+  'https://mobile.twitter.com/hashtag/*',
+  'https://tweetdeck.twitter.com/hashtag/*',
+]
 
 const extraTarget: SessionRequest<AnySessionTarget>['extraTarget'] = {
   bioBlock: 'never',
@@ -169,6 +174,22 @@ async function confirmAudioSpaceChainBlockRequest(
     type: 'audio_space',
     audioSpace,
     ...includesWho,
+  })
+}
+
+async function confirmUserHashTagChainBlockRequest(
+  tab: BrowserTab,
+  chainblocker: ChainBlocker,
+  hashtag: string
+) {
+  const executor = await initExecutorActor(tab)
+  if (!executor) {
+    alertToTab(tab, i18n.getMessage('error_occured_check_login'))
+    return
+  }
+  return confirmChainBlockRequest(tab, chainblocker, executor, {
+    type: 'user_search',
+    query: `#${hashtag}`,
   })
 }
 
@@ -348,6 +369,18 @@ export async function initializeContextMenu(
         includeHostsAndSpeakers: true,
         includeListeners: true,
       })
+    },
+  })
+  menus.create({
+    contexts: ['link'],
+    documentUrlPatterns,
+    targetUrlPatterns: hashtagUrlPatterns,
+    title: i18n.getMessage('run_hashtag_user_chainblock'),
+    visible: enabledMenus.chainBlockHashTagInUsersProfile,
+    onclick(clickEvent, tab) {
+      const twURL = new TwitterURL(clickEvent.linkUrl!)
+      const hashtag = twURL.getHashTag()!
+      confirmUserHashTagChainBlockRequest(tab, chainblocker, hashtag)
     },
   })
   // 확장기능버튼

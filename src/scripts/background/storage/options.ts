@@ -61,5 +61,6 @@ export const defaultUIOptions = Object.freeze<RedBlockUIOptions>({
     chainBlockMentioned: true,
     chainBlockAudioSpaceSpeakers: true,
     chainBlockAudioSpaceSpeakersAndListeners: true,
+    chainBlockHashTagInUsersProfile: true,
   }),
 })

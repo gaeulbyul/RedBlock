@@ -937,5 +937,8 @@
         "content": "$1"
       }
     }
+  },
+  "run_hashtag_user_chainblock": {
+    "message": "이 해시태그가 프로필에 들어있는 유저들에게 체인블락 실행"
   }
 }

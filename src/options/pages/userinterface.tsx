@@ -126,6 +126,17 @@ function RightClickMenusPaper() {
                   }
                 />
               </M.FormGroup>
+              <M.FormGroup>
+                <CheckboxItem
+                  checked={currentMenus.chainBlockHashTagInUsersProfile}
+                  label={i18n.getMessage('run_hashtag_user_chainblock')}
+                  onChange={checked =>
+                    updateMenusOption({
+                      chainBlockHashTagInUsersProfile: checked,
+                    })
+                  }
+                />
+              </M.FormGroup>
             </React.Fragment>
           )}
         </M.FormControl>

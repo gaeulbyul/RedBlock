@@ -937,5 +937,8 @@
         "content": "$1"
       }
     }
+  },
+  "run_hashtag_user_chainblock": {
+    "message": "Run Chain-block on users who use this hashtag in their's profile."
   }
 }

@@ -28,6 +28,7 @@ interface RedBlockStorage {
       chainBlockMentioned: boolean
       chainBlockAudioSpaceSpeakers: boolean
       chainBlockAudioSpaceSpeakersAndListeners: boolean
+      chainBlockHashTagInUsersProfile: boolean
     }
   }
   badWords: BadWordItem[]
