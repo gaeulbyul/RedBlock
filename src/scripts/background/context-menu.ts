@@ -13,16 +13,25 @@ import * as i18n from '~~/scripts/i18n'
 
 type BrowserTab = browser.tabs.Tab
 
-const urlPatterns = ['https://twitter.com/*', 'https://mobile.twitter.com/*']
+const urlPatterns = [
+  'https://twitter.com/*',
+  'https://mobile.twitter.com/*',
+  'https://tweetdeck.twitter.com/*',
+]
 const documentUrlPatterns = [
   'https://twitter.com/*',
   'https://mobile.twitter.com/*',
   'https://tweetdeck.twitter.com/*',
 ]
-const tweetUrlPatterns = ['https://twitter.com/*/status/*', 'https://mobile.twitter.com/*/status/*']
+const tweetUrlPatterns = [
+  'https://twitter.com/*/status/*',
+  'https://mobile.twitter.com/*/status/*',
+  'https://tweetdeck.twitter.com/*/status/*',
+]
 const audioSpaceUrlPatterns = [
   'https://twitter.com/i/spaces/*',
   'https://mobile.twitter.com/i/spaces/*',
+  'https://tweetdeck.twitter.com/i/spaces/*',
 ]
 
 const extraTarget: SessionRequest<AnySessionTarget>['extraTarget'] = {
