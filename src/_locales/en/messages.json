@@ -929,5 +929,13 @@
   },
   "allow_self_chainblock": {
     "message": "Allow running Chain-block to me."
+  },
+  "cant_find_username_in_given_url": {
+    "message": "Can't find username in that link. (\"$url$\")",
+    "placeholders": {
+      "url": {
+        "content": "$1"
+      }
+    }
   }
 }

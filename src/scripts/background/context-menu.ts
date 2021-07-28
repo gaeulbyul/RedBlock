@@ -200,7 +200,11 @@ export async function initializeContextMenu(
     visible: enabledMenus.chainBlockFollowers,
     onclick(clickEvent, tab) {
       const twURL = new TwitterURL(clickEvent.linkUrl!)
-      const userName = twURL.getUserName()!
+      const userName = twURL.getUserName()
+      if (!userName) {
+        alertToTab(tab, i18n.getMessage('cant_find_username_in_given_url', twURL.toString()))
+        return
+      }
       confirmFollowerChainBlockRequest(tab, chainblocker, userName, 'followers')
     },
   })
@@ -212,7 +216,11 @@ export async function initializeContextMenu(
     visible: enabledMenus.chainBlockFollowings,
     onclick(clickEvent, tab) {
       const twURL = new TwitterURL(clickEvent.linkUrl!)
-      const userName = twURL.getUserName()!
+      const userName = twURL.getUserName()
+      if (!userName) {
+        alertToTab(tab, i18n.getMessage('cant_find_username_in_given_url', twURL.toString()))
+        return
+      }
       confirmFollowerChainBlockRequest(tab, chainblocker, userName, 'friends')
     },
   })
@@ -224,7 +232,11 @@ export async function initializeContextMenu(
     visible: enabledMenus.chainBlockMutualFollowers,
     onclick(clickEvent, tab) {
       const twURL = new TwitterURL(clickEvent.linkUrl!)
-      const userName = twURL.getUserName()!
+      const userName = twURL.getUserName()
+      if (!userName) {
+        alertToTab(tab, i18n.getMessage('cant_find_username_in_given_url', twURL.toString()))
+        return
+      }
       confirmFollowerChainBlockRequest(tab, chainblocker, userName, 'mutual-followers')
     },
   })

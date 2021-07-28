@@ -929,5 +929,13 @@
   },
   "allow_self_chainblock": {
     "message": "나 자신에게 체인블락을 허용하기"
+  },
+  "cant_find_username_in_given_url": {
+    "message": "해당 링크에서 유저이름을 찾을 수 없습니다. (\"$url$\")",
+    "placeholders": {
+      "url": {
+        "content": "$1"
+      }
+    }
   }
 }
