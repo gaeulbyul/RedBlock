@@ -22,13 +22,16 @@ function getCurrentSearchQueryFromTab(tab: Tab): string | null {
   if (!twURL) {
     return null
   }
-  if (twURL.pathname !== '/search') {
-    return null
-  }
   if (twURL.searchParams.get('f') !== 'user') {
     return null
   }
-  return twURL.searchParams.get('q') || null
+  if (twURL.pathname.startsWith('/hashtag/')) {
+    return '#' + twURL.getHashTag()
+  } else if (twURL.pathname === '/search' || twURL.pathname === '/search/') {
+    return twURL.searchParams.get('q')
+  } else {
+    return null
+  }
 }
 
 // 트윗 신고화면에선 사용자 이름 대신 ID가 나타난다.
