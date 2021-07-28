@@ -369,10 +369,7 @@ function PopupApp({
                   <M.Tabs
                     style={{ flexGrow: 1 }}
                     value={tabPage}
-                    onChange={(_ev, val) => {
-                      console.info(val)
-                      setTabPage(val)
-                    }}
+                    onChange={(_ev, val) => setTabPage(val)}
                   >
                     <PopupTopTab value="chainblock-sessions-page" count={countOfRunningSessions} />
                     <PopupTopTab

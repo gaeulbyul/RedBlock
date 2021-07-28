@@ -3,7 +3,6 @@ import { listenExtensionMessages, injectScriptToPage, toastMessage } from './con
 import * as i18n from '~~/scripts/i18n'
 
 export function initializeForGryphon(reactRoot: HTMLElement) {
-  console.info('hello??')
   listenExtensionMessages(reactRoot)
   injectScriptToPage('bundled/gryphon_inject.bun.js')
   copiedFromTwitter()
