@@ -940,5 +940,14 @@
   },
   "run_hashtag_user_chainblock": {
     "message": "Run Chain-block on users who use this hashtag in their's profile."
+  },
+  "redblock_factory_reset": {
+    "message": "Reset all"
+  },
+  "redblock_factory_reset_description": {
+    "message": "Reset all settings and stop all sessions."
+  },
+  "redblock_factory_reset_confirm": {
+    "message": "Are you sure to reset the Red Block?"
   }
 }

@@ -110,6 +110,11 @@ function handleExtensionMessage(
         case 'inactive':
           chainblocker.cleanupInactiveSessions()
           break
+        case 'nuke-all':
+          chainblocker.forcelyNukeSessions()
+          break
+        default:
+          assertNever(message.cleanupWhat)
       }
       break
     case 'BlockSingleUser':

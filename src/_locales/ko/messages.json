@@ -940,5 +940,14 @@
   },
   "run_hashtag_user_chainblock": {
     "message": "이 해시태그가 프로필에 들어있는 유저들에게 체인블락 실행"
+  },
+  "redblock_factory_reset": {
+    "message": "모두 초기화"
+  },
+  "redblock_factory_reset_description": {
+    "message": "레드블락의 모든 설정을 초기화하며 세션을 모두 멈춥니다."
+  },
+  "redblock_factory_reset_confirm": {
+    "message": "정말로 레드블락을 초기화하시겠습니까?"
   }
 }

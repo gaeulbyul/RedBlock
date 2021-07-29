@@ -197,6 +197,14 @@ export default class ChainBlocker {
     }
     this.updateBadge()
   }
+  public forcelyNukeSessions() {
+    for (const [, session] of this.sessions) {
+      const sessionInfo = session.getSessionInfo()
+      this.stop(sessionInfo.sessionId)
+    }
+    this.sessions.clear()
+    this.updateBadge()
+  }
   public downloadFileFromExportSession(sessionId: string) {
     const session = this.sessions.get(sessionId)! as ExportSession
     if (session.getSessionInfo().request.purpose.type !== 'export') {

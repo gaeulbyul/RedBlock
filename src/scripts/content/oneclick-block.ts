@@ -1,24 +1,22 @@
 import * as i18n from '~~/scripts/i18n'
 import { blockUser, toastMessage, cloneDetail } from './content-common'
+import { loadBadWords } from '../background/storage'
 
 const setOfBadWords: BadWordItem[] = []
 
-function loadBadWords(badWords: BadWordItem[]) {
+function refreshBadWordsList(badWords: BadWordItem[]) {
   setOfBadWords.length = 0
   setOfBadWords.push(...badWords)
 }
 
-browser.storage.local.get('badWords').then(storage => {
-  const { badWords } = storage as unknown as Partial<RedBlockStorage>
-  loadBadWords(badWords || [])
-})
+loadBadWords().then(refreshBadWordsList)
 
 browser.storage.onChanged.addListener(changes => {
   if (!changes.badWords) {
     return
   }
   const newBadWords = changes.badWords.newValue as BadWordItem[]
-  loadBadWords(newBadWords || [])
+  refreshBadWordsList(newBadWords || [])
 })
 
 function checkBadWord(text: string): BadWordItem | null {

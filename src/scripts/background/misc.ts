@@ -88,3 +88,14 @@ export async function deleteTwitterCookies(tab: browser.tabs.Tab) {
   }
   await Promise.allSettled(promises)
 }
+
+export async function nukeRedBlockSettings() {
+  const msg: RBMessageToBackground.RequestCleanup = {
+    messageTo: 'background',
+    messageType: 'RequestCleanup',
+    cleanupWhat: 'nuke-all',
+  }
+  await browser.runtime.sendMessage(msg)
+  await browser.storage.local.clear()
+  localStorage.clear()
+}

@@ -4,7 +4,11 @@ import * as i18n from '~~/scripts/i18n'
 
 import { RedBlockOptionsContext } from './contexts'
 import { SwitchItem } from '../components'
-import { getCurrentTab, deleteTwitterCookies } from '../../scripts/background/misc'
+import {
+  getCurrentTab,
+  deleteTwitterCookies,
+  nukeRedBlockSettings,
+} from '../../scripts/background/misc'
 
 function checkFirstPartyIsolationSupport() {
   try {
@@ -24,6 +28,7 @@ const T = MaterialUI.Typography
 export default function TroubleShootingsPage() {
   const { options, updateOptions } = React.useContext(RedBlockOptionsContext)
   const firstPartyIsolatableBrowser = checkFirstPartyIsolationSupport()
+  const [resetCompleted, setResetCompleted] = React.useState(false)
   function confirmCookieDeletion() {
     const ok = window.confirm(i18n.getMessage('confirm_delete_cookie'))
     if (!ok) {
@@ -34,6 +39,14 @@ export default function TroubleShootingsPage() {
       .then(() => {
         console.debug('cookie removed')
       })
+  }
+  function confirmFactoryReset() {
+    const ok = window.confirm(i18n.getMessage('redblock_factory_reset_confirm'))
+    if (!ok) {
+      return
+    }
+    nukeRedBlockSettings()
+    setResetCompleted(true)
   }
   return (
     <M.Paper>
@@ -69,6 +82,26 @@ export default function TroubleShootingsPage() {
               </div>
             </M.FormControl>
             <M.FormHelperText>{i18n.getMessage('delete_cookie_description')}</M.FormHelperText>
+          </M.FormGroup>
+          <M.Divider />
+          <M.FormGroup>
+            <M.FormControl component="fieldset">
+              <M.FormLabel>
+                <T>{i18n.getMessage('redblock_factory_reset')}</T>
+              </M.FormLabel>
+              <div>
+                <M.Button
+                  variant="outlined"
+                  onClick={confirmFactoryReset}
+                  disabled={resetCompleted}
+                >
+                  <span>RESET</span>
+                </M.Button>
+              </div>
+            </M.FormControl>
+            <M.FormHelperText>
+              {i18n.getMessage('redblock_factory_reset_description')}
+            </M.FormHelperText>
           </M.FormGroup>
         </M.FormControl>
       </M.Box>

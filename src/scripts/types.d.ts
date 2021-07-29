@@ -76,7 +76,7 @@ declare namespace RBMessageToBackground {
   interface RequestCleanup {
     messageType: 'RequestCleanup'
     messageTo: 'background'
-    cleanupWhat: 'inactive'
+    cleanupWhat: 'inactive' | 'nuke-all'
   }
 
   interface RequestBlockLimiterStatus {

@@ -22,6 +22,7 @@ export {
   modifyBookmarksWith,
 } from './storage/bookmarks'
 
+import { defaultOptions, defaultUIOptions } from './storage/options'
 import * as SavedUsers from './storage/saveduser'
 import * as Bookmarks from './storage/bookmarks'
 
@@ -46,9 +47,22 @@ export function onStorageChanged<K extends keyof RedBlockStorage>(
   handler: (newValue: RedBlockStorage[K]) => void
 ) {
   function listener(changes: Partial<RedBlockStorageChanges>) {
-    if (changes[key]) {
-      // @ts-ignore
-      handler(changes[key].newValue)
+    if (!changes[key]) {
+      return
+    }
+    switch (key) {
+      case 'options':
+        // @ts-ignore
+        handler(Object.assign({}, defaultOptions, changes.options!.newValue))
+        break
+      case 'uiOptions':
+        // @ts-ignore
+        handler(Object.assign({}, defaultUIOptions, changes.uiOptions!.newValue))
+        break
+      default:
+        // @ts-ignore
+        handler(changes[key].newValue)
+        break
     }
   }
   browser.storage.onChanged.addListener(listener)

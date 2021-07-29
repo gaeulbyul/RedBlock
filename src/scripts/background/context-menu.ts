@@ -6,6 +6,7 @@ import { generateConfirmMessage, checkResultToString, objToString } from '../tex
 import { alertToTab } from './background'
 import { getCookieStoreIdFromTab } from './cookie-handler'
 import { loadOptions, loadUIOptions } from './storage'
+import { defaultUIOptions } from './storage/options'
 import { examineRetrieverByTargetUser } from './blockbuster'
 import { toggleOneClickBlockMode } from './misc'
 import type ChainBlocker from './chainblock'
@@ -429,7 +430,8 @@ browser.storage.onChanged.addListener((changes: Partial<RedBlockStorageChanges>)
     return
   }
   if (changes.uiOptions) {
-    initializeContextMenu(connectedChainblocker, changes.uiOptions.newValue.menus)
+    const newUiOptions = Object.assign({}, defaultUIOptions, changes.uiOptions.newValue || {})
+    initializeContextMenu(connectedChainblocker, newUiOptions.menus)
   } else if (changes.options) {
     loadUIOptions().then(uiOptions =>
       initializeContextMenu(connectedChainblocker!, uiOptions.menus)
