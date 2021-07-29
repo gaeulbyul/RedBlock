@@ -1,15 +1,9 @@
 {
-  "new_follower_session": {
-    "message": "새 세션 (팔로워)"
+  "tweet_reactions": {
+    "message": "트윗 반응"
   },
-  "new_tweetreaction_session": {
-    "message": "새 세션 (트윗반응)"
-  },
-  "new_searchblock_session": {
-    "message": "새 세션 (유저 검색결과)"
-  },
-  "new_audiospace_session": {
-    "message": "새 세션 (스페이스)"
+  "search_result": {
+    "message": "유저 검색결과"
   },
   "new_session": {
     "message": "새 세션"

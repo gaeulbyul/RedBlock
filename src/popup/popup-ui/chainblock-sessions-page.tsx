@@ -7,7 +7,7 @@ import {
   getLimitResetTime,
   getCountOfUsersToBlock,
 } from '../../scripts/common'
-import { PageId, pageIcon, pageLabel } from './pages'
+import { PageId, pageIcon, newSessionsLabel, AvailablePages } from './pages'
 import {
   cleanupInactiveSessions,
   stopAllChainBlock,
@@ -23,11 +23,12 @@ import * as i18n from '~~/scripts/i18n'
 const M = MaterialUI
 const T = MaterialUI.Typography
 
-const newSessionPagesToShow = [
+const newSessionPagesToShow: (keyof AvailablePages)[] = [
   'new-session-followers-page',
   'new-session-tweet-page',
   'new-session-searchresult-page',
-] as const
+  'new-session-audiospace-page',
+]
 
 function calculatePercentage(session: SessionInfo): number | null {
   const { status } = session
@@ -350,10 +351,6 @@ function ChainBlockSessionItem({ sessionInfo }: { sessionInfo: SessionInfo }) {
 
 function GlobalControls() {
   const uiContext = React.useContext(UIContext)
-  const [anchorEl, setAnchorEl] = React.useState<Element | null>(null)
-  function openMenu(event: React.MouseEvent<HTMLButtonElement>) {
-    setAnchorEl(event.currentTarget)
-  }
   function confirmStopAllChainBlock() {
     uiContext.openDialog({
       dialogType: 'confirm',
@@ -379,50 +376,8 @@ function GlobalControls() {
         <M.Button startIcon={<M.Icon>clear_all</M.Icon>} onClick={cleanupAndRefresh}>
           {i18n.getMessage('cleanup_sessions')}
         </M.Button>
-        <M.Button
-          startIcon={<M.Icon>add_circle_outline</M.Icon>}
-          onClick={openMenu}
-          variant="contained"
-          disableElevation
-        >
-          {i18n.getMessage('new_session')}
-        </M.Button>
       </M.ButtonGroup>
-      <NewSessionMenu {...{ anchorEl, setAnchorEl }} />
     </div>
-  )
-}
-
-function NewSessionMenu({
-  anchorEl,
-  setAnchorEl,
-}: {
-  anchorEl: Element | null
-  setAnchorEl(elem: Element | null): void
-}) {
-  const uiContext = React.useContext(UIContext)
-  function handleClose() {
-    setAnchorEl(null)
-  }
-  function handleNewSessionButton(event: React.MouseEvent, page: PageId) {
-    event.preventDefault()
-    uiContext.switchPage(page)
-    handleClose()
-  }
-  return (
-    <M.Menu keepMounted anchorEl={anchorEl} open={Boolean(anchorEl)} onClose={handleClose}>
-      {newSessionPagesToShow.map((page, index) => (
-        <M.MenuItem
-          key={index}
-          dense
-          disabled={!uiContext.availablePages[page]}
-          onClick={e => handleNewSessionButton(e, page)}
-        >
-          <M.ListItemIcon>{pageIcon(page)}</M.ListItemIcon>
-          {pageLabel(page)}
-        </M.MenuItem>
-      ))}
-    </M.Menu>
   )
 }
 
@@ -433,22 +388,20 @@ function NewSessionButtons() {
     uiContext.switchPage(page)
   }
   return (
-    <M.Box display="flex" flexDirection="row" justifyContent="center" my={1}>
-      <M.Box width="100%" minWidth="150px" maxWidth="300px">
-        {newSessionPagesToShow.map((page, index) => (
-          <M.Box key={index} my={1}>
-            <M.Button
-              fullWidth
-              variant="contained"
-              startIcon={pageIcon(page)}
-              disabled={!uiContext.availablePages[page]}
-              onClick={e => handleNewSessionButton(e, page)}
-            >
-              {pageLabel(page)}
-            </M.Button>
-          </M.Box>
-        ))}
-      </M.Box>
+    <M.Box display="flex" flexDirection="row" justifyContent="center" flexWrap="wrap" my={1}>
+      {newSessionPagesToShow.map((page, index) => (
+        <M.Box key={index} width="50%" minWidth="100px" maxWidth="250px" m={1}>
+          <M.Button
+            fullWidth
+            variant="contained"
+            startIcon={pageIcon(page)}
+            disabled={!uiContext.availablePages[page]}
+            onClick={e => handleNewSessionButton(e, page)}
+          >
+            {newSessionsLabel(page)}
+          </M.Button>
+        </M.Box>
+      ))}
     </M.Box>
   )
 }
@@ -482,8 +435,6 @@ export default function ChainBlockSessionsPage({ sessions }: { sessions: Session
         >
           {i18n.getMessage('session_is_empty')} {i18n.getMessage('press_plus_to_start_new_session')}
         </M.Box>
-        <M.Divider variant="middle" />
-        <NewSessionButtons />
       </M.Box>
     )
   }
@@ -504,6 +455,11 @@ export default function ChainBlockSessionsPage({ sessions }: { sessions: Session
             </React.Fragment>
           )}
           {shouldShowWelcomeNewSession && renderWelcome()}
+          <M.Divider />
+          <M.Box textAlign="center" my={1}>
+            {i18n.getMessage('new_session')}:
+          </M.Box>
+          <NewSessionButtons />
           {uiContext.initialLoading && <span>Loading...</span>}
         </React.Fragment>
       ) : (

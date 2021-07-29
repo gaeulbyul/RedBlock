@@ -1,15 +1,9 @@
 {
-  "new_follower_session": {
-    "message": "New Session (Followers)"
+  "tweet_reactions": {
+    "message": "Reactions of tweet"
   },
-  "new_tweetreaction_session": {
-    "message": "New Session (Tweet Reactions)"
-  },
-  "new_searchblock_session": {
-    "message": "New Session (User Search)"
-  },
-  "new_audiospace_session": {
-    "message": "New Session (Space)"
+  "search_result": {
+    "message": "User search result"
   },
   "new_session": {
     "message": "New Session"

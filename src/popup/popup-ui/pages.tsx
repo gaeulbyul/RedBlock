@@ -52,18 +52,38 @@ export function pageIcon(page: PageId): React.ReactElement {
   }
 }
 
+export function newSessionsLabel(page: PageId): string {
+  switch (page) {
+    case 'new-session-followers-page':
+      return i18n.getMessage('followers')
+    case 'new-session-tweet-page':
+      return i18n.getMessage('tweet_reactions')
+    case 'new-session-searchresult-page':
+      return i18n.getMessage('search_result')
+    case 'new-session-audiospace-page':
+      return i18n.getMessage('audio_space')
+    case 'new-session-blocklist-page':
+      return i18n.getMessage('blocklist_page')
+    case 'new-session-lockpicker-page':
+      return i18n.getMessage('lockpicker')
+    case 'chainblock-sessions-page':
+    case 'misc-page':
+      throw new Error()
+  }
+}
+
 export function pageLabel(page: PageId, sessionsCount = 0): string {
   switch (page) {
     case 'chainblock-sessions-page':
       return `${i18n.getMessage('running_sessions')} (${sessionsCount})`
     case 'new-session-followers-page':
-      return i18n.getMessage('new_follower_session')
+      return `${i18n.getMessage('new_session')} (${i18n.getMessage('followers')})`
     case 'new-session-tweet-page':
-      return i18n.getMessage('new_tweetreaction_session')
+      return `${i18n.getMessage('new_session')} (${i18n.getMessage('tweet_reactions')})`
     case 'new-session-searchresult-page':
-      return i18n.getMessage('new_searchblock_session')
+      return `${i18n.getMessage('new_session')} (${i18n.getMessage('search_result')})`
     case 'new-session-audiospace-page':
-      return i18n.getMessage('new_audiospace_session')
+      return `${i18n.getMessage('new_session')} (${i18n.getMessage('audio_space')})`
     case 'new-session-blocklist-page':
       return i18n.getMessage('blocklist_page')
     case 'new-session-lockpicker-page':
