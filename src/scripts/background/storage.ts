@@ -74,6 +74,10 @@ async function migrateStorage() {
   browser.runtime.onInstalled.removeListener(migrateStorage)
 }
 
-browser.runtime.onInstalled.addListener(() => {
-  migrateStorage()
-})
+// 백그라운드 스크립트인지 판단하고 실행
+const url = new URL(browser.runtime.getURL(''))
+if (url.protocol !== 'https') {
+  browser.runtime.onInstalled.addListener(() => {
+    migrateStorage()
+  })
+}
