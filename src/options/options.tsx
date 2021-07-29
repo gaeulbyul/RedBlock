@@ -68,7 +68,12 @@ function OptionsApp() {
         value={{ options, updateOptions, uiOptions, updateUIOptions }}
       >
         <M.AppBar position="static">
-          <M.Tabs value={tabPage} onChange={(_ev, val) => setTabPage(val)}>
+          <M.Tabs
+            variant="scrollable"
+            scrollButtons="auto"
+            value={tabPage}
+            onChange={(_ev, val) => setTabPage(val)}
+          >
             {optionsTabPages.map((value, index) => (
               <M.Tab key={index} value={value} label={value} />
             ))}
