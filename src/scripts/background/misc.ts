@@ -1,4 +1,9 @@
 import { loadOptions } from './storage'
+import {
+  getAllCookies,
+  removeCookie,
+  getCookieStoreIdFromTab,
+} from '../../scripts/background/cookie-handler'
 
 export async function markUser(params: MarkUserParams) {
   const tabs = await browser.tabs.query({
@@ -65,4 +70,21 @@ export async function toggleOneClickBlockMode(tab: browser.tabs.Tab, enabled: bo
       })
     )
   )
+}
+
+export async function deleteTwitterCookies(tab: browser.tabs.Tab) {
+  const storeId = await getCookieStoreIdFromTab(tab)
+  const cookies = await getAllCookies({
+    storeId,
+  })
+  const promises: Promise<any>[] = []
+  for (const cookie of cookies) {
+    promises.push(
+      removeCookie({
+        storeId,
+        name: cookie.name,
+      }).catch(() => {})
+    )
+  }
+  await Promise.allSettled(promises)
 }

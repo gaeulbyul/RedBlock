@@ -10,10 +10,17 @@ import ChainBlockOptionsPage from './pages/chainblock'
 import OneClickBlockOptionsPage from './pages/oneclickblock'
 import ExperimentalOptionsPage from './pages/experimentals'
 import UserInterfaceOptionsPage from './pages/userinterface'
+import TroubleShootingsPage from './pages/troubleshooting'
 
 const M = MaterialUI
 
-const optionsTabPages = ['chainblock', 'oneclickblock', 'userinterface', 'experimental'] as const
+const optionsTabPages = [
+  'chainblock',
+  'oneclickblock',
+  'userinterface',
+  'troubleshooting',
+  'experimental',
+] as const
 type OptionsTabPage = typeof optionsTabPages[number]
 
 function RedBlockOptionsUITheme(darkMode: boolean) {
@@ -76,6 +83,9 @@ function OptionsApp() {
           </TabPanel>
           <TabPanel value={tabPage} index="userinterface">
             <UserInterfaceOptionsPage />
+          </TabPanel>
+          <TabPanel value={tabPage} index="troubleshooting">
+            <TroubleShootingsPage />
           </TabPanel>
           <TabPanel value={tabPage} index="experimental">
             <ExperimentalOptionsPage />

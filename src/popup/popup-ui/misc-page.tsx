@@ -1,35 +1,17 @@
 import React from 'react'
 import * as MaterialUI from '@material-ui/core'
 
-import { toggleOneClickBlockMode, getCurrentTab } from '../../scripts/background/misc'
+import {
+  toggleOneClickBlockMode,
+  getCurrentTab,
+  deleteTwitterCookies,
+} from '../../scripts/background/misc'
 import { UIContext, MyselfContext } from './contexts'
 import { RBAccordion } from './components'
-import {
-  getAllCookies,
-  removeCookie,
-  getCookieStoreIdFromTab,
-} from '../../scripts/background/cookie-handler'
+
 import * as i18n from '~~/scripts/i18n'
 
 const M = MaterialUI
-
-async function deleteTwitterRelatedCookies() {
-  const currentTab = await getCurrentTab()
-  const storeId = await getCookieStoreIdFromTab(currentTab)
-  const cookies = await getAllCookies({
-    storeId,
-  })
-  const promises: Promise<any>[] = []
-  for (const cookie of cookies) {
-    promises.push(
-      removeCookie({
-        storeId,
-        name: cookie.name,
-      }).catch(() => {})
-    )
-  }
-  await Promise.allSettled(promises)
-}
 
 function openOptions() {
   browser.runtime.openOptionsPage()
@@ -54,9 +36,11 @@ export default function MiscPage() {
         contentLines: [i18n.getMessage('confirm_delete_cookie')],
       },
       callbackOnOk() {
-        deleteTwitterRelatedCookies().then(() => {
-          uiContext.openSnackBar(i18n.getMessage('cookie_delete_complete'))
-        })
+        getCurrentTab()
+          .then(deleteTwitterCookies)
+          .then(() => {
+            uiContext.openSnackBar(i18n.getMessage('cookie_delete_complete'))
+          })
       },
     })
   }
