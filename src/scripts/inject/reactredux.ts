@@ -99,9 +99,3 @@ export function markUser({ userId, userAction }: MarkUserParams) {
     },
   })
 }
-
-export function isLoggedIn(): boolean {
-  // 놀랍게도(?) 트윗덱에선 로그인을 해도 false를 리턴하더라.
-  // return (window as any)?.__META_DATA__?.isLoggedIn
-  return !!findReduxStore().getState().session.user_id
-}

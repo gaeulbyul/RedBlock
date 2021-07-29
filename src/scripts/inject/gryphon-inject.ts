@@ -1,11 +1,10 @@
-import { getAddedElementsFromMutations } from './inject-common'
+import { getAddedElementsFromMutations, checkLoggedIn } from './inject-common'
 import {
   getMyselfUserId,
   getTweetEntityById,
   getUserEntityById,
   toastMessage,
   markUser,
-  isLoggedIn,
 } from './reactredux'
 
 function findTweetIdFromElement(elem: HTMLElement): string | null {
@@ -173,13 +172,15 @@ function initializeUserCellElementInspecter(reactRoot: Element) {
 function initialize() {
   const reactRoot = document.getElementById('react-root')!
   if ('_reactRootContainer' in reactRoot) {
-    if (!isLoggedIn()) {
-      console.info('redblock: not logged in. does nothing.')
-      return
-    }
-    initializeListener()
-    initializeTweetElementInspecter(reactRoot)
-    initializeUserCellElementInspecter(reactRoot)
+    checkLoggedIn().then(isLoggedIn => {
+      if (!isLoggedIn) {
+        console.info('redblock: not logged in. does nothing.')
+        return
+      }
+      initializeListener()
+      initializeTweetElementInspecter(reactRoot)
+      initializeUserCellElementInspecter(reactRoot)
+    })
   } else {
     setTimeout(initialize, 500)
   }
