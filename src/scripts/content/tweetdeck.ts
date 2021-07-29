@@ -11,9 +11,9 @@ function initialize() {
   const reactRoot = document.getElementById('react-root')
   if (reactRoot) {
     initializeForGryphon(reactRoot)
-  } else {
-    setTimeout(initialize, 500)
+    return
   }
+  throw new Error('failed to inject script!')
 }
 
 initialize()
