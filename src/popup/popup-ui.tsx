@@ -291,11 +291,7 @@ function PopupApp({
     'new-session-tweet-page': !!(myself && currentTweet),
     'new-session-searchresult-page': !!(myself && currentSearchQuery),
     'new-session-blocklist-page': !!myself,
-    'new-session-audiospace-page': !!(
-      myself &&
-      currentAudioSpace &&
-      redblockOptions.experimentallyEnableAudioSpace
-    ),
+    'new-session-audiospace-page': !!(myself && currentAudioSpace),
     'new-session-lockpicker-page': !!myself,
   }
   React.useEffect(() => {

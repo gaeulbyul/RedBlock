@@ -12,7 +12,6 @@ interface RedBlockStorage {
     firstPartyIsolationCompatibleMode: boolean
     delayBlockRequest: number
     muteEvenAlreadyBlocking: boolean
-    experimentallyEnableAudioSpace: boolean
     enableReactionsV2Support: boolean
     oneClickBlockModeForAllTabs: boolean
     allowSelfChainBlock: boolean

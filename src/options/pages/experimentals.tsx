@@ -56,18 +56,6 @@ export default function ExperimentalOptionsPages() {
           <M.Divider variant="middle" />
           <M.FormGroup>
             <SwitchItem
-              checked={options.experimentallyEnableAudioSpace}
-              label={i18n.getMessage('enable_audiospace_chainblock')}
-              onChange={checked =>
-                updateOptions({
-                  experimentallyEnableAudioSpace: checked,
-                })
-              }
-            />
-          </M.FormGroup>
-          <M.Divider variant="middle" />
-          <M.FormGroup>
-            <SwitchItem
               checked={options.enableReactionsV2Support}
               label={i18n.getMessage('enable_reactions_v2')}
               onChange={checked =>

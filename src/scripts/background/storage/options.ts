@@ -3,6 +3,7 @@ function migrateOptions(options: any) {
   if (!options) {
     return
   }
+  delete options.experimentallyEnableAudioSpace
   const redblockOptions = options as RedBlockOptions
   if ('enableAntiBlock' in options) {
     redblockOptions.enableBlockBuster = options.enableAntiBlock
@@ -42,7 +43,6 @@ export const defaultOptions = Object.freeze<RedBlockOptions>({
   firstPartyIsolationCompatibleMode: false,
   delayBlockRequest: 0,
   muteEvenAlreadyBlocking: false,
-  experimentallyEnableAudioSpace: false,
   enableReactionsV2Support: false,
   oneClickBlockModeForAllTabs: false,
   allowSelfChainBlock: false,

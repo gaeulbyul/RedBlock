@@ -211,7 +211,6 @@ export async function initializeContextMenu(
 ) {
   connectedChainblocker = chainblocker
   await menus.removeAll()
-  const redblockOptions = await loadOptions()
   // 우클릭 - 유저
   menus.create({
     contexts: ['link'],
@@ -344,8 +343,7 @@ export async function initializeContextMenu(
     documentUrlPatterns,
     targetUrlPatterns: audioSpaceUrlPatterns,
     title: i18n.getMessage('run_chainblock_from_audio_space_hosts_and_speakers'),
-    visible:
-      enabledMenus.chainBlockAudioSpaceSpeakers && redblockOptions.experimentallyEnableAudioSpace,
+    visible: enabledMenus.chainBlockAudioSpaceSpeakers,
     onclick(clickEvent, tab) {
       const twURL = new TwitterURL(clickEvent.linkUrl!)
       const audioSpaceId = twURL.getAudioSpaceId()!
@@ -360,8 +358,7 @@ export async function initializeContextMenu(
     documentUrlPatterns,
     targetUrlPatterns: audioSpaceUrlPatterns,
     title: i18n.getMessage('run_chainblock_from_audio_space_all'),
-    visible:
-      enabledMenus.chainBlockAudioSpaceSpeakers && redblockOptions.experimentallyEnableAudioSpace,
+    visible: enabledMenus.chainBlockAudioSpaceSpeakers,
     onclick(clickEvent, tab) {
       const twURL = new TwitterURL(clickEvent.linkUrl!)
       const audioSpaceId = twURL.getAudioSpaceId()!
