@@ -169,9 +169,20 @@ function initializeUserCellElementInspecter(reactRoot: Element) {
   })
 }
 
+function deSentry() {
+  const methods = ['debug', 'info', 'warn', 'error', 'log', 'assert']
+  const con = console as any
+  methods.forEach(method => {
+    if ('__sentry_original__' in con[method]) {
+      con[method] = con[method].__sentry_original__
+    }
+  })
+}
+
 function initialize() {
   const reactRoot = document.getElementById('react-root')!
   if ('_reactRootContainer' in reactRoot) {
+    deSentry()
     checkLoggedIn().then(isLoggedIn => {
       if (!isLoggedIn) {
         console.info('redblock: not logged in. does nothing.')
