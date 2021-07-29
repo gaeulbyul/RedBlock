@@ -7,7 +7,7 @@ import { initializeWebRequest } from './webrequest'
 import BlockLimiter from './block-limiter'
 import { assertNever } from '../common'
 import { getCookieStoreIdFromTab } from './cookie-handler'
-import { loadUIOptions } from './storage'
+import { loadUIOptions, migrateStorage } from './storage'
 import * as i18n from '~~/scripts/i18n'
 
 const chainblocker = new ChainBlocker()
@@ -172,6 +172,9 @@ function initialize() {
   )
   loadUIOptions().then(({ menus }) => initializeContextMenu(chainblocker, menus))
   initializeWebRequest()
+  browser.runtime.onInstalled.addListener(() => {
+    migrateStorage()
+  })
 }
 
 initialize()

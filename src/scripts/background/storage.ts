@@ -69,15 +69,7 @@ export function onStorageChanged<K extends keyof RedBlockStorage>(
   return () => void browser.storage.onChanged.removeListener(listener)
 }
 
-async function migrateStorage() {
+export async function migrateStorage() {
   await migrateToBookmarks()
   browser.runtime.onInstalled.removeListener(migrateStorage)
-}
-
-// 백그라운드 스크립트인지 판단하고 실행
-const url = new URL(browser.runtime.getURL(''))
-if (url.protocol !== 'https') {
-  browser.runtime.onInstalled.addListener(() => {
-    migrateStorage()
-  })
 }
