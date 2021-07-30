@@ -9,7 +9,7 @@
 - MS Edge: https://microsoftedge.microsoft.com/addons/detail/red-block/pfafjkemefoedhcdlhbniejjealpglbj
 - Whale: https://store.whale.naver.com/detail/laokmejddmpcelebbplgenhdgafelmgn
 
-레드블락은 여러 유저를 차단·차단해제·뮤트·언뮤트를 할 수 있는 확장기능으로 [Twitter Block Chain](https://github.com/satsukitv/twitter-block-chain)의 대체제로 사용할 수 있습니다.
+레드블락은 [트위터](https://twitter.com)나 [트윗덱](https://tweetdeck.twitter.com)에서 여러 유저를 차단·차단해제·뮤트·언뮤트를 할 수 있는 확장기능으로 [Twitter Block Chain](https://github.com/ceceradio/twitter-block-chain)의 대체제로 사용할 수 있습니다.
 
 ## 기능
 
@@ -28,7 +28,7 @@
 
 ### 500명 차단제한
 
-레드블락은 체인블락 도중 차단한 유저가 500명에 도달하면 경고하도록 했습니다. 이는 트위터에서 차단을 지나치게 많이 실행할 경우 발생할 수 있는 강제로그아웃이나 계정정지를 피하기 위하여 만들었습니다. "RESET" 버튼을 눌러 카운터를 초기화할 수 있으나 권장하지 않습니다. (특히 계정복구를 위한 휴대전화나 이메일에 접근할 수 없는 경우라면 더욱 주의해주세요.)
+레드블락은 체인블락 도중 차단한 유저가 500명에 도달하면 경고하도록 했습니다. 이는 트위터에서 차단을 지나치게 많이 실행할 경우 발생할 수 있는 강제로그아웃이나 계정정지를 피하기 위하여 만들었습니다. "RESET" 버튼을 눌러 카운터를 수동으로 초기화할 수 있으나 권장하지 않습니다. (특히 계정복구를 위한 휴대전화나 이메일에 접근할 수 없는 경우라면 더욱 주의해주세요.)
 
 ### 트윗의 리트윗/마음에 들어요 체인블락이 전체유저를 차단하지 않음.
 
@@ -48,7 +48,7 @@
 ## 빌드
 
 1. `yarn` (또는 `npm install`)을 통해 의존성 패키지를 설치합니다.
-1. `yarn build` (또는 `npm run build`)을 실행하면 "build/" 디렉토리에 빌드를 합니다. 현재 레드블락은 [swc](https://swc.rs)를 사용하고 있으나 [TypeScript](https://github.com/microsoft/typescript)의 `tsc`명령어를 사용할 수도 있습니다.
+1. `yarn build` (또는 `npm run build`)을 실행하면 "build/" 디렉토리에 빌드를 합니다.
 
 ## 대체재
 
@@ -60,3 +60,4 @@
 - Likers Blocker - https://dmstern.github.io/likers-blocker/
 - Blockasaurus - https://blockasaurus.glitch.me/
 - Poop blocker - https://poop-blocker.glitch.me/
+- Block Party - https://www.blockpartyapp.com/
