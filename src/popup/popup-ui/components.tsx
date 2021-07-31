@@ -6,6 +6,7 @@ import { requestResetCounter } from '../../scripts/background/request-sender'
 import { MyselfContext, BlockLimiterContext, RedBlockOptionsContext } from './contexts'
 import { ExtraTargetContext } from './ui-states'
 import type { TargetCheckResult } from '../../scripts/background/target-checker'
+import { RadioOptionItem } from '../../ui/components'
 import * as i18n from '~~/scripts/i18n'
 
 const M = MaterialUI
@@ -567,44 +568,6 @@ export function PurposeSelectionUI({
         </TabPanel>
       )}
     </div>
-  )
-}
-
-const useStylesForFormControl = MaterialUI.makeStyles(() =>
-  MaterialUI.createStyles({
-    fieldset: {
-      display: 'flex',
-    },
-  })
-)
-
-function RadioOptionItem({
-  legend,
-  options,
-  selectedValue,
-  onChange,
-}: {
-  legend: React.ReactNode
-  options: { [label: string]: string }
-  selectedValue: string
-  onChange(newValue: string): void
-}) {
-  const classes = useStylesForFormControl()
-  return (
-    <M.FormControl component="fieldset" className={classes.fieldset}>
-      <M.FormLabel component="legend">{legend}</M.FormLabel>
-      <M.RadioGroup row>
-        {Object.entries(options).map(([label, value], index) => (
-          <M.FormControlLabel
-            key={index}
-            control={<M.Radio size="small" />}
-            checked={selectedValue === value}
-            onChange={() => onChange(value)}
-            label={label}
-          />
-        ))}
-      </M.RadioGroup>
-    </M.FormControl>
   )
 }
 

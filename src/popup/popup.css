@@ -1,8 +1,4 @@
-*,
-*:before,
-*:after {
-  box-sizing: border-box;
-}
+@import url('../ui/ui.css');
 
 :root {
   --default-font-size: 14px;
@@ -27,29 +23,6 @@ popup-ui.tsx의 shrinkPopup 부분도 체크할 것
   }
 }
 
-@media screen and (prefers-color-scheme: light) {
-  /* https://material-ui.com/customization/palette/#dark-mode */
-  :root {
-    --mui-color-text-primary: #000000de;
-    --mui-color-text-secondary: #0000008a;
-    --mui-color-text-disabled: #00000038;
-    --mui-color-background-default: #fafafa;
-    --mui-color-divider: #0000001f;
-    --warning-text-color: crimson;
-  }
-}
-
-@media screen and (prefers-color-scheme: dark) {
-  :root {
-    --mui-color-text-primary: #fff;
-    --mui-color-text-secondary: #ffffffb3;
-    --mui-color-text-disabled: #ffffff80;
-    --mui-color-background-default: #303030;
-    --mui-color-divider: #ffffff1f;
-    --warning-text-color: yellow;
-  }
-}
-
 [hidden] {
   display: none;
   visibility: hidden;
@@ -60,19 +33,8 @@ body.ui-tab {
 }
 
 body {
-  margin: 0;
-  padding: 0;
   min-height: 600px;
   word-break: keep-all;
-  font-size: var(--default-font-size);
-  font-family: 'NanumGothic', 'Malgun Gothic', sans-serif;
-  background-color: var(--mui-color-background-default);
-  color: var(--mui-color-text-primary);
-}
-
-hr {
-  border-top: 1px solid;
-  border-bottom: 0;
 }
 
 .ellipsis {

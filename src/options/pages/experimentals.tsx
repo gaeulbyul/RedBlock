@@ -3,7 +3,7 @@ import * as MaterialUI from '@material-ui/core'
 import * as i18n from '~~/scripts/i18n'
 
 import { RedBlockOptionsContext } from './contexts'
-import { SwitchItem } from '../components'
+import { SwitchItem } from '../../ui/components'
 
 const M = MaterialUI
 
