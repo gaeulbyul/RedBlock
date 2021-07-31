@@ -413,7 +413,7 @@ function NewSessionButtons() {
   return (
     <M.Box display="flex" flexDirection="row" justifyContent="center" flexWrap="wrap" my={1}>
       {newSessionPagesToShow.map((page, index) => (
-        <M.Box key={index} width="50%" minWidth="100px" maxWidth="250px" m={1}>
+        <M.Box key={index} width="50%" minWidth="100px" maxWidth="200px" m={1}>
           <M.Button
             fullWidth
             variant="contained"
