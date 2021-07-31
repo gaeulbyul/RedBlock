@@ -4,7 +4,7 @@ import * as MaterialUI from '@material-ui/core'
 import * as TextGenerate from '../../scripts/text-generate'
 import { startNewChainBlockSession } from '../../scripts/background/request-sender'
 import { UIContext, MyselfContext, BlockLimiterContext, RedBlockOptionsContext } from './contexts'
-import { UserSearchChainBlockPageStatesContext, ExtraTargetContext } from './ui-states'
+import { UserSearchChainBlockPageStatesContext, ExtraSessionOptionsContext } from './ui-states'
 import {
   RBAccordion,
   BigExecuteButton,
@@ -20,7 +20,7 @@ const T = MaterialUI.Typography
 
 function useSessionRequest(): Either<TargetCheckResult, SessionRequest<UserSearchSessionTarget>> {
   const { purpose, searchQuery } = React.useContext(UserSearchChainBlockPageStatesContext)
-  const { extraTarget } = React.useContext(ExtraTargetContext)
+  const { extraSessionOptions } = React.useContext(ExtraSessionOptionsContext)
   const myself = React.useContext(MyselfContext)
   const options = React.useContext(RedBlockOptionsContext)
   if (!myself) {
@@ -32,7 +32,7 @@ function useSessionRequest(): Either<TargetCheckResult, SessionRequest<UserSearc
   const request: SessionRequest<UserSearchSessionTarget> = {
     purpose,
     options,
-    extraTarget,
+    extraSessionOptions,
     target: {
       type: 'user_search',
       query: searchQuery!,

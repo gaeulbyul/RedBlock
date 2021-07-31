@@ -18,7 +18,7 @@ import {
   parseBlocklist,
   concatBlockList,
 } from '../../scripts/background/blocklist-process'
-import { ImportChainBlockPageStatesContext, ExtraTargetContext } from './ui-states'
+import { ImportChainBlockPageStatesContext, ExtraSessionOptionsContext } from './ui-states'
 import { TargetCheckResult, validateRequest } from '../../scripts/background/target-checker'
 import * as i18n from '~~/scripts/i18n'
 
@@ -26,7 +26,7 @@ const M = MaterialUI
 
 function useImportSessionRequest(): Either<TargetCheckResult, SessionRequest<ImportSessionTarget>> {
   const { purpose, blocklist } = React.useContext(ImportChainBlockPageStatesContext)
-  const { extraTarget } = React.useContext(ExtraTargetContext)
+  const { extraSessionOptions } = React.useContext(ExtraSessionOptionsContext)
   const myself = React.useContext(MyselfContext)
   const options = React.useContext(RedBlockOptionsContext)
   if (!myself) {
@@ -43,7 +43,7 @@ function useImportSessionRequest(): Either<TargetCheckResult, SessionRequest<Imp
       userIds: Array.from(blocklist.userIds),
       userNames: Array.from(blocklist.userNames),
     },
-    extraTarget,
+    extraSessionOptions,
     retriever: myself,
     executor: myself,
     options,
@@ -81,8 +81,9 @@ function useExportSessionRequest(): Either<
     target: {
       type: 'export_my_blocklist',
     },
-    extraTarget: {
+    extraSessionOptions: {
       bioBlock: 'never',
+      recurring: false,
     },
     retriever: myself,
     executor: myself,

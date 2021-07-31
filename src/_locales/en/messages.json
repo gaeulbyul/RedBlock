@@ -946,5 +946,8 @@
   },
   "redblock_factory_reset_confirm": {
     "message": "Are you sure to reset the Red Block?"
+  },
+  "recurring_session": {
+    "message": "Recurring Session"
   }
 }

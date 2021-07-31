@@ -24,7 +24,8 @@
     "tabs",
     "downloads",
     "webRequest",
-    "webRequestBlocking"
+    "webRequestBlocking",
+    "alarms"
   ],
 
   "options_ui": {

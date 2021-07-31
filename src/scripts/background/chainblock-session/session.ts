@@ -295,7 +295,7 @@ export class ChainBlockSession extends BaseSession {
         if (stopped || this.shouldStop) {
           this.sessionInfo.status = SessionStatus.Stopped
           this.eventEmitter.emit('stopped', this.getSessionInfo())
-        } else if (this.request.recurring) {
+        } else if (this.request.extraSessionOptions.recurring) {
           this.sessionInfo.status = SessionStatus.AwaitingUntilRecur
           this.eventEmitter.emit('waiting-until-recur', this.getSessionInfo())
         } else {

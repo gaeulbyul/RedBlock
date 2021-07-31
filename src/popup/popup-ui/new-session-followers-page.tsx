@@ -32,7 +32,7 @@ import {
   identifierOfItem,
   TargetSelectorItem,
 } from './components/target-selector'
-import { FollowerChainBlockPageStatesContext, ExtraTargetContext } from './ui-states'
+import { FollowerChainBlockPageStatesContext, ExtraSessionOptionsContext } from './ui-states'
 import { TargetCheckResult, validateRequest } from '../../scripts/background/target-checker'
 import { getUserNameFromTab } from '../popup'
 import * as i18n from '~~/scripts/i18n'
@@ -52,7 +52,7 @@ function useSessionRequest(): Either<TargetCheckResult, SessionRequest<FollowerS
   )
   const myself = React.useContext(MyselfContext)
   const { retriever } = React.useContext(RetrieverContext)
-  const { extraTarget } = React.useContext(ExtraTargetContext)
+  const { extraSessionOptions } = React.useContext(ExtraSessionOptionsContext)
   const options = React.useContext(RedBlockOptionsContext)
   const targetUser = userSelection?.user
   if (!myself) {
@@ -81,7 +81,7 @@ function useSessionRequest(): Either<TargetCheckResult, SessionRequest<FollowerS
       list: targetList,
     },
     options,
-    extraTarget,
+    extraSessionOptions,
     retriever,
     executor: myself,
   }

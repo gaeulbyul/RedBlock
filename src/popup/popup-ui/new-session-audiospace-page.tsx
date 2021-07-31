@@ -4,7 +4,7 @@ import * as MaterialUI from '@material-ui/core'
 import * as TextGenerate from '../../scripts/text-generate'
 import { startNewChainBlockSession } from '../../scripts/background/request-sender'
 import { UIContext, MyselfContext, BlockLimiterContext, RedBlockOptionsContext } from './contexts'
-import { AudioSpaceChainBlockPageStatesContext, ExtraTargetContext } from './ui-states'
+import { AudioSpaceChainBlockPageStatesContext, ExtraSessionOptionsContext } from './ui-states'
 import {
   TwitterUserProfile,
   RBAccordion,
@@ -23,7 +23,7 @@ function useSessionRequest(): Either<TargetCheckResult, SessionRequest<AudioSpac
   const { purpose, audioSpace, includedParticipants } = React.useContext(
     AudioSpaceChainBlockPageStatesContext
   )
-  const { extraTarget } = React.useContext(ExtraTargetContext)
+  const { extraSessionOptions } = React.useContext(ExtraSessionOptionsContext)
   const myself = React.useContext(MyselfContext)
   const options = React.useContext(RedBlockOptionsContext)
   if (!myself) {
@@ -44,7 +44,7 @@ function useSessionRequest(): Either<TargetCheckResult, SessionRequest<AudioSpac
   const request: SessionRequest<AudioSpaceSessionTarget> = {
     purpose,
     options,
-    extraTarget,
+    extraSessionOptions,
     target,
     retriever: myself,
     executor: myself,

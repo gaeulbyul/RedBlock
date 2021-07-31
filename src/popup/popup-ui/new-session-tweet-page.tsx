@@ -18,7 +18,7 @@ import {
   PurposeSelectionUI,
   RequestCheckResultUI,
 } from './components'
-import { TweetReactionChainBlockPageStatesContext, ExtraTargetContext } from './ui-states'
+import { TweetReactionChainBlockPageStatesContext, ExtraSessionOptionsContext } from './ui-states'
 import { TargetCheckResult, validateRequest } from '../../scripts/background/target-checker'
 import { findNonLinkedMentionsFromTweet, getReactionsV2CountsFromTweet } from '../../scripts/common'
 import * as i18n from '~~/scripts/i18n'
@@ -44,7 +44,7 @@ function useSessionRequest(): Either<
     includeNonLinkedMentions,
     includedReactionsV2,
   } = React.useContext(TweetReactionChainBlockPageStatesContext)
-  const { extraTarget } = React.useContext(ExtraTargetContext)
+  const { extraSessionOptions } = React.useContext(ExtraSessionOptionsContext)
   const myself = React.useContext(MyselfContext)
   const { retriever } = React.useContext(RetrieverContext)
   const options = React.useContext(RedBlockOptionsContext)
@@ -67,7 +67,7 @@ function useSessionRequest(): Either<
   const request: SessionRequest<TweetReactionSessionTarget> = {
     purpose,
     options,
-    extraTarget,
+    extraSessionOptions,
     target: {
       type: 'tweet_reaction',
       tweet: currentTweet,

@@ -12,7 +12,7 @@ import {
 } from './components'
 import * as TextGenerate from '../../scripts/text-generate'
 import { startNewChainBlockSession } from '../../scripts/background/request-sender'
-import { LockPickerPageStatesContext, ExtraTargetContext } from './ui-states'
+import { LockPickerPageStatesContext, ExtraSessionOptionsContext } from './ui-states'
 import { TargetCheckResult, validateRequest } from '../../scripts/background/target-checker'
 import * as i18n from '~~/scripts/i18n'
 
@@ -20,7 +20,7 @@ const M = MaterialUI
 
 function useSessionRequest(): Either<TargetCheckResult, SessionRequest<LockPickerSessionTarget>> {
   const { purpose } = React.useContext(LockPickerPageStatesContext)
-  const { extraTarget } = React.useContext(ExtraTargetContext)
+  const { extraSessionOptions } = React.useContext(ExtraSessionOptionsContext)
   const myself = React.useContext(MyselfContext)
   const options = React.useContext(RedBlockOptionsContext)
   if (!myself) {
@@ -39,7 +39,7 @@ function useSessionRequest(): Either<TargetCheckResult, SessionRequest<LockPicke
     },
     retriever: myself,
     executor: myself,
-    extraTarget,
+    extraSessionOptions,
   }
   const requestCheckResult = validateRequest(request)
   if (requestCheckResult === TargetCheckResult.Ok) {

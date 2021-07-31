@@ -118,12 +118,12 @@ interface SessionRequest<Target extends AnySessionTarget> {
   retriever: Actor
   executor: Actor
   options: RedBlockOptions
-  extraTarget: {
-    bioBlock: BioBlockMode
-  }
   purpose: Purpose
   target: Target
-  recurring: boolean
+  extraSessionOptions: {
+    bioBlock: BioBlockMode
+    recurring: boolean
+  }
 }
 
 interface SessionInfo {

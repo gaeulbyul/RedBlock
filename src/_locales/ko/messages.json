@@ -946,5 +946,8 @@
   },
   "redblock_factory_reset_confirm": {
     "message": "정말로 레드블락을 초기화하시겠습니까?"
+  },
+  "recurring_session": {
+    "message": "되풀이 세션"
   }
 }

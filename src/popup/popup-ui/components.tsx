@@ -4,9 +4,9 @@ import * as MaterialUI from '@material-ui/core'
 import { DialogMessageObj, checkResultToString } from '../../scripts/text-generate'
 import { requestResetCounter } from '../../scripts/background/request-sender'
 import { MyselfContext, BlockLimiterContext, RedBlockOptionsContext } from './contexts'
-import { ExtraTargetContext } from './ui-states'
+import { ExtraSessionOptionsContext } from './ui-states'
 import type { TargetCheckResult } from '../../scripts/background/target-checker'
-import { RadioOptionItem } from '../../ui/components'
+import { RadioOptionItem, CheckboxItem } from '../../ui/components'
 import * as i18n from '~~/scripts/i18n'
 
 const M = MaterialUI
@@ -510,7 +510,7 @@ export function PurposeSelectionUI({
           {purpose.type === 'chainblock' && (
             <ChainBlockPurposeUI {...{ purpose, mutatePurposeOptions }} />
           )}
-          <ExtraTargetUI />
+          <ExtraSessionOptionsUI showBioBlock={true} showRecurring={true} />
           <M.Divider />
           <div className="description">
             {i18n.getMessage('chainblock_description')}{' '}
@@ -524,6 +524,7 @@ export function PurposeSelectionUI({
           {purpose.type === 'unchainblock' && (
             <UnChainBlockOptionsUI {...{ purpose, mutatePurposeOptions }} />
           )}
+          <ExtraSessionOptionsUI showRecurring={true} />
           <M.Divider />
           <div className="description">{i18n.getMessage('unchainblock_description')}</div>
         </TabPanel>
@@ -533,11 +534,13 @@ export function PurposeSelectionUI({
           {purpose.type === 'lockpicker' && (
             <LockPickerOptionsUI {...{ purpose, mutatePurposeOptions }} />
           )}
+          <ExtraSessionOptionsUI showRecurring={true} />
           <div className="description">{i18n.getMessage('lockpicker_description')}</div>
         </TabPanel>
       )}
       {chainunfollowable && (
         <TabPanel value={purpose.type} index="chainunfollow">
+          <ExtraSessionOptionsUI showRecurring={true} />
           <div className="description">{i18n.getMessage('chainunfollow_description')}</div>
         </TabPanel>
       )}
@@ -546,7 +549,7 @@ export function PurposeSelectionUI({
           {purpose.type === 'chainmute' && (
             <ChainMutePurposeUI {...{ purpose, mutatePurposeOptions }} />
           )}
-          <ExtraTargetUI />
+          <ExtraSessionOptionsUI showBioBlock={true} showRecurring={true} />
           <M.Divider />
           <div className="description">
             {i18n.getMessage('chainmute_description')}{' '}
@@ -559,6 +562,7 @@ export function PurposeSelectionUI({
           {purpose.type === 'unchainmute' && (
             <UnChainMuteOptionsUI {...{ purpose, mutatePurposeOptions }} />
           )}
+          <ExtraSessionOptionsUI showRecurring={true} />
           <div className="description">{i18n.getMessage('unchainmute_description')}</div>
         </TabPanel>
       )}
@@ -571,22 +575,36 @@ export function PurposeSelectionUI({
   )
 }
 
-function ExtraTargetUI() {
-  const { extraTarget, mutate } = React.useContext(ExtraTargetContext)
-  const { revealBioBlockMode } = React.useContext(RedBlockOptionsContext)
+function ExtraSessionOptionsUI({
+  showBioBlock,
+  showRecurring,
+}: {
+  showBioBlock?: boolean
+  showRecurring?: boolean
+}) {
+  const { extraSessionOptions, mutate } = React.useContext(ExtraSessionOptionsContext)
+  const options = React.useContext(RedBlockOptionsContext)
   const bioBlockModes: { [label: string]: BioBlockMode } = {
     [i18n.getMessage('bioblock_never')]: 'never',
     [i18n.getMessage('bioblock_all')]: 'all',
     // [i18n.getMessage('bioblock_smart')]: 'smart',
   }
+  const revealBioBlockMode = options.revealBioBlockMode && showBioBlock
   return (
     <React.Fragment>
       {revealBioBlockMode && (
         <RadioOptionItem
           legend="BioBlock &#7517;"
           options={bioBlockModes}
-          selectedValue={extraTarget.bioBlock}
+          selectedValue={extraSessionOptions.bioBlock}
           onChange={(bioBlock: BioBlockMode) => mutate({ bioBlock })}
+        />
+      )}
+      {showRecurring && (
+        <CheckboxItem
+          label={i18n.getMessage('recurring_session')}
+          onChange={recurring => mutate({ recurring })}
+          checked={extraSessionOptions.recurring}
         />
       )}
     </React.Fragment>

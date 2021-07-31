@@ -5,6 +5,7 @@ const protectedFollowers = 'Block'
 const mutedAndAlsoBlocked = 'Skip'
 
 const bioBlock = 'never'
+const recurring = false
 
 export const defaultChainBlockPurposeOptions = Object.freeze<ChainBlockPurpose>({
   type: 'chainblock',
@@ -51,6 +52,9 @@ export const defaultPurposeOptions = Object.freeze({
   export: defaultExportPurposeOptions,
 })
 
-export const defaultExtraTarget = Object.freeze<SessionRequest<AnySessionTarget>['extraTarget']>({
+export const defaultExtraSessionOptions = Object.freeze<
+  SessionRequest<AnySessionTarget>['extraSessionOptions']
+>({
   bioBlock,
+  recurring,
 })

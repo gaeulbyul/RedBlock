@@ -2,7 +2,7 @@ import React from 'react'
 
 import {
   defaultPurposeOptions,
-  defaultExtraTarget,
+  defaultExtraSessionOptions,
 } from '../../scripts/background/chainblock-session/default-options'
 import { Blocklist, emptyBlocklist } from '../../scripts/background/blocklist-process'
 import { determineInitialPurposeType } from '../popup'
@@ -26,33 +26,33 @@ function usePurpose<T extends Purpose>(initialPurposeType: T['type']) {
   return [purpose, changePurposeType, mutatePurposeOptions] as const
 }
 
-type ExtraTarget = SessionRequest<AnySessionTarget>['extraTarget']
+type ExtraSessionOptions = SessionRequest<AnySessionTarget>['extraSessionOptions']
 type IncludedAudioSpaceParticipants = 'hosts_and_speakers' | 'all_participants'
 
-interface ExtraTargetContextType {
-  extraTarget: ExtraTarget
-  mutate(partialOptions: Partial<ExtraTarget>): void
+interface ExtraSessionOptionsContextType {
+  extraSessionOptions: ExtraSessionOptions
+  mutate(partialOptions: Partial<ExtraSessionOptions>): void
 }
 
-export const ExtraTargetContext = React.createContext<ExtraTargetContextType>(null!)
+export const ExtraSessionOptionsContext = React.createContext<ExtraSessionOptionsContextType>(null!)
 
-function ExtraTargetContextProvider({ children }: { children: React.ReactNode }) {
-  const [extraTarget, setTargetOptions] = React.useState<ExtraTarget>({
-    ...defaultExtraTarget,
+function ExtraSessionOptionsContextProvider({ children }: { children: React.ReactNode }) {
+  const [extraSessionOptions, setTargetOptions] = React.useState<ExtraSessionOptions>({
+    ...defaultExtraSessionOptions,
   })
-  function mutate(newOptionsPart: Partial<ExtraTarget>) {
-    const newOptions = { ...extraTarget, ...newOptionsPart }
+  function mutate(newOptionsPart: Partial<ExtraSessionOptions>) {
+    const newOptions = { ...extraSessionOptions, ...newOptionsPart }
     setTargetOptions(newOptions)
   }
   return (
-    <ExtraTargetContext.Provider
+    <ExtraSessionOptionsContext.Provider
       value={{
-        extraTarget,
+        extraSessionOptions,
         mutate,
       }}
     >
       {children}
-    </ExtraTargetContext.Provider>
+    </ExtraSessionOptionsContext.Provider>
   )
 }
 
@@ -228,7 +228,7 @@ export function FollowerChainBlockPageStatesProvider({
       }}
     >
       <RetrieverContext.Provider value={{ retriever, setRetriever }}>
-        <ExtraTargetContextProvider>{children}</ExtraTargetContextProvider>
+        <ExtraSessionOptionsContextProvider>{children}</ExtraSessionOptionsContextProvider>
       </RetrieverContext.Provider>
     </FollowerChainBlockPageStatesContext.Provider>
   )
@@ -301,7 +301,7 @@ export function TweetReactionChainBlockPageStatesProvider({
       }}
     >
       <RetrieverContext.Provider value={{ retriever, setRetriever }}>
-        <ExtraTargetContextProvider>{children}</ExtraTargetContextProvider>
+        <ExtraSessionOptionsContextProvider>{children}</ExtraSessionOptionsContextProvider>
       </RetrieverContext.Provider>
     </TweetReactionChainBlockPageStatesContext.Provider>
   )
@@ -332,7 +332,7 @@ export function ImportChainBlockPageStatesProvider({ children }: { children: Rea
         availablePurposeTypes,
       }}
     >
-      <ExtraTargetContextProvider>{children}</ExtraTargetContextProvider>
+      <ExtraSessionOptionsContextProvider>{children}</ExtraSessionOptionsContextProvider>
     </ImportChainBlockPageStatesContext.Provider>
   )
 }
@@ -363,7 +363,7 @@ export function UserSearchChainBlockPageStatesProvider({
         availablePurposeTypes,
       }}
     >
-      <ExtraTargetContextProvider>{children}</ExtraTargetContextProvider>
+      <ExtraSessionOptionsContextProvider>{children}</ExtraSessionOptionsContextProvider>
     </UserSearchChainBlockPageStatesContext.Provider>
   )
 }
@@ -398,7 +398,7 @@ export function AudioSpaceChainBlockPageStatesProvider({
         ],
       }}
     >
-      <ExtraTargetContextProvider>{children}</ExtraTargetContextProvider>
+      <ExtraSessionOptionsContextProvider>{children}</ExtraSessionOptionsContextProvider>
     </AudioSpaceChainBlockPageStatesContext.Provider>
   )
 }
@@ -415,7 +415,7 @@ export function LockPickerPageStatesProvider({ children }: { children: React.Rea
         availablePurposeTypes: ['lockpicker'],
       }}
     >
-      <ExtraTargetContextProvider>{children}</ExtraTargetContextProvider>
+      <ExtraSessionOptionsContextProvider>{children}</ExtraSessionOptionsContextProvider>
     </LockPickerPageStatesContext.Provider>
   )
 }

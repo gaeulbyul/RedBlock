@@ -1,5 +1,8 @@
 import { TwitterURL } from '../common'
-import { defaultChainBlockPurposeOptions } from './chainblock-session/default-options'
+import {
+  defaultChainBlockPurposeOptions,
+  defaultExtraSessionOptions,
+} from './chainblock-session/default-options'
 import * as TwitterAPI from './twitter-api'
 import { TargetCheckResult } from './target-checker'
 import { generateConfirmMessage, checkResultToString, objToString } from '../text-generate'
@@ -40,9 +43,7 @@ const hashtagUrlPatterns = [
   'https://tweetdeck.twitter.com/hashtag/*',
 ]
 
-const extraTarget: SessionRequest<AnySessionTarget>['extraTarget'] = {
-  bioBlock: 'never',
-}
+const extraSessionOptions = defaultExtraSessionOptions
 
 async function sendConfirmToTab(tab: BrowserTab, request: SessionRequest<AnySessionTarget>) {
   const confirmMessage = objToString(generateConfirmMessage(request))
@@ -85,8 +86,7 @@ async function confirmChainBlockRequest(
     target,
     retriever,
     executor,
-    extraTarget,
-    recurring: false,
+    extraSessionOptions,
   }
   const checkResult = chainblocker.checkRequest(request)
   if (checkResult === TargetCheckResult.Ok) {

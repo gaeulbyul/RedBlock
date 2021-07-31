@@ -44,7 +44,7 @@ class SimpleScraper implements UserScraper {
     scraper = ExtraScraper.scrapeUsersOnBio(
       this.executorScrapingClient,
       scraper,
-      this.request.extraTarget.bioBlock
+      this.request.extraSessionOptions.bioBlock
     )
     yield* scraper
   }
@@ -60,7 +60,7 @@ class SimpleScraper implements UserScraper {
       scraper = ExtraScraper.scrapeUsersOnBio(
         this.executorScrapingClient,
         scraper,
-        this.request.extraTarget.bioBlock
+        this.request.extraSessionOptions.bioBlock
       )
       yield* scraper
     }
@@ -91,7 +91,7 @@ class MutualFollowerScraper implements UserScraper {
     scraper = ExtraScraper.scrapeUsersOnBio(
       this.executorScrapingClient,
       scraper,
-      this.request.extraTarget.bioBlock
+      this.request.extraSessionOptions.bioBlock
     )
     yield* scraper
   }
@@ -175,7 +175,7 @@ export class TweetReactedUserScraper implements UserScraper {
       yield* ExtraScraper.scrapeUsersOnBio(
         this.retrieverScrapingClient,
         scraper,
-        this.request.extraTarget.bioBlock
+        this.request.extraSessionOptions.bioBlock
       )
     }
   }
@@ -196,7 +196,7 @@ class ImportUserScraper implements UserScraper {
       scraper = ExtraScraper.scrapeUsersOnBio(
         this.scrapingClient,
         scraper,
-        this.request.extraTarget.bioBlock
+        this.request.extraSessionOptions.bioBlock
       )
       yield* scraper
     }
@@ -205,7 +205,7 @@ class ImportUserScraper implements UserScraper {
       scraper = ExtraScraper.scrapeUsersOnBio(
         this.scrapingClient,
         scraper,
-        this.request.extraTarget.bioBlock
+        this.request.extraSessionOptions.bioBlock
       )
       yield* scraper
     }
@@ -225,7 +225,7 @@ class UserSearchScraper implements UserScraper {
     scraper = ExtraScraper.scrapeUsersOnBio(
       this.scrapingClient,
       scraper,
-      this.request.extraTarget.bioBlock
+      this.request.extraSessionOptions.bioBlock
     )
     yield* scraper
   }
@@ -247,7 +247,7 @@ export class AudioSpaceScraper implements UserScraper {
     scraper = ExtraScraper.scrapeUsersOnBio(
       this.scrapingClient,
       scraper,
-      this.request.extraTarget.bioBlock
+      this.request.extraSessionOptions.bioBlock
     )
     yield* scraper
   }
