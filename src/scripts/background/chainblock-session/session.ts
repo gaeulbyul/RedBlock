@@ -21,7 +21,7 @@ interface SessionEventEmitter {
   'rate-limit': TwitterAPI.Limit
   'rate-limit-reset': null
   started: SessionInfo
-  stopped: SessionInfo
+  stopped: { sessionInfo: SessionInfo; reason: StopReason }
   complete: SessionInfo
   'recurring-waiting': SessionInfo
   error: { sessionInfo: SessionInfo; message: string }
@@ -56,20 +56,40 @@ function extractRateLimit(
 }
 
 abstract class BaseSession {
-  protected shouldStop = false
+  protected stopReason: StopReason | null = null
   protected readonly sessionInfo = this.initSessionInfo()
   public readonly eventEmitter = new EventEmitter<SessionEventEmitter>()
   public constructor(protected request: SessionRequest<AnySessionTarget>) {}
   public getSessionInfo(): Readonly<SessionInfo> {
     return copyFrozenObject(this.sessionInfo)
   }
-  public stop() {
-    this.shouldStop = true
+  public stop(reason: StopReason) {
+    this.stopReason = reason
+    let shouldStop = false
+    switch (this.sessionInfo.status) {
+      // Running인 상태에선 루프 돌다가 알아서 멈추고
+      // 멈추면서 Status도 바뀐다.
+      case SessionStatus.Running:
+      case SessionStatus.Completed:
+      case SessionStatus.Error:
+      case SessionStatus.Stopped:
+        return
+      case SessionStatus.Initial:
+      case SessionStatus.AwaitingUntilRecur:
+      case SessionStatus.RateLimited:
+        shouldStop = true
+        break
+      default:
+        assertNever(this.sessionInfo.status)
+    }
+    if (shouldStop) {
+      this.sessionInfo.status = SessionStatus.Stopped
+    }
   }
   public rewind() {
     this.resetCounts()
     this.sessionInfo.status = SessionStatus.Initial
-    this.shouldStop = false
+    this.stopReason = null
   }
   protected initProgress(): SessionInfo['progress'] {
     return {
@@ -157,14 +177,14 @@ export class ChainBlockSession extends BaseSession {
     }
     const now = dayjs()
     if (this.checkBlockLimiter() !== 'ok') {
-      this.stop()
+      this.stop('block-limitation-reached')
     } else {
       try {
         const scraper = Scraper.initScraper(this.request)
         const scrapedUserIds = new Set<string>()
         const twClient = new TwitterAPI.TwClient(this.request.executor.clientOptions)
         for await (const scraperResponse of scraper) {
-          if (this.shouldStop) {
+          if (this.stopReason) {
             break
           }
           this.sessionInfo.progress.scraped = this.calculateScrapedCount()
@@ -188,7 +208,7 @@ export class ChainBlockSession extends BaseSession {
           // miniBuffer= 차단, 뮤트 등 많이 쓰면 제한 걸리는 API용
           const miniBuffer: Promise<any>[] = []
           for (const user of scraperResponse.value.users) {
-            if (this.shouldStop) {
+            if (this.stopReason) {
               break
             }
             if (scrapedUserIds.has(user.id_str)) {
@@ -196,7 +216,7 @@ export class ChainBlockSession extends BaseSession {
             }
             scrapedUserIds.add(user.id_str)
             if (this.checkBlockLimiter() !== 'ok') {
-              this.stop()
+              this.stop('block-limitation-reached')
               break
             }
             const thisIsMe =
@@ -275,7 +295,7 @@ export class ChainBlockSession extends BaseSession {
               const delay = this.request.options.delayBlockRequest * 1000
               const waitUntil = Date.now() + delay
               while (Date.now() < waitUntil) {
-                if (this.shouldStop) {
+                if (this.stopReason) {
                   break
                 }
                 await sleep(100)
@@ -286,9 +306,12 @@ export class ChainBlockSession extends BaseSession {
           miniBuffer.length = 0
           promisesBuffer.length = 0
         }
-        if (this.shouldStop) {
+        if (this.stopReason) {
           this.sessionInfo.status = SessionStatus.Stopped
-          this.eventEmitter.emit('stopped', this.getSessionInfo())
+          this.eventEmitter.emit('stopped', {
+            sessionInfo: this.getSessionInfo(),
+            reason: this.stopReason,
+          })
         } else if (this.request.extraSessionOptions.recurring) {
           this.sessionInfo.status = SessionStatus.AwaitingUntilRecur
           this.eventEmitter.emit('recurring-waiting', this.getSessionInfo())
@@ -336,13 +359,11 @@ export class ExportSession extends BaseSession {
     this.sessionInfo.exported = true
   }
   public async start() {
-    let stopped = false
     try {
       const scrapedUserIds = this.exportResult.userIds
       const scraper = IdScraper.initIdScraper(this.request)
       for await (const scraperResponse of scraper) {
-        if (this.shouldStop || scrapedUserIds.size > EXPORT_MAX_SIZE) {
-          stopped = this.shouldStop
+        if (this.stopReason || scrapedUserIds.size > EXPORT_MAX_SIZE) {
           break
         }
         if (!scraperResponse.ok) {
@@ -368,9 +389,12 @@ export class ExportSession extends BaseSession {
         }
         this.sessionInfo.progress.scraped = scrapedUserIds.size
       }
-      if (stopped) {
+      if (this.stopReason) {
         this.sessionInfo.status = SessionStatus.Stopped
-        this.eventEmitter.emit('stopped', this.getSessionInfo())
+        this.eventEmitter.emit('stopped', {
+          sessionInfo: this.getSessionInfo(),
+          reason: this.stopReason,
+        })
       } else {
         this.sessionInfo.status = SessionStatus.Completed
         this.eventEmitter.emit('complete', this.getSessionInfo())

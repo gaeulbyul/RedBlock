@@ -94,11 +94,11 @@ function handleExtensionMessage(
     //   startSession(message.sessionId).then(sendProgress)
     //   break
     case 'StopSession':
-      chainblocker.stopAndRemove(message.sessionId)
+      chainblocker.stopAndRemove(message.sessionId, 'user-request')
       sendChainBlockerInfo()
       break
     case 'StopAllSessions':
-      chainblocker.stopAll()
+      chainblocker.stopAll('user-request')
       sendChainBlockerInfo()
       break
     case 'RewindSession':

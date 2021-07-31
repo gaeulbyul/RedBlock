@@ -66,9 +66,13 @@ export default class ChainBlocker {
         this.remove(sessionId)
       }
     })
-    session.eventEmitter.on('stopped', ({ sessionId }) => {
-      this.startRemainingSessions()
-      this.recurringManager.removeSchedule(sessionId)
+    session.eventEmitter.on('stopped', ({ sessionInfo: { sessionId }, reason }) => {
+      if (reason === 'user-request') {
+        this.startRemainingSessions()
+        this.recurringManager.removeSchedule(sessionId)
+      } else if (reason === 'block-limitation-reached') {
+        this.cancelAllRecurringSessionsBecauseBlockLimitationReached()
+      }
       this.updateBadge()
     })
     session.eventEmitter.on('error', ({ sessionInfo: { sessionId }, message }) => {
@@ -81,6 +85,12 @@ export default class ChainBlocker {
     })
     session.eventEmitter.on('recurring-waiting', ({ sessionId }) => {
       this.recurringManager.addSchedule(sessionId)
+    })
+  }
+  private async cancelAllRecurringSessionsBecauseBlockLimitationReached() {
+    await this.recurringManager.clearAll()
+    Array.from(this.sessions.values()).forEach(session => {
+      session.stop('block-limitation-reached')
     })
   }
   private updateBadge() {
@@ -157,20 +167,20 @@ export default class ChainBlocker {
       value: sessionId,
     }
   }
-  public stopAndRemove(sessionId: string) {
+  public stopAndRemove(sessionId: string, reason: StopReason) {
     const session = this.sessions.get(sessionId)!
-    session.stop()
+    session.stop(reason)
     this.recurringManager.removeSchedule(sessionId)
     this.remove(sessionId)
   }
-  public stopAll() {
+  public stopAll(reason: StopReason) {
     const sessions = this.sessions.values()
     for (const session of sessions) {
       const sessionInfo = session.getSessionInfo()
       if (sessionInfo.status === SessionStatus.Stopped) {
         continue
       }
-      session.stop()
+      session.stop(reason)
     }
     this.updateBadge()
   }
@@ -228,9 +238,10 @@ export default class ChainBlocker {
   public forcelyNukeSessions() {
     for (const [, session] of this.sessions) {
       const sessionInfo = session.getSessionInfo()
-      this.stopAndRemove(sessionInfo.sessionId)
+      this.stopAndRemove(sessionInfo.sessionId, 'factory-reset')
     }
     this.sessions.clear()
+    this.recurringManager.clearAll()
     this.updateBadge()
   }
   public downloadFileFromExportSession(sessionId: string) {

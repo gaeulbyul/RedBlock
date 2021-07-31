@@ -16,6 +16,8 @@ type ReactionKind = 'retweeted' | 'liked'
 type UserAction = 'Skip' | 'Block' | 'UnBlock' | 'Mute' | 'UnMute' | 'BlockAndUnBlock' | 'UnFollow'
 type BioBlockMode = 'never' | 'all' | 'smart'
 
+type StopReason = 'user-request' | 'block-limitation-reached' | 'factory-reset'
+
 type EventStore = Record<string, Function[]>
 
 interface EitherRight<T> {
