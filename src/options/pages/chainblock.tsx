@@ -119,6 +119,37 @@ function ChainBlockOptionsPaper() {
               {i18n.getMessage('skip_inactive_users_description')}
             </M.FormHelperText>
           </M.FormControl>
+          <br />
+          <M.FormControl>
+            <M.FormLabel>
+              <T>{i18n.getMessage('recurring_interval')}</T>
+            </M.FormLabel>
+            <M.Select
+              native
+              value={options.recurringSessionInterval}
+              onChange={event => {
+                const { value } = event.target
+                if (typeof value !== 'string') {
+                  return
+                }
+                const minutes = parseInt(value, 10)
+                if (Number.isNaN(minutes)) {
+                  return
+                }
+                updateOptions({
+                  recurringSessionInterval: minutes,
+                })
+              }}
+            >
+              <option value={3}>{i18n.getMessage('n_minutes', 3)}</option>
+              <option value={5}>{i18n.getMessage('n_minutes', 5)}</option>
+              <option value={10}>{i18n.getMessage('n_minutes', 10)}</option>
+              <option value={15}>{i18n.getMessage('n_minutes', 15)}</option>
+              <option value={20}>{i18n.getMessage('n_minutes', 20)}</option>
+              <option value={30}>{i18n.getMessage('n_minutes', 30)}</option>
+            </M.Select>
+            <M.FormHelperText>{i18n.getMessage('recurring_session_description')}</M.FormHelperText>
+          </M.FormControl>
         </M.FormControl>
       </M.Box>
     </M.Paper>

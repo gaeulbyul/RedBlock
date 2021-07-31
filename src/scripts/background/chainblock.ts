@@ -83,9 +83,12 @@ export default class ChainBlocker {
     session.eventEmitter.on('mark-user', params => {
       markUser(params)
     })
-    session.eventEmitter.on('recurring-waiting', ({ sessionId }) => {
-      this.recurringManager.addSchedule(sessionId)
-    })
+    session.eventEmitter.on(
+      'recurring-waiting',
+      ({ sessionInfo: { sessionId }, delayInMinutes }) => {
+        this.recurringManager.addSchedule(sessionId, delayInMinutes)
+      }
+    )
   }
   private async cancelAllRecurringSessionsBecauseBlockLimitationReached() {
     await this.recurringManager.clearAll()

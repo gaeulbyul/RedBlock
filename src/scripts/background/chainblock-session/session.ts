@@ -23,7 +23,7 @@ interface SessionEventEmitter {
   started: SessionInfo
   stopped: { sessionInfo: SessionInfo; reason: StopReason }
   complete: SessionInfo
-  'recurring-waiting': SessionInfo
+  'recurring-waiting': { sessionInfo: SessionInfo; delayInMinutes: number }
   error: { sessionInfo: SessionInfo; message: string }
 }
 
@@ -314,7 +314,10 @@ export class ChainBlockSession extends BaseSession {
           })
         } else if (this.request.extraSessionOptions.recurring) {
           this.sessionInfo.status = SessionStatus.AwaitingUntilRecur
-          this.eventEmitter.emit('recurring-waiting', this.getSessionInfo())
+          this.eventEmitter.emit('recurring-waiting', {
+            sessionInfo: this.getSessionInfo(),
+            delayInMinutes: this.request.options.recurringSessionInterval,
+          })
         } else {
           this.sessionInfo.status = SessionStatus.Completed
           this.eventEmitter.emit('complete', this.getSessionInfo())

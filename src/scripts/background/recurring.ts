@@ -1,7 +1,5 @@
 import { EventEmitter } from '../common'
 
-const RECURRING_INTERVAL = 5 // in minutes
-
 interface RecurringAlarm {
   sessionId: string
   alarm: browser.alarms.Alarm
@@ -32,11 +30,14 @@ export default class RecurringManager {
       })
     })
   }
-  public async addSchedule(sessionId: string): Promise<browser.alarms.Alarm> {
+  public async addSchedule(
+    sessionId: string,
+    delayInMinutes: number
+  ): Promise<browser.alarms.Alarm> {
     const name = generateAlarmName(sessionId)
     this.nameToSessionId.set(name, sessionId)
     browser.alarms.create(name, {
-      delayInMinutes: RECURRING_INTERVAL,
+      delayInMinutes,
     })
     const createdAlarm = await browser.alarms.get(name)
     return createdAlarm!

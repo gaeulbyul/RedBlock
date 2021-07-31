@@ -15,6 +15,7 @@ interface RedBlockStorage {
     enableReactionsV2Support: boolean
     oneClickBlockModeForAllTabs: boolean
     allowSelfChainBlock: boolean
+    recurringSessionInterval: number
   }
   uiOptions: {
     menus: {

@@ -46,6 +46,7 @@ export const defaultOptions = Object.freeze<RedBlockOptions>({
   enableReactionsV2Support: false,
   oneClickBlockModeForAllTabs: false,
   allowSelfChainBlock: false,
+  recurringSessionInterval: 10,
 })
 
 export const defaultUIOptions = Object.freeze<RedBlockUIOptions>({

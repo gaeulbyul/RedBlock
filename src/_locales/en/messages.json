@@ -950,7 +950,21 @@
   "recurring_session": {
     "message": "Recurring Session"
   },
+  "recurring_session_description": {
+    "message": "Red Block will rerun the sessions after the session is complete. So it can block/unblock new followers or reacted users on the specific tweet."
+  },
   "next_recur_time": {
     "message": "Start again at"
+  },
+  "recurring_interval": {
+    "message": "Recurring Interval"
+  },
+  "n_minutes": {
+    "message": "$m$ Minutes",
+    "placeholders": {
+      "m": {
+        "content": "$1"
+      }
+    }
   }
 }
