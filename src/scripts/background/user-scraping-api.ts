@@ -95,7 +95,8 @@ export class UserScrapingAPIClient {
       if (!('rest_id' in maybeUser)) {
         continue
       }
-      users.push(maybeUser.legacy)
+      const user: TwitterUser = { ...maybeUser.legacy, id_str: maybeUser.rest_id }
+      users.push(user)
     }
     yield wrapEitherRight({ users })
   }

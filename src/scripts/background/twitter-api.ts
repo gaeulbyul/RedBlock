@@ -268,6 +268,7 @@ export class TwClient {
     return await this.requestGraphQL(queryData, {
       tweetId: tweet.id_str,
       withHighlightedLabel: false,
+      withSuperFollowsUserFields: false,
     }).then(response => response.data.tweet_result_by_rest_id.result.reaction_timeline)
   }
   public async getTweetDeckContributees(): Promise<Contributee[]> {
@@ -759,7 +760,7 @@ interface ReactionV2TimelineEntry {
       | {
           // id: string
           rest_id: string
-          legacy: TwitterUser
+          legacy: Omit<TwitterUser, 'id_str'>
         }
       | {}
   }
