@@ -6,18 +6,37 @@ import { TargetCheckResult, validateRequest, isSameTarget } from './target-check
 import { ChainBlockSession, ExportSession } from './chainblock-session/session'
 import { loadOptions } from './storage'
 import { exportBlocklist } from './blocklist-process'
+import RecurringManager from './recurring'
 import * as i18n from '~~/scripts/i18n'
 
 export default class ChainBlocker {
   private readonly MAX_RUNNING_SESSIONS = 5
   private readonly sessions = new Map<string, Session>()
-  constructor() {}
+  private readonly recurringManager = new RecurringManager()
+  public constructor() {
+    this.prepareRecurringManager()
+  }
   public hasRunningSession(): boolean {
     if (this.sessions.size <= 0) {
       return false
     }
     const currentRunningSessions = this.getCurrentRunningSessions()
     return currentRunningSessions.length > 0
+  }
+  private prepareRecurringManager() {
+    this.recurringManager.startListen()
+    this.recurringManager.onWake(params => {
+      const sessionToWakeup = this.sessions.get(params.sessionId)
+      if (!sessionToWakeup) {
+        return
+      }
+      const sessionInfo = sessionToWakeup.getSessionInfo()
+      if (sessionInfo.status !== SessionStatus.AwaitingUntilRecur) {
+        return
+      }
+      sessionToWakeup.rewind()
+      this.startRemainingSessions()
+    })
   }
   private getCurrentRunningSessions() {
     const currentRunningSessions = Array.from(this.sessions.values()).filter(session =>
@@ -47,16 +66,21 @@ export default class ChainBlocker {
         this.remove(sessionId)
       }
     })
-    session.eventEmitter.on('stopped', () => {
+    session.eventEmitter.on('stopped', ({ sessionId }) => {
       this.startRemainingSessions()
+      this.recurringManager.removeSchedule(sessionId)
       this.updateBadge()
     })
-    session.eventEmitter.on('error', error => {
-      notify(`${i18n.getMessage('error_occured')}:\n${error}`)
+    session.eventEmitter.on('error', ({ sessionInfo: { sessionId }, message }) => {
+      notify(`${i18n.getMessage('error_occured')}:\n${message}`)
+      this.recurringManager.removeSchedule(sessionId)
       this.updateBadge()
     })
     session.eventEmitter.on('mark-user', params => {
       markUser(params)
+    })
+    session.eventEmitter.on('recurring-waiting', ({ sessionId }) => {
+      this.recurringManager.addSchedule(sessionId)
     })
   }
   private updateBadge() {
@@ -95,6 +119,9 @@ export default class ChainBlocker {
   public remove(sessionId: string) {
     this.sessions.delete(sessionId)
     this.updateBadge()
+    if (this.sessions.size <= 0) {
+      this.recurringManager.clearAll()
+    }
   }
   private createSession(request: SessionRequest<AnySessionTarget>) {
     let session: Session
@@ -130,9 +157,10 @@ export default class ChainBlocker {
       value: sessionId,
     }
   }
-  public stop(sessionId: string) {
+  public stopAndRemove(sessionId: string) {
     const session = this.sessions.get(sessionId)!
     session.stop()
+    this.recurringManager.removeSchedule(sessionId)
     this.remove(sessionId)
   }
   public stopAll() {
@@ -200,7 +228,7 @@ export default class ChainBlocker {
   public forcelyNukeSessions() {
     for (const [, session] of this.sessions) {
       const sessionInfo = session.getSessionInfo()
-      this.stop(sessionInfo.sessionId)
+      this.stopAndRemove(sessionInfo.sessionId)
     }
     this.sessions.clear()
     this.updateBadge()

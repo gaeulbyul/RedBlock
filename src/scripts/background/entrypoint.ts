@@ -92,7 +92,7 @@ function handleExtensionMessage(
     //   startSession(message.sessionId).then(sendProgress)
     //   break
     case 'StopSession':
-      chainblocker.stop(message.sessionId)
+      chainblocker.stopAndRemove(message.sessionId)
       sendProgress()
       break
     case 'StopAllSessions':

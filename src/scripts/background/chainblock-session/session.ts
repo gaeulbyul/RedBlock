@@ -1,5 +1,5 @@
 import sum from 'lodash-es/sum'
-import * as dayjs from 'dayjs'
+import dayjs from 'dayjs'
 
 import * as Scraper from './scraper'
 import * as IdScraper from './userid-scraper'
@@ -23,8 +23,8 @@ interface SessionEventEmitter {
   started: SessionInfo
   stopped: SessionInfo
   complete: SessionInfo
-  'waiting-until-recur': SessionInfo
-  error: string
+  'recurring-waiting': SessionInfo
+  error: { sessionInfo: SessionInfo; message: string }
 }
 
 // 더 나은 타입이름 없을까...
@@ -63,15 +63,13 @@ abstract class BaseSession {
   public getSessionInfo() {
     return copyFrozenObject(this.sessionInfo)
   }
-  public async stop() {
+  public stop() {
     this.shouldStop = true
-    return new Promise(resolve => {
-      this.eventEmitter.on('stopped', resolve)
-    })
   }
   public rewind() {
     this.resetCounts()
     this.sessionInfo.status = SessionStatus.Initial
+    this.shouldStop = false
   }
   protected initProgress(): SessionInfo['progress'] {
     return {
@@ -149,7 +147,6 @@ abstract class BaseSession {
 }
 
 export class ChainBlockSession extends BaseSession {
-  private readonly scraper = Scraper.initScraper(this.request)
   public constructor(protected request: SessionRequest<AnySessionTarget>) {
     super(request)
   }
@@ -159,16 +156,15 @@ export class ChainBlockSession extends BaseSession {
       console.warn("WARNING: RedBlock FakeAPI mode detected! won't call actual api")
     }
     const now = dayjs()
-    let stopped = false
     if (this.checkBlockLimiter() !== 'ok') {
       this.stop()
     } else {
       try {
+        const scraper = Scraper.initScraper(this.request)
         const scrapedUserIds = new Set<string>()
         const twClient = new TwitterAPI.TwClient(this.request.executor.clientOptions)
-        for await (const scraperResponse of this.scraper) {
+        for await (const scraperResponse of scraper) {
           if (this.shouldStop) {
-            stopped = true
             break
           }
           this.sessionInfo.progress.scraped = this.calculateScrapedCount()
@@ -184,7 +180,7 @@ export class ChainBlockSession extends BaseSession {
             }
           }
           if (this.sessionInfo.progress.total === null) {
-            this.sessionInfo.progress.total = this.scraper.totalCount
+            this.sessionInfo.progress.total = scraper.totalCount
           }
           this.handleRunning()
           // promisesBuffer= 차단해제, 뮤트해제 등
@@ -193,7 +189,6 @@ export class ChainBlockSession extends BaseSession {
           const miniBuffer: Promise<any>[] = []
           for (const user of scraperResponse.value.users) {
             if (this.shouldStop) {
-              stopped = true
               break
             }
             if (scrapedUserIds.has(user.id_str)) {
@@ -281,7 +276,6 @@ export class ChainBlockSession extends BaseSession {
               const waitUntil = Date.now() + delay
               while (Date.now() < waitUntil) {
                 if (this.shouldStop) {
-                  stopped = true
                   break
                 }
                 await sleep(100)
@@ -292,19 +286,22 @@ export class ChainBlockSession extends BaseSession {
           miniBuffer.length = 0
           promisesBuffer.length = 0
         }
-        if (stopped || this.shouldStop) {
+        if (this.shouldStop) {
           this.sessionInfo.status = SessionStatus.Stopped
           this.eventEmitter.emit('stopped', this.getSessionInfo())
         } else if (this.request.extraSessionOptions.recurring) {
           this.sessionInfo.status = SessionStatus.AwaitingUntilRecur
-          this.eventEmitter.emit('waiting-until-recur', this.getSessionInfo())
+          this.eventEmitter.emit('recurring-waiting', this.getSessionInfo())
         } else {
           this.sessionInfo.status = SessionStatus.Completed
           this.eventEmitter.emit('complete', this.getSessionInfo())
         }
       } catch (error) {
         this.sessionInfo.status = SessionStatus.Error
-        this.eventEmitter.emit('error', errorToString(error))
+        this.eventEmitter.emit('error', {
+          sessionInfo: this.getSessionInfo(),
+          message: errorToString(error),
+        })
         throw error
       }
     }
@@ -325,7 +322,6 @@ export class ChainBlockSession extends BaseSession {
 }
 
 export class ExportSession extends BaseSession {
-  private readonly scraper = IdScraper.initIdScraper(this.request)
   private exportResult: ExportResult = {
     filename: this.generateFilename(this.request.target),
     userIds: new Set<string>(),
@@ -343,7 +339,8 @@ export class ExportSession extends BaseSession {
     let stopped = false
     try {
       const scrapedUserIds = this.exportResult.userIds
-      for await (const scraperResponse of this.scraper) {
+      const scraper = IdScraper.initIdScraper(this.request)
+      for await (const scraperResponse of scraper) {
         if (this.shouldStop || scrapedUserIds.size > EXPORT_MAX_SIZE) {
           stopped = this.shouldStop
           break
@@ -360,7 +357,7 @@ export class ExportSession extends BaseSession {
           }
         }
         if (this.sessionInfo.progress.total === null) {
-          this.sessionInfo.progress.total = this.scraper.totalCount
+          this.sessionInfo.progress.total = scraper.totalCount
         }
         this.handleRunning()
         for (const userId of scraperResponse.value.ids) {
@@ -384,7 +381,10 @@ export class ExportSession extends BaseSession {
       }
     } catch (error) {
       this.sessionInfo.status = SessionStatus.Error
-      this.eventEmitter.emit('error', errorToString(error))
+      this.eventEmitter.emit('error', {
+        sessionInfo: this.getSessionInfo(),
+        message: errorToString(error),
+      })
       throw error
     }
   }
