@@ -27,6 +27,19 @@ export default function ExperimentalOptionsPages() {
             />
           </M.FormGroup>
           <M.FormHelperText>{i18n.getMessage('blockbuster_description')}</M.FormHelperText>
+          {options.enableBlockBuster && (
+            <M.FormGroup>
+              <SwitchItem
+                checked={options.enableBlockBusterWithTweetDeck}
+                label={i18n.getMessage('blockbuster_use_tweetdeck')}
+                onChange={checked =>
+                  updateOptions({
+                    enableBlockBusterWithTweetDeck: checked,
+                  })
+                }
+              />
+            </M.FormGroup>
+          )}
           <M.Divider variant="middle" />
           <M.FormGroup>
             <SwitchItem

@@ -966,5 +966,8 @@
         "content": "$1"
       }
     }
+  },
+  "blockbuster_use_tweetdeck": {
+    "message": "Use accounts from TweetDeck"
   }
 }

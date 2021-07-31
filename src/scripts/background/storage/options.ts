@@ -40,6 +40,7 @@ export const defaultOptions = Object.freeze<RedBlockOptions>({
   skipInactiveUser: 'never',
   revealBioBlockMode: false,
   enableBlockBuster: false,
+  enableBlockBusterWithTweetDeck: false,
   firstPartyIsolationCompatibleMode: false,
   delayBlockRequest: 0,
   muteEvenAlreadyBlocking: false,

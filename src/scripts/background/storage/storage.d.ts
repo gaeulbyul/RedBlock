@@ -9,6 +9,7 @@ interface RedBlockStorage {
     skipInactiveUser: InactivePeriod
     revealBioBlockMode: boolean
     enableBlockBuster: boolean
+    enableBlockBusterWithTweetDeck: boolean
     firstPartyIsolationCompatibleMode: boolean
     delayBlockRequest: number
     muteEvenAlreadyBlocking: boolean

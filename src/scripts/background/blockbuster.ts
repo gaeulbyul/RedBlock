@@ -1,5 +1,6 @@
 import * as CookieHandler from './cookie-handler'
 import { TwClient } from './twitter-api'
+import { loadOptions } from './storage'
 
 async function* iterateAvailableTwClients(): AsyncIterableIterator<TwClient> {
   const cookieStores = await browser.cookies.getAllCookieStores()
@@ -17,21 +18,24 @@ async function* iterateAvailableTwClients(): AsyncIterableIterator<TwClient> {
         })
       }
     }
-    const tdTwClient = new TwClient({
-      cookieStoreId,
-      asTweetDeck: true,
-    })
-    const contributees = await tdTwClient.getTweetDeckContributees().catch(() => [])
-    console.debug('[] contributees= %o', contributees)
-    if (contributees.length <= 0) {
-      continue
-    }
-    for (const ctee of contributees) {
-      yield new TwClient({
+    const { enableBlockBusterWithTweetDeck } = await loadOptions()
+    if (enableBlockBusterWithTweetDeck) {
+      const tdTwClient = new TwClient({
         cookieStoreId,
         asTweetDeck: true,
-        actAsUserId: ctee.user.id_str,
       })
+      const contributees = await tdTwClient.getTweetDeckContributees().catch(() => [])
+      console.debug('[] contributees= %o', contributees)
+      if (contributees.length <= 0) {
+        continue
+      }
+      for (const ctee of contributees) {
+        yield new TwClient({
+          cookieStoreId,
+          asTweetDeck: true,
+          actAsUserId: ctee.user.id_str,
+        })
+      }
     }
   }
 }
