@@ -6,19 +6,6 @@ const TD_BEARER_TOKEN = `AAAAAAAAAAAAAAAAAAAAAF7aAAAAAAAASCiRjWvh7R5wxaKkFp7MM%2
 // const TD2_BEARER_TOKEN = `AAAAAAAAAAAAAAAAAAAAAFQODgEAAAAAVHTp76lzh3rFzcHbmHVvQxYYpTw%3DckAlMINMjmCwxUcaXbAN4XqJVdgMJaHqNOFgPMK0zN1qLqLQCF`
 
 const gqlDataMap = new Map<string, GraphQLQueryData>()
-
-interface ErrorResponseItem {
-  code: number
-  message: string
-}
-
-interface ErrorResponse {
-  errors: ErrorResponseItem[]
-}
-
-type GetMultipleUsersOption = { user_id: string[] } | { screen_name: string[] }
-type GetSingleUserOption = { user_id: string } | { screen_name: string }
-
 function stripSensitiveInfoFromArrayOfUsers(users: TwitterUser[]): TwitterUser[] {
   return users.map(stripSensitiveInfo)
 }
@@ -524,6 +511,16 @@ async function getQueryDataByOperationName(operationName: string): Promise<Graph
   return queryData
 }
 
+export function isTwitterErrorMessage(obj: any): obj is ErrorResponse {
+  if (obj == null || typeof obj !== 'object') {
+    return false
+  }
+  if (!('errors' in obj && Array.isArray(obj.errors))) {
+    return false
+  }
+  return true
+}
+
 type HTTPMethods = 'get' | 'delete' | 'post' | 'put'
 type URLParamsObj = {
   [key: string]: string | number | boolean | null | undefined | string[] | number[]
@@ -773,3 +770,15 @@ interface ReactionV2Timeline {
   reactionTypeMap: ReactionV2MapItem[]
   tweet_reaction_timeline_entries: ReactionV2TimelineEntry[]
 }
+
+interface ErrorResponseItem {
+  code: number
+  message: string
+}
+
+export interface ErrorResponse {
+  errors: ErrorResponseItem[]
+}
+
+type GetMultipleUsersOption = { user_id: string[] } | { screen_name: string[] }
+type GetSingleUserOption = { user_id: string } | { screen_name: string }

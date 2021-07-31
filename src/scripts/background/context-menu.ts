@@ -108,16 +108,27 @@ async function confirmFollowerChainBlockRequest(
     return
   }
   const twClient = new TwitterAPI.TwClient(executor.clientOptions)
-  const user = await twClient.getSingleUser({ screen_name: userName }).catch(() => null)
-  if (!user) {
-    alertToTab(tab, i18n.getMessage('error_occured_on_retrieving_user', userName))
+  const maybeUser: Either<TwitterAPI.ErrorResponse, TwitterUser> = await twClient
+    .getSingleUser({ screen_name: userName })
+    .then(user => ({ ok: true as const, value: user }))
+    .catch(error => ({ ok: false, error }))
+  if (maybeUser.ok) {
+    const user = maybeUser.value
+    return confirmChainBlockRequest(tab, chainblocker, executor, {
+      type: 'follower',
+      list: followKind,
+      user,
+    })
+  } else {
+    const {
+      error: { errors },
+    } = maybeUser
+    let errorMessage = i18n.getMessage('error_occured_on_retrieving_user', userName)
+    errorMessage += '\n==========\n'
+    errorMessage += errors[0].message
+    alertToTab(tab, errorMessage)
     return
   }
-  return confirmChainBlockRequest(tab, chainblocker, executor, {
-    type: 'follower',
-    list: followKind,
-    user,
-  })
 }
 
 async function confirmTweetReactionChainBlockRequest(

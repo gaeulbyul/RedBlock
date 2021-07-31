@@ -300,7 +300,7 @@ export class ChainBlockSession extends BaseSession {
         }
       } catch (error) {
         this.sessionInfo.status = SessionStatus.Error
-        this.eventEmitter.emit('error', error.toString())
+        this.eventEmitter.emit('error', errorToString(error))
         throw error
       }
     }
@@ -380,7 +380,7 @@ export class ExportSession extends BaseSession {
       }
     } catch (error) {
       this.sessionInfo.status = SessionStatus.Error
-      this.eventEmitter.emit('error', error.toString())
+      this.eventEmitter.emit('error', errorToString(error))
       throw error
     }
   }
@@ -409,5 +409,13 @@ export class ExportSession extends BaseSession {
     targetStr = targetStr.replace(/[<>:"|?*\\/]/g, '_')
     const datetime = now.format('YYYY-MM-DD_HHmmss')
     return `${prefix}${targetStr}[${datetime}].csv`
+  }
+}
+
+function errorToString(error: any): string {
+  if (TwitterAPI.isTwitterErrorMessage(error)) {
+    return error.errors[0].message
+  } else {
+    return error.toString()
   }
 }
