@@ -949,5 +949,8 @@
   },
   "recurring_session": {
     "message": "되풀이 세션"
+  },
+  "next_recur_time": {
+    "message": "다음 시작시각"
   }
 }

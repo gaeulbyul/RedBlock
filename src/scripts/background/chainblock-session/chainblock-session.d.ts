@@ -143,7 +143,6 @@ interface SessionInfo {
   status: import('../../common').SessionStatus
   limit: import('../twitter-api').Limit | null
   exported?: boolean
-  completedAt?: number
 }
 
 interface ExportResult {

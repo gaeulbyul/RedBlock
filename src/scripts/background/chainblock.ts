@@ -12,7 +12,7 @@ import * as i18n from '~~/scripts/i18n'
 export default class ChainBlocker {
   private readonly MAX_RUNNING_SESSIONS = 5
   private readonly sessions = new Map<string, Session>()
-  private readonly recurringManager = new RecurringManager()
+  public readonly recurringManager = new RecurringManager()
   public constructor() {
     this.prepareRecurringManager()
   }

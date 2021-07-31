@@ -32,8 +32,8 @@ export async function rewindChainBlock(sessionId: string) {
 }
 
 export async function requestProgress() {
-  return browser.runtime.sendMessage<RBMessageToBackground.RequestProgress>({
-    messageType: 'RequestProgress',
+  return browser.runtime.sendMessage<RBMessageToBackground.RequestChainBlockInfo>({
+    messageType: 'RequestChainBlockInfo',
     messageTo: 'background',
   })
 }

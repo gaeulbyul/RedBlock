@@ -35,13 +35,15 @@ async function startSession(sessionId: string) {
   })
 }
 
-async function sendProgress() {
+async function sendChainBlockerInfo() {
   const sessions = chainblocker.getAllSessionInfos()
+  const recurringAlarmInfos = await chainblocker.recurringManager.getAll()
   return browser.runtime
     .sendMessage<RBMessageToPopup.ChainBlockInfo>({
       messageType: 'ChainBlockInfo',
       messageTo: 'popup',
       sessions,
+      recurringAlarmInfos,
     })
     .catch(() => {})
 }
@@ -79,7 +81,7 @@ function handleExtensionMessage(
       {
         const result = chainblocker.add(message.request)
         if (result.ok) {
-          startSession(result.value).then(sendProgress)
+          startSession(result.value).then(sendChainBlockerInfo)
         } else {
           // 이 시점에선 이미 target check를 통과한 요청만이 들어와야 한다
           // throw new Error(checkResultToString(result.error))
@@ -93,17 +95,17 @@ function handleExtensionMessage(
     //   break
     case 'StopSession':
       chainblocker.stopAndRemove(message.sessionId)
-      sendProgress()
+      sendChainBlockerInfo()
       break
     case 'StopAllSessions':
       chainblocker.stopAll()
-      sendProgress()
+      sendChainBlockerInfo()
       break
     case 'RewindSession':
       chainblocker.rewind(message.sessionId)
       break
-    case 'RequestProgress':
-      sendProgress()
+    case 'RequestChainBlockInfo':
+      sendChainBlockerInfo()
       break
     case 'RequestCleanup':
       switch (message.cleanupWhat) {

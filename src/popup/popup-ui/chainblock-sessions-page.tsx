@@ -79,7 +79,13 @@ function progressTableRow(left: string, right: string | number) {
   )
 }
 
-function ChainBlockSessionProgressTable({ sessionInfo }: { sessionInfo: SessionInfo }) {
+function ChainBlockSessionProgressTable({
+  sessionInfo,
+  recurringAlarm,
+}: {
+  sessionInfo: SessionInfo
+  recurringAlarm?: browser.alarms.Alarm
+}) {
   const { progress: p } = sessionInfo
   const { TableContainer, Table, TableBody } = MaterialUI
   const { success: s } = p
@@ -87,6 +93,14 @@ function ChainBlockSessionProgressTable({ sessionInfo }: { sessionInfo: SessionI
     <TableContainer>
       <Table size="small">
         <TableBody>
+          {recurringAlarm && (
+            <M.TableRow>
+              <M.TableCell>{i18n.getMessage('next_recur_time')}</M.TableCell>
+              <M.TableCell align="right">
+                {new Date(recurringAlarm.scheduledTime).toLocaleTimeString()}
+              </M.TableCell>
+            </M.TableRow>
+          )}
           {progressTableRow(i18n.getMessage('block'), s.Block)}
           {progressTableRow(i18n.getMessage('unblock'), s.UnBlock)}
           {progressTableRow(i18n.getMessage('mute'), s.Mute)}
@@ -102,7 +116,13 @@ function ChainBlockSessionProgressTable({ sessionInfo }: { sessionInfo: SessionI
   )
 }
 
-function ChainBlockSessionItem({ sessionInfo }: { sessionInfo: SessionInfo }) {
+function ChainBlockSessionItem({
+  sessionInfo,
+  recurringAlarm,
+}: {
+  sessionInfo: SessionInfo
+  recurringAlarm?: browser.alarms.Alarm
+}) {
   const { sessionId } = sessionInfo
   const { purpose, target, executor } = sessionInfo.request
   const uiContext = React.useContext(UIContext)
@@ -344,7 +364,7 @@ function ChainBlockSessionItem({ sessionInfo }: { sessionInfo: SessionInfo }) {
         </M.CardContent>
         <M.Collapse in={expanded} unmountOnExit>
           <M.CardContent>
-            <ChainBlockSessionProgressTable {...{ sessionInfo }} />
+            <ChainBlockSessionProgressTable {...{ sessionInfo, recurringAlarm }} />
           </M.CardContent>
         </M.Collapse>
       </M.Card>
@@ -409,18 +429,15 @@ function NewSessionButtons() {
   )
 }
 
-export default function ChainBlockSessionsPage({ sessions }: { sessions: SessionInfo[] }) {
+export default function ChainBlockSessionsPage({
+  sessions,
+  recurringInfos,
+}: {
+  sessions: SessionInfo[]
+  recurringInfos: RecurringAlarmInfosObject
+}) {
   const myself = React.useContext(MyselfContext)
   const uiContext = React.useContext(UIContext)
-  function renderSessions() {
-    return (
-      <div>
-        {sessions.map(session => (
-          <ChainBlockSessionItem sessionInfo={session} key={session.sessionId} />
-        ))}
-      </div>
-    )
-  }
   function renderWelcome() {
     return (
       <M.Box display="flex" flexDirection="column" justifyContent="center" px={2} py={1.5}>
@@ -454,7 +471,15 @@ export default function ChainBlockSessionsPage({ sessions }: { sessions: Session
               <M.Box my={1}>
                 <GlobalControls />
               </M.Box>
-              {renderSessions()}
+              <div>
+                {sessions.map(sessionInfo => {
+                  const { sessionId } = sessionInfo
+                  const recurringAlarm = recurringInfos[sessionId]
+                  return (
+                    <ChainBlockSessionItem {...{ sessionInfo, recurringAlarm }} key={sessionId} />
+                  )
+                })}
+              </div>
             </React.Fragment>
           )}
           {shouldShowWelcomeNewSession && renderWelcome()}

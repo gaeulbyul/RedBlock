@@ -249,6 +249,7 @@ function PopupApp({
   const [initialLoading, setInitialLoading] = React.useState(true)
   const [redblockOptions, setRedBlockOptions] = React.useState(initialRedBlockOptions)
   const [sessions, setSessions] = React.useState<SessionInfo[]>([])
+  const [recurringInfos, setRecurringInfos] = React.useState<RecurringAlarmInfosObject>({})
   // 파이어폭스의 팝업 가로폭 문제
   // 참고: popup.css
   const shrinkedPopup = MaterialUI.useMediaQuery('(width:348px), (width:425px)')
@@ -307,6 +308,7 @@ function PopupApp({
           setCountOfRunningSessions(runningSessionsLength)
           if (tabPage === 'chainblock-sessions-page') {
             setSessions(msg.sessions)
+            setRecurringInfos(msg.recurringAlarmInfos)
             if (runningSessionsLength > 0) {
               setDelay(UI_UPDATE_DELAY_ON_BUSY)
             } else {
@@ -403,7 +405,7 @@ function PopupApp({
               <div className="page">
                 <M.Container maxWidth="sm" disableGutters>
                   <TabPanel value={tabPage} index="chainblock-sessions-page">
-                    <ChainBlockSessionsPage {...{ sessions }} />
+                    <ChainBlockSessionsPage {...{ sessions, recurringInfos }} />
                   </TabPanel>
                   <FollowerChainBlockPageStatesProvider initialUser={currentUser}>
                     <TabPanel value={tabPage} index="new-session-followers-page">

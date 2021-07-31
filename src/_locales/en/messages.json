@@ -949,5 +949,8 @@
   },
   "recurring_session": {
     "message": "Recurring Session"
+  },
+  "next_recur_time": {
+    "message": "Start again at"
   }
 }

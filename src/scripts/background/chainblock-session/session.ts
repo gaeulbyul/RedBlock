@@ -60,7 +60,7 @@ abstract class BaseSession {
   protected readonly sessionInfo = this.initSessionInfo()
   public readonly eventEmitter = new EventEmitter<SessionEventEmitter>()
   public constructor(protected request: SessionRequest<AnySessionTarget>) {}
-  public getSessionInfo() {
+  public getSessionInfo(): Readonly<SessionInfo> {
     return copyFrozenObject(this.sessionInfo)
   }
   public stop() {

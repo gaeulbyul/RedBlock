@@ -38,6 +38,10 @@ interface UserIdsObject {
   ids: string[]
 }
 
+interface RecurringAlarmInfosObject {
+  [sessionId: string]: browser.alarms.Alarm
+}
+
 declare namespace RBMessageToBackground {
   interface CreateChainBlockSession {
     messageType: 'CreateChainBlockSession'
@@ -68,8 +72,8 @@ declare namespace RBMessageToBackground {
     sessionId: string
   }
 
-  interface RequestProgress {
-    messageType: 'RequestProgress'
+  interface RequestChainBlockInfo {
+    messageType: 'RequestChainBlockInfo'
     messageTo: 'background'
   }
 
@@ -122,7 +126,7 @@ declare type RBMessageToBackgroundType =
   | RBMessageToBackground.StopSession
   | RBMessageToBackground.StopAllSessions
   | RBMessageToBackground.RewindSession
-  | RBMessageToBackground.RequestProgress
+  | RBMessageToBackground.RequestChainBlockInfo
   | RBMessageToBackground.RequestCleanup
   | RBMessageToBackground.RequestBlockLimiterStatus
   | RBMessageToBackground.RequestResetCounter
@@ -136,6 +140,7 @@ declare namespace RBMessageToPopup {
     messageType: 'ChainBlockInfo'
     messageTo: 'popup'
     sessions: SessionInfo[]
+    recurringAlarmInfos: RecurringAlarmInfosObject
   }
 
   interface BlockLimiterInfo {

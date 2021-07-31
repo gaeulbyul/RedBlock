@@ -2,13 +2,13 @@ import { EventEmitter } from '../common'
 
 const RECURRING_INTERVAL = 5 // in minutes
 
-interface WakeSessionParameters {
+interface RecurringAlarm {
   sessionId: string
   alarm: browser.alarms.Alarm
 }
 
 interface RecurringManagerEventEmitter {
-  'wake-session': WakeSessionParameters
+  'wake-session': RecurringAlarm
 }
 
 function generateAlarmName(sessionId: string) {
@@ -32,12 +32,14 @@ export default class RecurringManager {
       })
     })
   }
-  public addSchedule(sessionId: string) {
+  public async addSchedule(sessionId: string): Promise<browser.alarms.Alarm> {
     const name = generateAlarmName(sessionId)
     this.nameToSessionId.set(name, sessionId)
     browser.alarms.create(name, {
       delayInMinutes: RECURRING_INTERVAL,
     })
+    const createdAlarm = await browser.alarms.get(name)
+    return createdAlarm!
   }
   public async removeSchedule(sessionId: string) {
     // 존재하지 않은 sessionId가 주어져도 조용히 넘어갈 것.
@@ -45,11 +47,23 @@ export default class RecurringManager {
     await browser.alarms.clear(name)
     this.nameToSessionId.delete(name)
   }
-  public onWake(handler: (params: WakeSessionParameters) => void) {
+  public onWake(handler: (params: RecurringAlarm) => void) {
     this.emitter.on('wake-session', handler)
   }
   public async clearAll() {
     await browser.alarms.clearAll()
     this.nameToSessionId.clear()
+  }
+  public async getAll(): Promise<RecurringAlarmInfosObject> {
+    const rAlarms: RecurringAlarmInfosObject = {}
+    const alarms = await browser.alarms.getAll()
+    alarms.forEach(alarm => {
+      const sessionId = this.nameToSessionId.get(alarm.name)
+      if (!sessionId) {
+        return
+      }
+      rAlarms[sessionId] = alarm
+    })
+    return rAlarms
   }
 }
