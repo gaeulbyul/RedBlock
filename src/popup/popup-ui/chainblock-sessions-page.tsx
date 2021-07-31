@@ -33,6 +33,9 @@ const newSessionPagesToShow: (keyof AvailablePages)[] = [
 function calculatePercentage(session: SessionInfo): number | null {
   const { status } = session
   const { scraped } = session.progress
+  if (status === SessionStatus.AwaitingUntilRecur) {
+    return 0
+  }
   if (status === SessionStatus.Completed) {
     return 100
   }

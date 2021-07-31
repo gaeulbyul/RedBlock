@@ -57,6 +57,8 @@ export function statusToString(status: SessionStatus): string {
   switch (status) {
     case SessionStatus.Initial:
       return i18n.getMessage('session_status_initial')
+    case SessionStatus.AwaitingUntilRecur:
+      return i18n.getMessage('session_status_awaiting')
     case SessionStatus.Completed:
       return i18n.getMessage('session_status_completed')
     case SessionStatus.Running:

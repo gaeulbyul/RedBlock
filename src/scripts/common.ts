@@ -31,6 +31,7 @@ const userNameBlacklist = [
 
 export const enum SessionStatus {
   Initial,
+  AwaitingUntilRecur,
   Running,
   RateLimited,
   Completed,
@@ -258,13 +259,24 @@ export function getCountOfUsersToBlock({
   }
 }
 
+/* runningSession이면...
+* 확장기능버튼 뱃지숫자에 합산됨
+* 동일세션 실행여부에 포함
+* '완료세션 지우기'에서 예외가 됨.
+*/
 export function isRunningSession({ status }: SessionInfo): boolean {
-  const runningStatuses = [SessionStatus.Initial, SessionStatus.Running, SessionStatus.RateLimited]
+  const runningStatuses = [
+    SessionStatus.Initial,
+    SessionStatus.AwaitingUntilRecur,
+    SessionStatus.Running,
+    SessionStatus.RateLimited,
+  ]
   return runningStatuses.includes(status)
 }
 
 export function isRewindableSession({ status }: SessionInfo): boolean {
   const rewindableStatus: SessionStatus[] = [
+    SessionStatus.AwaitingUntilRecur,
     SessionStatus.Completed,
     SessionStatus.Error,
     SessionStatus.Stopped,

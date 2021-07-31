@@ -23,6 +23,7 @@ interface SessionEventEmitter {
   started: SessionInfo
   stopped: SessionInfo
   complete: SessionInfo
+  'waiting-until-recur': SessionInfo
   error: string
 }
 
@@ -291,9 +292,12 @@ export class ChainBlockSession extends BaseSession {
           miniBuffer.length = 0
           promisesBuffer.length = 0
         }
-        if (stopped) {
+        if (stopped || this.shouldStop) {
           this.sessionInfo.status = SessionStatus.Stopped
           this.eventEmitter.emit('stopped', this.getSessionInfo())
+        } else if (this.request.recurring) {
+          this.sessionInfo.status = SessionStatus.AwaitingUntilRecur
+          this.eventEmitter.emit('waiting-until-recur', this.getSessionInfo())
         } else {
           this.sessionInfo.status = SessionStatus.Completed
           this.eventEmitter.emit('complete', this.getSessionInfo())

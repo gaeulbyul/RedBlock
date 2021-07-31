@@ -123,6 +123,7 @@ interface SessionRequest<Target extends AnySessionTarget> {
   }
   purpose: Purpose
   target: Target
+  recurring: boolean
 }
 
 interface SessionInfo {
@@ -142,6 +143,7 @@ interface SessionInfo {
   status: import('../../common').SessionStatus
   limit: import('../twitter-api').Limit | null
   exported?: boolean
+  completedAt?: number
 }
 
 interface ExportResult {

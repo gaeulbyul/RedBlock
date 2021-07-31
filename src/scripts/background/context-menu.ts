@@ -86,6 +86,7 @@ async function confirmChainBlockRequest(
     retriever,
     executor,
     extraTarget,
+    recurring: false,
   }
   const checkResult = chainblocker.checkRequest(request)
   if (checkResult === TargetCheckResult.Ok) {

@@ -138,6 +138,9 @@
   "session_status_error": {
     "message": "오류"
   },
+  "session_status_awaiting": {
+    "message": "되풀이 대기중…"
+  },
   "close": {
     "message": "닫기"
   },
