@@ -3,7 +3,8 @@ import ReactDOM from 'react-dom'
 import * as MaterialUI from '@material-ui/core'
 import throttle from 'lodash-es/throttle'
 
-import * as Storage from '../scripts/background/storage'
+import { onStorageChanged } from '../scripts/background/storage'
+import * as RedBlockOptionsStorage from '../scripts/background/storage/options'
 import { TabPanel } from '../popup/popup-ui/components'
 import { RedBlockOptionsContext } from './pages/contexts'
 import ChainBlockOptionsPage from './pages/chainblock'
@@ -39,11 +40,15 @@ function RedBlockOptionsUITheme(darkMode: boolean) {
 function OptionsApp() {
   const darkMode = MaterialUI.useMediaQuery('(prefers-color-scheme:dark)')
   const theme = React.useMemo(() => RedBlockOptionsUITheme(darkMode), [darkMode])
-  const [options, setOptions] = React.useState<RedBlockOptions>(Storage.defaultOptions)
-  const [uiOptions, setUIOptions] = React.useState<RedBlockUIOptions>(Storage.defaultUIOptions)
+  const [options, setOptions] = React.useState<RedBlockOptions>(
+    RedBlockOptionsStorage.defaultOptions
+  )
+  const [uiOptions, setUIOptions] = React.useState<RedBlockUIOptions>(
+    RedBlockOptionsStorage.defaultUIOptions
+  )
   const [tabPage, setTabPage] = React.useState<OptionsTabPage>('chainblock')
   const throttledSaveOptions = throttle(
-    (newOptions: RedBlockOptions) => Storage.saveOptions(newOptions),
+    (newOptions: RedBlockOptions) => RedBlockOptionsStorage.saveOptions(newOptions),
     50
   )
   async function updateOptions(newOptionsPart: Partial<RedBlockOptions>) {
@@ -52,15 +57,15 @@ function OptionsApp() {
   }
   async function updateUIOptions(newOptionsPart: Partial<RedBlockUIOptions>) {
     const newOptions: RedBlockUIOptions = { ...uiOptions, ...newOptionsPart }
-    await Storage.saveUIOptions(newOptions)
+    await RedBlockOptionsStorage.saveUIOptions(newOptions)
   }
   React.useEffect(() => {
-    Storage.loadOptions().then(setOptions)
-    return Storage.onStorageChanged('options', setOptions)
+    RedBlockOptionsStorage.loadOptions().then(setOptions)
+    return onStorageChanged('options', setOptions)
   }, [])
   React.useEffect(() => {
-    Storage.loadUIOptions().then(setUIOptions)
-    return Storage.onStorageChanged('uiOptions', setUIOptions)
+    RedBlockOptionsStorage.loadUIOptions().then(setUIOptions)
+    return onStorageChanged('uiOptions', setUIOptions)
   }, [])
   return (
     <M.ThemeProvider theme={theme}>

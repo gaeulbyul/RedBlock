@@ -1,4 +1,4 @@
-import { loadOptions } from './storage'
+import { loadOptions } from './storage/options'
 import { sleep } from '../common'
 import {
   getAllCookies,

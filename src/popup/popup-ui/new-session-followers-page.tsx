@@ -2,7 +2,8 @@ import React from 'react'
 import * as MaterialUI from '@material-ui/core'
 import sortBy from 'lodash-es/sortBy'
 
-import * as Storage from '../../scripts/background/storage'
+import * as RedBlockBookmarksStorage from '../../scripts/background/storage/bookmarks'
+import { onStorageChanged } from '../../scripts/background/storage'
 import { TwClient } from '../../scripts/background/twitter-api'
 import { TwitterUserMap } from '../../scripts/common'
 import * as TextGenerate from '../../scripts/text-generate'
@@ -108,12 +109,14 @@ function useBookmarkModifier(bookmarkedUsers: TwitterUserMap) {
         uiContext.openSnackBar(i18n.getMessage('user_xxx_already_exists', user.screen_name))
         return
       }
-      await Storage.insertItemToBookmark(Storage.createBookmarkUserItem(user))
+      await RedBlockBookmarksStorage.insertItemToBookmark(
+        RedBlockBookmarksStorage.createBookmarkUserItem(user)
+      )
       uiContext.openSnackBar(i18n.getMessage('user_xxx_added', user.screen_name))
     },
     async removeUserFromBookmark(user: TwitterUser) {
       const userId = user.id_str
-      await Storage.modifyBookmarksWith(bookmarks => {
+      await RedBlockBookmarksStorage.modifyBookmarksWith(bookmarks => {
         const itemToRemove = Array.from(bookmarks.values()).find(
           item => item.type === 'user' && item.userId === userId
         )
@@ -286,14 +289,14 @@ function TargetUserSelectUI() {
     }
   }
   React.useEffect(() => {
-    Storage.loadBookmarksAsMap('user').then(async bookmarks => {
+    RedBlockBookmarksStorage.loadBookmarksAsMap('user').then(async bookmarks => {
       const userIds = Array.from(bookmarks.values())
         .filter(item => item.type === 'user')
         .map(item => (item as BookmarkUserItem).userId)
       const users = await getMultipleUsersByIdWithCache(twClient, userIds)
       setBookmarkedUsers(users)
     })
-    return Storage.onStorageChanged('bookmarks', async bookmarks => {
+    return onStorageChanged('bookmarks', async bookmarks => {
       const userIds = bookmarks
         .filter(item => item.type === 'user')
         .map(item => (item as BookmarkUserItem).userId)

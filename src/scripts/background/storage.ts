@@ -1,28 +1,3 @@
-export {
-  loadBadWords,
-  saveBadWords,
-  editBadWord,
-  insertBadWord,
-  removeBadWord,
-} from './storage/badwords'
-export {
-  loadOptions,
-  saveOptions,
-  defaultOptions,
-  loadUIOptions,
-  saveUIOptions,
-  defaultUIOptions,
-} from './storage/options'
-export {
-  loadBookmarksAsMap,
-  createBookmarkUserItem,
-  createBookmarkTweetItem,
-  insertItemToBookmark,
-  removeBookmarkById,
-  modifyBookmarksWith,
-} from './storage/bookmarks'
-// TODO: export-from 문 제거?
-
 import { loadOptions, loadUIOptions } from './storage/options'
 import { loadBadWords } from './storage/badwords'
 import { loadBookmarks } from './storage/bookmarks'

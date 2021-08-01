@@ -1,5 +1,5 @@
 import { TwitterURL } from '../scripts/common'
-import { loadOptions } from '../scripts/background/storage'
+import { loadOptions } from '../scripts/background/storage/options'
 import type { TwClient } from '../scripts/background/twitter-api'
 import { examineRetrieverByTweetId } from '../scripts/background/blockbuster'
 

@@ -1,6 +1,6 @@
 import React from 'react'
 
-import { defaultOptions } from '../../scripts/background/storage'
+import { defaultOptions } from '../../scripts/background/storage/options'
 import type { PageId, AvailablePages } from './pages'
 import type { DialogContent } from './components'
 

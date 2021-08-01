@@ -8,7 +8,7 @@ import { TargetCheckResult } from './target-checker'
 import { generateConfirmMessage, checkResultToString, objToString } from '../text-generate'
 import { alertToTab } from './background'
 import { getCookieStoreIdFromTab } from './cookie-handler'
-import { loadOptions, loadUIOptions } from './storage'
+import { loadOptions, loadUIOptions } from './storage/options'
 import { defaultUIOptions } from './storage/options'
 import { examineRetrieverByTargetUser } from './blockbuster'
 import { toggleOneClickBlockMode } from './misc'
@@ -100,8 +100,7 @@ function showErrorAlert({
 
 async function executeMultitude(tab: BrowserTab, userName: string, action: UserAction) {
   const cookieStoreId = await getCookieStoreIdFromTab(tab)
-  const clientOptions = { cookieStoreId }
-  const twClient = new TwitterAPI.TwClient(clientOptions)
+  const twClient = new TwitterAPI.TwClient({ cookieStoreId })
   const maybeUser = await getUserByName(twClient, userName)
   if (maybeUser.ok) {
     const user = maybeUser.value

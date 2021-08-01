@@ -3,7 +3,8 @@ import * as MaterialUI from '@material-ui/core'
 import sortBy from 'lodash-es/sortBy'
 import * as i18n from '~~/scripts/i18n'
 
-import * as Storage from '../../scripts/background/storage'
+import { onStorageChanged } from '../../scripts/background/storage'
+import * as RedBlockBadWordsStorage from '../../scripts/background/storage/badwords'
 import { RedBlockOptionsContext } from './contexts'
 
 const M = MaterialUI
@@ -70,12 +71,12 @@ function BadwordsTable() {
   const [newBadWordIsRegExp, setNewBadWordIsRegExp] = React.useState(false)
   const [newBadWordWordInputRef] = React.useState(() => React.createRef<HTMLInputElement>())
   React.useEffect(() => {
-    Storage.loadBadWords().then(setBadWords)
-    return Storage.onStorageChanged('badWords', setBadWords)
+    RedBlockBadWordsStorage.loadBadWords().then(setBadWords)
+    return onStorageChanged('badWords', setBadWords)
   }, [])
   async function insertWord() {
     const newWord = newBadWordWord
-    await Storage.insertBadWord(newWord, newBadWordIsRegExp)
+    await RedBlockBadWordsStorage.insertBadWord(newWord, newBadWordIsRegExp)
     setNewBadWordWord('')
     setNewBadWordIsRegExp(false)
   }
@@ -87,7 +88,7 @@ function BadwordsTable() {
     newBadWordWordInputRef.current!.focus()
   }
   async function removeWordById(wordId: string) {
-    return Storage.removeBadWord(wordId)
+    return RedBlockBadWordsStorage.removeBadWord(wordId)
   }
   async function modifyAbilityOfWordById(wordId: string, enabled: boolean) {
     const wordToEdit = badWords.filter(bw => bw.id === wordId)[0]
@@ -95,7 +96,7 @@ function BadwordsTable() {
       ...wordToEdit,
       enabled,
     }
-    return Storage.editBadWord(wordId, modified)
+    return RedBlockBadWordsStorage.editBadWord(wordId, modified)
   }
   async function handleKeypressEvent(event: React.KeyboardEvent<HTMLInputElement>) {
     if (event.key !== 'Enter') {

@@ -7,7 +7,8 @@ import { initializeWebRequest } from './webrequest'
 import BlockLimiter from './block-limiter'
 import { assertNever } from '../common'
 import { getCookieStoreIdFromTab } from './cookie-handler'
-import { loadUIOptions, migrateStorage } from './storage'
+import { migrateStorage } from './storage'
+import { loadUIOptions } from './storage/options'
 import * as i18n from '~~/scripts/i18n'
 
 const chainblocker = new ChainBlocker()
