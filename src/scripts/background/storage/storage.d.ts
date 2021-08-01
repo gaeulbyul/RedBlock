@@ -1,6 +1,4 @@
 type InactivePeriod = 'never' | '1y' | '2y' | '3y'
-type NonLinkedMentionPattern = 'common' | 'aggressive'
-// TODO 위에꺼 지우자..
 
 interface BadWordItem {
   id: string
