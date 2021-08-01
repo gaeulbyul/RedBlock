@@ -21,26 +21,9 @@ export {
   removeBookmarkById,
   modifyBookmarksWith,
 } from './storage/bookmarks'
+// TODO: export-from 문 제거?
 
 import { defaultOptions, defaultUIOptions } from './storage/options'
-import * as SavedUsers from './storage/saveduser'
-import * as Bookmarks from './storage/bookmarks'
-
-async function migrateToBookmarks() {
-  const savedUsers = await SavedUsers.loadUsers()
-  if (savedUsers.size <= 0) {
-    return
-  }
-  console.debug('migrating bookmarks...')
-  await Bookmarks.modifyBookmarksWith(bookmarks => {
-    for (const user of savedUsers.values()) {
-      const item = Bookmarks.createBookmarkUserItem(user)
-      bookmarks.set(item.itemId, item)
-    }
-    return bookmarks
-  })
-  await browser.storage.local.remove('savedUsers')
-}
 
 export function onStorageChanged<K extends keyof RedBlockStorage>(
   key: K,
@@ -70,7 +53,6 @@ export function onStorageChanged<K extends keyof RedBlockStorage>(
 }
 
 export async function migrateStorage() {
-  await migrateToBookmarks()
   await browser.storage.local.set({
     $$version$$: 'v0.14.0.0',
   })

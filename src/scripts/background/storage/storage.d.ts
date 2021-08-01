@@ -3,7 +3,6 @@ type NonLinkedMentionPattern = 'common' | 'aggressive'
 
 interface RedBlockStorage {
   $$version$$: 'v0.14.0.0'
-  savedUsers: TwitterUser[]
   bookmarks: BookmarkItem[]
   options: {
     removeSessionAfterComplete: boolean
