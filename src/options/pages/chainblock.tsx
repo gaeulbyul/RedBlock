@@ -37,6 +37,7 @@ function BlockDelaySlider() {
         min={0}
         max={10}
         step={0.1}
+        color="secondary"
         valueLabelDisplay="auto"
       />
     </M.FormControl>
