@@ -975,5 +975,23 @@
   },
   "redblock_restore_settings": {
     "message": "설정파일 복원"
+  },
+  "enable_multitude": {
+    "message": "멀티액션 기능 활성화"
+  },
+  "enable_multitude_description": {
+    "message": "내가 현재 로그인한 계정 전체에서 특정 유저를 차단하거나 뮤트할 수 있는 기능입니다. 우클릭메뉴에서 사용할 수 있습니다."
+  },
+  "multitude_block_user": {
+    "message": "로그인한 전체계정 동원하여 차단하기"
+  },
+  "multitude_unblock_user": {
+    "message": "로그인한 전체계정 동원하여 차단해제하기"
+  },
+  "multitude_mute_user": {
+    "message": "로그인한 전체계정 동원하여 뮤트하기"
+  },
+  "multitude_unmute_user": {
+    "message": "로그인한 전체계정 동원하여 언뮤트하기"
   }
 }

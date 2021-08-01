@@ -8,7 +8,11 @@ import * as i18n from '~~/scripts/i18n'
 const M = MaterialUI
 
 function RightClickMenusPaper() {
-  const { uiOptions, updateUIOptions } = React.useContext(RedBlockOptionsContext)
+  const {
+    options: { enableMultitude },
+    uiOptions,
+    updateUIOptions,
+  } = React.useContext(RedBlockOptionsContext)
   const currentMenus = uiOptions.menus
   function updateMenusOption(newOptionsPart: Partial<RedBlockUIOptions['menus']>) {
     updateUIOptions({
@@ -135,6 +139,55 @@ function RightClickMenusPaper() {
               }
             />
           </M.FormGroup>
+          {enableMultitude && (
+            <React.Fragment>
+              <M.Divider variant="middle" />
+              <M.FormGroup>
+                <CheckboxItem
+                  checked={currentMenus.multitudeBlock}
+                  label={i18n.getMessage('multitude_block_user')}
+                  onChange={checked =>
+                    updateMenusOption({
+                      multitudeBlock: checked,
+                    })
+                  }
+                />
+              </M.FormGroup>
+              <M.FormGroup>
+                <CheckboxItem
+                  checked={currentMenus.multitudeUnblock}
+                  label={i18n.getMessage('multitude_unblock_user')}
+                  onChange={checked =>
+                    updateMenusOption({
+                      multitudeUnblock: checked,
+                    })
+                  }
+                />
+              </M.FormGroup>
+              <M.FormGroup>
+                <CheckboxItem
+                  checked={currentMenus.multitudeMute}
+                  label={i18n.getMessage('multitude_mute_user')}
+                  onChange={checked =>
+                    updateMenusOption({
+                      multitudeMute: checked,
+                    })
+                  }
+                />
+              </M.FormGroup>
+              <M.FormGroup>
+                <CheckboxItem
+                  checked={currentMenus.multitudeUnmute}
+                  label={i18n.getMessage('multitude_unmute_user')}
+                  onChange={checked =>
+                    updateMenusOption({
+                      multitudeUnmute: checked,
+                    })
+                  }
+                />
+              </M.FormGroup>
+            </React.Fragment>
+          )}
         </M.FormControl>
       </M.Box>
     </M.Paper>

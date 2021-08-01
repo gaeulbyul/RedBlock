@@ -975,5 +975,23 @@
   },
   "redblock_restore_settings": {
     "message": "Restore Settings"
+  },
+  "enable_multitude": {
+    "message": "Enable Multi-action"
+  },
+  "enable_multitude_description": {
+    "message": "Block or mute the specific user with all of the accounts you logged in. It is available in right-click menu."
+  },
+  "multitude_block_user": {
+    "message": "Block this user with all of your accounts"
+  },
+  "multitude_unblock_user": {
+    "message": "Unblock this user with all of your accounts"
+  },
+  "multitude_mute_user": {
+    "message": "Mute this user with all of your accounts"
+  },
+  "multitude_unmute_user": {
+    "message": "Unmute this user with all of your accounts"
   }
 }

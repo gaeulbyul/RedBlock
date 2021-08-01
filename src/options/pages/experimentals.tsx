@@ -66,6 +66,19 @@ export default function ExperimentalOptionsPages() {
             />
           </M.FormGroup>
           <M.FormHelperText>{i18n.getMessage('enable_reactions_v2_description')}</M.FormHelperText>
+          <M.Divider variant="middle" />
+          <M.FormGroup>
+            <SwitchItem
+              checked={options.enableMultitude}
+              label={i18n.getMessage('enable_multitude')}
+              onChange={checked =>
+                updateOptions({
+                  enableMultitude: checked,
+                })
+              }
+            />
+          </M.FormGroup>
+          <M.FormHelperText>{i18n.getMessage('enable_multitude_description')}</M.FormHelperText>
         </M.FormControl>
       </M.Box>
     </M.Paper>

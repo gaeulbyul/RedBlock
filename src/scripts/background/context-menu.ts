@@ -12,6 +12,12 @@ import { loadOptions, loadUIOptions } from './storage'
 import { defaultUIOptions } from './storage/options'
 import { examineRetrieverByTargetUser } from './blockbuster'
 import { toggleOneClickBlockMode } from './misc'
+import {
+  blockWithMultipleAccounts,
+  unblockWithMultipleAccounts,
+  muteWithMultipleAccounts,
+  unmuteWithMultipleAccounts,
+} from './multitude'
 import type ChainBlocker from './chainblock'
 import * as i18n from '~~/scripts/i18n'
 
@@ -67,6 +73,59 @@ async function initExecutorActor(tab: BrowserTab): Promise<Actor | null> {
   }
 }
 
+async function getUserByName(
+  twClient: TwClient,
+  userName: string
+): Promise<Either<TwitterAPI.ErrorResponse, TwitterUser>> {
+  return twClient
+    .getSingleUser({ screen_name: userName })
+    .then(user => ({ ok: true as const, value: user }))
+    .catch(error => ({ ok: false, error }))
+}
+
+function showErrorAlert({
+  tab,
+  userName,
+  error: { errors },
+}: {
+  tab: BrowserTab
+  userName: string
+  error: TwitterAPI.ErrorResponse
+}) {
+  let errorMessage = i18n.getMessage('error_occured_on_retrieving_user', userName)
+  errorMessage += '\n==========\n'
+  errorMessage += errors[0].message
+  alertToTab(tab, errorMessage)
+}
+
+async function executeMultitude(tab: BrowserTab, userName: string, action: UserAction) {
+  const cookieStoreId = await getCookieStoreIdFromTab(tab)
+  const clientOptions = { cookieStoreId }
+  const twClient = new TwitterAPI.TwClient(clientOptions)
+  const maybeUser = await getUserByName(twClient, userName)
+  if (maybeUser.ok) {
+    const user = maybeUser.value
+    switch (action) {
+      case 'Block':
+        await blockWithMultipleAccounts(user)
+        break
+      case 'UnBlock':
+        await unblockWithMultipleAccounts(user)
+        break
+      case 'Mute':
+        await muteWithMultipleAccounts(user)
+        break
+      case 'UnMute':
+        await unmuteWithMultipleAccounts(user)
+        break
+    }
+  } else {
+    const { error } = maybeUser
+    showErrorAlert({ tab, userName, error })
+    return
+  }
+}
+
 async function confirmChainBlockRequest(
   tab: BrowserTab,
   chainblocker: ChainBlocker,
@@ -109,10 +168,7 @@ async function confirmFollowerChainBlockRequest(
     return
   }
   const twClient = new TwitterAPI.TwClient(executor.clientOptions)
-  const maybeUser: Either<TwitterAPI.ErrorResponse, TwitterUser> = await twClient
-    .getSingleUser({ screen_name: userName })
-    .then(user => ({ ok: true as const, value: user }))
-    .catch(error => ({ ok: false, error }))
+  const maybeUser = await getUserByName(twClient, userName)
   if (maybeUser.ok) {
     const user = maybeUser.value
     return confirmChainBlockRequest(tab, chainblocker, executor, {
@@ -121,13 +177,8 @@ async function confirmFollowerChainBlockRequest(
       user,
     })
   } else {
-    const {
-      error: { errors },
-    } = maybeUser
-    let errorMessage = i18n.getMessage('error_occured_on_retrieving_user', userName)
-    errorMessage += '\n==========\n'
-    errorMessage += errors[0].message
-    alertToTab(tab, errorMessage)
+    const { error } = maybeUser
+    showErrorAlert({ tab, userName, error })
     return
   }
 }
@@ -224,6 +275,7 @@ export async function initializeContextMenu(
 ) {
   connectedChainblocker = chainblocker
   await menus.removeAll()
+  const redblockOptions = await loadOptions()
   // 우클릭 - 유저
   menus.create({
     contexts: ['link'],
@@ -391,6 +443,70 @@ export async function initializeContextMenu(
       const twURL = new TwitterURL(clickEvent.linkUrl!)
       const hashtag = twURL.getHashTag()!
       confirmUserHashTagChainBlockRequest(tab, chainblocker, hashtag)
+    },
+  })
+  menus.create({
+    contexts: ['link'],
+    documentUrlPatterns,
+    targetUrlPatterns: urlPatterns,
+    title: i18n.getMessage('multitude_block_user'),
+    visible: redblockOptions.enableMultitude && enabledMenus.multitudeBlock,
+    async onclick(clickEvent, tab) {
+      const twURL = new TwitterURL(clickEvent.linkUrl!)
+      const userName = twURL.getUserName()
+      if (!userName) {
+        alertToTab(tab, i18n.getMessage('cant_find_username_in_given_url', twURL.toString()))
+        return
+      }
+      executeMultitude(tab, userName, 'Block')
+    },
+  })
+  menus.create({
+    contexts: ['link'],
+    documentUrlPatterns,
+    targetUrlPatterns: urlPatterns,
+    title: i18n.getMessage('multitude_unblock_user'),
+    visible: redblockOptions.enableMultitude && enabledMenus.multitudeUnblock,
+    async onclick(clickEvent, tab) {
+      const twURL = new TwitterURL(clickEvent.linkUrl!)
+      const userName = twURL.getUserName()
+      if (!userName) {
+        alertToTab(tab, i18n.getMessage('cant_find_username_in_given_url', twURL.toString()))
+        return
+      }
+      executeMultitude(tab, userName, 'UnBlock')
+    },
+  })
+  menus.create({
+    contexts: ['link'],
+    documentUrlPatterns,
+    targetUrlPatterns: urlPatterns,
+    title: i18n.getMessage('multitude_mute_user'),
+    visible: redblockOptions.enableMultitude && enabledMenus.multitudeMute,
+    async onclick(clickEvent, tab) {
+      const twURL = new TwitterURL(clickEvent.linkUrl!)
+      const userName = twURL.getUserName()
+      if (!userName) {
+        alertToTab(tab, i18n.getMessage('cant_find_username_in_given_url', twURL.toString()))
+        return
+      }
+      executeMultitude(tab, userName, 'Mute')
+    },
+  })
+  menus.create({
+    contexts: ['link'],
+    documentUrlPatterns,
+    targetUrlPatterns: urlPatterns,
+    title: i18n.getMessage('multitude_unmute_user'),
+    visible: redblockOptions.enableMultitude && enabledMenus.multitudeUnmute,
+    async onclick(clickEvent, tab) {
+      const twURL = new TwitterURL(clickEvent.linkUrl!)
+      const userName = twURL.getUserName()
+      if (!userName) {
+        alertToTab(tab, i18n.getMessage('cant_find_username_in_given_url', twURL.toString()))
+        return
+      }
+      executeMultitude(tab, userName, 'UnMute')
     },
   })
   // 확장기능버튼

@@ -2,7 +2,7 @@ import * as CookieHandler from './cookie-handler'
 import { TwClient } from './twitter-api'
 import { loadOptions } from './storage'
 
-async function* iterateAvailableTwClients(): AsyncIterableIterator<TwClient> {
+export async function* iterateAvailableTwClients(): AsyncIterableIterator<TwClient> {
   const cookieStores = await browser.cookies.getAllCookieStores()
   for (const store of cookieStores) {
     const cookieStoreId = store.id
