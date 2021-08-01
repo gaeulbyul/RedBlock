@@ -95,7 +95,6 @@ export async function nukeRedBlockSettings() {
     messageType: 'RequestCleanup',
     cleanupWhat: 'nuke-all',
   }
-  await browser.runtime.sendMessage(msg)
-  await browser.storage.local.clear()
   localStorage.clear()
+  await Promise.all([browser.runtime.sendMessage(msg), browser.storage.local.clear()])
 }

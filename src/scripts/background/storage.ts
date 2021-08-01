@@ -14,7 +14,7 @@ export {
   defaultUIOptions,
 } from './storage/options'
 export {
-  loadBookmarks,
+  loadBookmarksAsMap,
   createBookmarkUserItem,
   createBookmarkTweetItem,
   insertItemToBookmark,
@@ -23,7 +23,14 @@ export {
 } from './storage/bookmarks'
 // TODO: export-from 문 제거?
 
+import { loadOptions, loadUIOptions } from './storage/options'
+import { loadBadWords } from './storage/badwords'
+import { loadBookmarks } from './storage/bookmarks'
+
 import { defaultOptions, defaultUIOptions } from './storage/options'
+import { validateStorage } from './storage/validator'
+
+const REDBLOCK_STORAGE_VERSION = 'v0.14.0.0'
 
 export function onStorageChanged<K extends keyof RedBlockStorage>(
   key: K,
@@ -54,7 +61,21 @@ export function onStorageChanged<K extends keyof RedBlockStorage>(
 
 export async function migrateStorage() {
   await browser.storage.local.set({
-    $$version$$: 'v0.14.0.0',
+    $$version$$: REDBLOCK_STORAGE_VERSION,
   })
   browser.runtime.onInstalled.removeListener(migrateStorage)
+}
+
+export async function dumpStorage(): Promise<RedBlockStorage> {
+  const options = await loadOptions()
+  const uiOptions = await loadUIOptions()
+  const bookmarks = await loadBookmarks()
+  const badWords = await loadBadWords()
+  return validateStorage({
+    $$version$$: REDBLOCK_STORAGE_VERSION,
+    options,
+    uiOptions,
+    bookmarks,
+    badWords,
+  })
 }

@@ -286,7 +286,7 @@ function TargetUserSelectUI() {
     }
   }
   React.useEffect(() => {
-    Storage.loadBookmarks('user').then(async bookmarks => {
+    Storage.loadBookmarksAsMap('user').then(async bookmarks => {
       const userIds = Array.from(bookmarks.values())
         .filter(item => item.type === 'user')
         .map(item => (item as BookmarkUserItem).userId)

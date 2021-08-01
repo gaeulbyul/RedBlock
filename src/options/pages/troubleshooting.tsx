@@ -9,6 +9,7 @@ import {
   deleteTwitterCookies,
   nukeRedBlockSettings,
 } from '../../scripts/background/misc'
+import { dumpStorage } from '../../scripts/background/storage'
 import { validateStorage } from '../../scripts/background/storage/validator'
 
 function checkFirstPartyIsolationSupport() {
@@ -29,7 +30,7 @@ const T = MaterialUI.Typography
 function OptionsBackupUI() {
   const [fileInput] = React.useState(React.createRef<HTMLInputElement>())
   async function exportOptions() {
-    const storage = await browser.storage.local.get()
+    const storage = await dumpStorage()
     const manifest = browser.runtime.getManifest()
     const filename = `${manifest.name}-Settings-v${manifest.version}.json`
     const json = JSON.stringify(storage, null, '\t')
@@ -105,6 +106,7 @@ function OptionsBackupUI() {
 export default function TroubleShootingsPage() {
   const { options, updateOptions } = React.useContext(RedBlockOptionsContext)
   const firstPartyIsolatableBrowser = checkFirstPartyIsolationSupport()
+  const [resetCompleted, setResetCompleted] = React.useState(false)
   function confirmCookieDeletion() {
     const ok = window.confirm(i18n.getMessage('confirm_delete_cookie'))
     if (!ok) {
@@ -121,8 +123,9 @@ export default function TroubleShootingsPage() {
     if (!ok) {
       return
     }
-    nukeRedBlockSettings()
-    location.reload()
+    nukeRedBlockSettings().then(() => {
+      setResetCompleted(true)
+    })
   }
   return (
     <React.Fragment>
@@ -176,8 +179,9 @@ export default function TroubleShootingsPage() {
                     onClick={confirmFactoryReset}
                     color="primary"
                     startIcon={<M.Icon>error_outline</M.Icon>}
+                    disabled={resetCompleted}
                   >
-                    <span>RESET</span>
+                    <span>{resetCompleted ? 'Reseted!!' : 'RESET'}</span>
                   </M.Button>
                 </div>
               </M.FormControl>

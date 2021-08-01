@@ -1,6 +1,8 @@
 type BookmarksMap = Map<string, BookmarkItem>
 
-export async function loadBookmarks(desiredType?: BookmarkItem['type']): Promise<BookmarksMap> {
+export async function loadBookmarksAsMap(
+  desiredType?: BookmarkItem['type']
+): Promise<BookmarksMap> {
   const { bookmarks } = (await browser.storage.local.get('bookmarks')) as unknown as RedBlockStorage
   if (bookmarks) {
     if (desiredType) {
@@ -13,6 +15,11 @@ export async function loadBookmarks(desiredType?: BookmarkItem['type']): Promise
   }
 }
 
+export async function loadBookmarks(): Promise<BookmarkItem[]> {
+  const { bookmarks } = (await browser.storage.local.get('bookmarks')) as unknown as RedBlockStorage
+  return bookmarks || []
+}
+
 async function saveBookmarks(bookmarksMap: BookmarksMap): Promise<void> {
   const bookmarks = mapToArray(bookmarksMap)
   const storageObject = { bookmarks }
@@ -20,13 +27,13 @@ async function saveBookmarks(bookmarksMap: BookmarksMap): Promise<void> {
 }
 
 export async function insertItemToBookmark(item: BookmarkItem): Promise<void> {
-  const bookmarks = await loadBookmarks()
+  const bookmarks = await loadBookmarksAsMap()
   bookmarks.set(item.itemId, item)
   return saveBookmarks(bookmarks)
 }
 
 export async function removeBookmarkById(itemId: string): Promise<void> {
-  const bookmarks = await loadBookmarks()
+  const bookmarks = await loadBookmarksAsMap()
   bookmarks.delete(itemId)
   return saveBookmarks(bookmarks)
 }
@@ -34,7 +41,7 @@ export async function removeBookmarkById(itemId: string): Promise<void> {
 export async function modifyBookmarksWith(
   callback: (bookmark: BookmarksMap) => BookmarksMap
 ): Promise<void> {
-  const bookmarks = await loadBookmarks()
+  const bookmarks = await loadBookmarksAsMap()
   const newBookmarks = callback(bookmarks)
   return saveBookmarks(newBookmarks)
 }
