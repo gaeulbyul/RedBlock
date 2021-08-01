@@ -1,4 +1,5 @@
 import { loadOptions } from './storage'
+import { sleep } from '../common'
 import {
   getAllCookies,
   removeCookie,
@@ -95,6 +96,9 @@ export async function nukeRedBlockSettings() {
     messageType: 'RequestCleanup',
     cleanupWhat: 'nuke-all',
   }
+  // sendMessage는 응답이 안 돌아오므로 await이 소용없겠더라.
+  browser.runtime.sendMessage(msg)
   localStorage.clear()
-  await Promise.all([browser.runtime.sendMessage(msg), browser.storage.local.clear()])
+  await browser.storage.local.clear()
+  await sleep(1000)
 }

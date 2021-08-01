@@ -106,6 +106,7 @@ function OptionsBackupUI() {
 export default function TroubleShootingsPage() {
   const { options, updateOptions } = React.useContext(RedBlockOptionsContext)
   const firstPartyIsolatableBrowser = checkFirstPartyIsolationSupport()
+  const [resetInProgress, setResetInProgress] = React.useState(false)
   const [resetCompleted, setResetCompleted] = React.useState(false)
   function confirmCookieDeletion() {
     const ok = window.confirm(i18n.getMessage('confirm_delete_cookie'))
@@ -123,8 +124,11 @@ export default function TroubleShootingsPage() {
     if (!ok) {
       return
     }
+    setResetCompleted(false)
+    setResetInProgress(true)
     nukeRedBlockSettings().then(() => {
       setResetCompleted(true)
+      setResetInProgress(false)
     })
   }
   return (
@@ -173,17 +177,22 @@ export default function TroubleShootingsPage() {
                 <M.FormLabel>
                   <T color="error">{i18n.getMessage('redblock_factory_reset')}</T>
                 </M.FormLabel>
-                <div>
+                <M.Box display="flex" flexDirection="row" alignItems="center">
                   <M.Button
                     variant="contained"
                     onClick={confirmFactoryReset}
                     color="primary"
                     startIcon={<M.Icon>error_outline</M.Icon>}
-                    disabled={resetCompleted}
+                    disabled={resetInProgress || resetCompleted}
                   >
                     <span>{resetCompleted ? 'Reseted!!' : 'RESET'}</span>
                   </M.Button>
-                </div>
+                  {resetInProgress && (
+                    <M.Box mx={1}>
+                      <M.CircularProgress size={24} color="secondary" />
+                    </M.Box>
+                  )}
+                </M.Box>
               </M.FormControl>
               <M.FormHelperText error={true}>
                 {i18n.getMessage('redblock_factory_reset_description')}
