@@ -69,7 +69,7 @@ async function twClientFromTab(tab: browser.tabs.Tab): Promise<TwitterAPI.TwClie
   if (!tab) {
     throw new Error('tab is missing')
   }
-  let cookieStoreId = await getCookieStoreIdFromTab(tab)
+  const cookieStoreId = await getCookieStoreIdFromTab(tab)
   return new TwitterAPI.TwClient({ cookieStoreId })
 }
 

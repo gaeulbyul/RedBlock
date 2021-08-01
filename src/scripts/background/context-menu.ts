@@ -8,8 +8,8 @@ import { TargetCheckResult } from './target-checker'
 import { generateConfirmMessage, checkResultToString, objToString } from '../text-generate'
 import { alertToTab } from './background'
 import { getCookieStoreIdFromTab } from './cookie-handler'
-import { loadOptions, loadUIOptions } from './storage/options'
-import { defaultUIOptions } from './storage/options'
+import { loadOptions, loadUIOptions, defaultUIOptions } from './storage/options'
+
 import { examineRetrieverByTargetUser } from './blockbuster'
 import { toggleOneClickBlockMode } from './misc'
 import {
