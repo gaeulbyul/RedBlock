@@ -71,5 +71,8 @@ export function onStorageChanged<K extends keyof RedBlockStorage>(
 
 export async function migrateStorage() {
   await migrateToBookmarks()
+  await browser.storage.local.set({
+    $$version$$: 'v0.14.0.0',
+  })
   browser.runtime.onInstalled.removeListener(migrateStorage)
 }

@@ -127,7 +127,7 @@ export async function exportBlocklist({ filename, userIds }: ExportResult) {
   }
   const csv = Array.from(userIds).join('\n')
   const csvFile = new File([csv], filename, { type: 'text/csv' })
-  let objectUrl = URL.createObjectURL(csvFile)
+  const objectUrl = URL.createObjectURL(csvFile)
   await browser.downloads
     .download({
       url: objectUrl,
