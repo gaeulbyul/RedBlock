@@ -239,15 +239,6 @@ interface ToastMessageParam {
   undoBlock?: UndoOneClickBlockByIdParam
 }
 
-// ---- 1click block related ----
-
-interface BadWordItem {
-  id: string
-  enabled: boolean
-  word: string
-  regexp: boolean
-}
-
 // ---- block limitation ----
 
 interface BlockLimiterStatus {

@@ -4,6 +4,7 @@ import * as MaterialUI from '@material-ui/core'
 import throttle from 'lodash-es/throttle'
 
 import * as Storage from '../scripts/background/storage'
+import { validateStorage } from '../scripts/background/storage/validator'
 import { TabPanel } from '../popup/popup-ui/components'
 import { RedBlockOptionsContext } from './pages/contexts'
 import ChainBlockOptionsPage from './pages/chainblock'
@@ -66,9 +67,15 @@ function OptionsBackupUI() {
       const file = files[0]
       const text = await file.text()
       const json = JSON.parse(text)
-      await browser.storage.local.set(json)
-    } catch {
-      window.alert('failed to import file!')
+      const rbStorage = validateStorage(json)
+      // @ts-ignore
+      await browser.storage.local.set(rbStorage)
+    } catch (err: unknown) {
+      let errorMessage = ''
+      if (err instanceof Error) {
+        errorMessage = `${err.name}: ${err.message}`
+      }
+      window.alert('Error detected in file!\n' + errorMessage)
     }
   }
   return (

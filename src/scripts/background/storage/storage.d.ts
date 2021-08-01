@@ -1,6 +1,17 @@
 type InactivePeriod = 'never' | '1y' | '2y' | '3y'
 type NonLinkedMentionPattern = 'common' | 'aggressive'
+// TODO 위에꺼 지우자..
 
+interface BadWordItem {
+  id: string
+  enabled: boolean
+  word: string
+  regexp: boolean
+}
+
+// ////////////////////////////////////////
+// 중요: 파일수정시 validator도 같이 수정할 것.
+// ////////////////////////////////////////
 interface RedBlockStorage {
   $$version$$: 'v0.14.0.0'
   bookmarks: BookmarkItem[]

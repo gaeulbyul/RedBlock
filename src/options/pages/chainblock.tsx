@@ -41,6 +41,7 @@ function BlockDelaySlider() {
       />
     </M.FormControl>
   )
+  // min-max 수정 시 validator도 같이 고칠것.
 }
 
 function ChainBlockOptionsPaper() {
@@ -154,6 +155,7 @@ function ChainBlockOptionsPaper() {
       </M.Box>
     </M.Paper>
   )
+  // n분 선택시 수정시 validator도 같이 고칠것.
 }
 
 export default function ChainBlockOptionsPage() {
