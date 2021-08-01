@@ -16,8 +16,8 @@
     }
   },
   "resolutions": {
-    "@types/react": "^16",
-    "@types/react-dom": "^16"
+    "@types/react": "^16.14.11",
+    "@types/react-dom": "^16.9.14"
   },
   "devDependencies": {
     "@material-ui/core": "4",
@@ -43,7 +43,6 @@
     "webpack-cli": "^4.7.2"
   },
   "dependencies": {
-    "@babel/runtime": "^7.14.6",
     "lodash-es": "^4.17.21",
     "react": "^16",
     "react-dom": "^16",
