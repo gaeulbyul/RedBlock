@@ -969,5 +969,11 @@
   },
   "blockbuster_use_tweetdeck": {
     "message": "Use accounts from TweetDeck"
+  },
+  "redblock_backup_settings": {
+    "message": "Backup Settings"
+  },
+  "redblock_restore_settings": {
+    "message": "Restore Settings"
   }
 }

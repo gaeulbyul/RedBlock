@@ -969,5 +969,11 @@
   },
   "blockbuster_use_tweetdeck": {
     "message": "트윗덱의 계정정보 활용하기"
+  },
+  "redblock_backup_settings": {
+    "message": "설정파일 백업"
+  },
+  "redblock_restore_settings": {
+    "message": "설정파일 복원"
   }
 }
