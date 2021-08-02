@@ -179,9 +179,8 @@ export function FollowerChainBlockPageStatesProvider({
     initialSelectionState = null
   }
   const [userSelection, setUserSelection] = React.useState(initialSelectionState)
-  const initialPurposeType = determineInitialPurposeType<
-    SessionRequest<FollowerSessionTarget>['purpose']
-  >(myself.user, initialUser)
+  const initialPurposeType =
+    determineInitialPurposeType<SessionRequest<FollowerSessionTarget>['purpose']>(initialUser)
   const [targetList, setTargetList] = React.useState<FollowKind>('followers')
   const availablePurposeTypes: SessionRequest<FollowerSessionTarget>['purpose']['type'][] = [
     'chainblock',
@@ -254,14 +253,20 @@ export function TweetReactionChainBlockPageStatesProvider({
     'chainunfollow',
     'export',
   ]
-  const [purpose, changePurposeType, mutatePurposeOptions] =
-    usePurpose<SessionRequest<TweetReactionSessionTarget>['purpose']>('chainblock')
   const selectedTweet = initialTweet // TODO: make it state
   const myself = React.useContext(MyselfContext)!
   const { enableBlockBuster, enableReactionsV2Support } = React.useContext(RedBlockOptionsContext)
+  let initialPurpose: SessionRequest<TweetReactionSessionTarget>['purpose']['type']
   if (enableReactionsV2Support) {
     availablePurposeTypes.push('unchainblock')
+    initialPurpose = determineInitialPurposeType<SessionRequest<FollowerSessionTarget>['purpose']>(
+      initialTweet?.user || null
+    )
+  } else {
+    initialPurpose = 'chainblock'
   }
+  const [purpose, changePurposeType, mutatePurposeOptions] =
+    usePurpose<SessionRequest<TweetReactionSessionTarget>['purpose']>(initialPurpose)
   const [retriever, setRetriever] = React.useState<Actor>(myself)
   React.useEffect(() => {
     async function examine(tweetId: string) {

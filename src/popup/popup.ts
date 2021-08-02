@@ -79,16 +79,13 @@ function getTweetIdFromTab(tab: Tab): string | null {
 }
 
 export function determineInitialPurposeType<T extends Purpose>(
-  myself: TwitterUser | null,
   givenUser: TwitterUser | null
 ): T['type'] {
-  if (!(myself && givenUser)) {
+  if (givenUser?.following) {
+    return 'unchainblock'
+  } else {
     return 'chainblock'
   }
-  if (givenUser.following) {
-    return 'unchainblock'
-  }
-  return 'chainblock'
 }
 
 export function checkMessage(msg: object): msg is RBMessageToPopupType {
