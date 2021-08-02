@@ -25,7 +25,7 @@ const optionsTabPages = [
 type OptionsTabPage = typeof optionsTabPages[number]
 
 function RedBlockOptionsUITheme(darkMode: boolean) {
-  return MaterialUI.createMuiTheme({
+  return MaterialUI.createTheme({
     typography: {
       fontSize: 14,
     },

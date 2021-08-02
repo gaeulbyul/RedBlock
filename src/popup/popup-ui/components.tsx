@@ -20,7 +20,7 @@ export interface DialogContent {
 }
 
 export function RedBlockPopupUITheme(darkMode: boolean) {
-  return MaterialUI.createMuiTheme({
+  return MaterialUI.createTheme({
     typography: {
       fontSize: 12,
     },
