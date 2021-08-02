@@ -3,7 +3,7 @@ import * as MaterialUI from '@material-ui/core'
 
 import { DialogMessageObj, checkResultToString } from '../../scripts/text-generate'
 import { requestResetCounter } from '../../scripts/background/request-sender'
-import { MyselfContext, BlockLimiterContext, RedBlockOptionsContext } from './contexts'
+import { MyselfContext, BlockLimiterContext, RedBlockOptionsContext, UIContext } from './contexts'
 import { ExtraSessionOptionsContext } from './ui-states'
 import type { TargetCheckResult } from '../../scripts/background/target-checker'
 import { RadioOptionItem, CheckboxItem } from '../../ui/components'
@@ -584,10 +584,21 @@ function ExtraSessionOptionsUI({
 }) {
   const { extraSessionOptions, mutate } = React.useContext(ExtraSessionOptionsContext)
   const options = React.useContext(RedBlockOptionsContext)
+  const { openDialog } = React.useContext(UIContext)
   const bioBlockModes: { [label: string]: BioBlockMode } = {
     [i18n.getMessage('bioblock_never')]: 'never',
     [i18n.getMessage('bioblock_all')]: 'all',
     // [i18n.getMessage('bioblock_smart')]: 'smart',
+  }
+  function showRecurringHelp() {
+    openDialog({
+      message: {
+        title: i18n.getMessage('recurring_session'),
+        contentLines: [i18n.getMessage('recurring_session_description')],
+      },
+      dialogType: 'alert',
+      callbackOnOk() {},
+    })
   }
   const revealBioBlockMode = options.revealBioBlockMode && showBioBlock
   return (
@@ -601,11 +612,17 @@ function ExtraSessionOptionsUI({
         />
       )}
       {showRecurring && (
-        <CheckboxItem
-          label={i18n.getMessage('recurring_session')}
-          onChange={recurring => mutate({ recurring })}
-          checked={extraSessionOptions.recurring}
-        />
+        <div style={{ width: '100%' }}>
+          <CheckboxItem
+            label={i18n.getMessage('recurring_session')}
+            onChange={recurring => mutate({ recurring })}
+            checked={extraSessionOptions.recurring}
+            style={{ marginRight: '8px' }}
+          />
+          <M.IconButton size="small" onClick={showRecurringHelp}>
+            <M.Icon>help_outline</M.Icon>
+          </M.IconButton>
+        </div>
       )}
     </React.Fragment>
   )

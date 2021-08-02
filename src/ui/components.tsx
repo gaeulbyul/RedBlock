@@ -6,7 +6,7 @@ const M = MaterialUI
 const useStylesForFormControl = MaterialUI.makeStyles(() =>
   MaterialUI.createStyles({
     fieldset: {
-      display: 'flex',
+      width: '100%',
     },
   })
 )
@@ -66,16 +66,18 @@ export function CheckboxItem({
   disabled,
   label,
   onChange,
+  style,
 }: {
   label: string
   onChange(checked: boolean): void
   checked: boolean
   disabled?: boolean
+  style?: React.CSSProperties
 }) {
   return (
     <M.FormControlLabel
       control={<M.Checkbox size="small" />}
-      {...{ checked, disabled, label }}
+      {...{ checked, disabled, label, style }}
       onChange={(_event, checked) => onChange(checked)}
     />
   )
