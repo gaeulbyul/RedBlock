@@ -258,7 +258,10 @@ export function TweetReactionChainBlockPageStatesProvider({
     usePurpose<SessionRequest<TweetReactionSessionTarget>['purpose']>('chainblock')
   const selectedTweet = initialTweet // TODO: make it state
   const myself = React.useContext(MyselfContext)!
-  const { enableBlockBuster } = React.useContext(RedBlockOptionsContext)
+  const { enableBlockBuster, enableReactionsV2Support } = React.useContext(RedBlockOptionsContext)
+  if (enableReactionsV2Support) {
+    availablePurposeTypes.push('unchainblock')
+  }
   const [retriever, setRetriever] = React.useState<Actor>(myself)
   React.useEffect(() => {
     async function examine(tweetId: string) {
