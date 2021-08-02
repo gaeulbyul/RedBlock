@@ -446,6 +446,11 @@ export async function initializeContextMenu(
   })
   menus.create({
     contexts: ['link'],
+    type: 'separator',
+    visible: redblockOptions.enableMultitude,
+  })
+  menus.create({
+    contexts: ['link'],
     documentUrlPatterns,
     targetUrlPatterns: urlPatterns,
     title: i18n.getMessage('multitude_block_user'),
