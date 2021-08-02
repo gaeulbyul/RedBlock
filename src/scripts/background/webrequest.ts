@@ -89,7 +89,10 @@ function overrideActorCookies(
 function handleCsrfHeader(headers: Headers) {
   const cookie = headers.get('cookie')!
   const overrideCookie = headers.get('x-redblock-override-ct0')
-  const ct0 = overrideCookie || /\bct0=([0-9a-f]+)\b/.exec(cookie)![1]
+  const ct0 = overrideCookie || /\bct0=([0-9a-f]+)\b/.exec(cookie)?.[1]
+  if (!ct0) {
+    return
+  }
   headers.set('cookie', cookie.replace(/\bct0=[0-9a-f]+\b/g, `ct0=${ct0}`))
   headers.set('x-csrf-token', ct0)
 }
