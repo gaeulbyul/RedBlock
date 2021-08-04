@@ -222,9 +222,12 @@ export class ChainBlockSession extends BaseSession {
             const thisIsMe =
               user.id_str === this.request.retriever.user.id_str ||
               user.id_str === this.request.executor.user.id_str
+            if (thisIsMe) {
+              continue
+            }
             const whatToDo = decideWhatToDoGivenUser(this.request, user, now)
             console.debug('user %o => %s', user, whatToDo)
-            if (whatToDo === 'Skip' || thisIsMe) {
+            if (whatToDo === 'Skip') {
               this.sessionInfo.progress.skipped++
               continue
             } else if (whatToDo === 'AlreadyDone') {
