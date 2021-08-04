@@ -58,6 +58,7 @@ function extractRateLimit(
 abstract class BaseSession {
   protected stopReason: StopReason | null = null
   protected readonly sessionInfo = this.initSessionInfo()
+  protected readonly scrapedUserIds = new Set<string>()
   public readonly eventEmitter = new EventEmitter<SessionEventEmitter>()
   public constructor(protected request: SessionRequest<AnySessionTarget>) {}
   public getSessionInfo(): Readonly<SessionInfo> {
@@ -87,7 +88,6 @@ abstract class BaseSession {
     }
   }
   public rewind() {
-    this.resetCounts()
     this.sessionInfo.status = SessionStatus.Initial
     this.stopReason = null
   }
@@ -108,9 +108,6 @@ abstract class BaseSession {
       scraped: 0,
       total: getCountOfUsersToBlock(this.request),
     }
-  }
-  protected resetCounts() {
-    this.sessionInfo.progress = this.initProgress()
   }
   protected initSessionInfo(): SessionInfo {
     return {
@@ -181,7 +178,6 @@ export class ChainBlockSession extends BaseSession {
     } else {
       try {
         const scraper = Scraper.initScraper(this.request)
-        const scrapedUserIds = new Set<string>()
         const twClient = new TwitterAPI.TwClient(this.request.executor.clientOptions)
         for await (const scraperResponse of scraper) {
           if (this.stopReason) {
@@ -211,10 +207,10 @@ export class ChainBlockSession extends BaseSession {
             if (this.stopReason) {
               break
             }
-            if (scrapedUserIds.has(user.id_str)) {
+            if (this.scrapedUserIds.has(user.id_str)) {
               continue
             }
-            scrapedUserIds.add(user.id_str)
+            this.scrapedUserIds.add(user.id_str)
             if (this.checkBlockLimiter() !== 'ok') {
               this.stop('block-limitation-reached')
               break
