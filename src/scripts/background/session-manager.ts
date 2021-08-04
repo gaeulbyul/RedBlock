@@ -9,7 +9,7 @@ import { exportBlocklist } from './blocklist-process'
 import RecurringManager from './recurring'
 import * as i18n from '~~/scripts/i18n'
 
-export default class ChainBlocker {
+export default class SessionManager {
   private readonly MAX_RUNNING_SESSIONS = 5
   private readonly sessions = new Map<string, Session>()
   public readonly recurringManager = new RecurringManager()

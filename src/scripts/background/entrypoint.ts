@@ -1,5 +1,5 @@
 import { alertToCurrentTab } from './background'
-import ChainBlocker from './chainblock'
+import SessionManager from './session-manager'
 import * as TwitterAPI from './twitter-api'
 import { checkResultToString } from '../text-generate'
 import { initializeContextMenu } from './context-menu'
@@ -11,11 +11,11 @@ import { migrateStorage } from './storage'
 import { loadUIOptions } from './storage/options'
 import * as i18n from '~~/scripts/i18n'
 
-const chainblocker = new ChainBlocker()
+const sessionManager = new SessionManager()
 
 // for debug
 Object.assign(window, {
-  chainblocker,
+  sessionManager,
   TwitterAPI,
 })
 
@@ -27,7 +27,7 @@ async function startSession(sessionId: string) {
       page: 'chainblock-sessions-page',
     })
     .catch(() => {}) // 우클릭 체인블락의 경우 팝업이 없음
-  return chainblocker.start(sessionId).catch(err => {
+  return sessionManager.start(sessionId).catch(err => {
     if (err instanceof TwitterAPI.RateLimitError) {
       alertToCurrentTab(i18n.getMessage('error_rate_limited'))
     } else {
@@ -36,9 +36,9 @@ async function startSession(sessionId: string) {
   })
 }
 
-async function sendChainBlockerInfo() {
-  const sessions = chainblocker.getAllSessionInfos()
-  const recurringAlarmInfos = await chainblocker.recurringManager.getAll()
+async function sendSessionManagerInfo() {
+  const sessions = sessionManager.getAllSessionInfos()
+  const recurringAlarmInfos = await sessionManager.recurringManager.getAll()
   return browser.runtime
     .sendMessage<RBMessageToPopup.ChainBlockInfo>({
       messageType: 'ChainBlockInfo',
@@ -80,9 +80,9 @@ function handleExtensionMessage(
   switch (message.messageType) {
     case 'CreateChainBlockSession':
       {
-        const result = chainblocker.add(message.request)
+        const result = sessionManager.add(message.request)
         if (result.ok) {
-          startSession(result.value).then(sendChainBlockerInfo)
+          startSession(result.value).then(sendSessionManagerInfo)
         } else {
           // 이 시점에선 이미 target check를 통과한 요청만이 들어와야 한다
           // throw new Error(checkResultToString(result.error))
@@ -95,26 +95,26 @@ function handleExtensionMessage(
     //   startSession(message.sessionId).then(sendProgress)
     //   break
     case 'StopSession':
-      chainblocker.stopAndRemove(message.sessionId, 'user-request')
-      sendChainBlockerInfo()
+      sessionManager.stopAndRemove(message.sessionId, 'user-request')
+      sendSessionManagerInfo()
       break
     case 'StopAllSessions':
-      chainblocker.stopAll('user-request')
-      sendChainBlockerInfo()
+      sessionManager.stopAll('user-request')
+      sendSessionManagerInfo()
       break
     case 'RewindSession':
-      chainblocker.rewind(message.sessionId)
+      sessionManager.rewind(message.sessionId)
       break
     case 'RequestChainBlockInfo':
-      sendChainBlockerInfo()
+      sendSessionManagerInfo()
       break
     case 'RequestCleanup':
       switch (message.cleanupWhat) {
         case 'inactive':
-          chainblocker.cleanupInactiveSessions()
+          sessionManager.cleanupInactiveSessions()
           break
         case 'nuke-all':
-          chainblocker.forcelyNukeSessions()
+          sessionManager.forcelyNukeSessions()
           break
         default:
           assertNever(message.cleanupWhat)
@@ -137,7 +137,7 @@ function handleExtensionMessage(
       sendBlockLimiterStatus(message.userId)
       break
     case 'DownloadFromExportSession':
-      chainblocker.downloadFileFromExportSession(message.sessionId)
+      sessionManager.downloadFileFromExportSession(message.sessionId)
       break
     default:
       assertNever(message)
@@ -173,7 +173,7 @@ function initialize() {
       return true
     }
   )
-  loadUIOptions().then(({ menus }) => initializeContextMenu(chainblocker, menus))
+  loadUIOptions().then(({ menus }) => initializeContextMenu(sessionManager, menus))
   initializeWebRequest()
   browser.runtime.onInstalled.addListener(() => {
     migrateStorage()

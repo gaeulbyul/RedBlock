@@ -18,7 +18,7 @@ import {
   muteWithMultipleAccounts,
   unmuteWithMultipleAccounts,
 } from './multitude'
-import type ChainBlocker from './chainblock'
+import type SessionManager from './session-manager'
 import * as i18n from '~~/scripts/i18n'
 
 type BrowserTab = browser.tabs.Tab
@@ -127,7 +127,7 @@ async function executeMultitude(tab: BrowserTab, userName: string, action: UserA
 
 async function confirmChainBlockRequest(
   tab: BrowserTab,
-  chainblocker: ChainBlocker,
+  sessionManager: SessionManager,
   executor: Actor,
   target: AnySessionTarget
 ) {
@@ -146,7 +146,7 @@ async function confirmChainBlockRequest(
     executor,
     extraSessionOptions,
   }
-  const checkResult = chainblocker.checkRequest(request)
+  const checkResult = sessionManager.checkRequest(request)
   if (checkResult === TargetCheckResult.Ok) {
     return sendConfirmToTab(tab, request)
   } else {
@@ -157,7 +157,7 @@ async function confirmChainBlockRequest(
 
 async function confirmFollowerChainBlockRequest(
   tab: BrowserTab,
-  chainblocker: ChainBlocker,
+  sessionManager: SessionManager,
   userName: string,
   followKind: FollowKind
 ) {
@@ -170,7 +170,7 @@ async function confirmFollowerChainBlockRequest(
   const maybeUser = await getUserByName(twClient, userName)
   if (maybeUser.ok) {
     const user = maybeUser.value
-    return confirmChainBlockRequest(tab, chainblocker, executor, {
+    return confirmChainBlockRequest(tab, sessionManager, executor, {
       type: 'follower',
       list: followKind,
       user,
@@ -184,7 +184,7 @@ async function confirmFollowerChainBlockRequest(
 
 async function confirmTweetReactionChainBlockRequest(
   tab: BrowserTab,
-  chainblocker: ChainBlocker,
+  sessionManager: SessionManager,
   tweetId: string,
   whoToBlock: {
     includeRetweeters: boolean
@@ -205,7 +205,7 @@ async function confirmTweetReactionChainBlockRequest(
     alertToTab(tab, i18n.getMessage('error_occured_on_retrieving_tweet'))
     return
   }
-  return confirmChainBlockRequest(tab, chainblocker, executor, {
+  return confirmChainBlockRequest(tab, sessionManager, executor, {
     type: 'tweet_reaction',
     tweet,
     ...whoToBlock,
@@ -215,7 +215,7 @@ async function confirmTweetReactionChainBlockRequest(
 
 async function confirmAudioSpaceChainBlockRequest(
   tab: BrowserTab,
-  chainblocker: ChainBlocker,
+  sessionManager: SessionManager,
   audioSpaceId: string,
   includesWho: {
     includeHostsAndSpeakers: boolean
@@ -233,7 +233,7 @@ async function confirmAudioSpaceChainBlockRequest(
     alertToTab(tab, i18n.getMessage('error_occured_on_retrieving_audio_space'))
     return
   }
-  return confirmChainBlockRequest(tab, chainblocker, executor, {
+  return confirmChainBlockRequest(tab, sessionManager, executor, {
     type: 'audio_space',
     audioSpace,
     ...includesWho,
@@ -242,7 +242,7 @@ async function confirmAudioSpaceChainBlockRequest(
 
 async function confirmUserHashTagChainBlockRequest(
   tab: BrowserTab,
-  chainblocker: ChainBlocker,
+  sessionManager: SessionManager,
   hashtag: string
 ) {
   const executor = await initExecutorActor(tab)
@@ -250,7 +250,7 @@ async function confirmUserHashTagChainBlockRequest(
     alertToTab(tab, i18n.getMessage('error_occured_check_login'))
     return
   }
-  return confirmChainBlockRequest(tab, chainblocker, executor, {
+  return confirmChainBlockRequest(tab, sessionManager, executor, {
     type: 'user_search',
     query: `#${hashtag}`,
   })
@@ -266,13 +266,13 @@ const menus = new Proxy<typeof browser.menus>({} as any, {
   },
 })
 
-let connectedChainblocker: ChainBlocker | null = null
+let connectedSessionManager: SessionManager | null = null
 
 export async function initializeContextMenu(
-  chainblocker: ChainBlocker,
+  sessionManager: SessionManager,
   enabledMenus: RedBlockUIOptions['menus']
 ) {
-  connectedChainblocker = chainblocker
+  connectedSessionManager = sessionManager
   await menus.removeAll()
   const redblockOptions = await loadOptions()
   // 우클릭 - 유저
@@ -289,7 +289,7 @@ export async function initializeContextMenu(
         alertToTab(tab, i18n.getMessage('cant_find_username_in_given_url', twURL.toString()))
         return
       }
-      confirmFollowerChainBlockRequest(tab, chainblocker, userName, 'followers')
+      confirmFollowerChainBlockRequest(tab, sessionManager, userName, 'followers')
     },
   })
   menus.create({
@@ -305,7 +305,7 @@ export async function initializeContextMenu(
         alertToTab(tab, i18n.getMessage('cant_find_username_in_given_url', twURL.toString()))
         return
       }
-      confirmFollowerChainBlockRequest(tab, chainblocker, userName, 'friends')
+      confirmFollowerChainBlockRequest(tab, sessionManager, userName, 'friends')
     },
   })
   menus.create({
@@ -321,7 +321,7 @@ export async function initializeContextMenu(
         alertToTab(tab, i18n.getMessage('cant_find_username_in_given_url', twURL.toString()))
         return
       }
-      confirmFollowerChainBlockRequest(tab, chainblocker, userName, 'mutual-followers')
+      confirmFollowerChainBlockRequest(tab, sessionManager, userName, 'mutual-followers')
     },
   })
 
@@ -339,7 +339,7 @@ export async function initializeContextMenu(
     onclick(clickEvent, tab) {
       const twURL = new TwitterURL(clickEvent.linkUrl!)
       const tweetId = twURL.getTweetId()!
-      confirmTweetReactionChainBlockRequest(tab, chainblocker, tweetId, {
+      confirmTweetReactionChainBlockRequest(tab, sessionManager, tweetId, {
         includeRetweeters: true,
         includeLikers: false,
         includeMentionedUsers: false,
@@ -357,7 +357,7 @@ export async function initializeContextMenu(
     onclick(clickEvent, tab) {
       const twURL = new TwitterURL(clickEvent.linkUrl!)
       const tweetId = twURL.getTweetId()!
-      confirmTweetReactionChainBlockRequest(tab, chainblocker, tweetId, {
+      confirmTweetReactionChainBlockRequest(tab, sessionManager, tweetId, {
         includeRetweeters: false,
         includeLikers: true,
         includeMentionedUsers: false,
@@ -375,7 +375,7 @@ export async function initializeContextMenu(
     onclick(clickEvent, tab) {
       const twURL = new TwitterURL(clickEvent.linkUrl!)
       const tweetId = twURL.getTweetId()!
-      confirmTweetReactionChainBlockRequest(tab, chainblocker, tweetId, {
+      confirmTweetReactionChainBlockRequest(tab, sessionManager, tweetId, {
         includeRetweeters: true,
         includeLikers: true,
         includeMentionedUsers: false,
@@ -393,7 +393,7 @@ export async function initializeContextMenu(
     onclick(clickEvent, tab) {
       const twURL = new TwitterURL(clickEvent.linkUrl!)
       const tweetId = twURL.getTweetId()!
-      confirmTweetReactionChainBlockRequest(tab, chainblocker, tweetId, {
+      confirmTweetReactionChainBlockRequest(tab, sessionManager, tweetId, {
         includeRetweeters: false,
         includeLikers: false,
         includeMentionedUsers: true,
@@ -411,7 +411,7 @@ export async function initializeContextMenu(
     onclick(clickEvent, tab) {
       const twURL = new TwitterURL(clickEvent.linkUrl!)
       const audioSpaceId = twURL.getAudioSpaceId()!
-      confirmAudioSpaceChainBlockRequest(tab, chainblocker, audioSpaceId, {
+      confirmAudioSpaceChainBlockRequest(tab, sessionManager, audioSpaceId, {
         includeHostsAndSpeakers: true,
         includeListeners: false,
       })
@@ -426,7 +426,7 @@ export async function initializeContextMenu(
     onclick(clickEvent, tab) {
       const twURL = new TwitterURL(clickEvent.linkUrl!)
       const audioSpaceId = twURL.getAudioSpaceId()!
-      confirmAudioSpaceChainBlockRequest(tab, chainblocker, audioSpaceId, {
+      confirmAudioSpaceChainBlockRequest(tab, sessionManager, audioSpaceId, {
         includeHostsAndSpeakers: true,
         includeListeners: true,
       })
@@ -441,7 +441,7 @@ export async function initializeContextMenu(
     onclick(clickEvent, tab) {
       const twURL = new TwitterURL(clickEvent.linkUrl!)
       const hashtag = twURL.getHashTag()!
-      confirmUserHashTagChainBlockRequest(tab, chainblocker, hashtag)
+      confirmUserHashTagChainBlockRequest(tab, sessionManager, hashtag)
     },
   })
   menus.create({
@@ -557,16 +557,16 @@ export async function initializeContextMenu(
 }
 
 browser.storage.onChanged.addListener((changes: Partial<RedBlockStorageChanges>) => {
-  if (!connectedChainblocker) {
-    console.warn('warning: failed to refresh context menus (chainblocker missing?)')
+  if (!connectedSessionManager) {
+    console.warn('warning: failed to refresh context menus (sessionManager missing?)')
     return
   }
   if (changes.uiOptions) {
     const newUiOptions = Object.assign({}, defaultUIOptions, changes.uiOptions.newValue || {})
-    initializeContextMenu(connectedChainblocker, newUiOptions.menus)
+    initializeContextMenu(connectedSessionManager, newUiOptions.menus)
   } else if (changes.options) {
     loadUIOptions().then(uiOptions =>
-      initializeContextMenu(connectedChainblocker!, uiOptions.menus)
+      initializeContextMenu(connectedSessionManager!, uiOptions.menus)
     )
   }
 })
