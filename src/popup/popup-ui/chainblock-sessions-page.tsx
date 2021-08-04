@@ -18,7 +18,7 @@ import {
 import { UIContext, MyselfContext } from './contexts'
 import { statusToString } from '../../scripts/text-generate'
 import { BlockLimiterUI, PleaseLoginBox, LinearProgressWithLabel } from './components'
-import * as i18n from '~~/scripts/i18n'
+import * as i18n from '../../scripts/i18n'
 
 const M = MaterialUI
 const T = MaterialUI.Typography

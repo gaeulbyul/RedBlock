@@ -1,5 +1,6 @@
 import { SessionStatus, isRunningSession, isRewindableSession, isExportableTarget } from '../common'
 import * as TextGenerate from '../text-generate'
+import * as i18n from '../../scripts/i18n'
 import { alertToCurrentTab, notify, updateExtensionBadge } from './background'
 import { markUser } from './misc'
 import { TargetCheckResult, validateRequest, isSameTarget } from './target-checker'
@@ -8,7 +9,6 @@ import { exportBlocklist } from './blocklist-process'
 import ChainBlockSession from './chainblock-session/session'
 import ExportSession from './chainblock-session/export-session'
 import RecurringManager from './recurring'
-import * as i18n from '~~/scripts/i18n'
 
 export default class SessionManager {
   private readonly MAX_RUNNING_SESSIONS = 5

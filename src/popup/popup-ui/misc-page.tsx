@@ -8,8 +8,7 @@ import {
 } from '../../scripts/background/misc'
 import { UIContext, MyselfContext } from './contexts'
 import { RBAccordion } from './components'
-
-import * as i18n from '~~/scripts/i18n'
+import * as i18n from '../../scripts/i18n'
 
 const M = MaterialUI
 

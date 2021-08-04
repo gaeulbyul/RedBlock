@@ -1,7 +1,6 @@
 import { listenExtensionMessages, injectScriptToPage, toastMessage } from './content-common'
 import { generateBlockButton, shouldSkip, unblockUserById } from './oneclick-block'
-
-import * as i18n from '~~/scripts/i18n'
+import * as i18n from '../../scripts/i18n'
 
 const reactRoot = document.getElementById('react-root')
 listenExtensionMessages(reactRoot)

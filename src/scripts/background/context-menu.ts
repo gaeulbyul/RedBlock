@@ -18,7 +18,7 @@ import {
   generateMultitudeResultMessage,
 } from './multitude'
 import type SessionManager from './session-manager'
-import * as i18n from '~~/scripts/i18n'
+import * as i18n from '../../scripts/i18n'
 
 type BrowserTab = browser.tabs.Tab
 

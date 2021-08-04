@@ -3,7 +3,7 @@ import debounce from 'lodash-es/debounce'
 import BlockLimiter from './block-limiter'
 import type { ActAsExtraCookies } from './cookie-handler'
 import { notify } from './background'
-import * as i18n from '~~/scripts/i18n'
+import * as i18n from '../../scripts/i18n'
 
 const extraInfoSpec: any = ['requestHeaders', 'blocking']
 const extraInfoSpecResponse: any = ['responseHeaders', 'blocking']

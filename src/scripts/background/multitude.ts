@@ -1,6 +1,6 @@
 import { iterateAvailableTwClients } from './blockbuster'
 import { markUser } from './misc'
-import * as i18n from '~~/scripts/i18n'
+import * as i18n from '../../scripts/i18n'
 
 export type MultitudeUserAction = 'Block' | 'UnBlock' | 'Mute' | 'UnMute'
 

@@ -9,7 +9,7 @@ import { assertNever } from '../common'
 import { getCookieStoreIdFromTab } from './cookie-handler'
 import { migrateStorage } from './storage'
 import { loadUIOptions } from './storage/options'
-import * as i18n from '~~/scripts/i18n'
+import * as i18n from '../../scripts/i18n'
 
 const sessionManager = new SessionManager()
 

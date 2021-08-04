@@ -31,9 +31,7 @@ module.exports = {
   plugins: [],
   resolve: {
     extensions: ['.tsx', '.ts', '.jsx', '.js'],
-    alias: {
-      '~~': path.resolve(__dirname, 'src/'),
-    },
+    alias: {},
   },
   watchOptions: {
     poll: 1200,

@@ -5,7 +5,7 @@ import {
   findNonLinkedMentionsFromTweet,
   getReactionsV2CountsFromTweet,
 } from './common'
-import * as i18n from '~~/scripts/i18n'
+import * as i18n from './i18n'
 
 const actionsThatNeedWarning: UserAction[] = ['Block', 'UnFollow', 'BlockAndUnBlock']
 

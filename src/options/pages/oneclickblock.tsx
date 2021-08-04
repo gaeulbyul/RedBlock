@@ -1,7 +1,7 @@
 import React from 'react'
 import * as MaterialUI from '@material-ui/core'
 import sortBy from 'lodash-es/sortBy'
-import * as i18n from '~~/scripts/i18n'
+import * as i18n from '../../scripts/i18n'
 
 import { onStorageChanged } from '../../scripts/background/storage'
 import * as RedBlockBadWordsStorage from '../../scripts/background/storage/badwords'

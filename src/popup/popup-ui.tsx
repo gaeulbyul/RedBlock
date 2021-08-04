@@ -40,7 +40,7 @@ import { isRunningSession } from '../scripts/common'
 import { getCurrentTab } from '../scripts/background/misc'
 import { checkMessage, getTabContext, TabContext } from './popup'
 import { getCookieStoreIdFromTab } from '../scripts/background/cookie-handler'
-import * as i18n from '~~/scripts/i18n'
+import * as i18n from '../scripts/i18n'
 
 const UI_UPDATE_DELAY_ON_BUSY = 500
 const UI_UPDATE_DELAY_ON_IDLE = 1500

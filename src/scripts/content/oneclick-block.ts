@@ -1,6 +1,6 @@
-import * as i18n from '~~/scripts/i18n'
 import { blockUser, toastMessage, cloneDetail } from './content-common'
 import { loadBadWords } from '../background/storage/badwords'
+import * as i18n from '../../scripts/i18n'
 
 const setOfBadWords: BadWordItem[] = []
 

@@ -23,8 +23,6 @@
     "resolveJsonModule": true,
     "allowSyntheticDefaultImports": true,
     "typeRoots": ["node_modules/@types", "node_modules/web-ext-types", "src/scripts/types"],
-    "paths": {
-      "~~/*": ["./src/*"]
-    }
+    "paths": {}
   }
 }

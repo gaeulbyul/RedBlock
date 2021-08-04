@@ -7,7 +7,7 @@ import { MyselfContext, BlockLimiterContext, RedBlockOptionsContext, UIContext }
 import { ExtraSessionOptionsContext } from './ui-states'
 import type { TargetCheckResult } from '../../scripts/background/target-checker'
 import { RadioOptionItem, CheckboxItem } from '../../ui/components'
-import * as i18n from '~~/scripts/i18n'
+import * as i18n from '../../scripts/i18n'
 
 const M = MaterialUI
 const T = MaterialUI.Typography

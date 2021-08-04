@@ -14,7 +14,7 @@ import {
   RequestCheckResultUI,
 } from './components'
 import { TargetCheckResult, validateRequest } from '../../scripts/background/target-checker'
-import * as i18n from '~~/scripts/i18n'
+import * as i18n from '../../scripts/i18n'
 
 const M = MaterialUI
 const T = MaterialUI.Typography

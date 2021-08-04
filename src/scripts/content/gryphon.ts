@@ -1,6 +1,6 @@
 import { generateBlockButton, shouldSkip, unblockUserById } from './oneclick-block'
 import { listenExtensionMessages, injectScriptToPage, toastMessage } from './content-common'
-import * as i18n from '~~/scripts/i18n'
+import * as i18n from '../../scripts/i18n'
 
 export function initializeForGryphon(reactRoot: HTMLElement) {
   listenExtensionMessages(reactRoot)
