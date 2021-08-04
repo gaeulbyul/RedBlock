@@ -91,8 +91,8 @@ declare namespace RBMessageToBackground {
     userId: string
   }
 
-  interface RequestResetCounter {
-    messageType: 'RequestResetCounter'
+  interface RequestResetBlockCounter {
+    messageType: 'RequestResetBlockCounter'
     messageTo: 'background'
     userId: string
   }
@@ -131,7 +131,7 @@ declare type RBMessageToBackgroundType =
   | RBMessageToBackground.RequestChainBlockInfo
   | RBMessageToBackground.RequestCleanup
   | RBMessageToBackground.RequestBlockLimiterStatus
-  | RBMessageToBackground.RequestResetCounter
+  | RBMessageToBackground.RequestResetBlockCounter
   | RBMessageToBackground.BlockSingleUser
   | RBMessageToBackground.BlockUserById
   | RBMessageToBackground.UnblockUserById

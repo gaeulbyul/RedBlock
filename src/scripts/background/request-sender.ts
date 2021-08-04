@@ -55,8 +55,8 @@ export async function requestBlockLimiterStatus(userId: string) {
 }
 
 export async function requestResetCounter(userId: string) {
-  return browser.runtime.sendMessage<RBMessageToBackground.RequestResetCounter>({
-    messageType: 'RequestResetCounter',
+  return browser.runtime.sendMessage<RBMessageToBackground.RequestResetBlockCounter>({
+    messageType: 'RequestResetBlockCounter',
     messageTo: 'background',
     userId,
   })

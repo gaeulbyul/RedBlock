@@ -132,7 +132,7 @@ function handleExtensionMessage(
     case 'RequestBlockLimiterStatus':
       sendBlockLimiterStatus(message.userId)
       break
-    case 'RequestResetCounter':
+    case 'RequestResetBlockCounter':
       BlockLimiter.resetCounterByUserId(message.userId)
       sendBlockLimiterStatus(message.userId)
       break
