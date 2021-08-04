@@ -18,10 +18,13 @@ import {
 import BlockLimiter from '../block-limiter'
 import { decideWhatToDoGivenUser } from './user-decider'
 
+const MAX_USERS_TO_SCRAPE_AFTER_REWIND = 200
+
 export default class ChainBlockSession {
   private stopReason: StopReason | null = null
   private readonly sessionInfo = this.initSessionInfo()
   private readonly scrapedUserIds = new Set<string>()
+  private maxUsersToScrape = Infinity
   public readonly eventEmitter = new EventEmitter<SessionEventEmitter>()
   public constructor(private request: SessionRequest<AnySessionTarget>) {}
   public getSessionInfo(): Readonly<SessionInfo> {
@@ -162,6 +165,9 @@ export default class ChainBlockSession {
           await Promise.allSettled([...miniBuffer, ...promisesBuffer])
           miniBuffer.length = 0
           promisesBuffer.length = 0
+          if (this.scrapedUserIds.size >= this.maxUsersToScrape) {
+            break
+          }
         }
         if (this.stopReason) {
           this.sessionInfo.status = SessionStatus.Stopped
@@ -191,6 +197,7 @@ export default class ChainBlockSession {
   }
   public async rewind() {
     this.stopReason = null
+    this.maxUsersToScrape = MAX_USERS_TO_SCRAPE_AFTER_REWIND
     const maybeNewRequest = await refreshRequest(this.request)
     if (maybeNewRequest.ok) {
       const newRequest = maybeNewRequest.value
