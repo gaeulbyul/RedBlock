@@ -12,12 +12,7 @@ import { loadOptions, loadUIOptions, defaultUIOptions } from './storage/options'
 
 import { examineRetrieverByTargetUser } from './blockbuster'
 import { toggleOneClickBlockMode } from './misc'
-import {
-  blockWithMultipleAccounts,
-  unblockWithMultipleAccounts,
-  muteWithMultipleAccounts,
-  unmuteWithMultipleAccounts,
-} from './multitude'
+import { doActionWithMultipleAccounts } from './multitude'
 import type SessionManager from './session-manager'
 import * as i18n from '~~/scripts/i18n'
 
@@ -98,26 +93,13 @@ function showErrorAlert({
   alertToTab(tab, errorMessage)
 }
 
-async function executeMultitude(tab: BrowserTab, userName: string, action: UserAction) {
+async function executeMultitude(tab: BrowserTab, action: UserAction, userName: string) {
   const cookieStoreId = await getCookieStoreIdFromTab(tab)
   const twClient = new TwitterAPI.TwClient({ cookieStoreId })
   const maybeUser = await getUserByName(twClient, userName)
   if (maybeUser.ok) {
     const user = maybeUser.value
-    switch (action) {
-      case 'Block':
-        await blockWithMultipleAccounts(user)
-        break
-      case 'UnBlock':
-        await unblockWithMultipleAccounts(user)
-        break
-      case 'Mute':
-        await muteWithMultipleAccounts(user)
-        break
-      case 'UnMute':
-        await unmuteWithMultipleAccounts(user)
-        break
-    }
+    await doActionWithMultipleAccounts(action, user)
   } else {
     const { error } = maybeUser
     showErrorAlert({ tab, userName, error })
@@ -462,7 +444,7 @@ export async function initializeContextMenu(
         alertToTab(tab, i18n.getMessage('cant_find_username_in_given_url', twURL.toString()))
         return
       }
-      executeMultitude(tab, userName, 'Block')
+      executeMultitude(tab, 'Block', userName)
     },
   })
   menus.create({
@@ -478,7 +460,7 @@ export async function initializeContextMenu(
         alertToTab(tab, i18n.getMessage('cant_find_username_in_given_url', twURL.toString()))
         return
       }
-      executeMultitude(tab, userName, 'UnBlock')
+      executeMultitude(tab, 'UnBlock', userName)
     },
   })
   menus.create({
@@ -494,7 +476,7 @@ export async function initializeContextMenu(
         alertToTab(tab, i18n.getMessage('cant_find_username_in_given_url', twURL.toString()))
         return
       }
-      executeMultitude(tab, userName, 'Mute')
+      executeMultitude(tab, 'Mute', userName)
     },
   })
   menus.create({
@@ -510,7 +492,7 @@ export async function initializeContextMenu(
         alertToTab(tab, i18n.getMessage('cant_find_username_in_given_url', twURL.toString()))
         return
       }
-      executeMultitude(tab, userName, 'UnMute')
+      executeMultitude(tab, 'UnMute', userName)
     },
   })
   // 확장기능버튼
