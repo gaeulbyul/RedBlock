@@ -522,6 +522,17 @@ export function isTwitterErrorMessage(obj: any): obj is ErrorResponse {
   return true
 }
 
+export function errorToString(error: unknown): string {
+  console.error(error)
+  if (isTwitterErrorMessage(error)) {
+    return error.errors[0].message
+  } else if (error instanceof Error) {
+    return `${error.name}: ${error.message}`
+  } else {
+    return String(error)
+  }
+}
+
 type HTTPMethods = 'get' | 'delete' | 'post' | 'put'
 type URLParamsObj = {
   [key: string]: string | number | boolean | null | undefined | string[] | number[]

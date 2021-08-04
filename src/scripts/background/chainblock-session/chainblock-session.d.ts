@@ -1,5 +1,6 @@
-type Session = import('./session').ChainBlockSession | import('./session').ExportSession
+type Session = import('./session').default | import('./export-session').default
 type TwClient = import('../twitter-api').TwClient
+type Limit = import('../twitter-api').Limit
 type ReactionV2Kind = import('../twitter-api').ReactionV2Kind
 
 type Purpose =
@@ -152,3 +153,14 @@ interface ExportResult {
 
 type ScrapedUsersIterator = AsyncIterableIterator<Either<Error, UsersObject>>
 type ScrapedUserIdsIterator = AsyncIterableIterator<Either<Error, UserIdsObject>>
+
+interface SessionEventEmitter {
+  'mark-user': MarkUserParams
+  'rate-limit': Limit
+  'rate-limit-reset': null
+  started: SessionInfo
+  stopped: { sessionInfo: SessionInfo; reason: StopReason }
+  complete: SessionInfo
+  'recurring-waiting': { sessionInfo: SessionInfo; delayInMinutes: number }
+  error: { sessionInfo: SessionInfo; message: string }
+}

@@ -3,9 +3,10 @@ import * as TextGenerate from '../text-generate'
 import { alertToCurrentTab, notify, updateExtensionBadge } from './background'
 import { markUser } from './misc'
 import { TargetCheckResult, validateRequest, isSameTarget } from './target-checker'
-import { ChainBlockSession, ExportSession } from './chainblock-session/session'
 import { loadOptions } from './storage/options'
 import { exportBlocklist } from './blocklist-process'
+import ChainBlockSession from './chainblock-session/session'
+import ExportSession from './chainblock-session/export-session'
 import RecurringManager from './recurring'
 import * as i18n from '~~/scripts/i18n'
 
@@ -213,6 +214,9 @@ export default class SessionManager {
   }
   public async rewind(sessionId: string) {
     const session = this.sessions.get(sessionId)!
+    if (!(session instanceof ChainBlockSession)) {
+      return
+    }
     if (isRewindableSession(session.getSessionInfo())) {
       await session.rewind()
       this.startRemainingSessions()
@@ -246,8 +250,8 @@ export default class SessionManager {
     this.updateBadge()
   }
   public downloadFileFromExportSession(sessionId: string) {
-    const session = this.sessions.get(sessionId)! as ExportSession
-    if (session.getSessionInfo().request.purpose.type !== 'export') {
+    const session = this.sessions.get(sessionId)
+    if (!(session instanceof ExportSession)) {
       throw new Error('unreachable - this session is not export-session')
     }
     const exportResult = session.getExportResult()

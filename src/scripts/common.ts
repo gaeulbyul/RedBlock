@@ -1,4 +1,9 @@
-import type { TwitterUserEntities, Limit, ReactionV2Kind } from './background/twitter-api'
+import type {
+  TwitterUserEntities,
+  LimitStatus,
+  Limit,
+  ReactionV2Kind,
+} from './background/twitter-api'
 
 const userNameBlacklist = [
   'about',
@@ -274,7 +279,10 @@ export function isRunningSession({ status }: SessionInfo): boolean {
   return runningStatuses.includes(status)
 }
 
-export function isRewindableSession({ status }: SessionInfo): boolean {
+export function isRewindableSession({ status, request }: SessionInfo): boolean {
+  if (request.purpose.type === 'export') {
+    return false
+  }
   const rewindableStatus: SessionStatus[] = [
     SessionStatus.AwaitingUntilRecur,
     SessionStatus.Completed,
@@ -410,5 +418,24 @@ export function isExportableTarget(target: AnySessionTarget): target is Exportab
     case 'lockpicker':
     case 'user_search':
       return false
+  }
+}
+
+export function extractRateLimit(limitStatuses: LimitStatus, apiKind: ScrapingApiKind): Limit {
+  switch (apiKind) {
+    case 'followers':
+      return limitStatuses.followers['/followers/list']
+    case 'friends':
+      return limitStatuses.friends['/friends/list']
+    case 'mutual-followers':
+      return limitStatuses.followers['/followers/list']
+    case 'tweet-reactions':
+      return limitStatuses.statuses['/statuses/retweeted_by']
+    case 'lookup-users':
+      return limitStatuses.users['/users/lookup']
+    case 'search':
+      return limitStatuses.search['/search/adaptive']
+    case 'block-ids':
+      return limitStatuses.blocks['/blocks/ids']
   }
 }

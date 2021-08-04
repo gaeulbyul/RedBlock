@@ -17,6 +17,7 @@ type UserAction = 'Skip' | 'Block' | 'UnBlock' | 'Mute' | 'UnMute' | 'BlockAndUn
 type BioBlockMode = 'never' | 'all' | 'smart'
 
 type StopReason = 'user-request' | 'block-limitation-reached' | 'factory-reset'
+type ScrapingApiKind = FollowKind | 'tweet-reactions' | 'lookup-users' | 'search' | 'block-ids'
 
 type EventStore = Record<string, Function[]>
 
