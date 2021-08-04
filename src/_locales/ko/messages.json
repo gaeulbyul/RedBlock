@@ -980,7 +980,7 @@
     "message": "멀티액션 기능 활성화"
   },
   "enable_multitude_description": {
-    "message": "내가 현재 로그인한 계정 전체에서 특정 유저를 차단하거나 뮤트할 수 있는 기능입니다. 우클릭메뉴에서 사용할 수 있습니다."
+    "message": "내가 현재 로그인한 계정 전체에서 특정 유저를 함께 차단하거나 뮤트할 수 있는 기능입니다. 우클릭메뉴에서 사용할 수 있습니다."
   },
   "multitude_block_user": {
     "message": "로그인한 전체계정 동원하여 차단하기"
@@ -993,5 +993,8 @@
   },
   "multitude_unmute_user": {
     "message": "로그인한 전체계정 동원하여 언뮤트하기"
+  },
+  "unchainblock_to_retweeters_is_unavailable": {
+    "message": "기술적인 이유로 리트윗한 유저를 대상으로한 언체인블락은 사용할 수 없습니다."
   }
 }

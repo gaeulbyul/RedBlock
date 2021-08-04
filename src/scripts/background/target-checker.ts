@@ -19,6 +19,7 @@ export const enum TargetCheckResult {
   InvalidSearchQuery,
   MaybeNotLoggedIn,
   InvalidSelectedUserOrTweet,
+  UnchainblockToRetweetersIsUnavailable,
 }
 
 export function validateRequest(request: SessionRequest<AnySessionTarget>): TargetCheckResult {
@@ -77,28 +78,32 @@ function checkFollowerBlockRequest({
 }
 
 function checkTweetReactionBlockRequest({
+  purpose,
   target,
 }: SessionRequest<TweetReactionSessionTarget>): TargetCheckResult {
   const {
-    includeRetweeters: blockRetweeters,
-    includeLikers: blockLikers,
-    includeMentionedUsers: blockMentionedUsers,
-    includeQuotedUsers: blockQuotedUsers,
-    includeNonLinkedMentions: blockNonLinkedMentions,
+    includeRetweeters,
+    includeLikers,
+    includeMentionedUsers,
+    includeQuotedUsers,
+    includeNonLinkedMentions,
     includedReactionsV2,
   } = target
   const atLeastOneReaction = Object.values(includedReactionsV2).some(val => val)
   if (
     !(
-      blockRetweeters ||
-      blockLikers ||
+      includeRetweeters ||
+      includeLikers ||
       atLeastOneReaction ||
-      blockMentionedUsers ||
-      blockQuotedUsers ||
-      blockNonLinkedMentions
+      includeMentionedUsers ||
+      includeQuotedUsers ||
+      includeNonLinkedMentions
     )
   ) {
     return TargetCheckResult.ChooseAtLeastOneOfReaction
+  }
+  if (purpose.type === 'unchainblock' && includeRetweeters) {
+    return TargetCheckResult.UnchainblockToRetweetersIsUnavailable
   }
   const totalCountToBlock = getTotalCountOfReactions(target)
   if (totalCountToBlock <= 0) {

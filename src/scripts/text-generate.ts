@@ -126,6 +126,8 @@ export function checkResultToString(result: TargetCheckResult): string {
       return i18n.getMessage('error_occured_check_login')
     case TargetCheckResult.InvalidSelectedUserOrTweet:
       return i18n.getMessage('user_not_selected')
+    case TargetCheckResult.UnchainblockToRetweetersIsUnavailable:
+      return i18n.getMessage('unchainblock_to_retweeters_is_unavailable')
   }
 }
 

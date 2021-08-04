@@ -980,7 +980,7 @@
     "message": "Enable Multi-action"
   },
   "enable_multitude_description": {
-    "message": "Block or mute the specific user with all of the accounts you logged in. It is available in right-click menu."
+    "message": "Block or mute the specific user with all of your accounts. It is available in right-click menu."
   },
   "multitude_block_user": {
     "message": "Block this user with all of your accounts"
@@ -993,5 +993,8 @@
   },
   "multitude_unmute_user": {
     "message": "Unmute this user with all of your accounts"
+  },
+  "unchainblock_to_retweeters_is_unavailable": {
+    "message": "Due to technical reason, Unchain-block is unavailable to retweeters."
   }
 }
