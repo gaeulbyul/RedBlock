@@ -135,7 +135,7 @@ export async function getTabContext(
       if (result) {
         currentTweet = result.targetTweet
         if (result.tweetRetrievedFromPrimary) {
-          currentUser = currentTweet.user
+          currentUser = currentTweet?.user || null
         }
       }
     } else {

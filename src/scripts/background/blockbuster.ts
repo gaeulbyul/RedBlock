@@ -43,7 +43,7 @@ export async function* iterateAvailableTwClients(): AsyncIterableIterator<TwClie
 export async function examineRetrieverByTargetUser(
   primaryActor: Actor,
   targetUser: TwitterUser
-): Promise<Actor | null> {
+): Promise<Actor> {
   if (!targetUser.blocked_by) {
     // 차단당하지 않았다면 primary 그대로 사용
     return primaryActor
@@ -66,20 +66,20 @@ export async function examineRetrieverByTargetUser(
     }
   }
   console.warn('[BlockBuster]: Failed to Found!')
-  return null
+  return primaryActor
 }
 
 export async function examineRetrieverByTweetId(
   primaryActor: Actor,
   tweetId: string
-): Promise<ExamineTweetResult | null> {
+): Promise<ExamineTweetResult> {
   const primaryTwClient = new TwClient(primaryActor.clientOptions)
   const tweetRetrievedFromPrimaryActor = await primaryTwClient
     .getTweetById(tweetId)
     .catch(() => null)
   if (tweetRetrievedFromPrimaryActor) {
     return {
-      ...primaryActor,
+      actor: primaryActor,
       targetTweet: tweetRetrievedFromPrimaryActor,
       tweetRetrievedFromPrimary: true,
     }
@@ -99,17 +99,24 @@ export async function examineRetrieverByTweetId(
     if (targetTweet && !targetTweet.user.blocked_by) {
       console.debug('[BlockBuster]: Found! will use %o', client)
       return {
+        actor: {
+          user: clientSelf,
+          clientOptions: client.options,
+        },
         targetTweet,
         tweetRetrievedFromPrimary: false,
-        user: clientSelf,
-        clientOptions: client.options,
       }
     }
   }
-  return null
+  return {
+    actor: primaryActor,
+    targetTweet: null,
+    tweetRetrievedFromPrimary: true,
+  }
 }
 
-type ExamineTweetResult = Actor & {
-  targetTweet: Tweet
+interface ExamineTweetResult {
+  actor: Actor
+  targetTweet: Tweet | null
   tweetRetrievedFromPrimary: boolean
 }

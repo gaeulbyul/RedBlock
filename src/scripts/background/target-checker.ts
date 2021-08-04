@@ -1,4 +1,5 @@
 import { getTotalCountOfReactions } from '../common'
+export { checkResultToString } from '../text-generate'
 
 export const enum TargetCheckResult {
   Ok = 1, // 1: if (targetCheckResult) {} 에서 falsey하게 판단하는 걸 막기 위해.
@@ -44,6 +45,7 @@ function checkFollowerBlockRequest({
   target,
   options,
   executor,
+  retriever,
 }: SessionRequest<FollowerSessionTarget>): TargetCheckResult {
   const { followers_count, friends_count } = target.user
   const targetIsMe = target.user.id_str === executor.user.id_str
@@ -56,8 +58,13 @@ function checkFollowerBlockRequest({
       return TargetCheckResult.CantChainBlockYourself
     }
   }
-  if (target.user.blocked_by && !options.enableBlockBuster) {
-    return TargetCheckResult.TheyBlocksYou
+  if (target.user.blocked_by) {
+    if (!options.enableBlockBuster) {
+      return TargetCheckResult.TheyBlocksYou
+    }
+    if (retriever.user.id_str === executor.user.id_str) {
+      return TargetCheckResult.TheyBlocksYou
+    }
   }
   if (target.list === 'followers' && followers_count <= 0) {
     return TargetCheckResult.NoFollowers

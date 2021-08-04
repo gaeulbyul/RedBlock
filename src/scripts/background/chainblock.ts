@@ -34,8 +34,7 @@ export default class ChainBlocker {
       if (sessionInfo.status !== SessionStatus.AwaitingUntilRecur) {
         return
       }
-      sessionToWakeup.rewind()
-      this.startRemainingSessions()
+      this.rewind(params.sessionId)
     })
   }
   private getCurrentRunningSessions() {
@@ -215,9 +214,8 @@ export default class ChainBlocker {
   public async rewind(sessionId: string) {
     const session = this.sessions.get(sessionId)!
     if (isRewindableSession(session.getSessionInfo())) {
-      session.rewind()
-      this.updateBadge()
-      await session.start()
+      await session.rewind()
+      this.startRemainingSessions()
     }
   }
   public getAllSessionInfos(): SessionInfo[] {

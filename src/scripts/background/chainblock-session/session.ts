@@ -1,10 +1,12 @@
 import sum from 'lodash-es/sum'
+import cloneDeep from 'lodash-es/cloneDeep'
 import dayjs from 'dayjs'
 
 import * as Scraper from './scraper'
 import * as IdScraper from './userid-scraper'
 import * as TwitterAPI from '../twitter-api'
-
+import { examineRetrieverByTargetUser, examineRetrieverByTweetId } from '../blockbuster'
+import { TargetCheckResult, validateRequest, checkResultToString } from '../target-checker'
 import {
   EventEmitter,
   SessionStatus,
@@ -87,9 +89,29 @@ abstract class BaseSession {
       this.sessionInfo.status = SessionStatus.Stopped
     }
   }
-  public rewind() {
-    this.sessionInfo.status = SessionStatus.Initial
+  public async rewind() {
     this.stopReason = null
+    const maybeNewRequest = await refreshRequest(this.request)
+    if (maybeNewRequest.ok) {
+      const newRequest = maybeNewRequest.value
+      const checkResult = validateRequest(newRequest)
+      if (checkResult === TargetCheckResult.Ok) {
+        this.sessionInfo.status = SessionStatus.Initial
+        this.request = newRequest
+      } else {
+        this.sessionInfo.status = SessionStatus.Error
+        this.eventEmitter.emit('error', {
+          sessionInfo: this.getSessionInfo(),
+          message: errorToString(checkResultToString(checkResult)),
+        })
+      }
+    } else {
+      this.sessionInfo.status = SessionStatus.Error
+      this.eventEmitter.emit('error', {
+        sessionInfo: this.getSessionInfo(),
+        message: errorToString(maybeNewRequest.error),
+      })
+    }
   }
   protected initProgress(): SessionInfo['progress'] {
     return {
@@ -195,9 +217,7 @@ export class ChainBlockSession extends BaseSession {
               throw scraperResponse.error
             }
           }
-          if (this.sessionInfo.progress.total === null) {
-            this.sessionInfo.progress.total = scraper.totalCount
-          }
+          this.sessionInfo.progress.total = scraper.totalCount
           this.handleRunning()
           // promisesBuffer= 차단해제, 뮤트해제 등
           const promisesBuffer: Promise<any>[] = []
@@ -443,9 +463,61 @@ export class ExportSession extends BaseSession {
 }
 
 function errorToString(error: any): string {
+  console.error(error)
   if (TwitterAPI.isTwitterErrorMessage(error)) {
     return error.errors[0].message
+  } else if (error instanceof Error) {
+    return `${error.name}: ${error.message}`
   } else {
-    return error.toString()
+    return error?.toString?.()
+  }
+}
+
+async function refreshRequest<T extends AnySessionTarget>(
+  request: SessionRequest<T>
+): Promise<Either<TwitterAPI.ErrorResponse | Error, SessionRequest<T>>> {
+  const newRequest: SessionRequest<T> = cloneDeep(request)
+  const { enableBlockBuster } = newRequest.options
+  const actor = newRequest.executor
+  const twClient = new TwitterAPI.TwClient(actor.clientOptions)
+  const { target } = newRequest
+  try {
+    switch (target.type) {
+      case 'follower':
+      case 'lockpicker':
+        target.user = await twClient.getSingleUser({ user_id: target.user.id_str })
+        if (enableBlockBuster) {
+          request.retriever = await examineRetrieverByTargetUser(actor, target.user)
+        }
+        break
+      case 'tweet_reaction':
+        target.tweet = await twClient.getTweetById(target.tweet.id_str)
+        if (enableBlockBuster && target.tweet.user.blocked_by) {
+          request.retriever = await examineRetrieverByTweetId(actor, target.tweet.id_str).then(
+            ({ actor }) => actor
+          )
+        }
+        break
+      case 'audio_space':
+        target.audioSpace = await twClient.getAudioSpaceById(target.audioSpace.metadata.rest_id)
+        break
+      case 'import':
+      case 'user_search':
+      case 'export_my_blocklist':
+        break
+    }
+    return {
+      ok: true,
+      value: newRequest,
+    }
+  } catch (error: unknown) {
+    if (TwitterAPI.isTwitterErrorMessage(error)) {
+      return {
+        ok: false,
+        error,
+      }
+    } else {
+      throw error
+    }
   }
 }

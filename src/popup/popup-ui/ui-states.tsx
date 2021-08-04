@@ -200,7 +200,7 @@ export function FollowerChainBlockPageStatesProvider({
       if (examineResultCache.has(key)) {
         setRetriever(examineResultCache.get(key)!)
       } else {
-        const newRetriever = (await examineRetrieverByTargetUser(myself, selectedUser)) || myself
+        const newRetriever = await examineRetrieverByTargetUser(myself, selectedUser)
         examineResultCache.set(key, newRetriever)
         setRetriever(newRetriever)
       }
@@ -274,9 +274,9 @@ export function TweetReactionChainBlockPageStatesProvider({
       if (examineResultCache.has(key)) {
         setRetriever(examineResultCache.get(key)!)
       } else {
-        const newRetriever = (await examineRetrieverByTweetId(myself, tweetId)) || myself
-        examineResultCache.set(key, newRetriever)
-        setRetriever(newRetriever)
+        const newRetriever = await examineRetrieverByTweetId(myself, tweetId)
+        examineResultCache.set(key, newRetriever.actor)
+        setRetriever(newRetriever.actor)
       }
     }
     const selectedTweetId = selectedTweet?.id_str
