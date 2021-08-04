@@ -369,6 +369,18 @@
   "mutually_blocked": {
     "message": "Mutually blocked"
   },
+  "blocked": {
+    "message": "Blocked"
+  },
+  "unblocked": {
+    "message": "Unblocked"
+  },
+  "muted": {
+    "message": "Muted"
+  },
+  "unmuted": {
+    "message": "Unmuted"
+  },
   "options": {
     "message": "Options"
   },
@@ -996,5 +1008,16 @@
   },
   "unchainblock_to_retweeters_is_unavailable": {
     "message": "Due to technical reason, Unchain-block is unavailable to retweeters."
+  },
+  "multitude_result_message": {
+    "message": "Result: You $action$ to this user with $n$ accounts",
+    "placeholders": {
+      "n": {
+        "content": "$1"
+      },
+      "action": {
+        "content": "$2"
+      }
+    }
   }
 }

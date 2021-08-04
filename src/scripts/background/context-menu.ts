@@ -12,7 +12,11 @@ import { loadOptions, loadUIOptions, defaultUIOptions } from './storage/options'
 
 import { examineRetrieverByTargetUser } from './blockbuster'
 import { toggleOneClickBlockMode } from './misc'
-import { doActionWithMultipleAccounts } from './multitude'
+import {
+  MultitudeUserAction,
+  doActionWithMultipleAccounts,
+  generateMultitudeResultMessage,
+} from './multitude'
 import type SessionManager from './session-manager'
 import * as i18n from '~~/scripts/i18n'
 
@@ -93,13 +97,15 @@ function showErrorAlert({
   alertToTab(tab, errorMessage)
 }
 
-async function executeMultitude(tab: BrowserTab, action: UserAction, userName: string) {
+async function executeMultitude(tab: BrowserTab, action: MultitudeUserAction, userName: string) {
   const cookieStoreId = await getCookieStoreIdFromTab(tab)
   const twClient = new TwitterAPI.TwClient({ cookieStoreId })
   const maybeUser = await getUserByName(twClient, userName)
   if (maybeUser.ok) {
     const user = maybeUser.value
-    await doActionWithMultipleAccounts(action, user)
+    const results = await doActionWithMultipleAccounts(action, user)
+    const resultMessage = generateMultitudeResultMessage(action, results)
+    alertToTab(tab, resultMessage)
   } else {
     const { error } = maybeUser
     showErrorAlert({ tab, userName, error })

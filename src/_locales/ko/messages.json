@@ -369,6 +369,18 @@
   "mutually_blocked": {
     "message": "서로 맞차단"
   },
+  "blocked": {
+    "message": "차단"
+  },
+  "unblocked": {
+    "message": "차단해제"
+  },
+  "muted": {
+    "message": "뮤트"
+  },
+  "unmuted": {
+    "message": "언뮤트"
+  },
   "options": {
     "message": "옵션"
   },
@@ -996,5 +1008,16 @@
   },
   "unchainblock_to_retweeters_is_unavailable": {
     "message": "기술적인 이유로 리트윗한 유저를 대상으로한 언체인블락은 사용할 수 없습니다."
+  },
+  "multitude_result_message": {
+    "message": "결과: $n$개의 계정이 함께 이 유저를 $action$하였습니다.",
+    "placeholders": {
+      "n": {
+        "content": "$1"
+      },
+      "action": {
+        "content": "$2"
+      }
+    }
   }
 }
