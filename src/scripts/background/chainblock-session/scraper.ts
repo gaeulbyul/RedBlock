@@ -17,9 +17,11 @@ class SimpleScraper implements UserScraper {
   private retrieverScrapingClient = UserScrapingAPI.UserScrapingAPIClient.fromClientOptions(
     this.request.retriever.clientOptions
   )
+
   private executorScrapingClient = UserScrapingAPI.UserScrapingAPIClient.fromClientOptions(
     this.request.executor.clientOptions
   )
+
   public totalCount: number
   public constructor(
     private request: SessionRequest<FollowerSessionTarget | LockPickerSessionTarget>
@@ -27,6 +29,7 @@ class SimpleScraper implements UserScraper {
     const { user, list: followKind } = request.target
     this.totalCount = getFollowersCount(user, followKind)!
   }
+
   public async *[Symbol.asyncIterator]() {
     const { user } = this.request.target
     if (user.blocked_by) {
@@ -35,6 +38,7 @@ class SimpleScraper implements UserScraper {
       yield* this.iterateNormally()
     }
   }
+
   private async *iterateNormally() {
     const { user, list: followKind } = this.request.target
     let scraper: ScrapedUsersIterator = this.executorScrapingClient.getAllFollowsUserList(
@@ -48,6 +52,7 @@ class SimpleScraper implements UserScraper {
     )
     yield* scraper
   }
+
   private async *iterateBlockBuster() {
     const { user, list: followKind } = this.request.target
     const idsIterator = this.retrieverScrapingClient.getAllFollowsIds(followKind, user)
@@ -72,9 +77,11 @@ class MutualFollowerScraper implements UserScraper {
   private retrieverScrapingClient = UserScrapingAPI.UserScrapingAPIClient.fromClientOptions(
     this.request.retriever.clientOptions
   )
+
   private executorScrapingClient = UserScrapingAPI.UserScrapingAPIClient.fromClientOptions(
     this.request.executor.clientOptions
   )
+
   public totalCount: number | null = null
   public constructor(private request: SessionRequest<FollowerSessionTarget>) {}
   public async *[Symbol.asyncIterator]() {
@@ -95,9 +102,11 @@ class MutualFollowerScraper implements UserScraper {
     )
     yield* scraper
   }
+
   private async getMutualFollowersIdsNormally() {
     return this.executorScrapingClient.getAllMutualFollowersIds(this.request.target.user)
   }
+
   private async getMutualFollowersIdsBlockBuster() {
     return this.retrieverScrapingClient.getAllMutualFollowersIds(this.request.target.user)
   }
@@ -108,13 +117,16 @@ export class TweetReactedUserScraper implements UserScraper {
   private retrieverScrapingClient = UserScrapingAPI.UserScrapingAPIClient.fromClientOptions(
     this.request.retriever.clientOptions
   )
+
   private executorScrapingClient = UserScrapingAPI.UserScrapingAPIClient.fromClientOptions(
     this.request.executor.clientOptions
   )
+
   public totalCount: number
   public constructor(private request: SessionRequest<TweetReactionSessionTarget>) {
     this.totalCount = getTotalCountOfReactions(request.target)
   }
+
   public async *[Symbol.asyncIterator]() {
     let reactions = this.fetchReactions()
     const isBlockBuster = this.request.retriever.user.id_str !== this.request.executor.user.id_str
@@ -123,6 +135,7 @@ export class TweetReactedUserScraper implements UserScraper {
     }
     yield* reactions
   }
+
   private async *rehydrate(scraper: ScrapedUsersIterator): ScrapedUsersIterator {
     // retriever를 갖고 가져온 유저들은 followed_by, blocking 등이 retriever기준으로 되어있다.
     // 실제로 필요한건 executor기준으로 된 값이므로 유저를 다시 가져온다.
@@ -136,6 +149,7 @@ export class TweetReactedUserScraper implements UserScraper {
     const rehydrateScraper = this.executorScrapingClient.lookupUsersByIds(Array.from(userIds))
     yield* rehydrateScraper
   }
+
   private async *fetchReactions(): ScrapedUsersIterator {
     const {
       tweet,
@@ -185,6 +199,7 @@ class ImportUserScraper implements UserScraper {
   private scrapingClient = UserScrapingAPI.UserScrapingAPIClient.fromClientOptions(
     this.request.executor.clientOptions
   )
+
   public totalCount = this.request.target.userIds.length + this.request.target.userNames.length
   public constructor(private request: SessionRequest<ImportSessionTarget>) {}
   public async *[Symbol.asyncIterator]() {
@@ -216,6 +231,7 @@ class UserSearchScraper implements UserScraper {
   private scrapingClient = UserScrapingAPI.UserScrapingAPIClient.fromClientOptions(
     this.request.executor.clientOptions
   )
+
   public totalCount = null
   public constructor(private request: SessionRequest<UserSearchSessionTarget>) {}
   public async *[Symbol.asyncIterator]() {
@@ -235,6 +251,7 @@ export class AudioSpaceScraper implements UserScraper {
   private scrapingClient = UserScrapingAPI.UserScrapingAPIClient.fromClientOptions(
     this.request.executor.clientOptions
   )
+
   public totalCount = getParticipantsInAudioSpaceCount(this.request.target)
   public constructor(private request: SessionRequest<AudioSpaceSessionTarget>) {}
   public async *[Symbol.asyncIterator]() {

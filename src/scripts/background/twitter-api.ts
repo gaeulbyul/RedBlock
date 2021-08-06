@@ -25,25 +25,30 @@ export class TwClient {
     const { actAsUserId, cookieStoreId, asTweetDeck } = this.ctorOptions
     return { actAsUserId, cookieStoreId, asTweetDeck }
   }
+
   public async getMyself(): Promise<TwitterUser> {
     return await this.request1('get', '/account/verify_credentials.json').then(stripSensitiveInfo)
   }
+
   public async getRateLimitStatus(): Promise<LimitStatus> {
     const response = await this.request1('get', '/application/rate_limit_status.json')
     return response.resources
   }
+
   public async blockUser(user: TwitterUser): Promise<TwitterUser> {
     if (user.blocking) {
       return user
     }
     return this.blockUserById(user.id_str)
   }
+
   public async unblockUser(user: TwitterUser): Promise<TwitterUser> {
     if (!user.blocking) {
       return user
     }
     return this.unblockUserById(user.id_str)
   }
+
   public async muteUser(user: TwitterUser): Promise<TwitterUser> {
     if (user.muting) {
       return user
@@ -52,6 +57,7 @@ export class TwClient {
       user_id: user.id_str,
     })
   }
+
   public async unmuteUser(user: TwitterUser): Promise<TwitterUser> {
     if (!user.muting) {
       return user
@@ -60,6 +66,7 @@ export class TwClient {
       user_id: user.id_str,
     })
   }
+
   public async unfollowUser(user: TwitterUser): Promise<TwitterUser> {
     if (!user.following) {
       return user
@@ -68,6 +75,7 @@ export class TwClient {
       user_id: user.id_str,
     })
   }
+
   public async blockUserById(userId: string): Promise<TwitterUser> {
     return await this.request1('post', '/blocks/create.json', {
       user_id: userId,
@@ -75,6 +83,7 @@ export class TwClient {
       skip_status: true,
     })
   }
+
   public async unblockUserById(userId: string): Promise<TwitterUser> {
     return await this.request1('post', '/blocks/destroy.json', {
       user_id: userId,
@@ -82,6 +91,7 @@ export class TwClient {
       skip_status: true,
     })
   }
+
   public async getTweetById(tweetId: string): Promise<Tweet> {
     return await this.request1('get', '/statuses/show.json', {
       id: tweetId,
@@ -97,6 +107,7 @@ export class TwClient {
       include_card_uri: false,
     })
   }
+
   public async getFollowsIds(
     followKind: FollowKind,
     user: TwitterUser,
@@ -109,6 +120,7 @@ export class TwClient {
       cursor,
     })
   }
+
   public async getFollowsUserList(
     followKind: FollowKind,
     user: TwitterUser,
@@ -122,6 +134,7 @@ export class TwClient {
       cursor,
     }).then(stripSensitiveInfoFromResponse)
   }
+
   public async getMultipleUsers(options: GetMultipleUsersOption): Promise<TwitterUser[]> {
     const user_id = 'user_id' in options ? options.user_id : []
     const screen_name = 'screen_name' in options ? options.screen_name : []
@@ -144,6 +157,7 @@ export class TwClient {
       stripSensitiveInfoFromArrayOfUsers
     )
   }
+
   public async getSingleUser(options: GetSingleUserOption): Promise<TwitterUser> {
     const requestParams: URLParamsObj = {
       skip_status: true,
@@ -232,6 +246,7 @@ export class TwClient {
       // ext: 'mediaStats,highlightedLabel',
     })
   }
+
   public async searchQuotedUsers(tweetId: string, cursor?: string): Promise<APIv2Response> {
     return await this.request2('get', '/search/adaptive.json', {
       q: `quoted_tweet_id:${tweetId}`,
@@ -242,6 +257,7 @@ export class TwClient {
       cursor,
     })
   }
+
   public async getAudioSpaceById(spaceId: string): Promise<AudioSpace> {
     const queryData = await getQueryDataByOperationName('AudioSpaceById')
     return await this.requestGraphQL(queryData, {
@@ -263,6 +279,7 @@ export class TwClient {
       }
     })
   }
+
   public async getTweetReactionV2Timeline(tweet: Tweet): Promise<ReactionV2Timeline> {
     const queryData = await getQueryDataByOperationName('GetTweetReactionTimeline')
     return await this.requestGraphQL(queryData, {
@@ -271,12 +288,14 @@ export class TwClient {
       withSuperFollowsUserFields: false,
     }).then(response => response.data.tweet_result_by_rest_id.result.reaction_timeline)
   }
+
   public async getTweetDeckContributees(): Promise<Contributee[]> {
     if (!this.options.asTweetDeck) {
       throw new Error('this should call from tweetdeck')
     }
     return await this.request1('get', '/users/contributees.json')
   }
+
   private async sendRequest(request: RequestInit, url: URL) {
     let newCsrfToken = ''
     let maxRetryCount = 3
@@ -299,6 +318,7 @@ export class TwClient {
       }
     }
   }
+
   private async request1(method: HTTPMethods, path: string, paramsObj: URLParamsObj = {}) {
     const fetchOptions = await prepareTwitterRequest({ method }, this.options)
     const url = new URL(`https://${this.prefix}/1.1${path}`)
@@ -317,6 +337,7 @@ export class TwClient {
     }
     return this.sendRequest(fetchOptions, url)
   }
+
   private async request2(method: HTTPMethods, path: string, paramsObj: URLParamsObj = {}) {
     const fetchOptions = await prepareTwitterRequest({ method }, this.options)
     const url = new URL(`https://${this.prefix}/2${path}`)
@@ -330,6 +351,7 @@ export class TwClient {
     prepareParams(params, paramsObj)
     return this.sendRequest(fetchOptions, url)
   }
+
   private async requestGraphQL(
     { queryId, operationName }: GraphQLQueryData,
     variables: URLParamsObj = {}

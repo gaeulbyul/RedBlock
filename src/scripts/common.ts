@@ -58,10 +58,12 @@ export class EventEmitter<T> {
       },
     }
   )
+
   on<K extends keyof T>(eventName: string & K, handler: (p: T[K]) => void) {
     this.events[eventName].push(handler)
     return this
   }
+
   emit<K extends keyof T>(eventName: string & K, eventHandlerParameter: T[K]) {
     const handlers = [...this.events[eventName], ...this.events['*']]
     // console.debug('EventEmitter: emit "%s" with %o', eventName, eventHandlerParameter)
@@ -74,12 +76,15 @@ export class TwitterUserMap extends Map<string, TwitterUser> {
   public addUser(user: TwitterUser) {
     return this.set(user.id_str, user)
   }
+
   public hasUser(user: TwitterUser) {
     return this.has(user.id_str)
   }
+
   public toUserArray(): TwitterUser[] {
     return Array.from(this.values())
   }
+
   public toUserObject(): TwitterUserEntities {
     const usersObj: TwitterUserEntities = Object.create(null)
     for (const [userId, user] of this) {
@@ -87,17 +92,21 @@ export class TwitterUserMap extends Map<string, TwitterUser> {
     }
     return usersObj
   }
+
   public static fromUsersArray(users: TwitterUser[]): TwitterUserMap {
     return new TwitterUserMap(users.map((user): [string, TwitterUser] => [user.id_str, user]))
   }
+
   public map<T>(fn: (user: TwitterUser, index: number, array: TwitterUser[]) => T): T[] {
     return this.toUserArray().map(fn)
   }
+
   public filter(
     fn: (user: TwitterUser, index: number, array: TwitterUser[]) => boolean
   ): TwitterUserMap {
     return TwitterUserMap.fromUsersArray(this.toUserArray().filter(fn))
   }
+
   public merge(anotherMap: TwitterUserMap) {
     for (const user of anotherMap.values()) {
       this.addUser(user)
@@ -110,6 +119,7 @@ export class TwitterURL extends URL {
     super(url.toString())
     this.validateURL(this)
   }
+
   public static nullable(url: string | URL | Location | HTMLAnchorElement): TwitterURL | null {
     try {
       const twURL = new TwitterURL(url)
@@ -118,6 +128,7 @@ export class TwitterURL extends URL {
       return null
     }
   }
+
   public getUserName(): string | null {
     const { pathname } = this
     const nonUserPagePattern = /^\/[a-z]{2}\/(?:tos|privacy)/
@@ -135,18 +146,22 @@ export class TwitterURL extends URL {
     }
     return null
   }
+
   public getTweetId(): string | null {
     const match = /\/status\/(\d+)/.exec(this.pathname)
     return match && match[1]
   }
+
   public getAudioSpaceId(): string | null {
     const match = /^\/i\/spaces\/([A-Za-z0-9]+)/.exec(this.pathname)
     return match && match[1]
   }
+
   public getHashTag(): string | null {
     const match = /^\/hashtag\/(.+)$/.exec(this.pathname)
     return match && decodeURIComponent(match[1])
   }
+
   private validateURL(url: URL | Location | HTMLAnchorElement) {
     if (url.protocol !== 'https:') {
       throw new Error(`invalid protocol "${this.protocol}"!`)

@@ -30,6 +30,7 @@ export default class RecurringManager {
       })
     })
   }
+
   public async addSchedule(
     sessionId: string,
     delayInMinutes: number
@@ -42,19 +43,23 @@ export default class RecurringManager {
     const createdAlarm = await browser.alarms.get(name)
     return createdAlarm!
   }
+
   public async removeSchedule(sessionId: string) {
     // 존재하지 않은 sessionId가 주어져도 조용히 넘어갈 것.
     const name = generateAlarmName(sessionId)
     await browser.alarms.clear(name)
     this.nameToSessionId.delete(name)
   }
+
   public onWake(handler: (params: RecurringAlarm) => void) {
     this.emitter.on('wake-session', handler)
   }
+
   public async clearAll() {
     await browser.alarms.clearAll()
     this.nameToSessionId.clear()
   }
+
   public async getAll(): Promise<RecurringAlarmInfosObject> {
     const rAlarms: RecurringAlarmInfosObject = {}
     const alarms = await browser.alarms.getAll()

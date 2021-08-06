@@ -10,6 +10,7 @@ class FromUserScraper implements UserIdScraper {
   public get totalCount() {
     return this.userScraper.totalCount
   }
+
   public constructor(private readonly userScraper: UserScraper) {}
   public async *[Symbol.asyncIterator]() {
     for await (const response of this.userScraper) {
@@ -28,11 +29,13 @@ class SimpleScraper implements UserIdScraper {
   private scrapingClient = UserScrapingAPI.UserScrapingAPIClient.fromClientOptions(
     this.request.retriever.clientOptions
   )
+
   public totalCount: number
   public constructor(private request: SessionRequest<FollowerSessionTarget>) {
     const { user, list: followKind } = request.target
     this.totalCount = getFollowersCount(user, followKind)!
   }
+
   public async *[Symbol.asyncIterator]() {
     const { user, list: followKind } = this.request.target
     yield* this.scrapingClient.getAllFollowsIds(followKind, user)
@@ -44,6 +47,7 @@ class MutualFollowerScraper implements UserIdScraper {
   private scrapingClient = UserScrapingAPI.UserScrapingAPIClient.fromClientOptions(
     this.request.retriever.clientOptions
   )
+
   public totalCount: number | null = null
   public constructor(private request: SessionRequest<FollowerSessionTarget>) {}
   public async *[Symbol.asyncIterator]() {
@@ -59,10 +63,12 @@ class ExportMyBlocklistScraper implements UserIdScraper {
   private scrapingClient = UserScrapingAPI.UserScrapingAPIClient.fromClientOptions(
     this.request.retriever.clientOptions
   )
+
   public totalCount: null
   public constructor(private request: SessionRequest<ExportMyBlocklistTarget>) {
     this.request.target
   }
+
   public async *[Symbol.asyncIterator]() {
     yield* this.scrapingClient.getAllBlockedUsersIds()
   }

@@ -23,16 +23,20 @@ export default class ExportSession {
     filename: this.generateFilename(this.request.target),
     userIds: new Set<string>(),
   }
+
   public constructor(private request: SessionRequest<ExportableSessionTarget>) {}
   public getSessionInfo(): Readonly<SessionInfo> {
     return copyFrozenObject(this.sessionInfo)
   }
+
   public getExportResult(): ExportResult {
     return this.exportResult
   }
+
   public markAsExported() {
     this.sessionInfo.exported = true
   }
+
   public async start() {
     try {
       const scrapedUserIds = this.exportResult.userIds
@@ -87,6 +91,7 @@ export default class ExportSession {
       throw error
     }
   }
+
   public stop(reason: StopReason) {
     this.stopReason = reason
     let shouldStop = false
@@ -110,6 +115,7 @@ export default class ExportSession {
       this.sessionInfo.status = SessionStatus.Stopped
     }
   }
+
   private initSessionInfo(): SessionInfo {
     return {
       sessionId: this.generateSessionId(),
@@ -119,9 +125,11 @@ export default class ExportSession {
       limit: null,
     }
   }
+
   private generateSessionId(): string {
     return `session/${Date.now()}`
   }
+
   private initProgress(): SessionInfo['progress'] {
     return {
       already: 0,
@@ -140,6 +148,7 @@ export default class ExportSession {
       total: getCountOfUsersToBlock(this.request),
     }
   }
+
   private generateFilename(target: SessionRequest<ExportableSessionTarget>['target']): string {
     const now = dayjs()
     let prefix: string
@@ -166,6 +175,7 @@ export default class ExportSession {
     const datetime = now.format('YYYY-MM-DD_HHmmss')
     return `${prefix}${targetStr}[${datetime}].csv`
   }
+
   private async handleRateLimit() {
     const { sessionInfo, eventEmitter } = this
     let apiKind: ScrapingApiKind
@@ -188,6 +198,7 @@ export default class ExportSession {
     sessionInfo.limit = limit
     eventEmitter.emit('rate-limit', limit)
   }
+
   private handleRunning() {
     const { sessionInfo, eventEmitter } = this
     if (sessionInfo.status === SessionStatus.Initial) {

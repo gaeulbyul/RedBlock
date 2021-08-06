@@ -16,11 +16,13 @@ export default class BlockLimiter {
     this.KEY_TIMESTAMP = `${PREFIX_KEY_TIMESTAMP} ${identifier}`
     this.KEY_COUNT = `${PREFIX_KEY_COUNT} ${identifier}`
   }
+
   private expired() {
     const timestamp = parseInt(localStorage.getItem(this.KEY_TIMESTAMP) || '0', 10)
     const diff = Date.now() - timestamp
     return diff > threshold
   }
+
   public get count() {
     if (this.expired()) {
       return 0
@@ -28,12 +30,14 @@ export default class BlockLimiter {
       return parseInt(localStorage.getItem(this.KEY_COUNT) || '0', 10)
     }
   }
+
   public increment() {
     const count = this.count + 1
     localStorage.setItem(this.KEY_COUNT, count.toString())
     localStorage.setItem(this.KEY_TIMESTAMP, Date.now().toString())
     return count
   }
+
   public check(): 'ok' | 'danger' {
     const { count, max } = this
     if (count < max) {
@@ -42,10 +46,12 @@ export default class BlockLimiter {
       return 'danger'
     }
   }
+
   public reset() {
     localStorage.setItem(this.KEY_COUNT, '0')
     localStorage.setItem(this.KEY_TIMESTAMP, '0')
   }
+
   public static resetCounterByUserId(userId: string) {
     return new BlockLimiter(userId).reset()
   }

@@ -11,6 +11,7 @@ export class UserScrapingAPIClient {
   public static fromClientOptions(clientOptions: TwClientOptions) {
     return new UserScrapingAPIClient(new TwClient(clientOptions))
   }
+
   public async *getAllFollowsIds(
     followKind: FollowKind,
     user: TwitterUser
@@ -30,6 +31,7 @@ export class UserScrapingAPIClient {
       }
     }
   }
+
   public async *getAllFollowsUserList(
     followKind: FollowKind,
     user: TwitterUser
@@ -49,6 +51,7 @@ export class UserScrapingAPIClient {
       }
     }
   }
+
   public async getAllMutualFollowersIds(user: TwitterUser): Promise<string[]> {
     const followingsIds = (await collectAsync(this.getAllFollowsIds('friends', user)))
       .map(unwrap)
@@ -61,6 +64,7 @@ export class UserScrapingAPIClient {
     const mutualIds = intersection(followingsIds, followersIds)
     return mutualIds
   }
+
   public async *getAllReactedUserList(reaction: ReactionKind, tweet: Tweet): ScrapedUsersIterator {
     let cursor = '-1'
     while (cursor !== '0') {
@@ -77,6 +81,7 @@ export class UserScrapingAPIClient {
       }
     }
   }
+
   public async *getAllReactedV2UserList(
     tweet: Tweet,
     reactions: ReactionV2Kind[]
@@ -100,6 +105,7 @@ export class UserScrapingAPIClient {
     }
     yield wrapEitherRight({ users })
   }
+
   public async *getAllBlockedUsersIds(): ScrapedUserIdsIterator {
     let cursor = '-1'
     while (cursor !== '0') {
@@ -116,6 +122,7 @@ export class UserScrapingAPIClient {
       }
     }
   }
+
   public async *getUserSearchResults(query: string): ScrapedUsersIterator {
     let cursor: string | undefined
     while (true) {
@@ -130,6 +137,7 @@ export class UserScrapingAPIClient {
       }
     }
   }
+
   public async *getQuotedUsers(tweet: Tweet): ScrapedUsersIterator {
     // 한 유저가 같은 트윗에 2개 이상의 인용트윗을 작성하면
     // 여러건이 scrape될것이다.
@@ -154,6 +162,7 @@ export class UserScrapingAPIClient {
       }
     }
   }
+
   public async *getParticipantsInAudioSpace({
     audioSpace,
     hostsAndSpeakers,
@@ -181,6 +190,7 @@ export class UserScrapingAPIClient {
     }
     yield* this.lookupUsersByNames(Array.from(userNames))
   }
+
   public async *lookupUsersByIds(userIds: string[]): ScrapedUsersIterator {
     const chunks = chunk(userIds, 100)
     for (const chunk of chunks) {
@@ -188,6 +198,7 @@ export class UserScrapingAPIClient {
       yield wrapEitherRight({ users })
     }
   }
+
   public async *lookupUsersByNames(userNames: string[]): ScrapedUsersIterator {
     const chunks = chunk(userNames, 100)
     for (const chunk of chunks) {

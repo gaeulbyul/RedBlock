@@ -30,6 +30,7 @@ export default class ChainBlockSession {
   public getSessionInfo(): Readonly<SessionInfo> {
     return copyFrozenObject(this.sessionInfo)
   }
+
   public async start() {
     const DBG_dontActuallyCallAPI = localStorage.getItem('RedBlock FakeAPI') === 'true'
     if (DBG_dontActuallyCallAPI) {
@@ -195,6 +196,7 @@ export default class ChainBlockSession {
       }
     }
   }
+
   public async rewind() {
     this.stopReason = null
     this.maxUsersToScrape = MAX_USERS_TO_SCRAPE_AFTER_REWIND
@@ -220,6 +222,7 @@ export default class ChainBlockSession {
       })
     }
   }
+
   public stop(reason: StopReason) {
     this.stopReason = reason
     let shouldStop = false
@@ -243,10 +246,12 @@ export default class ChainBlockSession {
       this.sessionInfo.status = SessionStatus.Stopped
     }
   }
+
   private calculateScrapedCount() {
     const { success, already, failure, error, skipped } = this.sessionInfo.progress
     return sum([...Object.values(success), already, failure, error, skipped])
   }
+
   private checkBlockLimiter() {
     const safePurposes: Purpose['type'][] = ['unchainblock', 'unchainmute', 'chainunfollow']
     if (safePurposes.includes(this.request.purpose.type)) {
@@ -256,6 +261,7 @@ export default class ChainBlockSession {
       return limiter.check()
     }
   }
+
   private initSessionInfo(): SessionInfo {
     return {
       sessionId: this.generateSessionId(),
@@ -265,9 +271,11 @@ export default class ChainBlockSession {
       limit: null,
     }
   }
+
   private generateSessionId(): string {
     return `session/${Date.now()}`
   }
+
   private initProgress(): SessionInfo['progress'] {
     return {
       already: 0,
@@ -286,6 +294,7 @@ export default class ChainBlockSession {
       total: getCountOfUsersToBlock(this.request),
     }
   }
+
   private async handleRateLimit() {
     const { sessionInfo, eventEmitter } = this
     let apiKind: ScrapingApiKind
@@ -315,6 +324,7 @@ export default class ChainBlockSession {
     sessionInfo.limit = limit
     eventEmitter.emit('rate-limit', limit)
   }
+
   private handleRunning() {
     const { sessionInfo, eventEmitter } = this
     if (sessionInfo.status === SessionStatus.Initial) {

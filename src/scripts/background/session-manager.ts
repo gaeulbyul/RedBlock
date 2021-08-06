@@ -17,6 +17,7 @@ export default class SessionManager {
   public constructor() {
     this.prepareRecurringManager()
   }
+
   public hasRunningSession(): boolean {
     if (this.sessions.size <= 0) {
       return false
@@ -24,6 +25,7 @@ export default class SessionManager {
     const currentRunningSessions = this.getCurrentRunningSessions()
     return currentRunningSessions.length > 0
   }
+
   private prepareRecurringManager() {
     this.recurringManager.startListen()
     this.recurringManager.onWake(params => {
@@ -38,12 +40,14 @@ export default class SessionManager {
       this.rewind(params.sessionId)
     })
   }
+
   private getCurrentRunningSessions() {
     const currentRunningSessions = Array.from(this.sessions.values()).filter(session =>
       isRunningSession(session.getSessionInfo())
     )
     return currentRunningSessions
   }
+
   private getSessionByTarget(target: AnySessionTarget): Session | null {
     return (
       this.getCurrentRunningSessions().find(session =>
@@ -51,6 +55,7 @@ export default class SessionManager {
       ) || null
     )
   }
+
   private handleEvents(session: Session) {
     session.eventEmitter.on('started', () => {
       this.updateBadge()
@@ -90,12 +95,14 @@ export default class SessionManager {
       }
     )
   }
+
   private async cancelAllRecurringSessionsBecauseBlockLimitationReached() {
     await this.recurringManager.clearAll()
     Array.from(this.sessions.values()).forEach(session => {
       session.stop('block-limitation-reached')
     })
   }
+
   private updateBadge() {
     const runningSessions = this.getCurrentRunningSessions().map(session =>
       session.getSessionInfo()
@@ -103,10 +110,12 @@ export default class SessionManager {
     const count = runningSessions.length
     updateExtensionBadge(count)
   }
+
   private checkAvailableSessionsCount() {
     const runningSessions = this.getCurrentRunningSessions()
     return this.MAX_RUNNING_SESSIONS - runningSessions.length
   }
+
   private async startRemainingSessions() {
     for (const session of this.sessions.values()) {
       const count = this.checkAvailableSessionsCount()
@@ -119,6 +128,7 @@ export default class SessionManager {
       }
     }
   }
+
   private checkAlreadyRunningOnSameTarget(target: AnySessionTarget): boolean {
     const sameTargetSession = this.getSessionByTarget(target)
     if (sameTargetSession) {
@@ -129,6 +139,7 @@ export default class SessionManager {
     }
     return false
   }
+
   public remove(sessionId: string) {
     this.sessions.delete(sessionId)
     this.updateBadge()
@@ -136,6 +147,7 @@ export default class SessionManager {
       this.recurringManager.clearAll()
     }
   }
+
   private createSession(request: SessionRequest<AnySessionTarget>) {
     let session: Session
     switch (request.purpose.type) {
@@ -158,6 +170,7 @@ export default class SessionManager {
     this.sessions.set(session.getSessionInfo().sessionId, session)
     return session
   }
+
   public add(request: SessionRequest<AnySessionTarget>): Either<TargetCheckResult, string> {
     const isValidTarget = validateRequest(request)
     if (isValidTarget !== TargetCheckResult.Ok) {
@@ -170,12 +183,14 @@ export default class SessionManager {
       value: sessionId,
     }
   }
+
   public stopAndRemove(sessionId: string, reason: StopReason) {
     const session = this.sessions.get(sessionId)!
     session.stop(reason)
     this.recurringManager.removeSchedule(sessionId)
     this.remove(sessionId)
   }
+
   public stopAll(reason: StopReason) {
     const sessions = this.sessions.values()
     for (const session of sessions) {
@@ -187,6 +202,7 @@ export default class SessionManager {
     }
     this.updateBadge()
   }
+
   public async start(sessionId: string) {
     const count = this.checkAvailableSessionsCount()
     if (count <= 0) {
@@ -196,6 +212,7 @@ export default class SessionManager {
     await session.start()
     this.updateBadge()
   }
+
   public async startAll() {
     const sessions = this.sessions.values()
     const sessionPromises: Promise<void>[] = []
@@ -212,6 +229,7 @@ export default class SessionManager {
     await Promise.all(sessionPromises)
     this.updateBadge()
   }
+
   public async rewind(sessionId: string) {
     const session = this.sessions.get(sessionId)!
     if (!(session instanceof ChainBlockSession)) {
@@ -222,9 +240,11 @@ export default class SessionManager {
       this.startRemainingSessions()
     }
   }
+
   public getAllSessionInfos(): SessionInfo[] {
     return Array.from(this.sessions.values()).map(ses => ses.getSessionInfo())
   }
+
   public cleanupInactiveSessions() {
     for (const [, session] of this.sessions) {
       const sessionInfo = session.getSessionInfo()
@@ -240,6 +260,7 @@ export default class SessionManager {
     }
     this.updateBadge()
   }
+
   public forcelyNukeSessions() {
     for (const [, session] of this.sessions) {
       const sessionInfo = session.getSessionInfo()
@@ -249,6 +270,7 @@ export default class SessionManager {
     this.recurringManager.clearAll()
     this.updateBadge()
   }
+
   public downloadFileFromExportSession(sessionId: string) {
     const session = this.sessions.get(sessionId)
     if (!(session instanceof ExportSession)) {
@@ -262,6 +284,7 @@ export default class SessionManager {
       alertToCurrentTab(i18n.getMessage('blocklist_is_empty'))
     }
   }
+
   public checkRequest(request: SessionRequest<AnySessionTarget>): TargetCheckResult {
     if (this.checkAlreadyRunningOnSameTarget(request.target)) {
       return TargetCheckResult.AlreadyRunningOnSameTarget
