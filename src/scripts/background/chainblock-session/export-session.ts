@@ -38,7 +38,7 @@ export default class ExportSession {
       const scrapedUserIds = this.exportResult.userIds
       const scraper = IdScraper.initIdScraper(this.request)
       for await (const scraperResponse of scraper) {
-        if (this.stopReason || scrapedUserIds.size > EXPORT_MAX_SIZE) {
+        if (this.stopReason || scrapedUserIds.size >= EXPORT_MAX_SIZE) {
           break
         }
         if (!scraperResponse.ok) {

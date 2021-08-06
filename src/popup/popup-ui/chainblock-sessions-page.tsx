@@ -44,6 +44,8 @@ function calculatePercentage(session: SessionInfo): number | null {
     // Math.min : bioBlock모드로 인해 total보다 더 많은 유저를 수집할 수도 있다.
     // 100%가 안 넘도록 함
     return Math.min(100, Math.round((scraped / max) * 1000) / 10)
+  } else if (status === SessionStatus.Stopped) {
+    return 0
   } else {
     return null
   }
