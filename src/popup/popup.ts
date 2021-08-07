@@ -131,7 +131,9 @@ export async function getTabContext(
   let currentAudioSpace: AudioSpace | null = null
   if (tweetId) {
     if (options.enableBlockBuster) {
-      const result = await examineRetrieverByTweetId(myself, tweetId)
+      const result = await examineRetrieverByTweetId(myself, tweetId, {
+        includeTweetDeck: options.enableBlockBusterWithTweetDeck,
+      })
       if (result) {
         currentTweet = result.targetTweet
         if (result.tweetRetrievedFromPrimary) {

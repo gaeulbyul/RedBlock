@@ -1,13 +1,19 @@
 import * as CookieHandler from './cookie-handler'
 import { TwClient } from './twitter-api'
-import { loadOptions } from './storage/options'
 
 interface AvailableAccount {
   client: TwClient
   user: TwitterUser
 }
 
-export async function* iterateAvailableTwClients(): AsyncIterableIterator<AvailableAccount> {
+export interface IterateCondition {
+  includeTweetDeck: boolean
+  // includeAnotherCookieStores: boolean
+}
+
+export async function* iterateAvailableTwClients({
+  includeTweetDeck,
+}: IterateCondition): AsyncIterableIterator<AvailableAccount> {
   const cookieStores = await browser.cookies.getAllCookieStores()
   for (const store of cookieStores) {
     const cookieStoreId = store.id
@@ -34,8 +40,7 @@ export async function* iterateAvailableTwClients(): AsyncIterableIterator<Availa
         }
       }
     }
-    const { enableBlockBusterWithTweetDeck } = await loadOptions()
-    if (enableBlockBusterWithTweetDeck) {
+    if (includeTweetDeck) {
       const tdTwClient = new TwClient({
         cookieStoreId,
         asTweetDeck: true,

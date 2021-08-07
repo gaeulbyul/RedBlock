@@ -122,7 +122,10 @@ async function confirmChainBlockRequest(
   const options = await loadOptions()
   let retriever: Actor
   if (target.type === 'follower' && options.enableBlockBuster) {
-    retriever = (await examineRetrieverByTargetUser(executor, target.user)) || executor
+    retriever =
+      (await examineRetrieverByTargetUser(executor, target.user, {
+        includeTweetDeck: options.enableBlockBusterWithTweetDeck,
+      })) || executor
   } else {
     retriever = executor
   }

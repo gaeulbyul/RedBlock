@@ -22,9 +22,13 @@ function curriedHandleAfterAction(executor: TwitterUser, userAction: UserAction)
   }
 }
 
+const iterateCondition = {
+  includeTweetDeck: false,
+}
+
 async function blockWithMultipleAccounts(target: TwitterUser) {
   const promises: Promise<TeamworkUserInfo>[] = []
-  for await (const { client, user: executor } of iterateAvailableTwClients()) {
+  for await (const { client, user: executor } of iterateAvailableTwClients(iterateCondition)) {
     promises.push(client.blockUser(target).then(curriedHandleAfterAction(executor, 'Block')))
   }
   return Promise.allSettled(promises)
@@ -32,7 +36,7 @@ async function blockWithMultipleAccounts(target: TwitterUser) {
 
 async function unblockWithMultipleAccounts(target: TwitterUser) {
   const promises: Promise<TeamworkUserInfo>[] = []
-  for await (const { client, user: executor } of iterateAvailableTwClients()) {
+  for await (const { client, user: executor } of iterateAvailableTwClients(iterateCondition)) {
     promises.push(client.unblockUser(target).then(curriedHandleAfterAction(executor, 'UnBlock')))
   }
   return Promise.allSettled(promises)
@@ -40,7 +44,7 @@ async function unblockWithMultipleAccounts(target: TwitterUser) {
 
 async function muteWithMultipleAccounts(target: TwitterUser) {
   const promises: Promise<TeamworkUserInfo>[] = []
-  for await (const { client, user: executor } of iterateAvailableTwClients()) {
+  for await (const { client, user: executor } of iterateAvailableTwClients(iterateCondition)) {
     promises.push(client.muteUser(target).then(curriedHandleAfterAction(executor, 'Mute')))
   }
   return Promise.allSettled(promises)
@@ -48,7 +52,7 @@ async function muteWithMultipleAccounts(target: TwitterUser) {
 
 async function unmuteWithMultipleAccounts(target: TwitterUser) {
   const promises: Promise<TeamworkUserInfo>[] = []
-  for await (const { client, user: executor } of iterateAvailableTwClients()) {
+  for await (const { client, user: executor } of iterateAvailableTwClients(iterateCondition)) {
     promises.push(client.unmuteUser(target).then(curriedHandleAfterAction(executor, 'UnMute')))
   }
   return Promise.allSettled(promises)

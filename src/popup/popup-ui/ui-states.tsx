@@ -192,7 +192,8 @@ export function FollowerChainBlockPageStatesProvider({
   ]
   const [purpose, changePurposeType, mutatePurposeOptions] =
     usePurpose<SessionRequest<FollowerSessionTarget>['purpose']>(initialPurposeType)
-  const { enableBlockBuster } = React.useContext(RedBlockOptionsContext)
+  const { enableBlockBuster, enableBlockBusterWithTweetDeck } =
+    React.useContext(RedBlockOptionsContext)
   const [retriever, setRetriever] = React.useState<Actor>(myself)
   React.useEffect(() => {
     async function examine(selectedUser: TwitterUser) {
@@ -200,7 +201,9 @@ export function FollowerChainBlockPageStatesProvider({
       if (examineResultCache.has(key)) {
         setRetriever(examineResultCache.get(key)!)
       } else {
-        const newRetriever = await examineRetrieverByTargetUser(myself, selectedUser)
+        const newRetriever = await examineRetrieverByTargetUser(myself, selectedUser, {
+          includeTweetDeck: enableBlockBusterWithTweetDeck,
+        })
         examineResultCache.set(key, newRetriever)
         setRetriever(newRetriever)
       }
@@ -255,7 +258,8 @@ export function TweetReactionChainBlockPageStatesProvider({
   ]
   const selectedTweet = initialTweet // TODO: make it state
   const myself = React.useContext(MyselfContext)!
-  const { enableBlockBuster, enableReactionsV2Support } = React.useContext(RedBlockOptionsContext)
+  const { enableBlockBuster, enableReactionsV2Support, enableBlockBusterWithTweetDeck } =
+    React.useContext(RedBlockOptionsContext)
   let initialPurpose: SessionRequest<TweetReactionSessionTarget>['purpose']['type']
   if (enableReactionsV2Support) {
     availablePurposeTypes.push('unchainblock')
@@ -274,7 +278,9 @@ export function TweetReactionChainBlockPageStatesProvider({
       if (examineResultCache.has(key)) {
         setRetriever(examineResultCache.get(key)!)
       } else {
-        const newRetriever = await examineRetrieverByTweetId(myself, tweetId)
+        const newRetriever = await examineRetrieverByTweetId(myself, tweetId, {
+          includeTweetDeck: enableBlockBusterWithTweetDeck,
+        })
         examineResultCache.set(key, newRetriever.actor)
         setRetriever(newRetriever.actor)
       }

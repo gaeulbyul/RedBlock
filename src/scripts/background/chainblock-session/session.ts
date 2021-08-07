@@ -342,7 +342,7 @@ async function refreshRequest<T extends AnySessionTarget>(
   request: SessionRequest<T>
 ): Promise<Either<TwitterAPI.ErrorResponse | Error, SessionRequest<T>>> {
   const newRequest: SessionRequest<T> = cloneDeep(request)
-  const { enableBlockBuster } = newRequest.options
+  const { enableBlockBuster, enableBlockBusterWithTweetDeck: includeTweetDeck } = newRequest.options
   const actor = newRequest.executor
   const twClient = new TwitterAPI.TwClient(actor.clientOptions)
   const { target } = newRequest
@@ -352,15 +352,17 @@ async function refreshRequest<T extends AnySessionTarget>(
       case 'lockpicker':
         target.user = await twClient.getSingleUser({ user_id: target.user.id_str })
         if (enableBlockBuster) {
-          request.retriever = await examineRetrieverByTargetUser(actor, target.user)
+          request.retriever = await examineRetrieverByTargetUser(actor, target.user, {
+            includeTweetDeck,
+          })
         }
         break
       case 'tweet_reaction':
         target.tweet = await twClient.getTweetById(target.tweet.id_str)
         if (enableBlockBuster && target.tweet.user.blocked_by) {
-          request.retriever = await examineRetrieverByTweetId(actor, target.tweet.id_str).then(
-            ({ actor }) => actor
-          )
+          request.retriever = await examineRetrieverByTweetId(actor, target.tweet.id_str, {
+            includeTweetDeck,
+          }).then(({ actor }) => actor)
         }
         break
       case 'audio_space':
