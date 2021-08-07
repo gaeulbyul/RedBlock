@@ -4,44 +4,52 @@ import * as i18n from '../../scripts/i18n'
 
 export type MultitudeUserAction = 'Block' | 'UnBlock' | 'Mute' | 'UnMute'
 
-function curriedMarkUser(userAction: UserAction) {
-  return (user: TwitterUser): TwitterUser => {
+interface MultitudeActionResult {
+  executor: TwitterUser
+  targetUser: TwitterUser
+}
+
+function curriedHandleAfterAction(executor: TwitterUser, userAction: UserAction) {
+  return (targetUser: TwitterUser): MultitudeActionResult => {
     markUser({
-      userId: user.id_str,
+      userId: targetUser.id_str,
       userAction,
     })
-    return user
+    return {
+      executor,
+      targetUser,
+    }
   }
 }
 
 async function blockWithMultipleAccounts(target: TwitterUser) {
-  const promises: Promise<TwitterUser>[] = []
-  for await (const { client } of iterateAvailableTwClients()) {
-    promises.push(client.blockUser(target).then(curriedMarkUser('Block')))
+  const promises: Promise<MultitudeActionResult>[] = []
+  for await (const { client, user: executor } of iterateAvailableTwClients()) {
+    promises.push(client.blockUser(target).then(curriedHandleAfterAction(executor, 'Block')))
   }
   return Promise.allSettled(promises)
 }
 
 async function unblockWithMultipleAccounts(target: TwitterUser) {
-  const promises: Promise<TwitterUser>[] = []
-  for await (const { client } of iterateAvailableTwClients()) {
-    promises.push(client.unblockUser(target).then(curriedMarkUser('UnBlock')))
+  const promises: Promise<MultitudeActionResult>[] = []
+  for await (const { client, user: executor } of iterateAvailableTwClients()) {
+    promises.push(client.unblockUser(target).then(curriedHandleAfterAction(executor, 'UnBlock')))
   }
   return Promise.allSettled(promises)
 }
 
 async function muteWithMultipleAccounts(target: TwitterUser) {
-  const promises: Promise<TwitterUser>[] = []
-  for await (const { client } of iterateAvailableTwClients()) {
-    promises.push(client.muteUser(target).then(curriedMarkUser('Mute')))
+  const promises: Promise<MultitudeActionResult>[] = []
+  for await (const { client, user: executor } of iterateAvailableTwClients()) {
+    promises.push(client.muteUser(target).then(curriedHandleAfterAction(executor, 'Mute')))
   }
   return Promise.allSettled(promises)
 }
 
 async function unmuteWithMultipleAccounts(target: TwitterUser) {
-  const promises: Promise<TwitterUser>[] = []
-  for await (const { client } of iterateAvailableTwClients()) {
-    promises.push(client.unmuteUser(target).then(curriedMarkUser('UnMute')))
+  const promises: Promise<MultitudeActionResult>[] = []
+  for await (const { client, user: executor } of iterateAvailableTwClients()) {
+    promises.push(client.unmuteUser(target).then(curriedHandleAfterAction(executor, 'UnMute')))
   }
   return Promise.allSettled(promises)
 }
@@ -64,7 +72,7 @@ export async function doActionWithMultipleAccounts(
 
 export function generateMultitudeResultMessage(
   action: MultitudeUserAction,
-  results: PromiseSettledResult<TwitterUser>[]
+  results: PromiseSettledResult<MultitudeActionResult>[]
 ) {
   const success = results.filter(({ status }) => status === 'fulfilled')
   // const failed = results.filter(({status}) => status === 'rejected')
