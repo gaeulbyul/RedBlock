@@ -1,4 +1,8 @@
-import { getAllCookies, generateCookiesForAltAccountRequest } from './cookie-handler'
+import {
+  getAllCookies,
+  getDefaultCookieStoreId,
+  generateCookiesForAltAccountRequest,
+} from './cookie-handler'
 import { stripSensitiveInfo } from '../common'
 
 const BEARER_TOKEN = `AAAAAAAAAAAAAAAAAAAAANRILgAAAAAAnNwIzUejRCOuH5E6I8xnZz4puTs%3D1Zv7ttfk8LF81IUq16cHjhLTvJu4FA33AGWWjCpTnA`
@@ -330,10 +334,11 @@ export class TwClient {
       fetchOptions.body = params
     }
     prepareParams(params, paramsObj)
+    const cookieStoreId = this.options.cookieStoreId || (await getDefaultCookieStoreId())
     // 파이어폭스 외의 다른 브라우저에선 webRequest의 request details에서 cookieStoreId 속성이 없다.
     // 따라서 헤더를 통해 알아낼 수 있도록 여기서 헤더를 추가한다.
     if (path === '/blocks/create.json') {
-      insertHeader(fetchOptions.headers!, 'x-redblock-cookie-store-id', this.options.cookieStoreId)
+      insertHeader(fetchOptions.headers!, 'x-redblock-cookie-store-id', cookieStoreId)
     }
     return this.sendRequest(fetchOptions, url)
   }

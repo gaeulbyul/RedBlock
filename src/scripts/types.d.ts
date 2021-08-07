@@ -286,7 +286,7 @@ interface TwitterArchiveBlockItem {
 
 interface TwClientOptions {
   // prefix: 'api.twitter.com' | 'twitter.com'
-  cookieStoreId: string
+  cookieStoreId?: string
   actAsUserId?: string
   asTweetDeck?: boolean
 }

@@ -3,7 +3,7 @@ import { loadOptions } from './storage/options'
 const url = 'https://twitter.com'
 const firstPartyDomain = 'twitter.com'
 
-async function getCookie({ name, storeId }: { name: string; storeId: string }) {
+async function getCookie({ name, storeId }: { name: string; storeId?: string }) {
   const options = await loadOptions()
   const cookieGetDetails: Parameters<typeof browser.cookies.get>[0] = {
     url,
@@ -16,7 +16,7 @@ async function getCookie({ name, storeId }: { name: string; storeId: string }) {
   return browser.cookies.get(cookieGetDetails)
 }
 
-export async function getAllCookies({ storeId }: { storeId: string }) {
+export async function getAllCookies({ storeId }: { storeId?: string }) {
   const options = await loadOptions()
   const cookieGetAllDetails: Parameters<typeof browser.cookies.getAll>[0] = {
     url,
@@ -28,7 +28,7 @@ export async function getAllCookies({ storeId }: { storeId: string }) {
   return browser.cookies.getAll(cookieGetAllDetails)
 }
 
-export async function removeCookie({ name, storeId }: { name: string; storeId: string }) {
+export async function removeCookie({ name, storeId }: { name: string; storeId?: string }) {
   const options = await loadOptions()
   const cookieRemoveDetails: Parameters<typeof browser.cookies.remove>[0] = {
     url,
@@ -39,6 +39,12 @@ export async function removeCookie({ name, storeId }: { name: string; storeId: s
     cookieRemoveDetails.firstPartyDomain = firstPartyDomain
   }
   return browser.cookies.remove(cookieRemoveDetails)
+}
+
+// cookieStoreId를 알아낼 수 없는 경우
+export async function getDefaultCookieStoreId(): Promise<string> {
+  const cookies = await getAllCookies({})
+  return cookies[0].storeId
 }
 
 export async function getMultiAccountCookies({
