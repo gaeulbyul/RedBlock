@@ -203,6 +203,7 @@ export function FollowerChainBlockPageStatesProvider({
       } else {
         const newRetriever = await examineRetrieverByTargetUser(myself, selectedUser, {
           includeTweetDeck: enableBlockBusterWithTweetDeck,
+          includeAnotherCookieStores: true,
         })
         examineResultCache.set(key, newRetriever)
         setRetriever(newRetriever)
@@ -280,6 +281,7 @@ export function TweetReactionChainBlockPageStatesProvider({
       } else {
         const newRetriever = await examineRetrieverByTweetId(myself, tweetId, {
           includeTweetDeck: enableBlockBusterWithTweetDeck,
+          includeAnotherCookieStores: true,
         })
         examineResultCache.set(key, newRetriever.actor)
         setRetriever(newRetriever.actor)

@@ -354,6 +354,7 @@ async function refreshRequest<T extends AnySessionTarget>(
         if (enableBlockBuster) {
           request.retriever = await examineRetrieverByTargetUser(actor, target.user, {
             includeTweetDeck,
+            includeAnotherCookieStores: true,
           })
         }
         break
@@ -362,6 +363,7 @@ async function refreshRequest<T extends AnySessionTarget>(
         if (enableBlockBuster && target.tweet.user.blocked_by) {
           request.retriever = await examineRetrieverByTweetId(actor, target.tweet.id_str, {
             includeTweetDeck,
+            includeAnotherCookieStores: true,
           }).then(({ actor }) => actor)
         }
         break

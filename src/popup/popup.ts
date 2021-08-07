@@ -133,6 +133,7 @@ export async function getTabContext(
     if (options.enableBlockBuster) {
       const result = await examineRetrieverByTweetId(myself, tweetId, {
         includeTweetDeck: options.enableBlockBusterWithTweetDeck,
+        includeAnotherCookieStores: true,
       })
       if (result) {
         currentTweet = result.targetTweet

@@ -1,6 +1,6 @@
 import { markUser } from './misc'
 import * as i18n from '../../scripts/i18n'
-import { iterateAvailableTwClients } from './multitude'
+import { IterateCondition, iterateAvailableTwClients } from './multitude'
 
 export type TeamworkUserAction = 'Block' | 'UnBlock' | 'Mute' | 'UnMute'
 
@@ -22,8 +22,9 @@ function curriedHandleAfterAction(executor: TwitterUser, userAction: UserAction)
   }
 }
 
-const iterateCondition = {
+const iterateCondition: IterateCondition = {
   includeTweetDeck: false,
+  includeAnotherCookieStores: false,
 }
 
 async function blockWithMultipleAccounts(target: TwitterUser) {

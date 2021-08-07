@@ -8,15 +8,25 @@ interface AvailableAccount {
 
 export interface IterateCondition {
   includeTweetDeck: boolean
-  // includeAnotherCookieStores: boolean
+  includeAnotherCookieStores: boolean
+}
+
+async function getCookieStoreIdsToIterate(includeAnotherCookieStores: boolean): Promise<string[]> {
+  if (includeAnotherCookieStores) {
+    const stores = await browser.cookies.getAllCookieStores()
+    return stores.map(({ id }) => id)
+  } else {
+    const defaultId = await CookieHandler.getDefaultCookieStoreId()
+    return [defaultId]
+  }
 }
 
 export async function* iterateAvailableTwClients({
   includeTweetDeck,
+  includeAnotherCookieStores,
 }: IterateCondition): AsyncIterableIterator<AvailableAccount> {
-  const cookieStores = await browser.cookies.getAllCookieStores()
-  for (const store of cookieStores) {
-    const cookieStoreId = store.id
+  const cookieStoreIds = await getCookieStoreIdsToIterate(includeAnotherCookieStores)
+  for (const cookieStoreId of cookieStoreIds) {
     const client = new TwClient({ cookieStoreId })
     const user = await client.getMyself().catch(() => null)
     if (user) {

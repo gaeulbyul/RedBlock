@@ -125,6 +125,7 @@ async function confirmChainBlockRequest(
     retriever =
       (await examineRetrieverByTargetUser(executor, target.user, {
         includeTweetDeck: options.enableBlockBusterWithTweetDeck,
+        includeAnotherCookieStores: true,
       })) || executor
   } else {
     retriever = executor
