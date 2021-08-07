@@ -21,6 +21,53 @@ async function getCookieStoreIdsToIterate(includeAnotherCookieStores: boolean): 
   }
 }
 
+async function* iterateMultiAccountCookies(
+  cookieStoreId: string,
+  multiCookies: CookieHandler.MultiAccountCookies
+): AsyncIterableIterator<AvailableAccount> {
+  for (const actAsUserId of Object.keys(multiCookies)) {
+    const secondaryTwClient = new TwClient({
+      cookieStoreId,
+      actAsUserId,
+    })
+    const secondaryUser = await secondaryTwClient.getMyself().catch(() => null)
+    if (secondaryUser) {
+      yield {
+        client: secondaryTwClient,
+        user: secondaryUser,
+      }
+    }
+  }
+}
+
+async function* iterateTweetDeckContributees(
+  cookieStoreId: string
+): AsyncIterableIterator<AvailableAccount> {
+  const tdTwClient = new TwClient({
+    cookieStoreId,
+    asTweetDeck: true,
+  })
+  const contributees = await tdTwClient.getTweetDeckContributees().catch(() => [])
+  console.debug('[] contributees= %o', contributees)
+  if (contributees.length <= 0) {
+    return
+  }
+  for (const ctee of contributees) {
+    const secondaryTwClient = new TwClient({
+      cookieStoreId,
+      asTweetDeck: true,
+      actAsUserId: ctee.user.id_str,
+    })
+    const secondaryUser = await secondaryTwClient.getMyself().catch(() => null)
+    if (secondaryUser) {
+      yield {
+        client: secondaryTwClient,
+        user: secondaryUser,
+      }
+    }
+  }
+}
+
 export async function* iterateAvailableTwClients({
   includeTweetDeck,
   includeAnotherCookieStores,
@@ -36,44 +83,10 @@ export async function* iterateAvailableTwClients({
     // 컨테이너에 트위터 계정을 하나만 로그인한 경우, auth_multi 쿠키가 없어 서
     // getMultiAccountCookies 함수가 null 을 리턴한다.
     if (multiCookies) {
-      for (const actAsUserId of Object.keys(multiCookies)) {
-        const secondaryTwClient = new TwClient({
-          cookieStoreId,
-          actAsUserId,
-        })
-        const secondaryUser = await secondaryTwClient.getMyself().catch(() => null)
-        if (secondaryUser) {
-          yield {
-            client: secondaryTwClient,
-            user: secondaryUser,
-          }
-        }
-      }
+      yield* iterateMultiAccountCookies(cookieStoreId, multiCookies)
     }
     if (includeTweetDeck) {
-      const tdTwClient = new TwClient({
-        cookieStoreId,
-        asTweetDeck: true,
-      })
-      const contributees = await tdTwClient.getTweetDeckContributees().catch(() => [])
-      console.debug('[] contributees= %o', contributees)
-      if (contributees.length <= 0) {
-        continue
-      }
-      for (const ctee of contributees) {
-        const secondaryTwClient = new TwClient({
-          cookieStoreId,
-          asTweetDeck: true,
-          actAsUserId: ctee.user.id_str,
-        })
-        const secondaryUser = await secondaryTwClient.getMyself().catch(() => null)
-        if (secondaryUser) {
-          yield {
-            client: secondaryTwClient,
-            user: secondaryUser,
-          }
-        }
-      }
+      yield* iterateTweetDeckContributees(cookieStoreId)
     }
   }
 }
