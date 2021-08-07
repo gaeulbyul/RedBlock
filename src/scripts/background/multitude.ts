@@ -16,7 +16,7 @@ function curriedMarkUser(userAction: UserAction) {
 
 async function blockWithMultipleAccounts(target: TwitterUser) {
   const promises: Promise<TwitterUser>[] = []
-  for await (const client of iterateAvailableTwClients()) {
+  for await (const { client } of iterateAvailableTwClients()) {
     promises.push(client.blockUser(target).then(curriedMarkUser('Block')))
   }
   return Promise.allSettled(promises)
@@ -24,7 +24,7 @@ async function blockWithMultipleAccounts(target: TwitterUser) {
 
 async function unblockWithMultipleAccounts(target: TwitterUser) {
   const promises: Promise<TwitterUser>[] = []
-  for await (const client of iterateAvailableTwClients()) {
+  for await (const { client } of iterateAvailableTwClients()) {
     promises.push(client.unblockUser(target).then(curriedMarkUser('UnBlock')))
   }
   return Promise.allSettled(promises)
@@ -32,7 +32,7 @@ async function unblockWithMultipleAccounts(target: TwitterUser) {
 
 async function muteWithMultipleAccounts(target: TwitterUser) {
   const promises: Promise<TwitterUser>[] = []
-  for await (const client of iterateAvailableTwClients()) {
+  for await (const { client } of iterateAvailableTwClients()) {
     promises.push(client.muteUser(target).then(curriedMarkUser('Mute')))
   }
   return Promise.allSettled(promises)
@@ -40,7 +40,7 @@ async function muteWithMultipleAccounts(target: TwitterUser) {
 
 async function unmuteWithMultipleAccounts(target: TwitterUser) {
   const promises: Promise<TwitterUser>[] = []
-  for await (const client of iterateAvailableTwClients()) {
+  for await (const { client } of iterateAvailableTwClients()) {
     promises.push(client.unmuteUser(target).then(curriedMarkUser('UnMute')))
   }
   return Promise.allSettled(promises)

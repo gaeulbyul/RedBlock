@@ -2,20 +2,36 @@ import * as CookieHandler from './cookie-handler'
 import { TwClient } from './twitter-api'
 import { loadOptions } from './storage/options'
 
-export async function* iterateAvailableTwClients(): AsyncIterableIterator<TwClient> {
+interface AvailableAccount {
+  client: TwClient
+  user: TwitterUser
+}
+
+export async function* iterateAvailableTwClients(): AsyncIterableIterator<AvailableAccount> {
   const cookieStores = await browser.cookies.getAllCookieStores()
   for (const store of cookieStores) {
     const cookieStoreId = store.id
-    yield new TwClient({ cookieStoreId })
+    const client = new TwClient({ cookieStoreId })
+    const user = await client.getMyself().catch(() => null)
+    if (user) {
+      yield { client, user }
+    }
     const multiCookies = await CookieHandler.getMultiAccountCookies({ cookieStoreId })
     // 컨테이너에 트위터 계정을 하나만 로그인한 경우, auth_multi 쿠키가 없어 서
     // getMultiAccountCookies 함수가 null 을 리턴한다.
     if (multiCookies) {
       for (const actAsUserId of Object.keys(multiCookies)) {
-        yield new TwClient({
+        const secondaryTwClient = new TwClient({
           cookieStoreId,
           actAsUserId,
         })
+        const secondaryUser = await secondaryTwClient.getMyself().catch(() => null)
+        if (secondaryUser) {
+          yield {
+            client: secondaryTwClient,
+            user: secondaryUser,
+          }
+        }
       }
     }
     const { enableBlockBusterWithTweetDeck } = await loadOptions()
@@ -30,11 +46,18 @@ export async function* iterateAvailableTwClients(): AsyncIterableIterator<TwClie
         continue
       }
       for (const ctee of contributees) {
-        yield new TwClient({
+        const secondaryTwClient = new TwClient({
           cookieStoreId,
           asTweetDeck: true,
           actAsUserId: ctee.user.id_str,
         })
+        const secondaryUser = await secondaryTwClient.getMyself().catch(() => null)
+        if (secondaryUser) {
+          yield {
+            client: secondaryTwClient,
+            user: secondaryUser,
+          }
+        }
       }
     }
   }
@@ -49,20 +72,14 @@ export async function examineRetrieverByTargetUser(
     return primaryActor
   }
   const twClients = iterateAvailableTwClients()
-  for await (const client of twClients) {
-    console.debug('[BlockBuster]: secondaryTwClient:%o', client)
-    const clientSelf = await client.getMyself().catch(() => null)
-    if (!clientSelf) {
-      console.debug('[BlockBuster]: login check fail. skip.')
-      continue
-    }
-    if (clientSelf.id_str === primaryActor.user.id_str) {
+  for await (const { client, user } of twClients) {
+    if (user.id_str === primaryActor.user.id_str) {
       continue
     }
     const target = await client.getSingleUser({ user_id: targetUser.id_str }).catch(() => null)
     if (target && !target.blocked_by) {
       console.debug('[BlockBuster]: Found! will use %o', client)
-      return { user: clientSelf, clientOptions: client.options }
+      return { user, clientOptions: client.options }
     }
   }
   console.warn('[BlockBuster]: Failed to Found!')
@@ -85,14 +102,8 @@ export async function examineRetrieverByTweetId(
     }
   }
   const twClients = iterateAvailableTwClients()
-  for await (const client of twClients) {
-    console.debug('[BlockBuster]: secondaryTwClient:%o', client)
-    const clientSelf = await client.getMyself().catch(() => null)
-    if (!clientSelf) {
-      console.debug('[BlockBuster]: login check fail. skip.')
-      continue
-    }
-    if (clientSelf.id_str === primaryActor.user.id_str) {
+  for await (const { client, user } of twClients) {
+    if (user.id_str === primaryActor.user.id_str) {
       continue
     }
     const targetTweet = await client.getTweetById(tweetId).catch(() => null)
@@ -100,7 +111,7 @@ export async function examineRetrieverByTweetId(
       console.debug('[BlockBuster]: Found! will use %o', client)
       return {
         actor: {
-          user: clientSelf,
+          user,
           clientOptions: client.options,
         },
         targetTweet,
