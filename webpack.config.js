@@ -2,8 +2,8 @@ const path = require('path')
 const webpack = require('webpack')
 
 module.exports = {
-  mode: 'development',
-  devtool: 'inline-source-map',
+  // mode: 'development',
+  devtool: 'source-map',
   entry: {
     background: './src/scripts/background/entrypoint.ts',
     twitter: './src/scripts/content/twitter.ts',
