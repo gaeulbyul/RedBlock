@@ -17,6 +17,7 @@ import {
 } from '../../common'
 import BlockLimiter from '../block-limiter'
 import { decideWhatToDoGivenUser } from './user-decider'
+import { loadOptions } from '../storage/options'
 
 const MAX_USERS_TO_SCRAPE_AFTER_REWIND = 200
 
@@ -342,6 +343,7 @@ async function refreshRequest<T extends AnySessionTarget>(
   request: SessionRequest<T>
 ): Promise<Either<TwitterAPI.ErrorResponse | Error, SessionRequest<T>>> {
   const newRequest: SessionRequest<T> = cloneDeep(request)
+  newRequest.options = await loadOptions()
   const { enableBlockBuster, enableBlockBusterWithTweetDeck: includeTweetDeck } = newRequest.options
   const actor = newRequest.executor
   const twClient = new TwitterAPI.TwClient(actor.clientOptions)
