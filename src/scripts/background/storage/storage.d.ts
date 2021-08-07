@@ -26,7 +26,7 @@ interface RedBlockStorage {
     oneClickBlockModeForAllTabs: boolean
     allowSelfChainBlock: boolean
     recurringSessionInterval: number
-    enableMultitude: boolean
+    enableTeamwork: boolean
   }
   uiOptions: {
     menus: {
@@ -40,10 +40,10 @@ interface RedBlockStorage {
       chainBlockAudioSpaceSpeakers: boolean
       chainBlockAudioSpaceSpeakersAndListeners: boolean
       chainBlockHashTagInUsersProfile: boolean
-      multitudeBlock: boolean
-      multitudeUnblock: boolean
-      multitudeMute: boolean
-      multitudeUnmute: boolean
+      teamworkBlock: boolean
+      teamworkUnblock: boolean
+      teamworkMute: boolean
+      teamworkUnmute: boolean
     }
   }
   badWords: BadWordItem[]

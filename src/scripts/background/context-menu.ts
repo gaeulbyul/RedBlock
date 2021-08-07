@@ -13,10 +13,10 @@ import { loadOptions, loadUIOptions, defaultUIOptions } from './storage/options'
 import { examineRetrieverByTargetUser } from './blockbuster'
 import { toggleOneClickBlockMode } from './misc'
 import {
-  MultitudeUserAction,
+  TeamworkUserAction,
   doActionWithMultipleAccounts,
-  generateMultitudeResultMessage,
-} from './multitude'
+  generateTeamworkResultMessage,
+} from './teamwork'
 import type SessionManager from './session-manager'
 import * as i18n from '../../scripts/i18n'
 
@@ -97,14 +97,14 @@ function showErrorAlert({
   alertToTab(tab, errorMessage)
 }
 
-async function executeMultitude(tab: BrowserTab, action: MultitudeUserAction, userName: string) {
+async function executeTeamwork(tab: BrowserTab, action: TeamworkUserAction, userName: string) {
   const cookieStoreId = await getCookieStoreIdFromTab(tab)
   const twClient = new TwitterAPI.TwClient({ cookieStoreId })
   const maybeUser = await getUserByName(twClient, userName)
   if (maybeUser.ok) {
     const user = maybeUser.value
     const results = await doActionWithMultipleAccounts(action, user)
-    const resultMessage = generateMultitudeResultMessage(action, results)
+    const resultMessage = generateTeamworkResultMessage(action, results)
     alertToTab(tab, resultMessage)
   } else {
     const { error } = maybeUser
@@ -435,14 +435,14 @@ export async function initializeContextMenu(
   menus.create({
     contexts: ['link'],
     type: 'separator',
-    visible: redblockOptions.enableMultitude,
+    visible: redblockOptions.enableTeamwork,
   })
   menus.create({
     contexts: ['link'],
     documentUrlPatterns,
     targetUrlPatterns: urlPatterns,
-    title: i18n.getMessage('multitude_block_user'),
-    visible: redblockOptions.enableMultitude && enabledMenus.multitudeBlock,
+    title: i18n.getMessage('teamwork_block_user'),
+    visible: redblockOptions.enableTeamwork && enabledMenus.teamworkBlock,
     async onclick(clickEvent, tab) {
       const twURL = new TwitterURL(clickEvent.linkUrl!)
       const userName = twURL.getUserName()
@@ -450,15 +450,15 @@ export async function initializeContextMenu(
         alertToTab(tab, i18n.getMessage('cant_find_username_in_given_url', twURL.toString()))
         return
       }
-      executeMultitude(tab, 'Block', userName)
+      executeTeamwork(tab, 'Block', userName)
     },
   })
   menus.create({
     contexts: ['link'],
     documentUrlPatterns,
     targetUrlPatterns: urlPatterns,
-    title: i18n.getMessage('multitude_unblock_user'),
-    visible: redblockOptions.enableMultitude && enabledMenus.multitudeUnblock,
+    title: i18n.getMessage('teamwork_unblock_user'),
+    visible: redblockOptions.enableTeamwork && enabledMenus.teamworkUnblock,
     async onclick(clickEvent, tab) {
       const twURL = new TwitterURL(clickEvent.linkUrl!)
       const userName = twURL.getUserName()
@@ -466,15 +466,15 @@ export async function initializeContextMenu(
         alertToTab(tab, i18n.getMessage('cant_find_username_in_given_url', twURL.toString()))
         return
       }
-      executeMultitude(tab, 'UnBlock', userName)
+      executeTeamwork(tab, 'UnBlock', userName)
     },
   })
   menus.create({
     contexts: ['link'],
     documentUrlPatterns,
     targetUrlPatterns: urlPatterns,
-    title: i18n.getMessage('multitude_mute_user'),
-    visible: redblockOptions.enableMultitude && enabledMenus.multitudeMute,
+    title: i18n.getMessage('teamwork_mute_user'),
+    visible: redblockOptions.enableTeamwork && enabledMenus.teamworkMute,
     async onclick(clickEvent, tab) {
       const twURL = new TwitterURL(clickEvent.linkUrl!)
       const userName = twURL.getUserName()
@@ -482,15 +482,15 @@ export async function initializeContextMenu(
         alertToTab(tab, i18n.getMessage('cant_find_username_in_given_url', twURL.toString()))
         return
       }
-      executeMultitude(tab, 'Mute', userName)
+      executeTeamwork(tab, 'Mute', userName)
     },
   })
   menus.create({
     contexts: ['link'],
     documentUrlPatterns,
     targetUrlPatterns: urlPatterns,
-    title: i18n.getMessage('multitude_unmute_user'),
-    visible: redblockOptions.enableMultitude && enabledMenus.multitudeUnmute,
+    title: i18n.getMessage('teamwork_unmute_user'),
+    visible: redblockOptions.enableTeamwork && enabledMenus.teamworkUnmute,
     async onclick(clickEvent, tab) {
       const twURL = new TwitterURL(clickEvent.linkUrl!)
       const userName = twURL.getUserName()
@@ -498,7 +498,7 @@ export async function initializeContextMenu(
         alertToTab(tab, i18n.getMessage('cant_find_username_in_given_url', twURL.toString()))
         return
       }
-      executeMultitude(tab, 'UnMute', userName)
+      executeTeamwork(tab, 'UnMute', userName)
     },
   })
   // 확장기능버튼

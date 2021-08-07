@@ -9,7 +9,7 @@ const M = MaterialUI
 
 function RightClickMenusPaper() {
   const {
-    options: { enableMultitude },
+    options: { enableTeamwork },
     uiOptions,
     updateUIOptions,
   } = React.useContext(RedBlockOptionsContext)
@@ -139,49 +139,49 @@ function RightClickMenusPaper() {
               }
             />
           </M.FormGroup>
-          {enableMultitude && (
+          {enableTeamwork && (
             <React.Fragment>
               <M.Divider variant="middle" />
               <M.FormGroup>
                 <CheckboxItem
-                  checked={currentMenus.multitudeBlock}
-                  label={i18n.getMessage('multitude_block_user')}
+                  checked={currentMenus.teamworkBlock}
+                  label={i18n.getMessage('teamwork_block_user')}
                   onChange={checked =>
                     updateMenusOption({
-                      multitudeBlock: checked,
+                      teamworkBlock: checked,
                     })
                   }
                 />
               </M.FormGroup>
               <M.FormGroup>
                 <CheckboxItem
-                  checked={currentMenus.multitudeUnblock}
-                  label={i18n.getMessage('multitude_unblock_user')}
+                  checked={currentMenus.teamworkUnblock}
+                  label={i18n.getMessage('teamwork_unblock_user')}
                   onChange={checked =>
                     updateMenusOption({
-                      multitudeUnblock: checked,
+                      teamworkUnblock: checked,
                     })
                   }
                 />
               </M.FormGroup>
               <M.FormGroup>
                 <CheckboxItem
-                  checked={currentMenus.multitudeMute}
-                  label={i18n.getMessage('multitude_mute_user')}
+                  checked={currentMenus.teamworkMute}
+                  label={i18n.getMessage('teamwork_mute_user')}
                   onChange={checked =>
                     updateMenusOption({
-                      multitudeMute: checked,
+                      teamworkMute: checked,
                     })
                   }
                 />
               </M.FormGroup>
               <M.FormGroup>
                 <CheckboxItem
-                  checked={currentMenus.multitudeUnmute}
-                  label={i18n.getMessage('multitude_unmute_user')}
+                  checked={currentMenus.teamworkUnmute}
+                  label={i18n.getMessage('teamwork_unmute_user')}
                   onChange={checked =>
                     updateMenusOption({
-                      multitudeUnmute: checked,
+                      teamworkUnmute: checked,
                     })
                   }
                 />

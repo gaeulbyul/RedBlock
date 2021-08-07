@@ -69,16 +69,16 @@ export default function ExperimentalOptionsPages() {
           <M.Divider variant="middle" />
           <M.FormGroup>
             <SwitchItem
-              checked={options.enableMultitude}
-              label={i18n.getMessage('enable_multitude')}
+              checked={options.enableTeamwork}
+              label={i18n.getMessage('enable_teamwork')}
               onChange={checked =>
                 updateOptions({
-                  enableMultitude: checked,
+                  enableTeamwork: checked,
                 })
               }
             />
           </M.FormGroup>
-          <M.FormHelperText>{i18n.getMessage('enable_multitude_description')}</M.FormHelperText>
+          <M.FormHelperText>{i18n.getMessage('enable_teamwork_description')}</M.FormHelperText>
         </M.FormControl>
       </M.Box>
     </M.Paper>

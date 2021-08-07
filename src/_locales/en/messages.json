@@ -988,28 +988,28 @@
   "redblock_restore_settings": {
     "message": "Restore Settings"
   },
-  "enable_multitude": {
+  "enable_teamwork": {
     "message": "Enable Multi-action"
   },
-  "enable_multitude_description": {
+  "enable_teamwork_description": {
     "message": "Block or mute the specific user with all of your accounts. It is available in right-click menu."
   },
-  "multitude_block_user": {
+  "teamwork_block_user": {
     "message": "Block this user with all of your accounts"
   },
-  "multitude_unblock_user": {
+  "teamwork_unblock_user": {
     "message": "Unblock this user with all of your accounts"
   },
-  "multitude_mute_user": {
+  "teamwork_mute_user": {
     "message": "Mute this user with all of your accounts"
   },
-  "multitude_unmute_user": {
+  "teamwork_unmute_user": {
     "message": "Unmute this user with all of your accounts"
   },
   "unchainblock_to_retweeters_is_unavailable": {
     "message": "Due to technical reason, Unchain-block is unavailable to retweeters."
   },
-  "multitude_result_message": {
+  "teamwork_result_message": {
     "message": "Result: You $action$ to this user with $n$ accounts",
     "placeholders": {
       "n": {

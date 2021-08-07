@@ -49,7 +49,7 @@ const validator = {
       oneClickBlockModeForAllTabs: z.boolean(),
       allowSelfChainBlock: z.boolean(),
       recurringSessionInterval,
-      enableMultitude: z.boolean(),
+      enableTeamwork: z.boolean(),
     })
 
     return optionsSchema
@@ -67,10 +67,10 @@ const validator = {
       chainBlockAudioSpaceSpeakers: z.boolean(),
       chainBlockAudioSpaceSpeakersAndListeners: z.boolean(),
       chainBlockHashTagInUsersProfile: z.boolean(),
-      multitudeBlock: z.boolean(),
-      multitudeUnblock: z.boolean(),
-      multitudeMute: z.boolean(),
-      multitudeUnmute: z.boolean(),
+      teamworkBlock: z.boolean(),
+      teamworkUnblock: z.boolean(),
+      teamworkMute: z.boolean(),
+      teamworkUnmute: z.boolean(),
     })
     const uiOptionsSchema = z.strictObject({
       menus: menusSchema,

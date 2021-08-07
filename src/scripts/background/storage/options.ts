@@ -48,7 +48,7 @@ export const defaultOptions = Object.freeze<RedBlockOptions>({
   oneClickBlockModeForAllTabs: false,
   allowSelfChainBlock: false,
   recurringSessionInterval: 10,
-  enableMultitude: false,
+  enableTeamwork: false,
 })
 
 export const defaultUIOptions = Object.freeze<RedBlockUIOptions>({
@@ -63,9 +63,9 @@ export const defaultUIOptions = Object.freeze<RedBlockUIOptions>({
     chainBlockAudioSpaceSpeakers: true,
     chainBlockAudioSpaceSpeakersAndListeners: true,
     chainBlockHashTagInUsersProfile: true,
-    multitudeBlock: true,
-    multitudeUnblock: true,
-    multitudeMute: true,
-    multitudeUnmute: true,
+    teamworkBlock: true,
+    teamworkUnblock: true,
+    teamworkMute: true,
+    teamworkUnmute: true,
   }),
 })

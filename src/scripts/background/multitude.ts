@@ -1,95 +1,64 @@
-import { iterateAvailableTwClients } from './blockbuster'
-import { markUser } from './misc'
-import * as i18n from '../../scripts/i18n'
+import * as CookieHandler from './cookie-handler'
+import { TwClient } from './twitter-api'
+import { loadOptions } from './storage/options'
 
-export type MultitudeUserAction = 'Block' | 'UnBlock' | 'Mute' | 'UnMute'
-
-interface MultitudeActionResult {
-  executor: TwitterUser
-  targetUser: TwitterUser
+interface AvailableAccount {
+  client: TwClient
+  user: TwitterUser
 }
 
-function curriedHandleAfterAction(executor: TwitterUser, userAction: UserAction) {
-  return (targetUser: TwitterUser): MultitudeActionResult => {
-    markUser({
-      userId: targetUser.id_str,
-      userAction,
-    })
-    return {
-      executor,
-      targetUser,
+export async function* iterateAvailableTwClients(): AsyncIterableIterator<AvailableAccount> {
+  const cookieStores = await browser.cookies.getAllCookieStores()
+  for (const store of cookieStores) {
+    const cookieStoreId = store.id
+    const client = new TwClient({ cookieStoreId })
+    const user = await client.getMyself().catch(() => null)
+    if (user) {
+      yield { client, user }
+    }
+    const multiCookies = await CookieHandler.getMultiAccountCookies({ cookieStoreId })
+    // 컨테이너에 트위터 계정을 하나만 로그인한 경우, auth_multi 쿠키가 없어 서
+    // getMultiAccountCookies 함수가 null 을 리턴한다.
+    if (multiCookies) {
+      for (const actAsUserId of Object.keys(multiCookies)) {
+        const secondaryTwClient = new TwClient({
+          cookieStoreId,
+          actAsUserId,
+        })
+        const secondaryUser = await secondaryTwClient.getMyself().catch(() => null)
+        if (secondaryUser) {
+          yield {
+            client: secondaryTwClient,
+            user: secondaryUser,
+          }
+        }
+      }
+    }
+    const { enableBlockBusterWithTweetDeck } = await loadOptions()
+    if (enableBlockBusterWithTweetDeck) {
+      const tdTwClient = new TwClient({
+        cookieStoreId,
+        asTweetDeck: true,
+      })
+      const contributees = await tdTwClient.getTweetDeckContributees().catch(() => [])
+      console.debug('[] contributees= %o', contributees)
+      if (contributees.length <= 0) {
+        continue
+      }
+      for (const ctee of contributees) {
+        const secondaryTwClient = new TwClient({
+          cookieStoreId,
+          asTweetDeck: true,
+          actAsUserId: ctee.user.id_str,
+        })
+        const secondaryUser = await secondaryTwClient.getMyself().catch(() => null)
+        if (secondaryUser) {
+          yield {
+            client: secondaryTwClient,
+            user: secondaryUser,
+          }
+        }
+      }
     }
   }
-}
-
-async function blockWithMultipleAccounts(target: TwitterUser) {
-  const promises: Promise<MultitudeActionResult>[] = []
-  for await (const { client, user: executor } of iterateAvailableTwClients()) {
-    promises.push(client.blockUser(target).then(curriedHandleAfterAction(executor, 'Block')))
-  }
-  return Promise.allSettled(promises)
-}
-
-async function unblockWithMultipleAccounts(target: TwitterUser) {
-  const promises: Promise<MultitudeActionResult>[] = []
-  for await (const { client, user: executor } of iterateAvailableTwClients()) {
-    promises.push(client.unblockUser(target).then(curriedHandleAfterAction(executor, 'UnBlock')))
-  }
-  return Promise.allSettled(promises)
-}
-
-async function muteWithMultipleAccounts(target: TwitterUser) {
-  const promises: Promise<MultitudeActionResult>[] = []
-  for await (const { client, user: executor } of iterateAvailableTwClients()) {
-    promises.push(client.muteUser(target).then(curriedHandleAfterAction(executor, 'Mute')))
-  }
-  return Promise.allSettled(promises)
-}
-
-async function unmuteWithMultipleAccounts(target: TwitterUser) {
-  const promises: Promise<MultitudeActionResult>[] = []
-  for await (const { client, user: executor } of iterateAvailableTwClients()) {
-    promises.push(client.unmuteUser(target).then(curriedHandleAfterAction(executor, 'UnMute')))
-  }
-  return Promise.allSettled(promises)
-}
-
-export async function doActionWithMultipleAccounts(
-  action: MultitudeUserAction,
-  targetUser: TwitterUser
-) {
-  switch (action) {
-    case 'Block':
-      return blockWithMultipleAccounts(targetUser)
-    case 'UnBlock':
-      return unblockWithMultipleAccounts(targetUser)
-    case 'Mute':
-      return muteWithMultipleAccounts(targetUser)
-    case 'UnMute':
-      return unmuteWithMultipleAccounts(targetUser)
-  }
-}
-
-export function generateMultitudeResultMessage(
-  action: MultitudeUserAction,
-  results: PromiseSettledResult<MultitudeActionResult>[]
-) {
-  const success = results.filter(({ status }) => status === 'fulfilled')
-  // const failed = results.filter(({status}) => status === 'rejected')
-  let actionPast: string
-  switch (action) {
-    case 'Block':
-      actionPast = i18n.getMessage('blocked')
-      break
-    case 'UnBlock':
-      actionPast = i18n.getMessage('unblocked')
-      break
-    case 'Mute':
-      actionPast = i18n.getMessage('muted')
-      break
-    case 'UnMute':
-      actionPast = i18n.getMessage('unmuted')
-      break
-  }
-  return i18n.getMessage('multitude_result_message', [success.length, actionPast])
 }
