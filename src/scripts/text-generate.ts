@@ -228,6 +228,7 @@ export function generateConfirmMessage(
   request: SessionRequest<AnySessionTarget>
 ): DialogMessageObj {
   const target = `${i18n.getMessage('target')}: ${describeTarget(request)}`
+  const contents = [target]
   const warnings: string[] = []
   if (canBlockMyFollowers(request.purpose)) {
     warnings.push(`\u26a0 ${i18n.getMessage('warning_maybe_you_block_your_followers')}`)
@@ -235,9 +236,12 @@ export function generateConfirmMessage(
   if (canBlockMyFollowings(request.purpose)) {
     warnings.push(`\u26a0 ${i18n.getMessage('warning_maybe_you_block_your_followings')}`)
   }
+  if (request.extraSessionOptions.recurring) {
+    contents.push(`(${i18n.getMessage('recurring_session')})`)
+  }
   return {
     title: titleByPurposeType(request.purpose),
-    contentLines: [target],
+    contentLines: contents,
     warningLines: warnings,
   }
 }

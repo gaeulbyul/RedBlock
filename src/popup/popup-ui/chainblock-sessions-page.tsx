@@ -343,20 +343,22 @@ function ChainBlockSessionItem({
       shortProgress = `${i18n.getMessage('unmute')}: ${succProgress.UnMute.toLocaleString()}`
       break
   }
-  let notSavedYet = ''
+  const miniInfo = [`${i18n.getMessage('status')}: ${statusToString(sessionInfo.status)}`]
   if (purpose.type === 'export' && !downloaded) {
-    notSavedYet = `(${i18n.getMessage('not_saved_yet')})`
+    miniInfo.push(`(${i18n.getMessage('not_saved_yet')})`)
   }
+  if (sessionInfo.status === SessionStatus.AwaitingUntilRecur && recurringAlarm) {
+    const timeStr = new Date(recurringAlarm.scheduledTime)
+    miniInfo.push(`(${timeStr.toLocaleTimeString()})`)
+  }
+  miniInfo.push(shortProgress)
   return (
     <M.Box my={1}>
       <M.Card>
         {renderCardHeader(biggerProfileImageUrl)}
         <M.CardContent>
           {progressBar}
-          <T>
-            {i18n.getMessage('status')}: {statusToString(sessionInfo.status)} {notSavedYet} /{' '}
-            {shortProgress}
-          </T>
+          <T>{miniInfo.join(' / ')}</T>
           {sessionInfo.limit && (
             <T color="textSecondary">
               {i18n.getMessage('rate_limit_reset_time')} (±5m):{' '}
