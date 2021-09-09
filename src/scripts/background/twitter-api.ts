@@ -300,6 +300,13 @@ export class TwClient {
     return await this.request1('get', '/users/contributees.json')
   }
 
+  public async removeFollower(user: TwitterUser) {
+    const queryData = await getQueryDataByOperationName('RemoveFollower')
+    return await this.requestGraphQL(queryData, {
+      target_user_id: user.id_str,
+    })
+  }
+
   private async sendRequest(request: RequestInit, url: URL) {
     let newCsrfToken = ''
     let maxRetryCount = 3
@@ -358,13 +365,23 @@ export class TwClient {
   }
 
   private async requestGraphQL(
-    { queryId, operationName }: GraphQLQueryData,
+    { queryId, operationName, operationType }: GraphQLQueryData,
     variables: URLParamsObj = {}
   ) {
-    const fetchOptions = await prepareTwitterRequest({ method: 'get' }, this.options)
+    const method = operationType === 'query' ? 'get' : 'post'
+    const fetchOptions = await prepareTwitterRequest({ method }, this.options)
     const url = new URL(`https://${this.prefix}/graphql/${queryId}/${operationName}`)
     const encodedVariables = JSON.stringify(variables)
-    url.searchParams.set('variables', encodedVariables)
+    if (method === 'get') {
+      url.searchParams.set('variables', encodedVariables)
+    } else {
+      const headers = fetchOptions.headers as Headers
+      headers.set('content-type', 'application/json')
+      fetchOptions.body = JSON.stringify({
+        queryId,
+        variables: encodedVariables,
+      })
+    }
     return this.sendRequest(fetchOptions, url)
   }
 }
