@@ -1,4 +1,4 @@
-import { listenExtensionMessages, injectScriptToPage, toastMessage } from './content-common'
+import { listenExtensionMessages, injectBundle, toastMessage } from './content-common'
 import { generateBlockButton, shouldSkip, unblockUserById } from './oneclick-block'
 import * as i18n from '../../scripts/i18n'
 
@@ -6,7 +6,7 @@ const reactRoot = document.getElementById('react-root')
 listenExtensionMessages(reactRoot)
 
 if (reactRoot) {
-  injectScriptToPage('bundled/twitter_inject.bun.js')
+  injectBundle('twitter_inject')
 }
 
 function addBlockButtonUnderProfileImage(elem: HTMLElement, user: TwitterUser) {

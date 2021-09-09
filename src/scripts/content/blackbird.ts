@@ -1,6 +1,6 @@
 import {
   listenExtensionMessages,
-  injectScriptToPage,
+  injectBundle,
   blockUserById,
   toastMessage,
 } from './content-common'
@@ -47,7 +47,7 @@ function addBlockButtonForTweetDeck(elem: HTMLElement, user: TweetDeckUser) {
 }
 
 export function initializeForBlackBird() {
-  injectScriptToPage('bundled/blackbird_inject.bun.js')
+  injectBundle('blackbird_inject')
   listenExtensionMessages(null)
   document.addEventListener('RedBlock<-OneClickBlockTweetDeckUser', event => {
     const customEvent = event as CustomEvent<OneClickBlockTweetDeckUser>

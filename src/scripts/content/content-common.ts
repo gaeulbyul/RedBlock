@@ -7,7 +7,9 @@ export function cloneDetail<T>(detail: T): T {
   return detail
 }
 
-export function injectScriptToPage(path: string) {
+let webpackRuntimeInjected = false
+
+function actuallyInjectScriptToPage(path: string) {
   document.body
     .appendChild(
       Object.assign(document.createElement('script'), {
@@ -15,6 +17,15 @@ export function injectScriptToPage(path: string) {
       })
     )
     .remove()
+}
+
+export function injectBundle(name: string) {
+  if (!webpackRuntimeInjected) {
+    actuallyInjectScriptToPage('bundled/runtime.bun.js')
+    webpackRuntimeInjected = true
+  }
+  const path = `bundled/${name}.bun.js`
+  actuallyInjectScriptToPage(path)
 }
 
 function checkMessage(msg: object): msg is RBMessageToContentType {

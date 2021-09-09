@@ -1,10 +1,10 @@
 import { generateBlockButton, shouldSkip, unblockUserById } from './oneclick-block'
-import { listenExtensionMessages, injectScriptToPage, toastMessage } from './content-common'
+import { listenExtensionMessages, injectBundle, toastMessage } from './content-common'
 import * as i18n from '../../scripts/i18n'
 
 export function initializeForGryphon(reactRoot: HTMLElement) {
   listenExtensionMessages(reactRoot)
-  injectScriptToPage('bundled/gryphon_inject.bun.js')
+  injectBundle('gryphon_inject')
   copiedFromTwitter()
 }
 
