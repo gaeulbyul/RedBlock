@@ -10,7 +10,7 @@ import * as TextGenerate from '../../scripts/text-generate'
 import { startNewChainBlockSession } from '../../scripts/background/request-sender'
 import {
   UIContext,
-  MyselfContext,
+  TabInfoContext,
   RetrieverContext,
   BlockLimiterContext,
   RedBlockOptionsContext,
@@ -51,7 +51,7 @@ function useSessionRequest(): Either<TargetCheckResult, SessionRequest<FollowerS
   const { purpose, targetList, userSelection } = React.useContext(
     FollowerChainBlockPageStatesContext
   )
-  const myself = React.useContext(MyselfContext)
+  const { myself } = React.useContext(TabInfoContext)
   const { retriever } = React.useContext(RetrieverContext)
   const { extraSessionOptions } = React.useContext(ExtraSessionOptionsContext)
   const options = React.useContext(RedBlockOptionsContext)
@@ -208,8 +208,8 @@ function FollowerChainBlockTargetSelector({
 
 function TargetUserProfile({ user }: { user: TwitterUser }) {
   const { targetList, setTargetList } = React.useContext(FollowerChainBlockPageStatesContext)
-  const myself = React.useContext(MyselfContext)!
-  const selectedMyself = user.id_str === myself.user.id_str
+  const { myself } = React.useContext(TabInfoContext)
+  const selectedMyself = user.id_str === myself!.user.id_str
   function radio(fk: FollowKind, label: string) {
     return (
       <M.FormControlLabel
@@ -255,12 +255,12 @@ function TargetUserSelectUI() {
   const { currentUser, targetList, userSelection, setUserSelection } = React.useContext(
     FollowerChainBlockPageStatesContext
   )
-  const myself = React.useContext(MyselfContext)!
+  const { myself } = React.useContext(TabInfoContext)
   const { openDialog } = React.useContext(UIContext)
   const [bookmarkedUsers, setBookmarkedUsers] = React.useState(new TwitterUserMap())
   const [usersInOtherTab, setUsersInOtherTab] = React.useState(new TwitterUserMap())
   const [isLoading, setLoadingState] = React.useState(false)
-  const twClient = new TwClient(myself.clientOptions)
+  const twClient = new TwClient(myself!.clientOptions)
   async function changeSelectedUser(userId: string, group: TargetGroup) {
     if (!/^\d+$/.test(userId)) {
       setUserSelection(null)

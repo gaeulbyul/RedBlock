@@ -1,9 +1,9 @@
 import { TwitterURL } from '../scripts/common'
 import { loadOptions } from '../scripts/background/storage/options'
-import type { TwClient } from '../scripts/background/twitter-api'
+import { TwClient } from '../scripts/background/twitter-api'
 import { examineRetrieverByTweetId } from '../scripts/background/blockbuster'
-
-export { toggleOneClickBlockMode } from '../scripts/background/misc'
+import { getCookieStoreIdFromTab } from '../scripts/background/cookie-handler'
+import { getCurrentTab } from '../scripts/background/misc'
 
 type Tab = browser.tabs.Tab
 
@@ -101,26 +101,36 @@ export function checkMessage(msg: object): msg is RBMessageToPopupType {
   return true
 }
 
-export interface TabContext {
-  currentUser: TwitterUser | null
-  currentTweet: Tweet | null
-  currentSearchQuery: string | null
-  currentAudioSpace: AudioSpace | null
+export interface TabInfo {
+  myself: Actor | null
+  user: TwitterUser | null
+  tweet: Tweet | null
+  searchQuery: string | null
+  audioSpace: AudioSpace | null
 }
 
-export async function getTabContext(
-  tab: browser.tabs.Tab,
-  myself: Actor,
-  twClient: TwClient
-): Promise<TabContext> {
+export const infoless: TabInfo = {
+  myself: null,
+  tweet: null,
+  user: null,
+  searchQuery: null,
+  audioSpace: null,
+}
+
+export async function getCurrentTabInfo(): Promise<TabInfo> {
+  const tab = await getCurrentTab()!
   const turl = TwitterURL.nullable(tab.url!)
-  if (!turl) {
-    return {
-      currentTweet: null,
-      currentUser: null,
-      currentSearchQuery: null,
-      currentAudioSpace: null,
+  const cookieStoreId = await getCookieStoreIdFromTab(tab)
+  const twClient = new TwClient({ cookieStoreId })
+  const me = await twClient.getMyself().catch(() => null)
+  let myself: Actor | null
+  if (me && turl) {
+    myself = {
+      user: me,
+      clientOptions: twClient.options,
     }
+  } else {
+    return infoless
   }
   const tweetId = getTweetIdFromTab(tab)
   const userId = getUserIdFromTab(tab)
@@ -169,9 +179,10 @@ export async function getTabContext(
     }
   }
   return {
-    currentTweet,
-    currentUser,
-    currentSearchQuery,
-    currentAudioSpace,
+    myself,
+    tweet: currentTweet,
+    user: currentUser,
+    searchQuery: currentSearchQuery,
+    audioSpace: currentAudioSpace,
   }
 }

@@ -3,7 +3,7 @@ import * as MaterialUI from '@material-ui/core'
 
 import { DialogMessageObj, checkResultToString } from '../../scripts/text-generate'
 import { requestResetCounter } from '../../scripts/background/request-sender'
-import { MyselfContext, BlockLimiterContext, RedBlockOptionsContext, UIContext } from './contexts'
+import { TabInfoContext, BlockLimiterContext, RedBlockOptionsContext, UIContext } from './contexts'
 import { ExtraSessionOptionsContext } from './ui-states'
 import type { TargetCheckResult } from '../../scripts/background/target-checker'
 import { RadioOptionItem, CheckboxItem } from '../../ui/components'
@@ -250,10 +250,10 @@ export function RBAccordion({
 
 export function BlockLimiterUI() {
   const { current, max } = React.useContext(BlockLimiterContext)
-  const myself = React.useContext(MyselfContext)!
+  const { myself } = React.useContext(TabInfoContext)
   function handleResetButtonClick(event: React.MouseEvent<HTMLButtonElement>) {
     event.preventDefault()
-    requestResetCounter(myself.user.id_str)
+    requestResetCounter(myself!.user.id_str)
   }
   const exceed = current >= max
   const warningIcon = exceed ? '\u26a0\ufe0f' : ''

@@ -4,7 +4,7 @@ import * as MaterialUI from '@material-ui/core'
 import * as TextGenerate from '../../scripts/text-generate'
 import {
   UIContext,
-  MyselfContext,
+  TabInfoContext,
   RetrieverContext,
   BlockLimiterContext,
   RedBlockOptionsContext,
@@ -45,7 +45,7 @@ function useSessionRequest(): Either<
     includedReactionsV2,
   } = React.useContext(TweetReactionChainBlockPageStatesContext)
   const { extraSessionOptions } = React.useContext(ExtraSessionOptionsContext)
-  const myself = React.useContext(MyselfContext)
+  const { myself } = React.useContext(TabInfoContext)
   const { retriever } = React.useContext(RetrieverContext)
   const options = React.useContext(RedBlockOptionsContext)
   if (!myself) {

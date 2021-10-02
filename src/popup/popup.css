@@ -55,11 +55,13 @@ body {
 }
 
 #app {
+  display: flex;
   flex-grow: 1;
 }
 
 .page {
-  margin-top: 55px;
+  flex-grow: 1;
+  padding-top: 50px;
 }
 
 .ui-popup .hide-on-popup,

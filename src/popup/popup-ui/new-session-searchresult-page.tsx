@@ -3,7 +3,7 @@ import * as MaterialUI from '@material-ui/core'
 
 import * as TextGenerate from '../../scripts/text-generate'
 import { startNewChainBlockSession } from '../../scripts/background/request-sender'
-import { UIContext, MyselfContext, BlockLimiterContext, RedBlockOptionsContext } from './contexts'
+import { UIContext, TabInfoContext, BlockLimiterContext, RedBlockOptionsContext } from './contexts'
 import { UserSearchChainBlockPageStatesContext, ExtraSessionOptionsContext } from './ui-states'
 import {
   RBAccordion,
@@ -21,7 +21,7 @@ const T = MaterialUI.Typography
 function useSessionRequest(): Either<TargetCheckResult, SessionRequest<UserSearchSessionTarget>> {
   const { purpose, searchQuery } = React.useContext(UserSearchChainBlockPageStatesContext)
   const { extraSessionOptions } = React.useContext(ExtraSessionOptionsContext)
-  const myself = React.useContext(MyselfContext)
+  const { myself } = React.useContext(TabInfoContext)
   const options = React.useContext(RedBlockOptionsContext)
   if (!myself) {
     return {

@@ -1,7 +1,7 @@
 import React from 'react'
 import * as MaterialUI from '@material-ui/core'
 
-import { UIContext, MyselfContext, BlockLimiterContext, RedBlockOptionsContext } from './contexts'
+import { UIContext, TabInfoContext, BlockLimiterContext, RedBlockOptionsContext } from './contexts'
 import {
   RBAccordion,
   BlockLimiterUI,
@@ -21,7 +21,7 @@ const M = MaterialUI
 function useSessionRequest(): Either<TargetCheckResult, SessionRequest<LockPickerSessionTarget>> {
   const { purpose } = React.useContext(LockPickerPageStatesContext)
   const { extraSessionOptions } = React.useContext(ExtraSessionOptionsContext)
-  const myself = React.useContext(MyselfContext)
+  const { myself } = React.useContext(TabInfoContext)
   const options = React.useContext(RedBlockOptionsContext)
   if (!myself) {
     return {
@@ -107,13 +107,13 @@ function TargetExecutionButtonUI() {
 }
 
 export default function NewSessionLockpickerPage() {
-  const myself = React.useContext(MyselfContext)!
+  const { myself } = React.useContext(TabInfoContext)
   const maybeRequest = useSessionRequest()
   return (
     <div>
       <RBAccordion summary={i18n.getMessage('lockpicker')} defaultExpanded>
         <div style={{ width: '100%' }}>
-          <TwitterUserProfile user={myself.user} />
+          <TwitterUserProfile user={myself!.user} />
         </div>
       </RBAccordion>
       <TargetOptionsUI />

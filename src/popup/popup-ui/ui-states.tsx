@@ -6,7 +6,7 @@ import {
 } from '../../scripts/background/chainblock-session/default-options'
 import { Blocklist, emptyBlocklist } from '../../scripts/background/blocklist-process'
 import { determineInitialPurposeType } from '../popup'
-import { MyselfContext, RetrieverContext, RedBlockOptionsContext } from './contexts'
+import { TabInfoContext, RetrieverContext, RedBlockOptionsContext } from './contexts'
 import {
   examineRetrieverByTargetUser,
   examineRetrieverByTweetId,
@@ -165,20 +165,16 @@ export function FollowerChainBlockPageStatesProvider({
   children: React.ReactNode
   initialUser: TwitterUser | null
 }) {
-  const myself = React.useContext(MyselfContext)!
-  if (!myself) {
-    return <div />
-  }
-  let initialSelectionState: UserSelectionState | null
-  if (initialUser) {
-    initialSelectionState = {
-      user: initialUser,
-      group: 'current',
+  const { myself } = React.useContext(TabInfoContext)
+  const [userSelection, setUserSelection] = React.useState<UserSelectionState | null>(null)
+  React.useEffect(() => {
+    if (initialUser) {
+      setUserSelection({
+        user: initialUser,
+        group: 'current',
+      })
     }
-  } else {
-    initialSelectionState = null
-  }
-  const [userSelection, setUserSelection] = React.useState(initialSelectionState)
+  }, [initialUser])
   const initialPurposeType =
     determineInitialPurposeType<SessionRequest<FollowerSessionTarget>['purpose']>(initialUser)
   const [targetList, setTargetList] = React.useState<FollowKind>('followers')
@@ -194,14 +190,14 @@ export function FollowerChainBlockPageStatesProvider({
     usePurpose<SessionRequest<FollowerSessionTarget>['purpose']>(initialPurposeType)
   const { enableBlockBuster, enableBlockBusterWithTweetDeck } =
     React.useContext(RedBlockOptionsContext)
-  const [retriever, setRetriever] = React.useState<Actor>(myself)
+  const [retriever, setRetriever] = React.useState<Actor>(myself!)
   React.useEffect(() => {
     async function examine(selectedUser: TwitterUser) {
       const key = `user-${selectedUser.id_str}`
       if (examineResultCache.has(key)) {
         setRetriever(examineResultCache.get(key)!)
       } else {
-        const newRetriever = await examineRetrieverByTargetUser(myself, selectedUser, {
+        const newRetriever = await examineRetrieverByTargetUser(myself!, selectedUser, {
           includeTweetDeck: enableBlockBusterWithTweetDeck,
           includeAnotherCookieStores: true,
         })
@@ -213,7 +209,7 @@ export function FollowerChainBlockPageStatesProvider({
     if (enableBlockBuster && selectedUser) {
       examine(selectedUser)
     } else {
-      setRetriever(myself)
+      setRetriever(myself!)
     }
   }, [userSelection, enableBlockBuster])
   return (
@@ -258,7 +254,7 @@ export function TweetReactionChainBlockPageStatesProvider({
     'export',
   ]
   const selectedTweet = initialTweet // TODO: make it state
-  const myself = React.useContext(MyselfContext)!
+  const { myself } = React.useContext(TabInfoContext)
   const { enableBlockBuster, enableReactionsV2Support, enableBlockBusterWithTweetDeck } =
     React.useContext(RedBlockOptionsContext)
   let initialPurpose: SessionRequest<TweetReactionSessionTarget>['purpose']['type']
@@ -272,14 +268,14 @@ export function TweetReactionChainBlockPageStatesProvider({
   }
   const [purpose, changePurposeType, mutatePurposeOptions] =
     usePurpose<SessionRequest<TweetReactionSessionTarget>['purpose']>(initialPurpose)
-  const [retriever, setRetriever] = React.useState<Actor>(myself)
+  const [retriever, setRetriever] = React.useState<Actor>(myself!)
   React.useEffect(() => {
     async function examine(tweetId: string) {
       const key = `tweet-${tweetId}`
       if (examineResultCache.has(key)) {
         setRetriever(examineResultCache.get(key)!)
       } else {
-        const newRetriever = await examineRetrieverByTweetId(myself, tweetId, {
+        const newRetriever = await examineRetrieverByTweetId(myself!, tweetId, {
           includeTweetDeck: enableBlockBusterWithTweetDeck,
           includeAnotherCookieStores: true,
         })
@@ -291,7 +287,7 @@ export function TweetReactionChainBlockPageStatesProvider({
     if (enableBlockBuster && selectedTweetId) {
       examine(selectedTweetId)
     } else {
-      setRetriever(myself)
+      setRetriever(myself!)
     }
   }, [selectedTweet, enableBlockBuster])
   return (

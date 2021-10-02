@@ -16,9 +16,9 @@ import {
   downloadFromExportSession,
   requestProgress,
 } from '../../scripts/background/request-sender'
-import { UIContext, MyselfContext } from './contexts'
+import { UIContext } from './contexts'
 import { statusToString } from '../../scripts/text-generate'
-import { BlockLimiterUI, PleaseLoginBox, LinearProgressWithLabel } from './components'
+import { BlockLimiterUI, LinearProgressWithLabel } from './components'
 import * as i18n from '../../scripts/i18n'
 
 const M = MaterialUI
@@ -438,7 +438,6 @@ export default function ChainBlockSessionsPage({
   sessions: SessionInfo[]
   recurringInfos: RecurringAlarmInfosObject
 }) {
-  const myself = React.useContext(MyselfContext)
   const uiContext = React.useContext(UIContext)
   function renderWelcome() {
     return (
@@ -463,38 +462,32 @@ export default function ChainBlockSessionsPage({
   // 세션이 있어도 팝업 로딩 직후에 빈 세션이 잠깐 나타난다.
   const shouldShowWelcomeNewSession = sessions.length <= 0 && !uiContext.initialLoading
   const isSessionExist = sessions.length > 0
+  if (uiContext.initialLoading) {
+    return <span>Loading...</span>
+  }
   return (
-    <div>
-      {myself ? (
+    <React.Fragment>
+      <BlockLimiterUI />
+      {isSessionExist && (
         <React.Fragment>
-          <BlockLimiterUI />
-          {isSessionExist && (
-            <React.Fragment>
-              <M.Box my={1}>
-                <GlobalControls />
-              </M.Box>
-              <div>
-                {sessions.map(sessionInfo => {
-                  const { sessionId } = sessionInfo
-                  const recurringAlarm = recurringInfos[sessionId]
-                  return (
-                    <ChainBlockSessionItem {...{ sessionInfo, recurringAlarm }} key={sessionId} />
-                  )
-                })}
-              </div>
-            </React.Fragment>
-          )}
-          {shouldShowWelcomeNewSession && renderWelcome()}
-          <M.Divider />
-          <M.Box textAlign="center" my={1}>
-            {i18n.getMessage('new_session')}:
+          <M.Box my={1}>
+            <GlobalControls />
           </M.Box>
-          <NewSessionButtons />
-          {uiContext.initialLoading && <span>Loading...</span>}
+          <div>
+            {sessions.map(sessionInfo => {
+              const { sessionId } = sessionInfo
+              const recurringAlarm = recurringInfos[sessionId]
+              return <ChainBlockSessionItem {...{ sessionInfo, recurringAlarm }} key={sessionId} />
+            })}
+          </div>
         </React.Fragment>
-      ) : (
-        <PleaseLoginBox />
       )}
-    </div>
+      {shouldShowWelcomeNewSession && renderWelcome()}
+      <M.Divider />
+      <M.Box textAlign="center" my={1}>
+        {i18n.getMessage('new_session')}:
+      </M.Box>
+      <NewSessionButtons />
+    </React.Fragment>
   )
 }

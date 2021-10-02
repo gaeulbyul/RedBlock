@@ -6,7 +6,7 @@ import {
   getCurrentTab,
   deleteTwitterCookies,
 } from '../../scripts/background/misc'
-import { UIContext, MyselfContext } from './contexts'
+import { UIContext, TabInfoContext } from './contexts'
 import { RBAccordion } from './components'
 import * as i18n from '../../scripts/i18n'
 
@@ -19,7 +19,7 @@ function openOptions() {
 
 export default function MiscPage() {
   const uiContext = React.useContext(UIContext)
-  const myself = React.useContext(MyselfContext)
+  const { myself } = React.useContext(TabInfoContext)
   function onClickOneClickBlockModeButtons(enable: boolean) {
     getCurrentTab().then(tab => {
       toggleOneClickBlockMode(tab, enable)

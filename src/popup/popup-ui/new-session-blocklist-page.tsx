@@ -1,7 +1,7 @@
 import React from 'react'
 import * as MaterialUI from '@material-ui/core'
 
-import { UIContext, MyselfContext, BlockLimiterContext, RedBlockOptionsContext } from './contexts'
+import { UIContext, TabInfoContext, BlockLimiterContext, RedBlockOptionsContext } from './contexts'
 import {
   RBAccordion,
   BlockLimiterUI,
@@ -27,7 +27,7 @@ const M = MaterialUI
 function useImportSessionRequest(): Either<TargetCheckResult, SessionRequest<ImportSessionTarget>> {
   const { purpose, blocklist } = React.useContext(ImportChainBlockPageStatesContext)
   const { extraSessionOptions } = React.useContext(ExtraSessionOptionsContext)
-  const myself = React.useContext(MyselfContext)
+  const { myself } = React.useContext(TabInfoContext)
   const options = React.useContext(RedBlockOptionsContext)
   if (!myself) {
     return {
@@ -66,7 +66,7 @@ function useExportSessionRequest(): Either<
   TargetCheckResult,
   SessionRequest<ExportMyBlocklistTarget>
 > {
-  const myself = React.useContext(MyselfContext)
+  const { myself } = React.useContext(TabInfoContext)
   const options = React.useContext(RedBlockOptionsContext)
   if (!myself) {
     return {

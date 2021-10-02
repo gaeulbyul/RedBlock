@@ -4,8 +4,11 @@ import * as MaterialUI from '@material-ui/core'
 
 import { requestProgress, requestBlockLimiterStatus } from '../scripts/background/request-sender'
 import { onStorageChanged } from '../scripts/background/storage'
-import { loadOptions } from '../scripts/background/storage/options'
-import { TwClient } from '../scripts/background/twitter-api'
+import {
+  loadOptions as loadRedBlockOptions,
+  defaultOptions as defaultRedBlockOptions,
+} from '../scripts/background/storage/options'
+
 import BlocklistPage from './popup-ui/new-session-blocklist-page'
 import ChainBlockSessionsPage from './popup-ui/chainblock-sessions-page'
 import { isValidPageId, PageId, AvailablePages, pageIcon, pageLabel } from './popup-ui/pages'
@@ -13,7 +16,7 @@ import {
   UIContext,
   RedBlockOptionsContext,
   BlockLimiterContext,
-  MyselfContext,
+  TabInfoContext,
 } from './popup-ui/contexts'
 import {
   FollowerChainBlockPageStatesProvider,
@@ -35,11 +38,10 @@ import {
   RedBlockPopupUITheme,
   TabPanel,
   MyTooltip,
+  PleaseLoginBox,
 } from './popup-ui/components'
 import { isRunningSession } from '../scripts/common'
-import { getCurrentTab } from '../scripts/background/misc'
-import { checkMessage, getTabContext, TabContext } from './popup'
-import { getCookieStoreIdFromTab } from '../scripts/background/cookie-handler'
+import { checkMessage, getCurrentTabInfo, TabInfo as TabInfo, infoless } from './popup'
 import * as i18n from '../scripts/i18n'
 
 const UI_UPDATE_DELAY_ON_BUSY = 500
@@ -223,17 +225,15 @@ function PopupMyselfIcon({ myself }: { myself: TwitterUser }) {
   )
 }
 function PopupApp({
-  myself,
-  tabContext: { currentUser, currentTweet, currentSearchQuery, currentAudioSpace },
+  //myself,
+  //tabContext: { currentUser, currentTweet, currentSearchQuery, currentAudioSpace },
   popupOpenedInTab,
   initialPage,
-  initialRedBlockOptions,
 }: {
-  myself: Actor | null
-  tabContext: TabContext
+  //myself: Actor | null
+  //tabContext: TabContext
   popupOpenedInTab: boolean
   initialPage: PageId
-  initialRedBlockOptions: RedBlockStorage['options']
 }) {
   const [tabPage, setTabPage] = React.useState<PageId>(initialPage)
   const [limiterStatus, setLimiterStatus] = React.useState<BlockLimiterStatus>({
@@ -248,13 +248,18 @@ function PopupApp({
   const [menuAnchorElem, setMenuAnchorElem] = React.useState<HTMLElement | null>(null)
   const darkMode = MaterialUI.useMediaQuery('(prefers-color-scheme:dark)')
   const [initialLoading, setInitialLoading] = React.useState(true)
-  const [redblockOptions, setRedBlockOptions] = React.useState(initialRedBlockOptions)
+  const [redblockOptions, setRedBlockOptions] = React.useState(defaultRedBlockOptions)
   const [sessions, setSessions] = React.useState<SessionInfo[]>([])
   const [recurringInfos, setRecurringInfos] = React.useState<RecurringAlarmInfosObject>({})
+  const [currentTabInfo, setCurrentTabInfo] = React.useState<TabInfo>(infoless)
+  const { myself } = currentTabInfo
   // 파이어폭스의 팝업 가로폭 문제
   // 참고: popup.css
   const shrinkedPopup = MaterialUI.useMediaQuery('(width:348px), (width:425px)')
   const theme = React.useMemo(() => RedBlockPopupUITheme(darkMode), [darkMode])
+  React.useEffect(() => {
+    getCurrentTabInfo().then(setCurrentTabInfo)
+  }, [])
   const [countOfRunningSessions, setCountOfRunningSessions] = React.useState(0)
   const [delay, setDelay] = React.useState<number | null>(null)
   useInterval(async () => {
@@ -290,12 +295,18 @@ function PopupApp({
   }
   const availablePages: AvailablePages = {
     'new-session-followers-page': !!myself,
-    'new-session-tweet-page': !!(myself && currentTweet),
-    'new-session-searchresult-page': !!(myself && currentSearchQuery),
+    'new-session-tweet-page': !!(myself && currentTabInfo.tweet),
+    'new-session-searchresult-page': !!(myself && currentTabInfo.searchQuery),
     'new-session-blocklist-page': !!myself,
-    'new-session-audiospace-page': !!(myself && currentAudioSpace),
+    'new-session-audiospace-page': !!(myself && currentTabInfo.audioSpace),
     'new-session-lockpicker-page': !!myself,
   }
+  React.useEffect(() => {
+    if (myself) {
+      requestBlockLimiterStatus(myself.user.id_str).catch(() => {})
+      requestProgress().catch(() => {})
+    }
+  }, [currentTabInfo])
   React.useEffect(() => {
     const messageListener = (msg: object) => {
       if (!checkMessage(msg)) {
@@ -340,8 +351,31 @@ function PopupApp({
     return () => {
       browser.runtime.onMessage.removeListener(messageListener)
     }
-  }, [limiterStatus, tabPage])
-  React.useEffect(() => onStorageChanged('options', setRedBlockOptions), [])
+  }, [limiterStatus, tabPage, currentTabInfo])
+  React.useEffect(() => {
+    loadRedBlockOptions().then(setRedBlockOptions)
+    return onStorageChanged('options', setRedBlockOptions)
+  }, [])
+  function renderMain(children: React.ReactElement) {
+    if (initialLoading) {
+      return (
+        <div
+          style={{
+            display: 'flex',
+            height: '100%',
+            alignItems: 'center',
+            justifyContent: 'center',
+          }}
+        >
+          <M.CircularProgress size={60} color="secondary" />
+        </div>
+      )
+    }
+    if (!myself) {
+      return <PleaseLoginBox />
+    }
+    return children
+  }
   return (
     <M.ThemeProvider theme={theme}>
       <UIContext.Provider
@@ -357,7 +391,7 @@ function PopupApp({
           initialLoading,
         }}
       >
-        <MyselfContext.Provider value={myself}>
+        <TabInfoContext.Provider value={currentTabInfo}>
           <RedBlockOptionsContext.Provider value={redblockOptions}>
             <BlockLimiterContext.Provider value={limiterStatus}>
               <M.AppBar position="fixed">
@@ -403,51 +437,57 @@ function PopupApp({
                 </M.Toolbar>
               </M.AppBar>
               <PopupUITopMenu {...{ countOfRunningSessions }} />
-              <div className="page">
-                <M.Container maxWidth="sm" disableGutters>
-                  <TabPanel value={tabPage} index="chainblock-sessions-page">
-                    <ChainBlockSessionsPage {...{ sessions, recurringInfos }} />
-                  </TabPanel>
-                  <FollowerChainBlockPageStatesProvider initialUser={currentUser}>
-                    <TabPanel value={tabPage} index="new-session-followers-page">
-                      <NewSessionFollowersPage />
+              <main className="page">
+                {renderMain(
+                  <M.Container maxWidth="sm" disableGutters>
+                    <TabPanel value={tabPage} index="chainblock-sessions-page">
+                      <ChainBlockSessionsPage {...{ sessions, recurringInfos }} />
                     </TabPanel>
-                  </FollowerChainBlockPageStatesProvider>
-                  <TweetReactionChainBlockPageStatesProvider initialTweet={currentTweet}>
-                    <TabPanel value={tabPage} index="new-session-tweet-page">
-                      <NewSessionTweetPage />
-                    </TabPanel>
-                  </TweetReactionChainBlockPageStatesProvider>
-                  <UserSearchChainBlockPageStatesProvider currentSearchQuery={currentSearchQuery}>
-                    <TabPanel value={tabPage} index="new-session-searchresult-page">
-                      <NewSessionSearchresultPage />
-                    </TabPanel>
-                  </UserSearchChainBlockPageStatesProvider>
-                  {availablePages['new-session-audiospace-page'] && (
-                    <AudioSpaceChainBlockPageStatesProvider audioSpace={currentAudioSpace!}>
-                      <TabPanel value={tabPage} index="new-session-audiospace-page">
-                        <NewSessionAudioSpacePage />
+                    <FollowerChainBlockPageStatesProvider initialUser={currentTabInfo.user}>
+                      <TabPanel value={tabPage} index="new-session-followers-page">
+                        <NewSessionFollowersPage />
                       </TabPanel>
-                    </AudioSpaceChainBlockPageStatesProvider>
-                  )}
-                  <LockPickerPageStatesProvider>
-                    <TabPanel value={tabPage} index="new-session-lockpicker-page">
-                      <NewSessionLockPickerPage />
+                    </FollowerChainBlockPageStatesProvider>
+                    <TweetReactionChainBlockPageStatesProvider initialTweet={currentTabInfo.tweet}>
+                      <TabPanel value={tabPage} index="new-session-tweet-page">
+                        <NewSessionTweetPage />
+                      </TabPanel>
+                    </TweetReactionChainBlockPageStatesProvider>
+                    <UserSearchChainBlockPageStatesProvider
+                      currentSearchQuery={currentTabInfo.searchQuery}
+                    >
+                      <TabPanel value={tabPage} index="new-session-searchresult-page">
+                        <NewSessionSearchresultPage />
+                      </TabPanel>
+                    </UserSearchChainBlockPageStatesProvider>
+                    {availablePages['new-session-audiospace-page'] && (
+                      <AudioSpaceChainBlockPageStatesProvider
+                        audioSpace={currentTabInfo.audioSpace!}
+                      >
+                        <TabPanel value={tabPage} index="new-session-audiospace-page">
+                          <NewSessionAudioSpacePage />
+                        </TabPanel>
+                      </AudioSpaceChainBlockPageStatesProvider>
+                    )}
+                    <LockPickerPageStatesProvider>
+                      <TabPanel value={tabPage} index="new-session-lockpicker-page">
+                        <NewSessionLockPickerPage />
+                      </TabPanel>
+                    </LockPickerPageStatesProvider>
+                    <ImportChainBlockPageStatesProvider>
+                      <TabPanel value={tabPage} index="new-session-blocklist-page">
+                        <BlocklistPage />
+                      </TabPanel>
+                    </ImportChainBlockPageStatesProvider>
+                    <TabPanel value={tabPage} index="misc-page">
+                      <MiscPage />
                     </TabPanel>
-                  </LockPickerPageStatesProvider>
-                  <ImportChainBlockPageStatesProvider>
-                    <TabPanel value={tabPage} index="new-session-blocklist-page">
-                      <BlocklistPage />
-                    </TabPanel>
-                  </ImportChainBlockPageStatesProvider>
-                  <TabPanel value={tabPage} index="misc-page">
-                    <MiscPage />
-                  </TabPanel>
-                </M.Container>
-              </div>
+                  </M.Container>
+                )}
+              </main>
             </BlockLimiterContext.Provider>
           </RedBlockOptionsContext.Provider>
-        </MyselfContext.Provider>
+        </TabInfoContext.Provider>
       </UIContext.Provider>
       <M.Snackbar
         anchorOrigin={{
@@ -474,8 +514,7 @@ function PopupApp({
   )
 }
 
-export async function initializeUI() {
-  const initialRedBlockOptions = await loadOptions()
+export function initializeUI() {
   const popupOpenedInTab = /\bistab=1\b/.test(location.search)
   let initialPage: PageId
   const initialPageMatch = /\bpage=(\S+)\b/.exec(location.search)
@@ -484,43 +523,12 @@ export async function initializeUI() {
   } else {
     initialPage = 'chainblock-sessions-page'
   }
-  const tabContext: TabContext = {
-    currentUser: null,
-    currentTweet: null,
-    currentSearchQuery: null,
-    currentAudioSpace: null,
-  }
-  const contextless = { ...tabContext }
-  const currentTab = await getCurrentTab()
-  const cookieStoreId = await getCookieStoreIdFromTab(currentTab)
-  const twClient = new TwClient({ cookieStoreId })
-  const me = await twClient.getMyself().catch(() => null)
-  let myself: Actor | null
-  if (me) {
-    myself = {
-      user: me,
-      clientOptions: twClient.options,
-    }
-    const { currentTweet, currentUser, currentSearchQuery, currentAudioSpace } =
-      await getTabContext(currentTab, myself, twClient).catch(() => contextless)
-    Object.assign(tabContext, {
-      currentTweet,
-      currentUser,
-      currentSearchQuery,
-      currentAudioSpace,
-    })
-  } else {
-    myself = null
-  }
   const appRoot = document.getElementById('app')!
   const app = (
     <PopupApp
       {...{
-        myself,
-        tabContext,
         popupOpenedInTab,
         initialPage,
-        initialRedBlockOptions,
       }}
     />
   )
@@ -529,10 +537,6 @@ export async function initializeUI() {
     document.body.classList.add('ui-tab')
   } else {
     document.body.classList.add('ui-popup')
-  }
-  if (me) {
-    requestBlockLimiterStatus(me.id_str).catch(() => {})
-    requestProgress().catch(() => {})
   }
   fixOverlayScroll(appRoot)
 }

@@ -3,7 +3,7 @@ import * as MaterialUI from '@material-ui/core'
 
 import * as TextGenerate from '../../scripts/text-generate'
 import { startNewChainBlockSession } from '../../scripts/background/request-sender'
-import { UIContext, MyselfContext, BlockLimiterContext, RedBlockOptionsContext } from './contexts'
+import { UIContext, TabInfoContext, BlockLimiterContext, RedBlockOptionsContext } from './contexts'
 import { AudioSpaceChainBlockPageStatesContext, ExtraSessionOptionsContext } from './ui-states'
 import {
   TwitterUserProfile,
@@ -24,7 +24,7 @@ function useSessionRequest(): Either<TargetCheckResult, SessionRequest<AudioSpac
     AudioSpaceChainBlockPageStatesContext
   )
   const { extraSessionOptions } = React.useContext(ExtraSessionOptionsContext)
-  const myself = React.useContext(MyselfContext)
+  const { myself } = React.useContext(TabInfoContext)
   const options = React.useContext(RedBlockOptionsContext)
   if (!myself) {
     return {
