@@ -162,6 +162,7 @@ function ChainBlockSessionItem({
       break
     case 'user_search':
       localizedTarget = i18n.getMessage('from_user_search_result')
+      localizedTarget += ` (${i18n.getMessage('query')}: ${target.query})`
       break
     case 'audio_space':
       localizedTarget = i18n.getMessage(
