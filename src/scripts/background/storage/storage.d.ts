@@ -27,6 +27,7 @@ interface RedBlockStorage {
     allowSelfChainBlock: boolean
     recurringSessionInterval: number
     enableTeamwork: boolean
+    alsoBlockTargetItself: boolean
   }
   uiOptions: {
     menus: {

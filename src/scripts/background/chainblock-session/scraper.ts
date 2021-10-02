@@ -12,6 +12,13 @@ export interface UserScraper {
   [Symbol.asyncIterator](): ScrapedUsersIterator
 }
 
+function wrapSingleUserToEitherRight(user: TwitterUser): EitherRight<UsersObject> {
+  return {
+    ok: true,
+    value: { users: [user] },
+  }
+}
+
 // 단순 스크래퍼. 기존 체인블락 방식
 class SimpleScraper implements UserScraper {
   private retrieverScrapingClient = UserScrapingAPI.UserScrapingAPIClient.fromClientOptions(
@@ -41,6 +48,9 @@ class SimpleScraper implements UserScraper {
 
   private async *iterateNormally() {
     const { user, list: followKind } = this.request.target
+    if (this.request.options.alsoBlockTargetItself) {
+      yield wrapSingleUserToEitherRight(user)
+    }
     let scraper: ScrapedUsersIterator = this.executorScrapingClient.getAllFollowsUserList(
       followKind,
       user
@@ -56,6 +66,9 @@ class SimpleScraper implements UserScraper {
   private async *iterateBlockBuster() {
     const { user, list: followKind } = this.request.target
     const idsIterator = this.retrieverScrapingClient.getAllFollowsIds(followKind, user)
+    if (this.request.options.alsoBlockTargetItself) {
+      yield wrapSingleUserToEitherRight(user)
+    }
     for await (const response of idsIterator) {
       if (!response.ok) {
         throw response.error
@@ -93,6 +106,9 @@ class MutualFollowerScraper implements UserScraper {
       mutualFollowersIds = await this.getMutualFollowersIdsNormally()
     }
     this.totalCount = mutualFollowersIds.length
+    if (this.request.options.alsoBlockTargetItself) {
+      yield wrapSingleUserToEitherRight(user)
+    }
     let scraper: ScrapedUsersIterator =
       this.executorScrapingClient.lookupUsersByIds(mutualFollowersIds)
     scraper = ExtraScraper.scrapeUsersOnBio(
@@ -184,6 +200,9 @@ export class TweetReactedUserScraper implements UserScraper {
     if (blockNonLinkedMentions) {
       const userNames = findNonLinkedMentionsFromTweet(this.request.target.tweet)
       scrapers.push(this.retrieverScrapingClient.lookupUsersByNames(userNames))
+    }
+    if (this.request.options.alsoBlockTargetItself) {
+      yield wrapSingleUserToEitherRight(tweet.user)
     }
     for (const scraper of scrapers) {
       yield* ExtraScraper.scrapeUsersOnBio(

@@ -6,6 +6,7 @@ import {
   SessionStatus,
   getLimitResetTime,
   getCountOfUsersToBlock,
+  getTargetUser,
 } from '../../scripts/common'
 import { PageId, pageIcon, newSessionsLabel, AvailablePages } from './pages'
 import {
@@ -135,38 +136,34 @@ function ChainBlockSessionItem({
   function toggleExpand() {
     setExpanded(!expanded)
   }
-  let user: TwitterUser | null
+  // let user: TwitterUser | null
+  let user = getTargetUser(target)
   let localizedTarget = ''
   switch (target.type) {
     case 'follower':
     case 'lockpicker':
-      user = target.user
       switch (target.list) {
         case 'followers':
-          localizedTarget = i18n.getMessage('followers_of_xxx', user.screen_name)
+          localizedTarget = i18n.getMessage('followers_of_xxx', user!.screen_name)
           break
         case 'friends':
-          localizedTarget = i18n.getMessage('followings_of_xxx', user.screen_name)
+          localizedTarget = i18n.getMessage('followings_of_xxx', user!.screen_name)
           break
         case 'mutual-followers':
-          localizedTarget = i18n.getMessage('mutual_followers_of_xxx', user.screen_name)
+          localizedTarget = i18n.getMessage('mutual_followers_of_xxx', user!.screen_name)
           break
       }
       break
     case 'tweet_reaction':
-      user = target.tweet.user
-      localizedTarget = i18n.getMessage('reacted_xxxs_tweet', user.screen_name)
+      localizedTarget = i18n.getMessage('reacted_xxxs_tweet', user!.screen_name)
       break
     case 'import':
-      user = null
       localizedTarget = i18n.getMessage('from_imported_blocklist')
       break
     case 'user_search':
-      user = null
       localizedTarget = i18n.getMessage('from_user_search_result')
       break
     case 'audio_space':
-      user = null
       localizedTarget = i18n.getMessage(
         'from_audio_space_by_xxx',
         target.audioSpace.participants.admins[0].twitter_screen_name

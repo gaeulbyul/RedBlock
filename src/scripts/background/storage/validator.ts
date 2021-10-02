@@ -2,13 +2,13 @@ import { z } from 'zod'
 
 const validator = {
   bookmarks() {
-    const bookmarkTweetItemSchema = z.strictObject({
+    const bookmarkTweetItemSchema = z.object({
       type: z.literal('tweet'),
       itemId: z.string(),
       tweetId: z.string(),
     })
 
-    const bookmarkUserItemSchema = z.strictObject({
+    const bookmarkUserItemSchema = z.object({
       type: z.literal('user'),
       itemId: z.string(),
       userId: z.string(),
@@ -36,7 +36,7 @@ const validator = {
       z.literal(20),
       z.literal(30),
     ])
-    const optionsSchema = z.strictObject({
+    const optionsSchema = z.object({
       removeSessionAfterComplete: z.boolean(),
       skipInactiveUser: inactivePeriod,
       revealBioBlockMode: z.boolean(),
@@ -50,13 +50,14 @@ const validator = {
       allowSelfChainBlock: z.boolean(),
       recurringSessionInterval,
       enableTeamwork: z.boolean(),
+      alsoBlockTargetItself: z.boolean(),
     })
 
     return optionsSchema
   },
 
   uiOptions() {
-    const menusSchema = z.strictObject({
+    const menusSchema = z.object({
       chainBlockFollowers: z.boolean(),
       chainBlockFollowings: z.boolean(),
       chainBlockMutualFollowers: z.boolean(),
@@ -72,7 +73,7 @@ const validator = {
       teamworkMute: z.boolean(),
       teamworkUnmute: z.boolean(),
     })
-    const uiOptionsSchema = z.strictObject({
+    const uiOptionsSchema = z.object({
       menus: menusSchema,
     })
 
@@ -80,7 +81,7 @@ const validator = {
   },
 
   badWords() {
-    const badWordItemSchema = z.strictObject({
+    const badWordItemSchema = z.object({
       id: z.string(),
       enabled: z.boolean(),
       word: z.string(),
@@ -90,7 +91,7 @@ const validator = {
   },
 }
 
-const redblockStorageSchema = z.strictObject({
+const redblockStorageSchema = z.object({
   $$version$$: z.literal('v0.14.0.0'),
   bookmarks: validator.bookmarks(),
   options: validator.options(),

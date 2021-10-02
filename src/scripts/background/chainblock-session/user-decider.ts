@@ -1,4 +1,5 @@
 import * as dayjs from 'dayjs'
+import { getTargetUser } from '../../common'
 
 export function decideWhatToDoGivenUser(
   request: SessionRequest<AnySessionTarget>,
@@ -15,6 +16,19 @@ export function decideWhatToDoGivenUser(
   }
   if (checkUserInactivity(follower, now, options.skipInactiveUser) === 'inactive') {
     return 'Skip'
+  }
+  const targetUser = getTargetUser(request.target)
+  if (targetUser && follower.id_str === targetUser.id_str) {
+    /*
+    레드블락은 기본적으로 트윗 반응자를 차단하되, 트윗 작성자를 차단하지 않는다.
+    하지만, 작성자가 자신의 트윗에 반응하거나 리트윗하면 이를 차단할 수도 있는데,
+    이를 원치않는 유저가 있음.
+    차단을 원치않는 경우는 여기서 skip을 해주고,
+    차단을 원하는 경우는 scraper.ts에서 처리
+    */
+    if (!request.options.alsoBlockTargetItself) {
+      return 'Skip'
+    }
   }
   let whatToDo: UserAction
   switch (purpose.type) {

@@ -49,6 +49,7 @@ export const defaultOptions = Object.freeze<RedBlockOptions>({
   allowSelfChainBlock: false,
   recurringSessionInterval: 10,
   enableTeamwork: false,
+  alsoBlockTargetItself: false,
 })
 
 export const defaultUIOptions = Object.freeze<RedBlockUIOptions>({

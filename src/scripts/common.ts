@@ -279,6 +279,24 @@ export function getCountOfUsersToBlock({
   }
 }
 
+export function getTargetUser(
+  target: SessionRequest<AnySessionTarget>['target']
+): TwitterUser | null {
+  switch (target.type) {
+    case 'follower':
+    case 'lockpicker':
+      return target.user
+    case 'tweet_reaction':
+      return target.tweet.user
+    /* NOTE: audio_space는 target의 유저정보가 없고 screen_name만 있음 */
+    case 'audio_space':
+    case 'import':
+    case 'user_search':
+    case 'export_my_blocklist':
+      return null
+  }
+}
+
 /* runningSession이면...
  * 확장기능버튼 뱃지숫자에 합산됨
  * 동일세션 실행여부에 포함

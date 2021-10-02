@@ -1019,5 +1019,11 @@
         "content": "$2"
       }
     }
+  },
+  "include_itself": {
+    "message": "Include target itself"
+  },
+  "include_itself_description": {
+    "message": "When running the Chain-block session, Enabling this options will includes target itself(not only followers/retweeters/likers/...)."
   }
 }

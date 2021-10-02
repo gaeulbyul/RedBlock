@@ -1019,5 +1019,11 @@
         "content": "$2"
       }
     }
+  },
+  "include_itself": {
+    "message": "기준대상도 포함"
+  },
+  "include_itself_description": {
+    "message": "체인블락 실행시 팔로워나 트윗에 반응한 유저뿐만 아니라 기준이 되는 대상도 포함합니다."
   }
 }

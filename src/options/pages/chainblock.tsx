@@ -95,6 +95,19 @@ function ChainBlockOptionsPaper() {
               label={i18n.getMessage('allow_self_chainblock')}
             />
           </M.FormGroup>
+          <M.FormGroup>
+            <M.FormControlLabel
+              control={<M.Checkbox size="small" />}
+              onChange={(_event, checked) =>
+                updateOptions({
+                  alsoBlockTargetItself: checked,
+                })
+              }
+              checked={options.alsoBlockTargetItself}
+              label={i18n.getMessage('include_itself')}
+            />
+            <M.FormHelperText>{i18n.getMessage('include_itself_description')}</M.FormHelperText>
+          </M.FormGroup>
           <br />
           <BlockDelaySlider />
           <br />
