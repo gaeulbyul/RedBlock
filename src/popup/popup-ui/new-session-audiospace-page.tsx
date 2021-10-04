@@ -67,7 +67,7 @@ function TargetAudioSpace({ audioSpace }: { audioSpace: AudioSpace }) {
   const { includedParticipants, setIncludedParticipants } = React.useContext(
     AudioSpaceChainBlockPageStatesContext
   )
-  const host = audioSpace.participants.admins[0]
+  const host = audioSpace.participants.admins[0]!
   const user = {
     name: host.display_name,
     screen_name: host.twitter_screen_name,
@@ -153,7 +153,7 @@ function TargetOptionsUI() {
 export default function NewSessionAudioSpacePage() {
   const maybeRequest = useSessionRequest()
   const { audioSpace } = React.useContext(AudioSpaceChainBlockPageStatesContext)
-  const hostUserName = audioSpace.participants.admins[0].twitter_screen_name
+  const hostUserName = audioSpace.participants.admins[0]!.twitter_screen_name
   const targetSummary = `${i18n.getMessage('target')} (${i18n.getMessage(
     'from_audio_space_by_xxx',
     hostUserName

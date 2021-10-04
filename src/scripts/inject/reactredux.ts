@@ -20,7 +20,7 @@ export function findReduxStore(): ReduxStore {
   if (reduxStore) {
     return reduxStore
   }
-  const reactRoot = document.getElementById('react-root')!.children[0]
+  const reactRoot = document.getElementById('react-root')!.children[0]!
   const rEventHandler = getReactEventHandlers(reactRoot)
   reduxStore = rEventHandler.children.props.children.props.store
   return reduxStore

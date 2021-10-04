@@ -44,7 +44,7 @@ export async function removeCookie({ name, storeId }: { name: string; storeId?: 
 // cookieStoreId를 알아낼 수 없는 경우
 export async function getDefaultCookieStoreId(): Promise<string> {
   const cookies = await getAllCookies({})
-  return cookies[0].storeId
+  return cookies[0]!.storeId
 }
 
 export async function getMultiAccountCookies({
@@ -80,8 +80,8 @@ export async function generateCookiesForAltAccountRequest(
   const twidCookie = await getCookie({
     name: 'twid',
     storeId: clientOptions.cookieStoreId,
-  }).then(coo => /u%3D([0-9]+)\b/.exec(coo!.value)![1])
-  const actAsUserToken = authMultiCookie![actAsUserId]
+  }).then(coo => /u%3D([0-9]+)\b/.exec(coo!.value)![1]!)
+  const actAsUserToken = authMultiCookie![actAsUserId]!
   // 새로 만들 auth_multi 쿠키엔 현재 계정인 twid를 넣고...
   // actAsUser가 될 유저를 뺀다.
   authMultiCookie[twidCookie] = authTokenCookie

@@ -569,7 +569,7 @@ export function isTwitterErrorMessage(obj: any): obj is ErrorResponse {
 export function errorToString(error: unknown): string {
   console.error(error)
   if (isTwitterErrorMessage(error)) {
-    return error.errors[0].message
+    return error.errors[0]?.message || '?'
   } else if (error instanceof Error) {
     return `${error.name}: ${error.message}`
   } else {

@@ -141,7 +141,6 @@ function handleExtensionMessage(
       break
     default:
       assertNever(message)
-      break
   }
 }
 

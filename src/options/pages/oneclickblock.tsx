@@ -82,6 +82,9 @@ function BadwordsTable() {
   }
   async function readyToEditWordById(wordId: string) {
     const wordToEdit = badWords.filter(bw => bw.id === wordId)[0]
+    if (!wordToEdit) {
+      return
+    }
     await removeWordById(wordId)
     setNewBadWordWord(wordToEdit.word)
     setNewBadWordIsRegExp(wordToEdit.regexp)
@@ -92,6 +95,9 @@ function BadwordsTable() {
   }
   async function modifyAbilityOfWordById(wordId: string, enabled: boolean) {
     const wordToEdit = badWords.filter(bw => bw.id === wordId)[0]
+    if (!wordToEdit) {
+      return
+    }
     const modified: BadWordItem = {
       ...wordToEdit,
       enabled,

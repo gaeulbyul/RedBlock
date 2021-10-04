@@ -60,12 +60,12 @@ export class EventEmitter<T> {
   )
 
   on<K extends keyof T>(eventName: string & K, handler: (p: T[K]) => void) {
-    this.events[eventName].push(handler)
+    this.events[eventName]!.push(handler)
     return this
   }
 
   emit<K extends keyof T>(eventName: string & K, eventHandlerParameter: T[K]) {
-    const handlers = [...this.events[eventName], ...this.events['*']]
+    const handlers = [...(this.events[eventName] || []), ...(this.events['*'] || [])]
     // console.debug('EventEmitter: emit "%s" with %o', eventName, eventHandlerParameter)
     handlers.forEach(handler => handler(eventHandlerParameter))
     return this
@@ -141,7 +141,7 @@ export class TwitterURL extends URL {
       return null
     }
     const userName = match[1]
-    if (validateUserName(userName)) {
+    if (userName && validateUserName(userName)) {
       return userName
     }
     return null
@@ -149,17 +149,17 @@ export class TwitterURL extends URL {
 
   public getTweetId(): string | null {
     const match = /\/status\/(\d+)/.exec(this.pathname)
-    return match && match[1]
+    return match ? match[1]! : null
   }
 
   public getAudioSpaceId(): string | null {
     const match = /^\/i\/spaces\/([A-Za-z0-9]+)/.exec(this.pathname)
-    return match && match[1]
+    return match ? match[1]! : null
   }
 
   public getHashTag(): string | null {
     const match = /^\/hashtag\/(.+)$/.exec(this.pathname)
-    return match && decodeURIComponent(match[1])
+    return match && decodeURIComponent(match[1]!)
   }
 
   private validateURL(url: URL | Location | HTMLAnchorElement) {
@@ -402,7 +402,7 @@ export function findMentionsFromText(text: string): string[] {
   const result = new Set<string>()
   for (const matches of iterator) {
     const userName = matches[1]
-    if (validateUserName(userName)) {
+    if (userName && validateUserName(userName)) {
       result.add(userName)
     }
   }
@@ -414,7 +414,7 @@ export function findNonLinkedMentions(text: string): string[] {
   const result = new Set<string>()
   for (const matches of iterator) {
     const userName = matches[1]
-    if (validateUserName(userName)) {
+    if (userName && validateUserName(userName)) {
       result.add(userName)
     }
   }

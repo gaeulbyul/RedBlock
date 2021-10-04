@@ -64,7 +64,7 @@ class ExportMyBlocklistScraper implements UserIdScraper {
     this.request.retriever.clientOptions
   )
 
-  public totalCount: null
+  public totalCount: null = null
   public constructor(private request: SessionRequest<ExportMyBlocklistTarget>) {
     this.request.target
   }

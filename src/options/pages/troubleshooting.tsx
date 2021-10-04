@@ -53,7 +53,7 @@ function OptionsBackupUI() {
         window.alert(i18n.getMessage('pick_file_first'))
         return
       }
-      const file = files[0]
+      const file = files[0]!
       const text = await file.text()
       const json = JSON.parse(text)
       const rbStorage = validateStorage(json)

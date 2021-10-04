@@ -93,7 +93,7 @@ function showErrorAlert({
 }) {
   let errorMessage = i18n.getMessage('error_occured_on_retrieving_user', userName)
   errorMessage += '\n==========\n'
-  errorMessage += errors[0].message
+  errorMessage += errors[0]?.message
   alertToTab(tab, errorMessage)
 }
 

@@ -23,7 +23,7 @@ export class UserScrapingAPIClient {
         cursor = json.next_cursor_str
         yield wrapEitherRight(json)
         await sleep(DELAY)
-      } catch (error) {
+      } catch (error: any) {
         yield {
           ok: false,
           error,
@@ -43,7 +43,7 @@ export class UserScrapingAPIClient {
         cursor = json.next_cursor_str
         yield wrapEitherRight(json)
         await sleep(DELAY)
-      } catch (error) {
+      } catch (error: any) {
         yield {
           ok: false,
           error,
@@ -73,7 +73,7 @@ export class UserScrapingAPIClient {
         cursor = json.next_cursor_str
         yield wrapEitherRight(json)
         await sleep(DELAY)
-      } catch (error) {
+      } catch (error: any) {
         yield {
           ok: false,
           error,
@@ -114,7 +114,7 @@ export class UserScrapingAPIClient {
         cursor = json.next_cursor_str
         yield wrapEitherRight(json)
         await sleep(DELAY)
-      } catch (error) {
+      } catch (error: any) {
         yield {
           ok: false,
           error,
@@ -205,7 +205,7 @@ export class UserScrapingAPIClient {
       try {
         const users = await this.twClient.getMultipleUsers({ screen_name: chunk })
         yield wrapEitherRight({ users })
-      } catch (error) {
+      } catch (error: any) {
         yield {
           ok: false,
           error,

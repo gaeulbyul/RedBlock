@@ -45,7 +45,7 @@ function getUserIdFromTab(tab: Tab): string | null {
   }
   const match1 = /^\/i\/report\/user\/(\d+)/.exec(twURL.pathname)
   if (match1) {
-    return match1[1]
+    return match1[1]!
   }
   const reportedUserId = twURL.pathname.startsWith('/i/safety/report')
     ? twURL.searchParams.get('reported_user_id')

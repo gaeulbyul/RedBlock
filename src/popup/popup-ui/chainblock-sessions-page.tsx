@@ -167,7 +167,7 @@ function ChainBlockSessionItem({
     case 'audio_space':
       localizedTarget = i18n.getMessage(
         'from_audio_space_by_xxx',
-        target.audioSpace.participants.admins[0].twitter_screen_name
+        target.audioSpace.participants.admins[0]!.twitter_screen_name
       )
       break
     case 'export_my_blocklist':
@@ -304,7 +304,7 @@ function ChainBlockSessionItem({
       name = `<${i18n.getMessage('tweet')}> ${name}`
     }
   } else if (target.type === 'audio_space') {
-    const firstHost = target.audioSpace.participants.admins[0]
+    const firstHost = target.audioSpace.participants.admins[0]!
     biggerProfileImageUrl = firstHost.avatar_url.replace('_normal', '_bigger')
   }
   const percentage = calculatePercentage(sessionInfo)

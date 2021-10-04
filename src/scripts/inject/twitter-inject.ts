@@ -16,6 +16,9 @@ function findTweetIdFromElement(elem: HTMLElement): string | null {
   for (const plink of permalinks) {
     const tweetIdMatch = /\/status\/(\d+)/.exec(plink.pathname)
     const tweetId = tweetIdMatch![1]
+    if (!tweetId) {
+      continue
+    }
     const firstChild = plink.firstElementChild
     if (firstChild?.tagName === 'TIME') {
       return tweetId
@@ -145,7 +148,7 @@ function initializeUserCellElementInspecter(reactRoot: Element) {
       console.warn('failed to find userId from ', elem)
       return
     }
-    const user = getUserEntityById(maybeUserId[1])
+    const user = getUserEntityById(maybeUserId[1]!)
     if (!user) {
       return
     }

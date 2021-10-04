@@ -158,11 +158,15 @@ function initializeTwitterAPISetCookieHeaderHandler() {
       if (!(setCookieHeader && setCookieHeader.value)) {
         return
       }
-      const actualCt0Value = /ct0=([0-9a-f]+)/.exec(setCookieHeader.value)![1]
-      headers.push({
-        name: 'x-redblock-new-ct0',
-        value: actualCt0Value,
-      })
+      const actualCt0Value = /ct0=([0-9a-f]+)/.exec(setCookieHeader.value)![1]!
+      if (actualCt0Value) {
+        headers.push({
+          name: 'x-redblock-new-ct0',
+          value: actualCt0Value,
+        })
+      } else {
+        console.warn('ct0 cookie is missing?')
+      }
       return {
         responseHeaders: headers,
       }
@@ -191,8 +195,7 @@ function findCookieHeader(headersArray: browser.webRequest.HttpHeaders): string 
 function generateBlockLimiterOptions(headersArray: browser.webRequest.HttpHeaders): string | null {
   const cookieHeader = findCookieHeader(headersArray)!
   const match = /\btwid=u%3D(\d+)\b/.exec(cookieHeader)!
-  const userId = match[1]
-  return userId
+  return match ? match[1]! : null
 }
 
 function initializeBlockAPILimiter() {

@@ -518,7 +518,7 @@ export function initializeUI() {
   const popupOpenedInTab = /\bistab=1\b/.test(location.search)
   let initialPage: PageId
   const initialPageMatch = /\bpage=(\S+)\b/.exec(location.search)
-  if (initialPageMatch && isValidPageId(initialPageMatch[1])) {
+  if (initialPageMatch && isValidPageId(initialPageMatch[1]!)) {
     initialPage = initialPageMatch[1]
   } else {
     initialPage = 'chainblock-sessions-page'

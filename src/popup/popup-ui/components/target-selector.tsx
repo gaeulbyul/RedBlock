@@ -158,7 +158,7 @@ export function TargetSelector({
     if (!(target instanceof HTMLSelectElement)) {
       throw new Error('unreachable')
     }
-    const selectedOption = target.selectedOptions[0]
+    const selectedOption = target.selectedOptions[0]!
     const targetType = selectedOption.getAttribute('data-type') as TargetType
     const targetGroup = selectedOption.getAttribute('data-group') as TargetGroup
     const idStr = selectedOption.getAttribute('data-idstr')!
