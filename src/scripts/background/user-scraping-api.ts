@@ -97,7 +97,7 @@ export class UserScrapingAPIClient {
         continue
       }
       const maybeUser = entry.user_results.result
-      if (!('rest_id' in maybeUser)) {
+      if (!(maybeUser && 'rest_id' in maybeUser)) {
         continue
       }
       const user: TwitterUser = { ...maybeUser.legacy, id_str: maybeUser.rest_id }

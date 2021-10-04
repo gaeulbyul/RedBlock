@@ -811,7 +811,7 @@ interface ReactionV2MapItem {
 interface ReactionV2TimelineEntry {
   user_results: {
     // 프로텍트 계정 등에서 반응한 경우 유저정보가 없는 빈 object가 온다.
-    result:
+    result?:
       | {
           // id: string
           rest_id: string
