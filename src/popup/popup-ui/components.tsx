@@ -510,7 +510,7 @@ export function PurposeSelectionUI({
           {purpose.type === 'chainblock' && (
             <ChainBlockPurposeUI {...{ purpose, mutatePurposeOptions }} />
           )}
-          <ExtraSessionOptionsUI showBioBlock={true} showRecurring={true} />
+          <ExtraSessionOptionsUI showBioBlock={true} />
           <M.Divider />
           <div className="description">
             {i18n.getMessage('chainblock_description')}{' '}
@@ -524,7 +524,7 @@ export function PurposeSelectionUI({
           {purpose.type === 'unchainblock' && (
             <UnChainBlockOptionsUI {...{ purpose, mutatePurposeOptions }} />
           )}
-          <ExtraSessionOptionsUI showRecurring={true} />
+          <ExtraSessionOptionsUI />
           <M.Divider />
           <div className="description">{i18n.getMessage('unchainblock_description')}</div>
         </TabPanel>
@@ -534,13 +534,13 @@ export function PurposeSelectionUI({
           {purpose.type === 'lockpicker' && (
             <LockPickerOptionsUI {...{ purpose, mutatePurposeOptions }} />
           )}
-          <ExtraSessionOptionsUI showRecurring={true} />
+          <ExtraSessionOptionsUI />
           <div className="description">{i18n.getMessage('lockpicker_description')}</div>
         </TabPanel>
       )}
       {chainunfollowable && (
         <TabPanel value={purpose.type} index="chainunfollow">
-          <ExtraSessionOptionsUI showRecurring={true} />
+          <ExtraSessionOptionsUI />
           <div className="description">{i18n.getMessage('chainunfollow_description')}</div>
         </TabPanel>
       )}
@@ -549,7 +549,7 @@ export function PurposeSelectionUI({
           {purpose.type === 'chainmute' && (
             <ChainMutePurposeUI {...{ purpose, mutatePurposeOptions }} />
           )}
-          <ExtraSessionOptionsUI showBioBlock={true} showRecurring={true} />
+          <ExtraSessionOptionsUI showBioBlock={true} />
           <M.Divider />
           <div className="description">
             {i18n.getMessage('chainmute_description')}{' '}
@@ -562,7 +562,7 @@ export function PurposeSelectionUI({
           {purpose.type === 'unchainmute' && (
             <UnChainMuteOptionsUI {...{ purpose, mutatePurposeOptions }} />
           )}
-          <ExtraSessionOptionsUI showRecurring={true} />
+          <ExtraSessionOptionsUI />
           <div className="description">{i18n.getMessage('unchainmute_description')}</div>
         </TabPanel>
       )}
@@ -575,13 +575,7 @@ export function PurposeSelectionUI({
   )
 }
 
-function ExtraSessionOptionsUI({
-  showBioBlock,
-  showRecurring,
-}: {
-  showBioBlock?: boolean
-  showRecurring?: boolean
-}) {
+function ExtraSessionOptionsUI({ showBioBlock }: { showBioBlock?: boolean }) {
   const { extraSessionOptions, mutate } = React.useContext(ExtraSessionOptionsContext)
   const options = React.useContext(RedBlockOptionsContext)
   const { openDialog } = React.useContext(UIContext)
@@ -611,19 +605,17 @@ function ExtraSessionOptionsUI({
           onChange={(bioBlock: BioBlockMode) => mutate({ bioBlock })}
         />
       )}
-      {showRecurring && (
-        <div style={{ width: '100%' }}>
-          <CheckboxItem
-            label={i18n.getMessage('recurring_session')}
-            onChange={recurring => mutate({ recurring })}
-            checked={extraSessionOptions.recurring}
-            style={{ marginRight: '8px' }}
-          />
-          <M.IconButton size="small" onClick={showRecurringHelp}>
-            <M.Icon>help_outline</M.Icon>
-          </M.IconButton>
-        </div>
-      )}
+      <div style={{ width: '100%' }}>
+        <CheckboxItem
+          label={i18n.getMessage('recurring_session')}
+          onChange={recurring => mutate({ recurring })}
+          checked={extraSessionOptions.recurring}
+          style={{ marginRight: '8px' }}
+        />
+        <M.IconButton size="small" onClick={showRecurringHelp}>
+          <M.Icon>help_outline</M.Icon>
+        </M.IconButton>
+      </div>
     </React.Fragment>
   )
 }
