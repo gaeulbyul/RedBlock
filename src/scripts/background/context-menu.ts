@@ -152,7 +152,10 @@ async function confirmFollowerChainBlockRequest(
   tab: BrowserTab,
   sessionManager: SessionManager,
   userName: string,
-  followKind: FollowKind
+  menuId:
+    | 'run_followers_chainblock_to_this_user'
+    | 'run_followings_chainblock_to_this_user'
+    | 'run_mutual_followers_chainblock_to_this_user'
 ) {
   const executor = await initExecutorActor(tab)
   if (!executor) {
@@ -161,6 +164,18 @@ async function confirmFollowerChainBlockRequest(
   }
   const twClient = new TwitterAPI.TwClient(executor.clientOptions)
   const maybeUser = await getUserByName(twClient, userName)
+  let followKind: FollowKind
+  switch (menuId) {
+    case 'run_followers_chainblock_to_this_user':
+      followKind = 'followers'
+      break
+    case 'run_followings_chainblock_to_this_user':
+      followKind = 'friends'
+      break
+    case 'run_mutual_followers_chainblock_to_this_user':
+      followKind = 'mutual-followers'
+      break
+  }
   if (maybeUser.ok) {
     const user = maybeUser.value
     return confirmChainBlockRequest(tab, sessionManager, executor, {
@@ -179,13 +194,11 @@ async function confirmTweetReactionChainBlockRequest(
   tab: BrowserTab,
   sessionManager: SessionManager,
   tweetId: string,
-  whoToBlock: {
-    includeRetweeters: boolean
-    includeLikers: boolean
-    includeMentionedUsers: boolean
-    includeQuotedUsers: boolean
-    includeNonLinkedMentions: boolean
-  }
+  menuId:
+    | 'run_retweeters_chainblock_to_this_tweet'
+    | 'run_likers_chainblock_to_this_tweet'
+    | 'run_retweeters_and_likers_chainblock_to_this_tweet'
+    | 'run_mentioned_users_chainblock_to_this_tweet'
 ) {
   const executor = await initExecutorActor(tab)
   if (!executor) {
@@ -197,6 +210,28 @@ async function confirmTweetReactionChainBlockRequest(
   if (!tweet) {
     alertToTab(tab, i18n.getMessage('error_occured_on_retrieving_tweet'))
     return
+  }
+  const whoToBlock = {
+    includeRetweeters: false,
+    includeLikers: false,
+    includeMentionedUsers: false,
+    includeQuotedUsers: false,
+    includeNonLinkedMentions: false,
+  }
+  switch (menuId) {
+    case 'run_retweeters_chainblock_to_this_tweet':
+      whoToBlock.includeRetweeters = true
+      break
+    case 'run_likers_chainblock_to_this_tweet':
+      whoToBlock.includeLikers = true
+      break
+    case 'run_retweeters_and_likers_chainblock_to_this_tweet':
+      whoToBlock.includeRetweeters = true
+      whoToBlock.includeLikers = true
+      break
+    case 'run_mentioned_users_chainblock_to_this_tweet':
+      whoToBlock.includeMentionedUsers = true
+      break
   }
   return confirmChainBlockRequest(tab, sessionManager, executor, {
     type: 'tweet_reaction',
@@ -210,10 +245,9 @@ async function confirmAudioSpaceChainBlockRequest(
   tab: BrowserTab,
   sessionManager: SessionManager,
   audioSpaceId: string,
-  includesWho: {
-    includeHostsAndSpeakers: boolean
-    includeListeners: boolean
-  }
+  menuId:
+    | 'run_chainblock_from_audio_space_hosts_and_speakers'
+    | 'run_chainblock_from_audio_space_all'
 ) {
   const executor = await initExecutorActor(tab)
   if (!executor) {
@@ -225,6 +259,13 @@ async function confirmAudioSpaceChainBlockRequest(
   if (!audioSpace) {
     alertToTab(tab, i18n.getMessage('error_occured_on_retrieving_audio_space'))
     return
+  }
+  const includesWho = {
+    includeHostsAndSpeakers: true,
+    includeListeners: false,
+  }
+  if (menuId === 'run_chainblock_from_audio_space_all') {
+    includesWho.includeListeners = true
   }
   return confirmChainBlockRequest(tab, sessionManager, executor, {
     type: 'audio_space',
@@ -249,303 +290,297 @@ async function confirmUserHashTagChainBlockRequest(
   })
 }
 
-// 크롬에선 browser.menus 대신 비표준 이름(browser.contextMenus)을 쓴다.
-// 이를 파이어폭스와 맞추기 위해 이걸 함
-const menus = new Proxy<typeof browser.menus>({} as any, {
-  get(_target, name, receiver) {
-    const menu = Reflect.get(browser.menus || {}, name, receiver)
-    const ctxMenu = Reflect.get((browser as any).contextMenus || {}, name, receiver)
-    return menu || ctxMenu
-  },
-})
-
 let connectedSessionManager: SessionManager | null = null
+
+function isValidMenuId(menuItemId: string | number): menuItemId is typeof menuIds[number] {
+  const menuIds = [
+    'run_followers_chainblock_to_this_user',
+    'run_followings_chainblock_to_this_user',
+    'run_mutual_followers_chainblock_to_this_user',
+
+    'run_retweeters_chainblock_to_this_tweet',
+    'run_likers_chainblock_to_this_tweet',
+    'run_retweeters_and_likers_chainblock_to_this_tweet',
+    'run_mentioned_users_chainblock_to_this_tweet',
+
+    'run_chainblock_from_audio_space_hosts_and_speakers',
+    'run_chainblock_from_audio_space_all',
+
+    'run_hashtag_user_chainblock',
+
+    'teamwork_block_user',
+    'teamwork_unblock_user',
+    'teamwork_mute_user',
+    'teamwork_unmute_user',
+
+    'open_in_new_tab',
+    'options',
+
+    'oneclick_block_mode--on',
+    'oneclick_block_mode--off',
+  ] as const
+  if (typeof menuItemId !== 'string') {
+    return false
+  }
+  return menuIds.includes(menuItemId as any)
+}
+
+browser.contextMenus.onClicked.addListener((clickInfo, tab) => {
+  const { menuItemId, linkUrl } = clickInfo
+  if (!connectedSessionManager) {
+    console.warn('warning: failed to refresh context menus (sessionManager missing?)')
+    return
+  }
+  if (!isValidMenuId(menuItemId)) {
+    console.warn('menuId "%s" is unknown.', clickInfo.menuItemId)
+    return
+  }
+  if (!tab) {
+    console.warn('tab is missing?')
+    return
+  }
+  const twURL = TwitterURL.nullable(linkUrl!)
+  switch (menuItemId) {
+    case 'run_followers_chainblock_to_this_user':
+    case 'run_followings_chainblock_to_this_user':
+    case 'run_mutual_followers_chainblock_to_this_user':
+      {
+        const userName = twURL!.getUserName()
+        if (!userName) {
+          alertToTab(tab, i18n.getMessage('cant_find_username_in_given_url', twURL!.toString()))
+          return
+        }
+        confirmFollowerChainBlockRequest(tab, connectedSessionManager, userName, menuItemId)
+      }
+      break
+    case 'run_retweeters_chainblock_to_this_tweet':
+    case 'run_likers_chainblock_to_this_tweet':
+    case 'run_retweeters_and_likers_chainblock_to_this_tweet':
+    case 'run_mentioned_users_chainblock_to_this_tweet':
+      {
+        const tweetId = twURL!.getTweetId()!
+        confirmTweetReactionChainBlockRequest(tab, connectedSessionManager, tweetId, menuItemId)
+      }
+      break
+    case 'run_chainblock_from_audio_space_hosts_and_speakers':
+    case 'run_chainblock_from_audio_space_all':
+      {
+        const audioSpaceId = twURL!.getAudioSpaceId()!
+        confirmAudioSpaceChainBlockRequest(tab, connectedSessionManager, audioSpaceId, menuItemId)
+      }
+      break
+    case 'run_hashtag_user_chainblock':
+      {
+        const hashtag = twURL!.getHashTag()!
+        confirmUserHashTagChainBlockRequest(tab, connectedSessionManager, hashtag)
+      }
+      break
+
+    case 'teamwork_block_user':
+    case 'teamwork_unblock_user':
+    case 'teamwork_mute_user':
+    case 'teamwork_unmute_user':
+      {
+        const userName = twURL!.getUserName()
+        if (!userName) {
+          alertToTab(tab, i18n.getMessage('cant_find_username_in_given_url', twURL!.toString()))
+          return
+        }
+        let action: TeamworkUserAction
+        switch (menuItemId) {
+          case 'teamwork_block_user':
+            action = 'Block'
+            break
+          case 'teamwork_unblock_user':
+            action = 'UnBlock'
+            break
+          case 'teamwork_mute_user':
+            action = 'Mute'
+            break
+          case 'teamwork_unmute_user':
+            action = 'UnMute'
+            break
+        }
+        executeTeamwork(tab, action, userName)
+      }
+      break
+
+    case 'open_in_new_tab':
+      browser.tabs.create({
+        active: true,
+        url: browser.runtime.getURL('/popup/popup.html') + '?istab=1',
+      })
+      break
+    case 'options':
+      browser.runtime.openOptionsPage()
+      break
+
+    case 'oneclick_block_mode--on':
+    case 'oneclick_block_mode--off':
+      {
+        if (twURL) {
+          toggleOneClickBlockMode(tab, menuItemId.endsWith('--on'))
+        }
+      }
+      break
+  }
+})
 
 export async function initializeContextMenu(
   sessionManager: SessionManager,
   enabledMenus: RedBlockUIOptions['menus']
 ) {
   connectedSessionManager = sessionManager
-  await menus.removeAll()
+  await browser.contextMenus.removeAll()
   const redblockOptions = await loadOptions()
   // 우클릭 - 유저
-  menus.create({
+  browser.contextMenus.create({
+    id: 'run_followers_chainblock_to_this_user',
     contexts: ['link'],
     documentUrlPatterns,
     targetUrlPatterns: urlPatterns,
     title: i18n.getMessage('run_followers_chainblock_to_this_user'),
     visible: enabledMenus.chainBlockFollowers,
-    onclick(clickEvent, tab) {
-      const twURL = new TwitterURL(clickEvent.linkUrl!)
-      const userName = twURL.getUserName()
-      if (!userName) {
-        alertToTab(tab, i18n.getMessage('cant_find_username_in_given_url', twURL.toString()))
-        return
-      }
-      confirmFollowerChainBlockRequest(tab, sessionManager, userName, 'followers')
-    },
   })
-  menus.create({
+  browser.contextMenus.create({
+    id: 'run_followings_chainblock_to_this_user',
     contexts: ['link'],
     documentUrlPatterns,
     targetUrlPatterns: urlPatterns,
     title: i18n.getMessage('run_followings_chainblock_to_this_user'),
     visible: enabledMenus.chainBlockFollowings,
-    onclick(clickEvent, tab) {
-      const twURL = new TwitterURL(clickEvent.linkUrl!)
-      const userName = twURL.getUserName()
-      if (!userName) {
-        alertToTab(tab, i18n.getMessage('cant_find_username_in_given_url', twURL.toString()))
-        return
-      }
-      confirmFollowerChainBlockRequest(tab, sessionManager, userName, 'friends')
-    },
   })
-  menus.create({
+  browser.contextMenus.create({
+    id: 'run_mutual_followers_chainblock_to_this_user',
     contexts: ['link'],
     documentUrlPatterns,
     targetUrlPatterns: urlPatterns,
     title: i18n.getMessage('run_mutual_followers_chainblock_to_this_user'),
     visible: enabledMenus.chainBlockMutualFollowers,
-    onclick(clickEvent, tab) {
-      const twURL = new TwitterURL(clickEvent.linkUrl!)
-      const userName = twURL.getUserName()
-      if (!userName) {
-        alertToTab(tab, i18n.getMessage('cant_find_username_in_given_url', twURL.toString()))
-        return
-      }
-      confirmFollowerChainBlockRequest(tab, sessionManager, userName, 'mutual-followers')
-    },
   })
 
-  menus.create({
+  browser.contextMenus.create({
     contexts: ['link'],
     type: 'separator',
   })
   // 우클릭 - 트윗
-  menus.create({
+  browser.contextMenus.create({
+    id: 'run_retweeters_chainblock_to_this_tweet',
     contexts: ['link'],
     documentUrlPatterns,
     targetUrlPatterns: tweetUrlPatterns,
     title: i18n.getMessage('run_retweeters_chainblock_to_this_tweet'),
     visible: enabledMenus.chainBlockRetweeters,
-    onclick(clickEvent, tab) {
-      const twURL = new TwitterURL(clickEvent.linkUrl!)
-      const tweetId = twURL.getTweetId()!
-      confirmTweetReactionChainBlockRequest(tab, sessionManager, tweetId, {
-        includeRetweeters: true,
-        includeLikers: false,
-        includeMentionedUsers: false,
-        includeQuotedUsers: false,
-        includeNonLinkedMentions: false,
-      })
-    },
   })
-  menus.create({
+  browser.contextMenus.create({
+    id: 'run_likers_chainblock_to_this_tweet',
     contexts: ['link'],
     documentUrlPatterns,
     targetUrlPatterns: tweetUrlPatterns,
     title: i18n.getMessage('run_likers_chainblock_to_this_tweet'),
     visible: enabledMenus.chainBlockLikers,
-    onclick(clickEvent, tab) {
-      const twURL = new TwitterURL(clickEvent.linkUrl!)
-      const tweetId = twURL.getTweetId()!
-      confirmTweetReactionChainBlockRequest(tab, sessionManager, tweetId, {
-        includeRetweeters: false,
-        includeLikers: true,
-        includeMentionedUsers: false,
-        includeQuotedUsers: false,
-        includeNonLinkedMentions: false,
-      })
-    },
   })
-  menus.create({
+  browser.contextMenus.create({
+    id: 'run_retweeters_and_likers_chainblock_to_this_tweet',
     contexts: ['link'],
     documentUrlPatterns,
     targetUrlPatterns: tweetUrlPatterns,
     title: i18n.getMessage('run_retweeters_and_likers_chainblock_to_this_tweet'),
     visible: enabledMenus.chainBlockRetweetersAndLikers,
-    onclick(clickEvent, tab) {
-      const twURL = new TwitterURL(clickEvent.linkUrl!)
-      const tweetId = twURL.getTweetId()!
-      confirmTweetReactionChainBlockRequest(tab, sessionManager, tweetId, {
-        includeRetweeters: true,
-        includeLikers: true,
-        includeMentionedUsers: false,
-        includeQuotedUsers: false,
-        includeNonLinkedMentions: false,
-      })
-    },
   })
-  menus.create({
+  browser.contextMenus.create({
+    id: 'run_mentioned_users_chainblock_to_this_tweet',
     contexts: ['link'],
     documentUrlPatterns,
     targetUrlPatterns: tweetUrlPatterns,
     title: i18n.getMessage('run_mentioned_users_chainblock_to_this_tweet'),
     visible: enabledMenus.chainBlockMentioned,
-    onclick(clickEvent, tab) {
-      const twURL = new TwitterURL(clickEvent.linkUrl!)
-      const tweetId = twURL.getTweetId()!
-      confirmTweetReactionChainBlockRequest(tab, sessionManager, tweetId, {
-        includeRetweeters: false,
-        includeLikers: false,
-        includeMentionedUsers: true,
-        includeQuotedUsers: false,
-        includeNonLinkedMentions: false,
-      })
-    },
   })
-  menus.create({
+  browser.contextMenus.create({
+    id: 'run_chainblock_from_audio_space_hosts_and_speakers',
     contexts: ['link'],
     documentUrlPatterns,
     targetUrlPatterns: audioSpaceUrlPatterns,
     title: i18n.getMessage('run_chainblock_from_audio_space_hosts_and_speakers'),
     visible: enabledMenus.chainBlockAudioSpaceSpeakers,
-    onclick(clickEvent, tab) {
-      const twURL = new TwitterURL(clickEvent.linkUrl!)
-      const audioSpaceId = twURL.getAudioSpaceId()!
-      confirmAudioSpaceChainBlockRequest(tab, sessionManager, audioSpaceId, {
-        includeHostsAndSpeakers: true,
-        includeListeners: false,
-      })
-    },
   })
-  menus.create({
+  browser.contextMenus.create({
+    id: 'run_chainblock_from_audio_space_all',
     contexts: ['link'],
     documentUrlPatterns,
     targetUrlPatterns: audioSpaceUrlPatterns,
     title: i18n.getMessage('run_chainblock_from_audio_space_all'),
     visible: enabledMenus.chainBlockAudioSpaceSpeakers,
-    onclick(clickEvent, tab) {
-      const twURL = new TwitterURL(clickEvent.linkUrl!)
-      const audioSpaceId = twURL.getAudioSpaceId()!
-      confirmAudioSpaceChainBlockRequest(tab, sessionManager, audioSpaceId, {
-        includeHostsAndSpeakers: true,
-        includeListeners: true,
-      })
-    },
   })
-  menus.create({
+  browser.contextMenus.create({
+    id: 'run_hashtag_user_chainblock',
     contexts: ['link'],
     documentUrlPatterns,
     targetUrlPatterns: hashtagUrlPatterns,
     title: i18n.getMessage('run_hashtag_user_chainblock'),
     visible: enabledMenus.chainBlockHashTagInUsersProfile,
-    onclick(clickEvent, tab) {
-      const twURL = new TwitterURL(clickEvent.linkUrl!)
-      const hashtag = twURL.getHashTag()!
-      confirmUserHashTagChainBlockRequest(tab, sessionManager, hashtag)
-    },
   })
-  menus.create({
+  browser.contextMenus.create({
     contexts: ['link'],
     type: 'separator',
     visible: redblockOptions.enableTeamwork,
   })
-  menus.create({
+  browser.contextMenus.create({
+    id: 'teamwork_block_user',
     contexts: ['link'],
     documentUrlPatterns,
     targetUrlPatterns: urlPatterns,
     title: i18n.getMessage('teamwork_block_user'),
     visible: redblockOptions.enableTeamwork && enabledMenus.teamworkBlock,
-    async onclick(clickEvent, tab) {
-      const twURL = new TwitterURL(clickEvent.linkUrl!)
-      const userName = twURL.getUserName()
-      if (!userName) {
-        alertToTab(tab, i18n.getMessage('cant_find_username_in_given_url', twURL.toString()))
-        return
-      }
-      executeTeamwork(tab, 'Block', userName)
-    },
   })
-  menus.create({
+  browser.contextMenus.create({
+    id: 'teamwork_unblock_user',
     contexts: ['link'],
     documentUrlPatterns,
     targetUrlPatterns: urlPatterns,
     title: i18n.getMessage('teamwork_unblock_user'),
     visible: redblockOptions.enableTeamwork && enabledMenus.teamworkUnblock,
-    async onclick(clickEvent, tab) {
-      const twURL = new TwitterURL(clickEvent.linkUrl!)
-      const userName = twURL.getUserName()
-      if (!userName) {
-        alertToTab(tab, i18n.getMessage('cant_find_username_in_given_url', twURL.toString()))
-        return
-      }
-      executeTeamwork(tab, 'UnBlock', userName)
-    },
   })
-  menus.create({
+  browser.contextMenus.create({
+    id: 'teamwork_mute_user',
     contexts: ['link'],
     documentUrlPatterns,
     targetUrlPatterns: urlPatterns,
     title: i18n.getMessage('teamwork_mute_user'),
     visible: redblockOptions.enableTeamwork && enabledMenus.teamworkMute,
-    async onclick(clickEvent, tab) {
-      const twURL = new TwitterURL(clickEvent.linkUrl!)
-      const userName = twURL.getUserName()
-      if (!userName) {
-        alertToTab(tab, i18n.getMessage('cant_find_username_in_given_url', twURL.toString()))
-        return
-      }
-      executeTeamwork(tab, 'Mute', userName)
-    },
   })
-  menus.create({
+  browser.contextMenus.create({
+    id: 'teamwork_unmute_user',
     contexts: ['link'],
     documentUrlPatterns,
     targetUrlPatterns: urlPatterns,
     title: i18n.getMessage('teamwork_unmute_user'),
     visible: redblockOptions.enableTeamwork && enabledMenus.teamworkUnmute,
-    async onclick(clickEvent, tab) {
-      const twURL = new TwitterURL(clickEvent.linkUrl!)
-      const userName = twURL.getUserName()
-      if (!userName) {
-        alertToTab(tab, i18n.getMessage('cant_find_username_in_given_url', twURL.toString()))
-        return
-      }
-      executeTeamwork(tab, 'UnMute', userName)
-    },
   })
   // 확장기능버튼
-  menus.create({
+  browser.contextMenus.create({
+    id: 'open_in_new_tab',
     contexts: ['browser_action'],
     title: i18n.getMessage('open_in_new_tab'),
-    onclick(_clickEvent, _tab) {
-      const url = browser.runtime.getURL('/popup/popup.html') + '?istab=1'
-      browser.tabs.create({
-        active: true,
-        url,
-      })
-    },
   })
-  menus.create({
+  browser.contextMenus.create({
+    id: 'options',
     contexts: ['browser_action'],
     title: i18n.getMessage('options'),
-    onclick(_clickEvent, _tab) {
-      browser.runtime.openOptionsPage()
-    },
   })
-  menus.create({
+  browser.contextMenus.create({
     contexts: ['browser_action'],
     type: 'separator',
   })
-  menus.create({
+  browser.contextMenus.create({
+    id: 'oneclick_block_mode--on',
     contexts: ['browser_action'],
     title: `${i18n.getMessage('oneclick_block_mode')}: ON`,
-    onclick(_clickEvent, tab) {
-      if (TwitterURL.nullable(tab.url!)) {
-        toggleOneClickBlockMode(tab, true)
-      }
-    },
   })
-  menus.create({
+  browser.contextMenus.create({
+    id: 'oneclick_block_mode--off',
     contexts: ['browser_action'],
     title: `${i18n.getMessage('oneclick_block_mode')}: OFF`,
-    onclick(_clickEvent, tab) {
-      if (TwitterURL.nullable(tab.url!)) {
-        toggleOneClickBlockMode(tab, false)
-      }
-    },
   })
 }
 
