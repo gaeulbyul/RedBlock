@@ -1,3 +1,5 @@
+import browser from 'webextension-polyfill'
+
 function migrateOptions(options: any) {
   // 최초 설치 후 실행시 null/undefined가 온다.
   if (!options) {

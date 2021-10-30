@@ -1,3 +1,5 @@
+import browser from 'webextension-polyfill'
+
 import * as CookieHandler from './cookie-handler'
 import { TwClient } from './twitter-api'
 

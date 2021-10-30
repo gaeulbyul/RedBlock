@@ -1,3 +1,5 @@
+import browser from 'webextension-polyfill'
+
 export async function loadBadWords(): Promise<RedBlockStorage['badWords']> {
   const { badWords } = (await browser.storage.local.get('badWords')) as unknown as RedBlockStorage
   return badWords || []

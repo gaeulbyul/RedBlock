@@ -1,3 +1,5 @@
+import browser from 'webextension-polyfill'
+
 import { alertToCurrentTab } from './background'
 import SessionManager from './session-manager'
 import * as TwitterAPI from './twitter-api'
@@ -5,7 +7,7 @@ import { checkResultToString } from '../text-generate'
 import { initializeContextMenu } from './context-menu'
 import { initializeWebRequest } from './webrequest'
 import BlockLimiter from './block-limiter'
-import { assertNever } from '../common'
+import { assertNever, sendBrowserRuntimeMessage } from '../common'
 import { getCookieStoreIdFromTab } from './cookie-handler'
 import { migrateStorage } from './storage'
 import { loadUIOptions } from './storage/options'
@@ -20,13 +22,11 @@ Object.assign(window, {
 })
 
 async function startSession(sessionId: string) {
-  browser.runtime
-    .sendMessage<RBMessageToPopup.PopupSwitchTab>({
-      messageType: 'PopupSwitchTab',
-      messageTo: 'popup',
-      page: 'chainblock-sessions-page',
-    })
-    .catch(() => {}) // 우클릭 체인블락의 경우 팝업이 없음
+  sendBrowserRuntimeMessage<RBMessageToPopup.PopupSwitchTab>({
+    messageType: 'PopupSwitchTab',
+    messageTo: 'popup',
+    page: 'chainblock-sessions-page',
+  }).catch(() => {}) // 우클릭 체인블락의 경우 팝업이 없음
   return sessionManager.start(sessionId).catch(err => {
     if (err instanceof TwitterAPI.RateLimitError) {
       alertToCurrentTab(i18n.getMessage('error_rate_limited'))
@@ -39,33 +39,29 @@ async function startSession(sessionId: string) {
 async function sendSessionManagerInfo() {
   const sessions = sessionManager.getAllSessionInfos()
   const recurringAlarmInfos = await sessionManager.recurringManager.getAll()
-  return browser.runtime
-    .sendMessage<RBMessageToPopup.ChainBlockInfo>({
-      messageType: 'ChainBlockInfo',
-      messageTo: 'popup',
-      sessions,
-      recurringAlarmInfos,
-    })
-    .catch(() => {})
+  return sendBrowserRuntimeMessage<RBMessageToPopup.ChainBlockInfo>({
+    messageType: 'ChainBlockInfo',
+    messageTo: 'popup',
+    sessions,
+    recurringAlarmInfos,
+  }).catch(() => {})
 }
 
 async function sendBlockLimiterStatus(userId: string) {
   const { count: current, max } = new BlockLimiter(userId)
-  return browser.runtime
-    .sendMessage<RBMessageToPopup.BlockLimiterInfo>({
-      messageType: 'BlockLimiterInfo',
-      messageTo: 'popup',
-      userId,
-      status: {
-        current,
-        max,
-        remained: max - current,
-      },
-    })
-    .catch(() => {})
+  return sendBrowserRuntimeMessage<RBMessageToPopup.BlockLimiterInfo>({
+    messageType: 'BlockLimiterInfo',
+    messageTo: 'popup',
+    userId,
+    status: {
+      current,
+      max,
+      remained: max - current,
+    },
+  }).catch(() => {})
 }
 
-async function twClientFromTab(tab: browser.tabs.Tab): Promise<TwitterAPI.TwClient> {
+async function twClientFromTab(tab: browser.Tabs.Tab): Promise<TwitterAPI.TwClient> {
   if (!tab) {
     throw new Error('tab is missing')
   }
@@ -75,7 +71,7 @@ async function twClientFromTab(tab: browser.tabs.Tab): Promise<TwitterAPI.TwClie
 
 function handleExtensionMessage(
   message: RBMessageToBackgroundType,
-  sender: browser.runtime.MessageSender
+  sender: browser.Runtime.MessageSender
 ) {
   switch (message.messageType) {
     case 'CreateChainBlockSession':
@@ -158,20 +154,13 @@ function checkMessage(msg: object): msg is RBMessageToBackgroundType {
 }
 
 function initialize() {
-  browser.runtime.onMessage.addListener(
-    (
-      msg: object,
-      sender: browser.runtime.MessageSender,
-      _sendResponse: (response: any) => Promise<void>
-    ): true => {
-      if (checkMessage(msg)) {
-        handleExtensionMessage(msg, sender)
-      } else {
-        console.debug('unknown msg?', msg)
-      }
-      return true
+  browser.runtime.onMessage.addListener((msg: object, sender: browser.Runtime.MessageSender) => {
+    if (checkMessage(msg)) {
+      handleExtensionMessage(msg, sender)
+    } else {
+      console.debug('unknown msg?', msg)
     }
-  )
+  })
   loadUIOptions().then(({ menus }) => initializeContextMenu(sessionManager, menus))
   initializeWebRequest()
   browser.runtime.onInstalled.addListener(() => {

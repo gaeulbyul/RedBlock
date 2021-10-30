@@ -1,3 +1,6 @@
+import browser from 'webextension-polyfill'
+import { sendBrowserRuntimeMessage } from '../common'
+
 // 파이어폭스에서 CustomEvent의 detail 개체 전달용
 declare function cloneInto<T>(detail: T, view: Window | null): T
 export function cloneDetail<T>(detail: T): T {
@@ -65,7 +68,7 @@ export function listenExtensionMessages(reactRoot: Element | null) {
         break
       case 'ConfirmChainBlock':
         if (window.confirm(msg.confirmMessage)) {
-          browser.runtime.sendMessage<RBMessageToBackground.CreateChainBlockSession>({
+          sendBrowserRuntimeMessage<RBMessageToBackground.CreateChainBlockSession>({
             messageType: 'CreateChainBlockSession',
             messageTo: 'background',
             request: msg.request,
@@ -87,7 +90,7 @@ export function toastMessage(detail: ToastMessageParam) {
 }
 
 export async function blockUser(user: TwitterUser) {
-  return browser.runtime.sendMessage<RBMessageToBackground.BlockSingleUser>({
+  return sendBrowserRuntimeMessage<RBMessageToBackground.BlockSingleUser>({
     messageType: 'BlockSingleUser',
     messageTo: 'background',
     user,
@@ -95,7 +98,7 @@ export async function blockUser(user: TwitterUser) {
 }
 
 export async function blockUserById(userId: string) {
-  return browser.runtime.sendMessage<RBMessageToBackground.BlockUserById>({
+  return sendBrowserRuntimeMessage<RBMessageToBackground.BlockUserById>({
     messageType: 'BlockUserById',
     messageTo: 'background',
     userId,

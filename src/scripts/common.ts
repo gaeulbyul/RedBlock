@@ -1,3 +1,5 @@
+import browser from 'webextension-polyfill'
+
 import type {
   TwitterUserEntities,
   LimitStatus,
@@ -471,4 +473,12 @@ export function extractRateLimit(limitStatuses: LimitStatus, apiKind: ScrapingAp
     case 'block-ids':
       return limitStatuses.blocks['/blocks/ids']
   }
+}
+
+export function sendBrowserRuntimeMessage<T>(message: T) {
+  return browser.runtime.sendMessage(message)
+}
+
+export function sendBrowserTabMessage<T>(tabId: number, message: T) {
+  return browser.tabs.sendMessage(tabId, message)
 }

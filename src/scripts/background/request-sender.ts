@@ -1,7 +1,9 @@
+import { sendBrowserRuntimeMessage } from '../common'
+
 export async function startNewChainBlockSession<T extends AnySessionTarget>(
   request: SessionRequest<T>
 ) {
-  return browser.runtime.sendMessage<RBMessageToBackground.CreateChainBlockSession>({
+  return sendBrowserRuntimeMessage<RBMessageToBackground.CreateChainBlockSession>({
     messageType: 'CreateChainBlockSession',
     messageTo: 'background',
     request,
@@ -9,7 +11,7 @@ export async function startNewChainBlockSession<T extends AnySessionTarget>(
 }
 
 export async function stopChainBlock(sessionId: string) {
-  return browser.runtime.sendMessage<RBMessageToBackground.StopSession>({
+  return sendBrowserRuntimeMessage<RBMessageToBackground.StopSession>({
     messageType: 'StopSession',
     messageTo: 'background',
     sessionId,
@@ -17,14 +19,14 @@ export async function stopChainBlock(sessionId: string) {
 }
 
 export async function stopAllChainBlock() {
-  return browser.runtime.sendMessage<RBMessageToBackground.StopAllSessions>({
+  return sendBrowserRuntimeMessage<RBMessageToBackground.StopAllSessions>({
     messageType: 'StopAllSessions',
     messageTo: 'background',
   })
 }
 
 export async function rewindChainBlock(sessionId: string) {
-  return browser.runtime.sendMessage<RBMessageToBackground.RewindSession>({
+  return sendBrowserRuntimeMessage<RBMessageToBackground.RewindSession>({
     messageType: 'RewindSession',
     messageTo: 'background',
     sessionId,
@@ -32,14 +34,14 @@ export async function rewindChainBlock(sessionId: string) {
 }
 
 export async function requestProgress() {
-  return browser.runtime.sendMessage<RBMessageToBackground.RequestChainBlockInfo>({
+  return sendBrowserRuntimeMessage<RBMessageToBackground.RequestChainBlockInfo>({
     messageType: 'RequestChainBlockInfo',
     messageTo: 'background',
   })
 }
 
 export async function cleanupInactiveSessions() {
-  return browser.runtime.sendMessage<RBMessageToBackground.RequestCleanup>({
+  return sendBrowserRuntimeMessage<RBMessageToBackground.RequestCleanup>({
     messageType: 'RequestCleanup',
     messageTo: 'background',
     cleanupWhat: 'inactive',
@@ -47,7 +49,7 @@ export async function cleanupInactiveSessions() {
 }
 
 export async function requestBlockLimiterStatus(userId: string) {
-  return browser.runtime.sendMessage<RBMessageToBackground.RequestBlockLimiterStatus>({
+  return sendBrowserRuntimeMessage<RBMessageToBackground.RequestBlockLimiterStatus>({
     messageType: 'RequestBlockLimiterStatus',
     messageTo: 'background',
     userId,
@@ -55,7 +57,7 @@ export async function requestBlockLimiterStatus(userId: string) {
 }
 
 export async function requestResetCounter(userId: string) {
-  return browser.runtime.sendMessage<RBMessageToBackground.RequestResetBlockCounter>({
+  return sendBrowserRuntimeMessage<RBMessageToBackground.RequestResetBlockCounter>({
     messageType: 'RequestResetBlockCounter',
     messageTo: 'background',
     userId,
@@ -63,7 +65,7 @@ export async function requestResetCounter(userId: string) {
 }
 
 export async function downloadFromExportSession(sessionId: string) {
-  return browser.runtime.sendMessage<RBMessageToBackground.DownloadFromExportSession>({
+  return sendBrowserRuntimeMessage<RBMessageToBackground.DownloadFromExportSession>({
     messageType: 'DownloadFromExportSession',
     messageTo: 'background',
     sessionId,

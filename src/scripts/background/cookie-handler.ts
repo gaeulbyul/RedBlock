@@ -1,3 +1,5 @@
+import browser from 'webextension-polyfill'
+
 import { loadOptions } from './storage/options'
 
 const url = 'https://twitter.com'
@@ -107,7 +109,7 @@ export function parseAuthMultiCookie(authMulti: string): MultiAccountCookies {
   return Object.fromEntries(userTokenPairs)
 }
 
-export async function getCookieStoreIdFromTab(tab: browser.tabs.Tab): Promise<string> {
+export async function getCookieStoreIdFromTab(tab: browser.Tabs.Tab): Promise<string> {
   if (tab.cookieStoreId) {
     return tab.cookieStoreId
   }

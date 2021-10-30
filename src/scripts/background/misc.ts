@@ -1,5 +1,7 @@
+import browser from 'webextension-polyfill'
+
 import { loadOptions } from './storage/options'
-import { sleep } from '../common'
+import { sleep, sendBrowserRuntimeMessage, sendBrowserTabMessage } from '../common'
 import {
   getAllCookies,
   removeCookie,
@@ -20,17 +22,15 @@ export async function markUser(params: MarkUserParams) {
     if (typeof id !== 'number') {
       return
     }
-    browser.tabs
-      .sendMessage<RBMessageToContent.MarkUser>(id, {
-        messageType: 'MarkUser',
-        messageTo: 'content',
-        ...params,
-      })
-      .catch(() => {})
+    sendBrowserTabMessage<RBMessageToContent.MarkUser>(id, {
+      messageType: 'MarkUser',
+      messageTo: 'content',
+      ...params,
+    }).catch(() => {})
   })
 }
 
-export async function getCurrentTab(): Promise<browser.tabs.Tab> {
+export async function getCurrentTab(): Promise<browser.Tabs.Tab> {
   const tabs = await browser.tabs.query({
     active: true,
     currentWindow: true,
@@ -39,7 +39,7 @@ export async function getCurrentTab(): Promise<browser.tabs.Tab> {
   return currentTab
 }
 
-export async function toggleOneClickBlockMode(tab: browser.tabs.Tab, enabled: boolean) {
+export async function toggleOneClickBlockMode(tab: browser.Tabs.Tab, enabled: boolean) {
   const tabIds: number[] = []
   const { oneClickBlockModeForAllTabs } = await loadOptions()
   if (oneClickBlockModeForAllTabs) {
@@ -64,7 +64,7 @@ export async function toggleOneClickBlockMode(tab: browser.tabs.Tab, enabled: bo
   }
   return await Promise.all(
     tabIds.map(tabId =>
-      browser.tabs.sendMessage(tabId, {
+      sendBrowserTabMessage(tabId, {
         messageType: 'ToggleOneClickBlockMode',
         messageTo: 'content',
         enabled,
@@ -73,7 +73,7 @@ export async function toggleOneClickBlockMode(tab: browser.tabs.Tab, enabled: bo
   )
 }
 
-export async function deleteTwitterCookies(tab: browser.tabs.Tab) {
+export async function deleteTwitterCookies(tab: browser.Tabs.Tab) {
   const storeId = await getCookieStoreIdFromTab(tab)
   const cookies = await getAllCookies({
     storeId,
@@ -91,13 +91,12 @@ export async function deleteTwitterCookies(tab: browser.tabs.Tab) {
 }
 
 export async function nukeRedBlockSettings() {
-  const msg: RBMessageToBackground.RequestCleanup = {
+  // sendMessage는 응답이 안 돌아오므로 await이 소용없겠더라.
+  sendBrowserRuntimeMessage<RBMessageToBackground.RequestCleanup>({
     messageTo: 'background',
     messageType: 'RequestCleanup',
     cleanupWhat: 'nuke-all',
-  }
-  // sendMessage는 응답이 안 돌아오므로 await이 소용없겠더라.
-  browser.runtime.sendMessage(msg)
+  })
   localStorage.clear()
   await browser.storage.local.clear()
   await sleep(1000)

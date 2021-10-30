@@ -1,3 +1,5 @@
+import browser from 'webextension-polyfill'
+
 type BookmarksMap = Map<string, BookmarkItem>
 
 export async function loadBookmarksAsMap(

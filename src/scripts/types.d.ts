@@ -4,6 +4,8 @@ type Tweet = import('./background/twitter-api').Tweet
 type AudioSpace = import('./background/twitter-api').AudioSpace
 type DialogMessageObj = import('./text-generate').DialogMessageObj
 
+type Browser = typeof import('webextension-polyfill')
+
 // ---- vendor modules ----
 
 declare namespace uuid {
@@ -42,7 +44,7 @@ interface UserIdsObject {
 }
 
 interface RecurringAlarmInfosObject {
-  [sessionId: string]: browser.alarms.Alarm
+  [sessionId: string]: import('webextension-polyfill').Alarms.Alarm
 }
 
 declare namespace RBMessageToBackground {

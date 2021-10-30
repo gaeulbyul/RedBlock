@@ -1,3 +1,4 @@
+import type browser from 'webextension-polyfill'
 import React from 'react'
 import * as MaterialUI from '@material-ui/core'
 
@@ -87,7 +88,7 @@ function ChainBlockSessionProgressTable({
   recurringAlarm,
 }: {
   sessionInfo: SessionInfo
-  recurringAlarm?: browser.alarms.Alarm
+  recurringAlarm?: browser.Alarms.Alarm
 }) {
   const { progress: p } = sessionInfo
   const { TableContainer, Table, TableBody } = MaterialUI
@@ -124,7 +125,7 @@ function ChainBlockSessionItem({
   recurringAlarm,
 }: {
   sessionInfo: SessionInfo
-  recurringAlarm?: browser.alarms.Alarm
+  recurringAlarm?: browser.Alarms.Alarm
 }) {
   const { sessionId } = sessionInfo
   const { purpose, target, executor } = sessionInfo.request

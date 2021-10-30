@@ -1,3 +1,5 @@
+import browser from 'webextension-polyfill'
+
 type I18NMessages = typeof import('../_locales/ko/messages.json')
 type SubstItem = number | string
 type Substitutions = SubstItem | SubstItem[] | undefined
@@ -16,7 +18,7 @@ export function getMessage(key: string & I18NMessageKeys, substs: Substitutions 
   }
 }
 
-export function getUILanguage(): browser.i18n.LanguageCode {
+export function getUILanguage(): browser.I18n.LanguageCode {
   return browser.i18n.getUILanguage()
 }
 

@@ -1,3 +1,4 @@
+import browser from 'webextension-polyfill'
 import React from 'react'
 import * as MaterialUI from '@material-ui/core'
 import sortBy from 'lodash-es/sortBy'

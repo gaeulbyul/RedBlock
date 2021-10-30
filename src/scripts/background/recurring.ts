@@ -1,8 +1,10 @@
+import browser from 'webextension-polyfill'
+
 import { EventEmitter } from '../common'
 
 interface RecurringAlarm {
   sessionId: string
-  alarm: browser.alarms.Alarm
+  alarm: browser.Alarms.Alarm
 }
 
 interface RecurringManagerEventEmitter {
@@ -34,7 +36,7 @@ export default class RecurringManager {
   public async addSchedule(
     sessionId: string,
     delayInMinutes: number
-  ): Promise<browser.alarms.Alarm> {
+  ): Promise<browser.Alarms.Alarm> {
     const name = generateAlarmName(sessionId)
     this.nameToSessionId.set(name, sessionId)
     browser.alarms.create(name, {

@@ -1,3 +1,5 @@
+import browser from 'webextension-polyfill'
+
 import { loadOptions, loadUIOptions, defaultOptions, defaultUIOptions } from './storage/options'
 import { loadBadWords } from './storage/badwords'
 import { loadBookmarks } from './storage/bookmarks'

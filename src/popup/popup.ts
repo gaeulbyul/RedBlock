@@ -4,8 +4,9 @@ import { TwClient } from '../scripts/background/twitter-api'
 import { examineRetrieverByTweetId } from '../scripts/background/blockbuster'
 import { getCookieStoreIdFromTab } from '../scripts/background/cookie-handler'
 import { getCurrentTab } from '../scripts/background/misc'
+import type browser from 'webextension-polyfill'
 
-type Tab = browser.tabs.Tab
+type Tab = browser.Tabs.Tab
 
 export function getUserNameFromTab(tab: Tab): string | null {
   if (!tab.url) {

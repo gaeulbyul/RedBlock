@@ -1,17 +1,19 @@
-import * as i18n from '../../scripts/i18n'
+import browser from 'webextension-polyfill'
+
+import { sendBrowserTabMessage } from '../common'
+import * as i18n from '../i18n'
 
 export function notify(message: string): void {
-  const notif: browser.notifications.NotificationOptions = {
+  browser.notifications.create({
     type: 'basic',
     iconUrl: '/icons/icon-128.png',
     title: 'Red Block',
     message,
-  }
-  browser.notifications.create(null, notif)
+  })
 }
 
-export async function alertToTab(tab: browser.tabs.Tab, message: string) {
-  return browser.tabs.sendMessage<RBMessageToContent.Alert>(tab.id!, {
+export async function alertToTab(tab: browser.Tabs.Tab, message: string) {
+  return sendBrowserTabMessage<RBMessageToContent.Alert>(tab.id!, {
     messageType: 'Alert',
     messageTo: 'content',
     message,

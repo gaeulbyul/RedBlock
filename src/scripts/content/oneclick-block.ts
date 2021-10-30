@@ -1,3 +1,6 @@
+import browser from 'webextension-polyfill'
+
+import { sendBrowserRuntimeMessage } from '../common'
 import { blockUser, toastMessage, cloneDetail } from './content-common'
 import { loadBadWords } from '../background/storage/badwords'
 import * as i18n from '../../scripts/i18n'
@@ -68,7 +71,7 @@ function markUser(detail: MarkUserParams) {
 }
 
 export async function unblockUserById(userId: string) {
-  return browser.runtime.sendMessage<RBMessageToBackground.UnblockUserById>({
+  return sendBrowserRuntimeMessage<RBMessageToBackground.UnblockUserById>({
     messageType: 'UnblockUserById',
     messageTo: 'background',
     userId,

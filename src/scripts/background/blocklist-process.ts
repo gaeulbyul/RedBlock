@@ -1,3 +1,5 @@
+import browser from 'webextension-polyfill'
+
 import { validateUserName } from '../common'
 /*
 function* iterateRegexp(pattern: RegExp, text: string) {

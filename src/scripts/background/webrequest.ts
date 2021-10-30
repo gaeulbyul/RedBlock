@@ -1,3 +1,4 @@
+import browser from 'webextension-polyfill'
 import debounce from 'lodash-es/debounce'
 
 import BlockLimiter from './block-limiter'
@@ -38,7 +39,7 @@ function generateApiUrls(path: string) {
   ].map(prefix => prefix + path)
 }
 
-function fromWebRequestHeaders(headersArray: browser.webRequest.HttpHeaders): Headers {
+function fromWebRequestHeaders(headersArray: browser.WebRequest.HttpHeaders): Headers {
   const headers = new Headers()
   headersArray.forEach(item => {
     if (!item.value) {
@@ -49,7 +50,7 @@ function fromWebRequestHeaders(headersArray: browser.webRequest.HttpHeaders): He
   return headers
 }
 
-function toWebRequestHeaders(headers: Headers): browser.webRequest.HttpHeaders {
+function toWebRequestHeaders(headers: Headers): browser.WebRequest.HttpHeaders {
   return Array.from(headers.entries()).map(([name, value]) => ({ name, value }))
 }
 
@@ -176,7 +177,7 @@ function initializeTwitterAPISetCookieHeaderHandler() {
   )
 }
 
-function findCookieHeader(headersArray: browser.webRequest.HttpHeaders): string | null {
+function findCookieHeader(headersArray: browser.WebRequest.HttpHeaders): string | null {
   // 그냥 'cookie'에서만 찾으면 수정전 쿠키가 들어온다. 다중로그인 등의 상황을 위해 수정한 쿠키인 override-cookies를 먼저 찾자.
   let cookie: string | undefined
   let overridenCookie: string | undefined
@@ -192,7 +193,7 @@ function findCookieHeader(headersArray: browser.webRequest.HttpHeaders): string 
   return overridenCookie || cookie || null
 }
 
-function generateBlockLimiterOptions(headersArray: browser.webRequest.HttpHeaders): string | null {
+function generateBlockLimiterOptions(headersArray: browser.WebRequest.HttpHeaders): string | null {
   const cookieHeader = findCookieHeader(headersArray)!
   const match = /\btwid=u%3D(\d+)\b/.exec(cookieHeader)!
   return match ? match[1]! : null

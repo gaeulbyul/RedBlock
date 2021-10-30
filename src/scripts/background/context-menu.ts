@@ -1,4 +1,4 @@
-import { TwitterURL } from '../common'
+import { TwitterURL, sendBrowserTabMessage } from '../common'
 import {
   defaultChainBlockPurposeOptions,
   defaultExtraSessionOptions,
@@ -19,8 +19,9 @@ import {
 } from './teamwork'
 import type SessionManager from './session-manager'
 import * as i18n from '../../scripts/i18n'
+import browser from 'webextension-polyfill'
 
-type BrowserTab = browser.tabs.Tab
+type BrowserTab = browser.Tabs.Tab
 
 const urlPatterns = [
   'https://twitter.com/*',
@@ -52,7 +53,7 @@ const extraSessionOptions = defaultExtraSessionOptions
 
 async function sendConfirmToTab(tab: BrowserTab, request: SessionRequest<AnySessionTarget>) {
   const confirmMessage = objToString(generateConfirmMessage(request))
-  browser.tabs.sendMessage<RBMessageToContent.ConfirmChainBlock>(tab.id!, {
+  sendBrowserTabMessage<RBMessageToContent.ConfirmChainBlock>(tab.id!, {
     messageType: 'ConfirmChainBlock',
     messageTo: 'content',
     confirmMessage,
