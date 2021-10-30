@@ -125,13 +125,18 @@ export async function getCurrentTabInfo(): Promise<TabInfo> {
   const twClient = new TwClient({ cookieStoreId })
   const me = await twClient.getMyself().catch(() => null)
   let myself: Actor | null
-  if (me && turl) {
-    myself = {
-      user: me,
-      clientOptions: twClient.options,
-    }
-  } else {
+  if (!me) {
     return infoless
+  }
+  myself = {
+    user: me,
+    clientOptions: twClient.options,
+  }
+  if (!turl) {
+    return {
+      ...infoless,
+      myself,
+    }
   }
   const tweetId = getTweetIdFromTab(tab)
   const userId = getUserIdFromTab(tab)
