@@ -4,17 +4,6 @@ import { loadOptions } from '../background/storage/options'
 import { getAllCookies, removeCookie, getCookieStoreIdFromTab } from '../background/cookie-handler'
 import type { LimitStatus } from '../background/twitter-api'
 
-// TODO: convert to string literal type
-export const enum SessionStatus {
-  Initial,
-  AwaitingUntilRecur,
-  Running,
-  RateLimited,
-  Completed,
-  Stopped,
-  Error,
-}
-
 const userNameBlacklist = [
   'about',
   'account',
@@ -174,12 +163,7 @@ export function getTargetUser(
  * '완료세션 지우기'에서 예외가 됨.
  */
 export function isRunningSession({ status }: SessionInfo): boolean {
-  const runningStatuses = [
-    SessionStatus.Initial,
-    SessionStatus.AwaitingUntilRecur,
-    SessionStatus.Running,
-    SessionStatus.RateLimited,
-  ]
+  const runningStatuses = ['Initial', 'AwaitingUntilRecur', 'Running', 'RateLimited']
   return runningStatuses.includes(status)
 }
 
@@ -187,11 +171,7 @@ export function isRewindableSession({ status, request }: SessionInfo): boolean {
   if (request.purpose.type === 'export') {
     return false
   }
-  const rewindableStatus: SessionStatus[] = [
-    SessionStatus.AwaitingUntilRecur,
-    SessionStatus.Completed,
-    SessionStatus.Stopped,
-  ]
+  const rewindableStatus: SessionStatus[] = ['AwaitingUntilRecur', 'Completed', 'Stopped']
   return rewindableStatus.includes(status)
 }
 

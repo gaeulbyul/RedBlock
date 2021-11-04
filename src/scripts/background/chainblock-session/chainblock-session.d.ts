@@ -3,6 +3,15 @@ type TwClient = import('../twitter-api').TwClient
 type Limit = import('../twitter-api').Limit
 type ReactionV2Kind = import('../twitter-api').ReactionV2Kind
 
+type SessionStatus =
+  | 'Initial'
+  | 'AwaitingUntilRecur'
+  | 'Running'
+  | 'RateLimited'
+  | 'Completed'
+  | 'Stopped'
+  | 'Error'
+
 type Purpose =
   | ChainBlockPurpose
   | UnChainBlockPurpose
@@ -141,7 +150,7 @@ interface SessionInfo {
     scraped: number
     total: number | null
   }
-  status: import('../../common/utilities').SessionStatus
+  status: SessionStatus
   limit: import('../twitter-api').Limit | null
   exported?: boolean
 }

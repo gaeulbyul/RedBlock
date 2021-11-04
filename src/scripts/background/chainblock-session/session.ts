@@ -8,7 +8,6 @@ import { examineRetrieverByTargetUser, examineRetrieverByTweetId } from '../bloc
 import { TargetCheckResult, validateRequest, checkResultToString } from '../target-checker'
 import { EventEmitter } from '../../common'
 import {
-  SessionStatus,
   copyFrozenObject,
   sleep,
   getCountOfUsersToBlock,
@@ -172,23 +171,23 @@ export default class ChainBlockSession {
           }
         }
         if (this.stopReason) {
-          this.sessionInfo.status = SessionStatus.Stopped
+          this.sessionInfo.status = 'Stopped'
           this.eventEmitter.emit('stopped', {
             sessionInfo: this.getSessionInfo(),
             reason: this.stopReason,
           })
         } else if (this.request.extraSessionOptions.recurring) {
-          this.sessionInfo.status = SessionStatus.AwaitingUntilRecur
+          this.sessionInfo.status = 'AwaitingUntilRecur'
           this.eventEmitter.emit('recurring-waiting', {
             sessionInfo: this.getSessionInfo(),
             delayInMinutes: this.request.options.recurringSessionInterval,
           })
         } else {
-          this.sessionInfo.status = SessionStatus.Completed
+          this.sessionInfo.status = 'Completed'
           this.eventEmitter.emit('complete', this.getSessionInfo())
         }
       } catch (error) {
-        this.sessionInfo.status = SessionStatus.Error
+        this.sessionInfo.status = 'Error'
         this.eventEmitter.emit('error', {
           sessionInfo: this.getSessionInfo(),
           message: TwitterAPI.errorToString(error),
@@ -206,17 +205,17 @@ export default class ChainBlockSession {
       const newRequest = maybeNewRequest.value
       const checkResult = validateRequest(newRequest)
       if (checkResult === TargetCheckResult.Ok) {
-        this.sessionInfo.status = SessionStatus.Initial
+        this.sessionInfo.status = 'Initial'
         this.request = newRequest
       } else {
-        this.sessionInfo.status = SessionStatus.Error
+        this.sessionInfo.status = 'Error'
         this.eventEmitter.emit('error', {
           sessionInfo: this.getSessionInfo(),
           message: TwitterAPI.errorToString(checkResultToString(checkResult)),
         })
       }
     } else {
-      this.sessionInfo.status = SessionStatus.Error
+      this.sessionInfo.status = 'Error'
       this.eventEmitter.emit('error', {
         sessionInfo: this.getSessionInfo(),
         message: TwitterAPI.errorToString(maybeNewRequest.error),
@@ -230,21 +229,21 @@ export default class ChainBlockSession {
     switch (this.sessionInfo.status) {
       // Running인 상태에선 루프 돌다가 알아서 멈추고
       // 멈추면서 Status도 바뀐다.
-      case SessionStatus.Running:
-      case SessionStatus.Completed:
-      case SessionStatus.Error:
-      case SessionStatus.Stopped:
+      case 'Running':
+      case 'Completed':
+      case 'Error':
+      case 'Stopped':
         return
-      case SessionStatus.Initial:
-      case SessionStatus.AwaitingUntilRecur:
-      case SessionStatus.RateLimited:
+      case 'Initial':
+      case 'AwaitingUntilRecur':
+      case 'RateLimited':
         shouldStop = true
         break
       default:
         assertNever(this.sessionInfo.status)
     }
     if (shouldStop) {
-      this.sessionInfo.status = SessionStatus.Stopped
+      this.sessionInfo.status = 'Stopped'
     }
   }
 
@@ -268,7 +267,7 @@ export default class ChainBlockSession {
       sessionId: this.generateSessionId(),
       request: this.request,
       progress: this.initProgress(),
-      status: SessionStatus.Initial,
+      status: 'Initial',
       limit: null,
     }
   }
@@ -318,7 +317,7 @@ export default class ChainBlockSession {
         apiKind = 'block-ids'
         break
     }
-    sessionInfo.status = SessionStatus.RateLimited
+    sessionInfo.status = 'RateLimited'
     const retrieverTwClient = new TwitterAPI.TwClient(this.request.retriever.clientOptions)
     const limitStatuses = await retrieverTwClient.getRateLimitStatus()
     const limit = extractRateLimit(limitStatuses, apiKind)
@@ -328,14 +327,14 @@ export default class ChainBlockSession {
 
   private handleRunning() {
     const { sessionInfo, eventEmitter } = this
-    if (sessionInfo.status === SessionStatus.Initial) {
+    if (sessionInfo.status === 'Initial') {
       eventEmitter.emit('started', sessionInfo)
     }
-    if (sessionInfo.status === SessionStatus.RateLimited) {
+    if (sessionInfo.status === 'RateLimited') {
       eventEmitter.emit('rate-limit-reset', null)
     }
     sessionInfo.limit = null
-    sessionInfo.status = SessionStatus.Running
+    sessionInfo.status = 'Running'
   }
 }
 

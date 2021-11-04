@@ -2,7 +2,6 @@ import * as TextGenerate from '../text-generate'
 import * as i18n from '../i18n'
 import { alertToCurrentTab, notify, updateExtensionBadge } from './background'
 import {
-  SessionStatus,
   isRunningSession,
   isRewindableSession,
   isExportableTarget,
@@ -39,7 +38,7 @@ export default class SessionManager {
         return
       }
       const sessionInfo = sessionToWakeup.getSessionInfo()
-      if (sessionInfo.status !== SessionStatus.AwaitingUntilRecur) {
+      if (sessionInfo.status !== 'AwaitingUntilRecur') {
         return
       }
       this.rewind(params.sessionId)
@@ -128,7 +127,7 @@ export default class SessionManager {
         break
       }
       const sessionInfo = session.getSessionInfo()
-      if (sessionInfo.status === SessionStatus.Initial) {
+      if (sessionInfo.status === 'Initial') {
         await session.start()
       }
     }
@@ -200,7 +199,7 @@ export default class SessionManager {
     const sessions = this.sessions.values()
     for (const session of sessions) {
       const sessionInfo = session.getSessionInfo()
-      if (sessionInfo.status === SessionStatus.Stopped) {
+      if (sessionInfo.status === 'Stopped') {
         continue
       }
       session.stop(reason)
@@ -227,7 +226,7 @@ export default class SessionManager {
         break
       }
       const sessionInfo = session.getSessionInfo()
-      if (sessionInfo.status === SessionStatus.Initial) {
+      if (sessionInfo.status === 'Initial') {
         sessionPromises.push(session.start().catch(() => {}))
       }
     }

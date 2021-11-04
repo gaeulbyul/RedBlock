@@ -4,7 +4,6 @@ import * as MaterialUI from '@material-ui/core'
 
 import {
   isRunningSession,
-  SessionStatus,
   getLimitResetTime,
   getCountOfUsersToBlock,
   getTargetUser,
@@ -35,10 +34,10 @@ const newSessionPagesToShow: (keyof AvailablePages)[] = [
 function calculatePercentage(session: SessionInfo): number | null {
   const { status } = session
   const { scraped } = session.progress
-  if (status === SessionStatus.AwaitingUntilRecur) {
+  if (status === 'AwaitingUntilRecur') {
     return 100
   }
-  if (status === SessionStatus.Completed) {
+  if (status === 'Completed') {
     return 100
   }
   const max = session.progress.total ?? getCountOfUsersToBlock(session.request)
@@ -46,7 +45,7 @@ function calculatePercentage(session: SessionInfo): number | null {
     // Math.min : bioBlock모드로 인해 total보다 더 많은 유저를 수집할 수도 있다.
     // 100%가 안 넘도록 함
     return Math.min(100, Math.round((scraped / max) * 1000) / 10)
-  } else if (status === SessionStatus.Stopped) {
+  } else if (status === 'Stopped') {
     return 0
   } else {
     return null
@@ -346,7 +345,7 @@ function ChainBlockSessionItem({
   if (purpose.type === 'export' && !downloaded) {
     miniInfo.push(`(${i18n.getMessage('not_saved_yet')})`)
   }
-  if (sessionInfo.status === SessionStatus.AwaitingUntilRecur && recurringAlarm) {
+  if (sessionInfo.status === 'AwaitingUntilRecur' && recurringAlarm) {
     const timeStr = new Date(recurringAlarm.scheduledTime)
     miniInfo.push(`(${timeStr.toLocaleTimeString()})`)
   }

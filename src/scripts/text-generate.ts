@@ -1,6 +1,5 @@
 import { TargetCheckResult } from './background/target-checker'
 import {
-  SessionStatus,
   getCountOfUsersToBlock,
   findNonLinkedMentionsFromTweet,
   getReactionsV2CountsFromTweet,
@@ -55,19 +54,19 @@ export interface DialogMessageObj {
 
 export function statusToString(status: SessionStatus): string {
   switch (status) {
-    case SessionStatus.Initial:
+    case 'Initial':
       return i18n.getMessage('session_status_initial')
-    case SessionStatus.AwaitingUntilRecur:
+    case 'AwaitingUntilRecur':
       return i18n.getMessage('session_status_awaiting')
-    case SessionStatus.Completed:
+    case 'Completed':
       return i18n.getMessage('session_status_completed')
-    case SessionStatus.Running:
+    case 'Running':
       return i18n.getMessage('session_status_running')
-    case SessionStatus.RateLimited:
+    case 'RateLimited':
       return i18n.getMessage('session_status_rate_limited')
-    case SessionStatus.Stopped:
+    case 'Stopped':
       return i18n.getMessage('session_status_stopped')
-    case SessionStatus.Error:
+    case 'Error':
       return i18n.getMessage('session_status_error')
   }
 }
