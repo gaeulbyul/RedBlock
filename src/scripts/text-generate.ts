@@ -4,7 +4,7 @@ import {
   getCountOfUsersToBlock,
   findNonLinkedMentionsFromTweet,
   getReactionsV2CountsFromTweet,
-} from './common'
+} from './common/utilities'
 import * as i18n from './i18n'
 
 const actionsThatNeedWarning: UserAction[] = ['Block', 'UnFollow', 'BlockAndUnBlock']

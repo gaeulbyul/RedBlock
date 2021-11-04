@@ -1,4 +1,4 @@
-import { getTotalCountOfReactions } from '../common'
+import { getTotalCountOfReactions } from '../common/utilities'
 export { checkResultToString } from '../text-generate'
 
 export const enum TargetCheckResult {

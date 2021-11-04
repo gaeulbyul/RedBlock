@@ -6,7 +6,7 @@ import {
   toggleOneClickBlockMode,
   getCurrentTab,
   deleteTwitterCookies,
-} from '../../scripts/background/misc'
+} from '../../scripts/common/utilities'
 import { UIContext, TabInfoContext } from './contexts'
 import { RBAccordion } from './components'
 import * as i18n from '../../scripts/i18n'

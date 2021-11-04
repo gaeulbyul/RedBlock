@@ -8,7 +8,7 @@ import {
   getLimitResetTime,
   getCountOfUsersToBlock,
   getTargetUser,
-} from '../../scripts/common'
+} from '../../scripts/common/utilities'
 import { PageId, pageIcon, newSessionsLabel, AvailablePages } from './pages'
 import {
   cleanupInactiveSessions,

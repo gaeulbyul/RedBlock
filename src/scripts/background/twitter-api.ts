@@ -3,7 +3,7 @@ import {
   getDefaultCookieStoreId,
   generateCookiesForAltAccountRequest,
 } from './cookie-handler'
-import { stripSensitiveInfo } from '../common'
+import { stripSensitiveInfo } from '../common/utilities'
 
 const BEARER_TOKEN = `AAAAAAAAAAAAAAAAAAAAANRILgAAAAAAnNwIzUejRCOuH5E6I8xnZz4puTs%3D1Zv7ttfk8LF81IUq16cHjhLTvJu4FA33AGWWjCpTnA`
 const TD_BEARER_TOKEN = `AAAAAAAAAAAAAAAAAAAAAF7aAAAAAAAASCiRjWvh7R5wxaKkFp7MM%2BhYBqM%3DbQ0JPmjU9F6ZoMhDfI4uTNAaQuTDm2uO9x3WFVr2xBZ2nhjdP0`

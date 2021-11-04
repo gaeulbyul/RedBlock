@@ -20,7 +20,10 @@ import {
 } from './components'
 import { TweetReactionChainBlockPageStatesContext, ExtraSessionOptionsContext } from './ui-states'
 import { TargetCheckResult, validateRequest } from '../../scripts/background/target-checker'
-import { findNonLinkedMentionsFromTweet, getReactionsV2CountsFromTweet } from '../../scripts/common'
+import {
+  findNonLinkedMentionsFromTweet,
+  getReactionsV2CountsFromTweet,
+} from '../../scripts/common/utilities'
 import * as i18n from '../../scripts/i18n'
 
 const M = MaterialUI

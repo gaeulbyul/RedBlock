@@ -6,7 +6,7 @@ import sortBy from 'lodash-es/sortBy'
 import * as RedBlockBookmarksStorage from '../../scripts/background/storage/bookmarks'
 import { onStorageChanged } from '../../scripts/background/storage'
 import { TwClient } from '../../scripts/background/twitter-api'
-import { TwitterUserMap } from '../../scripts/common'
+import TwitterUserMap from '../../scripts/common/twitter-user-map'
 import * as TextGenerate from '../../scripts/text-generate'
 import { startNewChainBlockSession } from '../../scripts/background/request-sender'
 import {

@@ -1,9 +1,9 @@
-import { TwitterURL } from '../scripts/common'
+import TwitterURL from '../scripts/common/twitter-url'
 import { loadOptions } from '../scripts/background/storage/options'
 import { TwClient } from '../scripts/background/twitter-api'
 import { examineRetrieverByTweetId } from '../scripts/background/blockbuster'
 import { getCookieStoreIdFromTab } from '../scripts/background/cookie-handler'
-import { getCurrentTab } from '../scripts/background/misc'
+import { getCurrentTab } from '../scripts/common/utilities'
 import type browser from 'webextension-polyfill'
 
 type Tab = browser.Tabs.Tab

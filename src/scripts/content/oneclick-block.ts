@@ -1,6 +1,6 @@
 import browser from 'webextension-polyfill'
 
-import { sendBrowserRuntimeMessage } from '../common'
+import { sendBrowserRuntimeMessage } from '../common/utilities'
 import { blockUser, toastMessage, cloneDetail } from './content-common'
 import { loadBadWords } from '../background/storage/badwords'
 import * as i18n from '../../scripts/i18n'

@@ -1,8 +1,13 @@
-import { SessionStatus, isRunningSession, isRewindableSession, isExportableTarget } from '../common'
 import * as TextGenerate from '../text-generate'
-import * as i18n from '../../scripts/i18n'
+import * as i18n from '../i18n'
 import { alertToCurrentTab, notify, updateExtensionBadge } from './background'
-import { markUser } from './misc'
+import {
+  SessionStatus,
+  isRunningSession,
+  isRewindableSession,
+  isExportableTarget,
+  markUser,
+} from '../common/utilities'
 import { TargetCheckResult, validateRequest, isSameTarget } from './target-checker'
 import { loadOptions } from './storage/options'
 import { exportBlocklist } from './blocklist-process'

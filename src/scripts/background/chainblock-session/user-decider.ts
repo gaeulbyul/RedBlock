@@ -1,5 +1,5 @@
 import * as dayjs from 'dayjs'
-import { getTargetUser } from '../../common'
+import { getTargetUser } from '../../common/utilities'
 
 export function decideWhatToDoGivenUser(
   request: SessionRequest<AnySessionTarget>,

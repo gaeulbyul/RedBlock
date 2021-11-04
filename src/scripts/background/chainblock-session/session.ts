@@ -6,15 +6,15 @@ import * as Scraper from './scraper'
 import * as TwitterAPI from '../twitter-api'
 import { examineRetrieverByTargetUser, examineRetrieverByTweetId } from '../blockbuster'
 import { TargetCheckResult, validateRequest, checkResultToString } from '../target-checker'
+import { EventEmitter } from '../../common'
 import {
-  EventEmitter,
   SessionStatus,
   copyFrozenObject,
   sleep,
   getCountOfUsersToBlock,
   assertNever,
   extractRateLimit,
-} from '../../common'
+} from '../../common/utilities'
 import BlockLimiter from '../block-limiter'
 import { decideWhatToDoGivenUser } from './user-decider'
 import { loadOptions } from '../storage/options'

@@ -1,4 +1,5 @@
-import { TwitterURL, sendBrowserTabMessage } from '../common'
+import { sendBrowserTabMessage, toggleOneClickBlockMode } from '../common/utilities'
+import TwitterURL from '../common/twitter-url'
 import {
   defaultChainBlockPurposeOptions,
   defaultExtraSessionOptions,
@@ -11,7 +12,6 @@ import { getCookieStoreIdFromTab } from './cookie-handler'
 import { loadOptions, loadUIOptions, defaultUIOptions } from './storage/options'
 
 import { examineRetrieverByTargetUser } from './blockbuster'
-import { toggleOneClickBlockMode } from './misc'
 import {
   TeamworkUserAction,
   doActionWithMultipleAccounts,

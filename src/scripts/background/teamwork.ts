@@ -1,4 +1,4 @@
-import { markUser } from './misc'
+import { markUser } from '../common/utilities'
 import * as i18n from '../../scripts/i18n'
 import { IterateCondition, iterateAvailableTwClients } from './multitude'
 

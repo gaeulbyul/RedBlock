@@ -9,7 +9,7 @@ import {
   getCurrentTab,
   deleteTwitterCookies,
   nukeRedBlockSettings,
-} from '../../scripts/background/misc'
+} from '../../scripts/common/utilities'
 import { dumpStorage } from '../../scripts/background/storage'
 import { validateStorage } from '../../scripts/background/storage/validator'
 

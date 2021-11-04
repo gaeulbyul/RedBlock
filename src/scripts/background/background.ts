@@ -1,6 +1,6 @@
 import browser from 'webextension-polyfill'
 
-import { sendBrowserTabMessage } from '../common'
+import { sendBrowserTabMessage } from '../common/utilities'
 import * as i18n from '../i18n'
 
 export function notify(message: string): void {

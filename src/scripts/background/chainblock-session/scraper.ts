@@ -5,7 +5,7 @@ import {
   getTotalCountOfReactions,
   getParticipantsInAudioSpaceCount,
   findNonLinkedMentionsFromTweet,
-} from '../../common'
+} from '../../common/utilities'
 
 export interface UserScraper {
   totalCount: number | null

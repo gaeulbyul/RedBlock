@@ -141,7 +141,7 @@ interface SessionInfo {
     scraped: number
     total: number | null
   }
-  status: import('../../common').SessionStatus
+  status: import('../../common/utilities').SessionStatus
   limit: import('../twitter-api').Limit | null
   exported?: boolean
 }

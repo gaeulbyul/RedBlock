@@ -1,5 +1,5 @@
 import * as UserScrapingAPI from '../user-scraping-api'
-import { getFollowersCount, wrapEitherRight } from '../../common'
+import { getFollowersCount, wrapEitherRight } from '../../common/utilities'
 import { UserScraper, TweetReactedUserScraper, AudioSpaceScraper } from './scraper'
 
 export interface UserIdScraper {

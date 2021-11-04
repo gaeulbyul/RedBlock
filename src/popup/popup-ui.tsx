@@ -41,7 +41,7 @@ import {
   MyTooltip,
   PleaseLoginBox,
 } from './popup-ui/components'
-import { isRunningSession } from '../scripts/common'
+import { isRunningSession } from '../scripts/common/utilities'
 import { checkMessage, getCurrentTabInfo, TabInfo as TabInfo, infoless } from './popup'
 import * as i18n from '../scripts/i18n'
 
