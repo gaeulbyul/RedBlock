@@ -6,6 +6,7 @@ import {
   toastMessage,
   markUser,
 } from './reactredux'
+import { detectEdge2EdgeLayoutSwitch, isEdge2EdgeLayout } from './edge2edge-layout'
 
 function findTweetIdFromElement(elem: HTMLElement): string | null {
   if (!elem.matches('[data-testid=tweet]')) {
@@ -96,10 +97,22 @@ function inspectTweetElement(elem: HTMLElement) {
 }
 
 function initializeTweetElementInspecter(reactRoot: Element) {
+  function getTweetElems(rootElem: Element) {
+    if (isEdge2EdgeLayout()) {
+      return Array.from(rootElem.querySelectorAll('[data-testid=tweet] [data-testid=caret]')).map(
+        elem => elem.closest('[data-testid=tweet]')
+      )
+    } else {
+      return rootElem.querySelectorAll('[data-testid=tweet]')
+    }
+  }
   new MutationObserver(mutations => {
-    for (const elem of getAddedElementsFromMutations(mutations)) {
-      const tweetElems = elem.querySelectorAll<HTMLElement>('[data-testid=tweet]')
+    for (const addedElem of getAddedElementsFromMutations(mutations)) {
+      const tweetElems = getTweetElems(addedElem)
       tweetElems.forEach(elem => {
+        if (!(elem instanceof HTMLElement)) {
+          throw new Error('unreachable')
+        }
         if (elem.querySelector('.redblock-btn')) {
           return
         }
@@ -183,6 +196,10 @@ function initialize() {
       initializeListener()
       initializeTweetElementInspecter(reactRoot)
       initializeUserCellElementInspecter(reactRoot)
+      const isEdge2EdgeLayout = detectEdge2EdgeLayoutSwitch()
+      if (isEdge2EdgeLayout) {
+        document.body.classList.add('edge2edge')
+      }
     })
   } else {
     setTimeout(initialize, 500)

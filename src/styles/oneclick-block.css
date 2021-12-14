@@ -82,3 +82,7 @@ html.dark .redblock-block-btn,
   font-weight: bold;
   background-color: crimson;
 }
+
+.redblock-btn-on-tweet {
+  margin-right: 15px;
+}
