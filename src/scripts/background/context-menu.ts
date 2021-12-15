@@ -426,6 +426,15 @@ browser.contextMenus.onClicked.addListener((clickInfo, tab) => {
   }
 })
 
+// MV3에서는 context menu 만들 때 id가 꼭 있어야 한다.
+// 그게 설령 단순 separator일지라도... (왜지...)
+const dummyIdGenerator = (function* dummyIdGeneratorFunc() {
+  let i = 1
+  while (i++) {
+    yield `separator-${i}`
+  }
+})()
+
 export async function initializeContextMenu(
   sessionManager: SessionManager,
   enabledMenus: RedBlockUIOptions['menus']
@@ -462,6 +471,7 @@ export async function initializeContextMenu(
   browser.contextMenus.create({
     contexts: ['link'],
     type: 'separator',
+    id: dummyIdGenerator.next().value!,
   })
   // 우클릭 - 트윗
   browser.contextMenus.create({
@@ -524,6 +534,7 @@ export async function initializeContextMenu(
     contexts: ['link'],
     type: 'separator',
     visible: redblockOptions.enableTeamwork,
+    id: dummyIdGenerator.next().value!,
   })
   browser.contextMenus.create({
     id: 'teamwork_block_user',
@@ -571,6 +582,7 @@ export async function initializeContextMenu(
   browser.contextMenus.create({
     contexts: ['browser_action'],
     type: 'separator',
+    id: dummyIdGenerator.next().value!,
   })
   browser.contextMenus.create({
     id: 'oneclick_block_mode--on',
