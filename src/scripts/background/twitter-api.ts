@@ -1,8 +1,4 @@
-import {
-  getAllCookies,
-  getDefaultCookieStoreId,
-  generateCookiesForAltAccountRequest,
-} from './cookie-handler'
+import { getCookie, getAllCookies, generateCookiesForAltAccountRequest } from './cookie-handler'
 import { stripSensitiveInfo } from '../common/utilities'
 
 const BEARER_TOKEN = `AAAAAAAAAAAAAAAAAAAAANRILgAAAAAAnNwIzUejRCOuH5E6I8xnZz4puTs%3D1Zv7ttfk8LF81IUq16cHjhLTvJu4FA33AGWWjCpTnA`
@@ -308,22 +304,28 @@ export class TwClient {
   }
 
   private async sendRequest(request: RequestInit, url: URL) {
-    let newCsrfToken = ''
     let maxRetryCount = 3
+    const storeId = this.options.cookieStoreId
+    const ct0BeforeRequest = await getCookie({
+      name: 'ct0',
+      storeId,
+    })
     while (maxRetryCount-- > 0) {
-      if (newCsrfToken) {
-        insertHeader(request.headers!, 'x-redblock-override-ct0', newCsrfToken)
-      }
       const response = await fetch(url.toString(), request)
       const responseJson = await response.json()
       if (response.ok) {
         return responseJson
       } else {
-        if (!newCsrfToken) {
-          newCsrfToken = response.headers.get('x-redblock-new-ct0') || ''
-          if (newCsrfToken) {
-            continue
-          }
+        const ct0AfterRequest = await getCookie({
+          name: 'ct0',
+          storeId,
+        })
+        // Fetch API 제한으로 Set-Cookie의 직접적인 접근은 제한된다.
+        // 그래서 Request 직전과 직후에 ct0 쿠키를 각각 얻어온 후
+        // 새 값으로 바뀌었다면 Request를 재시도한다.
+        if (ct0BeforeRequest.value !== ct0AfterRequest.value) {
+          insertHeader(request.headers!, 'x-csrf-token', ct0AfterRequest.value)
+          continue
         }
         return Promise.reject(responseJson as Promise<ErrorResponse>)
       }
@@ -341,12 +343,6 @@ export class TwClient {
       fetchOptions.body = params
     }
     prepareParams(params, paramsObj)
-    const cookieStoreId = this.options.cookieStoreId || (await getDefaultCookieStoreId())
-    // 파이어폭스 외의 다른 브라우저에선 webRequest의 request details에서 cookieStoreId 속성이 없다.
-    // 따라서 헤더를 통해 알아낼 수 있도록 여기서 헤더를 추가한다.
-    if (path === '/blocks/create.json') {
-      insertHeader(fetchOptions.headers!, 'x-redblock-cookie-store-id', cookieStoreId)
-    }
     return this.sendRequest(fetchOptions, url)
   }
 
@@ -404,7 +400,11 @@ async function prepareTwitterRequest(
   clientOptions: TwClientOptions
 ): Promise<RequestInit> {
   const headers = new Headers()
-  // x-csrf-token 헤더는 webrequest.ts 에서 채워줌
+  const ct0 = await getCookie({
+    name: 'ct0',
+    storeId: clientOptions.cookieStoreId,
+  })
+  headers.set('x-csrf-token', ct0.value)
   if (clientOptions.asTweetDeck) {
     headers.set('authorization', `Bearer ${TD_BEARER_TOKEN}`)
     headers.set(

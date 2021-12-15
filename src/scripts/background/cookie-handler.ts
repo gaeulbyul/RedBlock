@@ -5,7 +5,7 @@ import { loadOptions } from './storage/options'
 const url = 'https://twitter.com'
 const firstPartyDomain = 'twitter.com'
 
-async function getCookie({ name, storeId }: { name: string; storeId?: string }) {
+export async function getCookie({ name, storeId }: { name: string; storeId?: string }) {
   const options = await loadOptions()
   const cookieGetDetails: Parameters<typeof browser.cookies.get>[0] = {
     url,

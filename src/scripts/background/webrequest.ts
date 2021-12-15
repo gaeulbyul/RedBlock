@@ -87,17 +87,6 @@ function overrideActorCookies(
   headers.set('cookie', newCookie)
 }
 
-function handleCsrfHeader(headers: Headers) {
-  const cookie = headers.get('cookie')!
-  const overrideCookie = headers.get('x-redblock-override-ct0')
-  const ct0 = overrideCookie || /\bct0=([0-9a-f]+)\b/.exec(cookie)?.[1]
-  if (!ct0) {
-    return
-  }
-  headers.set('cookie', cookie.replace(/\bct0=[0-9a-f]+\b/g, `ct0=${ct0}`))
-  headers.set('x-csrf-token', ct0)
-}
-
 function extractActAsCookies(headers: Headers): ActAsExtraCookies | null {
   const actAsCookies = headers.get('x-redblock-act-as-cookies')
   if (!actAsCookies) {
@@ -108,8 +97,6 @@ function extractActAsCookies(headers: Headers): ActAsExtraCookies | null {
   return decoded as unknown as ActAsExtraCookies
 }
 
-const redblockRequestIds = new Set<string>()
-
 function initializeTwitterAPIRequestHeaderModifier() {
   const reqFilters = {
     urls: generateApiUrls('*'),
@@ -117,14 +104,11 @@ function initializeTwitterAPIRequestHeaderModifier() {
   browser.webRequest.onBeforeSendHeaders.addListener(
     details => {
       const isRedblockRequest = details.requestHeaders!.find(({ name }) => /redblock/i.test(name))
-      if (isRedblockRequest) {
-        redblockRequestIds.add(details.requestId)
-      } else {
+      if (!isRedblockRequest) {
         return {}
       }
       const headers = fromWebRequestHeaders(details.requestHeaders!)
       overrideWholeCookiesWithCookieStore(headers)
-      handleCsrfHeader(headers)
       const actAsCookies = extractActAsCookies(headers)
       if (actAsCookies) {
         overrideActorCookies(headers, actAsCookies)
@@ -136,44 +120,6 @@ function initializeTwitterAPIRequestHeaderModifier() {
     },
     reqFilters,
     extraInfoSpec
-  )
-}
-
-function initializeTwitterAPISetCookieHeaderHandler() {
-  const reqFilters = {
-    urls: generateApiUrls('*'),
-  }
-  browser.webRequest.onHeadersReceived.addListener(
-    details => {
-      const isRedblockRequest = redblockRequestIds.has(details.requestId)
-      if (isRedblockRequest) {
-        redblockRequestIds.delete(details.requestId)
-      } else {
-        return
-      }
-      if (details.statusCode !== 403) {
-        return
-      }
-      const headers = details.responseHeaders!
-      const setCookieHeader = headers.find(({ name }) => name === 'set-cookie')
-      if (!(setCookieHeader && setCookieHeader.value)) {
-        return
-      }
-      const actualCt0Value = /ct0=([0-9a-f]+)/.exec(setCookieHeader.value)![1]!
-      if (actualCt0Value) {
-        headers.push({
-          name: 'x-redblock-new-ct0',
-          value: actualCt0Value,
-        })
-      } else {
-        console.warn('ct0 cookie is missing?')
-      }
-      return {
-        responseHeaders: headers,
-      }
-    },
-    reqFilters,
-    extraInfoSpecResponse
   )
 }
 
@@ -237,6 +183,5 @@ function initializeBlockAPILimiter() {
 
 export function initializeWebRequest() {
   initializeTwitterAPIRequestHeaderModifier()
-  initializeTwitterAPISetCookieHeaderHandler()
   initializeBlockAPILimiter()
 }
