@@ -42,7 +42,7 @@ export function validateUserName(userName: string): boolean {
 }
 
 export function sleep(time: number): Promise<void> {
-  return new Promise(resolve => window.setTimeout(resolve, time))
+  return new Promise(resolve => setTimeout(resolve, time))
 }
 
 export function copyFrozenObject<T extends object>(obj: T): Readonly<T> {
