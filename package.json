@@ -7,14 +7,15 @@
   "author": "Gaeulbyul <aeiou256@gmail.com>",
   "license": "MIT",
   "scripts": {
-    "build": "just default",
-    "just": "just"
+    "build": "just-scripts default",
+    "just": "just-scripts"
   },
   "husky": {
     "hooks": {
       "pre-commit": "tsc --noEmit && pretty-quick --staged"
     }
   },
+  "packageManager": "yarn@3.1.1",
   "resolutions": {
     "@types/react": "^16.14.12",
     "@types/react-dom": "^16.9.14"
