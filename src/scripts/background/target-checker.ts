@@ -92,12 +92,12 @@ function checkTweetReactionBlockRequest({
   const atLeastOneReaction = Object.values(includedReactionsV2).some(val => val)
   if (
     !(
-      includeRetweeters ||
-      includeLikers ||
-      atLeastOneReaction ||
-      includeMentionedUsers ||
-      includeQuotedUsers ||
-      includeNonLinkedMentions
+      includeRetweeters
+      || includeLikers
+      || atLeastOneReaction
+      || includeMentionedUsers
+      || includeQuotedUsers
+      || includeNonLinkedMentions
     )
   ) {
     return TargetCheckResult.ChooseAtLeastOneOfReaction
@@ -128,8 +128,8 @@ function checkLockPickerRequest({
   if (target.user.followers_count <= 0) {
     return TargetCheckResult.NoFollowers
   }
-  const idCheck =
-    target.user.id_str === retriever.user.id_str && retriever.user.id_str === executor.user.id_str
+  const idCheck = target.user.id_str === retriever.user.id_str
+    && retriever.user.id_str === executor.user.id_str
   if (!idCheck) {
     return TargetCheckResult.CantLockPickerToOther
   }
@@ -194,8 +194,8 @@ export function isSameTarget(target1: AnySessionTarget, target2: AnySessionTarge
     }
     case 'audio_space':
       return (
-        target1.audioSpace.metadata.rest_id ===
-        (target2 as AudioSpaceSessionTarget).audioSpace.metadata.rest_id
+        target1.audioSpace.metadata.rest_id
+          === (target2 as AudioSpaceSessionTarget).audioSpace.metadata.rest_id
       )
     case 'export_my_blocklist':
       return true

@@ -146,8 +146,8 @@ export function concatBlockList(list1: Blocklist, list2: Blocklist): Blocklist {
   // 두 목록에 중복이 없다면 총 갯수가 totalIfNoDuplicate 만큼 나와야하지만
   // 실제 갯수는 totalActually 만큼 있다.
   // Set에는 중복값이 안 들어가니 이 크기차이인 duplicatedBetweenTwoList 를 중복 갯수로 볼 수 있다.
-  const totalIfNoDuplicate =
-    list1.userIds.size + list2.userIds.size + list1.userNames.size + list2.userNames.size
+  const totalIfNoDuplicate = list1.userIds.size + list2.userIds.size + list1.userNames.size
+    + list2.userNames.size
   const totalActually = userIds.size + userNames.size
   const duplicatedBetweenTwoList = totalIfNoDuplicate - totalActually
   const duplicated = list1.duplicated + list2.duplicated + duplicatedBetweenTwoList

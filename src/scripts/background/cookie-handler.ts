@@ -5,7 +5,7 @@ import { loadOptions } from './storage/options'
 const url = 'https://twitter.com'
 const firstPartyDomain = 'twitter.com'
 
-export async function getCookie({ name, storeId }: { name: string; storeId?: string }) {
+export async function getCookie({ name, storeId }: { name: string, storeId?: string }) {
   const options = await loadOptions()
   const cookieGetDetails: Parameters<typeof browser.cookies.get>[0] = {
     url,
@@ -30,7 +30,7 @@ export async function getAllCookies({ storeId }: { storeId?: string }) {
   return browser.cookies.getAll(cookieGetAllDetails)
 }
 
-export async function removeCookie({ name, storeId }: { name: string; storeId?: string }) {
+export async function removeCookie({ name, storeId }: { name: string, storeId?: string }) {
   const options = await loadOptions()
   const cookieRemoveDetails: Parameters<typeof browser.cookies.remove>[0] = {
     url,
@@ -63,7 +63,7 @@ export async function getMultiAccountCookies({
 }
 
 export async function generateCookiesForAltAccountRequest(
-  clientOptions: TwClientOptions
+  clientOptions: TwClientOptions,
 ): Promise<ActAsExtraCookies> {
   const { actAsUserId } = clientOptions
   if (!actAsUserId) {
@@ -72,7 +72,7 @@ export async function generateCookiesForAltAccountRequest(
   const authMultiCookie = await getMultiAccountCookies(clientOptions)
   if (!authMultiCookie) {
     throw new Error(
-      'auth_multi cookie unavailable. this feature requires logged in with two or more account.'
+      'auth_multi cookie unavailable. this feature requires logged in with two or more account.',
     )
   }
   const authTokenCookie = await getCookie({

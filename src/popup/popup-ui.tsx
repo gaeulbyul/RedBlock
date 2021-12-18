@@ -1,49 +1,49 @@
-import browser from 'webextension-polyfill'
+import * as MaterialUI from '@material-ui/core'
 import React from 'react'
 import ReactDOM from 'react-dom'
-import * as MaterialUI from '@material-ui/core'
+import browser from 'webextension-polyfill'
 
-import { requestProgress, requestBlockLimiterStatus } from '../scripts/background/request-sender'
+import { requestBlockLimiterStatus, requestProgress } from '../scripts/background/request-sender'
 import { onStorageChanged } from '../scripts/background/storage'
 import {
-  loadOptions as loadRedBlockOptions,
   defaultOptions as defaultRedBlockOptions,
+  loadOptions as loadRedBlockOptions,
 } from '../scripts/background/storage/options'
 
-import BlocklistPage from './popup-ui/new-session-blocklist-page'
+import { isRunningSession } from '../scripts/common/utilities'
+import * as i18n from '../scripts/i18n'
+import { checkMessage, getCurrentTabInfo, infoless, TabInfo as TabInfo } from './popup'
 import ChainBlockSessionsPage from './popup-ui/chainblock-sessions-page'
-import { isValidPageId, PageId, AvailablePages, pageIcon, pageLabel } from './popup-ui/pages'
-import {
-  UIContext,
-  RedBlockOptionsContext,
-  BlockLimiterContext,
-  TabInfoContext,
-} from './popup-ui/contexts'
-import {
-  FollowerChainBlockPageStatesProvider,
-  TweetReactionChainBlockPageStatesProvider,
-  ImportChainBlockPageStatesProvider,
-  UserSearchChainBlockPageStatesProvider,
-  AudioSpaceChainBlockPageStatesProvider,
-  LockPickerPageStatesProvider,
-} from './popup-ui/ui-states'
-import MiscPage from './popup-ui/misc-page'
-import NewSessionFollowersPage from './popup-ui/new-session-followers-page'
-import NewSessionTweetPage from './popup-ui/new-session-tweet-page'
-import NewSessionSearchresultPage from './popup-ui/new-session-searchresult-page'
-import NewSessionAudioSpacePage from './popup-ui/new-session-audiospace-page'
-import NewSessionLockPickerPage from './popup-ui/new-session-lockpicker-page'
 import {
   DialogContent,
+  MyTooltip,
+  PleaseLoginBox,
   RBDialog,
   RedBlockPopupUITheme,
   TabPanel,
-  MyTooltip,
-  PleaseLoginBox,
 } from './popup-ui/components'
-import { isRunningSession } from '../scripts/common/utilities'
-import { checkMessage, getCurrentTabInfo, TabInfo as TabInfo, infoless } from './popup'
-import * as i18n from '../scripts/i18n'
+import {
+  BlockLimiterContext,
+  RedBlockOptionsContext,
+  TabInfoContext,
+  UIContext,
+} from './popup-ui/contexts'
+import MiscPage from './popup-ui/misc-page'
+import NewSessionAudioSpacePage from './popup-ui/new-session-audiospace-page'
+import BlocklistPage from './popup-ui/new-session-blocklist-page'
+import NewSessionFollowersPage from './popup-ui/new-session-followers-page'
+import NewSessionLockPickerPage from './popup-ui/new-session-lockpicker-page'
+import NewSessionSearchresultPage from './popup-ui/new-session-searchresult-page'
+import NewSessionTweetPage from './popup-ui/new-session-tweet-page'
+import { AvailablePages, isValidPageId, pageIcon, PageId, pageLabel } from './popup-ui/pages'
+import {
+  AudioSpaceChainBlockPageStatesProvider,
+  FollowerChainBlockPageStatesProvider,
+  ImportChainBlockPageStatesProvider,
+  LockPickerPageStatesProvider,
+  TweetReactionChainBlockPageStatesProvider,
+  UserSearchChainBlockPageStatesProvider,
+} from './popup-ui/ui-states'
 
 const UI_UPDATE_DELAY_ON_BUSY = 500
 const UI_UPDATE_DELAY_ON_IDLE = 1500
@@ -115,8 +115,8 @@ function PopupTopTab({
 }
 
 function PopupUITopMenu({ countOfRunningSessions }: { countOfRunningSessions: number }) {
-  const { menuAnchorElem, setMenuAnchorElem, switchPage, popupOpenedInTab, availablePages } =
-    React.useContext(UIContext)
+  const { menuAnchorElem, setMenuAnchorElem, switchPage, popupOpenedInTab, availablePages } = React
+    .useContext(UIContext)
   function handleOpenInTabClick() {
     browser.tabs.create({
       active: true,
@@ -146,13 +146,13 @@ function PopupUITopMenu({ countOfRunningSessions }: { countOfRunningSessions: nu
         count?: number
         disabled?: boolean
       },
-      ref: React.Ref<any>
+      ref: React.Ref<any>,
     ) => (
       <M.MenuItem ref={ref} dense disabled={disabled} onClick={() => switchPageFromMenu(pageId)}>
         <M.ListItemIcon>{pageIcon(pageId)}</M.ListItemIcon>
         {pageLabel(pageId, count)}
       </M.MenuItem>
-    )
+    ),
   )
   return (
     <M.Menu
@@ -226,13 +226,13 @@ function PopupMyselfIcon({ myself }: { myself: TwitterUser }) {
   )
 }
 function PopupApp({
-  //myself,
-  //tabContext: { currentUser, currentTweet, currentSearchQuery, currentAudioSpace },
+  // myself,
+  // tabContext: { currentUser, currentTweet, currentSearchQuery, currentAudioSpace },
   popupOpenedInTab,
   initialPage,
 }: {
-  //myself: Actor | null
-  //tabContext: TabContext
+  // myself: Actor | null
+  // tabContext: TabContext
   popupOpenedInTab: boolean
   initialPage: PageId
 }) {
@@ -483,7 +483,7 @@ function PopupApp({
                     <TabPanel value={tabPage} index="misc-page">
                       <MiscPage />
                     </TabPanel>
-                  </M.Container>
+                  </M.Container>,
                 )}
               </main>
             </BlockLimiterContext.Provider>

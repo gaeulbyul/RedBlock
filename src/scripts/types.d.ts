@@ -365,7 +365,7 @@ type RequestIdleCallbackDeadline = {
 
 declare function requestIdleCallback(
   callback: (deadline: RequestIdleCallbackDeadline) => void,
-  opts?: RequestIdleCallbackOptions
+  opts?: RequestIdleCallbackOptions,
 ): RequestIdleCallbackHandle
 declare function cancelIdleCallback(handle: RequestIdleCallbackHandle): void
 // .end

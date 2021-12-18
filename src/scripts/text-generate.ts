@@ -1,7 +1,7 @@
 import { TargetCheckResult } from './background/target-checker'
 import {
-  getCountOfUsersToBlock,
   findNonLinkedMentionsFromTweet,
+  getCountOfUsersToBlock,
   getReactionsV2CountsFromTweet,
 } from './common/utilities'
 import * as i18n from './i18n'
@@ -167,7 +167,7 @@ function describeReactionTargets(target: TweetReactionSessionTarget): string {
   }
   if (target.includeNonLinkedMentions) {
     reactionsToBlock.push(
-      `${i18n.getMessage('non_linked_mentions')} (${nonLinkedMentions.length.toLocaleString()})`
+      `${i18n.getMessage('non_linked_mentions')} (${nonLinkedMentions.length.toLocaleString()})`,
     )
   }
   return reactionsToBlock.join(', ')
@@ -213,9 +213,9 @@ function describeTarget({ target }: SessionRequest<AnySessionTarget>): string {
     case 'lockpicker':
       return `${i18n.getMessage('lockpicker')} (@${target.user.screen_name})`
     case 'user_search':
-      return `${i18n.getMessage('from_user_search_result')} (${i18n.getMessage('query')}: ${
-        target.query
-      })`
+      return `${i18n.getMessage('from_user_search_result')} (${
+        i18n.getMessage('query')
+      }: ${target.query})`
     case 'audio_space':
       return describeAudioSpaceTarget(target)
     case 'export_my_blocklist':
@@ -224,7 +224,7 @@ function describeTarget({ target }: SessionRequest<AnySessionTarget>): string {
 }
 
 export function generateConfirmMessage(
-  request: SessionRequest<AnySessionTarget>
+  request: SessionRequest<AnySessionTarget>,
 ): DialogMessageObj {
   const target = `${i18n.getMessage('target')}: ${describeTarget(request)}`
   const contents = [target]

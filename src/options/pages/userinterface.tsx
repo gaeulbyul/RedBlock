@@ -1,9 +1,9 @@
-import React from 'react'
 import * as MaterialUI from '@material-ui/core'
+import React from 'react'
 
-import { RedBlockOptionsContext } from './contexts'
-import { CheckboxItem } from '../../ui/components'
 import * as i18n from '../../scripts/i18n'
+import { CheckboxItem } from '../../ui/components'
+import { RedBlockOptionsContext } from './contexts'
 
 const M = MaterialUI
 
@@ -35,8 +35,7 @@ function RightClickMenusPaper() {
               onChange={checked =>
                 updateMenusOption({
                   chainBlockFollowers: checked,
-                })
-              }
+                })}
             />
           </M.FormGroup>
           <M.FormGroup>
@@ -46,8 +45,7 @@ function RightClickMenusPaper() {
               onChange={checked =>
                 updateMenusOption({
                   chainBlockFollowings: checked,
-                })
-              }
+                })}
             />
           </M.FormGroup>
           <M.FormGroup>
@@ -57,8 +55,7 @@ function RightClickMenusPaper() {
               onChange={checked =>
                 updateMenusOption({
                   chainBlockMutualFollowers: checked,
-                })
-              }
+                })}
             />
           </M.FormGroup>
           <M.Divider variant="middle" />
@@ -69,8 +66,7 @@ function RightClickMenusPaper() {
               onChange={checked =>
                 updateMenusOption({
                   chainBlockRetweeters: checked,
-                })
-              }
+                })}
             />
           </M.FormGroup>
           <M.FormGroup>
@@ -80,8 +76,7 @@ function RightClickMenusPaper() {
               onChange={checked =>
                 updateMenusOption({
                   chainBlockLikers: checked,
-                })
-              }
+                })}
             />
           </M.FormGroup>
           <M.FormGroup>
@@ -91,8 +86,7 @@ function RightClickMenusPaper() {
               onChange={checked =>
                 updateMenusOption({
                   chainBlockRetweetersAndLikers: checked,
-                })
-              }
+                })}
             />
           </M.FormGroup>
           <M.FormGroup>
@@ -102,8 +96,7 @@ function RightClickMenusPaper() {
               onChange={checked =>
                 updateMenusOption({
                   chainBlockMentioned: checked,
-                })
-              }
+                })}
             />
           </M.FormGroup>
           <M.FormGroup>
@@ -113,8 +106,7 @@ function RightClickMenusPaper() {
               onChange={checked =>
                 updateMenusOption({
                   chainBlockAudioSpaceSpeakers: checked,
-                })
-              }
+                })}
             />
           </M.FormGroup>
           <M.FormGroup>
@@ -124,8 +116,7 @@ function RightClickMenusPaper() {
               onChange={checked =>
                 updateMenusOption({
                   chainBlockAudioSpaceSpeakersAndListeners: checked,
-                })
-              }
+                })}
             />
           </M.FormGroup>
           <M.FormGroup>
@@ -135,8 +126,7 @@ function RightClickMenusPaper() {
               onChange={checked =>
                 updateMenusOption({
                   chainBlockHashTagInUsersProfile: checked,
-                })
-              }
+                })}
             />
           </M.FormGroup>
           {enableTeamwork && (
@@ -149,8 +139,7 @@ function RightClickMenusPaper() {
                   onChange={checked =>
                     updateMenusOption({
                       teamworkBlock: checked,
-                    })
-                  }
+                    })}
                 />
               </M.FormGroup>
               <M.FormGroup>
@@ -160,8 +149,7 @@ function RightClickMenusPaper() {
                   onChange={checked =>
                     updateMenusOption({
                       teamworkUnblock: checked,
-                    })
-                  }
+                    })}
                 />
               </M.FormGroup>
               <M.FormGroup>
@@ -171,8 +159,7 @@ function RightClickMenusPaper() {
                   onChange={checked =>
                     updateMenusOption({
                       teamworkMute: checked,
-                    })
-                  }
+                    })}
                 />
               </M.FormGroup>
               <M.FormGroup>
@@ -182,8 +169,7 @@ function RightClickMenusPaper() {
                   onChange={checked =>
                     updateMenusOption({
                       teamworkUnmute: checked,
-                    })
-                  }
+                    })}
                 />
               </M.FormGroup>
             </React.Fragment>

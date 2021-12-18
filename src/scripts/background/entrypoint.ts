@@ -1,17 +1,17 @@
 import browser from 'webextension-polyfill'
 
-import { alertToCurrentTab } from './background'
-import SessionManager from './session-manager'
-import * as TwitterAPI from './twitter-api'
-import { checkResultToString } from '../text-generate'
-import { initializeContextMenu } from './context-menu'
-import { initializeWebRequest } from './webrequest'
-import BlockLimiter from './block-limiter'
+import * as i18n from '../../scripts/i18n'
 import { assertNever, sendBrowserRuntimeMessage } from '../common/utilities'
+import { checkResultToString } from '../text-generate'
+import { alertToCurrentTab } from './background'
+import BlockLimiter from './block-limiter'
+import { initializeContextMenu } from './context-menu'
 import { getCookieStoreIdFromTab } from './cookie-handler'
+import SessionManager from './session-manager'
 import { migrateStorage } from './storage'
 import { loadUIOptions } from './storage/options'
-import * as i18n from '../../scripts/i18n'
+import * as TwitterAPI from './twitter-api'
+import { initializeWebRequest } from './webrequest'
 
 const sessionManager = new SessionManager()
 
@@ -71,7 +71,7 @@ async function twClientFromTab(tab: browser.Tabs.Tab): Promise<TwitterAPI.TwClie
 
 function handleExtensionMessage(
   message: RBMessageToBackgroundType,
-  sender: browser.Runtime.MessageSender
+  sender: browser.Runtime.MessageSender,
 ) {
   switch (message.messageType) {
     case 'CreateChainBlockSession':

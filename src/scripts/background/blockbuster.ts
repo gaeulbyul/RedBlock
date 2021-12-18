@@ -1,10 +1,10 @@
+import { iterateAvailableTwClients, IterateCondition } from './multitude'
 import { TwClient } from './twitter-api'
-import { IterateCondition, iterateAvailableTwClients } from './multitude'
 
 export async function examineRetrieverByTargetUser(
   primaryActor: Actor,
   targetUser: TwitterUser,
-  iterateCondition: IterateCondition
+  iterateCondition: IterateCondition,
 ): Promise<Actor> {
   if (!targetUser.blocked_by) {
     // 차단당하지 않았다면 primary 그대로 사용
@@ -28,7 +28,7 @@ export async function examineRetrieverByTargetUser(
 export async function examineRetrieverByTweetId(
   primaryActor: Actor,
   tweetId: string,
-  iterateCondition: IterateCondition
+  iterateCondition: IterateCondition,
 ): Promise<ExamineTweetResult> {
   const primaryTwClient = new TwClient(primaryActor.clientOptions)
   const tweetRetrievedFromPrimaryActor = await primaryTwClient

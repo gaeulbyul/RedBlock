@@ -1,10 +1,10 @@
-import { getAddedElementsFromMutations, checkLoggedIn } from './inject-common'
+import { checkLoggedIn, getAddedElementsFromMutations } from './inject-common'
 import {
   getMyselfUserId,
   getTweetEntityById,
   getUserEntityById,
-  toastMessage,
   markUser,
+  toastMessage,
 } from './reactredux'
 
 function findTweetIdFromElement(elem: HTMLElement): string | null {
@@ -24,7 +24,7 @@ function findTweetIdFromElement(elem: HTMLElement): string | null {
       return tweetId
     }
     const viaLabel = article.querySelector(
-      'a[href="https://help.twitter.com/using-twitter/how-to-tweet#source-labels"]'
+      'a[href="https://help.twitter.com/using-twitter/how-to-tweet#source-labels"]',
     )
     if (viaLabel?.parentElement!.contains(plink)) {
       return tweetId
@@ -113,7 +113,7 @@ function initializeTweetElementInspecter(reactRoot: Element) {
             detail: {
               tweet,
             },
-          })
+          }),
         )
         if (tweet.is_quote_status && tweet.quoted_status) {
           elem.dispatchEvent(
@@ -122,7 +122,7 @@ function initializeTweetElementInspecter(reactRoot: Element) {
               detail: {
                 tweet: tweet.quoted_status,
               },
-            })
+            }),
           )
         }
       })
@@ -158,7 +158,7 @@ function initializeUserCellElementInspecter(reactRoot: Element) {
         detail: {
           user,
         },
-      })
+      }),
     )
   }
   new MutationObserver(mutations => {

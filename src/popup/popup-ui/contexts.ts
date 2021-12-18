@@ -2,8 +2,8 @@ import React from 'react'
 
 import { defaultOptions } from '../../scripts/background/storage/options'
 import { infoless } from '../popup'
-import type { PageId, AvailablePages } from './pages'
 import type { DialogContent } from './components'
+import type { AvailablePages, PageId } from './pages'
 
 interface UIContextType {
   openDialog(content: DialogContent): void
@@ -29,8 +29,8 @@ export const BlockLimiterContext = React.createContext<BlockLimiterStatus>({
   remained: 500,
 })
 
-//export const TwitterAPIClientContext = React.createContext<TwClient>(null!)
-//export const TabInfoContext = React.createContext<Actor | null>(null)
+// export const TwitterAPIClientContext = React.createContext<TwClient>(null!)
+// export const TabInfoContext = React.createContext<Actor | null>(null)
 export const TabInfoContext = React.createContext(infoless)
 
 interface RetrieverContextType {

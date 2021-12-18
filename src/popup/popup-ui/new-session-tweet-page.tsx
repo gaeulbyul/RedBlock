@@ -1,30 +1,30 @@
-import React from 'react'
 import * as MaterialUI from '@material-ui/core'
+import React from 'react'
 
-import * as TextGenerate from '../../scripts/text-generate'
-import {
-  UIContext,
-  TabInfoContext,
-  RetrieverContext,
-  BlockLimiterContext,
-  RedBlockOptionsContext,
-} from './contexts'
 import { startNewChainBlockSession } from '../../scripts/background/request-sender'
-import {
-  BlockLimiterUI,
-  TwitterUserProfile,
-  RBAccordion,
-  BigExecuteButton,
-  PurposeSelectionUI,
-  RequestCheckResultUI,
-} from './components'
-import { TweetReactionChainBlockPageStatesContext, ExtraSessionOptionsContext } from './ui-states'
 import { TargetCheckResult, validateRequest } from '../../scripts/background/target-checker'
 import {
   findNonLinkedMentionsFromTweet,
   getReactionsV2CountsFromTweet,
 } from '../../scripts/common/utilities'
 import * as i18n from '../../scripts/i18n'
+import * as TextGenerate from '../../scripts/text-generate'
+import {
+  BigExecuteButton,
+  BlockLimiterUI,
+  PurposeSelectionUI,
+  RBAccordion,
+  RequestCheckResultUI,
+  TwitterUserProfile,
+} from './components'
+import {
+  BlockLimiterContext,
+  RedBlockOptionsContext,
+  RetrieverContext,
+  TabInfoContext,
+  UIContext,
+} from './contexts'
+import { ExtraSessionOptionsContext, TweetReactionChainBlockPageStatesContext } from './ui-states'
 
 const M = MaterialUI
 
@@ -100,7 +100,7 @@ function useSessionRequest(): Either<
 
 function TargetReactionsV2UI({ tweet }: { tweet: Tweet }) {
   const { includedReactionsV2, setIncludedReactionsV2 } = React.useContext(
-    TweetReactionChainBlockPageStatesContext
+    TweetReactionChainBlockPageStatesContext,
   )
   const reactionCounts = getReactionsV2CountsFromTweet(tweet)
   const availableReactions: ReactionV2Kind[] = ['Like', 'Cheer', 'Hmm', 'Sad', 'Haha']
@@ -127,9 +127,11 @@ function TargetReactionsV2UI({ tweet }: { tweet: Tweet }) {
           onChange={(_event, checked) => onChange(reaction, checked)}
           checked={includedReactionsV2.includes(reaction)}
           disabled={reactionCounts[reaction] <= 0}
-          label={`${i18n.getMessage('reaction')}: ${emojis[reaction]} (${reactionCounts[
-            reaction
-          ].toLocaleString()})`}
+          label={`${i18n.getMessage('reaction')}: ${emojis[reaction]} (${
+            reactionCounts[
+              reaction
+            ].toLocaleString()
+          })`}
           title={i18n.reaction(reaction)}
         />
       ))}
@@ -172,9 +174,7 @@ function TargetTweetUI({ tweet }: { tweet: Tweet }) {
             disabled={nobodyRetweeted}
             label={`${i18n.getMessage('retweet')} (${tweet.retweet_count.toLocaleString()})`}
           />
-          {enableReactionsV2Support ? (
-            <TargetReactionsV2UI {...{ tweet }} />
-          ) : (
+          {enableReactionsV2Support ? <TargetReactionsV2UI {...{ tweet }} /> : (
             <M.FormControlLabel
               control={<M.Checkbox size="small" />}
               onChange={() => setIncludeLikers(!includeLikers)}
@@ -202,9 +202,11 @@ function TargetTweetUI({ tweet }: { tweet: Tweet }) {
             onChange={() => setIncludeNonLinkedMentions(!includeNonLinkedMentions)}
             checked={includeNonLinkedMentions}
             disabled={nonLinkedMentions.length <= 0}
-            label={`${i18n.getMessage(
-              'non_linked_mentions'
-            )} (${nonLinkedMentions.length.toLocaleString()})`}
+            label={`${
+              i18n.getMessage(
+                'non_linked_mentions',
+              )
+            } (${nonLinkedMentions.length.toLocaleString()})`}
           />
         </M.FormGroup>
       </div>
@@ -218,10 +220,12 @@ function TargetTweetOuterUI() {
     throw new Error()
   }
   const userName = currentTweet.user.screen_name
-  const targetSummary = `${i18n.getMessage('target')} (${i18n.getMessage(
-    'reacted_xxxs_tweet',
-    userName
-  )})`
+  const targetSummary = `${i18n.getMessage('target')} (${
+    i18n.getMessage(
+      'reacted_xxxs_tweet',
+      userName,
+    )
+  })`
   return (
     <RBAccordion summary={targetSummary} defaultExpanded>
       <div style={{ width: '100%' }}>
@@ -234,8 +238,8 @@ function TargetTweetOuterUI() {
 }
 
 function TargetOptionsUI() {
-  const { purpose, changePurposeType, mutatePurposeOptions, availablePurposeTypes } =
-    React.useContext(TweetReactionChainBlockPageStatesContext)
+  const { purpose, changePurposeType, mutatePurposeOptions, availablePurposeTypes } = React
+    .useContext(TweetReactionChainBlockPageStatesContext)
   const summary = `${i18n.getMessage('options')} (${i18n.getMessage(purpose.type)})`
   return (
     <RBAccordion summary={summary} defaultExpanded>

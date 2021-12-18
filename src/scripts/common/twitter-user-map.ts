@@ -30,7 +30,7 @@ export default class TwitterUserMap extends Map<string, TwitterUser> {
   }
 
   public filter(
-    fn: (user: TwitterUser, index: number, array: TwitterUser[]) => boolean
+    fn: (user: TwitterUser, index: number, array: TwitterUser[]) => boolean,
   ): TwitterUserMap {
     return TwitterUserMap.fromUsersArray(this.toUserArray().filter(fn))
   }

@@ -1,27 +1,27 @@
-import React from 'react'
 import * as MaterialUI from '@material-ui/core'
+import React from 'react'
 
-import * as TextGenerate from '../../scripts/text-generate'
 import { startNewChainBlockSession } from '../../scripts/background/request-sender'
-import { UIContext, TabInfoContext, BlockLimiterContext, RedBlockOptionsContext } from './contexts'
-import { AudioSpaceChainBlockPageStatesContext, ExtraSessionOptionsContext } from './ui-states'
+import { TargetCheckResult, validateRequest } from '../../scripts/background/target-checker'
+import * as i18n from '../../scripts/i18n'
+import * as TextGenerate from '../../scripts/text-generate'
 import {
-  TwitterUserProfile,
-  RBAccordion,
   BigExecuteButton,
   BlockLimiterUI,
   PurposeSelectionUI,
+  RBAccordion,
   RequestCheckResultUI,
+  TwitterUserProfile,
 } from './components'
-import { TargetCheckResult, validateRequest } from '../../scripts/background/target-checker'
-import * as i18n from '../../scripts/i18n'
+import { BlockLimiterContext, RedBlockOptionsContext, TabInfoContext, UIContext } from './contexts'
+import { AudioSpaceChainBlockPageStatesContext, ExtraSessionOptionsContext } from './ui-states'
 
 const M = MaterialUI
 const T = MaterialUI.Typography
 
 function useSessionRequest(): Either<TargetCheckResult, SessionRequest<AudioSpaceSessionTarget>> {
   const { purpose, audioSpace, includedParticipants } = React.useContext(
-    AudioSpaceChainBlockPageStatesContext
+    AudioSpaceChainBlockPageStatesContext,
   )
   const { extraSessionOptions } = React.useContext(ExtraSessionOptionsContext)
   const { myself } = React.useContext(TabInfoContext)
@@ -65,7 +65,7 @@ function useSessionRequest(): Either<TargetCheckResult, SessionRequest<AudioSpac
 
 function TargetAudioSpace({ audioSpace }: { audioSpace: AudioSpace }) {
   const { includedParticipants, setIncludedParticipants } = React.useContext(
-    AudioSpaceChainBlockPageStatesContext
+    AudioSpaceChainBlockPageStatesContext,
   )
   const host = audioSpace.participants.admins[0]!
   const user = {
@@ -133,8 +133,8 @@ function TargetExecutionButtonUI() {
 }
 
 function TargetOptionsUI() {
-  const { purpose, changePurposeType, mutatePurposeOptions, availablePurposeTypes } =
-    React.useContext(AudioSpaceChainBlockPageStatesContext)
+  const { purpose, changePurposeType, mutatePurposeOptions, availablePurposeTypes } = React
+    .useContext(AudioSpaceChainBlockPageStatesContext)
   const summary = `${i18n.getMessage('options')} (${i18n.getMessage(purpose.type)})`
   return (
     <RBAccordion summary={summary} defaultExpanded>
@@ -154,10 +154,12 @@ export default function NewSessionAudioSpacePage() {
   const maybeRequest = useSessionRequest()
   const { audioSpace } = React.useContext(AudioSpaceChainBlockPageStatesContext)
   const hostUserName = audioSpace.participants.admins[0]!.twitter_screen_name
-  const targetSummary = `${i18n.getMessage('target')} (${i18n.getMessage(
-    'from_audio_space_by_xxx',
-    hostUserName
-  )})`
+  const targetSummary = `${i18n.getMessage('target')} (${
+    i18n.getMessage(
+      'from_audio_space_by_xxx',
+      hostUserName,
+    )
+  })`
   return (
     <div>
       <RBAccordion summary={targetSummary} defaultExpanded>

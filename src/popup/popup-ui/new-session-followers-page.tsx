@@ -1,43 +1,43 @@
-import browser from 'webextension-polyfill'
-import React from 'react'
 import * as MaterialUI from '@material-ui/core'
 import sortBy from 'lodash-es/sortBy'
+import React from 'react'
+import browser from 'webextension-polyfill'
 
-import * as RedBlockBookmarksStorage from '../../scripts/background/storage/bookmarks'
+import { startNewChainBlockSession } from '../../scripts/background/request-sender'
 import { onStorageChanged } from '../../scripts/background/storage'
+import * as RedBlockBookmarksStorage from '../../scripts/background/storage/bookmarks'
+import { TargetCheckResult, validateRequest } from '../../scripts/background/target-checker'
 import { TwClient } from '../../scripts/background/twitter-api'
 import TwitterUserMap from '../../scripts/common/twitter-user-map'
+import * as i18n from '../../scripts/i18n'
 import * as TextGenerate from '../../scripts/text-generate'
-import { startNewChainBlockSession } from '../../scripts/background/request-sender'
+import { getUserNameFromTab } from '../popup'
 import {
-  UIContext,
-  TabInfoContext,
-  RetrieverContext,
-  BlockLimiterContext,
-  RedBlockOptionsContext,
-} from './contexts'
-import {
-  BlockLimiterUI,
-  TwitterUserProfile,
-  RBAccordion,
   BigExecuteButton,
+  BlockLimiterUI,
   PurposeSelectionUI,
+  RBAccordion,
   RequestCheckResultUI,
+  TwitterUserProfile,
 } from './components'
 import {
-  TargetSelector,
-  TargetGroup,
-  ItemsGroup,
-  UserItem,
-  Options as TargetSelectorOptions,
   Controls as TargetSelectorControls,
   identifierOfItem,
+  ItemsGroup,
+  Options as TargetSelectorOptions,
+  TargetGroup,
+  TargetSelector,
   TargetSelectorItem,
+  UserItem,
 } from './components/target-selector'
-import { FollowerChainBlockPageStatesContext, ExtraSessionOptionsContext } from './ui-states'
-import { TargetCheckResult, validateRequest } from '../../scripts/background/target-checker'
-import { getUserNameFromTab } from '../popup'
-import * as i18n from '../../scripts/i18n'
+import {
+  BlockLimiterContext,
+  RedBlockOptionsContext,
+  RetrieverContext,
+  TabInfoContext,
+  UIContext,
+} from './contexts'
+import { ExtraSessionOptionsContext, FollowerChainBlockPageStatesContext } from './ui-states'
 
 const M = MaterialUI
 
@@ -50,7 +50,7 @@ const UserSelectorContext = React.createContext<UserSelectorContextType>(null!)
 
 function useSessionRequest(): Either<TargetCheckResult, SessionRequest<FollowerSessionTarget>> {
   const { purpose, targetList, userSelection } = React.useContext(
-    FollowerChainBlockPageStatesContext
+    FollowerChainBlockPageStatesContext,
   )
   const { myself } = React.useContext(TabInfoContext)
   const { retriever } = React.useContext(RetrieverContext)
@@ -111,7 +111,7 @@ function useBookmarkModifier(bookmarkedUsers: TwitterUserMap) {
         return
       }
       await RedBlockBookmarksStorage.insertItemToBookmark(
-        RedBlockBookmarksStorage.createBookmarkUserItem(user)
+        RedBlockBookmarksStorage.createBookmarkUserItem(user),
       )
       uiContext.openSnackBar(i18n.getMessage('user_xxx_added', user.screen_name))
     },
@@ -119,7 +119,7 @@ function useBookmarkModifier(bookmarkedUsers: TwitterUserMap) {
       const userId = user.id_str
       await RedBlockBookmarksStorage.modifyBookmarksWith(bookmarks => {
         const itemToRemove = Array.from(bookmarks.values()).find(
-          item => item.type === 'user' && item.userId === userId
+          item => item.type === 'user' && item.userId === userId,
         )
         if (itemToRemove) {
           bookmarks.delete(itemToRemove.itemId)
@@ -174,17 +174,13 @@ function FollowerChainBlockTargetSelector({
           group="other tab"
           label={`${i18n.getMessage('users_in_other_tab')} (${usersInOtherTab.size})`}
         >
-          {sortedByName(usersInOtherTab).map((user, index) => (
-            <UserItem key={index} user={user} />
-          ))}
+          {sortedByName(usersInOtherTab).map((user, index) => <UserItem key={index} user={user} />)}
         </ItemsGroup>
         <ItemsGroup
           group="bookmarked"
           label={`${i18n.getMessage('saved_user')} (${bookmarkedUsers.size})`}
         >
-          {sortedByName(bookmarkedUsers).map((user, index) => (
-            <UserItem key={index} user={user} />
-          ))}
+          {sortedByName(bookmarkedUsers).map((user, index) => <UserItem key={index} user={user} />)}
         </ItemsGroup>
       </TargetSelectorOptions>
       <TargetSelectorControls>
@@ -254,7 +250,7 @@ function TargetUserProfileEmpty({ reason }: { reason: 'invalid-user' | 'loading'
 
 function TargetUserSelectUI() {
   const { currentUser, targetList, userSelection, setUserSelection } = React.useContext(
-    FollowerChainBlockPageStatesContext
+    FollowerChainBlockPageStatesContext,
   )
   const { myself } = React.useContext(TabInfoContext)
   const { openDialog } = React.useContext(UIContext)
@@ -354,11 +350,9 @@ function TargetUserSelectUI() {
             <FollowerChainBlockTargetSelector {...{ bookmarkedUsers, usersInOtherTab }} />
           </UserSelectorContext.Provider>
           <M.Divider />
-          {userSelection ? (
-            <TargetUserProfile user={userSelection.user} />
-          ) : (
-            <TargetUserProfileEmpty reason={isLoading ? 'loading' : 'invalid-user'} />
-          )}
+          {userSelection
+            ? <TargetUserProfile user={userSelection.user} />
+            : <TargetUserProfileEmpty reason={isLoading ? 'loading' : 'invalid-user'} />}
         </M.FormControl>
       </div>
     </RBAccordion>
@@ -366,8 +360,8 @@ function TargetUserSelectUI() {
 }
 
 function TargetOptionsUI() {
-  const { purpose, changePurposeType, mutatePurposeOptions, availablePurposeTypes } =
-    React.useContext(FollowerChainBlockPageStatesContext)
+  const { purpose, changePurposeType, mutatePurposeOptions, availablePurposeTypes } = React
+    .useContext(FollowerChainBlockPageStatesContext)
   const summary = `${i18n.getMessage('options')} (${i18n.getMessage(purpose.type)})`
   return (
     <RBAccordion summary={summary} defaultExpanded>
@@ -394,7 +388,7 @@ async function getUserByIdWithCache(twClient: TwClient, userId: string): Promise
 
 async function getMultipleUsersByIdWithCache(
   twClient: TwClient,
-  userIds: string[]
+  userIds: string[],
 ): Promise<TwitterUserMap> {
   const result = new TwitterUserMap()
   const nonCachedUserIds = new Set<string>()

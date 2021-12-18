@@ -1,16 +1,16 @@
-import browser from 'webextension-polyfill'
 import debounce from 'lodash-es/debounce'
+import browser from 'webextension-polyfill'
 
+import * as i18n from '../../scripts/i18n'
+import { notify } from './background'
 import BlockLimiter from './block-limiter'
 import type { ActAsExtraCookies } from './cookie-handler'
-import { notify } from './background'
-import * as i18n from '../../scripts/i18n'
 
 const extraInfoSpec: any = ['requestHeaders', 'blocking']
 const extraInfoSpecResponse: any = ['responseHeaders', 'blocking']
 try {
   // @ts-ignore
-  // prettier-ignore
+  // dprint-ignore
   const requireExtraHeadersSpec = browser.webRequest.OnBeforeSendHeadersOptions.hasOwnProperty('EXTRA_HEADERS')
   if (requireExtraHeadersSpec) {
     extraInfoSpec.push('extraHeaders')
@@ -27,7 +27,7 @@ const notifyAboutBlockLimitation = debounce(
   {
     leading: true,
     trailing: false,
-  }
+  },
 )
 
 function generateApiUrls(path: string) {
@@ -77,7 +77,7 @@ function overrideWholeCookiesWithCookieStore(headers: Headers) {
 
 function overrideActorCookies(
   headers: Headers,
-  { auth_token, auth_multi, twid }: ActAsExtraCookies
+  { auth_token, auth_multi, twid }: ActAsExtraCookies,
 ) {
   const cookie = headers.get('cookie')!
   const newCookie = cookie
@@ -119,7 +119,7 @@ function initializeTwitterAPIRequestHeaderModifier() {
       }
     },
     reqFilters,
-    extraInfoSpec
+    extraInfoSpec,
   )
 }
 
@@ -177,7 +177,7 @@ function initializeBlockAPILimiter() {
       }
     },
     reqFilters,
-    extraInfoSpec
+    extraInfoSpec,
   )
 }
 

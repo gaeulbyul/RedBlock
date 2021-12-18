@@ -1,5 +1,5 @@
-import { initializeForGryphon } from './gryphon'
 import { initializeForBlackBird } from './blackbird'
+import { initializeForGryphon } from './gryphon'
 
 function initialize() {
   // 트윗덱 신버전 여부는 .js-app Element 존재여부로 확인한다.

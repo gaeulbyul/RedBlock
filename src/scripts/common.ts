@@ -10,7 +10,7 @@ export class EventEmitter<T> {
         Reflect.set(target, name, [])
         return Reflect.get(target, name)
       },
-    }
+    },
   )
 
   on<K extends keyof T>(eventName: string & K, handler: (p: T[K]) => void) {

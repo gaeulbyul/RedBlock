@@ -21,7 +21,7 @@ void (() => {
   }
 
   function* getAddedElementsFromMutations(
-    mutations: MutationRecord[]
+    mutations: MutationRecord[],
   ): IterableIterator<HTMLElement> {
     for (const mut of mutations) {
       for (const node of mut.addedNodes) {
@@ -89,7 +89,7 @@ void (() => {
                 detail: {
                   tdUser,
                 },
-              })
+              }),
             )
           })
       }

@@ -1,7 +1,7 @@
 import browser from 'webextension-polyfill'
 
+import { getAllCookies, getCookieStoreIdFromTab, removeCookie } from '../background/cookie-handler'
 import { loadOptions } from '../background/storage/options'
-import { getAllCookies, removeCookie, getCookieStoreIdFromTab } from '../background/cookie-handler'
 import type { LimitStatus } from '../background/twitter-api'
 
 const userNameBlacklist = [
@@ -140,7 +140,7 @@ export function getCountOfUsersToBlock({
 }
 
 export function getTargetUser(
-  target: SessionRequest<AnySessionTarget>['target']
+  target: SessionRequest<AnySessionTarget>['target'],
 ): TwitterUser | null {
   switch (target.type) {
     case 'follower':
@@ -367,7 +367,7 @@ export async function toggleOneClickBlockMode(tab: browser.Tabs.Tab, enabled: bo
         messageTo: 'content',
         enabled,
       })
-    )
+    ),
   )
 }
 
@@ -382,7 +382,7 @@ export async function deleteTwitterCookies(tab: browser.Tabs.Tab) {
       removeCookie({
         storeId,
         name: cookie.name,
-      }).catch(() => {})
+      }).catch(() => {}),
     )
   }
   await Promise.allSettled(promises)

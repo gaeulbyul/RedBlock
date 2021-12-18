@@ -1,8 +1,8 @@
 import chunk from 'lodash-es/chunk'
 import intersection from 'lodash-es/intersection'
 
-import { sleep, collectAsync, unwrap, wrapEitherRight } from '../common/utilities'
-import { TwClient, getNextCursorFromAPIv2Response } from './twitter-api'
+import { collectAsync, sleep, unwrap, wrapEitherRight } from '../common/utilities'
+import { getNextCursorFromAPIv2Response, TwClient } from './twitter-api'
 
 const DELAY = 100
 
@@ -14,7 +14,7 @@ export class UserScrapingAPIClient {
 
   public async *getAllFollowsIds(
     followKind: FollowKind,
-    user: TwitterUser
+    user: TwitterUser,
   ): ScrapedUserIdsIterator {
     let cursor = '-1'
     while (cursor !== '0') {
@@ -34,7 +34,7 @@ export class UserScrapingAPIClient {
 
   public async *getAllFollowsUserList(
     followKind: FollowKind,
-    user: TwitterUser
+    user: TwitterUser,
   ): ScrapedUsersIterator {
     let cursor = '-1'
     while (cursor !== '0') {
@@ -84,7 +84,7 @@ export class UserScrapingAPIClient {
 
   public async *getAllReactedV2UserList(
     tweet: Tweet,
-    reactions: ReactionV2Kind[]
+    reactions: ReactionV2Kind[],
   ): ScrapedUsersIterator {
     if (reactions.length <= 0) {
       console.warn('empty reactions(v2)!')

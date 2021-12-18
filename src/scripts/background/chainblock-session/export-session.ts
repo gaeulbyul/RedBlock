@@ -1,15 +1,15 @@
 import dayjs from 'dayjs'
 
-import * as IdScraper from './userid-scraper'
-import * as TwitterAPI from '../twitter-api'
 import { EventEmitter } from '../../common'
 import {
-  copyFrozenObject,
-  sleep,
-  getCountOfUsersToBlock,
   assertNever,
+  copyFrozenObject,
   extractRateLimit,
+  getCountOfUsersToBlock,
+  sleep,
 } from '../../common/utilities'
+import * as TwitterAPI from '../twitter-api'
+import * as IdScraper from './userid-scraper'
 
 // NOTE: 사이즈 올리게 되면 번역파일도 수정할것
 const EXPORT_MAX_SIZE = 100_000

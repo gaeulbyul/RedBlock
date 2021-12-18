@@ -1,5 +1,5 @@
-import React from 'react'
 import * as MaterialUI from '@material-ui/core'
+import React from 'react'
 
 import * as i18n from '../../scripts/i18n'
 

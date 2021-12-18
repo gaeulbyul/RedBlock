@@ -17,7 +17,7 @@ function actuallyInjectScriptToPage(path: string) {
     .appendChild(
       Object.assign(document.createElement('script'), {
         src: browser.runtime.getURL(path),
-      })
+      }),
     )
     .remove()
 }
@@ -59,7 +59,7 @@ export function listenExtensionMessages(reactRoot: Element | null) {
                 userId: msg.userId,
                 userAction: msg.userAction,
               }),
-            })
+            }),
           )
         }
         break

@@ -1,8 +1,10 @@
-import { getCookie, getAllCookies, generateCookiesForAltAccountRequest } from './cookie-handler'
 import { stripSensitiveInfo } from '../common/utilities'
+import { generateCookiesForAltAccountRequest, getAllCookies, getCookie } from './cookie-handler'
 
-const BEARER_TOKEN = `AAAAAAAAAAAAAAAAAAAAANRILgAAAAAAnNwIzUejRCOuH5E6I8xnZz4puTs%3D1Zv7ttfk8LF81IUq16cHjhLTvJu4FA33AGWWjCpTnA`
-const TD_BEARER_TOKEN = `AAAAAAAAAAAAAAAAAAAAAF7aAAAAAAAASCiRjWvh7R5wxaKkFp7MM%2BhYBqM%3DbQ0JPmjU9F6ZoMhDfI4uTNAaQuTDm2uO9x3WFVr2xBZ2nhjdP0`
+const BEARER_TOKEN =
+  `AAAAAAAAAAAAAAAAAAAAANRILgAAAAAAnNwIzUejRCOuH5E6I8xnZz4puTs%3D1Zv7ttfk8LF81IUq16cHjhLTvJu4FA33AGWWjCpTnA`
+const TD_BEARER_TOKEN =
+  `AAAAAAAAAAAAAAAAAAAAAF7aAAAAAAAASCiRjWvh7R5wxaKkFp7MM%2BhYBqM%3DbQ0JPmjU9F6ZoMhDfI4uTNAaQuTDm2uO9x3WFVr2xBZ2nhjdP0`
 // const TD2_BEARER_TOKEN = `AAAAAAAAAAAAAAAAAAAAAFQODgEAAAAAVHTp76lzh3rFzcHbmHVvQxYYpTw%3DckAlMINMjmCwxUcaXbAN4XqJVdgMJaHqNOFgPMK0zN1qLqLQCF`
 
 const gqlDataMap = new Map<string, GraphQLQueryData>()
@@ -111,7 +113,7 @@ export class TwClient {
   public async getFollowsIds(
     followKind: FollowKind,
     user: TwitterUser,
-    cursor = '-1'
+    cursor = '-1',
   ): Promise<UserIdsResponse> {
     return await this.request1('get', `/${followKind}/ids.json`, {
       user_id: user.id_str,
@@ -124,7 +126,7 @@ export class TwClient {
   public async getFollowsUserList(
     followKind: FollowKind,
     user: TwitterUser,
-    cursor = '-1'
+    cursor = '-1',
   ): Promise<UserListResponse> {
     return await this.request1('get', `/${followKind}/list.json`, {
       user_id: user.id_str,
@@ -154,7 +156,7 @@ export class TwClient {
       throw new Error('unreachable')
     }
     return await this.request1('get', '/users/lookup.json', requestParams).then(
-      stripSensitiveInfoFromArrayOfUsers
+      stripSensitiveInfoFromArrayOfUsers,
     )
   }
 
@@ -186,7 +188,7 @@ export class TwClient {
 
   public async getRelationship(
     sourceUser: TwitterUser,
-    targetUser: TwitterUser
+    targetUser: TwitterUser,
   ): Promise<Relationship> {
     const source_id = sourceUser.id_str
     const target_id = targetUser.id_str
@@ -200,7 +202,7 @@ export class TwClient {
   public async getReactedUserList(
     reaction: ReactionKind,
     tweet: Tweet,
-    cursor = '-1'
+    cursor = '-1',
   ): Promise<UserListResponse> {
     let requestPath = ''
     switch (reaction) {
@@ -362,7 +364,7 @@ export class TwClient {
 
   private async requestGraphQL(
     { queryId, operationName, operationType }: GraphQLQueryData,
-    variables: URLParamsObj = {}
+    variables: URLParamsObj = {},
   ) {
     const method = operationType === 'query' ? 'get' : 'post'
     const fetchOptions = await prepareTwitterRequest({ method }, this.options)
@@ -385,7 +387,7 @@ export class TwClient {
 function insertHeader(
   headers: Headers | Record<string, string> | string[][],
   name: string,
-  value: string
+  value: string,
 ) {
   if (headers instanceof Headers) {
     headers.set(name, value)
@@ -397,7 +399,7 @@ function insertHeader(
 }
 async function prepareTwitterRequest(
   obj: RequestInit,
-  clientOptions: TwClientOptions
+  clientOptions: TwClientOptions,
 ): Promise<RequestInit> {
   const headers = new Headers()
   const ct0 = await getCookie({
@@ -409,7 +411,7 @@ async function prepareTwitterRequest(
     headers.set('authorization', `Bearer ${TD_BEARER_TOKEN}`)
     headers.set(
       'x-twitter-client-version',
-      'Twitter-TweetDeck-blackbird-chrome/4.0.200604103812 web/'
+      'Twitter-TweetDeck-blackbird-chrome/4.0.200604103812 web/',
     )
   } else {
     headers.set('authorization', `Bearer ${BEARER_TOKEN}`)
@@ -422,7 +424,7 @@ async function prepareTwitterRequest(
   const cookies = await getAllCookies({ storeId })
   headers.set(
     'x-redblock-override-cookies',
-    cookies.map(({ name, value }) => `${name}=${value}`).join('; ')
+    cookies.map(({ name, value }) => `${name}=${value}`).join('; '),
   )
   // 다계정 로그인 관련
   if (clientOptions.actAsUserId) {
@@ -431,7 +433,7 @@ async function prepareTwitterRequest(
     } else {
       const extraCookies = await generateCookiesForAltAccountRequest(clientOptions)
       const encodedExtraCookies = new URLSearchParams(
-        extraCookies as unknown as Record<string, string>
+        extraCookies as unknown as Record<string, string>,
       )
       headers.set('x-redblock-act-as-cookies', encodedExtraCookies.toString())
     }
@@ -475,7 +477,7 @@ function setDefaultParams(params: URLSearchParams): void {
   params.set('simple_quoted_tweet', 'true')
   params.set(
     'ext',
-    'mediaStats,highlightedLabel,signalsReactionPerspective,signalsReactionMetadata,voiceInfo,birdwatchPivot,superFollowMetadata'
+    'mediaStats,highlightedLabel,signalsReactionPerspective,signalsReactionMetadata,voiceInfo,birdwatchPivot,superFollowMetadata',
   )
 }
 
@@ -813,10 +815,10 @@ interface ReactionV2TimelineEntry {
     // 프로텍트 계정 등에서 반응한 경우 유저정보가 없는 빈 object가 온다.
     result?:
       | {
-          // id: string
-          rest_id: string
-          legacy: Omit<TwitterUser, 'id_str'>
-        }
+        // id: string
+        rest_id: string
+        legacy: Omit<TwitterUser, 'id_str'>
+      }
       | {}
   }
   reaction_type: ReactionV2Kind

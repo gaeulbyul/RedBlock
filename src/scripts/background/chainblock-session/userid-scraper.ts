@@ -1,6 +1,6 @@
-import * as UserScrapingAPI from '../user-scraping-api'
 import { getFollowersCount, wrapEitherRight } from '../../common/utilities'
-import { UserScraper, TweetReactedUserScraper, AudioSpaceScraper } from './scraper'
+import * as UserScrapingAPI from '../user-scraping-api'
+import { AudioSpaceScraper, TweetReactedUserScraper, UserScraper } from './scraper'
 
 export interface UserIdScraper {
   totalCount: number | null
@@ -27,7 +27,7 @@ class FromUserScraper implements UserIdScraper {
 // 단순 스크래퍼. 기존 체인블락 방식
 class SimpleScraper implements UserIdScraper {
   private scrapingClient = UserScrapingAPI.UserScrapingAPIClient.fromClientOptions(
-    this.request.retriever.clientOptions
+    this.request.retriever.clientOptions,
   )
 
   public totalCount: number
@@ -45,14 +45,14 @@ class SimpleScraper implements UserIdScraper {
 // 맞팔로우 스크래퍼
 class MutualFollowerScraper implements UserIdScraper {
   private scrapingClient = UserScrapingAPI.UserScrapingAPIClient.fromClientOptions(
-    this.request.retriever.clientOptions
+    this.request.retriever.clientOptions,
   )
 
   public totalCount: number | null = null
   public constructor(private request: SessionRequest<FollowerSessionTarget>) {}
   public async *[Symbol.asyncIterator]() {
     const mutualFollowersIds = await this.scrapingClient.getAllMutualFollowersIds(
-      this.request.target.user
+      this.request.target.user,
     )
     this.totalCount = mutualFollowersIds.length
     yield wrapEitherRight({ ids: mutualFollowersIds })
@@ -61,7 +61,7 @@ class MutualFollowerScraper implements UserIdScraper {
 
 class ExportMyBlocklistScraper implements UserIdScraper {
   private scrapingClient = UserScrapingAPI.UserScrapingAPIClient.fromClientOptions(
-    this.request.retriever.clientOptions
+    this.request.retriever.clientOptions,
   )
 
   public totalCount: null = null
@@ -82,7 +82,7 @@ export function initIdScraper(request: SessionRequest<ExportableSessionTarget>):
       return new ExportMyBlocklistScraper(request as SessionRequest<ExportMyBlocklistTarget>)
     case 'tweet_reaction':
       return new FromUserScraper(
-        new TweetReactedUserScraper(request as SessionRequest<TweetReactionSessionTarget>)
+        new TweetReactedUserScraper(request as SessionRequest<TweetReactionSessionTarget>),
       )
     case 'follower':
       if (target.list === 'mutual-followers') {
@@ -92,7 +92,7 @@ export function initIdScraper(request: SessionRequest<ExportableSessionTarget>):
       }
     case 'audio_space':
       return new FromUserScraper(
-        new AudioSpaceScraper(request as SessionRequest<AudioSpaceSessionTarget>)
+        new AudioSpaceScraper(request as SessionRequest<AudioSpaceSessionTarget>),
       )
   }
 }

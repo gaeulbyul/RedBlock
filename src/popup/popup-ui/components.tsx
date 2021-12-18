@@ -1,13 +1,13 @@
-import React from 'react'
 import * as MaterialUI from '@material-ui/core'
+import React from 'react'
 
-import { DialogMessageObj, checkResultToString } from '../../scripts/text-generate'
 import { requestResetCounter } from '../../scripts/background/request-sender'
-import { TabInfoContext, BlockLimiterContext, RedBlockOptionsContext, UIContext } from './contexts'
-import { ExtraSessionOptionsContext } from './ui-states'
 import type { TargetCheckResult } from '../../scripts/background/target-checker'
-import { RadioOptionItem, CheckboxItem } from '../../ui/components'
 import * as i18n from '../../scripts/i18n'
+import { checkResultToString, DialogMessageObj } from '../../scripts/text-generate'
+import { CheckboxItem, RadioOptionItem } from '../../ui/components'
+import { BlockLimiterContext, RedBlockOptionsContext, TabInfoContext, UIContext } from './contexts'
+import { ExtraSessionOptionsContext } from './ui-states'
 
 const M = MaterialUI
 const T = MaterialUI.Typography
@@ -122,12 +122,12 @@ export function RBDialog({
     <Dialog open={isOpen}>
       <DialogTitle>{title}</DialogTitle>
       <DialogContent>
-        {contentLines &&
-          contentLines.map((line, index) => (
+        {contentLines
+          && contentLines.map((line, index) => (
             <DialogContentText key={index}>{line}</DialogContentText>
           ))}
-        {warningLines &&
-          warningLines.map((line, index) => (
+        {warningLines
+          && warningLines.map((line, index) => (
             <DialogContentText key={index} color="error">
               {line}
             </DialogContentText>
@@ -433,7 +433,7 @@ export function PurposeSelectionUI({
   purpose: SessionRequest<AnySessionTarget>['purpose']
   changePurposeType(purposeType: SessionRequest<AnySessionTarget>['purpose']['type']): void
   mutatePurposeOptions(
-    partialOptions: Partial<Omit<SessionRequest<AnySessionTarget>['purpose'], 'type'>>
+    partialOptions: Partial<Omit<SessionRequest<AnySessionTarget>['purpose'], 'type'>>,
   ): void
   availablePurposeTypes: SessionRequest<AnySessionTarget>['purpose']['type'][]
 }) {
@@ -444,7 +444,7 @@ export function PurposeSelectionUI({
   const chainunfollowable = availablePurposeTypes.includes('chainunfollow')
   const chainmutable = availablePurposeTypes.includes('chainmute')
   const unchainmutable = availablePurposeTypes.includes('unchainmute')
-  //const narrow = MaterialUI.useMediaQuery('(max-width:500px)')
+  // const narrow = MaterialUI.useMediaQuery('(max-width:500px)')
   return (
     <div style={{ width: '100%' }}>
       <M.Tabs
@@ -647,16 +647,14 @@ function ChainBlockPurposeUI({
         options={userActionsToMyFollowers}
         selectedValue={purpose.myFollowers}
         onChange={(myFollowers: ChainBlockPurpose['myFollowers']) =>
-          mutatePurposeOptions({ myFollowers })
-        }
+          mutatePurposeOptions({ myFollowers })}
       />
       <RadioOptionItem
         legend={i18n.getMessage('my_followings')}
         options={userActionsToMyFollowings}
         selectedValue={purpose.myFollowings}
         onChange={(myFollowings: ChainBlockPurpose['myFollowings']) =>
-          mutatePurposeOptions({ myFollowings })
-        }
+          mutatePurposeOptions({ myFollowings })}
       />
     </React.Fragment>
   )
@@ -680,8 +678,7 @@ function UnChainBlockOptionsUI({
         options={userActions}
         selectedValue={purpose.mutualBlocked}
         onChange={(mutualBlocked: UnChainBlockPurpose['mutualBlocked']) =>
-          mutatePurposeOptions({ mutualBlocked })
-        }
+          mutatePurposeOptions({ mutualBlocked })}
       />
     </React.Fragment>
   )
@@ -705,8 +702,7 @@ function LockPickerOptionsUI({
         options={userActions}
         selectedValue={purpose.protectedFollowers}
         onChange={(protectedFollowers: LockPickerPurpose['protectedFollowers']) =>
-          mutatePurposeOptions({ protectedFollowers })
-        }
+          mutatePurposeOptions({ protectedFollowers })}
       />
     </React.Fragment>
   )
@@ -730,16 +726,14 @@ function ChainMutePurposeUI({
         options={userActions}
         selectedValue={purpose.myFollowers}
         onChange={(myFollowers: ChainMutePurpose['myFollowers']) =>
-          mutatePurposeOptions({ myFollowers })
-        }
+          mutatePurposeOptions({ myFollowers })}
       />
       <RadioOptionItem
         legend={i18n.getMessage('my_followings')}
         options={userActions}
         selectedValue={purpose.myFollowings}
         onChange={(myFollowings: ChainMutePurpose['myFollowings']) =>
-          mutatePurposeOptions({ myFollowings })
-        }
+          mutatePurposeOptions({ myFollowings })}
       />
     </React.Fragment>
   )
@@ -763,8 +757,7 @@ function UnChainMuteOptionsUI({
         options={userActions}
         selectedValue={purpose.mutedAndAlsoBlocked}
         onChange={(mutedAndAlsoBlocked: UnChainMutePurpose['mutedAndAlsoBlocked']) =>
-          mutatePurposeOptions({ mutedAndAlsoBlocked })
-        }
+          mutatePurposeOptions({ mutedAndAlsoBlocked })}
       />
     </React.Fragment>
   )

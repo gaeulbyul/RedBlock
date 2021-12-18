@@ -1,17 +1,17 @@
-import React from 'react'
-import ReactDOM from 'react-dom'
 import * as MaterialUI from '@material-ui/core'
 import throttle from 'lodash-es/throttle'
+import React from 'react'
+import ReactDOM from 'react-dom'
 
+import { TabPanel } from '../popup/popup-ui/components'
 import { onStorageChanged } from '../scripts/background/storage'
 import * as RedBlockOptionsStorage from '../scripts/background/storage/options'
-import { TabPanel } from '../popup/popup-ui/components'
-import { RedBlockOptionsContext } from './pages/contexts'
 import ChainBlockOptionsPage from './pages/chainblock'
-import OneClickBlockOptionsPage from './pages/oneclickblock'
+import { RedBlockOptionsContext } from './pages/contexts'
 import ExperimentalOptionsPage from './pages/experimentals'
-import UserInterfaceOptionsPage from './pages/userinterface'
+import OneClickBlockOptionsPage from './pages/oneclickblock'
 import TroubleShootingsPage from './pages/troubleshooting'
+import UserInterfaceOptionsPage from './pages/userinterface'
 
 const M = MaterialUI
 
@@ -41,15 +41,15 @@ function OptionsApp() {
   const darkMode = MaterialUI.useMediaQuery('(prefers-color-scheme:dark)')
   const theme = React.useMemo(() => RedBlockOptionsUITheme(darkMode), [darkMode])
   const [options, setOptions] = React.useState<RedBlockOptions>(
-    RedBlockOptionsStorage.defaultOptions
+    RedBlockOptionsStorage.defaultOptions,
   )
   const [uiOptions, setUIOptions] = React.useState<RedBlockUIOptions>(
-    RedBlockOptionsStorage.defaultUIOptions
+    RedBlockOptionsStorage.defaultUIOptions,
   )
   const [tabPage, setTabPage] = React.useState<OptionsTabPage>('chainblock')
   const throttledSaveOptions = throttle(
     (newOptions: RedBlockOptions) => RedBlockOptionsStorage.saveOptions(newOptions),
-    50
+    50,
   )
   async function updateOptions(newOptionsPart: Partial<RedBlockOptions>) {
     const newOptions: RedBlockOptions = { ...options, ...newOptionsPart }
@@ -79,9 +79,11 @@ function OptionsApp() {
             value={tabPage}
             onChange={(_ev, val) => setTabPage(val)}
           >
-            {optionsTabPages.map((value, index) => (
-              <M.Tab key={index} value={value} label={value} />
-            ))}
+            {optionsTabPages.map((value, index) => <M.Tab
+              key={index}
+              value={value}
+              label={value}
+            />)}
           </M.Tabs>
         </M.AppBar>
         <M.Container maxWidth="md">

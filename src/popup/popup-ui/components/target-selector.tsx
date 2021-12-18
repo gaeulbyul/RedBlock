@@ -1,5 +1,5 @@
-import React from 'react'
 import * as MaterialUI from '@material-ui/core'
+import React from 'react'
 import * as i18n from '../../../scripts/i18n'
 
 const M = MaterialUI
@@ -16,7 +16,7 @@ export interface TargetSelectorItem {
 
 interface TargetSelectorContextType {
   selectedItemIdentifier: string
-  onChange(event: React.ChangeEvent<{ name?: string; value: unknown }>): void
+  onChange(event: React.ChangeEvent<{ name?: string, value: unknown }>): void
 }
 
 const TargetSelectorContext = React.createContext<TargetSelectorContextType>(null!)
@@ -112,7 +112,7 @@ export function ItemsGroup({
   )
 }
 
-export function Options({ label, children }: { label: string; children: React.ReactNode }) {
+export function Options({ label, children }: { label: string, children: React.ReactNode }) {
   const { selectedItemIdentifier, onChange } = React.useContext(TargetSelectorContext)
   // TODO: i18n:user_not_selected -> 유저뿐만 아니라 트윗도 선택할 수 있음을 감안하여 수정할 것
   return (

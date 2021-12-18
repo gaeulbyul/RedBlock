@@ -1,10 +1,10 @@
+import * as i18n from '../../scripts/i18n'
 import {
-  listenExtensionMessages,
-  injectBundle,
   blockUserById,
+  injectBundle,
+  listenExtensionMessages,
   toastMessage,
 } from './content-common'
-import * as i18n from '../../scripts/i18n'
 
 function generateTweetDeckBlockButton(user: TweetDeckUser) {
   const btn = document.createElement('button')

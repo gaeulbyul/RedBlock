@@ -1,18 +1,18 @@
-import * as TextGenerate from '../text-generate'
-import * as i18n from '../i18n'
-import { alertToCurrentTab, notify, updateExtensionBadge } from './background'
 import {
-  isRunningSession,
-  isRewindableSession,
   isExportableTarget,
+  isRewindableSession,
+  isRunningSession,
   markUser,
 } from '../common/utilities'
-import { TargetCheckResult, validateRequest, isSameTarget } from './target-checker'
-import { loadOptions } from './storage/options'
+import * as i18n from '../i18n'
+import * as TextGenerate from '../text-generate'
+import { alertToCurrentTab, notify, updateExtensionBadge } from './background'
 import { exportBlocklist } from './blocklist-process'
-import ChainBlockSession from './chainblock-session/session'
 import ExportSession from './chainblock-session/export-session'
+import ChainBlockSession from './chainblock-session/session'
 import RecurringManager from './recurring'
+import { loadOptions } from './storage/options'
+import { isSameTarget, TargetCheckResult, validateRequest } from './target-checker'
 
 export default class SessionManager {
   private readonly MAX_RUNNING_SESSIONS = 5
@@ -96,7 +96,7 @@ export default class SessionManager {
       'recurring-waiting',
       ({ sessionInfo: { sessionId }, delayInMinutes }) => {
         this.recurringManager.addSchedule(sessionId, delayInMinutes)
-      }
+      },
     )
   }
 

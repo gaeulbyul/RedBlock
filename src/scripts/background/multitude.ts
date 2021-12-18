@@ -25,7 +25,7 @@ async function getCookieStoreIdsToIterate(includeAnotherCookieStores: boolean): 
 
 async function* iterateMultiAccountCookies(
   cookieStoreId: string,
-  multiCookies: CookieHandler.MultiAccountCookies
+  multiCookies: CookieHandler.MultiAccountCookies,
 ): AsyncIterableIterator<AvailableAccount> {
   for (const actAsUserId of Object.keys(multiCookies)) {
     const secondaryTwClient = new TwClient({
@@ -43,7 +43,7 @@ async function* iterateMultiAccountCookies(
 }
 
 async function* iterateTweetDeckContributees(
-  cookieStoreId: string
+  cookieStoreId: string,
 ): AsyncIterableIterator<AvailableAccount> {
   const tdTwClient = new TwClient({
     cookieStoreId,

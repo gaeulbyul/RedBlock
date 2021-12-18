@@ -1,7 +1,7 @@
 import { sendBrowserRuntimeMessage } from '../common/utilities'
 
 export async function startNewChainBlockSession<T extends AnySessionTarget>(
-  request: SessionRequest<T>
+  request: SessionRequest<T>,
 ) {
   return sendBrowserRuntimeMessage<RBMessageToBackground.CreateChainBlockSession>({
     messageType: 'CreateChainBlockSession',

@@ -1,12 +1,12 @@
-import { getAddedElementsFromMutations, checkLoggedIn } from './inject-common'
+import { detectEdge2EdgeLayoutSwitch, isEdge2EdgeLayout } from './edge2edge-layout'
+import { checkLoggedIn, getAddedElementsFromMutations } from './inject-common'
 import {
   getMyselfUserId,
   getTweetEntityById,
   getUserEntityById,
-  toastMessage,
   markUser,
+  toastMessage,
 } from './reactredux'
-import { detectEdge2EdgeLayoutSwitch, isEdge2EdgeLayout } from './edge2edge-layout'
 
 function findTweetIdFromElement(elem: HTMLElement): string | null {
   if (!elem.matches('[data-testid=tweet]')) {
@@ -25,7 +25,7 @@ function findTweetIdFromElement(elem: HTMLElement): string | null {
       return tweetId
     }
     const viaLabel = article.querySelector(
-      'a[href="https://help.twitter.com/using-twitter/how-to-tweet#source-labels"]'
+      'a[href="https://help.twitter.com/using-twitter/how-to-tweet#source-labels"]',
     )
     if (viaLabel?.parentElement!.contains(plink)) {
       return tweetId
@@ -100,7 +100,7 @@ function initializeTweetElementInspecter(reactRoot: Element) {
   function getTweetElems(rootElem: Element) {
     if (isEdge2EdgeLayout()) {
       return Array.from(rootElem.querySelectorAll('[data-testid=tweet] [data-testid=caret]')).map(
-        elem => elem.closest('[data-testid=tweet]')
+        elem => elem.closest('[data-testid=tweet]'),
       )
     } else {
       return rootElem.querySelectorAll('[data-testid=tweet]')
@@ -126,7 +126,7 @@ function initializeTweetElementInspecter(reactRoot: Element) {
             detail: {
               tweet,
             },
-          })
+          }),
         )
         if (tweet.is_quote_status && tweet.quoted_status) {
           elem.dispatchEvent(
@@ -135,7 +135,7 @@ function initializeTweetElementInspecter(reactRoot: Element) {
               detail: {
                 tweet: tweet.quoted_status,
               },
-            })
+            }),
           )
         }
       })
@@ -171,7 +171,7 @@ function initializeUserCellElementInspecter(reactRoot: Element) {
         detail: {
           user,
         },
-      })
+      }),
     )
   }
   new MutationObserver(mutations => {

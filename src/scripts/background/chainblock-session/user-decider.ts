@@ -4,7 +4,7 @@ import { getTargetUser } from '../../common/utilities'
 export function decideWhatToDoGivenUser(
   request: SessionRequest<AnySessionTarget>,
   follower: TwitterUser,
-  now: dayjs.Dayjs
+  now: dayjs.Dayjs,
 ): UserAction | 'Skip' | 'AlreadyDone' {
   const { purpose, options } = request
   if (purpose.type === 'export') {
@@ -158,7 +158,7 @@ function isAlreadyDone(follower: TwitterUser, action: UserAction): boolean {
 function checkUserInactivity(
   follower: TwitterUser,
   now: dayjs.Dayjs,
-  inactivePeriod: InactivePeriod
+  inactivePeriod: InactivePeriod,
 ): 'active' | 'inactive' {
   if (inactivePeriod === 'never') {
     // 체크하지 않기로 했으므로 무조건 active

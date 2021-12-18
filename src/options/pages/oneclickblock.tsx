@@ -1,6 +1,6 @@
-import React from 'react'
 import * as MaterialUI from '@material-ui/core'
 import sortBy from 'lodash-es/sortBy'
+import React from 'react'
 import * as i18n from '../../scripts/i18n'
 
 import { onStorageChanged } from '../../scripts/background/storage'
@@ -47,11 +47,9 @@ function BadWordRow({
         <span className={badWord.enabled ? '' : classes.striked}>{badWord.word}</span>
       </TableCell>
       <TableCell>
-        {badWord.regexp ? (
-          <M.Chip size="small" label={i18n.getMessage('regexp')} />
-        ) : (
-          <M.Chip size="small" label={i18n.getMessage('th_word')} />
-        )}
+        {badWord.regexp
+          ? <M.Chip size="small" label={i18n.getMessage('regexp')} />
+          : <M.Chip size="small" label={i18n.getMessage('th_word')} />}
       </TableCell>
       <TableCell>
         <M.Button variant="outlined" onClick={_event => editWordById(badWord.id)}>
@@ -181,7 +179,7 @@ function BadwordsTable() {
             </TableRow>
             <TableRow>
               <TableCell colSpan={4}>
-                <p>{i18n.getMessage('sbs_description')} </p>
+                <p>{i18n.getMessage('sbs_description')}</p>
                 <p>{i18n.getMessage('sbs_please_refresh')}</p>
               </TableCell>
             </TableRow>
@@ -206,8 +204,7 @@ export default function OneClickBlockOptions() {
               onChange={(_event, checked) =>
                 updateOptions({
                   oneClickBlockModeForAllTabs: checked,
-                })
-              }
+                })}
               checked={options.oneClickBlockModeForAllTabs}
               label={i18n.getMessage('oneclick_block_mode_apply_all_tabs')}
             />

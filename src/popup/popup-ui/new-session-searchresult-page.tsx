@@ -1,19 +1,19 @@
-import React from 'react'
 import * as MaterialUI from '@material-ui/core'
+import React from 'react'
 
-import * as TextGenerate from '../../scripts/text-generate'
 import { startNewChainBlockSession } from '../../scripts/background/request-sender'
-import { UIContext, TabInfoContext, BlockLimiterContext, RedBlockOptionsContext } from './contexts'
-import { UserSearchChainBlockPageStatesContext, ExtraSessionOptionsContext } from './ui-states'
+import { TargetCheckResult, validateRequest } from '../../scripts/background/target-checker'
+import * as i18n from '../../scripts/i18n'
+import * as TextGenerate from '../../scripts/text-generate'
 import {
-  RBAccordion,
   BigExecuteButton,
   BlockLimiterUI,
   PurposeSelectionUI,
+  RBAccordion,
   RequestCheckResultUI,
 } from './components'
-import { TargetCheckResult, validateRequest } from '../../scripts/background/target-checker'
-import * as i18n from '../../scripts/i18n'
+import { BlockLimiterContext, RedBlockOptionsContext, TabInfoContext, UIContext } from './contexts'
+import { ExtraSessionOptionsContext, UserSearchChainBlockPageStatesContext } from './ui-states'
 
 const M = MaterialUI
 const T = MaterialUI.Typography
@@ -88,8 +88,8 @@ function TargetExecutionButtonUI() {
 }
 
 function TargetOptionsUI() {
-  const { purpose, changePurposeType, mutatePurposeOptions, availablePurposeTypes } =
-    React.useContext(UserSearchChainBlockPageStatesContext)
+  const { purpose, changePurposeType, mutatePurposeOptions, availablePurposeTypes } = React
+    .useContext(UserSearchChainBlockPageStatesContext)
   const summary = `${i18n.getMessage('options')} (${i18n.getMessage(purpose.type)})`
   return (
     <RBAccordion summary={summary} defaultExpanded>

@@ -3,7 +3,7 @@ import browser from 'webextension-polyfill'
 type BookmarksMap = Map<string, BookmarkItem>
 
 export async function loadBookmarksAsMap(
-  desiredType?: BookmarkItem['type']
+  desiredType?: BookmarkItem['type'],
 ): Promise<BookmarksMap> {
   const { bookmarks } = (await browser.storage.local.get('bookmarks')) as unknown as RedBlockStorage
   if (bookmarks) {
@@ -41,7 +41,7 @@ export async function removeBookmarkById(itemId: string): Promise<void> {
 }
 
 export async function modifyBookmarksWith(
-  callback: (bookmark: BookmarksMap) => BookmarksMap
+  callback: (bookmark: BookmarksMap) => BookmarksMap,
 ): Promise<void> {
   const bookmarks = await loadBookmarksAsMap()
   const newBookmarks = callback(bookmarks)

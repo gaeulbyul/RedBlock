@@ -1,8 +1,8 @@
 import browser from 'webextension-polyfill'
 
-import { loadOptions, loadUIOptions, defaultOptions, defaultUIOptions } from './storage/options'
 import { loadBadWords } from './storage/badwords'
 import { loadBookmarks } from './storage/bookmarks'
+import { defaultOptions, defaultUIOptions, loadOptions, loadUIOptions } from './storage/options'
 
 import { validateStorage } from './storage/validator'
 
@@ -10,7 +10,7 @@ const REDBLOCK_STORAGE_VERSION = 'v0.14.0.0'
 
 export function onStorageChanged<K extends keyof RedBlockStorage>(
   key: K,
-  handler: (newValue: RedBlockStorage[K]) => void
+  handler: (newValue: RedBlockStorage[K]) => void,
 ) {
   function listener(changes: Partial<RedBlockStorageChanges>) {
     if (!changes[key]) {

@@ -9,7 +9,7 @@ export function getMessage(key: string & I18NMessageKeys, substs: Substitutions 
   if (Array.isArray(substs)) {
     return browser.i18n.getMessage(
       key,
-      substs.map(s => s.toLocaleString())
+      substs.map(s => s.toLocaleString()),
     )
   } else if (typeof substs === 'number') {
     return browser.i18n.getMessage(key, substs.toLocaleString())
@@ -43,14 +43,14 @@ function checkMissingTranslations(
   // tsconfig.json의 resolveJsonModule 옵션을 켜야 함
   keys:
     | Exclude<
-        keyof typeof import('../_locales/ko/messages.json'),
-        keyof typeof import('../_locales/en/messages.json')
-      >
+      keyof typeof import('../_locales/ko/messages.json'),
+      keyof typeof import('../_locales/en/messages.json')
+    >
     | Exclude<
-        keyof typeof import('../_locales/en/messages.json'),
-        keyof typeof import('../_locales/ko/messages.json')
-      >,
+      keyof typeof import('../_locales/en/messages.json'),
+      keyof typeof import('../_locales/ko/messages.json')
+    >,
   find: (_keys: never) => void,
-  _check = find(keys)
+  _check = find(keys),
 ) {}
 checkMissingTranslations

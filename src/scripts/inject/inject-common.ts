@@ -1,7 +1,8 @@
-const BEARER_TOKEN = `AAAAAAAAAAAAAAAAAAAAANRILgAAAAAAnNwIzUejRCOuH5E6I8xnZz4puTs%3D1Zv7ttfk8LF81IUq16cHjhLTvJu4FA33AGWWjCpTnA`
+const BEARER_TOKEN =
+  `AAAAAAAAAAAAAAAAAAAAANRILgAAAAAAnNwIzUejRCOuH5E6I8xnZz4puTs%3D1Zv7ttfk8LF81IUq16cHjhLTvJu4FA33AGWWjCpTnA`
 
 export function* getAddedElementsFromMutations(
-  mutations: MutationRecord[]
+  mutations: MutationRecord[],
 ): IterableIterator<HTMLElement> {
   for (const mut of mutations) {
     for (const node of mut.addedNodes) {

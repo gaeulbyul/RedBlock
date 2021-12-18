@@ -1,18 +1,18 @@
 import React from 'react'
 
 import {
-  defaultPurposeOptions,
-  defaultExtraSessionOptions,
-} from '../../scripts/background/chainblock-session/default-options'
-import { Blocklist, emptyBlocklist } from '../../scripts/background/blocklist-process'
-import { determineInitialPurposeType } from '../popup'
-import { TabInfoContext, RetrieverContext, RedBlockOptionsContext } from './contexts'
-import {
   examineRetrieverByTargetUser,
   examineRetrieverByTweetId,
 } from '../../scripts/background/blockbuster'
-import type { TargetGroup } from './components/target-selector'
+import { Blocklist, emptyBlocklist } from '../../scripts/background/blocklist-process'
+import {
+  defaultExtraSessionOptions,
+  defaultPurposeOptions,
+} from '../../scripts/background/chainblock-session/default-options'
 import type { ReactionV2Kind } from '../../scripts/background/twitter-api'
+import { determineInitialPurposeType } from '../popup'
+import type { TargetGroup } from './components/target-selector'
+import { RedBlockOptionsContext, RetrieverContext, TabInfoContext } from './contexts'
 
 function usePurpose<T extends Purpose>(initialPurposeType: T['type']) {
   const initialPurpose = defaultPurposeOptions[initialPurposeType] as T
@@ -70,7 +70,7 @@ interface FollowerChainBlockPageStates {
   purpose: SessionRequest<FollowerSessionTarget>['purpose']
   changePurposeType(purposeType: SessionRequest<FollowerSessionTarget>['purpose']['type']): void
   mutatePurposeOptions(
-    partialOptions: Partial<Omit<SessionRequest<FollowerSessionTarget>['purpose'], 'type'>>
+    partialOptions: Partial<Omit<SessionRequest<FollowerSessionTarget>['purpose'], 'type'>>,
   ): void
   availablePurposeTypes: SessionRequest<FollowerSessionTarget>['purpose']['type'][]
 }
@@ -91,10 +91,10 @@ interface TweetReactionChainBlockPageStates {
   setIncludedReactionsV2(reactions: ReactionV2Kind[]): void
   purpose: SessionRequest<TweetReactionSessionTarget>['purpose']
   changePurposeType(
-    purposeType: SessionRequest<TweetReactionSessionTarget>['purpose']['type']
+    purposeType: SessionRequest<TweetReactionSessionTarget>['purpose']['type'],
   ): void
   mutatePurposeOptions(
-    partialOptions: Partial<Omit<SessionRequest<TweetReactionSessionTarget>['purpose'], 'type'>>
+    partialOptions: Partial<Omit<SessionRequest<TweetReactionSessionTarget>['purpose'], 'type'>>,
   ): void
   availablePurposeTypes: SessionRequest<TweetReactionSessionTarget>['purpose']['type'][]
 }
@@ -107,7 +107,7 @@ interface ImportChainBlockPageStates {
   purpose: SessionRequest<ImportSessionTarget>['purpose']
   changePurposeType(purposeType: SessionRequest<ImportSessionTarget>['purpose']['type']): void
   mutatePurposeOptions(
-    partialOptions: Partial<Omit<SessionRequest<ImportSessionTarget>['purpose'], 'type'>>
+    partialOptions: Partial<Omit<SessionRequest<ImportSessionTarget>['purpose'], 'type'>>,
   ): void
   availablePurposeTypes: SessionRequest<ImportSessionTarget>['purpose']['type'][]
 }
@@ -117,7 +117,7 @@ interface UserSearchChainBlockPageStates {
   purpose: SessionRequest<UserSearchSessionTarget>['purpose']
   changePurposeType(purposeType: SessionRequest<UserSearchSessionTarget>['purpose']['type']): void
   mutatePurposeOptions(
-    partialOptions: Partial<Omit<SessionRequest<UserSearchSessionTarget>['purpose'], 'type'>>
+    partialOptions: Partial<Omit<SessionRequest<UserSearchSessionTarget>['purpose'], 'type'>>,
   ): void
   availablePurposeTypes: SessionRequest<UserSearchSessionTarget>['purpose']['type'][]
 }
@@ -129,7 +129,7 @@ interface AudioSpaceChainBlockPageStates {
   purpose: SessionRequest<AudioSpaceSessionTarget>['purpose']
   changePurposeType(purposeType: SessionRequest<AudioSpaceSessionTarget>['purpose']['type']): void
   mutatePurposeOptions(
-    partialOptions: Partial<Omit<SessionRequest<AudioSpaceSessionTarget>['purpose'], 'type'>>
+    partialOptions: Partial<Omit<SessionRequest<AudioSpaceSessionTarget>['purpose'], 'type'>>,
   ): void
   availablePurposeTypes: SessionRequest<AudioSpaceSessionTarget>['purpose']['type'][]
 }
@@ -138,22 +138,26 @@ interface LockPickerPageStates {
   purpose: SessionRequest<LockPickerSessionTarget>['purpose']
   changePurposeType(__: any): void // <- 실제론 안 씀
   mutatePurposeOptions(
-    partialOptions: Partial<Omit<SessionRequest<LockPickerSessionTarget>['purpose'], 'type'>>
+    partialOptions: Partial<Omit<SessionRequest<LockPickerSessionTarget>['purpose'], 'type'>>,
   ): void
   availablePurposeTypes: SessionRequest<LockPickerSessionTarget>['purpose']['type'][]
 }
 
-export const FollowerChainBlockPageStatesContext =
-  React.createContext<FollowerChainBlockPageStates>(null!)
-export const TweetReactionChainBlockPageStatesContext =
-  React.createContext<TweetReactionChainBlockPageStates>(null!)
+export const FollowerChainBlockPageStatesContext = React.createContext<
+  FollowerChainBlockPageStates
+>(null!)
+export const TweetReactionChainBlockPageStatesContext = React.createContext<
+  TweetReactionChainBlockPageStates
+>(null!)
 export const ImportChainBlockPageStatesContext = React.createContext<ImportChainBlockPageStates>(
-  null!
+  null!,
 )
-export const UserSearchChainBlockPageStatesContext =
-  React.createContext<UserSearchChainBlockPageStates>(null!)
-export const AudioSpaceChainBlockPageStatesContext =
-  React.createContext<AudioSpaceChainBlockPageStates>(null!)
+export const UserSearchChainBlockPageStatesContext = React.createContext<
+  UserSearchChainBlockPageStates
+>(null!)
+export const AudioSpaceChainBlockPageStatesContext = React.createContext<
+  AudioSpaceChainBlockPageStates
+>(null!)
 export const LockPickerPageStatesContext = React.createContext<LockPickerPageStates>(null!)
 
 const examineResultCache = new Map<string, Actor>()
@@ -175,8 +179,9 @@ export function FollowerChainBlockPageStatesProvider({
       })
     }
   }, [initialUser])
-  const initialPurposeType =
-    determineInitialPurposeType<SessionRequest<FollowerSessionTarget>['purpose']>(initialUser)
+  const initialPurposeType = determineInitialPurposeType<
+    SessionRequest<FollowerSessionTarget>['purpose']
+  >(initialUser)
   const [targetList, setTargetList] = React.useState<FollowKind>('followers')
   const availablePurposeTypes: SessionRequest<FollowerSessionTarget>['purpose']['type'][] = [
     'chainblock',
@@ -186,10 +191,12 @@ export function FollowerChainBlockPageStatesProvider({
     'chainunfollow',
     'export',
   ]
-  const [purpose, changePurposeType, mutatePurposeOptions] =
-    usePurpose<SessionRequest<FollowerSessionTarget>['purpose']>(initialPurposeType)
-  const { enableBlockBuster, enableBlockBusterWithTweetDeck } =
-    React.useContext(RedBlockOptionsContext)
+  const [purpose, changePurposeType, mutatePurposeOptions] = usePurpose<
+    SessionRequest<FollowerSessionTarget>['purpose']
+  >(initialPurposeType)
+  const { enableBlockBuster, enableBlockBusterWithTweetDeck } = React.useContext(
+    RedBlockOptionsContext,
+  )
   const [retriever, setRetriever] = React.useState<Actor>(myself!)
   React.useEffect(() => {
     async function examine(selectedUser: TwitterUser) {
@@ -255,19 +262,20 @@ export function TweetReactionChainBlockPageStatesProvider({
   ]
   const selectedTweet = initialTweet // TODO: make it state
   const { myself } = React.useContext(TabInfoContext)
-  const { enableBlockBuster, enableReactionsV2Support, enableBlockBusterWithTweetDeck } =
-    React.useContext(RedBlockOptionsContext)
+  const { enableBlockBuster, enableReactionsV2Support, enableBlockBusterWithTweetDeck } = React
+    .useContext(RedBlockOptionsContext)
   let initialPurpose: SessionRequest<TweetReactionSessionTarget>['purpose']['type']
   if (enableReactionsV2Support) {
     availablePurposeTypes.push('unchainblock')
     initialPurpose = determineInitialPurposeType<SessionRequest<FollowerSessionTarget>['purpose']>(
-      initialTweet?.user || null
+      initialTweet?.user || null,
     )
   } else {
     initialPurpose = 'chainblock'
   }
-  const [purpose, changePurposeType, mutatePurposeOptions] =
-    usePurpose<SessionRequest<TweetReactionSessionTarget>['purpose']>(initialPurpose)
+  const [purpose, changePurposeType, mutatePurposeOptions] = usePurpose<
+    SessionRequest<TweetReactionSessionTarget>['purpose']
+  >(initialPurpose)
   const [retriever, setRetriever] = React.useState<Actor>(myself!)
   React.useEffect(() => {
     async function examine(tweetId: string) {
@@ -329,8 +337,9 @@ export function ImportChainBlockPageStatesProvider({ children }: { children: Rea
     'unchainmute',
     'chainunfollow',
   ]
-  const [purpose, changePurposeType, mutatePurposeOptions] =
-    usePurpose<SessionRequest<ImportSessionTarget>['purpose']>('chainblock')
+  const [purpose, changePurposeType, mutatePurposeOptions] = usePurpose<
+    SessionRequest<ImportSessionTarget>['purpose']
+  >('chainblock')
   return (
     <ImportChainBlockPageStatesContext.Provider
       value={{
@@ -363,8 +372,9 @@ export function UserSearchChainBlockPageStatesProvider({
     'unchainmute',
     'chainunfollow',
   ]
-  const [purpose, changePurposeType, mutatePurposeOptions] =
-    usePurpose<SessionRequest<UserSearchSessionTarget>['purpose']>('chainblock')
+  const [purpose, changePurposeType, mutatePurposeOptions] = usePurpose<
+    SessionRequest<UserSearchSessionTarget>['purpose']
+  >('chainblock')
   return (
     <UserSearchChainBlockPageStatesContext.Provider
       value={{
@@ -387,10 +397,12 @@ export function AudioSpaceChainBlockPageStatesProvider({
   audioSpace: AudioSpace
   children: React.ReactNode
 }) {
-  const [purpose, changePurposeType, mutatePurposeOptions] =
-    usePurpose<SessionRequest<AudioSpaceSessionTarget>['purpose']>('chainblock')
-  const [includedParticipants, setIncludedParticipants] =
-    React.useState<AudioSpaceChainBlockPageStates['includedParticipants']>('hosts_and_speakers')
+  const [purpose, changePurposeType, mutatePurposeOptions] = usePurpose<
+    SessionRequest<AudioSpaceSessionTarget>['purpose']
+  >('chainblock')
+  const [includedParticipants, setIncludedParticipants] = React.useState<
+    AudioSpaceChainBlockPageStates['includedParticipants']
+  >('hosts_and_speakers')
   return (
     <AudioSpaceChainBlockPageStatesContext.Provider
       value={{
@@ -416,8 +428,9 @@ export function AudioSpaceChainBlockPageStatesProvider({
 }
 
 export function LockPickerPageStatesProvider({ children }: { children: React.ReactNode }) {
-  const [purpose, changePurposeType, mutatePurposeOptions] =
-    usePurpose<SessionRequest<LockPickerSessionTarget>['purpose']>('lockpicker')
+  const [purpose, changePurposeType, mutatePurposeOptions] = usePurpose<
+    SessionRequest<LockPickerSessionTarget>['purpose']
+  >('lockpicker')
   return (
     <LockPickerPageStatesContext.Provider
       value={{

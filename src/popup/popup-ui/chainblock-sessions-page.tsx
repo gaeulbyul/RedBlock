@@ -1,25 +1,25 @@
-import type browser from 'webextension-polyfill'
-import React from 'react'
 import * as MaterialUI from '@material-ui/core'
+import React from 'react'
+import type browser from 'webextension-polyfill'
 
 import {
-  isRunningSession,
-  getLimitResetTime,
-  getCountOfUsersToBlock,
-  getTargetUser,
-} from '../../scripts/common/utilities'
-import { PageId, pageIcon, newSessionsLabel, AvailablePages } from './pages'
-import {
   cleanupInactiveSessions,
-  stopAllChainBlock,
-  stopChainBlock,
   downloadFromExportSession,
   requestProgress,
+  stopAllChainBlock,
+  stopChainBlock,
 } from '../../scripts/background/request-sender'
-import { UIContext } from './contexts'
+import {
+  getCountOfUsersToBlock,
+  getLimitResetTime,
+  getTargetUser,
+  isRunningSession,
+} from '../../scripts/common/utilities'
+import * as i18n from '../../scripts/i18n'
 import { statusToString } from '../../scripts/text-generate'
 import { BlockLimiterUI, LinearProgressWithLabel } from './components'
-import * as i18n from '../../scripts/i18n'
+import { UIContext } from './contexts'
+import { AvailablePages, newSessionsLabel, pageIcon, PageId } from './pages'
 
 const M = MaterialUI
 const T = MaterialUI.Typography
@@ -167,7 +167,7 @@ function ChainBlockSessionItem({
     case 'audio_space':
       localizedTarget = i18n.getMessage(
         'from_audio_space_by_xxx',
-        target.audioSpace.participants.admins[0]!.twitter_screen_name
+        target.audioSpace.participants.admins[0]!.twitter_screen_name,
       )
       break
     case 'export_my_blocklist':
@@ -178,13 +178,13 @@ function ChainBlockSessionItem({
   const localizedPurpose = i18n.getMessage(purpose.type)
   const cardTitle = `${localizedPurpose} ${statusToString(sessionInfo.status)}`
   function renderCardHeader(profileImageUrl: string | null) {
-    //function requestRewindChainBlock() {
+    // function requestRewindChainBlock() {
     //  rewindChainBlock(sessionId)
-    //}
-    //const rewindable = isRewindableStatus(status)
-    //<M.Button style={{ display: 'none' }} disabled={!rewindable} onClick={requestRewindChainBlock}>
+    // }
+    // const rewindable = isRewindableStatus(status)
+    // <M.Button style={{ display: 'none' }} disabled={!rewindable} onClick={requestRewindChainBlock}>
     //  {i18n.getMessage('rewind')}
-    //</M.Button>
+    // </M.Button>
     function requestStopChainBlock() {
       if (running) {
         uiContext.openDialog({
@@ -308,12 +308,9 @@ function ChainBlockSessionItem({
     biggerProfileImageUrl = firstHost.avatar_url.replace('_normal', '_bigger')
   }
   const percentage = calculatePercentage(sessionInfo)
-  const progressBar =
-    typeof percentage === 'number' ? (
-      <LinearProgressWithLabel value={percentage} />
-    ) : (
-      <M.LinearProgress variant="indeterminate" />
-    )
+  const progressBar = typeof percentage === 'number'
+    ? <LinearProgressWithLabel value={percentage} />
+    : <M.LinearProgress variant="indeterminate" />
   const succProgress = sessionInfo.progress.success
   let shortProgress: string
   switch (purpose.type) {
@@ -324,9 +321,11 @@ function ChainBlockSessionItem({
       shortProgress = `${i18n.getMessage('unblock')}: ${succProgress.UnBlock.toLocaleString()}`
       break
     case 'export':
-      shortProgress = `${i18n.getMessage(
-        'export'
-      )}: ${sessionInfo.progress.scraped.toLocaleString()}`
+      shortProgress = `${
+        i18n.getMessage(
+          'export',
+        )
+      }: ${sessionInfo.progress.scraped.toLocaleString()}`
       break
     case 'lockpicker':
       shortProgress = `${i18n.getMessage('block')}: ${succProgress.Block.toLocaleString()}`
@@ -421,7 +420,8 @@ function NewSessionButtons() {
             variant="contained"
             startIcon={pageIcon(page)}
             disabled={!uiContext.availablePages[page]}
-            onClick={e => handleNewSessionButton(e, page)}
+            onClick={e =>
+              handleNewSessionButton(e, page)}
           >
             {newSessionsLabel(page)}
           </M.Button>

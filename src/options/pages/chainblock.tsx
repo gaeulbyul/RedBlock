@@ -1,5 +1,5 @@
-import React from 'react'
 import * as MaterialUI from '@material-ui/core'
+import React from 'react'
 import * as i18n from '../../scripts/i18n'
 
 import { RedBlockOptionsContext } from './contexts'
@@ -65,8 +65,7 @@ function ChainBlockOptionsPaper() {
               onChange={(_event, checked) =>
                 updateOptions({
                   removeSessionAfterComplete: checked,
-                })
-              }
+                })}
               checked={options.removeSessionAfterComplete}
               label={i18n.getMessage('remove_session_after_complete')}
             />
@@ -77,8 +76,7 @@ function ChainBlockOptionsPaper() {
               onChange={(_event, checked) =>
                 updateOptions({
                   muteEvenAlreadyBlocking: checked,
-                })
-              }
+                })}
               checked={options.muteEvenAlreadyBlocking}
               label={i18n.getMessage('mute_even_already_blocked')}
             />
@@ -89,8 +87,7 @@ function ChainBlockOptionsPaper() {
               onChange={(_event, checked) =>
                 updateOptions({
                   allowSelfChainBlock: checked,
-                })
-              }
+                })}
               checked={options.allowSelfChainBlock}
               label={i18n.getMessage('allow_self_chainblock')}
             />
@@ -101,8 +98,7 @@ function ChainBlockOptionsPaper() {
               onChange={(_event, checked) =>
                 updateOptions({
                   alsoBlockTargetItself: checked,
-                })
-              }
+                })}
               checked={options.alsoBlockTargetItself}
               label={i18n.getMessage('include_itself')}
             />
@@ -124,8 +120,7 @@ function ChainBlockOptionsPaper() {
                   onChange={() =>
                     updateOptions({
                       skipInactiveUser: period,
-                    })
-                  }
+                    })}
                   label={label}
                 />
               ))}

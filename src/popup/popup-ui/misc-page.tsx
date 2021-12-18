@@ -1,15 +1,15 @@
-import browser from 'webextension-polyfill'
-import React from 'react'
 import * as MaterialUI from '@material-ui/core'
+import React from 'react'
+import browser from 'webextension-polyfill'
 
 import {
-  toggleOneClickBlockMode,
-  getCurrentTab,
   deleteTwitterCookies,
+  getCurrentTab,
+  toggleOneClickBlockMode,
 } from '../../scripts/common/utilities'
-import { UIContext, TabInfoContext } from './contexts'
-import { RBAccordion } from './components'
 import * as i18n from '../../scripts/i18n'
+import { RBAccordion } from './components'
+import { TabInfoContext, UIContext } from './contexts'
 
 const M = MaterialUI
 

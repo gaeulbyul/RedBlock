@@ -1,6 +1,6 @@
-import { markUser } from '../common/utilities'
 import * as i18n from '../../scripts/i18n'
-import { IterateCondition, iterateAvailableTwClients } from './multitude'
+import { markUser } from '../common/utilities'
+import { iterateAvailableTwClients, IterateCondition } from './multitude'
 
 export type TeamworkUserAction = 'Block' | 'UnBlock' | 'Mute' | 'UnMute'
 
@@ -61,7 +61,7 @@ async function unmuteWithMultipleAccounts(target: TwitterUser) {
 
 export async function doActionWithMultipleAccounts(
   action: TeamworkUserAction,
-  targetUser: TwitterUser
+  targetUser: TwitterUser,
 ) {
   switch (action) {
     case 'Block':
@@ -77,7 +77,7 @@ export async function doActionWithMultipleAccounts(
 
 export function generateTeamworkResultMessage(
   action: TeamworkUserAction,
-  results: PromiseSettledResult<TeamworkUserInfo>[]
+  results: PromiseSettledResult<TeamworkUserInfo>[],
 ) {
   const success = results.filter(({ status }) => status === 'fulfilled')
   // const failed = results.filter(({status}) => status === 'rejected')

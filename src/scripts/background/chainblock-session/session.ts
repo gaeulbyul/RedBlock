@@ -1,22 +1,22 @@
-import sum from 'lodash-es/sum'
-import cloneDeep from 'lodash-es/cloneDeep'
 import dayjs from 'dayjs'
+import cloneDeep from 'lodash-es/cloneDeep'
+import sum from 'lodash-es/sum'
 
-import * as Scraper from './scraper'
-import * as TwitterAPI from '../twitter-api'
-import { examineRetrieverByTargetUser, examineRetrieverByTweetId } from '../blockbuster'
-import { TargetCheckResult, validateRequest, checkResultToString } from '../target-checker'
 import { EventEmitter } from '../../common'
 import {
-  copyFrozenObject,
-  sleep,
-  getCountOfUsersToBlock,
   assertNever,
+  copyFrozenObject,
   extractRateLimit,
+  getCountOfUsersToBlock,
+  sleep,
 } from '../../common/utilities'
 import BlockLimiter from '../block-limiter'
-import { decideWhatToDoGivenUser } from './user-decider'
+import { examineRetrieverByTargetUser, examineRetrieverByTweetId } from '../blockbuster'
 import { loadOptions } from '../storage/options'
+import { checkResultToString, TargetCheckResult, validateRequest } from '../target-checker'
+import * as TwitterAPI from '../twitter-api'
+import * as Scraper from './scraper'
+import { decideWhatToDoGivenUser } from './user-decider'
 
 const MAX_USERS_TO_SCRAPE_AFTER_REWIND = 200
 
@@ -77,9 +77,8 @@ export default class ChainBlockSession {
               this.stop('block-limitation-reached')
               break
             }
-            const thisIsMe =
-              user.id_str === this.request.retriever.user.id_str ||
-              user.id_str === this.request.executor.user.id_str
+            const thisIsMe = user.id_str === this.request.retriever.user.id_str
+              || user.id_str === this.request.executor.user.id_str
             if (thisIsMe) {
               continue
             }
@@ -339,7 +338,7 @@ export default class ChainBlockSession {
 }
 
 async function refreshRequest<T extends AnySessionTarget>(
-  request: SessionRequest<T>
+  request: SessionRequest<T>,
 ): Promise<Either<TwitterAPI.ErrorResponse | Error, SessionRequest<T>>> {
   const newRequest: SessionRequest<T> = cloneDeep(request)
   newRequest.options = await loadOptions()

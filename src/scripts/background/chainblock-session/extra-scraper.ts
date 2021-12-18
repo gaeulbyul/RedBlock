@@ -7,7 +7,7 @@ const alternativeAccountIndicativePrefixes = [/[0-9a-z가-힣]+\s*계(?:는|정�
 
 function extractMentionsInUsersBio(
   { description: bio }: TwitterUser,
-  mode: 'all' | 'smart'
+  mode: 'all' | 'smart',
 ): string[] {
   const mentionAndIndices = ttext.extractMentionsWithIndices(bio)
   if (mode === 'all') {
@@ -32,7 +32,7 @@ function extractMentionsInUsersBio(
 export async function* scrapeUsersOnBio(
   scrapingClient: UserScrapingAPIClient,
   userIterator: ScrapedUsersIterator,
-  mode: BioBlockMode
+  mode: BioBlockMode,
 ): ScrapedUsersIterator {
   if (mode === 'never') {
     yield* userIterator
@@ -43,11 +43,13 @@ export async function* scrapeUsersOnBio(
     if (response.ok) {
       const { users } = response.value
       const mentionedUserNames = new Set(
-        users.map(user => extractMentionsInUsersBio(user, mode)).flat()
+        users.map(user => extractMentionsInUsersBio(user, mode)).flat(),
       )
-      for await (const maybeUser of scrapingClient.lookupUsersByNames(
-        Array.from(mentionedUserNames)
-      )) {
+      for await (
+        const maybeUser of scrapingClient.lookupUsersByNames(
+          Array.from(mentionedUserNames),
+        )
+      ) {
         // ok여부 체크하지 않으면 오류로 인해 체인블락이 정지한다.
         // 프로필 유저를 가져오지 못하더라도 진행할 수 있도록 하자
         if (maybeUser.ok) {

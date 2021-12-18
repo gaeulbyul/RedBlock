@@ -35,7 +35,7 @@ export default class RecurringManager {
 
   public async addSchedule(
     sessionId: string,
-    delayInMinutes: number
+    delayInMinutes: number,
   ): Promise<browser.Alarms.Alarm> {
     const name = generateAlarmName(sessionId)
     this.nameToSessionId.set(name, sessionId)

@@ -2,7 +2,7 @@ import * as uuid from 'uuid'
 
 export interface ReduxStore {
   getState(): any
-  dispatch(payload: { type: string; [key: string]: any }): any
+  dispatch(payload: { type: string, [key: string]: any }): any
   subscribe(callback: () => void): void
 }
 
@@ -62,7 +62,7 @@ export function toastMessage({ text, undoBlock }: ToastMessageParam) {
           new CustomEvent<UndoOneClickBlockByIdParam>('RedBlock<-RequestUnblockUserById', {
             bubbles: true,
             detail: undoBlock,
-          })
+          }),
         )
         markUser({
           userAction: 'UnBlock',

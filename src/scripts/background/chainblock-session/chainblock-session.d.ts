@@ -168,8 +168,8 @@ interface SessionEventEmitter {
   'rate-limit': Limit
   'rate-limit-reset': null
   started: SessionInfo
-  stopped: { sessionInfo: SessionInfo; reason: StopReason }
+  stopped: { sessionInfo: SessionInfo, reason: StopReason }
   complete: SessionInfo
-  'recurring-waiting': { sessionInfo: SessionInfo; delayInMinutes: number }
-  error: { sessionInfo: SessionInfo; message: string }
+  'recurring-waiting': { sessionInfo: SessionInfo, delayInMinutes: number }
+  error: { sessionInfo: SessionInfo, message: string }
 }

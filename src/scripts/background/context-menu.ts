@@ -1,25 +1,25 @@
-import { sendBrowserTabMessage, toggleOneClickBlockMode } from '../common/utilities'
 import TwitterURL from '../common/twitter-url'
+import { sendBrowserTabMessage, toggleOneClickBlockMode } from '../common/utilities'
+import { checkResultToString, generateConfirmMessage, objToString } from '../text-generate'
+import { alertToTab } from './background'
 import {
   defaultChainBlockPurposeOptions,
   defaultExtraSessionOptions,
 } from './chainblock-session/default-options'
-import * as TwitterAPI from './twitter-api'
-import { TargetCheckResult } from './target-checker'
-import { generateConfirmMessage, checkResultToString, objToString } from '../text-generate'
-import { alertToTab } from './background'
 import { getCookieStoreIdFromTab } from './cookie-handler'
-import { loadOptions, loadUIOptions, defaultUIOptions } from './storage/options'
+import { defaultUIOptions, loadOptions, loadUIOptions } from './storage/options'
+import { TargetCheckResult } from './target-checker'
+import * as TwitterAPI from './twitter-api'
 
+import browser from 'webextension-polyfill'
+import * as i18n from '../../scripts/i18n'
 import { examineRetrieverByTargetUser } from './blockbuster'
+import type SessionManager from './session-manager'
 import {
-  TeamworkUserAction,
   doActionWithMultipleAccounts,
   generateTeamworkResultMessage,
+  TeamworkUserAction,
 } from './teamwork'
-import type SessionManager from './session-manager'
-import * as i18n from '../../scripts/i18n'
-import browser from 'webextension-polyfill'
 
 type BrowserTab = browser.Tabs.Tab
 
@@ -75,7 +75,7 @@ async function initExecutorActor(tab: BrowserTab): Promise<Actor | null> {
 
 async function getUserByName(
   twClient: TwClient,
-  userName: string
+  userName: string,
 ): Promise<Either<TwitterAPI.ErrorResponse, TwitterUser>> {
   return twClient
     .getSingleUser({ screen_name: userName })
@@ -118,16 +118,15 @@ async function confirmChainBlockRequest(
   tab: BrowserTab,
   sessionManager: SessionManager,
   executor: Actor,
-  target: AnySessionTarget
+  target: AnySessionTarget,
 ) {
   const options = await loadOptions()
   let retriever: Actor
   if (target.type === 'follower' && options.enableBlockBuster) {
-    retriever =
-      (await examineRetrieverByTargetUser(executor, target.user, {
-        includeTweetDeck: options.enableBlockBusterWithTweetDeck,
-        includeAnotherCookieStores: true,
-      })) || executor
+    retriever = (await examineRetrieverByTargetUser(executor, target.user, {
+      includeTweetDeck: options.enableBlockBusterWithTweetDeck,
+      includeAnotherCookieStores: true,
+    })) || executor
   } else {
     retriever = executor
   }
@@ -155,7 +154,7 @@ async function confirmFollowerChainBlockRequest(
   menuId:
     | 'run_followers_chainblock_to_this_user'
     | 'run_followings_chainblock_to_this_user'
-    | 'run_mutual_followers_chainblock_to_this_user'
+    | 'run_mutual_followers_chainblock_to_this_user',
 ) {
   const executor = await initExecutorActor(tab)
   if (!executor) {
@@ -198,7 +197,7 @@ async function confirmTweetReactionChainBlockRequest(
     | 'run_retweeters_chainblock_to_this_tweet'
     | 'run_likers_chainblock_to_this_tweet'
     | 'run_retweeters_and_likers_chainblock_to_this_tweet'
-    | 'run_mentioned_users_chainblock_to_this_tweet'
+    | 'run_mentioned_users_chainblock_to_this_tweet',
 ) {
   const executor = await initExecutorActor(tab)
   if (!executor) {
@@ -247,7 +246,7 @@ async function confirmAudioSpaceChainBlockRequest(
   audioSpaceId: string,
   menuId:
     | 'run_chainblock_from_audio_space_hosts_and_speakers'
-    | 'run_chainblock_from_audio_space_all'
+    | 'run_chainblock_from_audio_space_all',
 ) {
   const executor = await initExecutorActor(tab)
   if (!executor) {
@@ -277,7 +276,7 @@ async function confirmAudioSpaceChainBlockRequest(
 async function confirmUserHashTagChainBlockRequest(
   tab: BrowserTab,
   sessionManager: SessionManager,
-  hashtag: string
+  hashtag: string,
 ) {
   const executor = await initExecutorActor(tab)
   if (!executor) {
@@ -437,7 +436,7 @@ const dummyIdGenerator = (function* dummyIdGeneratorFunc() {
 
 export async function initializeContextMenu(
   sessionManager: SessionManager,
-  enabledMenus: RedBlockUIOptions['menus']
+  enabledMenus: RedBlockUIOptions['menus'],
 ) {
   connectedSessionManager = sessionManager
   await browser.contextMenus.removeAll()

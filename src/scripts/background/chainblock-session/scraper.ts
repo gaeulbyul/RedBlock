@@ -1,11 +1,11 @@
+import {
+  findNonLinkedMentionsFromTweet,
+  getFollowersCount,
+  getParticipantsInAudioSpaceCount,
+  getTotalCountOfReactions,
+} from '../../common/utilities'
 import * as UserScrapingAPI from '../user-scraping-api'
 import * as ExtraScraper from './extra-scraper'
-import {
-  getFollowersCount,
-  getTotalCountOfReactions,
-  getParticipantsInAudioSpaceCount,
-  findNonLinkedMentionsFromTweet,
-} from '../../common/utilities'
 
 export interface UserScraper {
   totalCount: number | null
@@ -22,16 +22,16 @@ function wrapSingleUserToEitherRight(user: TwitterUser): EitherRight<UsersObject
 // 단순 스크래퍼. 기존 체인블락 방식
 class SimpleScraper implements UserScraper {
   private retrieverScrapingClient = UserScrapingAPI.UserScrapingAPIClient.fromClientOptions(
-    this.request.retriever.clientOptions
+    this.request.retriever.clientOptions,
   )
 
   private executorScrapingClient = UserScrapingAPI.UserScrapingAPIClient.fromClientOptions(
-    this.request.executor.clientOptions
+    this.request.executor.clientOptions,
   )
 
   public totalCount: number
   public constructor(
-    private request: SessionRequest<FollowerSessionTarget | LockPickerSessionTarget>
+    private request: SessionRequest<FollowerSessionTarget | LockPickerSessionTarget>,
   ) {
     const { user, list: followKind } = request.target
     this.totalCount = getFollowersCount(user, followKind)!
@@ -53,12 +53,12 @@ class SimpleScraper implements UserScraper {
     }
     let scraper: ScrapedUsersIterator = this.executorScrapingClient.getAllFollowsUserList(
       followKind,
-      user
+      user,
     )
     scraper = ExtraScraper.scrapeUsersOnBio(
       this.executorScrapingClient,
       scraper,
-      this.request.extraSessionOptions.bioBlock
+      this.request.extraSessionOptions.bioBlock,
     )
     yield* scraper
   }
@@ -78,7 +78,7 @@ class SimpleScraper implements UserScraper {
       scraper = ExtraScraper.scrapeUsersOnBio(
         this.executorScrapingClient,
         scraper,
-        this.request.extraSessionOptions.bioBlock
+        this.request.extraSessionOptions.bioBlock,
       )
       yield* scraper
     }
@@ -88,11 +88,11 @@ class SimpleScraper implements UserScraper {
 // 맞팔로우 스크래퍼
 class MutualFollowerScraper implements UserScraper {
   private retrieverScrapingClient = UserScrapingAPI.UserScrapingAPIClient.fromClientOptions(
-    this.request.retriever.clientOptions
+    this.request.retriever.clientOptions,
   )
 
   private executorScrapingClient = UserScrapingAPI.UserScrapingAPIClient.fromClientOptions(
-    this.request.executor.clientOptions
+    this.request.executor.clientOptions,
   )
 
   public totalCount: number | null = null
@@ -109,12 +109,13 @@ class MutualFollowerScraper implements UserScraper {
     if (this.request.options.alsoBlockTargetItself) {
       yield wrapSingleUserToEitherRight(user)
     }
-    let scraper: ScrapedUsersIterator =
-      this.executorScrapingClient.lookupUsersByIds(mutualFollowersIds)
+    let scraper: ScrapedUsersIterator = this.executorScrapingClient.lookupUsersByIds(
+      mutualFollowersIds,
+    )
     scraper = ExtraScraper.scrapeUsersOnBio(
       this.executorScrapingClient,
       scraper,
-      this.request.extraSessionOptions.bioBlock
+      this.request.extraSessionOptions.bioBlock,
     )
     yield* scraper
   }
@@ -131,11 +132,11 @@ class MutualFollowerScraper implements UserScraper {
 // 트윗반응 유저 스크래퍼
 export class TweetReactedUserScraper implements UserScraper {
   private retrieverScrapingClient = UserScrapingAPI.UserScrapingAPIClient.fromClientOptions(
-    this.request.retriever.clientOptions
+    this.request.retriever.clientOptions,
   )
 
   private executorScrapingClient = UserScrapingAPI.UserScrapingAPIClient.fromClientOptions(
-    this.request.executor.clientOptions
+    this.request.executor.clientOptions,
   )
 
   public totalCount: number
@@ -185,7 +186,7 @@ export class TweetReactedUserScraper implements UserScraper {
     } else if (includedReactionsV2.length > 0) {
       const reactedUserIterator = this.retrieverScrapingClient.getAllReactedV2UserList(
         tweet,
-        includedReactionsV2
+        includedReactionsV2,
       )
       scrapers.push(reactedUserIterator)
     }
@@ -208,7 +209,7 @@ export class TweetReactedUserScraper implements UserScraper {
       yield* ExtraScraper.scrapeUsersOnBio(
         this.retrieverScrapingClient,
         scraper,
-        this.request.extraSessionOptions.bioBlock
+        this.request.extraSessionOptions.bioBlock,
       )
     }
   }
@@ -216,7 +217,7 @@ export class TweetReactedUserScraper implements UserScraper {
 
 class ImportUserScraper implements UserScraper {
   private scrapingClient = UserScrapingAPI.UserScrapingAPIClient.fromClientOptions(
-    this.request.executor.clientOptions
+    this.request.executor.clientOptions,
   )
 
   public totalCount = this.request.target.userIds.length + this.request.target.userNames.length
@@ -230,7 +231,7 @@ class ImportUserScraper implements UserScraper {
       scraper = ExtraScraper.scrapeUsersOnBio(
         this.scrapingClient,
         scraper,
-        this.request.extraSessionOptions.bioBlock
+        this.request.extraSessionOptions.bioBlock,
       )
       yield* scraper
     }
@@ -239,7 +240,7 @@ class ImportUserScraper implements UserScraper {
       scraper = ExtraScraper.scrapeUsersOnBio(
         this.scrapingClient,
         scraper,
-        this.request.extraSessionOptions.bioBlock
+        this.request.extraSessionOptions.bioBlock,
       )
       yield* scraper
     }
@@ -248,19 +249,19 @@ class ImportUserScraper implements UserScraper {
 
 class UserSearchScraper implements UserScraper {
   private scrapingClient = UserScrapingAPI.UserScrapingAPIClient.fromClientOptions(
-    this.request.executor.clientOptions
+    this.request.executor.clientOptions,
   )
 
   public totalCount = null
   public constructor(private request: SessionRequest<UserSearchSessionTarget>) {}
   public async *[Symbol.asyncIterator]() {
     let scraper: ScrapedUsersIterator = this.scrapingClient.getUserSearchResults(
-      this.request.target.query
+      this.request.target.query,
     )
     scraper = ExtraScraper.scrapeUsersOnBio(
       this.scrapingClient,
       scraper,
-      this.request.extraSessionOptions.bioBlock
+      this.request.extraSessionOptions.bioBlock,
     )
     yield* scraper
   }
@@ -268,7 +269,7 @@ class UserSearchScraper implements UserScraper {
 
 export class AudioSpaceScraper implements UserScraper {
   private scrapingClient = UserScrapingAPI.UserScrapingAPIClient.fromClientOptions(
-    this.request.executor.clientOptions
+    this.request.executor.clientOptions,
   )
 
   public totalCount = getParticipantsInAudioSpaceCount(this.request.target)
@@ -283,7 +284,7 @@ export class AudioSpaceScraper implements UserScraper {
     scraper = ExtraScraper.scrapeUsersOnBio(
       this.scrapingClient,
       scraper,
-      this.request.extraSessionOptions.bioBlock
+      this.request.extraSessionOptions.bioBlock,
     )
     yield* scraper
   }

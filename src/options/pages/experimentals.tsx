@@ -1,9 +1,9 @@
-import React from 'react'
 import * as MaterialUI from '@material-ui/core'
+import React from 'react'
 import * as i18n from '../../scripts/i18n'
 
-import { RedBlockOptionsContext } from './contexts'
 import { SwitchItem } from '../../ui/components'
+import { RedBlockOptionsContext } from './contexts'
 
 const M = MaterialUI
 
@@ -22,8 +22,7 @@ export default function ExperimentalOptionsPages() {
               onChange={checked =>
                 updateOptions({
                   enableBlockBuster: checked,
-                })
-              }
+                })}
             />
           </M.FormGroup>
           <M.FormHelperText>{i18n.getMessage('blockbuster_description')}</M.FormHelperText>
@@ -35,8 +34,7 @@ export default function ExperimentalOptionsPages() {
                 onChange={checked =>
                   updateOptions({
                     enableBlockBusterWithTweetDeck: checked,
-                  })
-                }
+                  })}
               />
             </M.FormGroup>
           )}
@@ -48,8 +46,7 @@ export default function ExperimentalOptionsPages() {
               onChange={checked =>
                 updateOptions({
                   revealBioBlockMode: checked,
-                })
-              }
+                })}
             />
           </M.FormGroup>
           <M.FormHelperText>{i18n.getMessage('bioblock_description')}</M.FormHelperText>
@@ -61,8 +58,7 @@ export default function ExperimentalOptionsPages() {
               onChange={checked =>
                 updateOptions({
                   enableReactionsV2Support: checked,
-                })
-              }
+                })}
             />
           </M.FormGroup>
           <M.FormHelperText>{i18n.getMessage('enable_reactions_v2_description')}</M.FormHelperText>
@@ -74,8 +70,7 @@ export default function ExperimentalOptionsPages() {
               onChange={checked =>
                 updateOptions({
                   enableTeamwork: checked,
-                })
-              }
+                })}
             />
           </M.FormGroup>
           <M.FormHelperText>{i18n.getMessage('enable_teamwork_description')}</M.FormHelperText>

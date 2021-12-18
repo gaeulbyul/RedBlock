@@ -1,17 +1,17 @@
-import browser from 'webextension-polyfill'
-import React from 'react'
 import * as MaterialUI from '@material-ui/core'
+import React from 'react'
+import browser from 'webextension-polyfill'
 import * as i18n from '../../scripts/i18n'
 
-import { RedBlockOptionsContext } from './contexts'
-import { SwitchItem } from '../../ui/components'
-import {
-  getCurrentTab,
-  deleteTwitterCookies,
-  nukeRedBlockSettings,
-} from '../../scripts/common/utilities'
 import { dumpStorage } from '../../scripts/background/storage'
 import { validateStorage } from '../../scripts/background/storage/validator'
+import {
+  deleteTwitterCookies,
+  getCurrentTab,
+  nukeRedBlockSettings,
+} from '../../scripts/common/utilities'
+import { SwitchItem } from '../../ui/components'
+import { RedBlockOptionsContext } from './contexts'
 
 function checkFirstPartyIsolationSupport() {
   try {
@@ -147,8 +147,7 @@ export default function TroubleShootingsPage() {
                 onChange={checked =>
                   updateOptions({
                     firstPartyIsolationCompatibleMode: checked,
-                  })
-                }
+                  })}
               />
             </M.FormGroup>
             <M.FormHelperText>
