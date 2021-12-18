@@ -15,7 +15,6 @@ function addBlockButtonOnTweet(elem: HTMLElement, user: TwitterUser) {
   btn.classList.add('redblock-btn-on-tweet')
   const caret = elem.querySelector('[data-testid=caret]')
   if (!caret) {
-    debugger
     return
   }
   caret.before(btn)

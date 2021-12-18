@@ -42,13 +42,8 @@ html.dark .js-tweet .redblock-block-btn:hover,
   top: 5rem;
 }
 
-/* 인용트윗 내부. 타임스탬프 오른쪽에 버튼이 붙는다. */
 span > .redblock-btn-tweet {
-  margin-left: 15px;
-}
-
-.redblock-btn-usercell {
-  margin-left: 10px;
+  margin-inline-start: 15px;
 }
 
 .redblock-oneclick-block-mode-enabled .redblock-btn.manual {
@@ -84,5 +79,5 @@ html.dark .redblock-block-btn,
 }
 
 .redblock-btn-on-tweet {
-  margin-right: 15px;
+  margin-inline-end: 15px;
 }
