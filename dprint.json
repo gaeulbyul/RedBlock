@@ -28,6 +28,7 @@
     "src/**/*.{ts,tsx,js,jsx,cjs,mjs,json,md}"
   ],
   "excludes": [
+    ".yarn",
     "**/node_modules",
     "**/*-lock.json",
     "**/vendor"
