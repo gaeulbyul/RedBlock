@@ -1,0 +1,1029 @@
+{
+  "tweet_reactions": {
+    "message": "推文回应"
+  },
+  "search_result": {
+    "message": "用户搜索结果"
+  },
+  "new_session": {
+    "message": "新建会话"
+  },
+  "running_sessions": {
+    "message": "运行中"
+  },
+  "blocklist_page": {
+    "message": "屏蔽列表导入/导出"
+  },
+  "miscellaneous": {
+    "message": "杂项"
+  },
+  "open_in_new_tab": {
+    "message": "在新标签页打开"
+  },
+  "open_settings_ui": {
+    "message": "设置"
+  },
+  "followers": {
+    "message": "关注者"
+  },
+  "followings": {
+    "message": "正在关注"
+  },
+  "mutual_followers": {
+    "message": "相互关注者"
+  },
+  "retweet": {
+    "message": "转推"
+  },
+  "like": {
+    "message": "喜欢"
+  },
+  "mentioned": {
+    "message": "提及的用户"
+  },
+  "quoted": {
+    "message": "引用的用户"
+  },
+  "non_linked_mentions": {
+    "message": "无链接提及"
+  },
+  "chainblock": {
+    "message": "批量屏蔽"
+  },
+  "unchainblock": {
+    "message": "批量取消屏蔽"
+  },
+  "chainunfollow": {
+    "message": "批量取消关注"
+  },
+  "chainmute": {
+    "message": "批量静音/隐藏"
+  },
+  "unchainmute": {
+    "message": "批量取消静音"
+  },
+  "lockpicker": {
+    "message": "屏蔽受保护的关注者"
+  },
+  "query": {
+    "message": "查询"
+  },
+  "followers_of_xxx": {
+    "message": "@$username$ 的关注者",
+    "placeholders": {
+      "username": {
+        "content": "$1"
+      }
+    }
+  },
+  "followings_of_xxx": {
+    "message": "@$username$ 的正在关注",
+    "placeholders": {
+      "username": {
+        "content": "$1"
+      }
+    }
+  },
+  "mutual_followers_of_xxx": {
+    "message": "@$username$ 的相互关注者",
+    "placeholders": {
+      "username": {
+        "content": "$1"
+      }
+    }
+  },
+  "reacted_xxxs_tweet": {
+    "message": "回应 @$username$ 推文的用户",
+    "placeholders": {
+      "username": {
+        "content": "$1"
+      }
+    }
+  },
+  "from_imported_blocklist": {
+    "message": "导入屏蔽列表"
+  },
+  "from_user_search_result": {
+    "message": "来自用户搜索结果"
+  },
+  "from_audio_space_by_xxx": {
+    "message": "@$username$ 所主持的 Twitter 空间",
+    "placeholders": {
+      "username": {
+        "content": "$1"
+      }
+    }
+  },
+  "includes_listeners": {
+    "message": "包含听众"
+  },
+  "exporting_my_blocklist": {
+    "message": "导出你的屏蔽列表"
+  },
+  "session_status_initial": {
+    "message": "等待中……"
+  },
+  "session_status_completed": {
+    "message": "已完成"
+  },
+  "session_status_running": {
+    "message": "运行中……"
+  },
+  "session_status_rate_limited": {
+    "message": "速率受限"
+  },
+  "session_status_stopped": {
+    "message": "已停止"
+  },
+  "session_status_error": {
+    "message": "出错"
+  },
+  "session_status_awaiting": {
+    "message": "正在等待定期会话……"
+  },
+  "close": {
+    "message": "关闭"
+  },
+  "stop": {
+    "message": "停止"
+  },
+  "rewind": {
+    "message": "撤消"
+  },
+  "block": {
+    "message": "屏蔽"
+  },
+  "unblock": {
+    "message": "取消屏蔽"
+  },
+  "mute": {
+    "message": "隐藏"
+  },
+  "unmute": {
+    "message": "取消隐藏"
+  },
+  "unfollow": {
+    "message": "取消关注"
+  },
+  "block_and_unblock": {
+    "message": "软屏蔽"
+  },
+  "skipped": {
+    "message": "已跳过"
+  },
+  "failed": {
+    "message": "已失败"
+  },
+  "already_done": {
+    "message": "已完成"
+  },
+  "tweet": {
+    "message": "推文"
+  },
+  "status": {
+    "message": "状态"
+  },
+  "audio_space": {
+    "message": "空间"
+  },
+  "hosts_and_speakers": {
+    "message": "主持人和发言人"
+  },
+  "all_participants": {
+    "message": "所有参与者"
+  },
+  "rate_limit_reset_time": {
+    "message": "速率限制的重置时间"
+  },
+  "confirm_all_stop": {
+    "message": "你确定要停止所有会话吗？"
+  },
+  "stop_all": {
+    "message": "全部停止"
+  },
+  "cleanup_sessions": {
+    "message": "清除完成项"
+  },
+  "session_is_empty": {
+    "message": "当前没有会话。"
+  },
+  "press_plus_to_start_new_session": {
+    "message": "要开始新会话，请点击下面的按钮。"
+  },
+  "user_xxx_added": {
+    "message": "已添加 @$username$",
+    "placeholders": {
+      "username": {
+        "content": "$1"
+      }
+    }
+  },
+  "user_xxx_removed": {
+    "message": "已移除 @$username$",
+    "placeholders": {
+      "username": {
+        "content": "$1"
+      }
+    }
+  },
+  "user_xxx_already_exists": {
+    "message": "用户 @$username$ 已存在！",
+    "placeholders": {
+      "username": {
+        "content": "$1"
+      }
+    }
+  },
+  "current_user": {
+    "message": "当前用户"
+  },
+  "select_user": {
+    "message": "选择用户"
+  },
+  "saved_user": {
+    "message": "已保存用户"
+  },
+  "add": {
+    "message": "添加"
+  },
+  "remove": {
+    "message": "移除"
+  },
+  "refresh": {
+    "message": "刷新"
+  },
+  "user_not_selected": {
+    "message": "选择运行批量屏蔽的目标用户"
+  },
+  "profile_image": {
+    "message": "个人资料图像"
+  },
+  "cant_chainblock_to_protected": {
+    "message": "无法在受保护的用户上运行批量屏蔽。"
+  },
+  "cant_chainblock_to_blocked": {
+    "message": "无法运行在已屏蔽你的用户上运行批量屏蔽。"
+  },
+  "target": {
+    "message": "目标"
+  },
+  "blocklist": {
+    "message": "屏蔽列表"
+  },
+  "go_to_url": {
+    "message": "打开 $url$",
+    "placeholders": {
+      "url": {
+        "content": "$1"
+      }
+    }
+  },
+  "my_followers": {
+    "message": "我的关注者"
+  },
+  "my_followings": {
+    "message": "我的正在关注"
+  },
+  "failed_to_get_user_info": {
+    "message": "无法获取 @$username$ 的数据。",
+    "placeholders": {
+      "username": {
+        "content": "$1"
+      }
+    }
+  },
+  "followers_with_count": {
+    "message": "关注者（$count$）",
+    "placeholders": {
+      "count": {
+        "content": "$1"
+      }
+    }
+  },
+  "followings_with_count": {
+    "message": "正在关注（$count$）",
+    "placeholders": {
+      "count": {
+        "content": "$1"
+      }
+    }
+  },
+  "followers_with_targets_name": {
+    "message": "@$username$ 的关注者",
+    "placeholders": {
+      "username": {
+        "content": "$1"
+      }
+    }
+  },
+  "followings_with_targets_name": {
+    "message": "@$username$ 的正在关注",
+    "placeholders": {
+      "username": {
+        "content": "$1"
+      }
+    }
+  },
+  "mutual_followers_with_targets_name": {
+    "message": "@$username$ 的相互关注者",
+    "placeholders": {
+      "username": {
+        "content": "$1"
+      }
+    }
+  },
+  "followers_with_targets_name_and_count": {
+    "message": "@$username$ 的关注者（$count$）",
+    "placeholders": {
+      "username": {
+        "content": "$1"
+      },
+      "count": {
+        "content": "$2"
+      }
+    }
+  },
+  "followings_with_targets_name_and_count": {
+    "message": "@$username$ 的正在关注（$count$）",
+    "placeholders": {
+      "username": {
+        "content": "$1"
+      },
+      "count": {
+        "content": "$2"
+      }
+    }
+  },
+  "skip": {
+    "message": "跳过"
+  },
+  "do_block": {
+    "message": "屏蔽"
+  },
+  "do_mute": {
+    "message": "隐藏"
+  },
+  "do_unblock": {
+    "message": "取消屏蔽"
+  },
+  "mutually_blocked": {
+    "message": "已相互屏蔽"
+  },
+  "blocked": {
+    "message": "已屏蔽"
+  },
+  "unblocked": {
+    "message": "已取消屏蔽"
+  },
+  "muted": {
+    "message": "已隐藏"
+  },
+  "unmuted": {
+    "message": "已取消隐藏"
+  },
+  "options": {
+    "message": "选项"
+  },
+  "chainblock_description": {
+    "message": "屏蔽所有根据你所设定选项的用户。"
+  },
+  "unchainblock_description": {
+    "message": "取消屏蔽所有根据你所设定选项的用户。"
+  },
+  "lockpicker_description": {
+    "message": "不像批量屏蔽，这“只”会屏蔽那些未关注回你的受保护关注者，并且其他人不会被屏蔽。"
+  },
+  "chainunfollow_description": {
+    "message": "取消关注所有你正在关注的用户。你的相互关注者不会被取消关注。"
+  },
+  "chainmute_description": {
+    "message": "隐藏所有满足你设定选项的用户。"
+  },
+  "unchainmute_description": {
+    "message": "取消隐藏所有满足你设定选项的用户。"
+  },
+  "my_mutual_followers_wont_block_or_mute": {
+    "message": "你的相互关注者不会被屏蔽/隐藏。"
+  },
+  "confirm_chainblock_title": {
+    "message": "你确定要运行批量屏蔽吗？"
+  },
+  "confirm_unchainblock_title": {
+    "message": "你确定要运行批量取消屏蔽吗？"
+  },
+  "confirm_chainmute_title": {
+    "message": "你确定要运行批量隐藏吗？"
+  },
+  "confirm_unchainmute_title": {
+    "message": "你确定要运行批量取消隐藏吗？"
+  },
+  "confirm_chainunfollow_title": {
+    "message": "你确定要运行批量取消关注吗？"
+  },
+  "confirm_lockpicker_block_title": {
+    "message": "你确定要屏蔽受保护的关注者吗？"
+  },
+  "confirm_lockpicker_bnb_title": {
+    "message": "你确定要软屏蔽（屏蔽后再取消屏蔽）受保护的关注者吗？"
+  },
+  "confirm_export_title": {
+    "message": "你确定要导出用户列表吗？"
+  },
+  "from_blocked_by_you": {
+    "message": "来源：你（@$myname$）屏蔽的用户。",
+    "placeholders": {
+      "myname": {
+        "content": "$1"
+      }
+    }
+  },
+  "user_count": {
+    "message": "用户数"
+  },
+  "import": {
+    "message": "导入"
+  },
+  "import_blocklist": {
+    "message": "导入屏蔽列表"
+  },
+  "usersearch_chainblock": {
+    "message": "用户搜索结果批量屏蔽"
+  },
+  "pick_file_first": {
+    "message": "请先选择屏蔽列表文件。"
+  },
+  "blocklist_import_description": {
+    "message": "你可以从屏蔽列表文件中屏蔽用户。当前 Red Block 支持 CSV、JSON（来自原始 Twitter Block Chain 的导出链功能）和 JS（来自 Twitter 存档的“block.js”"）。"
+  },
+  "select_rt_or_like": {
+    "message": "请选择目标（转推、喜欢、提及……）以开始会话。"
+  },
+  "warning_maybe_you_block_your_followers": {
+    "message": "小心！此选项可能会丢失你的关注者。"
+  },
+  "warning_maybe_you_block_your_followings": {
+    "message": "小心！此选项可能会丢失你的正在关注。"
+  },
+  "tweet_contents": {
+    "message": "推文内容"
+  },
+  "run_xxx": {
+    "message": "运行 $purpose$",
+    "placeholders": {
+      "purpose": {
+        "content": "$1"
+      }
+    }
+  },
+  "confirm_session_stop_message": {
+    "message": "你确定要运行此会话吗？"
+  },
+  "tooltip_close_session": {
+    "message": "关闭此会话。"
+  },
+  "tooltip_stop_session": {
+    "message": "停止此会话。"
+  },
+  "blocked_n_users": {
+    "message": "已屏蔽 $count$ 个用户。",
+    "placeholders": {
+      "count": {
+        "content": "$1"
+      }
+    }
+  },
+  "unblocked_n_users": {
+    "message": "已取消屏蔽 $count$ 个用户。",
+    "placeholders": {
+      "count": {
+        "content": "$1"
+      }
+    }
+  },
+  "bnbed_n_users": {
+    "message": "已软屏蔽 $count$ 个用户。",
+    "placeholders": {
+      "count": {
+        "content": "$1"
+      }
+    }
+  },
+  "unfollowed_n_users": {
+    "message": "已取消关注 $count$ 个用户。",
+    "placeholders": {
+      "count": {
+        "content": "$1"
+      }
+    }
+  },
+  "muted_n_users": {
+    "message": "已隐藏 $count$ 个用户。",
+    "placeholders": {
+      "count": {
+        "content": "$1"
+      }
+    }
+  },
+  "unmuted_n_users": {
+    "message": "已取消隐藏 $count$ 个用户。",
+    "placeholders": {
+      "count": {
+        "content": "$1"
+      }
+    }
+  },
+  "already_blocked": {
+    "message": "已经屏蔽"
+  },
+  "already_unblocked": {
+    "message": "已经取消屏蔽"
+  },
+  "already_muted": {
+    "message": "已经隐藏"
+  },
+  "already_unmuted": {
+    "message": "已经取消隐藏"
+  },
+  "chainblock_completed": {
+    "message": "批量屏蔽已完成！"
+  },
+  "unchainblock_completed": {
+    "message": "批量取消屏蔽已完成！"
+  },
+  "lockpicker_completed": {
+    "message": "屏蔽受保护的关注者已完成！"
+  },
+  "chainunfollow_completed": {
+    "message": "批量取消关注已完成！"
+  },
+  "chainmute_completed": {
+    "message": "批量隐藏已完成！"
+  },
+  "unchainmute_completed": {
+    "message": "批量取消隐藏已完成！"
+  },
+  "yes": {
+    "message": "是"
+  },
+  "no": {
+    "message": "否"
+  },
+  "error_occured_check_login": {
+    "message": "发生错误。请检查你的登录状态。"
+  },
+  "error_occured": {
+    "message": "发生错误。"
+  },
+  "error_occured_on_retrieving_tweet": {
+    "message": "检索推文时发生错误。"
+  },
+  "error_occured_on_retrieving_user": {
+    "message": "检索用户 @$username$ 时发生错误。",
+    "placeholders": {
+      "username": {
+        "content": "$1"
+      }
+    }
+  },
+  "error_occured_on_retrieving_audio_space": {
+    "message": "检索此空间时发生错误。"
+  },
+  "error_rate_limited": {
+    "message": "速率受限。请稍后再试。"
+  },
+  "run_followers_chainblock_to_this_user": {
+    "message": "在此用户的关注者上运行批量屏蔽"
+  },
+  "run_followings_chainblock_to_this_user": {
+    "message": "R在此用户的正在关注上运行批量屏蔽"
+  },
+  "run_mutual_followers_chainblock_to_this_user": {
+    "message": "在此用户的相互关注者上运行批量屏蔽"
+  },
+  "run_retweeters_chainblock_to_this_tweet": {
+    "message": "在转推此推文的用户上运行批量屏蔽"
+  },
+  "run_likers_chainblock_to_this_tweet": {
+    "message": "在喜欢此推文的用户上运行批量屏蔽"
+  },
+  "run_retweeters_and_likers_chainblock_to_this_tweet": {
+    "message": "在转推或喜欢此推文的用户上运行批量屏蔽"
+  },
+  "run_mentioned_users_chainblock_to_this_tweet": {
+    "message": "在被此推文提及的用户上运行批量屏蔽"
+  },
+  "run_chainblock_from_text_selection": {
+    "message": "从所选文本中导入屏蔽列表"
+  },
+  "run_chainblock_from_audio_space_hosts_and_speakers": {
+    "message": "在此空间（主持人和发言人）上运行批量屏蔽)"
+  },
+  "run_chainblock_from_audio_space_all": {
+    "message": "在此空间（所有参与者）上运行批量屏蔽)"
+  },
+  "already_running_to_same_target": {
+    "message": "已经有运行在相同目标上的会话。"
+  },
+  "cant_chainblock_follower_is_zero": {
+    "message": "此用户没有关注者。"
+  },
+  "cant_chainblock_following_is_zero": {
+    "message": "此用户没有关注任何人。"
+  },
+  "cant_chainblock_mutual_follower_is_zero": {
+    "message": "此用户没有相互关注者。"
+  },
+  "cant_chainblock_nobody_will_blocked": {
+    "message": "给定的条件没有包含任何用户。"
+  },
+  "cant_chainblock_empty_list": {
+    "message": "你还没有选择屏蔽列表文件，或者在所选的屏蔽列表上找不到任何用户 ID。"
+  },
+  "cant_chainblock_to_yourself": {
+    "message": "你不能对你自己运行批量屏蔽。"
+  },
+  "cant_lockpicker_to_others": {
+    "message": "你无法对其他用户运行受保护关注者的批量屏蔽。"
+  },
+  "cant_chainblock_searchquery_invalid": {
+    "message": "搜索查询无效。"
+  },
+  "cant_chainblock_no_mentions_in_selected_text": {
+    "message": "无法在所选文本中找到任何提及用户（文本：“$text$”）",
+    "placeholders": {
+      "text": {
+        "content": "$1"
+      }
+    }
+  },
+  "choose_either_speakers_or_listeners": {
+    "message": "请选择发言人或听众。"
+  },
+  "audio_space_not_started_yet": {
+    "message": "此空间还未开始。"
+  },
+  "wtf_twitter": {
+    "message": "为了避免问题（强制登出、帐户停用），Red Block 不会屏蔽超过 500 个用户。"
+  },
+  "oneclick_block_mode": {
+    "message": "一键屏蔽模式"
+  },
+  "block_xxx": {
+    "message": "屏蔽 @$username$",
+    "placeholders": {
+      "username": {
+        "content": "$1"
+      }
+    }
+  },
+  "blocked_xxx": {
+    "message": "已屏蔽 @$username$.",
+    "placeholders": {
+      "username": {
+        "content": "$1"
+      }
+    }
+  },
+  "unblocked_xxx": {
+    "message": "已取消屏蔽 @$username$.",
+    "placeholders": {
+      "username": {
+        "content": "$1"
+      }
+    }
+  },
+  "user_profile_contains": {
+    "message": "此用户的个人资料包含词语“$word$”。",
+    "placeholders": {
+      "word": {
+        "content": "$1"
+      }
+    }
+  },
+  "th_enable": {
+    "message": "使用"
+  },
+  "th_word": {
+    "message": "词语"
+  },
+  "th_options": {
+    "message": "选项"
+  },
+  "th_actions": {
+    "message": "操作"
+  },
+  "placeholder_word": {
+    "message": "过滤词语"
+  },
+  "regexp": {
+    "message": "正则表达式"
+  },
+  "edit": {
+    "message": "编辑"
+  },
+  "add_word_button": {
+    "message": "添加"
+  },
+  "sbs_description": {
+    "message": "Red Block 轻松屏蔽提示：如果用户包含指定词语，Red Block 将显示一键屏蔽按钮"
+  },
+  "sbs_please_refresh": {
+    "message": "请在编辑完词语列表后刷新 Twitter。"
+  },
+  "remove_session_after_complete": {
+    "message": "完成后移除会话"
+  },
+  "open_new_tab_for_file_picker": {
+    "message": "如果 Red Block 的用户界面在选择文件时关闭，请在标签页中打开用户界面。"
+  },
+  "refreshing_saved_users": {
+    "message": "正在刷新已保存用户的个人资料数据"
+  },
+  "please_check_login": {
+    "message": "你必须登入 Twitter 才能使用 Red Block。"
+  },
+  "block_counter": {
+    "message": "屏蔽计数器"
+  },
+  "block_target": {
+    "message": "要屏蔽的用户"
+  },
+  "count_of_users": {
+    "message": "用户数"
+  },
+  "duplicated": {
+    "message": "已重复"
+  },
+  "invalid": {
+    "message": "无效"
+  },
+  "select_files": {
+    "message": "选择文件"
+  },
+  "selected_files": {
+    "message": "已选择文件"
+  },
+  "notify_on_block_limit": {
+    "message": "为了避免问题（强制登出、帐户停用），Red Block 不会屏蔽超过 500 个用户。如果你想要重置计数器，打开 Red Block 的用户界面然后按下“重置”按钮。"
+  },
+  "bioblock_never": {
+    "message": "禁用"
+  },
+  "bioblock_all": {
+    "message": "启用"
+  },
+  "bioblock_smart": {
+    "message": "启用（智能）"
+  },
+  "bioblock_description": {
+    "message": "当 Red Block 屏蔽一个用户，它也会同时屏蔽这个用户个人资料里提及的其他帐号。"
+  },
+  "dont_skip": {
+    "message": "不跳过"
+  },
+  "one_year": {
+    "message": "1 年"
+  },
+  "n_years": {
+    "message": "$year$ 年",
+    "placeholders": {
+      "year": {
+        "content": "$1"
+      }
+    }
+  },
+  "skip_inactive_users": {
+    "message": "跳过不活跃用户"
+  },
+  "skip_inactive_users_description": {
+    "message": "Red Block 由用户的最后发推时间或者帐户创建时间推断他的活跃状态。注意受保护用户不会跳过，因为没有办法确定他们最后发推的时间。"
+  },
+  "export": {
+    "message": "导出"
+  },
+  "export_completed": {
+    "message": "已完成导出！"
+  },
+  "exported_n_users": {
+    "message": "已导出 $count$ 个用户。",
+    "placeholders": {
+      "count": {
+        "content": "$1"
+      }
+    }
+  },
+  "export_description": {
+    "message": "从用户生成屏蔽列表。（最多 100,000）"
+  },
+  "exporting_my_blocklist_description": {
+    "message": "生成包含你已屏蔽用户的屏蔽列表。（最多 100,000）"
+  },
+  "save": {
+    "message": "保存"
+  },
+  "not_saved_yet": {
+    "message": "还未保存"
+  },
+  "save_button_description": {
+    "message": "保存导出的屏蔽列表"
+  },
+  "blocklist_is_empty": {
+    "message": "屏蔽列表为空。"
+  },
+  "confirm_closing_export_session_notyet_save": {
+    "message": "看起来你还未保存屏蔽列表。你确定要关闭此会话吗？"
+  },
+  "protected_follower": {
+    "message": "受保护的关注者"
+  },
+  "current_account": {
+    "message": "当前帐号：@$username$（$name$）",
+    "placeholders": {
+      "username": {
+        "content": "$1"
+      },
+      "name": {
+        "content": "$2"
+      }
+    }
+  },
+  "supplementary_account": {
+    "message": "辅助帐号：@$username$（$name$）",
+    "placeholders": {
+      "username": {
+        "content": "$1"
+      },
+      "name": {
+        "content": "$2"
+      }
+    }
+  },
+  "oneclick_block_mode_description": {
+    "message": "一键屏蔽按钮将出现在用户或推文页面。"
+  },
+  "oneclick_block_mode_apply_all_tabs": {
+    "message": "切换一键屏蔽模式将应用到所有标签页上。"
+  },
+  "troubleshooting": {
+    "message": "故障排除"
+  },
+  "delete_cookie": {
+    "message": "删除 cookies"
+  },
+  "confirm_delete_cookie": {
+    "message": "你确定要删除 Twitter 相关的 cookies 吗？"
+  },
+  "delete_cookie_description": {
+    "message": "如果你用度使用批量屏蔽后 Twitter 遇到故障，请尝试点击这个按钮删除 Twitter 相关的 cookies。注意删除 cookies 后你的帐号会立即登出。"
+  },
+  "cookie_delete_complete": {
+    "message": "Cookie 已删除！"
+  },
+  "its_you": {
+    "message": "这是你！"
+  },
+  "enable_blockbuster": {
+    "message": "启用 BlockBuster（屏蔽突破）"
+  },
+  "enable_bioblock": {
+    "message": "启用 BioBlock（个人简介屏蔽）"
+  },
+  "1st_party_isolation_compatible_mode": {
+    "message": "兼容 Firefox 官方的隔离模式。"
+  },
+  "blockbuster_description": {
+    "message": "你可以对屏蔽了你的用户运行批量屏蔽。注意这个功能需要你登入两个或以上的帐号，然后其中至少要有一个能看到他们的关注者列表。"
+  },
+  "1st_party_isolation_compatible_mode_description": {
+    "message": "兼容于 Firefox 官方的隔离模式。如果你使用的不是 Firefox 浏览器，启动此选项将让 Red Block 的大部分功能不能工作。"
+  },
+  "muted_and_also_blocked": {
+    "message": "已屏蔽用户"
+  },
+  "throttle_block": {
+    "message": "调节隐藏或者屏蔽请求"
+  },
+  "users_in_other_tab": {
+    "message": "其他标签页中的用户"
+  },
+  "mute_even_already_blocked": {
+    "message": "批量隐藏：隐藏已经屏蔽的用户"
+  },
+  "enable_audiospace_chainblock": {
+    "message": "在 Twitter 空间上启用批量屏蔽"
+  },
+  "reaction": {
+    "message": "回应"
+  },
+  "reaction_like": {
+    "message": "喜欢"
+  },
+  "reaction_cheer": {
+    "message": "欢呼"
+  },
+  "reaction_hmm": {
+    "message": "疑问"
+  },
+  "reaction_sad": {
+    "message": "伤心"
+  },
+  "reaction_haha": {
+    "message": "哈哈"
+  },
+  "enable_reactions_v2": {
+    "message": "启用新版推文回应"
+  },
+  "enable_reactions_v2_description": {
+    "message": "Red Block 可以批量屏蔽使用新版回应进行回应的用户。（如“疑问”“哈哈”……）"
+  },
+  "allow_self_chainblock": {
+    "message": "允许对我自己运行批量屏蔽。"
+  },
+  "cant_find_username_in_given_url": {
+    "message": "无法在该链接中找到用户名。（“$url$”）",
+    "placeholders": {
+      "url": {
+        "content": "$1"
+      }
+    }
+  },
+  "run_hashtag_user_chainblock": {
+    "message": "对个人资料使用此主题标签的用户运行批量屏蔽。"
+  },
+  "redblock_factory_reset": {
+    "message": "全部重置"
+  },
+  "redblock_factory_reset_description": {
+    "message": "重置所有设置并停止所有会话。"
+  },
+  "redblock_factory_reset_confirm": {
+    "message": "你确定要重置 Red Block 吗？"
+  },
+  "recurring_session": {
+    "message": "定期会话"
+  },
+  "recurring_session_description": {
+    "message": "Red Block 将在会话完成后重新运行它。这样它可以对推指定推文的新关注者或反应的用户进行屏蔽/取消屏蔽。"
+  },
+  "next_recur_time": {
+    "message": "将开始于"
+  },
+  "recurring_interval": {
+    "message": "定期间隔"
+  },
+  "n_minutes": {
+    "message": "$m$ 分钟",
+    "placeholders": {
+      "m": {
+        "content": "$1"
+      }
+    }
+  },
+  "blockbuster_use_tweetdeck": {
+    "message": "使用 TweetDeck 上的帐号"
+  },
+  "redblock_backup_settings": {
+    "message": "备份设置"
+  },
+  "redblock_restore_settings": {
+    "message": "恢复设置"
+  },
+  "enable_teamwork": {
+    "message": "启用多线操作"
+  },
+  "enable_teamwork_description": {
+    "message": "在你的所有帐号上屏蔽或隐藏指定用户。此选项在右键菜单中。"
+  },
+  "teamwork_block_user": {
+    "message": "在你的所有帐号上屏蔽此用户"
+  },
+  "teamwork_unblock_user": {
+    "message": "在你的所有帐号上取消屏蔽此用户"
+  },
+  "teamwork_mute_user": {
+    "message": "在你的所有帐号上隐藏此用户"
+  },
+  "teamwork_unmute_user": {
+    "message": "在你的所有帐号上取消隐藏此用户"
+  },
+  "unchainblock_to_retweeters_is_unavailable": {
+    "message": "由于技术原因，批量取消屏蔽不适用于转推者。"
+  },
+  "teamwork_result_message": {
+    "message": "结果：你已经在 $n$ 个帐号上$action$了此用户",
+    "placeholders": {
+      "n": {
+        "content": "$1"
+      },
+      "action": {
+        "content": "$2"
+      }
+    }
+  },
+  "include_itself": {
+    "message": "包含目标本身"
+  },
+  "include_itself_description": {
+    "message": "运行批量屏蔽会话时，启用此选项将包含目标本身（而不是只对关注者/转推者/点喜欢的人……）。"
+  }
+}
