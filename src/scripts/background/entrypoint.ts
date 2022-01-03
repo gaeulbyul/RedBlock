@@ -3,7 +3,7 @@ import browser from 'webextension-polyfill'
 import * as i18n from '../../scripts/i18n'
 import { assertNever, sendBrowserRuntimeMessage } from '../common/utilities'
 import { checkResultToString } from '../text-generate'
-import { alertToCurrentTab } from './background'
+import { alertToCurrentTab, downloadCleaner } from './background'
 import BlockLimiter from './block-limiter'
 import { initializeContextMenu } from './context-menu'
 import { getCookieStoreIdFromTab } from './cookie-handler'
@@ -166,6 +166,7 @@ function initialize() {
   browser.runtime.onInstalled.addListener(() => {
     migrateStorage()
   })
+  downloadCleaner()
 }
 
 initialize()

@@ -53,3 +53,27 @@ export function updateExtensionBadge(sessionsCount: number) {
     title,
   })
 }
+
+export async function downloadCleaner() {
+  // Red Block에서 URL.createObjectURL 가지고 만들어낸 파일을
+  // 여기에서 삭제한다.
+  const prefix = 'blob:' + browser.runtime.getURL('')
+  const extensionName = browser.runtime.getManifest().name
+  browser.downloads.onChanged.addListener(async delta => {
+    const state = delta.state?.current || ''
+    if (state !== 'complete') {
+      return
+    }
+    const downloadItems = await browser.downloads.search({ id: delta.id })
+    downloadItems.forEach(item => {
+      const { byExtensionName, url } = item
+      if (byExtensionName !== extensionName) {
+        return
+      }
+      if (!url.startsWith(prefix)) {
+        return
+      }
+      URL.revokeObjectURL(url)
+    })
+  })
+}

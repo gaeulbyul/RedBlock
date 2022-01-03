@@ -135,9 +135,6 @@ export async function exportBlocklist({ filename, userIds }: ExportResult) {
       url: objectUrl,
       filename,
     })
-    .finally(() => {
-      URL.revokeObjectURL(objectUrl)
-    })
 }
 
 export function concatBlockList(list1: Blocklist, list2: Blocklist): Blocklist {
