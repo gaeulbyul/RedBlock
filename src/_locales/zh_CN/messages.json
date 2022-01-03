@@ -453,7 +453,7 @@
     "message": "请先选择屏蔽列表文件。"
   },
   "blocklist_import_description": {
-    "message": "你可以从屏蔽列表文件中屏蔽用户。当前 Red Block 支持 CSV、JSON（来自原始 Twitter Block Chain 的导出链功能）和 JS（来自 Twitter 存档的“block.js”"）。"
+    "message": "你可以从屏蔽列表文件中屏蔽用户。当前 Red Block 支持 CSV、JSON（来自原始 Twitter Block Chain 的导出链功能）和 JS（来自 Twitter 存档的“block.js”）。"
   },
   "select_rt_or_like": {
     "message": "请选择目标（转推、喜欢、提及……）以开始会话。"
