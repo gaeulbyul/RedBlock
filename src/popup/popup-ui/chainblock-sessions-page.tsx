@@ -198,7 +198,10 @@ function ChainBlockSessionItem({
         })
         return
       }
-      if (purpose.type === 'export' && !downloaded) {
+      const shouldConfirmClose = purpose.type === 'export'
+        && sessionInfo.status !== 'Completed'
+        && sessionInfo.status !== 'Stopped'
+      if (shouldConfirmClose && !downloaded) {
         uiContext.openDialog({
           dialogType: 'confirm',
           message: {
