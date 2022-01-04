@@ -177,7 +177,7 @@ export function isRewindableSession({ status, request }: SessionInfo): boolean {
 
 export function getLimitResetTime(limit: Limit): string {
   const timeZone = Intl.DateTimeFormat().resolvedOptions().timeZone
-  const formatter = new Intl.DateTimeFormat('ko-KR', {
+  const formatter = new Intl.DateTimeFormat(navigator.language, {
     timeZone,
     hour: '2-digit',
     minute: '2-digit',
