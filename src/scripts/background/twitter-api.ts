@@ -327,6 +327,11 @@ export class TwClient {
         // 새 값으로 바뀌었다면 Request를 재시도한다.
         if (ct0BeforeRequest.value !== ct0AfterRequest.value) {
           insertHeader(request.headers!, 'x-csrf-token', ct0AfterRequest.value)
+          if (storeId) {
+            // Set-Cookie를 통해 받은 새 쿠키값을 반영한다.
+            const overrideCookies = await getAllCookiesSerialized(storeId)
+            insertHeader(request.headers!, 'x-redblock-override-cookies', overrideCookies)
+          }
           continue
         }
         return Promise.reject(responseJson as Promise<ErrorResponse>)
@@ -397,14 +402,22 @@ function insertHeader(
     headers[name] = value
   }
 }
+
+async function getAllCookiesSerialized(storeId: string) {
+  // 컨테이너 탭의 인증정보를 담아 요청하기 위해 덮어씌우는 쿠키
+  const cookies = await getAllCookies({ storeId })
+  return cookies.map(({ name, value }) => `${name}=${value}`).join('; ')
+}
+
 async function prepareTwitterRequest(
   obj: RequestInit,
   clientOptions: TwClientOptions,
 ): Promise<RequestInit> {
+  const storeId = clientOptions.cookieStoreId
   const headers = new Headers()
   const ct0 = await getCookie({
     name: 'ct0',
-    storeId: clientOptions.cookieStoreId,
+    storeId,
   })
   headers.set('x-csrf-token', ct0.value)
   if (clientOptions.asTweetDeck) {
@@ -419,13 +432,11 @@ async function prepareTwitterRequest(
   headers.set('x-twitter-active-user', 'yes')
   headers.set('x-twitter-auth-type', 'OAuth2Session')
   headers.set('x-redblock-request', 'UwU')
-  const storeId = clientOptions.cookieStoreId
-  // 컨테이너 탭의 인증정보를 담아 요청하기 위해 덮어씌우는 쿠키
-  const cookies = await getAllCookies({ storeId })
-  headers.set(
-    'x-redblock-override-cookies',
-    cookies.map(({ name, value }) => `${name}=${value}`).join('; '),
-  )
+  if (storeId) {
+    const overrideCookies = await getAllCookiesSerialized(storeId)
+    headers.set('x-redblock-override-cookies', overrideCookies)
+  }
+
   // 다계정 로그인 관련
   if (clientOptions.actAsUserId) {
     if (clientOptions.asTweetDeck) {
