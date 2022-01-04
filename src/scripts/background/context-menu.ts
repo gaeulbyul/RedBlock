@@ -574,10 +574,14 @@ export async function initializeContextMenu(
     contexts: ['browser_action'],
     title: i18n.getMessage('open_in_new_tab'),
   })
+  // 크롬/크로미움계 브라우저는 확장기능 옵션페이지로 이동하는 메뉴항목이 이미 존재한다.
+  // 따라서 파이어폭스에서만 이 메뉴를 보여준다.
+  const isFirefox = /Firefox\//.test(navigator.userAgent)
   browser.contextMenus.create({
     id: 'options',
     contexts: ['browser_action'],
     title: i18n.getMessage('options'),
+    visible: isFirefox,
   })
   browser.contextMenus.create({
     contexts: ['browser_action'],
