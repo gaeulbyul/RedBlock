@@ -325,7 +325,7 @@ function isValidMenuId(menuItemId: string | number): menuItemId is typeof menuId
 }
 
 browser.contextMenus.onClicked.addListener((clickInfo, tab) => {
-  const { menuItemId, linkUrl } = clickInfo
+  const { menuItemId } = clickInfo
   if (!connectedSessionManager) {
     console.warn('warning: failed to refresh context menus (sessionManager missing?)')
     return
@@ -338,15 +338,16 @@ browser.contextMenus.onClicked.addListener((clickInfo, tab) => {
     console.warn('tab is missing?')
     return
   }
-  const twURL = TwitterURL.nullable(linkUrl!)
+  const linkURL = TwitterURL.nullable(clickInfo.linkUrl!)
+  const pageURL = TwitterURL.nullable(clickInfo.pageUrl!)
   switch (menuItemId) {
     case 'run_followers_chainblock_to_this_user':
     case 'run_followings_chainblock_to_this_user':
     case 'run_mutual_followers_chainblock_to_this_user':
       {
-        const userName = twURL!.getUserName()
+        const userName = linkURL!.getUserName()
         if (!userName) {
-          alertToTab(tab, i18n.getMessage('cant_find_username_in_given_url', twURL!.toString()))
+          alertToTab(tab, i18n.getMessage('cant_find_username_in_given_url', linkURL!.toString()))
           return
         }
         confirmFollowerChainBlockRequest(tab, connectedSessionManager, userName, menuItemId)
@@ -357,20 +358,20 @@ browser.contextMenus.onClicked.addListener((clickInfo, tab) => {
     case 'run_retweeters_and_likers_chainblock_to_this_tweet':
     case 'run_mentioned_users_chainblock_to_this_tweet':
       {
-        const tweetId = twURL!.getTweetId()!
+        const tweetId = linkURL!.getTweetId()!
         confirmTweetReactionChainBlockRequest(tab, connectedSessionManager, tweetId, menuItemId)
       }
       break
     case 'run_chainblock_from_audio_space_hosts_and_speakers':
     case 'run_chainblock_from_audio_space_all':
       {
-        const audioSpaceId = twURL!.getAudioSpaceId()!
+        const audioSpaceId = linkURL!.getAudioSpaceId()!
         confirmAudioSpaceChainBlockRequest(tab, connectedSessionManager, audioSpaceId, menuItemId)
       }
       break
     case 'run_hashtag_user_chainblock':
       {
-        const hashtag = twURL!.getHashTag()!
+        const hashtag = linkURL!.getHashTag()!
         confirmUserHashTagChainBlockRequest(tab, connectedSessionManager, hashtag)
       }
       break
@@ -380,9 +381,9 @@ browser.contextMenus.onClicked.addListener((clickInfo, tab) => {
     case 'teamwork_mute_user':
     case 'teamwork_unmute_user':
       {
-        const userName = twURL!.getUserName()
+        const userName = linkURL!.getUserName()
         if (!userName) {
-          alertToTab(tab, i18n.getMessage('cant_find_username_in_given_url', twURL!.toString()))
+          alertToTab(tab, i18n.getMessage('cant_find_username_in_given_url', linkURL!.toString()))
           return
         }
         let action: TeamworkUserAction
@@ -417,7 +418,7 @@ browser.contextMenus.onClicked.addListener((clickInfo, tab) => {
     case 'oneclick_block_mode--on':
     case 'oneclick_block_mode--off':
       {
-        if (twURL) {
+        if (pageURL) {
           toggleOneClickBlockMode(tab, menuItemId.endsWith('--on'))
         }
       }
