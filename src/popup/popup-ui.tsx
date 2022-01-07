@@ -259,7 +259,10 @@ function PopupApp({
   const shrinkedPopup = MaterialUI.useMediaQuery('(width:348px), (width:425px)')
   const theme = React.useMemo(() => RedBlockPopupUITheme(darkMode), [darkMode])
   React.useEffect(() => {
-    getCurrentTabInfo().then(setCurrentTabInfo)
+    getCurrentTabInfo().then(tabInfo => {
+      console.debug('tabInfo: %j', tabInfo)
+      setCurrentTabInfo(tabInfo)
+    })
   }, [])
   const [countOfRunningSessions, setCountOfRunningSessions] = React.useState(0)
   const [delay, setDelay] = React.useState<number | null>(null)

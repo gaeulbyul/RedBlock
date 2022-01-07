@@ -124,11 +124,10 @@ export async function getCurrentTabInfo(): Promise<TabInfo> {
   const cookieStoreId = await getCookieStoreIdFromTab(tab)
   const twClient = new TwClient({ cookieStoreId })
   const me = await twClient.getMyself().catch(() => null)
-  let myself: Actor | null
   if (!me) {
     return infoless
   }
-  myself = {
+  const myself: Actor = {
     user: me,
     clientOptions: twClient.options,
   }
