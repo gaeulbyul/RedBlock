@@ -13,6 +13,8 @@
     "outDir": "build/",
     "rootDir": "src/",
     "noEmit": true,
+    "incremental": true,
+    "tsBuildInfoFile": "./.cache/tsBuildInfo.dat",
 
     "allowUnreachableCode": false,
     "allowUnusedLabels": false,
