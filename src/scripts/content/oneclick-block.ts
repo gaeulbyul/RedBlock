@@ -3,7 +3,7 @@ import browser from 'webextension-polyfill'
 import * as i18n from '../../scripts/i18n'
 import { loadBadWords } from '../background/storage/badwords'
 import { sendBrowserRuntimeMessage } from '../common/utilities'
-import { blockUser, cloneDetail, toastMessage } from './content-common'
+import { blockUser, markUser, toastMessage } from './content-common'
 
 const setOfBadWords: BadWordItem[] = []
 
@@ -56,18 +56,6 @@ function checkBadWordFromUserProfile({
     }
   }
   return null
-}
-
-function markUser(detail: MarkUserParams) {
-  const event = new CustomEvent<MarkUserParams>('RedBlock->MarkUser', {
-    detail: cloneDetail(detail),
-  })
-  document.dispatchEvent(event)
-  const { userId, userAction } = detail
-  if (userAction === 'Block') {
-    const oneclickButtons = document.querySelectorAll(`[data-redblock-btn-user="${userId}"]`)
-    oneclickButtons.forEach(button => button.remove())
-  }
 }
 
 export async function unblockUserById(userId: string) {

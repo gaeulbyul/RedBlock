@@ -53,14 +53,10 @@ export function listenExtensionMessages(reactRoot: Element | null) {
     switch (msg.messageType) {
       case 'MarkUser':
         if (reactRoot) {
-          document.dispatchEvent(
-            new CustomEvent<MarkUserParams>('RedBlock->MarkUser', {
-              detail: cloneDetail({
-                userId: msg.userId,
-                userAction: msg.userAction,
-              }),
-            }),
-          )
+          markUser({
+            userId: msg.userId,
+            userAction: msg.userAction,
+          })
         }
         break
       case 'Alert':
@@ -103,4 +99,16 @@ export async function blockUserById(userId: string) {
     messageTo: 'background',
     userId,
   })
+}
+
+export function markUser(detail: MarkUserParams) {
+  const event = new CustomEvent<MarkUserParams>('RedBlock->MarkUser', {
+    detail: cloneDetail(detail),
+  })
+  document.dispatchEvent(event)
+  const { userId, userAction } = detail
+  if (userAction === 'Block') {
+    const oneclickButtons = document.querySelectorAll(`[data-redblock-btn-user="${userId}"]`)
+    oneclickButtons.forEach(button => button.remove())
+  }
 }
