@@ -17,8 +17,8 @@ import {
 } from '../../scripts/common/utilities'
 import * as i18n from '../../scripts/i18n'
 import { statusToString } from '../../scripts/text-generate'
-import { BlockLimiterUI, LinearProgressWithLabel } from './components'
-import { UIContext } from './contexts'
+import { BlockLimiterUI, LinearProgressWithLabel, PleaseLoginBox } from './components'
+import { UIContext, TabInfoContext } from './contexts'
 import { AvailablePages, newSessionsLabel, pageIcon, PageId } from './pages'
 
 const M = MaterialUI
@@ -442,6 +442,7 @@ export default function ChainBlockSessionsPage({
   recurringInfos: RecurringAlarmInfosObject
 }) {
   const uiContext = React.useContext(UIContext)
+  const { myself } = React.useContext(TabInfoContext)
   function renderWelcome() {
     return (
       <M.Box display="flex" flexDirection="column" justifyContent="center" px={2} py={1.5}>
@@ -487,10 +488,16 @@ export default function ChainBlockSessionsPage({
       )}
       {shouldShowWelcomeNewSession && renderWelcome()}
       <M.Divider />
-      <M.Box textAlign="center" my={1}>
-        {i18n.getMessage('new_session')}:
-      </M.Box>
-      <NewSessionButtons />
+      {myself ? (
+        <React.Fragment>
+          <M.Box textAlign="center" my={1}>
+            {i18n.getMessage('new_session')}:
+          </M.Box>
+          <NewSessionButtons />
+        </React.Fragment>
+      ) : (
+        <PleaseLoginBox />
+      )}
     </React.Fragment>
   )
 }

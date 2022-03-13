@@ -17,7 +17,6 @@ import ChainBlockSessionsPage from './popup-ui/chainblock-sessions-page'
 import {
   DialogContent,
   MyTooltip,
-  PleaseLoginBox,
   RBDialog,
   RedBlockPopupUITheme,
   TabPanel,
@@ -260,8 +259,9 @@ function PopupApp({
   const theme = React.useMemo(() => RedBlockPopupUITheme(darkMode), [darkMode])
   React.useEffect(() => {
     getCurrentTabInfo().then(tabInfo => {
-      console.debug('tabInfo: %j', tabInfo)
+      console.debug('tabInfo: %o', tabInfo)
       setCurrentTabInfo(tabInfo)
+      setInitialLoading(false)
     })
   }, [])
   const [countOfRunningSessions, setCountOfRunningSessions] = React.useState(0)
@@ -374,9 +374,6 @@ function PopupApp({
           <M.CircularProgress size={60} color="secondary" />
         </div>
       )
-    }
-    if (!myself) {
-      return <PleaseLoginBox />
     }
     return children
   }
