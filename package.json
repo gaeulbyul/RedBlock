@@ -10,11 +10,6 @@
     "build": "just-scripts default",
     "just": "just-scripts"
   },
-  "husky": {
-    "hooks": {
-      "pre-commit": "tsc --noEmit && dprint fmt"
-    }
-  },
   "packageManager": "yarn@3.1.1",
   "resolutions": {
     "@types/react": "^16.14.12",
@@ -30,7 +25,7 @@
     "@types/twitter-text": "^3.1.0",
     "@types/webextension-polyfill": "^0.8.1",
     "dprint": "^0.19.1",
-    "husky": "^4.2.5",
+    "husky": "^7.0.4",
     "just-scripts": "^1.5.4",
     "mkdirp": "1.0.4",
     "ncp": "^2.0.0",
