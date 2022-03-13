@@ -339,7 +339,7 @@ browser.contextMenus.onClicked.addListener((clickInfo, tab) => {
     return
   }
   const linkURL = TwitterURL.nullable(clickInfo.linkUrl!)
-  const pageURL = TwitterURL.nullable(clickInfo.pageUrl!)
+  const pageURL = TwitterURL.nullable(clickInfo.pageUrl || tab.url!)
   switch (menuItemId) {
     case 'run_followers_chainblock_to_this_user':
     case 'run_followings_chainblock_to_this_user':
