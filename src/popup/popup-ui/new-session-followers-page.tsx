@@ -317,8 +317,7 @@ function TargetUserSelectUI() {
         url: ['https://twitter.com/*', 'https://mobile.twitter.com/*'],
       })
       .then(async tabs => {
-        const tabsExceptCurrentOne = tabs.filter(tab => !tab.active)
-        const userNames = tabsExceptCurrentOne.map(getUserNameFromTab).filter(Boolean) as string[]
+        const userNames = tabs.map(getUserNameFromTab).filter(Boolean) as string[]
         const usersArray = await twClient
           .getMultipleUsers({ screen_name: userNames })
           .catch(() => [])
