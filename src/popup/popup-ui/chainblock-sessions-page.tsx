@@ -18,7 +18,7 @@ import {
 import * as i18n from '../../scripts/i18n'
 import { statusToString } from '../../scripts/text-generate'
 import { BlockLimiterUI, LinearProgressWithLabel, PleaseLoginBox } from './components'
-import { UIContext, TabInfoContext } from './contexts'
+import { TabInfoContext, UIContext } from './contexts'
 import { AvailablePages, newSessionsLabel, pageIcon, PageId } from './pages'
 
 const M = MaterialUI
@@ -488,16 +488,16 @@ export default function ChainBlockSessionsPage({
       )}
       {shouldShowWelcomeNewSession && renderWelcome()}
       <M.Divider />
-      {myself ? (
-        <React.Fragment>
-          <M.Box textAlign="center" my={1}>
-            {i18n.getMessage('new_session')}:
-          </M.Box>
-          <NewSessionButtons />
-        </React.Fragment>
-      ) : (
-        <PleaseLoginBox />
-      )}
+      {myself
+        ? (
+          <React.Fragment>
+            <M.Box textAlign="center" my={1}>
+              {i18n.getMessage('new_session')}:
+            </M.Box>
+            <NewSessionButtons />
+          </React.Fragment>
+        )
+        : <PleaseLoginBox />}
     </React.Fragment>
   )
 }
