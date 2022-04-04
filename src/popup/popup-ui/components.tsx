@@ -1,4 +1,6 @@
-import * as MaterialUI from '@material-ui/core'
+import * as MaterialUI from '@mui/material'
+import { withStyles } from '@mui/styles'
+
 import React from 'react'
 
 import { requestResetCounter } from '../../scripts/background/request-sender'
@@ -25,20 +27,20 @@ export function RedBlockPopupUITheme(darkMode: boolean) {
       fontSize: 12,
     },
     palette: {
-      type: darkMode ? 'dark' : 'light',
+      mode: darkMode ? 'dark' : 'light',
       primary: MaterialUI.colors.pink,
       secondary: darkMode ? MaterialUI.colors.lightBlue : MaterialUI.colors.indigo,
     },
   })
 }
 
-export const MyTooltip = MaterialUI.withStyles(() => ({
+export const MyTooltip = withStyles(() => ({
   tooltip: {
     fontSize: 12,
   },
 }))(MaterialUI.Tooltip)
 
-export const SmallAvatar = MaterialUI.withStyles(theme => ({
+export const SmallAvatar = withStyles(theme => ({
   root: {
     width: 16,
     height: 16,
@@ -190,7 +192,8 @@ export function PleaseLoginBox() {
   )
 }
 
-const DenseAccordion = MaterialUI.withStyles(theme => ({
+const DenseAccordion = withStyles(() => ({
+  /*
   root: {
     margin: theme.spacing(1, 0),
     '&:first-child': {
@@ -201,9 +204,11 @@ const DenseAccordion = MaterialUI.withStyles(theme => ({
     },
   },
   expanded: {},
+  */
 }))(MaterialUI.Accordion)
 
-const DenseAccordionSummary = MaterialUI.withStyles({
+const DenseAccordionSummary = withStyles({
+  /*
   root: {
     minHeight: 16,
     '&$expanded': {
@@ -216,15 +221,14 @@ const DenseAccordionSummary = MaterialUI.withStyles({
     },
   },
   expanded: {},
+  */
 })(MaterialUI.AccordionSummary)
 
-const useStylesForAccordions = MaterialUI.makeStyles(theme =>
-  MaterialUI.createStyles({
-    details: {
-      padding: theme.spacing(1, 2),
-    },
-  })
-)
+const AccordionDetailsWithMorePadding = MaterialUI.styled(M.AccordionDetails)(({ theme }) => ({
+  '& .details': {
+    padding: theme.spacing(1, 2),
+  },
+}))
 
 export function RBAccordion({
   summary,
@@ -237,13 +241,12 @@ export function RBAccordion({
   defaultExpanded?: boolean
   warning?: boolean
 }) {
-  const classes = useStylesForAccordions()
   return (
     <DenseAccordion defaultExpanded={defaultExpanded}>
       <DenseAccordionSummary expandIcon={<M.Icon>expand_more</M.Icon>}>
-        <T color={warning ? 'error' : 'initial'}>{summary}</T>
+        <T sx={{ color: warning ? 'warning.main' : 'text.primary' }}>{summary}</T>
       </DenseAccordionSummary>
-      <M.AccordionDetails className={classes.details}>{children}</M.AccordionDetails>
+      <AccordionDetailsWithMorePadding>{children}</AccordionDetailsWithMorePadding>
     </DenseAccordion>
   )
 }
@@ -327,7 +330,7 @@ export function TwitterUserProfile({
   )
 }
 
-const BigBaseButton = MaterialUI.withStyles(theme => ({
+const BigBaseButton = withStyles(theme => ({
   root: {
     width: '100%',
     padding: theme.spacing(1),
@@ -367,7 +370,7 @@ export function BigExecuteButton({
   return <BigButton {...{ type, startIcon, disabled, onClick }}>{label}</BigButton>
 }
 
-const BigRedButton = MaterialUI.withStyles(theme => ({
+const BigRedButton = withStyles(theme => ({
   root: {
     backgroundColor: MaterialUI.colors.red[700],
     color: theme.palette.getContrastText(MaterialUI.colors.red[700]),
@@ -378,7 +381,7 @@ const BigRedButton = MaterialUI.withStyles(theme => ({
   },
 }))(BigBaseButton)
 
-const BigGreenButton = MaterialUI.withStyles(theme => ({
+const BigGreenButton = withStyles(theme => ({
   root: {
     backgroundColor: MaterialUI.colors.green[700],
     color: theme.palette.getContrastText(MaterialUI.colors.green[700]),
@@ -389,7 +392,7 @@ const BigGreenButton = MaterialUI.withStyles(theme => ({
   },
 }))(BigBaseButton)
 
-const BigGrayButton = MaterialUI.withStyles(theme => ({
+const BigGrayButton = withStyles(theme => ({
   root: {
     backgroundColor: MaterialUI.colors.blueGrey[700],
     color: theme.palette.getContrastText(MaterialUI.colors.blueGrey[700]),
@@ -400,7 +403,7 @@ const BigGrayButton = MaterialUI.withStyles(theme => ({
   },
 }))(BigBaseButton)
 
-const PurposeTab = MaterialUI.withStyles(theme => ({
+const PurposeTab = withStyles(theme => ({
   root: {
     lineHeight: 1.5,
     paddingLeft: theme.spacing(1),

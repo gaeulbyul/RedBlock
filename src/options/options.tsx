@@ -1,4 +1,4 @@
-import * as MaterialUI from '@material-ui/core'
+import * as MaterialUI from '@mui/material'
 import throttle from 'lodash-es/throttle'
 import React from 'react'
 import ReactDOM from 'react-dom'
@@ -30,7 +30,7 @@ function RedBlockOptionsUITheme(darkMode: boolean) {
       fontSize: 14,
     },
     palette: {
-      type: darkMode ? 'dark' : 'light',
+      mode: darkMode ? 'dark' : 'light',
       primary: MaterialUI.colors.pink,
       secondary: darkMode ? MaterialUI.colors.lightBlue : MaterialUI.colors.indigo,
     },
@@ -79,11 +79,13 @@ function OptionsApp() {
             value={tabPage}
             onChange={(_ev, val) => setTabPage(val)}
           >
-            {optionsTabPages.map((value, index) => <M.Tab
-              key={index}
-              value={value}
-              label={value}
-            />)}
+            {optionsTabPages.map((value, index) => (
+              <M.Tab
+                key={index}
+                value={value}
+                label={value}
+              />
+            ))}
           </M.Tabs>
         </M.AppBar>
         <M.Container maxWidth="md">

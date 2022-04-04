@@ -1,4 +1,6 @@
-import * as MaterialUI from '@material-ui/core'
+import * as MaterialUI from '@mui/material'
+import type { SelectChangeEvent } from '@mui/material/Select'
+
 import React from 'react'
 import * as i18n from '../../../scripts/i18n'
 
@@ -16,7 +18,7 @@ export interface TargetSelectorItem {
 
 interface TargetSelectorContextType {
   selectedItemIdentifier: string
-  onChange(event: React.ChangeEvent<{ name?: string, value: unknown }>): void
+  onChange(event: SelectChangeEvent): void
 }
 
 const TargetSelectorContext = React.createContext<TargetSelectorContextType>(null!)
@@ -154,7 +156,7 @@ export function TargetSelector({
   onSelectTarget(item: TargetSelectorItem): void
   children: React.ReactNode
 }) {
-  function onChange({ target }: React.ChangeEvent<HTMLOptionElement>) {
+  function onChange({ target }: SelectChangeEvent) {
     if (!(target instanceof HTMLSelectElement)) {
       throw new Error('unreachable')
     }

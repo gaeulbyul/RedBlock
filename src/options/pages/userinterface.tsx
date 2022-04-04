@@ -1,4 +1,4 @@
-import * as MaterialUI from '@material-ui/core'
+import * as MaterialUI from '@mui/material'
 import React from 'react'
 
 import * as i18n from '../../scripts/i18n'

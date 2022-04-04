@@ -1,4 +1,6 @@
-import * as MaterialUI from '@material-ui/core'
+import * as MaterialUI from '@mui/material'
+import { withStyles } from '@mui/styles'
+
 import React from 'react'
 import ReactDOM from 'react-dom'
 import browser from 'webextension-polyfill'
@@ -76,11 +78,12 @@ function useInterval(callback: Function, delay: number | null) {
   }, [delay])
 }
 
-const StyledTab = MaterialUI.withStyles({
+const StyledTab = withStyles({
   root: {
     minWidth: '48px',
     '&:disabled': {
-      opacity: 0.3,
+      opacity: 0.5,
+      filter: 'blur(1px)',
     },
   },
 })(MaterialUI.Tab)
@@ -291,7 +294,7 @@ function PopupApp({
     setSnackBarMessage(message)
     setSnackBarOpen(true)
   }
-  function handleSnackBarClose(_event: React.SyntheticEvent | React.MouseEvent, reason?: string) {
+  function handleSnackBarClose(_event: any, reason?: string) {
     if (reason === 'clickaway') {
       return
     }
@@ -402,6 +405,8 @@ function PopupApp({
                   </M.IconButton>
                   <M.Tabs
                     style={{ flexGrow: 1 }}
+                    textColor="inherit"
+                    indicatorColor="secondary"
                     value={tabPage}
                     onChange={(_ev, val) => setTabPage(val)}
                   >

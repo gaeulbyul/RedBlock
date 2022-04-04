@@ -19,7 +19,7 @@ module.exports = {
       import: './src/options/options.tsx',
       dependOn: 'ui_framework',
     },
-    ui_framework: ['@material-ui/core', 'react', 'react-dom'],
+    ui_framework: ['@mui/material', 'react', 'react-dom'],
   },
   output: {
     path: `${__dirname}/build/bundled`,

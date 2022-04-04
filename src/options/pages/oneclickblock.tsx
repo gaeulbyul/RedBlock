@@ -1,4 +1,6 @@
-import * as MaterialUI from '@material-ui/core'
+import * as MaterialUI from '@mui/material'
+import { makeStyles } from '@mui/styles'
+
 import sortBy from 'lodash-es/sortBy'
 import React from 'react'
 import * as i18n from '../../scripts/i18n'
@@ -9,14 +11,14 @@ import { RedBlockOptionsContext } from './contexts'
 
 const M = MaterialUI
 
-const useStylesForTable = MaterialUI.makeStyles(_theme => ({
+const useStylesForTable = makeStyles(() => ({
   tablePaper: {
     margin: '10px 0',
     width: '100%',
   },
 }))
 
-const useStylesForRow = MaterialUI.makeStyles(_theme => ({
+const useStylesForRow = makeStyles(() => ({
   striked: {
     textDecoration: 'strike',
   },

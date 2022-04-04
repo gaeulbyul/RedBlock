@@ -1,4 +1,5 @@
-import * as MaterialUI from '@material-ui/core'
+import * as MaterialUI from '@mui/material'
+
 import sortBy from 'lodash-es/sortBy'
 import React from 'react'
 import browser from 'webextension-polyfill'
@@ -233,17 +234,15 @@ function TargetUserProfile({ user }: { user: TwitterUser }) {
   )
 }
 
-const useStylesForCircularProgress = MaterialUI.makeStyles(theme =>
-  MaterialUI.createStyles({
-    center: {
-      margin: theme.spacing(1, 'auto'),
-    },
-  })
-)
+const CenteredCircularProgress = MaterialUI.styled(M.CircularProgress)(({ theme }) => ({
+  '&.centered': {
+    margin: theme.spacing(1, 'auto'),
+  },
+}))
+
 function TargetUserProfileEmpty({ reason }: { reason: 'invalid-user' | 'loading' }) {
-  const classes = useStylesForCircularProgress()
   if (reason === 'loading') {
-    return <M.CircularProgress className={classes.center} color="secondary" />
+    return <CenteredCircularProgress className="centered" color="secondary" />
   }
   return <div></div>
 }

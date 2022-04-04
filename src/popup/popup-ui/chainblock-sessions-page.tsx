@@ -1,4 +1,6 @@
-import * as MaterialUI from '@material-ui/core'
+import * as MaterialUI from '@mui/material'
+import { createStyles, makeStyles } from '@mui/styles'
+
 import React from 'react'
 import type browser from 'webextension-polyfill'
 
@@ -52,22 +54,23 @@ function calculatePercentage(session: SessionInfo): number | null {
   }
 }
 
-const useStylesForSessionItem = MaterialUI.makeStyles(theme =>
-  MaterialUI.createStyles({
+// TODO: theme.palette fix
+const useStylesForSessionItem = makeStyles(() =>
+  createStyles({
     expand: {
       marginLeft: 'auto',
     },
     redAvatar: {
       backgroundColor: MaterialUI.colors.red[700],
-      color: theme.palette.getContrastText(MaterialUI.colors.red[700]),
+      // color: theme.palette.getContrastText(MaterialUI.colors.red[700]),
     },
     greenAvatar: {
       backgroundColor: MaterialUI.colors.green[700],
-      color: theme.palette.getContrastText(MaterialUI.colors.green[700]),
+      // color: theme.palette.getContrastText(MaterialUI.colors.green[700]),
     },
     grayAvatar: {
       backgroundColor: MaterialUI.colors.blueGrey[700],
-      color: theme.palette.getContrastText(MaterialUI.colors.blueGrey[700]),
+      // color: theme.palette.getContrastText(MaterialUI.colors.blueGrey[700]),
     },
   })
 )

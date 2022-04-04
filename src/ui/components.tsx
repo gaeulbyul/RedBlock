@@ -1,10 +1,12 @@
-import * as MaterialUI from '@material-ui/core'
+import * as MaterialUI from '@mui/material'
+import { createStyles, makeStyles } from '@mui/styles'
+
 import React from 'react'
 
 const M = MaterialUI
 
-const useStylesForFormControl = MaterialUI.makeStyles(() =>
-  MaterialUI.createStyles({
+const useStylesForFormControl = makeStyles(() =>
+  createStyles({
     fieldset: {
       width: '100%',
     },
