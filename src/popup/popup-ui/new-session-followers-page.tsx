@@ -17,7 +17,6 @@ import {
   BigExecuteButton,
   BlockLimiterUI,
   PurposeSelectionUI,
-  RBAccordion,
   RequestCheckResultUI,
   TwitterUserProfile,
 } from './components'
@@ -248,7 +247,7 @@ function TargetUserProfileEmpty({ reason }: { reason: 'invalid-user' | 'loading'
 }
 
 function TargetUserSelectUI() {
-  const { currentUser, targetList, userSelection, setUserSelection } = React.useContext(
+  const { currentUser, userSelection, setUserSelection } = React.useContext(
     FollowerChainBlockPageStatesContext,
   )
   const { myself } = React.useContext(TabInfoContext)
@@ -324,54 +323,31 @@ function TargetUserSelectUI() {
         setUsersInOtherTab(usersMap)
       })
   }, [])
-  let targetSummary = ''
-  if (userSelection) {
-    const userName = userSelection.user.screen_name
-    switch (targetList) {
-      case 'followers':
-        targetSummary = i18n.getMessage('followers_with_targets_name', userName)
-        break
-      case 'friends':
-        targetSummary = i18n.getMessage('followings_with_targets_name', userName)
-        break
-      case 'mutual-followers':
-        targetSummary = i18n.getMessage('mutual_followers_with_targets_name', userName)
-        break
-    }
-  }
-  targetSummary = `${i18n.getMessage('target')} (${targetSummary})`
   return (
-    <RBAccordion summary={targetSummary} defaultExpanded>
-      <div style={{ width: '100%' }}>
-        <M.FormControl component="fieldset" fullWidth>
-          <UserSelectorContext.Provider value={{ changeSelectedUser }}>
-            <FollowerChainBlockTargetSelector {...{ bookmarkedUsers, usersInOtherTab }} />
-          </UserSelectorContext.Provider>
-          <M.Divider />
-          {userSelection
-            ? <TargetUserProfile user={userSelection.user} />
-            : <TargetUserProfileEmpty reason={isLoading ? 'loading' : 'invalid-user'} />}
-        </M.FormControl>
-      </div>
-    </RBAccordion>
+    <M.FormControl component="fieldset" fullWidth>
+      <UserSelectorContext.Provider value={{ changeSelectedUser }}>
+        <FollowerChainBlockTargetSelector {...{ bookmarkedUsers, usersInOtherTab }} />
+      </UserSelectorContext.Provider>
+      <M.Divider />
+      {userSelection
+        ? <TargetUserProfile user={userSelection.user} />
+        : <TargetUserProfileEmpty reason={isLoading ? 'loading' : 'invalid-user'} />}
+    </M.FormControl>
   )
 }
 
 function TargetOptionsUI() {
   const { purpose, changePurposeType, mutatePurposeOptions, availablePurposeTypes } = React
     .useContext(FollowerChainBlockPageStatesContext)
-  const summary = `${i18n.getMessage('options')} (${i18n.getMessage(purpose.type)})`
   return (
-    <RBAccordion summary={summary} defaultExpanded>
-      <PurposeSelectionUI
-        {...{
-          purpose,
-          changePurposeType,
-          mutatePurposeOptions,
-          availablePurposeTypes,
-        }}
-      />
-    </RBAccordion>
+    <PurposeSelectionUI
+      {...{
+        purpose,
+        changePurposeType,
+        mutatePurposeOptions,
+        availablePurposeTypes,
+      }}
+    />
   )
 }
 
@@ -453,7 +429,11 @@ function TargetExecutionButtonUI() {
 function NewSessionFollowersPageWithoutSelectedUser() {
   return (
     <div>
-      <TargetUserSelectUI />
+      <M.Paper>
+        <M.Box p={2}>
+          <TargetUserSelectUI />
+        </M.Box>
+      </M.Paper>
       <BlockLimiterUI />
     </div>
   )
@@ -467,8 +447,13 @@ export default function NewSessionFollowersPage() {
   }
   return (
     <div>
-      <TargetUserSelectUI />
-      <TargetOptionsUI />
+      <M.Paper>
+        <M.Box p={2}>
+          <TargetUserSelectUI />
+          <M.Divider />
+          <TargetOptionsUI />
+        </M.Box>
+      </M.Paper>
       <BlockLimiterUI />
       <RequestCheckResultUI {...{ maybeRequest }} />
       <TargetExecutionButtonUI />
