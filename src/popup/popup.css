@@ -73,36 +73,6 @@ body {
   font-weight: bold;
 }
 
-.target-user-info {
-  display: flex;
-  flex-direction: row;
-  margin-top: 5px;
-}
-
-.profile-image-area,
-.profile-right-area {
-  margin-top: 5px;
-}
-
-.profile-image-area {
-  margin-right: 10px;
-}
-
-.profile-right-area {
-  overflow: hidden;
-  width: 100%;
-  line-height: 150%;
-}
-
-.profile-right-info .nickname {
-  font-size: larger;
-  font-weight: bold;
-}
-
-.profile-right-info .username a {
-  color: inherit;
-}
-
 .profile-right-targettweet .tweet-content {
   border-left: 2px solid var(--mui-color-divider);
   padding-left: 5px;
@@ -114,12 +84,6 @@ body {
   overflow-x: hidden;
   overflow-y: auto;
   max-height: 110px;
-}
-
-.profile-image {
-  width: 60px;
-  max-width: 60px;
-  border-radius: 50%;
 }
 
 .chainblock-subopt label {
