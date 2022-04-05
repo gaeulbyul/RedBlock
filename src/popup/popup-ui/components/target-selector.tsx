@@ -118,7 +118,7 @@ export function Options({ label, children }: { label: string, children: React.Re
   const { selectedItemIdentifier, onChange } = React.useContext(TargetSelectorContext)
   // TODO: i18n:user_not_selected -> 유저뿐만 아니라 트윗도 선택할 수 있음을 감안하여 수정할 것
   return (
-    <M.FormControl fullWidth>
+    <M.FormControl fullWidth variant="standard">
       <M.InputLabel shrink htmlFor="target-select">
         {label}
       </M.InputLabel>
@@ -126,6 +126,7 @@ export function Options({ label, children }: { label: string, children: React.Re
         native
         id="target-select"
         fullWidth
+        label={label}
         value={selectedItemIdentifier}
         onChange={onChange}
       >
