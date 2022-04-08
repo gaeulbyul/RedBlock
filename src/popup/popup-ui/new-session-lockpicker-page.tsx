@@ -10,7 +10,6 @@ import {
   BlockLimiterUI,
   PurposeSelectionUI,
   RBAccordion,
-  RequestCheckResultUI,
   TwitterUserProfile,
 } from './components'
 import { BlockLimiterContext, RedBlockOptionsContext, TabInfoContext, UIContext } from './contexts'
@@ -58,6 +57,7 @@ function useSessionRequest(): Either<TargetCheckResult, SessionRequest<LockPicke
 function TargetOptionsUI() {
   const { purpose, changePurposeType, mutatePurposeOptions, availablePurposeTypes } = React
     .useContext(LockPickerPageStatesContext)
+  const maybeRequest = useSessionRequest()
   const summary = `${i18n.getMessage('options')} (${i18n.getMessage(purpose.type)})`
   return (
     <RBAccordion summary={summary} defaultExpanded>
@@ -67,6 +67,7 @@ function TargetOptionsUI() {
           changePurposeType,
           mutatePurposeOptions,
           availablePurposeTypes,
+          maybeRequest,
         }}
       />
     </RBAccordion>
@@ -108,7 +109,7 @@ function TargetExecutionButtonUI() {
 
 export default function NewSessionLockpickerPage() {
   const { myself } = React.useContext(TabInfoContext)
-  const maybeRequest = useSessionRequest()
+
   return (
     <div>
       <RBAccordion summary={i18n.getMessage('lockpicker')} defaultExpanded>
@@ -118,7 +119,7 @@ export default function NewSessionLockpickerPage() {
       </RBAccordion>
       <TargetOptionsUI />
       <BlockLimiterUI />
-      <RequestCheckResultUI {...{ maybeRequest }} />
+
       <TargetExecutionButtonUI />
     </div>
   )

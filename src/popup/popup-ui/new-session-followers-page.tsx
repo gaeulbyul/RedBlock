@@ -17,7 +17,6 @@ import {
   BigExecuteButton,
   BlockLimiterUI,
   PurposeSelectionUI,
-  RequestCheckResultUI,
   TwitterUserProfile,
 } from './components'
 import {
@@ -339,6 +338,8 @@ function TargetUserSelectUI() {
 function TargetOptionsUI() {
   const { purpose, changePurposeType, mutatePurposeOptions, availablePurposeTypes } = React
     .useContext(FollowerChainBlockPageStatesContext)
+
+  const maybeRequest = useSessionRequest()
   return (
     <PurposeSelectionUI
       {...{
@@ -346,6 +347,7 @@ function TargetOptionsUI() {
         changePurposeType,
         mutatePurposeOptions,
         availablePurposeTypes,
+        maybeRequest,
       }}
     />
   )
@@ -441,7 +443,6 @@ function NewSessionFollowersPageWithoutSelectedUser() {
 
 export default function NewSessionFollowersPage() {
   const { userSelection } = React.useContext(FollowerChainBlockPageStatesContext)
-  const maybeRequest = useSessionRequest()
   if (!userSelection) {
     return NewSessionFollowersPageWithoutSelectedUser()
   }
@@ -452,11 +453,10 @@ export default function NewSessionFollowersPage() {
           <TargetUserSelectUI />
           <M.Divider />
           <TargetOptionsUI />
+          <TargetExecutionButtonUI />
         </M.Box>
       </M.Paper>
       <BlockLimiterUI />
-      <RequestCheckResultUI {...{ maybeRequest }} />
-      <TargetExecutionButtonUI />
     </div>
   )
 }

@@ -10,7 +10,6 @@ import {
   BlockLimiterUI,
   PurposeSelectionUI,
   RBAccordion,
-  RequestCheckResultUI,
   TwitterUserProfile,
 } from './components'
 import { BlockLimiterContext, RedBlockOptionsContext, TabInfoContext, UIContext } from './contexts'
@@ -135,6 +134,7 @@ function TargetExecutionButtonUI() {
 function TargetOptionsUI() {
   const { purpose, changePurposeType, mutatePurposeOptions, availablePurposeTypes } = React
     .useContext(AudioSpaceChainBlockPageStatesContext)
+  const maybeRequest = useSessionRequest()
   const summary = `${i18n.getMessage('options')} (${i18n.getMessage(purpose.type)})`
   return (
     <RBAccordion summary={summary} defaultExpanded>
@@ -144,6 +144,7 @@ function TargetOptionsUI() {
           changePurposeType,
           mutatePurposeOptions,
           availablePurposeTypes,
+          maybeRequest,
         }}
       />
     </RBAccordion>
@@ -151,7 +152,6 @@ function TargetOptionsUI() {
 }
 
 export default function NewSessionAudioSpacePage() {
-  const maybeRequest = useSessionRequest()
   const { audioSpace } = React.useContext(AudioSpaceChainBlockPageStatesContext)
   const hostUserName = audioSpace.participants.admins[0]!.twitter_screen_name
   const targetSummary = `${i18n.getMessage('target')} (${
@@ -167,7 +167,7 @@ export default function NewSessionAudioSpacePage() {
       </RBAccordion>
       <TargetOptionsUI />
       <BlockLimiterUI />
-      <RequestCheckResultUI {...{ maybeRequest }} />
+
       <TargetExecutionButtonUI />
     </div>
   )

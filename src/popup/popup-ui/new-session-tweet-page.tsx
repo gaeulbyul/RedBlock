@@ -14,7 +14,6 @@ import {
   BlockLimiterUI,
   PurposeSelectionUI,
   RBAccordion,
-  RequestCheckResultUI,
   TwitterUserProfile,
 } from './components'
 import {
@@ -240,6 +239,7 @@ function TargetTweetOuterUI() {
 function TargetOptionsUI() {
   const { purpose, changePurposeType, mutatePurposeOptions, availablePurposeTypes } = React
     .useContext(TweetReactionChainBlockPageStatesContext)
+  const maybeRequest = useSessionRequest()
   const summary = `${i18n.getMessage('options')} (${i18n.getMessage(purpose.type)})`
   return (
     <RBAccordion summary={summary} defaultExpanded>
@@ -249,6 +249,7 @@ function TargetOptionsUI() {
           changePurposeType,
           mutatePurposeOptions,
           availablePurposeTypes,
+          maybeRequest,
         }}
       />
     </RBAccordion>
@@ -289,13 +290,11 @@ function TargetExecutionButtonUI() {
 }
 
 export default function NewSessionTweetPage() {
-  const maybeRequest = useSessionRequest()
   return (
     <div>
       <TargetTweetOuterUI />
       <TargetOptionsUI />
       <BlockLimiterUI />
-      <RequestCheckResultUI {...{ maybeRequest }} />
       <TargetExecutionButtonUI />
     </div>
   )

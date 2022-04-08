@@ -16,7 +16,6 @@ import {
   BlockLimiterUI,
   PurposeSelectionUI,
   RBAccordion,
-  RequestCheckResultUI,
   TabPanel,
 } from './components'
 import { BlockLimiterContext, RedBlockOptionsContext, TabInfoContext, UIContext } from './contexts'
@@ -108,6 +107,7 @@ function TargetOptionsUI() {
   const { purpose, changePurposeType, mutatePurposeOptions, availablePurposeTypes } = React
     .useContext(ImportChainBlockPageStatesContext)
   const summary = `${i18n.getMessage('options')} (${i18n.getMessage(purpose.type)})`
+  const maybeRequest = useImportSessionRequest()
   return (
     <RBAccordion summary={summary} defaultExpanded>
       <PurposeSelectionUI
@@ -116,6 +116,7 @@ function TargetOptionsUI() {
           changePurposeType,
           mutatePurposeOptions,
           availablePurposeTypes,
+          maybeRequest,
         }}
       />
     </RBAccordion>
@@ -262,7 +263,7 @@ function ImportBlocklistUI() {
       </RBAccordion>
       <TargetOptionsUI />
       <BlockLimiterUI />
-      <RequestCheckResultUI {...{ maybeRequest }} />
+
       <BigExecuteButton {...{ purpose }} type="submit" disabled={!isAvailable()} />
     </form>
   )

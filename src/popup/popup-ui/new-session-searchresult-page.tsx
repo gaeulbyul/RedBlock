@@ -5,13 +5,7 @@ import { startNewChainBlockSession } from '../../scripts/background/request-send
 import { TargetCheckResult, validateRequest } from '../../scripts/background/target-checker'
 import * as i18n from '../../scripts/i18n'
 import * as TextGenerate from '../../scripts/text-generate'
-import {
-  BigExecuteButton,
-  BlockLimiterUI,
-  PurposeSelectionUI,
-  RBAccordion,
-  RequestCheckResultUI,
-} from './components'
+import { BigExecuteButton, BlockLimiterUI, PurposeSelectionUI, RBAccordion } from './components'
 import { BlockLimiterContext, RedBlockOptionsContext, TabInfoContext, UIContext } from './contexts'
 import { ExtraSessionOptionsContext, UserSearchChainBlockPageStatesContext } from './ui-states'
 
@@ -90,6 +84,8 @@ function TargetExecutionButtonUI() {
 function TargetOptionsUI() {
   const { purpose, changePurposeType, mutatePurposeOptions, availablePurposeTypes } = React
     .useContext(UserSearchChainBlockPageStatesContext)
+
+  const maybeRequest = useSessionRequest()
   const summary = `${i18n.getMessage('options')} (${i18n.getMessage(purpose.type)})`
   return (
     <RBAccordion summary={summary} defaultExpanded>
@@ -99,6 +95,7 @@ function TargetOptionsUI() {
           changePurposeType,
           mutatePurposeOptions,
           availablePurposeTypes,
+          maybeRequest,
         }}
       />
     </RBAccordion>
@@ -106,7 +103,6 @@ function TargetOptionsUI() {
 }
 
 export default function NewSessionSearchResultPage() {
-  const maybeRequest = useSessionRequest()
   const { searchQuery } = React.useContext(UserSearchChainBlockPageStatesContext)
   return (
     <div>
@@ -120,7 +116,7 @@ export default function NewSessionSearchResultPage() {
       </RBAccordion>
       <TargetOptionsUI />
       <BlockLimiterUI />
-      <RequestCheckResultUI {...{ maybeRequest }} />
+
       <TargetExecutionButtonUI />
     </div>
   )

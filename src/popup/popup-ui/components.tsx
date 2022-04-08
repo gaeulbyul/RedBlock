@@ -387,11 +387,55 @@ export function LinearProgressWithLabel({ value }: { value: number }) {
   )
 }
 
+function SessionDescription({
+  purpose: { type },
+  maybeRequest,
+}: {
+  purpose: Purpose
+  maybeRequest: Either<TargetCheckResult, SessionRequest<AnySessionTarget>>
+}) {
+  if (!maybeRequest.ok) {
+    return (
+      <T py={1} color="warning.main">
+        {checkResultToString(maybeRequest.error)}
+      </T>
+    )
+  }
+
+  let message = ''
+  switch (type) {
+    case 'chainblock':
+      message = i18n.getMessage('chainblock_description') + ' '
+        + i18n.getMessage('my_mutual_followers_wont_block_or_mute')
+      break
+    case 'unchainblock':
+      message = i18n.getMessage('unchainblock_description')
+      break
+    case 'lockpicker':
+      message = i18n.getMessage('lockpicker_description')
+      break
+    case 'chainunfollow':
+      message = i18n.getMessage('chainunfollow_description')
+      break
+    case 'chainmute':
+      message = i18n.getMessage('chainmute_description') + ' '
+        + i18n.getMessage('my_mutual_followers_wont_block_or_mute')
+      break
+    case 'unchainmute':
+      message = i18n.getMessage('unchainmute_description')
+      break
+    case 'export':
+      message = i18n.getMessage('export_description')
+  }
+  return <T py={1}>{message}</T>
+}
+
 export function PurposeSelectionUI({
   purpose,
   changePurposeType,
   mutatePurposeOptions,
   availablePurposeTypes,
+  maybeRequest,
 }: {
   purpose: SessionRequest<AnySessionTarget>['purpose']
   changePurposeType(purposeType: SessionRequest<AnySessionTarget>['purpose']['type']): void
@@ -399,6 +443,7 @@ export function PurposeSelectionUI({
     partialOptions: Partial<Omit<SessionRequest<AnySessionTarget>['purpose'], 'type'>>,
   ): void
   availablePurposeTypes: SessionRequest<AnySessionTarget>['purpose']['type'][]
+  maybeRequest: Either<TargetCheckResult, SessionRequest<AnySessionTarget>>
 }) {
   const chainblockable = availablePurposeTypes.includes('chainblock')
   const unchainblockable = availablePurposeTypes.includes('unchainblock')
@@ -475,10 +520,7 @@ export function PurposeSelectionUI({
           )}
           <ExtraSessionOptionsUI showBioBlock={true} />
           <M.Divider />
-          <div className="description">
-            {i18n.getMessage('chainblock_description')}{' '}
-            {i18n.getMessage('my_mutual_followers_wont_block_or_mute')}
-          </div>
+          <SessionDescription {...{ purpose, maybeRequest }} />
         </TabPanel>
       )}
       {unchainblockable && (
@@ -488,7 +530,7 @@ export function PurposeSelectionUI({
           )}
           <ExtraSessionOptionsUI />
           <M.Divider />
-          <div className="description">{i18n.getMessage('unchainblock_description')}</div>
+          <SessionDescription {...{ purpose, maybeRequest }} />
         </TabPanel>
       )}
       {lockpickable && (
@@ -497,13 +539,13 @@ export function PurposeSelectionUI({
             <LockPickerOptionsUI {...{ purpose, mutatePurposeOptions }} />
           )}
           <ExtraSessionOptionsUI />
-          <div className="description">{i18n.getMessage('lockpicker_description')}</div>
+          <SessionDescription {...{ purpose, maybeRequest }} />
         </TabPanel>
       )}
       {chainunfollowable && (
         <TabPanel value={purpose.type} index="chainunfollow">
           <ExtraSessionOptionsUI />
-          <div className="description">{i18n.getMessage('chainunfollow_description')}</div>
+          <SessionDescription {...{ purpose, maybeRequest }} />
         </TabPanel>
       )}
       {chainmutable && (
@@ -513,10 +555,7 @@ export function PurposeSelectionUI({
           )}
           <ExtraSessionOptionsUI showBioBlock={true} />
           <M.Divider />
-          <div className="description">
-            {i18n.getMessage('chainmute_description')}{' '}
-            {i18n.getMessage('my_mutual_followers_wont_block_or_mute')}
-          </div>
+          <SessionDescription {...{ purpose, maybeRequest }} />
         </TabPanel>
       )}
       {unchainmutable && (
@@ -525,12 +564,12 @@ export function PurposeSelectionUI({
             <UnChainMuteOptionsUI {...{ purpose, mutatePurposeOptions }} />
           )}
           <ExtraSessionOptionsUI />
-          <div className="description">{i18n.getMessage('unchainmute_description')}</div>
+          <SessionDescription {...{ purpose, maybeRequest }} />
         </TabPanel>
       )}
       {exportable && (
         <TabPanel value={purpose.type} index="export">
-          <div className="description">{i18n.getMessage('export_description')}</div>
+          <SessionDescription {...{ purpose, maybeRequest }} />
         </TabPanel>
       )}
     </M.Box>
@@ -722,25 +761,5 @@ function UnChainMuteOptionsUI({
           mutatePurposeOptions({ mutedAndAlsoBlocked })}
       />
     </React.Fragment>
-  )
-}
-
-export function RequestCheckResultUI({
-  maybeRequest,
-}: {
-  maybeRequest: Either<TargetCheckResult, SessionRequest<AnySessionTarget>>
-}) {
-  return (
-    <div hidden={maybeRequest.ok}>
-      {!maybeRequest.ok && (
-        <M.Paper square>
-          <T component="div">
-            <M.Box px={2} py={1} mb={1} color="warning.main">
-              {checkResultToString(maybeRequest.error)}
-            </M.Box>
-          </T>
-        </M.Paper>
-      )}
-    </div>
   )
 }
