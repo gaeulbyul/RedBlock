@@ -9,7 +9,6 @@ import {
   BigExecuteButton,
   BlockLimiterUI,
   PurposeSelectionUI,
-  RBAccordion,
   TwitterUserProfile,
 } from './components'
 import { BlockLimiterContext, RedBlockOptionsContext, TabInfoContext, UIContext } from './contexts'
@@ -135,40 +134,31 @@ function TargetOptionsUI() {
   const { purpose, changePurposeType, mutatePurposeOptions, availablePurposeTypes } = React
     .useContext(AudioSpaceChainBlockPageStatesContext)
   const maybeRequest = useSessionRequest()
-  const summary = `${i18n.getMessage('options')} (${i18n.getMessage(purpose.type)})`
   return (
-    <RBAccordion summary={summary} defaultExpanded>
-      <PurposeSelectionUI
-        {...{
-          purpose,
-          changePurposeType,
-          mutatePurposeOptions,
-          availablePurposeTypes,
-          maybeRequest,
-        }}
-      />
-    </RBAccordion>
+    <PurposeSelectionUI
+      {...{
+        purpose,
+        changePurposeType,
+        mutatePurposeOptions,
+        availablePurposeTypes,
+        maybeRequest,
+      }}
+    />
   )
 }
 
 export default function NewSessionAudioSpacePage() {
   const { audioSpace } = React.useContext(AudioSpaceChainBlockPageStatesContext)
-  const hostUserName = audioSpace.participants.admins[0]!.twitter_screen_name
-  const targetSummary = `${i18n.getMessage('target')} (${
-    i18n.getMessage(
-      'from_audio_space_by_xxx',
-      hostUserName,
-    )
-  })`
   return (
     <div>
-      <RBAccordion summary={targetSummary} defaultExpanded>
-        <TargetAudioSpace audioSpace={audioSpace} />
-      </RBAccordion>
-      <TargetOptionsUI />
+      <M.Paper>
+        <M.Box p={2}>
+          <TargetAudioSpace audioSpace={audioSpace} />
+          <TargetOptionsUI />
+          <TargetExecutionButtonUI />
+        </M.Box>
+      </M.Paper>
       <BlockLimiterUI />
-
-      <TargetExecutionButtonUI />
     </div>
   )
 }

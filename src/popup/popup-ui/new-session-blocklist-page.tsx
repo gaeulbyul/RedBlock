@@ -11,13 +11,7 @@ import { startNewChainBlockSession } from '../../scripts/background/request-send
 import { TargetCheckResult, validateRequest } from '../../scripts/background/target-checker'
 import * as i18n from '../../scripts/i18n'
 import * as TextGenerate from '../../scripts/text-generate'
-import {
-  BigExecuteButton,
-  BlockLimiterUI,
-  PurposeSelectionUI,
-  RBAccordion,
-  TabPanel,
-} from './components'
+import { BigExecuteButton, BlockLimiterUI, PurposeSelectionUI, TabPanel } from './components'
 import { BlockLimiterContext, RedBlockOptionsContext, TabInfoContext, UIContext } from './contexts'
 import type { PageId } from './pages'
 import { ExtraSessionOptionsContext, ImportChainBlockPageStatesContext } from './ui-states'
@@ -106,20 +100,17 @@ function useExportSessionRequest(): Either<
 function TargetOptionsUI() {
   const { purpose, changePurposeType, mutatePurposeOptions, availablePurposeTypes } = React
     .useContext(ImportChainBlockPageStatesContext)
-  const summary = `${i18n.getMessage('options')} (${i18n.getMessage(purpose.type)})`
   const maybeRequest = useImportSessionRequest()
   return (
-    <RBAccordion summary={summary} defaultExpanded>
-      <PurposeSelectionUI
-        {...{
-          purpose,
-          changePurposeType,
-          mutatePurposeOptions,
-          availablePurposeTypes,
-          maybeRequest,
-        }}
-      />
-    </RBAccordion>
+    <PurposeSelectionUI
+      {...{
+        purpose,
+        changePurposeType,
+        mutatePurposeOptions,
+        availablePurposeTypes,
+        maybeRequest,
+      }}
+    />
   )
 }
 
@@ -200,8 +191,8 @@ function ImportBlocklistUI() {
   )
   return (
     <form onSubmit={onSubmit} onReset={onReset}>
-      <RBAccordion summary={i18n.getMessage('import_blocklist')} defaultExpanded>
-        <div style={{ width: '100%' }}>
+      <M.Paper>
+        <M.Box p={2}>
           <input
             required
             ref={fileInput}
@@ -259,12 +250,11 @@ function ImportBlocklistUI() {
               </M.Button>
             </div>
           </div>
-        </div>
-      </RBAccordion>
-      <TargetOptionsUI />
+          <TargetOptionsUI />
+          <BigExecuteButton {...{ purpose }} type="submit" disabled={!isAvailable()} />
+        </M.Box>
+      </M.Paper>
       <BlockLimiterUI />
-
-      <BigExecuteButton {...{ purpose }} type="submit" disabled={!isAvailable()} />
     </form>
   )
 }
@@ -291,12 +281,12 @@ function ExportBlocklistUI() {
     }
   }
   return (
-    <div style={{ width: '100%' }}>
-      <RBAccordion summary={i18n.getMessage('exporting_my_blocklist')} defaultExpanded>
+    <M.Paper>
+      <M.Box p={2}>
         <p>{i18n.getMessage('exporting_my_blocklist_description')}</p>
-      </RBAccordion>
-      <BigExecuteButton disabled={false} {...{ purpose }} onClick={executeSession} />
-    </div>
+        <BigExecuteButton disabled={false} {...{ purpose }} onClick={executeSession} />
+      </M.Box>
+    </M.Paper>
   )
 }
 

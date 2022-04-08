@@ -5,7 +5,7 @@ import { startNewChainBlockSession } from '../../scripts/background/request-send
 import { TargetCheckResult, validateRequest } from '../../scripts/background/target-checker'
 import * as i18n from '../../scripts/i18n'
 import * as TextGenerate from '../../scripts/text-generate'
-import { BigExecuteButton, BlockLimiterUI, PurposeSelectionUI, RBAccordion } from './components'
+import { BigExecuteButton, BlockLimiterUI, PurposeSelectionUI } from './components'
 import { BlockLimiterContext, RedBlockOptionsContext, TabInfoContext, UIContext } from './contexts'
 import { ExtraSessionOptionsContext, UserSearchChainBlockPageStatesContext } from './ui-states'
 
@@ -86,19 +86,16 @@ function TargetOptionsUI() {
     .useContext(UserSearchChainBlockPageStatesContext)
 
   const maybeRequest = useSessionRequest()
-  const summary = `${i18n.getMessage('options')} (${i18n.getMessage(purpose.type)})`
   return (
-    <RBAccordion summary={summary} defaultExpanded>
-      <PurposeSelectionUI
-        {...{
-          purpose,
-          changePurposeType,
-          mutatePurposeOptions,
-          availablePurposeTypes,
-          maybeRequest,
-        }}
-      />
-    </RBAccordion>
+    <PurposeSelectionUI
+      {...{
+        purpose,
+        changePurposeType,
+        mutatePurposeOptions,
+        availablePurposeTypes,
+        maybeRequest,
+      }}
+    />
   )
 }
 
@@ -106,18 +103,17 @@ export default function NewSessionSearchResultPage() {
   const { searchQuery } = React.useContext(UserSearchChainBlockPageStatesContext)
   return (
     <div>
-      <RBAccordion summary={i18n.getMessage('usersearch_chainblock')} defaultExpanded>
-        <div style={{ width: '100%' }}>
+      <M.Paper>
+        <M.Box p={2}>
           <T>
             {`${i18n.getMessage('query')}: `}
             <strong>{searchQuery}</strong>
           </T>
-        </div>
-      </RBAccordion>
-      <TargetOptionsUI />
+          <TargetOptionsUI />
+          <TargetExecutionButtonUI />
+        </M.Box>
+      </M.Paper>
       <BlockLimiterUI />
-
-      <TargetExecutionButtonUI />
     </div>
   )
 }

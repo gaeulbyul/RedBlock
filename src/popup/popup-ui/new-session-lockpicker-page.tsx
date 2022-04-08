@@ -3,13 +3,11 @@ import React from 'react'
 
 import { startNewChainBlockSession } from '../../scripts/background/request-sender'
 import { TargetCheckResult, validateRequest } from '../../scripts/background/target-checker'
-import * as i18n from '../../scripts/i18n'
 import * as TextGenerate from '../../scripts/text-generate'
 import {
   BigExecuteButton,
   BlockLimiterUI,
   PurposeSelectionUI,
-  RBAccordion,
   TwitterUserProfile,
 } from './components'
 import { BlockLimiterContext, RedBlockOptionsContext, TabInfoContext, UIContext } from './contexts'
@@ -58,19 +56,16 @@ function TargetOptionsUI() {
   const { purpose, changePurposeType, mutatePurposeOptions, availablePurposeTypes } = React
     .useContext(LockPickerPageStatesContext)
   const maybeRequest = useSessionRequest()
-  const summary = `${i18n.getMessage('options')} (${i18n.getMessage(purpose.type)})`
   return (
-    <RBAccordion summary={summary} defaultExpanded>
-      <PurposeSelectionUI
-        {...{
-          purpose,
-          changePurposeType,
-          mutatePurposeOptions,
-          availablePurposeTypes,
-          maybeRequest,
-        }}
-      />
-    </RBAccordion>
+    <PurposeSelectionUI
+      {...{
+        purpose,
+        changePurposeType,
+        mutatePurposeOptions,
+        availablePurposeTypes,
+        maybeRequest,
+      }}
+    />
   )
 }
 
@@ -112,15 +107,14 @@ export default function NewSessionLockpickerPage() {
 
   return (
     <div>
-      <RBAccordion summary={i18n.getMessage('lockpicker')} defaultExpanded>
-        <div style={{ width: '100%' }}>
+      <M.Paper>
+        <M.Box p={2}>
           <TwitterUserProfile user={myself!.user} />
-        </div>
-      </RBAccordion>
-      <TargetOptionsUI />
+          <TargetOptionsUI />
+          <TargetExecutionButtonUI />
+        </M.Box>
+      </M.Paper>
       <BlockLimiterUI />
-
-      <TargetExecutionButtonUI />
     </div>
   )
 }
