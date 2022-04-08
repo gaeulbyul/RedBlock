@@ -116,12 +116,13 @@ function TargetReactionsV2UI({ tweet }: { tweet: Tweet }) {
       setIncludedReactionsV2(includedReactionsV2.filter(r => r !== reaction))
     }
   }
+  const padding = '6px 9px'
   return (
     <React.Fragment>
       {availableReactions.map((reaction, index) => (
         <M.FormControlLabel
           key={index}
-          control={<M.Checkbox size="small" />}
+          control={<M.Checkbox size="small" sx={{ padding }} />}
           onChange={(_event, checked) => onChange(reaction, checked)}
           checked={includedReactionsV2.includes(reaction)}
           disabled={reactionCounts[reaction] <= 0}
@@ -158,6 +159,7 @@ function TargetTweetUI({ tweet }: { tweet: Tweet }) {
   const nobodyQuoted = tweet.quote_count <= 0
   const nonLinkedMentions = findNonLinkedMentionsFromTweet(tweet)
   const displayText = showTextLikeTwitter(tweet)
+  const padding = '6px 9px'
   return (
     <TwitterUserProfile user={tweet.user}>
       <div className="profile-right-targettweet">
@@ -166,7 +168,7 @@ function TargetTweetUI({ tweet }: { tweet: Tweet }) {
         </div>
         <M.FormGroup row>
           <M.FormControlLabel
-            control={<M.Checkbox size="small" />}
+            control={<M.Checkbox size="small" sx={{ padding }} />}
             onChange={() => setIncludeRetweeters(!includeRetweeters)}
             checked={includeRetweeters}
             disabled={nobodyRetweeted}
@@ -174,7 +176,7 @@ function TargetTweetUI({ tweet }: { tweet: Tweet }) {
           />
           {enableReactionsV2Support ? <TargetReactionsV2UI {...{ tweet }} /> : (
             <M.FormControlLabel
-              control={<M.Checkbox size="small" />}
+              control={<M.Checkbox size="small" sx={{ padding }} />}
               onChange={() => setIncludeLikers(!includeLikers)}
               checked={includeLikers}
               disabled={nobodyLiked}
@@ -182,21 +184,21 @@ function TargetTweetUI({ tweet }: { tweet: Tweet }) {
             />
           )}
           <M.FormControlLabel
-            control={<M.Checkbox size="small" />}
+            control={<M.Checkbox size="small" sx={{ padding }} />}
             onChange={() => setIncludeMentionedUsers(!includeMentionedUsers)}
             checked={includeMentionedUsers}
             disabled={nobodyMentioned}
             label={`${i18n.getMessage('mentioned')} (${mentions.length.toLocaleString()})`}
           />
           <M.FormControlLabel
-            control={<M.Checkbox size="small" />}
+            control={<M.Checkbox size="small" sx={{ padding }} />}
             onChange={() => setIncludeQuotedUsers(!includeQuotedUsers)}
             checked={includeQuotedUsers}
             disabled={nobodyQuoted}
             label={`${i18n.getMessage('quoted')} (${tweet.quote_count.toLocaleString()})`}
           />
           <M.FormControlLabel
-            control={<M.Checkbox size="small" />}
+            control={<M.Checkbox size="small" sx={{ padding }} />}
             onChange={() => setIncludeNonLinkedMentions(!includeNonLinkedMentions)}
             checked={includeNonLinkedMentions}
             disabled={nonLinkedMentions.length <= 0}
@@ -279,10 +281,10 @@ export default function NewSessionTweetPage() {
           <TargetTweetOuterUI />
           <M.Divider />
           <TargetOptionsUI />
+          <TargetExecutionButtonUI />
         </M.Box>
       </M.Paper>
       <BlockLimiterUI />
-      <TargetExecutionButtonUI />
     </div>
   )
 }
