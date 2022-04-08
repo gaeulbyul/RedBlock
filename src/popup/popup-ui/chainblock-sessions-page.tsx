@@ -54,7 +54,10 @@ function calculatePercentage(session: SessionInfo): number | null {
   }
 }
 
-// TODO: theme.palette fix
+// 타입추론이 제대로 작동하지 않아서 makeStyles의 theme 대신
+// 여기서 함수를 따로 꺼내서 사용하기로 함.
+const { getContrastText } = MaterialUI.createTheme().palette
+
 const useStylesForSessionItem = makeStyles(() =>
   createStyles({
     expand: {
@@ -62,15 +65,15 @@ const useStylesForSessionItem = makeStyles(() =>
     },
     redAvatar: {
       backgroundColor: MaterialUI.colors.red[700],
-      // color: theme.palette.getContrastText(MaterialUI.colors.red[700]),
+      color: getContrastText(MaterialUI.colors.red[700]),
     },
     greenAvatar: {
       backgroundColor: MaterialUI.colors.green[700],
-      // color: theme.palette.getContrastText(MaterialUI.colors.green[700]),
+      color: getContrastText(MaterialUI.colors.green[700]),
     },
     grayAvatar: {
       backgroundColor: MaterialUI.colors.blueGrey[700],
-      // color: theme.palette.getContrastText(MaterialUI.colors.blueGrey[700]),
+      color: getContrastText(MaterialUI.colors.blueGrey[700]),
     },
   })
 )
