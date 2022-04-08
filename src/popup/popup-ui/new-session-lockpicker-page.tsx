@@ -100,7 +100,7 @@ function TargetExecutionButtonUI() {
     }
   }
   return (
-    <M.Box>
+    <M.Box mt={1}>
       <BigExecuteButton {...{ purpose }} disabled={!isAvailable()} onClick={executeSession} />
     </M.Box>
   )

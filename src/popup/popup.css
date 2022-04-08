@@ -28,13 +28,13 @@ popup-ui.tsx의 shrinkPopup 부분도 체크할 것
   visibility: hidden;
 }
 
-body.ui-tab {
-  min-width: var(--popup-width);
-}
-
 body {
   min-height: 600px;
   word-break: keep-all;
+}
+
+.ui-popup {
+  width: var(--popup-width);
 }
 
 .ellipsis {
@@ -47,7 +47,6 @@ body {
   display: flex;
   flex-direction: column;
   height: 100vh;
-  min-width: var(--popup-width);
   padding: 0;
   margin: 0 auto;
   /* Whale 브라우저 + 오버레이 스크롤바에선 스크롤이 안 되는 버그가 있더라. */
@@ -59,9 +58,15 @@ body {
   flex-grow: 1;
 }
 
-.page {
+.main {
   flex-grow: 1;
   padding-top: 50px;
+  overflow-x: hidden;
+}
+
+.ui-tab .main {
+  max-width: 100vw;
+  min-width: 345px;
 }
 
 .ui-popup .hide-on-popup,

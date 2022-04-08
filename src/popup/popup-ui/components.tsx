@@ -51,7 +51,7 @@ export const SmallAvatar = withStyles(theme => ({
 function Icon({ name }: { name: string }) {
   // overflow: purpose 탭 아이콘 짤림 문제방지
   // (특히 탭 라벨이 두 줄이상으로 넘어갈때)
-  return <M.Icon style={{ overflow: 'visible' }}>{name}</M.Icon>
+  return <M.Icon>{name}</M.Icon>
 }
 function purposeTypeToIcon(purposeType: Purpose['type']): JSX.Element {
   switch (purposeType) {
@@ -192,44 +192,6 @@ export function PleaseLoginBox() {
   )
 }
 
-const DenseAccordion = withStyles(() => ({
-  /*
-  root: {
-    margin: theme.spacing(1, 0),
-    '&:first-child': {
-      margin: '0',
-    },
-    '&$expanded': {
-      margin: theme.spacing(1, 0),
-    },
-  },
-  expanded: {},
-  */
-}))(MaterialUI.Accordion)
-
-const DenseAccordionSummary = withStyles({
-  /*
-  root: {
-    minHeight: 16,
-    '&$expanded': {
-      minHeight: 16,
-    },
-  },
-  content: {
-    '&$expanded': {
-      margin: 0,
-    },
-  },
-  expanded: {},
-  */
-})(MaterialUI.AccordionSummary)
-
-const AccordionDetailsWithMorePadding = MaterialUI.styled(M.AccordionDetails)(({ theme }) => ({
-  '& .details': {
-    padding: theme.spacing(1, 2),
-  },
-}))
-
 export function RBAccordion({
   summary,
   children,
@@ -242,12 +204,12 @@ export function RBAccordion({
   warning?: boolean
 }) {
   return (
-    <DenseAccordion defaultExpanded={defaultExpanded}>
-      <DenseAccordionSummary expandIcon={<M.Icon>expand_more</M.Icon>}>
+    <M.Accordion defaultExpanded={defaultExpanded}>
+      <M.AccordionSummary expandIcon={<M.Icon>expand_more</M.Icon>}>
         <T sx={{ color: warning ? 'warning.main' : 'text.primary' }}>{summary}</T>
-      </DenseAccordionSummary>
-      <AccordionDetailsWithMorePadding>{children}</AccordionDetailsWithMorePadding>
-    </DenseAccordion>
+      </M.AccordionSummary>
+      <M.AccordionDetails>{children}</M.AccordionDetails>
+    </M.Accordion>
   )
 }
 
@@ -303,7 +265,7 @@ export function TwitterUserProfile({
   const textSecondary = theme.palette.text.secondary
   const biggerProfileImageUrl = user.profile_image_url_https.replace('_normal', '_bigger')
   return (
-    <M.Box display="flex" flexDirection="row" mt={1}>
+    <M.Box display="flex" flexDirection="row" mt={2}>
       <M.Box mr={1}>
         <M.Avatar
           alt={i18n.getMessage('profile_image')}
@@ -407,12 +369,8 @@ const BigGrayButton = withStyles(theme => ({
 
 const PurposeTab = withStyles(theme => ({
   root: {
-    lineHeight: 1.5,
-    paddingLeft: theme.spacing(1),
-    paddingRight: theme.spacing(1),
-    '@media (min-width: 600px)': {
-      minWidth: 'initial',
-    },
+    height: 60,
+    padding: theme.spacing(0, 1),
   },
 }))(MaterialUI.Tab)
 
@@ -451,7 +409,7 @@ export function PurposeSelectionUI({
   const unchainmutable = availablePurposeTypes.includes('unchainmute')
   // const narrow = MaterialUI.useMediaQuery('(max-width:500px)')
   return (
-    <div style={{ width: '100%' }}>
+    <M.Box>
       <M.Tabs
         style={{ display: availablePurposeTypes.length >= 2 ? 'flex' : 'none' }}
         variant="fullWidth"
@@ -520,7 +478,6 @@ export function PurposeSelectionUI({
           <div className="description">
             {i18n.getMessage('chainblock_description')}{' '}
             {i18n.getMessage('my_mutual_followers_wont_block_or_mute')}
-            <div className="wtf">{i18n.getMessage('wtf_twitter') /* massive block warning */}</div>
           </div>
         </TabPanel>
       )}
@@ -576,7 +533,7 @@ export function PurposeSelectionUI({
           <div className="description">{i18n.getMessage('export_description')}</div>
         </TabPanel>
       )}
-    </div>
+    </M.Box>
   )
 }
 

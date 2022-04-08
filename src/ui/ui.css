@@ -34,11 +34,6 @@ body {
   color: var(--mui-color-text-primary);
 }
 
-a,
-a:visited {
-  color: crimson;
-}
-
 hr {
   border-top: 1px solid var(--mui-color-divider);
   border-bottom: 0;

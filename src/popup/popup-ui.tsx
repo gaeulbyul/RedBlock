@@ -107,10 +107,11 @@ function PopupTopTab({
       {pageIcon(value)}
     </M.Badge>
   )
+  const cursor = disabled ? 'not-allowed' : 'pointer'
   return (
-    <MyTooltip arrow title={pageLabel(value, count)}>
+    <MyTooltip arrow title={pageLabel(value, count)} style={{ cursor }}>
       <div>
-        <StyledTab {...props} {...{ value, icon, disabled }} />
+        <StyledTab {...props} {...{ value, icon, disabled }} style={{ cursor }} />
       </div>
     </MyTooltip>
   )
@@ -443,7 +444,7 @@ function PopupApp({
                 </M.Toolbar>
               </M.AppBar>
               <PopupUITopMenu {...{ countOfRunningSessions }} />
-              <main className="page">
+              <main className="main">
                 {renderMain(
                   <M.Container maxWidth="sm" disableGutters>
                     <TabPanel value={tabPage} index="chainblock-sessions-page">
