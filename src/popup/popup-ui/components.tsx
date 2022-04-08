@@ -265,7 +265,7 @@ export function TwitterUserProfile({
   const textSecondary = theme.palette.text.secondary
   const biggerProfileImageUrl = user.profile_image_url_https.replace('_normal', '_bigger')
   return (
-    <M.Box display="flex" flexDirection="row" mt={2}>
+    <M.Box display="flex" flexDirection="row">
       <M.Box mr={1}>
         <M.Avatar
           alt={i18n.getMessage('profile_image')}

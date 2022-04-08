@@ -13,7 +13,6 @@ import {
   BigExecuteButton,
   BlockLimiterUI,
   PurposeSelectionUI,
-  RBAccordion,
   TwitterUserProfile,
 } from './components'
 import {
@@ -215,24 +214,10 @@ function TargetTweetUI({ tweet }: { tweet: Tweet }) {
 
 function TargetTweetOuterUI() {
   const { currentTweet } = React.useContext(TweetReactionChainBlockPageStatesContext)
-  if (!currentTweet) {
-    throw new Error()
-  }
-  const userName = currentTweet.user.screen_name
-  const targetSummary = `${i18n.getMessage('target')} (${
-    i18n.getMessage(
-      'reacted_xxxs_tweet',
-      userName,
-    )
-  })`
   return (
-    <RBAccordion summary={targetSummary} defaultExpanded>
-      <div style={{ width: '100%' }}>
-        <M.FormControl component="fieldset" fullWidth>
-          <TargetTweetUI tweet={currentTweet} />
-        </M.FormControl>
-      </div>
-    </RBAccordion>
+    <M.FormControl component="fieldset" fullWidth>
+      <TargetTweetUI tweet={currentTweet!} />
+    </M.FormControl>
   )
 }
 
@@ -240,19 +225,16 @@ function TargetOptionsUI() {
   const { purpose, changePurposeType, mutatePurposeOptions, availablePurposeTypes } = React
     .useContext(TweetReactionChainBlockPageStatesContext)
   const maybeRequest = useSessionRequest()
-  const summary = `${i18n.getMessage('options')} (${i18n.getMessage(purpose.type)})`
   return (
-    <RBAccordion summary={summary} defaultExpanded>
-      <PurposeSelectionUI
-        {...{
-          purpose,
-          changePurposeType,
-          mutatePurposeOptions,
-          availablePurposeTypes,
-          maybeRequest,
-        }}
-      />
-    </RBAccordion>
+    <PurposeSelectionUI
+      {...{
+        purpose,
+        changePurposeType,
+        mutatePurposeOptions,
+        availablePurposeTypes,
+        maybeRequest,
+      }}
+    />
   )
 }
 
@@ -292,8 +274,13 @@ function TargetExecutionButtonUI() {
 export default function NewSessionTweetPage() {
   return (
     <div>
-      <TargetTweetOuterUI />
-      <TargetOptionsUI />
+      <M.Paper>
+        <M.Box p={2}>
+          <TargetTweetOuterUI />
+          <M.Divider />
+          <TargetOptionsUI />
+        </M.Box>
+      </M.Paper>
       <BlockLimiterUI />
       <TargetExecutionButtonUI />
     </div>

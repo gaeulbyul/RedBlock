@@ -218,7 +218,7 @@ function TargetUserProfile({ user }: { user: TwitterUser }) {
   }
   return (
     <TwitterUserProfile user={user}>
-      <div>
+      <M.Box>
         <M.Box display="flex" flexDirection="column">
           {selectedMyself && <div>&#10071; {i18n.getMessage('its_you')}</div>}
         </M.Box>
@@ -227,7 +227,7 @@ function TargetUserProfile({ user }: { user: TwitterUser }) {
           {radio('friends', TextGenerate.formatFollowsCount('friends', user.friends_count))}
           {radio('mutual-followers', i18n.getMessage('mutual_followers'))}
         </M.RadioGroup>
-      </div>
+      </M.Box>
     </TwitterUserProfile>
   )
 }
@@ -328,9 +328,11 @@ function TargetUserSelectUI() {
         <FollowerChainBlockTargetSelector {...{ bookmarkedUsers, usersInOtherTab }} />
       </UserSelectorContext.Provider>
       <M.Divider />
-      {userSelection
-        ? <TargetUserProfile user={userSelection.user} />
-        : <TargetUserProfileEmpty reason={isLoading ? 'loading' : 'invalid-user'} />}
+      <M.Box mt={2}>
+        {userSelection
+          ? <TargetUserProfile user={userSelection.user} />
+          : <TargetUserProfileEmpty reason={isLoading ? 'loading' : 'invalid-user'} />}
+      </M.Box>
     </M.FormControl>
   )
 }
