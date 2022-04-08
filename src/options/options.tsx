@@ -76,6 +76,8 @@ function OptionsApp() {
           <M.Tabs
             variant="scrollable"
             scrollButtons="auto"
+            textColor="inherit"
+            indicatorColor="secondary"
             value={tabPage}
             onChange={(_ev, val) => setTabPage(val)}
           >
@@ -104,7 +106,6 @@ function OptionsApp() {
           <TabPanel value={tabPage} index="experimental">
             <ExperimentalOptionsPage />
           </TabPanel>
-          <M.Divider />
         </M.Container>
       </RedBlockOptionsContext.Provider>
     </M.ThemeProvider>
