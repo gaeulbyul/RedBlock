@@ -193,13 +193,16 @@ function ChainBlockSessionItem({
     // </M.Button>
     function requestStopChainBlock() {
       if (running) {
-        uiContext.openDialog({
-          dialogType: 'confirm',
-          message: {
-            title: i18n.getMessage('confirm_session_stop_message'),
-          },
-          callbackOnOk() {
-            stopChainBlock(sessionId)
+        uiContext.dispatchUIStates({
+          type: 'open-modal',
+          content: {
+            dialogType: 'confirm',
+            message: {
+              title: i18n.getMessage('confirm_session_stop_message'),
+            },
+            callbackOnOk() {
+              stopChainBlock(sessionId)
+            },
           },
         })
         return
@@ -208,13 +211,16 @@ function ChainBlockSessionItem({
         && sessionInfo.status !== 'Completed'
         && sessionInfo.status !== 'Stopped'
       if (shouldConfirmClose && !downloaded) {
-        uiContext.openDialog({
-          dialogType: 'confirm',
-          message: {
-            title: i18n.getMessage('confirm_closing_export_session_notyet_save'),
-          },
-          callbackOnOk() {
-            stopChainBlock(sessionId)
+        uiContext.dispatchUIStates({
+          type: 'open-modal',
+          content: {
+            dialogType: 'confirm',
+            message: {
+              title: i18n.getMessage('confirm_closing_export_session_notyet_save'),
+            },
+            callbackOnOk() {
+              stopChainBlock(sessionId)
+            },
           },
         })
         return
@@ -226,10 +232,13 @@ function ChainBlockSessionItem({
       if (sessionInfo.progress.scraped > 0) {
         downloadFromExportSession(sessionInfo.sessionId)
       } else {
-        uiContext.openDialog({
-          dialogType: 'alert',
-          message: {
-            title: i18n.getMessage('blocklist_is_empty'),
+        uiContext.dispatchUIStates({
+          type: 'open-modal',
+          content: {
+            dialogType: 'alert',
+            message: {
+              title: i18n.getMessage('blocklist_is_empty'),
+            },
           },
         })
       }
@@ -385,14 +394,17 @@ function ChainBlockSessionItem({
 function GlobalControls() {
   const uiContext = React.useContext(UIContext)
   function confirmStopAllChainBlock() {
-    uiContext.openDialog({
-      dialogType: 'confirm',
-      message: {
-        title: i18n.getMessage('confirm_all_stop'),
-      },
-      callbackOnOk() {
-        stopAllChainBlock()
-        requestProgress()
+    uiContext.dispatchUIStates({
+      type: 'open-modal',
+      content: {
+        dialogType: 'confirm',
+        message: {
+          title: i18n.getMessage('confirm_all_stop'),
+        },
+        callbackOnOk() {
+          stopAllChainBlock()
+          requestProgress()
+        },
       },
     })
   }
@@ -418,7 +430,7 @@ function NewSessionButtons() {
   const uiContext = React.useContext(UIContext)
   function handleNewSessionButton(event: React.MouseEvent, page: PageId) {
     event.preventDefault()
-    uiContext.switchPage(page)
+    uiContext.dispatchUIStates({ type: 'switch-tab-page', tabPage: page })
   }
   return (
     <M.Box display="flex" flexDirection="row" justifyContent="center" flexWrap="wrap" my={1}>
@@ -447,7 +459,7 @@ export default function ChainBlockSessionsPage({
   sessions: SessionInfo[]
   recurringInfos: RecurringAlarmInfosObject
 }) {
-  const uiContext = React.useContext(UIContext)
+  const { uiStates: { initialLoading } } = React.useContext(UIContext)
   const { myself } = React.useContext(TabInfoContext)
   function renderWelcome() {
     return (
@@ -470,9 +482,9 @@ export default function ChainBlockSessionsPage({
     )
   }
   // 세션이 있어도 팝업 로딩 직후에 빈 세션이 잠깐 나타난다.
-  const shouldShowWelcomeNewSession = sessions.length <= 0 && !uiContext.initialLoading
+  const shouldShowWelcomeNewSession = sessions.length <= 0 && !initialLoading
   const isSessionExist = sessions.length > 0
-  if (uiContext.initialLoading) {
+  if (initialLoading) {
     return <span>Loading...</span>
   }
   return (

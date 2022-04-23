@@ -106,13 +106,19 @@ function useBookmarkModifier(bookmarkedUsers: TwitterUserMap) {
   return {
     async addUserToBookmark(user: TwitterUser) {
       if (bookmarkedUsers.hasUser(user)) {
-        uiContext.openSnackBar(i18n.getMessage('user_xxx_already_exists', user.screen_name))
+        uiContext.dispatchUIStates({
+          type: 'open-snack-bar',
+          message: i18n.getMessage('user_xxx_already_exists', user.screen_name),
+        })
         return
       }
       await RedBlockBookmarksStorage.insertItemToBookmark(
         RedBlockBookmarksStorage.createBookmarkUserItem(user),
       )
-      uiContext.openSnackBar(i18n.getMessage('user_xxx_added', user.screen_name))
+      uiContext.dispatchUIStates({
+        type: 'open-snack-bar',
+        message: i18n.getMessage('user_xxx_added', user.screen_name),
+      })
     },
     async removeUserFromBookmark(user: TwitterUser) {
       const userId = user.id_str
@@ -127,7 +133,10 @@ function useBookmarkModifier(bookmarkedUsers: TwitterUserMap) {
         }
         return bookmarks
       })
-      uiContext.openSnackBar(i18n.getMessage('user_xxx_removed', user.screen_name))
+      uiContext.dispatchUIStates({
+        type: 'open-snack-bar',
+        message: i18n.getMessage('user_xxx_removed', user.screen_name),
+      })
     },
   }
 }
@@ -250,7 +259,7 @@ function TargetUserSelectUI() {
     FollowerChainBlockPageStatesContext,
   )
   const { myself } = React.useContext(TabInfoContext)
-  const { openDialog } = React.useContext(UIContext)
+  const { dispatchUIStates } = React.useContext(UIContext)
   const [bookmarkedUsers, setBookmarkedUsers] = React.useState(new TwitterUserMap())
   const [usersInOtherTab, setUsersInOtherTab] = React.useState(new TwitterUserMap())
   const [isLoading, setLoadingState] = React.useState(false)
@@ -269,10 +278,13 @@ function TargetUserSelectUI() {
           group,
         })
       } else {
-        openDialog({
-          dialogType: 'alert',
-          message: {
-            title: i18n.getMessage('failed_to_get_user_info'),
+        dispatchUIStates({
+          type: 'open-modal',
+          content: {
+            dialogType: 'alert',
+            message: {
+              title: i18n.getMessage('failed_to_get_user_info'),
+            },
           },
         })
         setUserSelection(null)
@@ -391,7 +403,7 @@ async function getMultipleUsersByIdWithCache(
 
 function TargetExecutionButtonUI() {
   const { purpose, userSelection } = React.useContext(FollowerChainBlockPageStatesContext)
-  const uiContext = React.useContext(UIContext)
+  const { dispatchUIStates } = React.useContext(UIContext)
   const limiterStatus = React.useContext(BlockLimiterContext)
   const maybeRequest = useSessionRequest()
   function isAvailable() {
@@ -411,16 +423,19 @@ function TargetExecutionButtonUI() {
     }
     if (maybeRequest.ok) {
       const { value: request } = maybeRequest
-      return uiContext.openDialog({
-        dialogType: 'confirm',
-        message: TextGenerate.generateConfirmMessage(request),
-        callbackOnOk() {
-          startNewChainBlockSession<FollowerSessionTarget>(request)
+      return dispatchUIStates({
+        type: 'open-modal',
+        content: {
+          dialogType: 'confirm',
+          message: TextGenerate.generateConfirmMessage(request),
+          callbackOnOk() {
+            startNewChainBlockSession<FollowerSessionTarget>(request)
+          },
         },
       })
     } else {
       const message = TextGenerate.checkResultToString(maybeRequest.error)
-      return uiContext.openSnackBar(message)
+      return dispatchUIStates({ type: 'open-snack-bar', message })
     }
   }
   return (

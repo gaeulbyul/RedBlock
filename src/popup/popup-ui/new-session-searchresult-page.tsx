@@ -51,7 +51,7 @@ function useSessionRequest(): Either<TargetCheckResult, SessionRequest<UserSearc
 function TargetExecutionButtonUI() {
   const { purpose } = React.useContext(UserSearchChainBlockPageStatesContext)
   const limiterStatus = React.useContext(BlockLimiterContext)
-  const uiContext = React.useContext(UIContext)
+  const { dispatchUIStates } = React.useContext(UIContext)
   const maybeRequest = useSessionRequest()
   function isAvailable() {
     if (limiterStatus.remained <= 0) {
@@ -62,16 +62,19 @@ function TargetExecutionButtonUI() {
   function executeSession() {
     if (maybeRequest.ok) {
       const { value: request } = maybeRequest
-      return uiContext.openDialog({
-        dialogType: 'confirm',
-        message: TextGenerate.generateConfirmMessage(request),
-        callbackOnOk() {
-          startNewChainBlockSession<UserSearchSessionTarget>(request)
+      return dispatchUIStates({
+        type: 'open-modal',
+        content: {
+          dialogType: 'confirm',
+          message: TextGenerate.generateConfirmMessage(request),
+          callbackOnOk() {
+            startNewChainBlockSession<UserSearchSessionTarget>(request)
+          },
         },
       })
     } else {
       const message = TextGenerate.checkResultToString(maybeRequest.error)
-      return uiContext.openSnackBar(message)
+      return dispatchUIStates({ type: 'open-snack-bar', message })
     }
   }
   return (

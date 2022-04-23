@@ -115,7 +115,7 @@ function TargetOptionsUI() {
 }
 
 function ImportBlocklistUI() {
-  const uiContext = React.useContext(UIContext)
+  const { dispatchUIStates } = React.useContext(UIContext)
   const limiterStatus = React.useContext(BlockLimiterContext)
   const { blocklist, setBlocklist, nameOfSelectedFiles, setNameOfSelectedFiles, purpose } = React
     .useContext(ImportChainBlockPageStatesContext)
@@ -132,7 +132,7 @@ function ImportBlocklistUI() {
     event.preventDefault()
     const files = fileInput.current!.files
     if (!(files && files.length > 0)) {
-      uiContext.openSnackBar(i18n.getMessage('pick_file_first'))
+      dispatchUIStates({ type: 'open-snack-bar', message: i18n.getMessage('pick_file_first') })
       setBlocklist(emptyBlocklist)
       return
     }
@@ -148,16 +148,19 @@ function ImportBlocklistUI() {
     event.preventDefault()
     if (maybeRequest.ok) {
       const { value: request } = maybeRequest
-      return uiContext.openDialog({
-        dialogType: 'confirm',
-        message: TextGenerate.generateConfirmMessage(request),
-        callbackOnOk() {
-          startNewChainBlockSession<ImportSessionTarget>(request)
+      return dispatchUIStates({
+        type: 'open-modal',
+        content: {
+          dialogType: 'confirm',
+          message: TextGenerate.generateConfirmMessage(request),
+          callbackOnOk() {
+            startNewChainBlockSession<ImportSessionTarget>(request)
+          },
         },
       })
     } else {
       const message = TextGenerate.checkResultToString(maybeRequest.error)
-      return uiContext.openSnackBar(message)
+      return dispatchUIStates({ type: 'open-snack-bar', message })
     }
   }
   function onReset(event: React.FormEvent<HTMLFormElement>) {
@@ -261,23 +264,26 @@ function ImportBlocklistUI() {
 
 function ExportBlocklistUI() {
   const maybeRequest = useExportSessionRequest()
-  const uiContext = React.useContext(UIContext)
+  const { dispatchUIStates } = React.useContext(UIContext)
   const purpose: SessionRequest<ExportMyBlocklistTarget>['purpose'] = {
     type: 'export',
   }
   function executeSession() {
     if (maybeRequest.ok) {
       const { value: request } = maybeRequest
-      return uiContext.openDialog({
-        dialogType: 'confirm',
-        message: TextGenerate.generateConfirmMessage(request),
-        callbackOnOk() {
-          startNewChainBlockSession<ExportMyBlocklistTarget>(request)
+      return dispatchUIStates({
+        type: 'open-modal',
+        content: {
+          dialogType: 'confirm',
+          message: TextGenerate.generateConfirmMessage(request),
+          callbackOnOk() {
+            startNewChainBlockSession<ExportMyBlocklistTarget>(request)
+          },
         },
       })
     } else {
       const message = TextGenerate.checkResultToString(maybeRequest.error)
-      return uiContext.openSnackBar(message)
+      return dispatchUIStates({ type: 'open-snack-bar', message })
     }
   }
   return (

@@ -579,20 +579,23 @@ export function PurposeSelectionUI({
 function ExtraSessionOptionsUI({ showBioBlock }: { showBioBlock?: boolean }) {
   const { extraSessionOptions, mutate } = React.useContext(ExtraSessionOptionsContext)
   const options = React.useContext(RedBlockOptionsContext)
-  const { openDialog } = React.useContext(UIContext)
+  const { dispatchUIStates } = React.useContext(UIContext)
   const bioBlockModes: { [label: string]: BioBlockMode } = {
     [i18n.getMessage('bioblock_never')]: 'never',
     [i18n.getMessage('bioblock_all')]: 'all',
     // [i18n.getMessage('bioblock_smart')]: 'smart',
   }
   function showRecurringHelp() {
-    openDialog({
-      message: {
-        title: i18n.getMessage('recurring_session'),
-        contentLines: [i18n.getMessage('recurring_session_description')],
+    dispatchUIStates({
+      type: 'open-modal',
+      content: {
+        message: {
+          title: i18n.getMessage('recurring_session'),
+          contentLines: [i18n.getMessage('recurring_session_description')],
+        },
+        dialogType: 'alert',
+        callbackOnOk() {},
       },
-      dialogType: 'alert',
-      callbackOnOk() {},
     })
   }
   const revealBioBlockMode = options.revealBioBlockMode && showBioBlock

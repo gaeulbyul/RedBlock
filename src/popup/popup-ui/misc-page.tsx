@@ -19,28 +19,37 @@ function openOptions() {
 }
 
 export default function MiscPage() {
-  const uiContext = React.useContext(UIContext)
+  const { dispatchUIStates } = React.useContext(UIContext)
   const { myself } = React.useContext(TabInfoContext)
   function onClickOneClickBlockModeButtons(enable: boolean) {
     getCurrentTab().then(tab => {
       toggleOneClickBlockMode(tab, enable)
     })
     const modeState = enable ? 'ON' : 'OFF'
-    uiContext.openSnackBar(`${i18n.getMessage('oneclick_block_mode')}: ${modeState}!`)
+    dispatchUIStates({
+      type: 'open-snack-bar',
+      message: `${i18n.getMessage('oneclick_block_mode')}: ${modeState}!`,
+    })
   }
   function confirmCookieDeletion() {
-    uiContext.openDialog({
-      dialogType: 'confirm',
-      message: {
-        title: i18n.getMessage('delete_cookie'),
-        contentLines: [i18n.getMessage('confirm_delete_cookie')],
-      },
-      callbackOnOk() {
-        getCurrentTab()
-          .then(deleteTwitterCookies)
-          .then(() => {
-            uiContext.openSnackBar(i18n.getMessage('cookie_delete_complete'))
-          })
+    dispatchUIStates({
+      type: 'open-modal',
+      content: {
+        dialogType: 'confirm',
+        message: {
+          title: i18n.getMessage('delete_cookie'),
+          contentLines: [i18n.getMessage('confirm_delete_cookie')],
+        },
+        callbackOnOk() {
+          getCurrentTab()
+            .then(deleteTwitterCookies)
+            .then(() => {
+              dispatchUIStates({
+                type: 'open-snack-bar',
+                message: i18n.getMessage('cookie_delete_complete'),
+              })
+            })
+        },
       },
     })
   }

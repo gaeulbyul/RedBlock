@@ -16,13 +16,7 @@ import { isRunningSession } from '../scripts/common/utilities'
 import * as i18n from '../scripts/i18n'
 import { checkMessage, getCurrentTabInfo, infoless, TabInfo as TabInfo } from './popup'
 import ChainBlockSessionsPage from './popup-ui/chainblock-sessions-page'
-import {
-  DialogContent,
-  MyTooltip,
-  RBDialog,
-  RedBlockPopupUITheme,
-  TabPanel,
-} from './popup-ui/components'
+import { MyTooltip, RBDialog, RedBlockPopupUITheme, TabPanel } from './popup-ui/components'
 import {
   BlockLimiterContext,
   RedBlockOptionsContext,
@@ -43,6 +37,8 @@ import {
   ImportChainBlockPageStatesProvider,
   LockPickerPageStatesProvider,
   TweetReactionChainBlockPageStatesProvider,
+  uiStateReducer,
+  UIStates,
   UserSearchChainBlockPageStatesProvider,
 } from './popup-ui/ui-states'
 
@@ -57,7 +53,7 @@ function getVersionAndName() {
 }
 
 // https://overreacted.io/making-setinterval-declarative-with-react-hooks/
-function useInterval(callback: Function, delay: number | null) {
+function useInterval(callback: Function, delay: number) {
   const savedCallback = React.useRef<Function>()
 
   // Remember the latest callback.
@@ -70,7 +66,7 @@ function useInterval(callback: Function, delay: number | null) {
     function tick() {
       savedCallback.current?.()
     }
-    if (delay === null) {
+    if (delay <= 0) {
       return () => {}
     }
     const id = setInterval(tick, delay)
@@ -118,7 +114,7 @@ function PopupTopTab({
 }
 
 function PopupUITopMenu({ countOfRunningSessions }: { countOfRunningSessions: number }) {
-  const { menuAnchorElem, setMenuAnchorElem, switchPage, popupOpenedInTab, availablePages } = React
+  const { uiStates, dispatchUIStates, popupOpenedInTab, availablePages } = React
     .useContext(UIContext)
   function handleOpenInTabClick() {
     browser.tabs.create({
@@ -132,11 +128,11 @@ function PopupUITopMenu({ countOfRunningSessions }: { countOfRunningSessions: nu
     closeMenu()
   }
   function switchPageFromMenu(page: PageId) {
-    switchPage(page)
+    dispatchUIStates({ type: 'switch-tab-page', tabPage: page })
     closeMenu()
   }
   function closeMenu() {
-    setMenuAnchorElem(null)
+    dispatchUIStates({ type: 'close-menu' })
   }
   const MenuItem = React.forwardRef(
     (
@@ -160,8 +156,8 @@ function PopupUITopMenu({ countOfRunningSessions }: { countOfRunningSessions: nu
   return (
     <M.Menu
       keepMounted
-      anchorEl={menuAnchorElem}
-      open={Boolean(menuAnchorElem)}
+      anchorEl={uiStates.menuAnchorElem}
+      open={Boolean(uiStates.menuAnchorElem)}
       onClose={closeMenu}
     >
       <MenuItem pageId="chainblock-sessions-page" count={countOfRunningSessions} />
@@ -228,6 +224,7 @@ function PopupMyselfIcon({ myself }: { myself: TwitterUser }) {
     </MyTooltip>
   )
 }
+
 function PopupApp({
   // myself,
   // tabContext: { currentUser, currentTweet, currentSearchQuery, currentAudioSpace },
@@ -239,19 +236,25 @@ function PopupApp({
   popupOpenedInTab: boolean
   initialPage: PageId
 }) {
-  const [tabPage, setTabPage] = React.useState<PageId>(initialPage)
+  const initialUIStates: UIStates = {
+    tabPage: initialPage,
+    modalOpened: false,
+    modalContent: null,
+    snackBarMessage: '',
+    snackBarOpened: false,
+    initialLoading: true,
+    countOfRunningSessions: 0,
+    menuAnchorElem: null,
+    uiPollingDelay: 0,
+  }
+  const [uiStates, dispatchUIStates] = React.useReducer(uiStateReducer, initialUIStates)
+  const { tabPage } = uiStates
   const [limiterStatus, setLimiterStatus] = React.useState<BlockLimiterStatus>({
     current: 0,
     max: 500,
     remained: 500,
   })
-  const [modalOpened, setModalOpened] = React.useState(false)
-  const [modalContent, setModalContent] = React.useState<DialogContent | null>(null)
-  const [snackBarMessage, setSnackBarMessage] = React.useState('')
-  const [snackBarOpen, setSnackBarOpen] = React.useState(false)
-  const [menuAnchorElem, setMenuAnchorElem] = React.useState<HTMLElement | null>(null)
   const darkMode = MaterialUI.useMediaQuery('(prefers-color-scheme:dark)')
-  const [initialLoading, setInitialLoading] = React.useState(true)
   const [redblockOptions, setRedBlockOptions] = React.useState(defaultRedBlockOptions)
   const [sessions, setSessions] = React.useState<SessionInfo[]>([])
   const [recurringInfos, setRecurringInfos] = React.useState<RecurringAlarmInfosObject>({})
@@ -265,41 +268,25 @@ function PopupApp({
     getCurrentTabInfo().then(tabInfo => {
       console.debug('tabInfo: %o', tabInfo)
       setCurrentTabInfo(tabInfo)
-      setInitialLoading(false)
+      dispatchUIStates({ type: 'finish-initial-loading' })
     })
   }, [])
-  const [countOfRunningSessions, setCountOfRunningSessions] = React.useState(0)
-  const [delay, setDelay] = React.useState<number | null>(null)
   useInterval(async () => {
     if (!myself) {
-      setDelay(null)
+      dispatchUIStates({ type: 'set-polling-delay', delay: 0 })
       return
     }
     requestProgress().catch(() => {})
     requestBlockLimiterStatus(myself.user.id_str).catch(() => {})
-  }, delay)
-  function openDialog(content: DialogContent) {
-    setModalOpened(true)
-    setModalContent(content)
-  }
-  function closeModal() {
-    setModalOpened(false)
-  }
-  function switchPage(page: PageId) {
-    setTabPage(page)
-  }
+  }, uiStates.uiPollingDelay)
   function handleMenuButtonClick(event: React.MouseEvent<HTMLButtonElement>) {
-    setMenuAnchorElem(event.currentTarget)
-  }
-  function openSnackBar(message: string) {
-    setSnackBarMessage(message)
-    setSnackBarOpen(true)
+    dispatchUIStates({ type: 'open-menu', menuAnchorElem: event.currentTarget })
   }
   function handleSnackBarClose(_event: any, reason?: string) {
     if (reason === 'clickaway') {
       return
     }
-    setSnackBarOpen(false)
+    dispatchUIStates({ type: 'close-snack-bar' })
   }
   const availablePages: AvailablePages = {
     'new-session-followers-page': !!myself,
@@ -323,19 +310,19 @@ function PopupApp({
       }
       switch (msg.messageType) {
         case 'ChainBlockInfo':
-          setInitialLoading(false)
+          dispatchUIStates({ type: 'finish-initial-loading' })
           const runningSessionsLength = msg.sessions.filter(isRunningSession).length
-          setCountOfRunningSessions(runningSessionsLength)
+          dispatchUIStates({ type: 'set-count-of-running-sessions', count: runningSessionsLength })
           if (tabPage === 'chainblock-sessions-page') {
             setSessions(msg.sessions)
             setRecurringInfos(msg.recurringAlarmInfos)
             if (runningSessionsLength > 0) {
-              setDelay(UI_UPDATE_DELAY_ON_BUSY)
+              dispatchUIStates({ type: 'set-polling-delay', delay: UI_UPDATE_DELAY_ON_BUSY })
             } else {
-              setDelay(UI_UPDATE_DELAY_ON_IDLE)
+              dispatchUIStates({ type: 'set-polling-delay', delay: UI_UPDATE_DELAY_ON_IDLE })
             }
           } else {
-            setDelay(UI_UPDATE_DELAY_ON_IDLE)
+            dispatchUIStates({ type: 'set-polling-delay', delay: UI_UPDATE_DELAY_ON_IDLE })
           }
           break
         case 'BlockLimiterInfo':
@@ -348,7 +335,7 @@ function PopupApp({
           }
           break
         case 'PopupSwitchTab':
-          setTabPage(msg.page)
+          dispatchUIStates({ type: 'switch-tab-page', tabPage: msg.page })
           break
         default:
           break
@@ -365,7 +352,7 @@ function PopupApp({
     return onStorageChanged('options', setRedBlockOptions)
   }, [])
   function renderMain(children: React.ReactElement) {
-    if (initialLoading) {
+    if (uiStates.initialLoading) {
       return (
         <div
           style={{
@@ -385,15 +372,11 @@ function PopupApp({
     <M.ThemeProvider theme={theme}>
       <UIContext.Provider
         value={{
-          openDialog,
-          openSnackBar,
-          switchPage,
+          uiStates,
+          dispatchUIStates,
           shrinkedPopup,
           popupOpenedInTab,
-          menuAnchorElem,
-          setMenuAnchorElem,
           availablePages,
-          initialLoading,
         }}
       >
         <TabInfoContext.Provider value={currentTabInfo}>
@@ -409,9 +392,16 @@ function PopupApp({
                     textColor="inherit"
                     indicatorColor="secondary"
                     value={tabPage}
-                    onChange={(_ev, val) => setTabPage(val)}
+                    onChange={(_ev, val) =>
+                      dispatchUIStates({
+                        type: 'switch-tab-page',
+                        tabPage: val,
+                      })}
                   >
-                    <PopupTopTab value="chainblock-sessions-page" count={countOfRunningSessions} />
+                    <PopupTopTab
+                      value="chainblock-sessions-page"
+                      count={uiStates.countOfRunningSessions}
+                    />
                     <PopupTopTab
                       value="new-session-followers-page"
                       disabled={!availablePages['new-session-followers-page']}
@@ -443,7 +433,7 @@ function PopupApp({
                   {myself && <PopupMyselfIcon {...{ myself: myself.user }} />}
                 </M.Toolbar>
               </M.AppBar>
-              <PopupUITopMenu {...{ countOfRunningSessions }} />
+              <PopupUITopMenu {...{ countOfRunningSessions: uiStates.countOfRunningSessions }} />
               <main className="main">
                 {renderMain(
                   <M.Container maxWidth="sm" disableGutters>
@@ -501,10 +491,10 @@ function PopupApp({
           horizontal: 'center',
           vertical: 'bottom',
         }}
-        open={snackBarOpen}
+        open={uiStates.snackBarOpened}
         onClose={handleSnackBarClose}
         autoHideDuration={5000}
-        message={snackBarMessage}
+        message={uiStates.snackBarMessage}
         action={
           <M.IconButton
             size="small"
@@ -516,7 +506,11 @@ function PopupApp({
           </M.IconButton>
         }
       />
-      <RBDialog isOpen={modalOpened} closeModal={closeModal} content={modalContent} />
+      <RBDialog
+        isOpen={uiStates.modalOpened}
+        closeModal={() => dispatchUIStates({ type: 'close-modal' })}
+        content={uiStates.modalContent}
+      />
     </M.ThemeProvider>
   )
 }

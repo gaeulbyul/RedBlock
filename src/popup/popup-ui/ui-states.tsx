@@ -10,7 +10,9 @@ import {
   defaultPurposeOptions,
 } from '../../scripts/background/chainblock-session/default-options'
 import type { ReactionV2Kind } from '../../scripts/background/twitter-api'
+import { assertNever } from '../../scripts/common/utilities'
 import { determineInitialPurposeType } from '../popup'
+import type { DialogContent } from './components'
 import type { TargetGroup } from './components/target-selector'
 import { RedBlockOptionsContext, RetrieverContext, TabInfoContext } from './contexts'
 
@@ -443,4 +445,101 @@ export function LockPickerPageStatesProvider({ children }: { children: React.Rea
       <ExtraSessionOptionsContextProvider>{children}</ExtraSessionOptionsContextProvider>
     </LockPickerPageStatesContext.Provider>
   )
+}
+
+export interface UIStates {
+  tabPage: PageId
+  modalOpened: boolean
+  modalContent: DialogContent | null
+  snackBarMessage: string
+  snackBarOpened: boolean
+  initialLoading: boolean
+  countOfRunningSessions: number
+  menuAnchorElem: HTMLElement | null
+  uiPollingDelay: number
+}
+
+interface UIReducerSwitchTabPage {
+  type: 'switch-tab-page'
+  tabPage: PageId
+}
+
+interface UIReducerOpenSnackBar {
+  type: 'open-snack-bar'
+  message: string
+}
+
+interface UIReducerCloseSnackBar {
+  type: 'close-snack-bar'
+}
+
+interface UIReducerOpenModal {
+  type: 'open-modal'
+  content: DialogContent
+}
+
+interface UIReducerCloseModal {
+  type: 'close-modal'
+}
+
+interface UIReducerFinishInitialLoading {
+  type: 'finish-initial-loading'
+}
+
+interface UIReducerOpenMenu {
+  type: 'open-menu'
+  menuAnchorElem: HTMLElement
+}
+
+interface UIReducerCloseMenu {
+  type: 'close-menu'
+}
+
+interface UIReducerSetPollingDelay {
+  type: 'set-polling-delay'
+  delay: number
+}
+
+interface UIReducerSetCountOfRunningSessions {
+  type: 'set-count-of-running-sessions'
+  count: number
+}
+
+export type UIReducers =
+  | UIReducerSwitchTabPage
+  | UIReducerOpenSnackBar
+  | UIReducerCloseSnackBar
+  | UIReducerOpenModal
+  | UIReducerCloseModal
+  | UIReducerFinishInitialLoading
+  | UIReducerOpenMenu
+  | UIReducerCloseMenu
+  | UIReducerSetPollingDelay
+  | UIReducerSetCountOfRunningSessions
+
+export function uiStateReducer(state: UIStates, action: UIReducers): UIStates {
+  switch (action.type) {
+    case 'switch-tab-page':
+      return { ...state, tabPage: action.tabPage }
+    case 'open-snack-bar':
+      return { ...state, snackBarOpened: true, snackBarMessage: action.message }
+    case 'close-snack-bar':
+      return { ...state, snackBarOpened: false }
+    case 'open-modal':
+      return { ...state, modalOpened: true, modalContent: action.content }
+    case 'close-modal':
+      return { ...state, modalOpened: false }
+    case 'finish-initial-loading':
+      return { ...state, initialLoading: false }
+    case 'open-menu':
+      return { ...state, menuAnchorElem: action.menuAnchorElem }
+    case 'close-menu':
+      return { ...state, menuAnchorElem: null }
+    case 'set-polling-delay':
+      return { ...state, uiPollingDelay: action.delay }
+    case 'set-count-of-running-sessions':
+      return { ...state, countOfRunningSessions: action.count }
+    default:
+      assertNever(action)
+  }
 }

@@ -242,7 +242,7 @@ function TargetOptionsUI() {
 
 function TargetExecutionButtonUI() {
   const { purpose } = React.useContext(TweetReactionChainBlockPageStatesContext)
-  const uiContext = React.useContext(UIContext)
+  const { dispatchUIStates } = React.useContext(UIContext)
   const limiterStatus = React.useContext(BlockLimiterContext)
   const maybeRequest = useSessionRequest()
   function isAvailable() {
@@ -254,16 +254,19 @@ function TargetExecutionButtonUI() {
   function executeSession() {
     if (maybeRequest.ok) {
       const { value: request } = maybeRequest
-      return uiContext.openDialog({
-        dialogType: 'confirm',
-        message: TextGenerate.generateConfirmMessage(request),
-        callbackOnOk() {
-          startNewChainBlockSession<TweetReactionSessionTarget>(request)
+      return dispatchUIStates({
+        type: 'open-modal',
+        content: {
+          dialogType: 'confirm',
+          message: TextGenerate.generateConfirmMessage(request),
+          callbackOnOk() {
+            startNewChainBlockSession<TweetReactionSessionTarget>(request)
+          },
         },
       })
     } else {
       const message = TextGenerate.checkResultToString(maybeRequest.error)
-      return uiContext.openSnackBar(message)
+      return dispatchUIStates({ type: 'open-snack-bar', message })
     }
   }
   return (

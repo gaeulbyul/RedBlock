@@ -2,19 +2,15 @@ import React from 'react'
 
 import { defaultOptions } from '../../scripts/background/storage/options'
 import { infoless } from '../popup'
-import type { DialogContent } from './components'
-import type { AvailablePages, PageId } from './pages'
+import type { AvailablePages } from './pages'
+import type { UIReducers, UIStates } from './ui-states'
 
 interface UIContextType {
-  openDialog(content: DialogContent): void
-  openSnackBar(message: string): void
-  switchPage(pageId: PageId): void
+  uiStates: UIStates
+  dispatchUIStates: React.Dispatch<UIReducers>
   shrinkedPopup: boolean
   popupOpenedInTab: boolean
-  menuAnchorElem: HTMLElement | null
-  setMenuAnchorElem(elem: HTMLElement | null): void
   availablePages: AvailablePages
-  initialLoading: boolean
 }
 
 export const UIContext = React.createContext<UIContextType>(null!)
