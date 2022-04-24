@@ -568,16 +568,16 @@
   "no": {
     "message": "아니요"
   },
-  "error_occured_check_login": {
+  "error_occurred_check_login": {
     "message": "오류가 발생했습니다. 로그인을 했는지 확인해주세요."
   },
-  "error_occured": {
+  "error_occurred": {
     "message": "오류가 발생했습니다."
   },
-  "error_occured_on_retrieving_tweet": {
+  "error_occurred_on_retrieving_tweet": {
     "message": "오류가 발생하여 트윗정보를 가져오지 못했습니다."
   },
-  "error_occured_on_retrieving_user": {
+  "error_occurred_on_retrieving_user": {
     "message": "오류가 발생하여 유저 @$username$의 정보를 가져오지 못했습니다.",
     "placeholders": {
       "username": {
@@ -585,7 +585,7 @@
       }
     }
   },
-  "error_occured_on_retrieving_audio_space": {
+  "error_occurred_on_retrieving_audio_space": {
     "message": "오류가 발생하여 이 스페이스의 정보를 가져오지 못했습니다."
   },
   "error_rate_limited": {

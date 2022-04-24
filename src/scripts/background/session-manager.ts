@@ -85,7 +85,7 @@ export default class SessionManager {
       this.updateBadge()
     })
     session.eventEmitter.on('error', ({ sessionInfo: { sessionId }, message }) => {
-      notify(`${i18n.getMessage('error_occured')}:\n${message}`)
+      notify(`${i18n.getMessage('error_occurred')}:\n${message}`)
       this.recurringManager.removeSchedule(sessionId)
       this.updateBadge()
     })

@@ -92,7 +92,7 @@ function showErrorAlert({
   userName: string
   error: TwitterAPI.ErrorResponse
 }) {
-  let errorMessage = i18n.getMessage('error_occured_on_retrieving_user', userName)
+  let errorMessage = i18n.getMessage('error_occurred_on_retrieving_user', userName)
   errorMessage += '\n==========\n'
   errorMessage += errors[0]?.message
   alertToTab(tab, errorMessage)
@@ -158,7 +158,7 @@ async function confirmFollowerChainBlockRequest(
 ) {
   const executor = await initExecutorActor(tab)
   if (!executor) {
-    alertToTab(tab, i18n.getMessage('error_occured_check_login'))
+    alertToTab(tab, i18n.getMessage('error_occurred_check_login'))
     return
   }
   const twClient = new TwitterAPI.TwClient(executor.clientOptions)
@@ -201,13 +201,13 @@ async function confirmTweetReactionChainBlockRequest(
 ) {
   const executor = await initExecutorActor(tab)
   if (!executor) {
-    alertToTab(tab, i18n.getMessage('error_occured_check_login'))
+    alertToTab(tab, i18n.getMessage('error_occurred_check_login'))
     return
   }
   const twClient = new TwitterAPI.TwClient(executor.clientOptions)
   const tweet = await twClient.getTweetById(tweetId).catch(() => null)
   if (!tweet) {
-    alertToTab(tab, i18n.getMessage('error_occured_on_retrieving_tweet'))
+    alertToTab(tab, i18n.getMessage('error_occurred_on_retrieving_tweet'))
     return
   }
   const whoToBlock = {
@@ -250,13 +250,13 @@ async function confirmAudioSpaceChainBlockRequest(
 ) {
   const executor = await initExecutorActor(tab)
   if (!executor) {
-    alertToTab(tab, i18n.getMessage('error_occured_check_login'))
+    alertToTab(tab, i18n.getMessage('error_occurred_check_login'))
     return
   }
   const twClient = new TwitterAPI.TwClient(executor.clientOptions)
   const audioSpace = await twClient.getAudioSpaceById(audioSpaceId).catch(() => null)
   if (!audioSpace) {
-    alertToTab(tab, i18n.getMessage('error_occured_on_retrieving_audio_space'))
+    alertToTab(tab, i18n.getMessage('error_occurred_on_retrieving_audio_space'))
     return
   }
   const includesWho = {
@@ -280,7 +280,7 @@ async function confirmUserHashTagChainBlockRequest(
 ) {
   const executor = await initExecutorActor(tab)
   if (!executor) {
-    alertToTab(tab, i18n.getMessage('error_occured_check_login'))
+    alertToTab(tab, i18n.getMessage('error_occurred_check_login'))
     return
   }
   return confirmChainBlockRequest(tab, sessionManager, executor, {

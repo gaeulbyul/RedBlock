@@ -568,25 +568,25 @@
   "no": {
     "message": "No"
   },
-  "error_occured_check_login": {
-    "message": "Error occured. Please check your login."
+  "error_occurred_check_login": {
+    "message": "Error occurred. Please check your login."
   },
-  "error_occured": {
-    "message": "Error occured."
+  "error_occurred": {
+    "message": "Error occurred."
   },
-  "error_occured_on_retrieving_tweet": {
-    "message": "Error occured while retrieving tweet."
+  "error_occurred_on_retrieving_tweet": {
+    "message": "Error occurred while retrieving tweet."
   },
-  "error_occured_on_retrieving_user": {
-    "message": "Error occured while retrieveing user @$username$",
+  "error_occurred_on_retrieving_user": {
+    "message": "Error occurred while retrieveing user @$username$",
     "placeholders": {
       "username": {
         "content": "$1"
       }
     }
   },
-  "error_occured_on_retrieving_audio_space": {
-    "message": "Error occured while retrieving this Space."
+  "error_occurred_on_retrieving_audio_space": {
+    "message": "Error occurred while retrieving this Space."
   },
   "error_rate_limited": {
     "message": "Rate limited. Please try again later."

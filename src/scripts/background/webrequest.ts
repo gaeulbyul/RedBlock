@@ -126,17 +126,17 @@ function initializeTwitterAPIRequestHeaderModifier() {
 function findCookieHeader(headersArray: browser.WebRequest.HttpHeaders): string | null {
   // 그냥 'cookie'에서만 찾으면 수정전 쿠키가 들어온다. 다중로그인 등의 상황을 위해 수정한 쿠키인 override-cookies를 먼저 찾자.
   let cookie: string | undefined
-  let overridenCookie: string | undefined
+  let overriddenCookie: string | undefined
   for (const header of headersArray) {
     const name = header.name.toLowerCase()
     if (name === 'x-redblock-override-cookies') {
-      overridenCookie = header.value!
-      return overridenCookie
+      overriddenCookie = header.value!
+      return overriddenCookie
     } else if (name === 'cookie') {
       cookie = header.value!
     }
   }
-  return overridenCookie || cookie || null
+  return overriddenCookie || cookie || null
 }
 
 function generateBlockLimiterOptions(headersArray: browser.WebRequest.HttpHeaders): string | null {

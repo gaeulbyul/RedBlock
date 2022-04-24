@@ -122,7 +122,7 @@ export function checkResultToString(result: TargetCheckResult): string {
     case TargetCheckResult.InvalidSearchQuery:
       return i18n.getMessage('cant_chainblock_searchquery_invalid')
     case TargetCheckResult.MaybeNotLoggedIn:
-      return i18n.getMessage('error_occured_check_login')
+      return i18n.getMessage('error_occurred_check_login')
     case TargetCheckResult.InvalidSelectedUserOrTweet:
       return i18n.getMessage('user_not_selected')
     case TargetCheckResult.UnchainblockToRetweetersIsUnavailable:
