@@ -1,5 +1,4 @@
 import * as MaterialUI from '@mui/material'
-import { withStyles } from '@mui/styles'
 
 import React from 'react'
 import ReactDOM from 'react-dom'
@@ -13,10 +12,9 @@ import {
 } from '../scripts/background/storage/options'
 
 import { isRunningSession } from '../scripts/common/utilities'
-import * as i18n from '../scripts/i18n'
 import { checkMessage, getCurrentTabInfo, infoless, TabInfo as TabInfo } from './popup'
 import ChainBlockSessionsPage from './popup-ui/chainblock-sessions-page'
-import { MyTooltip, RBDialog, RedBlockPopupUITheme, TabPanel } from './popup-ui/components'
+import { RBDialog, RedBlockPopupUITheme, TabPanel } from './popup-ui/components'
 import {
   BlockLimiterContext,
   RedBlockOptionsContext,
@@ -30,7 +28,7 @@ import NewSessionFollowersPage from './popup-ui/new-session-followers-page'
 import NewSessionLockPickerPage from './popup-ui/new-session-lockpicker-page'
 import NewSessionSearchresultPage from './popup-ui/new-session-searchresult-page'
 import NewSessionTweetPage from './popup-ui/new-session-tweet-page'
-import { AvailablePages, isValidPageId, pageIcon, PageId, pageLabel } from './popup-ui/pages'
+import { AvailablePages, isValidPageId, PageId } from './popup-ui/pages'
 import {
   AudioSpaceChainBlockPageStatesProvider,
   FollowerChainBlockPageStatesProvider,
@@ -42,15 +40,14 @@ import {
   UserSearchChainBlockPageStatesProvider,
 } from './popup-ui/ui-states'
 
+import MainWrapper from './popup-components/main-wrapper'
+import PopupUITopBar from './popup-components/top-bar'
+import PopupUITopMenu from './popup-components/top-menu'
+
 const UI_UPDATE_DELAY_ON_BUSY = 500
 const UI_UPDATE_DELAY_ON_IDLE = 1500
 
 const M = MaterialUI
-
-function getVersionAndName() {
-  const manifest = browser.runtime.getManifest()
-  return `${manifest.name} v${manifest.version}`
-}
 
 // https://overreacted.io/making-setinterval-declarative-with-react-hooks/
 function useInterval(callback: Function, delay: number) {
@@ -72,157 +69,6 @@ function useInterval(callback: Function, delay: number) {
     const id = setInterval(tick, delay)
     return () => clearInterval(id)
   }, [delay])
-}
-
-const StyledTab = withStyles({
-  root: {
-    minWidth: '48px',
-    '&:disabled': {
-      opacity: 0.5,
-      filter: 'blur(1px)',
-    },
-  },
-})(MaterialUI.Tab)
-
-function PopupTopTab({
-  value,
-  disabled,
-  count,
-  ...props
-}: {
-  value: PageId
-  count?: number
-  disabled?: boolean
-}) {
-  const icon = (
-    <M.Badge
-      color="secondary"
-      badgeContent={count}
-      anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
-    >
-      {pageIcon(value)}
-    </M.Badge>
-  )
-  const cursor = disabled ? 'not-allowed' : 'pointer'
-  return (
-    <MyTooltip arrow title={pageLabel(value, count)} style={{ cursor }}>
-      <div>
-        <StyledTab {...props} {...{ value, icon, disabled }} style={{ cursor }} />
-      </div>
-    </MyTooltip>
-  )
-}
-
-function PopupUITopMenu({ countOfRunningSessions }: { countOfRunningSessions: number }) {
-  const { uiStates, dispatchUIStates, popupOpenedInTab, availablePages } = React
-    .useContext(UIContext)
-  function handleOpenInTabClick() {
-    browser.tabs.create({
-      active: true,
-      url: '/popup/popup.html?istab=1',
-    })
-    closeMenu()
-  }
-  function handleSettingsClick() {
-    browser.runtime.openOptionsPage()
-    closeMenu()
-  }
-  function switchPageFromMenu(page: PageId) {
-    dispatchUIStates({ type: 'switch-tab-page', tabPage: page })
-    closeMenu()
-  }
-  function closeMenu() {
-    dispatchUIStates({ type: 'close-menu' })
-  }
-  const MenuItem = React.forwardRef(
-    (
-      {
-        pageId,
-        count,
-        disabled,
-      }: {
-        pageId: PageId
-        count?: number
-        disabled?: boolean
-      },
-      ref: React.Ref<any>,
-    ) => (
-      <M.MenuItem ref={ref} dense disabled={disabled} onClick={() => switchPageFromMenu(pageId)}>
-        <M.ListItemIcon>{pageIcon(pageId)}</M.ListItemIcon>
-        {pageLabel(pageId, count)}
-      </M.MenuItem>
-    ),
-  )
-  return (
-    <M.Menu
-      keepMounted
-      anchorEl={uiStates.menuAnchorElem}
-      open={Boolean(uiStates.menuAnchorElem)}
-      onClose={closeMenu}
-    >
-      <MenuItem pageId="chainblock-sessions-page" count={countOfRunningSessions} />
-      <MenuItem
-        pageId="new-session-followers-page"
-        disabled={!availablePages['new-session-followers-page']}
-      />
-      <MenuItem
-        pageId="new-session-tweet-page"
-        disabled={!availablePages['new-session-tweet-page']}
-      />
-      <MenuItem
-        pageId="new-session-searchresult-page"
-        disabled={!availablePages['new-session-searchresult-page']}
-      />
-      <MenuItem
-        pageId="new-session-audiospace-page"
-        disabled={!availablePages['new-session-audiospace-page']}
-      />
-      <MenuItem
-        pageId="new-session-blocklist-page"
-        disabled={!availablePages['new-session-blocklist-page']}
-      />
-      <MenuItem
-        pageId="new-session-lockpicker-page"
-        disabled={!availablePages['new-session-lockpicker-page']}
-      />
-      <MenuItem pageId="misc-page" />
-
-      {!popupOpenedInTab && (
-        <M.MenuItem dense onClick={handleOpenInTabClick}>
-          <M.ListItemIcon>
-            <M.Icon>open_in_new</M.Icon>
-          </M.ListItemIcon>
-          {i18n.getMessage('open_in_new_tab')}
-        </M.MenuItem>
-      )}
-      <M.MenuItem dense onClick={handleSettingsClick}>
-        <M.ListItemIcon>
-          <M.Icon>settings</M.Icon>
-        </M.ListItemIcon>
-        {i18n.getMessage('open_settings_ui')}
-      </M.MenuItem>
-      <M.Divider />
-      <M.MenuItem disabled>{getVersionAndName()}</M.MenuItem>
-    </M.Menu>
-  )
-}
-
-function PopupMyselfIcon({ myself }: { myself: TwitterUser }) {
-  const description = i18n.getMessage('current_account', [myself.screen_name, myself.name])
-  return (
-    <MyTooltip arrow placement="left" title={description}>
-      <M.Button>
-        <M.Avatar
-          style={{
-            width: 24,
-            height: 24,
-            borderRadius: '50%',
-          }}
-          src={myself.profile_image_url_https}
-        />
-      </M.Button>
-    </MyTooltip>
-  )
 }
 
 function PopupApp({
@@ -279,9 +125,6 @@ function PopupApp({
     requestProgress().catch(() => {})
     requestBlockLimiterStatus(myself.user.id_str).catch(() => {})
   }, uiStates.uiPollingDelay)
-  function handleMenuButtonClick(event: React.MouseEvent<HTMLButtonElement>) {
-    dispatchUIStates({ type: 'open-menu', menuAnchorElem: event.currentTarget })
-  }
   function handleSnackBarClose(_event: any, reason?: string) {
     if (reason === 'clickaway') {
       return
@@ -351,23 +194,6 @@ function PopupApp({
     loadRedBlockOptions().then(setRedBlockOptions)
     return onStorageChanged('options', setRedBlockOptions)
   }, [])
-  function renderMain(children: React.ReactElement) {
-    if (uiStates.initialLoading) {
-      return (
-        <div
-          style={{
-            display: 'flex',
-            height: '100%',
-            alignItems: 'center',
-            justifyContent: 'center',
-          }}
-        >
-          <M.CircularProgress size={60} color="secondary" />
-        </div>
-      )
-    }
-    return children
-  }
   return (
     <M.ThemeProvider theme={theme}>
       <UIContext.Provider
@@ -382,106 +208,54 @@ function PopupApp({
         <TabInfoContext.Provider value={currentTabInfo}>
           <RedBlockOptionsContext.Provider value={redblockOptions}>
             <BlockLimiterContext.Provider value={limiterStatus}>
-              <M.AppBar position="fixed">
-                <M.Toolbar variant="dense" disableGutters>
-                  <M.IconButton color="inherit" onClick={handleMenuButtonClick}>
-                    <M.Icon>menu</M.Icon>
-                  </M.IconButton>
-                  <M.Tabs
-                    style={{ flexGrow: 1 }}
-                    textColor="inherit"
-                    indicatorColor="secondary"
-                    value={tabPage}
-                    onChange={(_ev, val) =>
-                      dispatchUIStates({
-                        type: 'switch-tab-page',
-                        tabPage: val,
-                      })}
+              <PopupUITopBar />
+              <PopupUITopMenu />
+              <MainWrapper isLoading={uiStates.initialLoading}>
+                <M.Container maxWidth="sm" disableGutters>
+                  <TabPanel value={tabPage} index="chainblock-sessions-page">
+                    <ChainBlockSessionsPage {...{ sessions, recurringInfos }} />
+                  </TabPanel>
+                  <FollowerChainBlockPageStatesProvider initialUser={currentTabInfo.user}>
+                    <TabPanel value={tabPage} index="new-session-followers-page">
+                      <NewSessionFollowersPage />
+                    </TabPanel>
+                  </FollowerChainBlockPageStatesProvider>
+                  <TweetReactionChainBlockPageStatesProvider initialTweet={currentTabInfo.tweet}>
+                    <TabPanel value={tabPage} index="new-session-tweet-page">
+                      <NewSessionTweetPage />
+                    </TabPanel>
+                  </TweetReactionChainBlockPageStatesProvider>
+                  <UserSearchChainBlockPageStatesProvider
+                    currentSearchQuery={currentTabInfo.searchQuery}
                   >
-                    <PopupTopTab
-                      value="chainblock-sessions-page"
-                      count={uiStates.countOfRunningSessions}
-                    />
-                    <PopupTopTab
-                      value="new-session-followers-page"
-                      disabled={!availablePages['new-session-followers-page']}
-                    />
-                    <PopupTopTab
-                      value="new-session-tweet-page"
-                      disabled={!availablePages['new-session-tweet-page']}
-                    />
-                    <PopupTopTab
-                      value="new-session-searchresult-page"
-                      disabled={!availablePages['new-session-searchresult-page']}
-                    />
-                    {availablePages['new-session-audiospace-page'] && (
-                      <PopupTopTab
-                        value="new-session-audiospace-page"
-                        disabled={!availablePages['new-session-audiospace-page']}
-                      />
-                    )}
-                    <PopupTopTab
-                      value="new-session-blocklist-page"
-                      disabled={!availablePages['new-session-blocklist-page']}
-                    />
-                    <PopupTopTab
-                      value="new-session-lockpicker-page"
-                      disabled={!availablePages['new-session-lockpicker-page']}
-                    />
-                    <PopupTopTab value="misc-page" />
-                  </M.Tabs>
-                  {myself && <PopupMyselfIcon {...{ myself: myself.user }} />}
-                </M.Toolbar>
-              </M.AppBar>
-              <PopupUITopMenu {...{ countOfRunningSessions: uiStates.countOfRunningSessions }} />
-              <main className="main">
-                {renderMain(
-                  <M.Container maxWidth="sm" disableGutters>
-                    <TabPanel value={tabPage} index="chainblock-sessions-page">
-                      <ChainBlockSessionsPage {...{ sessions, recurringInfos }} />
+                    <TabPanel value={tabPage} index="new-session-searchresult-page">
+                      <NewSessionSearchresultPage />
                     </TabPanel>
-                    <FollowerChainBlockPageStatesProvider initialUser={currentTabInfo.user}>
-                      <TabPanel value={tabPage} index="new-session-followers-page">
-                        <NewSessionFollowersPage />
-                      </TabPanel>
-                    </FollowerChainBlockPageStatesProvider>
-                    <TweetReactionChainBlockPageStatesProvider initialTweet={currentTabInfo.tweet}>
-                      <TabPanel value={tabPage} index="new-session-tweet-page">
-                        <NewSessionTweetPage />
-                      </TabPanel>
-                    </TweetReactionChainBlockPageStatesProvider>
-                    <UserSearchChainBlockPageStatesProvider
-                      currentSearchQuery={currentTabInfo.searchQuery}
+                  </UserSearchChainBlockPageStatesProvider>
+                  {availablePages['new-session-audiospace-page'] && (
+                    <AudioSpaceChainBlockPageStatesProvider
+                      audioSpace={currentTabInfo.audioSpace!}
                     >
-                      <TabPanel value={tabPage} index="new-session-searchresult-page">
-                        <NewSessionSearchresultPage />
+                      <TabPanel value={tabPage} index="new-session-audiospace-page">
+                        <NewSessionAudioSpacePage />
                       </TabPanel>
-                    </UserSearchChainBlockPageStatesProvider>
-                    {availablePages['new-session-audiospace-page'] && (
-                      <AudioSpaceChainBlockPageStatesProvider
-                        audioSpace={currentTabInfo.audioSpace!}
-                      >
-                        <TabPanel value={tabPage} index="new-session-audiospace-page">
-                          <NewSessionAudioSpacePage />
-                        </TabPanel>
-                      </AudioSpaceChainBlockPageStatesProvider>
-                    )}
-                    <LockPickerPageStatesProvider>
-                      <TabPanel value={tabPage} index="new-session-lockpicker-page">
-                        <NewSessionLockPickerPage />
-                      </TabPanel>
-                    </LockPickerPageStatesProvider>
-                    <ImportChainBlockPageStatesProvider>
-                      <TabPanel value={tabPage} index="new-session-blocklist-page">
-                        <BlocklistPage />
-                      </TabPanel>
-                    </ImportChainBlockPageStatesProvider>
-                    <TabPanel value={tabPage} index="misc-page">
-                      <MiscPage />
+                    </AudioSpaceChainBlockPageStatesProvider>
+                  )}
+                  <LockPickerPageStatesProvider>
+                    <TabPanel value={tabPage} index="new-session-lockpicker-page">
+                      <NewSessionLockPickerPage />
                     </TabPanel>
-                  </M.Container>,
-                )}
-              </main>
+                  </LockPickerPageStatesProvider>
+                  <ImportChainBlockPageStatesProvider>
+                    <TabPanel value={tabPage} index="new-session-blocklist-page">
+                      <BlocklistPage />
+                    </TabPanel>
+                  </ImportChainBlockPageStatesProvider>
+                  <TabPanel value={tabPage} index="misc-page">
+                    <MiscPage />
+                  </TabPanel>
+                </M.Container>
+              </MainWrapper>
             </BlockLimiterContext.Provider>
           </RedBlockOptionsContext.Provider>
         </TabInfoContext.Provider>
