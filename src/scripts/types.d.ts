@@ -91,7 +91,6 @@ declare namespace RBMessageToBackground {
   interface RequestBlockLimiterStatus {
     messageType: 'RequestBlockLimiterStatus'
     messageTo: 'background'
-    userId: string
   }
 
   interface RequestResetBlockCounter {
@@ -151,8 +150,7 @@ declare namespace RBMessageToPopup {
   interface BlockLimiterInfo {
     messageType: 'BlockLimiterInfo'
     messageTo: 'popup'
-    status: BlockLimiterStatus
-    userId: string
+    statuses: Record<string, BlockLimiterStatus>
   }
 
   interface PopupSwitchTab {
@@ -247,7 +245,6 @@ interface ToastMessageParam {
 interface BlockLimiterStatus {
   current: number
   max: number
-  remained: number
 }
 
 // ---- bookmark ----

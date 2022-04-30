@@ -246,7 +246,8 @@ function TargetExecutionButtonUI() {
   const limiterStatus = React.useContext(BlockLimiterContext)
   const maybeRequest = useSessionRequest()
   function isAvailable() {
-    if (purpose.type === 'chainblock' && limiterStatus.remained <= 0) {
+    const remained = limiterStatus.max - limiterStatus.current
+    if (purpose.type === 'chainblock' && remained <= 0) {
       return false
     }
     return maybeRequest.ok

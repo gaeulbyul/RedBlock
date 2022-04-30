@@ -48,11 +48,10 @@ export async function cleanupInactiveSessions() {
   })
 }
 
-export async function requestBlockLimiterStatus(userId: string) {
+export async function requestBlockLimiterStatus() {
   return sendBrowserRuntimeMessage<RBMessageToBackground.RequestBlockLimiterStatus>({
     messageType: 'RequestBlockLimiterStatus',
     messageTo: 'background',
-    userId,
   })
 }
 

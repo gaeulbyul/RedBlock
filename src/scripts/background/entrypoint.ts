@@ -47,17 +47,12 @@ async function sendSessionManagerInfo() {
   }).catch(() => {})
 }
 
-async function sendBlockLimiterStatus(userId: string) {
-  const { count: current, max } = new BlockLimiter(userId)
+async function sendBlockLimiterStatus() {
+  const statuses = BlockLimiter.getAll()
   return sendBrowserRuntimeMessage<RBMessageToPopup.BlockLimiterInfo>({
     messageType: 'BlockLimiterInfo',
     messageTo: 'popup',
-    userId,
-    status: {
-      current,
-      max,
-      remained: max - current,
-    },
+    statuses,
   }).catch(() => {})
 }
 
@@ -126,11 +121,11 @@ function handleExtensionMessage(
       twClientFromTab(sender.tab!).then(twClient => twClient.unblockUserById(message.userId))
       break
     case 'RequestBlockLimiterStatus':
-      sendBlockLimiterStatus(message.userId)
+      sendBlockLimiterStatus()
       break
     case 'RequestResetBlockCounter':
       BlockLimiter.resetCounterByUserId(message.userId)
-      sendBlockLimiterStatus(message.userId)
+      sendBlockLimiterStatus()
       break
     case 'DownloadFromExportSession':
       sessionManager.downloadFileFromExportSession(message.sessionId)

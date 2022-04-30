@@ -456,7 +456,6 @@ export interface UIStates {
   initialLoading: boolean
   countOfRunningSessions: number
   menuAnchorElem: HTMLElement | null
-  uiPollingDelay: number
 }
 
 interface UIReducerSwitchTabPage {
@@ -495,11 +494,6 @@ interface UIReducerCloseMenu {
   type: 'close-menu'
 }
 
-interface UIReducerSetPollingDelay {
-  type: 'set-polling-delay'
-  delay: number
-}
-
 interface UIReducerSetCountOfRunningSessions {
   type: 'set-count-of-running-sessions'
   count: number
@@ -514,7 +508,6 @@ export type UIReducers =
   | UIReducerFinishInitialLoading
   | UIReducerOpenMenu
   | UIReducerCloseMenu
-  | UIReducerSetPollingDelay
   | UIReducerSetCountOfRunningSessions
 
 export function uiStateReducer(state: UIStates, action: UIReducers): UIStates {
@@ -535,8 +528,6 @@ export function uiStateReducer(state: UIStates, action: UIReducers): UIStates {
       return { ...state, menuAnchorElem: action.menuAnchorElem }
     case 'close-menu':
       return { ...state, menuAnchorElem: null }
-    case 'set-polling-delay':
-      return { ...state, uiPollingDelay: action.delay }
     case 'set-count-of-running-sessions':
       return { ...state, countOfRunningSessions: action.count }
     default:

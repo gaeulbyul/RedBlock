@@ -75,7 +75,8 @@ function TargetExecutionButtonUI() {
   const limiterStatus = React.useContext(BlockLimiterContext)
   const maybeRequest = useSessionRequest()
   function isAvailable() {
-    if (limiterStatus.remained <= 0) {
+    const remained = limiterStatus.max - limiterStatus.current
+    if (remained <= 0) {
       return false
     }
     return maybeRequest.ok

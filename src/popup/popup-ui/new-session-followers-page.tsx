@@ -410,7 +410,8 @@ function TargetExecutionButtonUI() {
     if (!userSelection) {
       return false
     }
-    if (limiterStatus.remained <= 0 && purpose.type === 'chainblock') {
+    const remained = limiterStatus.max - limiterStatus.current
+    if (remained <= 0 && purpose.type === 'chainblock') {
       return false
     }
 

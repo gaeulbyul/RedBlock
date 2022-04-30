@@ -11,6 +11,27 @@ export default class BlockLimiter {
   public readonly max = 500
   private readonly KEY_TIMESTAMP: string
   private readonly KEY_COUNT: string
+  public static getAll(): Record<string, BlockLimiterStatus> {
+    const results: Record<string, BlockLimiterStatus> = Object.create(null)
+    Object.keys(localStorage)
+      .filter(key => key.startsWith(PREFIX_KEY_TIMESTAMP) || key.startsWith(PREFIX_KEY_COUNT))
+      .forEach(key => {
+        const userId = /user=(\d+)/.exec(key)?.[1]
+        if (!userId) {
+          return
+        }
+        if (userId in results) {
+          return
+        }
+        const limiter = new BlockLimiter(userId)
+        results[userId] = {
+          max: limiter.max,
+          current: limiter.count,
+        }
+      })
+    return results
+  }
+
   public constructor(userId: string) {
     const identifier = `user=${userId}`
     this.KEY_TIMESTAMP = `${PREFIX_KEY_TIMESTAMP} ${identifier}`

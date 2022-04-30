@@ -22,7 +22,6 @@ export const RedBlockOptionsContext = React.createContext({
 export const BlockLimiterContext = React.createContext<BlockLimiterStatus>({
   current: 0,
   max: 500,
-  remained: 500,
 })
 
 // export const TwitterAPIClientContext = React.createContext<TwClient>(null!)

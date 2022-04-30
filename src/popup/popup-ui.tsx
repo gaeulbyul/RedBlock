@@ -44,32 +44,7 @@ import MainWrapper from './popup-components/main-wrapper'
 import PopupUITopBar from './popup-components/top-bar'
 import PopupUITopMenu from './popup-components/top-menu'
 
-const UI_UPDATE_DELAY_ON_BUSY = 500
-const UI_UPDATE_DELAY_ON_IDLE = 1500
-
 const M = MaterialUI
-
-// https://overreacted.io/making-setinterval-declarative-with-react-hooks/
-function useInterval(callback: Function, delay: number) {
-  const savedCallback = React.useRef<Function>()
-
-  // Remember the latest callback.
-  React.useEffect(() => {
-    savedCallback.current = callback
-  }, [callback])
-
-  // Set up the interval.
-  React.useEffect(() => {
-    function tick() {
-      savedCallback.current?.()
-    }
-    if (delay <= 0) {
-      return () => {}
-    }
-    const id = setInterval(tick, delay)
-    return () => clearInterval(id)
-  }, [delay])
-}
 
 function PopupApp({
   // myself,
@@ -91,14 +66,12 @@ function PopupApp({
     initialLoading: true,
     countOfRunningSessions: 0,
     menuAnchorElem: null,
-    uiPollingDelay: 0,
   }
   const [uiStates, dispatchUIStates] = React.useReducer(uiStateReducer, initialUIStates)
   const { tabPage } = uiStates
   const [limiterStatus, setLimiterStatus] = React.useState<BlockLimiterStatus>({
     current: 0,
     max: 500,
-    remained: 500,
   })
   const darkMode = MaterialUI.useMediaQuery('(prefers-color-scheme:dark)')
   const [redblockOptions, setRedBlockOptions] = React.useState(defaultRedBlockOptions)
@@ -117,14 +90,6 @@ function PopupApp({
       dispatchUIStates({ type: 'finish-initial-loading' })
     })
   }, [])
-  useInterval(async () => {
-    if (!myself) {
-      dispatchUIStates({ type: 'set-polling-delay', delay: 0 })
-      return
-    }
-    requestProgress().catch(() => {})
-    requestBlockLimiterStatus(myself.user.id_str).catch(() => {})
-  }, uiStates.uiPollingDelay)
   function handleSnackBarClose(_event: any, reason?: string) {
     if (reason === 'clickaway') {
       return
@@ -141,8 +106,8 @@ function PopupApp({
   }
   React.useEffect(() => {
     if (myself) {
-      requestBlockLimiterStatus(myself.user.id_str).catch(() => {})
       requestProgress().catch(() => {})
+      requestBlockLimiterStatus().catch(() => {})
     }
   }, [myself])
   React.useEffect(() => {
@@ -159,21 +124,15 @@ function PopupApp({
           if (tabPage === 'chainblock-sessions-page') {
             setSessions(msg.sessions)
             setRecurringInfos(msg.recurringAlarmInfos)
-            if (runningSessionsLength > 0) {
-              dispatchUIStates({ type: 'set-polling-delay', delay: UI_UPDATE_DELAY_ON_BUSY })
-            } else {
-              dispatchUIStates({ type: 'set-polling-delay', delay: UI_UPDATE_DELAY_ON_IDLE })
-            }
-          } else {
-            dispatchUIStates({ type: 'set-polling-delay', delay: UI_UPDATE_DELAY_ON_IDLE })
           }
           break
         case 'BlockLimiterInfo':
-          if (myself && msg.userId === myself.user.id_str) {
+          if (myself) {
+            const newStatus = msg.statuses[myself.user.id_str]!
             const oldValue = limiterStatus.current
-            const newValue = msg.status.current
+            const newValue = newStatus.current
             if (oldValue !== newValue) {
-              setLimiterStatus(msg.status)
+              setLimiterStatus(newStatus)
             }
           }
           break
@@ -314,6 +273,11 @@ export function initializeUI() {
     document.body.classList.add('ui-popup')
   }
   fixOverlayScroll(appRoot)
+  setInterval(() => {
+    requestProgress().catch(() => {})
+    // TODO
+    requestBlockLimiterStatus().catch(() => {})
+  }, 800)
 }
 
 initializeUI()
