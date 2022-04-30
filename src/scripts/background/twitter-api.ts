@@ -514,7 +514,11 @@ export function getNextCursorFromAPIv2Response(response: APIv2Response): string 
       }
     }
     entries.reverse()
-    const bottomEntry = entries.find(entry => entry.entryId === 'sq-cursor-bottom')
+    // 트윗 검색시엔 sq-cursor-bottom
+    // 유저 검색시엔 cursor-bottom-(timestamp)
+    const bottomEntry = entries.find(({ entryId }: { entryId: string }) =>
+      entryId === 'sq-cursor-bottom' || entryId.startsWith('cursor-bottom-')
+    )
     if (!bottomEntry) {
       return null
     }
