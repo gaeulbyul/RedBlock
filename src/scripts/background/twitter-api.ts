@@ -552,7 +552,9 @@ async function fetchGraphQLQueryData() {
   const twitter = await fetch('https://twitter.com/').then(resp => resp.text())
   const domparser = new DOMParser()
   const parsed = domparser.parseFromString(twitter, 'text/html')
-  const mainScriptTag = parsed.querySelector<HTMLScriptElement>('script[src*="client-web/main."]')!
+  const mainScriptTag = Array
+    .from(parsed.querySelectorAll<HTMLScriptElement>('script[src*="main."]'))
+    .find(script => /\/main\.[0-9a-f]+\.js$/.test(script.src))!
   const mainScript = await fetch(mainScriptTag.src).then(resp => resp.text())
   const regexp =
     /{queryId:"(?<queryId>[0-9A-Za-z_-]+)",operationName:"(?<operationName>\w+)",operationType:"(?<operationType>\w+)"/g
