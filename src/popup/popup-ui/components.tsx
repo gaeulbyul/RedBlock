@@ -5,20 +5,13 @@ import React from 'react'
 
 import type { TargetCheckResult } from '../../scripts/background/target-checker'
 import * as i18n from '../../scripts/i18n'
-import { checkResultToString, DialogMessageObj } from '../../scripts/text-generate'
+import { checkResultToString } from '../../scripts/text-generate'
 import { CheckboxItem, RadioOptionItem } from '../../ui/components'
 import { RedBlockOptionsContext, UIContext } from './contexts'
 import { ExtraSessionOptionsContext } from './ui-states'
 
 const M = MaterialUI
 const T = MaterialUI.Typography
-
-export interface DialogContent {
-  message: DialogMessageObj
-  dialogType: 'confirm' | 'alert'
-  callbackOnOk?(): void
-  callbackOnCancel?(): void
-}
 
 export function RedBlockPopupUITheme(darkMode: boolean) {
   return MaterialUI.createTheme({
@@ -69,74 +62,6 @@ function purposeTypeToIcon(purposeType: Purpose['type']): JSX.Element {
     case 'unchainmute':
       return <Icon name="volume_up" />
   }
-}
-
-export function RBDialog({
-  isOpen,
-  content,
-  closeModal,
-}: {
-  isOpen: boolean
-  content: DialogContent | null
-  closeModal(): void
-}) {
-  if (!content) {
-    return <div></div>
-  }
-  const { message, callbackOnOk, callbackOnCancel, dialogType } = content
-  const { title, contentLines, warningLines } = message
-  function confirmOk() {
-    if (typeof callbackOnOk === 'function') {
-      callbackOnOk()
-    }
-    closeModal()
-  }
-  function refused() {
-    if (typeof callbackOnCancel === 'function') {
-      callbackOnCancel()
-    }
-    closeModal()
-  }
-  function renderControls() {
-    switch (dialogType) {
-      case 'confirm':
-        return (
-          <React.Fragment>
-            <M.Button onClick={confirmOk} color="primary">
-              {i18n.getMessage('yes')}
-            </M.Button>
-            <M.Button onClick={refused}>{i18n.getMessage('no')}</M.Button>
-          </React.Fragment>
-        )
-      case 'alert':
-        return (
-          <React.Fragment>
-            <M.Button onClick={closeModal} color="primary">
-              {i18n.getMessage('close')}
-            </M.Button>
-          </React.Fragment>
-        )
-    }
-  }
-  const { Dialog, DialogTitle, DialogContent, DialogContentText, DialogActions } = MaterialUI
-  return (
-    <Dialog open={isOpen}>
-      <DialogTitle>{title}</DialogTitle>
-      <DialogContent>
-        {contentLines
-          && contentLines.map((line, index) => (
-            <DialogContentText key={index}>{line}</DialogContentText>
-          ))}
-        {warningLines
-          && warningLines.map((line, index) => (
-            <DialogContentText key={index} color="error">
-              {line}
-            </DialogContentText>
-          ))}
-      </DialogContent>
-      <DialogActions>{renderControls()}</DialogActions>
-    </Dialog>
-  )
 }
 
 // from https://material-ui.com/components/tabs/#SimpleTabs.tsx

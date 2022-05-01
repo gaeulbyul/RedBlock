@@ -14,7 +14,7 @@ import {
 import { isRunningSession } from '../scripts/common/utilities'
 import { checkMessage, getCurrentTabInfo, infoless, TabInfo as TabInfo } from './popup'
 import ChainBlockSessionsPage from './popup-ui/chainblock-sessions-page'
-import { RBDialog, RedBlockPopupUITheme, TabPanel } from './popup-ui/components'
+import { RedBlockPopupUITheme, TabPanel } from './popup-ui/components'
 import {
   BlockLimiterContext,
   RedBlockOptionsContext,
@@ -41,6 +41,7 @@ import {
 } from './popup-ui/ui-states'
 
 import MainWrapper from './popup-components/main-wrapper'
+import ModalDialog from './popup-components/modal-dialog'
 import PopupUITopBar from './popup-components/top-bar'
 import PopupUITopMenu from './popup-components/top-menu'
 
@@ -239,7 +240,7 @@ function PopupApp({
           </M.IconButton>
         }
       />
-      <RBDialog
+      <ModalDialog
         isOpen={uiStates.modalOpened}
         closeModal={() => dispatchUIStates({ type: 'close-modal' })}
         content={uiStates.modalContent}

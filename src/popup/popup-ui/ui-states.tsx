@@ -12,7 +12,6 @@ import {
 import type { ReactionV2Kind } from '../../scripts/background/twitter-api'
 import { assertNever } from '../../scripts/common/utilities'
 import { determineInitialPurposeType } from '../popup'
-import type { DialogContent } from './components'
 import type { TargetGroup } from './components/target-selector'
 import { RedBlockOptionsContext, RetrieverContext, TabInfoContext } from './contexts'
 
@@ -445,6 +444,13 @@ export function LockPickerPageStatesProvider({ children }: { children: React.Rea
       <ExtraSessionOptionsContextProvider>{children}</ExtraSessionOptionsContextProvider>
     </LockPickerPageStatesContext.Provider>
   )
+}
+
+export interface DialogContent {
+  message: DialogMessageObj
+  dialogType: 'confirm' | 'alert'
+  callbackOnOk?(): void
+  callbackOnCancel?(): void
 }
 
 export interface UIStates {
