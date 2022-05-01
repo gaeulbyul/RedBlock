@@ -3,8 +3,9 @@ import React from 'react'
 import * as i18n from '../../scripts/i18n'
 
 import { requestResetCounter } from '../../scripts/background/request-sender'
-import { RBAccordion } from '../popup-ui/components'
 import { BlockLimiterContext, TabInfoContext } from '../popup-ui/contexts'
+
+import Accordion from './accordion'
 
 const M = MaterialUI
 const T = MaterialUI.Typography
@@ -19,7 +20,7 @@ export default function BlockLimiterUI() {
   const exceed = current >= max
   const warningIcon = exceed ? '\u26a0\ufe0f' : ''
   return (
-    <RBAccordion
+    <Accordion
       summary={`${warningIcon} ${i18n.getMessage('block_counter')}: [${current} / ${max}]`}
       warning={exceed}
     >
@@ -38,6 +39,6 @@ export default function BlockLimiterUI() {
           Reset
         </M.Button>
       </M.Box>
-    </RBAccordion>
+    </Accordion>
   )
 }

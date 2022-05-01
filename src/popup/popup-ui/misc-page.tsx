@@ -8,8 +8,9 @@ import {
   toggleOneClickBlockMode,
 } from '../../scripts/common/utilities'
 import * as i18n from '../../scripts/i18n'
-import { RBAccordion } from './components'
 import { TabInfoContext, UIContext } from './contexts'
+
+import Accordion from '../popup-components/accordion'
 
 const M = MaterialUI
 
@@ -56,7 +57,7 @@ export default function MiscPage() {
   const disabledOneClickBlockRelatedButtons = !myself
   return (
     <div>
-      <RBAccordion summary={i18n.getMessage('oneclick_block_mode')} defaultExpanded>
+      <Accordion summary={i18n.getMessage('oneclick_block_mode')} defaultExpanded>
         <div style={{ width: '100%' }}>
           <M.FormControl component="fieldset">
             <M.ButtonGroup
@@ -74,8 +75,8 @@ export default function MiscPage() {
           </M.FormControl>
           <p>{i18n.getMessage('oneclick_block_mode_description')}</p>
         </div>
-      </RBAccordion>
-      <RBAccordion summary={i18n.getMessage('troubleshooting')} defaultExpanded>
+      </Accordion>
+      <Accordion summary={i18n.getMessage('troubleshooting')} defaultExpanded>
         <div style={{ width: '100%' }}>
           <M.FormControl component="fieldset">
             <M.Button variant="outlined" onClick={confirmCookieDeletion}>
@@ -84,12 +85,12 @@ export default function MiscPage() {
           </M.FormControl>
           <p>{i18n.getMessage('delete_cookie_description')}</p>
         </div>
-      </RBAccordion>
-      <RBAccordion summary={i18n.getMessage('open_settings_ui')} defaultExpanded>
+      </Accordion>
+      <Accordion summary={i18n.getMessage('open_settings_ui')} defaultExpanded>
         <M.Button variant="outlined" startIcon={<M.Icon>settings</M.Icon>} onClick={openOptions}>
           <span>{i18n.getMessage('open_settings_ui')}</span>
         </M.Button>
-      </RBAccordion>
+      </Accordion>
     </div>
   )
 }

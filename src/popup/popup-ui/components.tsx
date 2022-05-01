@@ -116,27 +116,6 @@ export function PleaseLoginBox() {
   )
 }
 
-export function RBAccordion({
-  summary,
-  children,
-  defaultExpanded,
-  warning,
-}: {
-  summary: string
-  children: React.ReactNode
-  defaultExpanded?: boolean
-  warning?: boolean
-}) {
-  return (
-    <M.Accordion defaultExpanded={defaultExpanded}>
-      <M.AccordionSummary expandIcon={<M.Icon>expand_more</M.Icon>}>
-        <T sx={{ color: warning ? 'warning.main' : 'text.primary' }}>{summary}</T>
-      </M.AccordionSummary>
-      <M.AccordionDetails>{children}</M.AccordionDetails>
-    </M.Accordion>
-  )
-}
-
 const BigBaseButton = withStyles(theme => ({
   root: {
     width: '100%',
