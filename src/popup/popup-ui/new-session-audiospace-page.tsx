@@ -5,14 +5,11 @@ import { startNewChainBlockSession } from '../../scripts/background/request-send
 import { TargetCheckResult, validateRequest } from '../../scripts/background/target-checker'
 import * as i18n from '../../scripts/i18n'
 import * as TextGenerate from '../../scripts/text-generate'
-import {
-  BigExecuteButton,
-  BlockLimiterUI,
-  PurposeSelectionUI,
-  TwitterUserProfile,
-} from './components'
+import { BigExecuteButton, PurposeSelectionUI, TwitterUserProfile } from './components'
 import { BlockLimiterContext, RedBlockOptionsContext, TabInfoContext, UIContext } from './contexts'
 import { AudioSpaceChainBlockPageStatesContext, ExtraSessionOptionsContext } from './ui-states'
+
+import BlockLimiterUI from '../popup-components/block-limiter-ui'
 
 const M = MaterialUI
 const T = MaterialUI.Typography

@@ -5,9 +5,11 @@ import { startNewChainBlockSession } from '../../scripts/background/request-send
 import { TargetCheckResult, validateRequest } from '../../scripts/background/target-checker'
 import * as i18n from '../../scripts/i18n'
 import * as TextGenerate from '../../scripts/text-generate'
-import { BigExecuteButton, BlockLimiterUI, PurposeSelectionUI } from './components'
+import { BigExecuteButton, PurposeSelectionUI } from './components'
 import { BlockLimiterContext, RedBlockOptionsContext, TabInfoContext, UIContext } from './contexts'
 import { ExtraSessionOptionsContext, UserSearchChainBlockPageStatesContext } from './ui-states'
+
+import BlockLimiterUI from '../popup-components/block-limiter-ui'
 
 const M = MaterialUI
 const T = MaterialUI.Typography

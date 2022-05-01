@@ -19,9 +19,11 @@ import {
 } from '../../scripts/common/utilities'
 import * as i18n from '../../scripts/i18n'
 import { statusToString } from '../../scripts/text-generate'
-import { BlockLimiterUI, LinearProgressWithLabel, PleaseLoginBox } from './components'
+import { LinearProgressWithLabel, PleaseLoginBox } from './components'
 import { TabInfoContext, UIContext } from './contexts'
 import { AvailablePages, newSessionsLabel, pageIcon, PageId } from './pages'
+
+import BlockLimiterUI from '../popup-components/block-limiter-ui'
 
 const M = MaterialUI
 const T = MaterialUI.Typography
