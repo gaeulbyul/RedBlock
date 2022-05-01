@@ -4,11 +4,12 @@ import React from 'react'
 import { startNewChainBlockSession } from '../../scripts/background/request-sender'
 import { TargetCheckResult, validateRequest } from '../../scripts/background/target-checker'
 import * as TextGenerate from '../../scripts/text-generate'
-import { BigExecuteButton, PurposeSelectionUI, TwitterUserProfile } from './components'
+import { BigExecuteButton, PurposeSelectionUI } from './components'
 import { BlockLimiterContext, RedBlockOptionsContext, TabInfoContext, UIContext } from './contexts'
 import { ExtraSessionOptionsContext, LockPickerPageStatesContext } from './ui-states'
 
 import BlockLimiterUI from '../popup-components/block-limiter-ui'
+import TwitterUserProfile from '../popup-components/twitter-user-profile'
 
 const M = MaterialUI
 

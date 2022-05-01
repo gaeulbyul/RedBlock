@@ -13,7 +13,7 @@ import TwitterUserMap from '../../scripts/common/twitter-user-map'
 import * as i18n from '../../scripts/i18n'
 import * as TextGenerate from '../../scripts/text-generate'
 import { getUserNameFromTab } from '../popup'
-import { BigExecuteButton, PurposeSelectionUI, TwitterUserProfile } from './components'
+import { BigExecuteButton, PurposeSelectionUI } from './components'
 import {
   Controls as TargetSelectorControls,
   identifierOfItem,
@@ -34,6 +34,7 @@ import {
 import { ExtraSessionOptionsContext, FollowerChainBlockPageStatesContext } from './ui-states'
 
 import BlockLimiterUI from '../popup-components/block-limiter-ui'
+import TwitterUserProfile from '../popup-components/twitter-user-profile'
 
 const M = MaterialUI
 

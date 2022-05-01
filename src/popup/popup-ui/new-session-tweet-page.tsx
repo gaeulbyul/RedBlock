@@ -9,7 +9,7 @@ import {
 } from '../../scripts/common/utilities'
 import * as i18n from '../../scripts/i18n'
 import * as TextGenerate from '../../scripts/text-generate'
-import { BigExecuteButton, PurposeSelectionUI, TwitterUserProfile } from './components'
+import { BigExecuteButton, PurposeSelectionUI } from './components'
 import {
   BlockLimiterContext,
   RedBlockOptionsContext,
@@ -20,6 +20,7 @@ import {
 import { ExtraSessionOptionsContext, TweetReactionChainBlockPageStatesContext } from './ui-states'
 
 import BlockLimiterUI from '../popup-components/block-limiter-ui'
+import TwitterUserProfile from '../popup-components/twitter-user-profile'
 
 const M = MaterialUI
 
