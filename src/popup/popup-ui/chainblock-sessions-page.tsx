@@ -4,13 +4,7 @@ import { createStyles, makeStyles } from '@mui/styles'
 import React from 'react'
 import type browser from 'webextension-polyfill'
 
-import {
-  cleanupInactiveSessions,
-  downloadFromExportSession,
-  requestProgress,
-  stopAllChainBlock,
-  stopChainBlock,
-} from '../../scripts/background/request-sender'
+import { downloadFromExportSession, stopChainBlock } from '../../scripts/background/request-sender'
 import {
   getCountOfUsersToBlock,
   getLimitResetTime,
@@ -25,6 +19,7 @@ import { AvailablePages, newSessionsLabel, pageIcon, PageId } from './pages'
 
 import BlockLimiterUI from '../popup-components/block-limiter-ui'
 import PleaseLoginBox from '../popup-components/please-login'
+import SessionListControlbar from '../popup-components/session-list-controlbar'
 
 const M = MaterialUI
 const T = MaterialUI.Typography
@@ -394,41 +389,6 @@ function ChainBlockSessionItem({
   )
 }
 
-function GlobalControls() {
-  const uiContext = React.useContext(UIContext)
-  function confirmStopAllChainBlock() {
-    uiContext.dispatchUIStates({
-      type: 'open-modal',
-      content: {
-        dialogType: 'confirm',
-        message: {
-          title: i18n.getMessage('confirm_all_stop'),
-        },
-        callbackOnOk() {
-          stopAllChainBlock()
-          requestProgress()
-        },
-      },
-    })
-  }
-  function cleanupAndRefresh() {
-    cleanupInactiveSessions()
-    requestProgress()
-  }
-  return (
-    <div>
-      <M.ButtonGroup fullWidth>
-        <M.Button startIcon={<M.Icon>highlight_off</M.Icon>} onClick={confirmStopAllChainBlock}>
-          {i18n.getMessage('stop_all')}
-        </M.Button>
-        <M.Button startIcon={<M.Icon>clear_all</M.Icon>} onClick={cleanupAndRefresh}>
-          {i18n.getMessage('cleanup_sessions')}
-        </M.Button>
-      </M.ButtonGroup>
-    </div>
-  )
-}
-
 function NewSessionButtons() {
   const uiContext = React.useContext(UIContext)
   function handleNewSessionButton(event: React.MouseEvent, page: PageId) {
@@ -496,7 +456,7 @@ export default function ChainBlockSessionsPage({
       {isSessionExist && (
         <React.Fragment>
           <M.Box my={1}>
-            <GlobalControls />
+            <SessionListControlbar />
           </M.Box>
           <div>
             {sessions.map(sessionInfo => {
