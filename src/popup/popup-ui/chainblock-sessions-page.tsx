@@ -15,21 +15,14 @@ import * as i18n from '../../scripts/i18n'
 import { statusToString } from '../../scripts/text-generate'
 import { LinearProgressWithLabel } from './components'
 import { TabInfoContext, UIContext } from './contexts'
-import { AvailablePages, newSessionsLabel, pageIcon, PageId } from './pages'
 
 import BlockLimiterUI from '../popup-components/block-limiter-ui'
 import PleaseLoginBox from '../popup-components/please-login'
 import SessionListControlbar from '../popup-components/session-list-controlbar'
+import NewSessionButtons from '../popup-components/session-list-new-buttons'
 
 const M = MaterialUI
 const T = MaterialUI.Typography
-
-const newSessionPagesToShow: (keyof AvailablePages)[] = [
-  'new-session-followers-page',
-  'new-session-tweet-page',
-  'new-session-searchresult-page',
-  'new-session-audiospace-page',
-]
 
 function calculatePercentage(session: SessionInfo): number | null {
   const { status } = session
@@ -385,32 +378,6 @@ function ChainBlockSessionItem({
           </M.CardContent>
         </M.Collapse>
       </M.Card>
-    </M.Box>
-  )
-}
-
-function NewSessionButtons() {
-  const uiContext = React.useContext(UIContext)
-  function handleNewSessionButton(event: React.MouseEvent, page: PageId) {
-    event.preventDefault()
-    uiContext.dispatchUIStates({ type: 'switch-tab-page', tabPage: page })
-  }
-  return (
-    <M.Box display="flex" flexDirection="row" justifyContent="center" flexWrap="wrap" my={1}>
-      {newSessionPagesToShow.map((page, index) => (
-        <M.Box key={index} width="50%" minWidth="100px" maxWidth="200px" m={1}>
-          <M.Button
-            fullWidth
-            variant="contained"
-            startIcon={pageIcon(page)}
-            disabled={!uiContext.availablePages[page]}
-            onClick={e =>
-              handleNewSessionButton(e, page)}
-          >
-            {newSessionsLabel(page)}
-          </M.Button>
-        </M.Box>
-      ))}
     </M.Box>
   )
 }
