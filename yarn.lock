@@ -2907,6 +2907,17 @@ __metadata:
   languageName: node
   linkType: hard
 
+"nano-staged@npm:^0.8.0":
+  version: 0.8.0
+  resolution: "nano-staged@npm:0.8.0"
+  dependencies:
+    picocolors: ^1.0.0
+  bin:
+    nano-staged: lib/bin.js
+  checksum: 01a6eee4053bd163e3084f34421fcb0f3ab90b5c47fa1ff7b4208f2a553b5e0a26e55a7f88c8af7632cfc2bcc3622d6078697bb0042409744bbb65565bb43334
+  languageName: node
+  linkType: hard
+
 "ncp@npm:^2.0.0":
   version: 2.0.0
   resolution: "ncp@npm:2.0.0"
@@ -3359,11 +3370,13 @@ __metadata:
     just-scripts: ^1.5.4
     lodash-es: ^4.17.21
     mkdirp: 1.0.4
+    nano-staged: ^0.8.0
     ncp: ^2.0.0
     react: ^17.0.2
     react-dom: ^17.0.2
     rimraf: 3.0.2
     swc-loader: ^0.1.14
+    tsc-files: ^1.1.3
     twitter-text: ^3.1.0
     typescript: ^4.7.2
     uuid: ^8.3.2
@@ -3866,6 +3879,17 @@ __metadata:
   dependencies:
     punycode: ^2.1.0
   checksum: 96d4ed46bc161db75dbf9247a236ea0bfcaf5758baae6749e92afab0bc5a09cb59af21788ede7e55080f2bf02dce3e4a8f2a484cc45164e29f4b5e68f7cbcc1a
+  languageName: node
+  linkType: hard
+
+"tsc-files@npm:^1.1.3":
+  version: 1.1.3
+  resolution: "tsc-files@npm:1.1.3"
+  peerDependencies:
+    typescript: ">=3"
+  bin:
+    tsc-files: lib/index.js
+  checksum: dd21524d9de841edf65278a00fe963679773a1dbde0b9316cc3ca9aed60b8903dae4c8819974ead0ab28efde7e1c112a572c8152050e02a3653d7b6416009605
   languageName: node
   linkType: hard
 
