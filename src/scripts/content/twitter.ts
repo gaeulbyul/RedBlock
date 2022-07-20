@@ -23,25 +23,18 @@ function addBlockButtonOnTweet(elem: HTMLElement, user: TwitterUser) {
 function addBlockButtonUnderProfileImage(elem: HTMLElement, user: TwitterUser) {
   const btn = generateBlockButton(user)
   btn.classList.add('redblock-btn-under-profile')
-  let elementToPlaceBlockButton: HTMLElement | null = null
-  const profileImage = elem.querySelector('a[role=link][href^="/"][style^="height:"]')
+  // for tweet
+  const profileImage = elem.querySelector<HTMLElement>('div[data-testid=Tweet-User-Avatar]')
   if (profileImage) {
-    elementToPlaceBlockButton = profileImage.parentElement!
-  }
-  const profileImagePlaceholder = elem.querySelector('div[style^="background-color:"]')
-  if (profileImagePlaceholder) {
-    if (isEdge2EdgeLayout()) {
-      elementToPlaceBlockButton = elem.children[0]!.children[0]! as HTMLElement
-    } else {
-      const link = profileImagePlaceholder.closest('a[role=link]')!
-      elementToPlaceBlockButton = link.parentElement!
-    }
-  }
-  if (!elementToPlaceBlockButton) {
-    console.warn('failed to find element')
+    profileImage.appendChild(btn)
     return
   }
-  elementToPlaceBlockButton.appendChild(btn)
+  // for UserCell
+  const profileImage2 = elem.querySelector<HTMLElement>('div[data-testid^=UserAvatar-Container-]')
+  if (profileImage2) {
+    profileImage2.parentElement!.appendChild(btn)
+    return
+  }
 }
 
 function addBlockButtonToQuotedTweetElem(elem: HTMLElement, user: TwitterUser) {
