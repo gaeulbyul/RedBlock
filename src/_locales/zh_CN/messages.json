@@ -1025,5 +1025,8 @@
   },
   "include_itself_description": {
     "message": "运行批量屏蔽会话时，启用此选项将包含目标本身（而不是只对关注者/转推者/点喜欢的人……）。"
+  },
+  "verified_user": {
+    "message": "Verified User"
   }
 }

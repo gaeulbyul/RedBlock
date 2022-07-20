@@ -25,6 +25,7 @@ interface ChainBlockPurpose {
   type: 'chainblock'
   myFollowers: UserAction
   myFollowings: UserAction
+  verifiedUsers: 'Skip' | 'Mute' | 'Block'
 }
 
 interface UnChainBlockPurpose {
@@ -45,6 +46,7 @@ interface ChainMutePurpose {
   type: 'chainmute'
   myFollowers: 'Skip' | 'Mute'
   myFollowings: 'Skip' | 'Mute'
+  verifiedUsers: 'Skip' | 'Mute'
 }
 
 interface UnChainMutePurpose {

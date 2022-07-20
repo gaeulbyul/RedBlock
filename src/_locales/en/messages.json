@@ -1025,5 +1025,8 @@
   },
   "include_itself_description": {
     "message": "When running the Chain-block session, Enabling this options will includes target itself(not only followers/retweeters/likers/...)."
+  },
+  "verified_user": {
+    "message": "Verified User"
   }
 }

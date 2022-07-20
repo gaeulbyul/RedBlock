@@ -1,4 +1,4 @@
-import * as dayjs from 'dayjs'
+import dayjs from 'dayjs'
 import { getTargetUser } from '../../common/utilities'
 
 export function decideWhatToDoGivenUser(
@@ -79,6 +79,9 @@ function decideWhenChainBlock(purpose: ChainBlockPurpose, follower: TwitterUser)
   if (isMyFollowing) {
     return purpose.myFollowings
   }
+  if (follower.verified) {
+    return purpose.verifiedUsers
+  }
   return 'Block'
 }
 
@@ -126,6 +129,9 @@ function decideWhenChainMute(purpose: ChainMutePurpose, follower: TwitterUser) {
   }
   if (isMyFollowing) {
     return purpose.myFollowings
+  }
+  if (follower.verified) {
+    return purpose.verifiedUsers
   }
   return 'Mute'
 }

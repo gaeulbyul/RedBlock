@@ -11,6 +11,7 @@ export const defaultChainBlockPurposeOptions = Object.freeze<ChainBlockPurpose>(
   type: 'chainblock',
   myFollowers,
   myFollowings,
+  verifiedUsers: 'Block',
 })
 
 export const defaultUnChainBlockPurposeOptions = Object.freeze<UnChainBlockPurpose>({
@@ -31,6 +32,7 @@ export const defaultChainMutePurposeOptions = Object.freeze<ChainMutePurpose>({
   type: 'chainmute',
   myFollowers,
   myFollowings,
+  verifiedUsers: 'Mute',
 })
 
 export const defaultUnChainMutePurposeOptions = Object.freeze<UnChainMutePurpose>({

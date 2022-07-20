@@ -438,6 +438,9 @@ function ChainBlockPurposeUI({
     ...userActions,
     [i18n.getMessage('unfollow')]: 'UnFollow',
   }
+  const userActionsToVerifiedUsers: { [label: string]: ChainBlockPurpose['verifiedUsers'] } = {
+    ...userActions,
+  }
   return (
     <React.Fragment>
       <RadioOptionItem
@@ -453,6 +456,13 @@ function ChainBlockPurposeUI({
         selectedValue={purpose.myFollowings}
         onChange={(myFollowings: ChainBlockPurpose['myFollowings']) =>
           mutatePurposeOptions({ myFollowings })}
+      />
+      <RadioOptionItem
+        legend={i18n.getMessage('verified_user')}
+        options={userActionsToVerifiedUsers}
+        selectedValue={purpose.verifiedUsers}
+        onChange={(verifiedUsers: ChainBlockPurpose['verifiedUsers']) =>
+          mutatePurposeOptions({ verifiedUsers })}
       />
     </React.Fragment>
   )
@@ -532,6 +542,13 @@ function ChainMutePurposeUI({
         selectedValue={purpose.myFollowings}
         onChange={(myFollowings: ChainMutePurpose['myFollowings']) =>
           mutatePurposeOptions({ myFollowings })}
+      />
+      <RadioOptionItem
+        legend={i18n.getMessage('verified_user')}
+        options={userActions}
+        selectedValue={purpose.verifiedUsers}
+        onChange={(verifiedUsers: ChainMutePurpose['verifiedUsers']) =>
+          mutatePurposeOptions({ verifiedUsers })}
       />
     </React.Fragment>
   )
