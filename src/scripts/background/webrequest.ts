@@ -98,9 +98,6 @@ function extractActAsCookies(headers: Headers): ActAsExtraCookies | null {
 }
 
 function initializeTwitterAPIRequestHeaderModifier() {
-  const reqFilters = {
-    urls: generateApiUrls('*'),
-  }
   browser.webRequest.onBeforeSendHeaders.addListener(
     details => {
       const isRedblockRequest = details.requestHeaders!.find(({ name }) => /redblock/i.test(name))
@@ -118,7 +115,10 @@ function initializeTwitterAPIRequestHeaderModifier() {
         requestHeaders: toWebRequestHeaders(headers),
       }
     },
-    reqFilters,
+    {
+      types: ['xmlhttprequest'],
+      urls: generateApiUrls('*'),
+    },
     extraInfoSpec,
   )
 }
@@ -146,9 +146,6 @@ function generateBlockLimiterOptions(headersArray: browser.WebRequest.HttpHeader
 }
 
 function initializeBlockAPILimiter() {
-  const reqFilters = {
-    urls: generateApiUrls('1.1/blocks/create.json'),
-  }
   browser.webRequest.onBeforeSendHeaders.addListener(
     details => {
       const { originUrl, method, requestHeaders } = details
@@ -176,7 +173,10 @@ function initializeBlockAPILimiter() {
         cancel,
       }
     },
-    reqFilters,
+    {
+      types: ['xmlhttprequest'],
+      urls: generateApiUrls('1.1/blocks/create.json'),
+    },
     extraInfoSpec,
   )
 }
