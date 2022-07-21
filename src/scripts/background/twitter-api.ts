@@ -608,7 +608,6 @@ export interface TwitterUser {
   blocked_by: boolean
   blocking: boolean
   muting: boolean
-  // 1st-party API에선 이 속성이 안 지워진듯. 따라서 그냥 사용한다.
   following: boolean
   followed_by: boolean
   follow_request_sent: boolean
@@ -621,9 +620,21 @@ export interface TwitterUser {
   profile_image_url_https: string
   location: string
   status?: Tweet
+  has_nft_avatar: boolean
 }
 
 export type TwitterUserEntities = Record<string, TwitterUser>
+
+// 대체 얘 타입이름을 뭐라고 해야하나...
+interface TwitterUserInternalObject {
+  __typename: 'User'
+  has_nft_avatar: boolean
+  // id: string // base64형태. id_str과 다르니 주의. 혼동을 막기 위해 일단 주석처리
+  rest_id: string
+  legacy: Omit<TwitterUser, 'id_str'>
+  super_followed_by: boolean
+  super_following: boolean
+}
 
 type ConnectionType =
   | 'following'
@@ -722,6 +733,13 @@ export interface Tweet {
     // 내 반응. 당장 안 쓰이므로 생략
     // signalsReactionPerspective
   }
+  // CoTweet 관련
+  collab_control?: {
+    collaborators_results: Array<{
+      result: TwitterUserInternalObject
+    }>
+  }
+  collaborators?: string[] // id_str의 배열
 }
 
 interface UserMentionEntity {
@@ -831,11 +849,7 @@ interface ReactionV2TimelineEntry {
   user_results: {
     // 프로텍트 계정 등에서 반응한 경우 유저정보가 없는 빈 object가 온다.
     result?:
-      | {
-        // id: string
-        rest_id: string
-        legacy: Omit<TwitterUser, 'id_str'>
-      }
+      | TwitterUserInternalObject
       | {}
   }
   reaction_type: ReactionV2Kind
