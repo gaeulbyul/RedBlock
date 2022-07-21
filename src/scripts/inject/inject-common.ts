@@ -35,5 +35,6 @@ export async function checkLoggedIn(): Promise<boolean> {
     return true
   }
   // 그래서 최후의 방법...
-  return await verifyCredentials()
+  const verifyResult = await verifyCredentials()
+  return !('errors' in verifyResult)
 }
