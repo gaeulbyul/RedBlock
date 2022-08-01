@@ -1,17 +1,17 @@
+import { loadOptions } from '\\/scripts/common/storage/options'
 import {
   isExportableTarget,
   isRewindableSession,
   isRunningSession,
   markUser,
-} from '../common/utilities'
-import * as i18n from '../i18n'
-import * as TextGenerate from '../text-generate'
+} from '\\/scripts/common/utilities'
+import * as i18n from '\\/scripts/i18n'
+import * as TextGenerate from '\\/scripts/text-generate'
 import { alertToCurrentTab, notify, updateExtensionBadge } from './background'
 import { exportBlocklist } from './blocklist-process'
 import ExportSession from './chainblock-session/export-session'
 import ChainBlockSession from './chainblock-session/session'
 import RecurringManager from './recurring'
-import { loadOptions } from './storage/options'
 import { isSameTarget, TargetCheckResult, validateRequest } from './target-checker'
 
 export default class SessionManager {

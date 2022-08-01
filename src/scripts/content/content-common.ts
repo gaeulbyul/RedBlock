@@ -1,5 +1,5 @@
+import { sendBrowserRuntimeMessage } from '\\/scripts/common/utilities'
 import browser from 'webextension-polyfill'
-import { sendBrowserRuntimeMessage } from '../common/utilities'
 
 // 파이어폭스에서 CustomEvent의 detail 개체 전달용
 declare function cloneInto<T>(detail: T, view: Window | null): T

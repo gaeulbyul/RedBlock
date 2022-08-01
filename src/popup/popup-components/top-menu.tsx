@@ -2,7 +2,7 @@ import * as MaterialUI from '@mui/material'
 import React from 'react'
 import browser from 'webextension-polyfill'
 
-import * as i18n from '../../scripts/i18n'
+import * as i18n from '\\/scripts/i18n'
 import { UIContext } from '../popup-ui/contexts'
 import { pageIcon, PageId, pageLabel } from '../popup-ui/pages'
 

@@ -1,9 +1,9 @@
 import * as MaterialUI from '@mui/material'
 import React from 'react'
 
-import { startNewChainBlockSession } from '../../scripts/background/request-sender'
-import { TargetCheckResult, validateRequest } from '../../scripts/background/target-checker'
-import * as TextGenerate from '../../scripts/text-generate'
+import { startNewChainBlockSession } from '\\/scripts/background/request-sender'
+import { TargetCheckResult, validateRequest } from '\\/scripts/background/target-checker'
+import * as TextGenerate from '\\/scripts/text-generate'
 import { BigExecuteButton, PurposeSelectionUI } from './components'
 import { BlockLimiterContext, RedBlockOptionsContext, TabInfoContext, UIContext } from './contexts'
 import { ExtraSessionOptionsContext, LockPickerPageStatesContext } from './ui-states'

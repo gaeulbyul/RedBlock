@@ -1,14 +1,14 @@
 import dayjs from 'dayjs'
 
-import { EventEmitter } from '../../common'
+import * as TwitterAPI from '\\/scripts/background/twitter-api'
+import { EventEmitter } from '\\/scripts/common'
 import {
   assertNever,
   copyFrozenObject,
   extractRateLimit,
   getCountOfUsersToBlock,
   sleep,
-} from '../../common/utilities'
-import * as TwitterAPI from '../twitter-api'
+} from '\\/scripts/common/utilities'
 import * as IdScraper from './userid-scraper'
 
 // NOTE: 사이즈 올리게 되면 번역파일도 수정할것

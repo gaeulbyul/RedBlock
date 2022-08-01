@@ -1,4 +1,4 @@
-import * as i18n from '../../scripts/i18n'
+import * as i18n from '\\/scripts/i18n'
 import {
   blockUserById,
   injectBundle,

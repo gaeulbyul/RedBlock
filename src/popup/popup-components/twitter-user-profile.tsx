@@ -2,7 +2,7 @@ import * as MaterialUI from '@mui/material'
 import { useTheme } from '@mui/styles'
 import React from 'react'
 
-import * as i18n from '../../scripts/i18n'
+import * as i18n from '\\/scripts/i18n'
 
 const M = MaterialUI
 const T = MaterialUI.Typography

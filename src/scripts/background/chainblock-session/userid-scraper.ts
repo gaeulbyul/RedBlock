@@ -1,4 +1,4 @@
-import { getFollowersCount, wrapEitherRight } from '../../common/utilities'
+import { getFollowersCount, wrapEitherRight } from '\\/scripts/common/utilities'
 import * as UserScrapingAPI from '../user-scraping-api'
 import { AudioSpaceScraper, TweetReactedUserScraper, UserScraper } from './scraper'
 

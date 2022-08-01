@@ -1,8 +1,8 @@
 import browser from 'webextension-polyfill'
 
-import * as i18n from '../../scripts/i18n'
-import { loadBadWords } from '../background/storage/badwords'
-import { sendBrowserRuntimeMessage } from '../common/utilities'
+import { loadBadWords } from '\\/scripts/common/storage/badwords'
+import { sendBrowserRuntimeMessage } from '\\/scripts/common/utilities'
+import * as i18n from '\\/scripts/i18n'
 import { blockUser, markUser, toastMessage } from './content-common'
 
 const setOfBadWords: BadWordItem[] = []

@@ -1,4 +1,4 @@
-import type { TwitterUserEntities } from '../background/twitter-api'
+import type { TwitterUserEntities } from '\\/scripts/background/twitter-api'
 
 export default class TwitterUserMap extends Map<string, TwitterUser> {
   public addUser(user: TwitterUser) {

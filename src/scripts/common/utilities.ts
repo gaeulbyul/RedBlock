@@ -1,8 +1,12 @@
 import browser from 'webextension-polyfill'
 
-import { getAllCookies, getCookieStoreIdFromTab, removeCookie } from '../background/cookie-handler'
-import { loadOptions } from '../background/storage/options'
-import type { LimitStatus } from '../background/twitter-api'
+import {
+  getAllCookies,
+  getCookieStoreIdFromTab,
+  removeCookie,
+} from '\\/scripts/background/cookie-handler'
+import type { LimitStatus } from '\\/scripts/background/twitter-api'
+import { loadOptions } from '\\/scripts/common/storage/options'
 
 const userNameBlacklist = [
   'about',

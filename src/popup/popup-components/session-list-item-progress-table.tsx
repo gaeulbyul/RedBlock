@@ -3,7 +3,7 @@ import * as MaterialUI from '@mui/material'
 import React from 'react'
 import type browser from 'webextension-polyfill'
 
-import * as i18n from '../../scripts/i18n'
+import * as i18n from '\\/scripts/i18n'
 
 const M = MaterialUI
 function progressTableRow(left: string, right: string | number) {

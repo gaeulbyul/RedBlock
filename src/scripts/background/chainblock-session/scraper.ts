@@ -3,7 +3,7 @@ import {
   getFollowersCount,
   getParticipantsInAudioSpaceCount,
   getTotalCountOfReactions,
-} from '../../common/utilities'
+} from '\\/scripts/common/utilities'
 import * as UserScrapingAPI from '../user-scraping-api'
 import * as ExtraScraper from './extra-scraper'
 

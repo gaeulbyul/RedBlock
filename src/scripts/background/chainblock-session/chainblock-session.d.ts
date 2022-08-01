@@ -1,7 +1,7 @@
 type Session = import('./session').default | import('./export-session').default
-type TwClient = import('../twitter-api').TwClient
-type Limit = import('../twitter-api').Limit
-type ReactionV2Kind = import('../twitter-api').ReactionV2Kind
+type TwClient = import('\\/scripts/background/twitter-api').TwClient
+type Limit = import('\\/scripts/background/twitter-api').Limit
+type ReactionV2Kind = import('\\/scripts/background/twitter-api').ReactionV2Kind
 
 type SessionStatus =
   | 'Initial'
@@ -153,7 +153,7 @@ interface SessionInfo {
     total: number | null
   }
   status: SessionStatus
-  limit: import('../twitter-api').Limit | null
+  limit: import('\\/scripts/background/twitter-api').Limit | null
   exported?: boolean
 }
 

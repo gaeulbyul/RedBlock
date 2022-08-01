@@ -6,11 +6,11 @@ import {
   concatBlockList,
   emptyBlocklist,
   parseBlocklist,
-} from '../../scripts/background/blocklist-process'
-import { startNewChainBlockSession } from '../../scripts/background/request-sender'
-import { TargetCheckResult, validateRequest } from '../../scripts/background/target-checker'
-import * as i18n from '../../scripts/i18n'
-import * as TextGenerate from '../../scripts/text-generate'
+} from '\\/scripts/background/blocklist-process'
+import { startNewChainBlockSession } from '\\/scripts/background/request-sender'
+import { TargetCheckResult, validateRequest } from '\\/scripts/background/target-checker'
+import * as i18n from '\\/scripts/i18n'
+import * as TextGenerate from '\\/scripts/text-generate'
 import { BigExecuteButton, PurposeSelectionUI, TabPanel } from './components'
 import { BlockLimiterContext, RedBlockOptionsContext, TabInfoContext, UIContext } from './contexts'
 import type { PageId } from './pages'

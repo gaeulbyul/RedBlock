@@ -1,6 +1,6 @@
 import browser from 'webextension-polyfill'
 
-import { validateUserName } from '../common/utilities'
+import { validateUserName } from '\\/scripts/common/utilities'
 /*
 function* iterateRegexp(pattern: RegExp, text: string) {
   let match: RegExpExecArray | null

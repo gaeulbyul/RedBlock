@@ -1,5 +1,5 @@
-import { getTotalCountOfReactions } from '../common/utilities'
-export { checkResultToString } from '../text-generate'
+import { getTotalCountOfReactions } from '\\/scripts/common/utilities'
+export { checkResultToString } from '\\/scripts/text-generate'
 
 export const enum TargetCheckResult {
   Ok = 1, // 1: if (targetCheckResult) {} 에서 falsey하게 판단하는 걸 막기 위해.

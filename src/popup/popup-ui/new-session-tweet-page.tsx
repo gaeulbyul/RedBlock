@@ -1,14 +1,14 @@
 import * as MaterialUI from '@mui/material'
 import React from 'react'
 
-import { startNewChainBlockSession } from '../../scripts/background/request-sender'
-import { TargetCheckResult, validateRequest } from '../../scripts/background/target-checker'
+import { startNewChainBlockSession } from '\\/scripts/background/request-sender'
+import { TargetCheckResult, validateRequest } from '\\/scripts/background/target-checker'
 import {
   findNonLinkedMentionsFromTweet,
   getReactionsV2CountsFromTweet,
-} from '../../scripts/common/utilities'
-import * as i18n from '../../scripts/i18n'
-import * as TextGenerate from '../../scripts/text-generate'
+} from '\\/scripts/common/utilities'
+import * as i18n from '\\/scripts/i18n'
+import * as TextGenerate from '\\/scripts/text-generate'
 import { BigExecuteButton, PurposeSelectionUI } from './components'
 import {
   BlockLimiterContext,

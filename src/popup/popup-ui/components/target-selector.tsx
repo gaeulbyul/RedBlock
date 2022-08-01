@@ -1,8 +1,8 @@
 import * as MaterialUI from '@mui/material'
 import type { SelectChangeEvent } from '@mui/material/Select'
 
+import * as i18n from '\\/scripts/i18n'
 import React from 'react'
-import * as i18n from '../../../scripts/i18n'
 
 const M = MaterialUI
 

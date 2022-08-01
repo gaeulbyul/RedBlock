@@ -4,14 +4,14 @@ import React from 'react'
 import ReactDOM from 'react-dom'
 import browser from 'webextension-polyfill'
 
-import { requestBlockLimiterStatus, requestProgress } from '../scripts/background/request-sender'
-import { onStorageChanged } from '../scripts/background/storage'
+import { requestBlockLimiterStatus, requestProgress } from '\\/scripts/background/request-sender'
+import { onStorageChanged } from '\\/scripts/common/storage'
 import {
   defaultOptions as defaultRedBlockOptions,
   loadOptions as loadRedBlockOptions,
-} from '../scripts/background/storage/options'
+} from '\\/scripts/common/storage/options'
 
-import { isRunningSession } from '../scripts/common/utilities'
+import { isRunningSession } from '\\/scripts/common/utilities'
 import { checkMessage, getCurrentTabInfo, infoless, TabInfo as TabInfo } from './popup'
 import ChainBlockSessionsPage from './popup-ui/chainblock-sessions-page'
 import { RedBlockPopupUITheme, TabPanel } from './popup-ui/components'

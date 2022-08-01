@@ -1,4 +1,4 @@
-import { stripSensitiveInfo } from '../common/utilities'
+import { stripSensitiveInfo } from '\\/scripts/common/utilities'
 import { generateCookiesForAltAccountRequest, getAllCookies, getCookie } from './cookie-handler'
 
 const BEARER_TOKEN =

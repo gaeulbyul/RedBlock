@@ -2,19 +2,19 @@ import dayjs from 'dayjs'
 import cloneDeep from 'lodash-es/cloneDeep'
 import sum from 'lodash-es/sum'
 
-import { EventEmitter } from '../../common'
+import * as TwitterAPI from '\\/scripts/background/twitter-api'
+import { EventEmitter } from '\\/scripts/common'
+import { loadOptions } from '\\/scripts/common/storage/options'
 import {
   assertNever,
   copyFrozenObject,
   extractRateLimit,
   getCountOfUsersToBlock,
   sleep,
-} from '../../common/utilities'
+} from '\\/scripts/common/utilities'
 import BlockLimiter from '../block-limiter'
 import { examineRetrieverByTargetUser, examineRetrieverByTweetId } from '../blockbuster'
-import { loadOptions } from '../storage/options'
 import { checkResultToString, TargetCheckResult, validateRequest } from '../target-checker'
-import * as TwitterAPI from '../twitter-api'
 import * as Scraper from './scraper'
 import { decideWhatToDoGivenUser } from './user-decider'
 

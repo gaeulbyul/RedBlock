@@ -1,6 +1,6 @@
 import React from 'react'
 
-import { defaultOptions } from '../../scripts/background/storage/options'
+import { defaultOptions } from '\\/scripts/common/storage/options'
 import { infoless } from '../popup'
 import type { AvailablePages } from './pages'
 import type { UIReducers, UIStates } from './ui-states'

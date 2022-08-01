@@ -1,7 +1,7 @@
 import ttext from 'twitter-text'
 
 import { UserScrapingAPIClient } from '../user-scraping-api'
-// import * as TwitterAPI from '../twitter-api'
+// import * as TwitterAPI from '\\/scripts/background/twitter-api'
 
 const alternativeAccountIndicativePrefixes = [/[0-9a-z가-힣]+\s*계(?:는|정은?)?/i]
 

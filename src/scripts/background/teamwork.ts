@@ -1,5 +1,5 @@
-import * as i18n from '../../scripts/i18n'
-import { markUser } from '../common/utilities'
+import { markUser } from '\\/scripts/common/utilities'
+import * as i18n from '\\/scripts/i18n'
 import { iterateAvailableTwClients, IterateCondition } from './multitude'
 
 export type TeamworkUserAction = 'Block' | 'UnBlock' | 'Mute' | 'UnMute'

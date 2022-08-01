@@ -4,15 +4,15 @@ import { createStyles, makeStyles } from '@mui/styles'
 import React from 'react'
 import type browser from 'webextension-polyfill'
 
-import { downloadFromExportSession, stopChainBlock } from '../../scripts/background/request-sender'
+import { downloadFromExportSession, stopChainBlock } from '\\/scripts/background/request-sender'
 import {
   getCountOfUsersToBlock,
   getLimitResetTime,
   getTargetUser,
   isRunningSession,
-} from '../../scripts/common/utilities'
-import * as i18n from '../../scripts/i18n'
-import { statusToString } from '../../scripts/text-generate'
+} from '\\/scripts/common/utilities'
+import * as i18n from '\\/scripts/i18n'
+import { statusToString } from '\\/scripts/text-generate'
 import { LinearProgressWithLabel } from '../popup-ui/components'
 import { UIContext } from '../popup-ui/contexts'
 

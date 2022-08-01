@@ -6,8 +6,8 @@ import {
   deleteTwitterCookies,
   getCurrentTab,
   toggleOneClickBlockMode,
-} from '../../scripts/common/utilities'
-import * as i18n from '../../scripts/i18n'
+} from '\\/scripts/common/utilities'
+import * as i18n from '\\/scripts/i18n'
 import { TabInfoContext, UIContext } from './contexts'
 
 import Accordion from '../popup-components/accordion'

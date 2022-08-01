@@ -1,18 +1,18 @@
-import TwitterURL from '../common/twitter-url'
-import { sendBrowserTabMessage, toggleOneClickBlockMode } from '../common/utilities'
-import { checkResultToString, generateConfirmMessage, objToString } from '../text-generate'
+import { defaultUIOptions, loadOptions, loadUIOptions } from '\\/scripts/common/storage/options'
+import TwitterURL from '\\/scripts/common/twitter-url'
+import { sendBrowserTabMessage, toggleOneClickBlockMode } from '\\/scripts/common/utilities'
+import { checkResultToString, generateConfirmMessage, objToString } from '\\/scripts/text-generate'
 import { alertToTab } from './background'
 import {
   defaultChainBlockPurposeOptions,
   defaultExtraSessionOptions,
 } from './chainblock-session/default-options'
 import { getCookieStoreIdFromTab } from './cookie-handler'
-import { defaultUIOptions, loadOptions, loadUIOptions } from './storage/options'
 import { TargetCheckResult } from './target-checker'
 import * as TwitterAPI from './twitter-api'
 
+import * as i18n from '\\/scripts/i18n'
 import browser from 'webextension-polyfill'
-import * as i18n from '../../scripts/i18n'
 import { examineRetrieverByTargetUser } from './blockbuster'
 import type SessionManager from './session-manager'
 import {

@@ -3,14 +3,14 @@ import React from 'react'
 import {
   examineRetrieverByTargetUser,
   examineRetrieverByTweetId,
-} from '../../scripts/background/blockbuster'
-import { Blocklist, emptyBlocklist } from '../../scripts/background/blocklist-process'
+} from '\\/scripts/background/blockbuster'
+import { Blocklist, emptyBlocklist } from '\\/scripts/background/blocklist-process'
 import {
   defaultExtraSessionOptions,
   defaultPurposeOptions,
-} from '../../scripts/background/chainblock-session/default-options'
-import type { ReactionV2Kind } from '../../scripts/background/twitter-api'
-import { assertNever } from '../../scripts/common/utilities'
+} from '\\/scripts/background/chainblock-session/default-options'
+import type { ReactionV2Kind } from '\\/scripts/background/twitter-api'
+import { assertNever } from '\\/scripts/common/utilities'
 import { determineInitialPurposeType } from '../popup'
 import type { TargetGroup } from './components/target-selector'
 import { RedBlockOptionsContext, RetrieverContext, TabInfoContext } from './contexts'

@@ -1,7 +1,7 @@
 import * as MaterialUI from '@mui/material'
 
+import * as i18n from '\\/scripts/i18n'
 import React from 'react'
-import * as i18n from '../../scripts/i18n'
 import { TabInfoContext, UIContext } from './contexts'
 
 import BlockLimiterUI from '../popup-components/block-limiter-ui'

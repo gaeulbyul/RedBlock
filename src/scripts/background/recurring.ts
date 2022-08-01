@@ -1,6 +1,6 @@
 import browser from 'webextension-polyfill'
 
-import { EventEmitter } from '../common'
+import { EventEmitter } from '\\/scripts/common'
 
 interface RecurringAlarm {
   sessionId: string

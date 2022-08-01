@@ -1,16 +1,16 @@
 import * as MaterialUI from '@mui/material'
+import * as i18n from '\\/scripts/i18n'
 import React from 'react'
 import browser from 'webextension-polyfill'
-import * as i18n from '../../scripts/i18n'
 
-import { dumpStorage } from '../../scripts/background/storage'
-import { validateStorage } from '../../scripts/background/storage/validator'
+import { dumpStorage } from '\\/scripts/common/storage'
+import { validateStorage } from '\\/scripts/common/storage/validator'
 import {
   deleteTwitterCookies,
   getCurrentTab,
   nukeRedBlockSettings,
-} from '../../scripts/common/utilities'
-import { SwitchItem } from '../../ui/components'
+} from '\\/scripts/common/utilities'
+import { SwitchItem } from '\\/ui/components'
 import { RedBlockOptionsContext } from './contexts'
 
 function checkFirstPartyIsolationSupport() {

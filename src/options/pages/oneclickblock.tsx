@@ -1,12 +1,12 @@
 import * as MaterialUI from '@mui/material'
 import { makeStyles } from '@mui/styles'
 
+import * as i18n from '\\/scripts/i18n'
 import sortBy from 'lodash-es/sortBy'
 import React from 'react'
-import * as i18n from '../../scripts/i18n'
 
-import { onStorageChanged } from '../../scripts/background/storage'
-import * as RedBlockBadWordsStorage from '../../scripts/background/storage/badwords'
+import { onStorageChanged } from '\\/scripts/common/storage'
+import * as RedBlockBadWordsStorage from '\\/scripts/common/storage/badwords'
 import { RedBlockOptionsContext } from './contexts'
 
 const M = MaterialUI

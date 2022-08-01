@@ -38,6 +38,8 @@
 
     "resolveJsonModule": true,
     "allowSyntheticDefaultImports": true,
-    "paths": {}
+    "paths": {
+      "\\/*": ["./src/*"]
+    }
   }
 }

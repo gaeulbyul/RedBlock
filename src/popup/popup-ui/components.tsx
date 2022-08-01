@@ -3,10 +3,10 @@ import { withStyles } from '@mui/styles'
 
 import React from 'react'
 
-import type { TargetCheckResult } from '../../scripts/background/target-checker'
-import * as i18n from '../../scripts/i18n'
-import { checkResultToString } from '../../scripts/text-generate'
-import { CheckboxItem, RadioOptionItem } from '../../ui/components'
+import type { TargetCheckResult } from '\\/scripts/background/target-checker'
+import * as i18n from '\\/scripts/i18n'
+import { checkResultToString } from '\\/scripts/text-generate'
+import { CheckboxItem, RadioOptionItem } from '\\/ui/components'
 import { RedBlockOptionsContext, UIContext } from './contexts'
 import { ExtraSessionOptionsContext } from './ui-states'
 

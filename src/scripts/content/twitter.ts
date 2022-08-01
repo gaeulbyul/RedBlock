@@ -1,4 +1,4 @@
-import * as i18n from '../../scripts/i18n'
+import * as i18n from '\\/scripts/i18n'
 import { isEdge2EdgeLayout } from '../inject/edge2edge-layout'
 import { injectBundle, listenExtensionMessages, toastMessage } from './content-common'
 import { generateBlockButton, shouldSkip, unblockUserById } from './oneclick-block'

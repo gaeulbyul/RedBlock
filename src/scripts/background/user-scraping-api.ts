@@ -1,7 +1,7 @@
 import chunk from 'lodash-es/chunk'
 import intersection from 'lodash-es/intersection'
 
-import { collectAsync, sleep, unwrap, wrapEitherRight } from '../common/utilities'
+import { collectAsync, sleep, unwrap, wrapEitherRight } from '\\/scripts/common/utilities'
 import { getNextCursorFromAPIv2Response, TwClient } from './twitter-api'
 
 const DELAY = 100

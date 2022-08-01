@@ -1,6 +1,6 @@
 import browser from 'webextension-polyfill'
 
-import { loadOptions } from './storage/options'
+import { loadOptions } from '\\/scripts/common/storage/options'
 
 const url = 'https://twitter.com'
 const firstPartyDomain = 'twitter.com'

@@ -1,4 +1,4 @@
-import { sendBrowserRuntimeMessage } from '../common/utilities'
+import { sendBrowserRuntimeMessage } from '\\/scripts/common/utilities'
 
 export async function startNewChainBlockSession<T extends AnySessionTarget>(
   request: SessionRequest<T>,

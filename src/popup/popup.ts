@@ -1,10 +1,10 @@
+import { examineRetrieverByTweetId } from '\\/scripts/background/blockbuster'
+import { getCookieStoreIdFromTab } from '\\/scripts/background/cookie-handler'
+import { TwClient } from '\\/scripts/background/twitter-api'
+import { loadOptions } from '\\/scripts/common/storage/options'
+import TwitterURL from '\\/scripts/common/twitter-url'
+import { getCurrentTab } from '\\/scripts/common/utilities'
 import type browser from 'webextension-polyfill'
-import { examineRetrieverByTweetId } from '../scripts/background/blockbuster'
-import { getCookieStoreIdFromTab } from '../scripts/background/cookie-handler'
-import { loadOptions } from '../scripts/background/storage/options'
-import { TwClient } from '../scripts/background/twitter-api'
-import TwitterURL from '../scripts/common/twitter-url'
-import { getCurrentTab } from '../scripts/common/utilities'
 
 type Tab = browser.Tabs.Tab
 

@@ -5,8 +5,8 @@ import {
   cleanupInactiveSessions,
   requestProgress,
   stopAllChainBlock,
-} from '../../scripts/background/request-sender'
-import * as i18n from '../../scripts/i18n'
+} from '\\/scripts/background/request-sender'
+import * as i18n from '\\/scripts/i18n'
 import { UIContext } from '../popup-ui/contexts'
 
 const M = MaterialUI

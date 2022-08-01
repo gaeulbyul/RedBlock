@@ -1,7 +1,7 @@
 import * as MaterialUI from '@mui/material'
 import React from 'react'
 
-import * as i18n from '../../scripts/i18n'
+import * as i18n from '\\/scripts/i18n'
 import type { DialogContent } from '../popup-ui/ui-states'
 
 const M = MaterialUI
