@@ -5,6 +5,10 @@ import { sendBrowserRuntimeMessage } from '\\/scripts/common/utilities'
 import * as i18n from '\\/scripts/i18n'
 import { blockUser, markUser, toastMessage } from './content-common'
 
+import { RedBlockStorage } from '\\/scripts/common/storage/schema'
+
+type BadWordItem = RedBlockStorage['badWords'][number]
+
 const setOfBadWords: BadWordItem[] = []
 
 function refreshBadWordsList(badWords: BadWordItem[]) {

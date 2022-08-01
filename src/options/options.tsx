@@ -3,6 +3,8 @@ import throttle from 'lodash-es/throttle'
 import React from 'react'
 import ReactDOM from 'react-dom'
 
+import type { RedBlockStorage } from '\\/scripts/common/storage/schema'
+
 import { onStorageChanged } from '\\/scripts/common/storage'
 import * as RedBlockOptionsStorage from '\\/scripts/common/storage/options'
 import { TabPanel } from '../popup/popup-ui/components'
@@ -12,6 +14,9 @@ import ExperimentalOptionsPage from './pages/experimentals'
 import OneClickBlockOptionsPage from './pages/oneclickblock'
 import TroubleShootingsPage from './pages/troubleshooting'
 import UserInterfaceOptionsPage from './pages/userinterface'
+
+type RedBlockOptions = RedBlockStorage['options']
+type RedBlockUIOptions = RedBlockStorage['uiOptions']
 
 const M = MaterialUI
 

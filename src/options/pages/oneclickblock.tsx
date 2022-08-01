@@ -7,7 +7,10 @@ import React from 'react'
 
 import { onStorageChanged } from '\\/scripts/common/storage'
 import * as RedBlockBadWordsStorage from '\\/scripts/common/storage/badwords'
+import { RedBlockStorage } from '\\/scripts/common/storage/schema'
 import { RedBlockOptionsContext } from './contexts'
+
+type BadWordItem = RedBlockStorage['badWords'][number]
 
 const M = MaterialUI
 

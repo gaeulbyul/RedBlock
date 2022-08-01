@@ -6,6 +6,8 @@ import { defaultOptions, defaultUIOptions, loadOptions, loadUIOptions } from './
 
 import { validateStorage } from './storage/validator'
 
+import type { RedBlockStorage, RedBlockStorageChanges } from './storage/schema'
+
 const REDBLOCK_STORAGE_VERSION = 'v0.14.0.0'
 
 export function onStorageChanged<K extends keyof RedBlockStorage>(
