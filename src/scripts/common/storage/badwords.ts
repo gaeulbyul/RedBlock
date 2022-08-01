@@ -1,4 +1,7 @@
+import type { RedBlockStorage } from '\\/scripts/common/storage/schema'
 import browser from 'webextension-polyfill'
+
+type BadWordItem = RedBlockStorage['badWords'][number]
 
 export async function loadBadWords(): Promise<RedBlockStorage['badWords']> {
   const { badWords } = (await browser.storage.local.get('badWords')) as unknown as RedBlockStorage

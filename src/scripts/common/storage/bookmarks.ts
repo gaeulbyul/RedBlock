@@ -1,3 +1,4 @@
+import type { RedBlockStorage } from '\\/scripts/common/storage/schema'
 import browser from 'webextension-polyfill'
 
 type BookmarksMap = Map<string, BookmarkItem>

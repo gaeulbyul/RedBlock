@@ -1,3 +1,8 @@
+import type {
+  RedBlockOptions,
+  RedBlockStorage,
+  RedBlockUIOptions,
+} from '\\/scripts/common/storage/schema'
 import browser from 'webextension-polyfill'
 
 function migrateOptions(options: any) {

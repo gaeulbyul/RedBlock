@@ -1,6 +1,7 @@
 import * as MaterialUI from '@mui/material'
 import React from 'react'
 
+import type { RedBlockUIOptions } from '\\/scripts/common/storage/schema'
 import * as i18n from '\\/scripts/i18n'
 import { CheckboxItem } from '\\/ui/components'
 import { RedBlockOptionsContext } from './contexts'

@@ -2,6 +2,7 @@ type Session = import('./session').default | import('./export-session').default
 type TwClient = import('\\/scripts/background/twitter-api').TwClient
 type Limit = import('\\/scripts/background/twitter-api').Limit
 type ReactionV2Kind = import('\\/scripts/background/twitter-api').ReactionV2Kind
+type RedBlockOptions = import('\\/scripts/common/storage/schema').RedBlockOptions
 
 type SessionStatus =
   | 'Initial'

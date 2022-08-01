@@ -2,7 +2,11 @@ import * as MaterialUI from '@mui/material'
 import * as i18n from '\\/scripts/i18n'
 import React from 'react'
 
+import type { RedBlockOptions } from '\\/scripts/common/storage/schema'
 import { RedBlockOptionsContext } from './contexts'
+
+type RecurringSessionInterval = RedBlockOptions['recurringSessionInterval']
+type InactivePeriod = RedBlockOptions['skipInactiveUser']
 
 const M = MaterialUI
 const T = MaterialUI.Typography
@@ -147,7 +151,7 @@ function ChainBlockOptionsPaper() {
                   return
                 }
                 updateOptions({
-                  recurringSessionInterval: minutes,
+                  recurringSessionInterval: minutes as RecurringSessionInterval,
                 })
               }}
             >

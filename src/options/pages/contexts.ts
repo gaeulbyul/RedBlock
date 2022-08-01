@@ -1,3 +1,4 @@
+import type { RedBlockOptions, RedBlockUIOptions } from '\\/scripts/common/storage/schema'
 import React from 'react'
 
 interface RedBlockOptionsContextType {

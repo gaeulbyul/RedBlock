@@ -1,4 +1,5 @@
 import { defaultUIOptions, loadOptions, loadUIOptions } from '\\/scripts/common/storage/options'
+import type { RedBlockStorageChanges, RedBlockUIOptions } from '\\/scripts/common/storage/schema'
 import TwitterURL from '\\/scripts/common/twitter-url'
 import { sendBrowserTabMessage, toggleOneClickBlockMode } from '\\/scripts/common/utilities'
 import { checkResultToString, generateConfirmMessage, objToString } from '\\/scripts/text-generate'

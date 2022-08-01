@@ -1,5 +1,8 @@
+import type { RedBlockOptions } from '\\/scripts/common/storage/schema'
 import { getTargetUser } from '\\/scripts/common/utilities'
 import dayjs from 'dayjs'
+
+type InactivePeriod = RedBlockOptions['skipInactiveUser']
 
 export function decideWhatToDoGivenUser(
   request: SessionRequest<AnySessionTarget>,

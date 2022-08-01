@@ -94,6 +94,8 @@ const redblockStorageSchema = z.object({
 export default redblockStorageSchema
 
 export type RedBlockStorage = z.infer<typeof redblockStorageSchema>
+export type RedBlockOptions = RedBlockStorage['options']
+export type RedBlockUIOptions = RedBlockStorage['uiOptions']
 
 export type RedBlockStorageChanges = {
   [key in keyof RedBlockStorage]: {
