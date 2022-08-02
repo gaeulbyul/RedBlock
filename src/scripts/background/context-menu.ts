@@ -1,4 +1,5 @@
-import { defaultUIOptions, loadOptions, loadUIOptions } from '\\/scripts/common/storage/options'
+import { defaultUIOptions } from '\\/scripts/common/storage/default-options'
+import { loadOptions, loadUIOptions } from '\\/scripts/common/storage/options'
 import type { RedBlockStorageChanges, RedBlockUIOptions } from '\\/scripts/common/storage/schema'
 import TwitterURL from '\\/scripts/common/twitter-url'
 import { sendBrowserTabMessage, toggleOneClickBlockMode } from '\\/scripts/common/utilities'
@@ -7,7 +8,7 @@ import { alertToTab } from './background'
 import {
   defaultChainBlockPurposeOptions,
   defaultExtraSessionOptions,
-} from './chainblock-session/default-options'
+} from './chainblock-session/defaults'
 import { getCookieStoreIdFromTab } from './cookie-handler'
 import { TargetCheckResult } from './target-checker'
 import * as TwitterAPI from './twitter-api'

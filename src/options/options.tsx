@@ -3,6 +3,7 @@ import throttle from 'lodash-es/throttle'
 import React from 'react'
 import ReactDOM from 'react-dom'
 
+import { defaultOptions, defaultUIOptions } from '\\/scripts/common/storage/default-options'
 import type { RedBlockOptions, RedBlockUIOptions } from '\\/scripts/common/storage/schema'
 
 import { onStorageChanged } from '\\/scripts/common/storage'
@@ -42,12 +43,8 @@ function RedBlockOptionsUITheme(darkMode: boolean) {
 function OptionsApp() {
   const darkMode = MaterialUI.useMediaQuery('(prefers-color-scheme:dark)')
   const theme = React.useMemo(() => RedBlockOptionsUITheme(darkMode), [darkMode])
-  const [options, setOptions] = React.useState<RedBlockOptions>(
-    RedBlockOptionsStorage.defaultOptions,
-  )
-  const [uiOptions, setUIOptions] = React.useState<RedBlockUIOptions>(
-    RedBlockOptionsStorage.defaultUIOptions,
-  )
+  const [options, setOptions] = React.useState<RedBlockOptions>(defaultOptions)
+  const [uiOptions, setUIOptions] = React.useState<RedBlockUIOptions>(defaultUIOptions)
   const [tabPage, setTabPage] = React.useState<OptionsTabPage>('chainblock')
   const throttledSaveOptions = throttle(
     (newOptions: RedBlockOptions) => RedBlockOptionsStorage.saveOptions(newOptions),

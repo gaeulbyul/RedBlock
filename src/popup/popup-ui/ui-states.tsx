@@ -8,7 +8,7 @@ import { Blocklist, emptyBlocklist } from '\\/scripts/background/blocklist-proce
 import {
   defaultExtraSessionOptions,
   defaultPurposeOptions,
-} from '\\/scripts/background/chainblock-session/default-options'
+} from '\\/scripts/background/chainblock-session/defaults'
 import type { ReactionV2Kind } from '\\/scripts/background/twitter-api'
 import { assertNever } from '\\/scripts/common/utilities'
 import { determineInitialPurposeType } from '../popup'

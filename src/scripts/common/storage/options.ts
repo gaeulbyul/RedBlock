@@ -4,6 +4,7 @@ import type {
   RedBlockUIOptions,
 } from '\\/scripts/common/storage/schema'
 import browser from 'webextension-polyfill'
+import { defaultOptions, defaultUIOptions } from './default-options'
 
 function migrateOptions(options: any) {
   // 최초 설치 후 실행시 null/undefined가 온다.
@@ -41,39 +42,3 @@ export async function saveUIOptions(newOptions: RedBlockUIOptions): Promise<void
   const storageObject = { uiOptions }
   return browser.storage.local.set(storageObject as any)
 }
-
-export const defaultOptions = Object.freeze<RedBlockOptions>({
-  removeSessionAfterComplete: false,
-  skipInactiveUser: 'never',
-  revealBioBlockMode: false,
-  enableBlockBuster: false,
-  enableBlockBusterWithTweetDeck: false,
-  firstPartyIsolationCompatibleMode: false,
-  delayBlockRequest: 0,
-  muteEvenAlreadyBlocking: false,
-  enableReactionsV2Support: false,
-  oneClickBlockModeForAllTabs: false,
-  allowSelfChainBlock: false,
-  recurringSessionInterval: 10,
-  enableTeamwork: false,
-  alsoBlockTargetItself: false,
-})
-
-export const defaultUIOptions = Object.freeze<RedBlockUIOptions>({
-  menus: Object.freeze({
-    chainBlockFollowers: true,
-    chainBlockFollowings: true,
-    chainBlockMutualFollowers: true,
-    chainBlockRetweeters: true,
-    chainBlockLikers: true,
-    chainBlockRetweetersAndLikers: true,
-    chainBlockMentioned: true,
-    chainBlockAudioSpaceSpeakers: true,
-    chainBlockAudioSpaceSpeakersAndListeners: true,
-    chainBlockHashTagInUsersProfile: true,
-    teamworkBlock: true,
-    teamworkUnblock: true,
-    teamworkMute: true,
-    teamworkUnmute: true,
-  }),
-})

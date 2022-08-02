@@ -2,7 +2,7 @@ import browser from 'webextension-polyfill'
 
 import { loadBadWords } from './storage/badwords'
 import { loadBookmarks } from './storage/bookmarks'
-import { defaultOptions, defaultUIOptions, loadOptions, loadUIOptions } from './storage/options'
+import { loadOptions, loadUIOptions } from './storage/options'
 
 import { validateStorage } from './storage/validator'
 

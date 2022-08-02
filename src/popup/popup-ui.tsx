@@ -6,10 +6,8 @@ import browser from 'webextension-polyfill'
 
 import { requestBlockLimiterStatus, requestProgress } from '\\/scripts/background/request-sender'
 import { onStorageChanged } from '\\/scripts/common/storage'
-import {
-  defaultOptions as defaultRedBlockOptions,
-  loadOptions as loadRedBlockOptions,
-} from '\\/scripts/common/storage/options'
+import { defaultOptions as defaultRedBlockOptions } from '\\/scripts/common/storage/default-options'
+import { loadOptions as loadRedBlockOptions } from '\\/scripts/common/storage/options'
 
 import { isRunningSession } from '\\/scripts/common/utilities'
 import { checkMessage, getCurrentTabInfo, infoless, TabInfo as TabInfo } from './popup'
