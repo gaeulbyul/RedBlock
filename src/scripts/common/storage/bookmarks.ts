@@ -1,26 +1,51 @@
-import type { RedBlockStorage } from '\\/scripts/common/storage/schema'
 import browser from 'webextension-polyfill'
+import { z } from 'zod'
+
+const bookmarkTweetItemSchema = z.object({
+  type: z.literal('tweet'),
+  itemId: z.string(),
+  tweetId: z.string(),
+})
+
+const bookmarkUserItemSchema = z.object({
+  type: z.literal('user'),
+  itemId: z.string(),
+  userId: z.string(),
+})
+/*
+// ---- bookmark ----
+
+
+
+type BookmarkItem = BookmarkTweetItem | BookmarkUserItem
+*/
+
+const bookmarkItemSchema = z.discriminatedUnion('type', [
+  bookmarkTweetItemSchema,
+  bookmarkUserItemSchema,
+])
+
+export const bookmarksSchema = z.array(bookmarkItemSchema)
+
+export type BookmarkTweetItem = z.infer<typeof bookmarkTweetItemSchema>
+export type BookmarkUserItem = z.infer<typeof bookmarkUserItemSchema>
+export type BookmarkItem = z.infer<typeof bookmarkItemSchema>
 
 type BookmarksMap = Map<string, BookmarkItem>
 
 export async function loadBookmarksAsMap(
   desiredType?: BookmarkItem['type'],
 ): Promise<BookmarksMap> {
-  const { bookmarks } = (await browser.storage.local.get('bookmarks')) as unknown as RedBlockStorage
-  if (bookmarks) {
-    if (desiredType) {
-      return arrayToMap(bookmarks.filter(({ type }) => type === desiredType))
-    } else {
-      return arrayToMap(bookmarks)
-    }
+  const bookmarks = bookmarksSchema.parse((await browser.storage.local.get('bookmarks')).bookmarks)
+  if (desiredType) {
+    return arrayToMap(bookmarks.filter(({ type }) => type === desiredType))
   } else {
-    return new Map<string, BookmarkItem>()
+    return arrayToMap(bookmarks)
   }
 }
 
 export async function loadBookmarks(): Promise<BookmarkItem[]> {
-  const { bookmarks } = (await browser.storage.local.get('bookmarks')) as unknown as RedBlockStorage
-  return bookmarks || []
+  return bookmarksSchema.parse((await browser.storage.local.get('bookmarks')).bookmarks)
 }
 
 async function saveBookmarks(bookmarksMap: BookmarksMap): Promise<void> {

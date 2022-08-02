@@ -9,6 +9,7 @@ import { TargetCheckResult, validateRequest } from '\\/scripts/background/target
 import { TwClient } from '\\/scripts/background/twitter-api'
 import { onStorageChanged } from '\\/scripts/common/storage'
 import * as RedBlockBookmarksStorage from '\\/scripts/common/storage/bookmarks'
+import type { BookmarkUserItem } from '\\/scripts/common/storage/bookmarks'
 import TwitterUserMap from '\\/scripts/common/twitter-user-map'
 import * as i18n from '\\/scripts/i18n'
 import * as TextGenerate from '\\/scripts/text-generate'

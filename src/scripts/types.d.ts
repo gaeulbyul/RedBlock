@@ -247,22 +247,6 @@ interface BlockLimiterStatus {
   max: number
 }
 
-// ---- bookmark ----
-
-interface BookmarkTweetItem {
-  type: 'tweet'
-  itemId: string
-  tweetId: string
-}
-
-interface BookmarkUserItem {
-  type: 'user'
-  itemId: string
-  userId: string
-}
-
-type BookmarkItem = BookmarkTweetItem | BookmarkUserItem
-
 // ---- import chainblock ----
 
 interface ImportChainJson {

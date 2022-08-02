@@ -1,14 +1,22 @@
-import type { RedBlockStorage } from '\\/scripts/common/storage/schema'
 import browser from 'webextension-polyfill'
+import { z } from 'zod'
 
-type BadWordItem = RedBlockStorage['badWords'][number]
+const badWordItemSchema = z.object({
+  id: z.string(),
+  enabled: z.boolean(),
+  word: z.string(),
+  regexp: z.boolean(),
+})
 
-export async function loadBadWords(): Promise<RedBlockStorage['badWords']> {
-  const { badWords } = (await browser.storage.local.get('badWords')) as unknown as RedBlockStorage
-  return badWords || []
+export const badWordsSchema = z.array(badWordItemSchema)
+
+type BadWordItem = z.infer<typeof badWordItemSchema>
+
+export async function loadBadWords(): Promise<BadWordItem[]> {
+  return badWordsSchema.parse((await browser.storage.local.get('badWords')).badWords)
 }
 
-export async function saveBadWords(badWords: RedBlockStorage['badWords']): Promise<BadWordItem[]> {
+export async function saveBadWords(badWords: BadWordItem[]): Promise<BadWordItem[]> {
   const storageObject = { badWords }
   return browser.storage.local.set(storageObject as any).then(() => badWords)
 }
