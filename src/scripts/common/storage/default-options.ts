@@ -1,4 +1,10 @@
-import type { RedBlockOptions, RedBlockUIOptions } from '\\/scripts/common/storage/schema'
+import type {
+  RedBlockOptions,
+  RedBlockStorage,
+  RedBlockUIOptions,
+} from '\\/scripts/common/storage/schema'
+
+import { REDBLOCK_STORAGE_LATEST_VERSION } from '\\/scripts/common/storage/schema'
 
 export const defaultOptions = Object.freeze<RedBlockOptions>({
   removeSessionAfterComplete: false,
@@ -15,6 +21,8 @@ export const defaultOptions = Object.freeze<RedBlockOptions>({
   recurringSessionInterval: 10,
   enableTeamwork: false,
   alsoBlockTargetItself: false,
+  oneClickBlockCoTweeter: false,
+  oneClickBlockNFT: false,
 })
 
 export const defaultUIOptions = Object.freeze<RedBlockUIOptions>({
@@ -35,3 +43,11 @@ export const defaultUIOptions = Object.freeze<RedBlockUIOptions>({
     teamworkUnmute: true,
   }),
 })
+
+export const defaultStorage: RedBlockStorage = {
+  $$version$$: REDBLOCK_STORAGE_LATEST_VERSION,
+  bookmarks: [],
+  badWords: [],
+  options: defaultOptions,
+  uiOptions: defaultUIOptions,
+}

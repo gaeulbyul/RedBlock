@@ -1,6 +1,6 @@
 import browser from 'webextension-polyfill'
 
-import { migrateStorage } from '\\/scripts/common/storage'
+import { handleMigrationOnExtensionUpdate } from '\\/scripts/common/storage/migration'
 import { loadUIOptions } from '\\/scripts/common/storage/options'
 import { assertNever, sendBrowserRuntimeMessage } from '\\/scripts/common/utilities'
 import * as i18n from '\\/scripts/i18n'
@@ -157,10 +157,8 @@ function initialize() {
     }
   })
   loadUIOptions().then(({ menus }) => initializeContextMenu(sessionManager, menus))
+  handleMigrationOnExtensionUpdate()
   initializeWebRequest()
-  browser.runtime.onInstalled.addListener(() => {
-    migrateStorage()
-  })
   downloadCleaner()
 }
 

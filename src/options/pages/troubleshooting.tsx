@@ -4,7 +4,8 @@ import React from 'react'
 import browser from 'webextension-polyfill'
 
 import { dumpStorage } from '\\/scripts/common/storage'
-import { validateStorage } from '\\/scripts/common/storage/validator'
+import { safelyImportStorage } from '\\/scripts/common/storage/migration'
+
 import {
   deleteTwitterCookies,
   getCurrentTab,
@@ -57,9 +58,7 @@ function OptionsBackupUI() {
       const file = files[0]!
       const text = await file.text()
       const json = JSON.parse(text)
-      const rbStorage = validateStorage(json)
-      // @ts-ignore
-      await browser.storage.local.set(rbStorage)
+      safelyImportStorage(json)
     } catch (err: unknown) {
       let errorMessage = ''
       if (err instanceof Error) {
