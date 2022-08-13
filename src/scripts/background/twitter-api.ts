@@ -24,8 +24,7 @@ export class TwClient {
   // prefix = 'twitter.com/i/api'
   public constructor(private readonly ctorOptions: TwClientOptions) {}
   public get options(): TwClientOptions {
-    const { actAsUserId, cookieStoreId, asTweetDeck } = this.ctorOptions
-    return { actAsUserId, cookieStoreId, asTweetDeck }
+    return this.ctorOptions
   }
 
   public async getMyself(): Promise<TwitterUser> {
@@ -318,23 +317,22 @@ export class TwClient {
       if (response.ok) {
         return responseJson
       } else {
+        // Fetch API 제한으로 Set-Cookie의 직접적인 접근은 제한된다.
+        // 그래서 Request 직전과 직후에 ct0 쿠키를 각각 얻어온 후
+        // 새 값으로 바뀌었다면 Request를 재시도한다.
         const ct0AfterRequest = await getCookie({
           name: 'ct0',
           storeId,
         })
-        // Fetch API 제한으로 Set-Cookie의 직접적인 접근은 제한된다.
-        // 그래서 Request 직전과 직후에 ct0 쿠키를 각각 얻어온 후
-        // 새 값으로 바뀌었다면 Request를 재시도한다.
-        if (ct0BeforeRequest.value !== ct0AfterRequest.value) {
-          insertHeader(request.headers!, 'x-csrf-token', ct0AfterRequest.value)
-          if (storeId) {
-            // Set-Cookie를 통해 받은 새 쿠키값을 반영한다.
-            const overrideCookies = await getAllCookiesSerialized(storeId)
-            insertHeader(request.headers!, 'x-redblock-override-cookies', overrideCookies)
-          }
-          continue
+        if (ct0BeforeRequest.value === ct0AfterRequest.value) {
+          return Promise.reject(responseJson as Promise<ErrorResponse>)
         }
-        return Promise.reject(responseJson as Promise<ErrorResponse>)
+        insertHeader(request.headers!, 'x-csrf-token', ct0AfterRequest.value)
+        if (storeId) {
+          // Set-Cookie를 통해 받은 새 쿠키값을 반영한다.
+          const overrideCookies = await getAllCookiesSerialized(storeId)
+          insertHeader(request.headers!, 'x-redblock-override-cookies', overrideCookies)
+        }
       }
     }
   }

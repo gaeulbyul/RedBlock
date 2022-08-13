@@ -12,6 +12,45 @@ import NewSessionButtons from '../popup-components/session-list-new-buttons'
 
 const M = MaterialUI
 
+function SessionsList({
+  sessions,
+  recurringInfos,
+}: {
+  sessions: SessionInfo[]
+  recurringInfos: RecurringAlarmInfosObject
+}) {
+  return (
+    <div>
+      {sessions.map(sessionInfo => {
+        const { sessionId } = sessionInfo
+        const recurringAlarm = recurringInfos[sessionId]
+        return <SessionItem {...{ sessionInfo, recurringAlarm }} key={sessionId} />
+      })}
+    </div>
+  )
+}
+
+function Welcome() {
+  return (
+    <M.Box display="flex" flexDirection="column" justifyContent="center" px={2} py={1.5}>
+      <M.Box display="flex" justifyContent="center" p={1}>
+        <M.Icon color="disabled" style={{ fontSize: '100pt' }}>
+          pause_circle_filled_icon
+        </M.Icon>
+      </M.Box>
+      <M.Box
+        display="flex"
+        flexDirection="column"
+        justifyContent="center"
+        textAlign="center"
+        my={1}
+      >
+        {i18n.getMessage('session_is_empty')} {i18n.getMessage('press_plus_to_start_new_session')}
+      </M.Box>
+    </M.Box>
+  )
+}
+
 export default function ChainBlockSessionsPage({
   sessions,
   recurringInfos,
@@ -21,27 +60,9 @@ export default function ChainBlockSessionsPage({
 }) {
   const { uiStates: { initialLoading } } = React.useContext(UIContext)
   const { myself } = React.useContext(TabInfoContext)
-  function renderWelcome() {
-    return (
-      <M.Box display="flex" flexDirection="column" justifyContent="center" px={2} py={1.5}>
-        <M.Box display="flex" justifyContent="center" p={1}>
-          <M.Icon color="disabled" style={{ fontSize: '100pt' }}>
-            pause_circle_filled_icon
-          </M.Icon>
-        </M.Box>
-        <M.Box
-          display="flex"
-          flexDirection="column"
-          justifyContent="center"
-          textAlign="center"
-          my={1}
-        >
-          {i18n.getMessage('session_is_empty')} {i18n.getMessage('press_plus_to_start_new_session')}
-        </M.Box>
-      </M.Box>
-    )
-  }
-  // 세션이 있어도 팝업 로딩 직후에 빈 세션이 잠깐 나타난다.
+
+  // 세션이 있어도 팝업 로딩 직후에 빈 세션이 잠깐 나타날 수 있으므로
+  // initialLoding이 아닐때에만 보여지도록
   const shouldShowWelcomeNewSession = sessions.length <= 0 && !initialLoading
   const isSessionExist = sessions.length > 0
   if (initialLoading) {
@@ -55,16 +76,10 @@ export default function ChainBlockSessionsPage({
           <M.Box my={1}>
             <SessionListControlbar />
           </M.Box>
-          <div>
-            {sessions.map(sessionInfo => {
-              const { sessionId } = sessionInfo
-              const recurringAlarm = recurringInfos[sessionId]
-              return <SessionItem {...{ sessionInfo, recurringAlarm }} key={sessionId} />
-            })}
-          </div>
+          <SessionsList {...{ sessions, recurringInfos }} />
         </React.Fragment>
       )}
-      {shouldShowWelcomeNewSession && renderWelcome()}
+      {shouldShowWelcomeNewSession && <Welcome />}
       <M.Divider />
       {myself
         ? (
