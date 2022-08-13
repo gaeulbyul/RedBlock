@@ -1273,6 +1273,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"buffer-crc32@npm:~0.2.3":
+  version: 0.2.13
+  resolution: "buffer-crc32@npm:0.2.13"
+  checksum: 06252347ae6daca3453b94e4b2f1d3754a3b146a111d81c68924c22d91889a40623264e95e67955b1cb4a68cbedf317abeabb5140a9766ed248973096db5ce1c
+  languageName: node
+  linkType: hard
+
 "buffer-from@npm:^1.0.0":
   version: 1.1.2
   resolution: "buffer-from@npm:1.1.2"
@@ -1653,12 +1660,14 @@ __metadata:
   languageName: node
   linkType: hard
 
-"dprint@npm:^0.24.4":
-  version: 0.24.4
-  resolution: "dprint@npm:0.24.4"
+"dprint@npm:^0.30.3":
+  version: 0.30.3
+  resolution: "dprint@npm:0.30.3"
+  dependencies:
+    yauzl: =2.10.0
   bin:
     dprint: bin.js
-  checksum: 832d388cdef9c6f8ca27ad2059e65ba83764c0ff2664b7671e05194155a6f55d7c9d9b47ac5a18161733f64e09788d83d6cdedc79ea38ef2b7451f389e05c456
+  checksum: 53853ae32eab4acb4e47c2a2db088f36c1e7606702d011d42ef20f99ac117e5cd5e1123295b3466723aed3cb4a081645c96619743b7b92ae207857eba7d75b83
   languageName: node
   linkType: hard
 
@@ -1909,6 +1918,15 @@ __metadata:
   version: 1.0.12
   resolution: "fastest-levenshtein@npm:1.0.12"
   checksum: e1a013698dd1d302c7a78150130c7d50bb678c2c2f8839842a796d66cc7cdf50ea6b3d7ca930b0c8e7e8c2cd84fea8ab831023b382f7aab6922c318c1451beab
+  languageName: node
+  linkType: hard
+
+"fd-slicer@npm:~1.1.0":
+  version: 1.1.0
+  resolution: "fd-slicer@npm:1.1.0"
+  dependencies:
+    pend: ~1.2.0
+  checksum: c8585fd5713f4476eb8261150900d2cb7f6ff2d87f8feb306ccc8a1122efd152f1783bdb2b8dc891395744583436bfd8081d8e63ece0ec8687eeefea394d4ff2
   languageName: node
   linkType: hard
 
@@ -3169,6 +3187,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"pend@npm:~1.2.0":
+  version: 1.2.0
+  resolution: "pend@npm:1.2.0"
+  checksum: 6c72f5243303d9c60bd98e6446ba7d30ae29e3d56fdb6fae8767e8ba6386f33ee284c97efe3230a0d0217e2b1723b8ab490b1bbf34fcbb2180dbc8a9de47850d
+  languageName: node
+  linkType: hard
+
 "picocolors@npm:^1.0.0":
   version: 1.0.0
   resolution: "picocolors@npm:1.0.0"
@@ -3365,7 +3390,7 @@ __metadata:
     "@types/webextension-polyfill": ^0.8.3
     csstype: ^3.0.11
     dayjs: ^1.11.0
-    dprint: ^0.24.4
+    dprint: ^0.30.3
     husky: ^7.0.4
     just-scripts: ^1.5.4
     lodash-es: ^4.17.21
@@ -4242,6 +4267,16 @@ __metadata:
     y18n: ^5.0.5
     yargs-parser: ^20.2.2
   checksum: b14afbb51e3251a204d81937c86a7e9d4bdbf9a2bcee38226c900d00f522969ab675703bee2a6f99f8e20103f608382936034e64d921b74df82b63c07c5e8f59
+  languageName: node
+  linkType: hard
+
+"yauzl@npm:=2.10.0":
+  version: 2.10.0
+  resolution: "yauzl@npm:2.10.0"
+  dependencies:
+    buffer-crc32: ~0.2.3
+    fd-slicer: ~1.1.0
+  checksum: 7f21fe0bbad6e2cb130044a5d1d0d5a0e5bf3d8d4f8c4e6ee12163ce798fee3de7388d22a7a0907f563ac5f9d40f8699a223d3d5c1718da90b0156da6904022b
   languageName: node
   linkType: hard
 
