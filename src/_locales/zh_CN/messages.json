@@ -1028,5 +1028,11 @@
   },
   "verified_user": {
     "message": "Verified User"
+  },
+  "has_nft_avatar": {
+    "message": "Has NFT Avatar"
+  },
+  "oneclick_block_nft_avatar": {
+    "message": "Show One-click block button to the users with NFT(hexagon-shaped) avatar"
   }
 }

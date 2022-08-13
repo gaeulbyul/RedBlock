@@ -15,20 +15,7 @@ export function onStorageChanged<K extends keyof RedBlockStorage>(
     if (!changes[key]) {
       return
     }
-    switch (key) {
-      case 'options':
-        // @ts-ignore
-        handler(Object.assign({}, defaultOptions, changes.options!.newValue))
-        break
-      case 'uiOptions':
-        // @ts-ignore
-        handler(Object.assign({}, defaultUIOptions, changes.uiOptions!.newValue))
-        break
-      default:
-        // @ts-ignore
-        handler(changes[key].newValue)
-        break
-    }
+    handler(changes[key]!.newValue)
   }
   browser.storage.onChanged.addListener(listener)
   return () => void browser.storage.onChanged.removeListener(listener)

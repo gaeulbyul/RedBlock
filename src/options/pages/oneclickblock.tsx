@@ -214,6 +214,17 @@ export default function OneClickBlockOptions() {
               label={i18n.getMessage('oneclick_block_mode_apply_all_tabs')}
             />
           </M.FormGroup>
+          <M.FormGroup>
+            <M.FormControlLabel
+              control={<M.Checkbox size="small" />}
+              onChange={(_event, checked) =>
+                updateOptions({
+                  oneClickBlockNFT: checked,
+                })}
+              checked={options.oneClickBlockNFT}
+              label={i18n.getMessage('oneclick_block_nft_avatar')}
+            />
+          </M.FormGroup>
           <M.Divider />
           <BadwordsTable />
         </M.FormControl>

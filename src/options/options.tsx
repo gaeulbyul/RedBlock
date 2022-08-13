@@ -60,12 +60,10 @@ function OptionsApp() {
   }
   React.useEffect(() => {
     RedBlockOptionsStorage.loadOptions().then(setOptions)
-    return onStorageChanged('options', setOptions)
-  }, [])
-  React.useEffect(() => {
     RedBlockOptionsStorage.loadUIOptions().then(setUIOptions)
-    return onStorageChanged('uiOptions', setUIOptions)
   }, [])
+  React.useEffect(() => onStorageChanged('options', setOptions), [])
+  React.useEffect(() => onStorageChanged('uiOptions', setUIOptions), [])
   return (
     <M.ThemeProvider theme={theme}>
       <RedBlockOptionsContext.Provider

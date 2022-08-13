@@ -1028,5 +1028,11 @@
   },
   "verified_user": {
     "message": "인증받은 유저"
+  },
+  "has_nft_avatar": {
+    "message": "NFT 프로필이미지 사용"
+  },
+  "oneclick_block_nft_avatar": {
+    "message": "NFT 프로필이미지(육각형)를 사용하는 유저에게 원클릭 차단버튼 보여주기"
   }
 }

@@ -1,29 +1,35 @@
 import browser from 'webextension-polyfill'
 
 import { loadBadWords } from '\\/scripts/common/storage/badwords'
+import { loadOptions } from '\\/scripts/common/storage/options'
 import { sendBrowserRuntimeMessage } from '\\/scripts/common/utilities'
 import * as i18n from '\\/scripts/i18n'
 import { blockUser, markUser, toastMessage } from './content-common'
 
-import { RedBlockStorage } from '\\/scripts/common/storage/schema'
+import type { RedBlockStorage, RedBlockStorageChanges } from '\\/scripts/common/storage/schema'
 
 type BadWordItem = RedBlockStorage['badWords'][number]
 
+let showBlockButtonForNFTAvatars = false
 const setOfBadWords: BadWordItem[] = []
 
 function refreshBadWordsList(badWords: BadWordItem[]) {
   setOfBadWords.length = 0
   setOfBadWords.push(...badWords)
 }
-
+loadOptions().then(options => {
+  showBlockButtonForNFTAvatars = options.oneClickBlockNFT
+})
 loadBadWords().then(refreshBadWordsList)
 
-browser.storage.onChanged.addListener(changes => {
-  if (!changes.badWords) {
-    return
+browser.storage.onChanged.addListener((changes: Partial<RedBlockStorageChanges>) => {
+  if (changes.badWords) {
+    const newBadWords = changes.badWords.newValue as BadWordItem[]
+    refreshBadWordsList(newBadWords || [])
   }
-  const newBadWords = changes.badWords.newValue as BadWordItem[]
-  refreshBadWordsList(newBadWords || [])
+  if (changes.options) {
+    showBlockButtonForNFTAvatars = changes.options.newValue.oneClickBlockNFT
+  }
 })
 
 function checkBadWord(text: string): BadWordItem | null {
@@ -81,6 +87,10 @@ export function generateBlockButton(user: TwitterUser): HTMLButtonElement {
     btn.className += ' suggested'
     btn.title += '\n'
     btn.title += i18n.getMessage('user_profile_contains', badWordCheckResult.word)
+  } else if (user.has_nft_avatar && showBlockButtonForNFTAvatars) {
+    btn.className += ' suggested'
+    btn.title += '\n'
+    btn.title += i18n.getMessage('has_nft_avatar')
   } else {
     btn.className += ' manual'
   }
