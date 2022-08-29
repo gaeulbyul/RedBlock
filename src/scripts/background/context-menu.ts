@@ -440,6 +440,7 @@ export async function initializeContextMenu(
   sessionManager: SessionManager,
   enabledMenus: RedBlockUIOptions['menus'],
 ) {
+  // TODO: 이러지 말고 eventEmitter같은 방식으로 해볼 순 없나...
   connectedSessionManager = sessionManager
   await browser.contextMenus.removeAll()
   const redblockOptions = await loadOptions()
