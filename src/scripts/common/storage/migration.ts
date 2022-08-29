@@ -29,6 +29,12 @@ function from_v0_14_0_0_To_v0_14_1_0(storage: RedBlockStorage_v0_14_0_0): RedBlo
 }
 
 export function migrateStorage(unknownStorage: unknown): RedBlockStorage {
+  if (!(unknownStorage && typeof unknownStorage === 'object')) {
+    return defaultStorage
+  }
+  if (!('$$version$$' in unknownStorage)) {
+    return defaultStorage
+  }
   try {
     const storage = redblockStorageSchemaAnyVersion.parse(unknownStorage)
     switch (storage.$$version$$) {
@@ -37,7 +43,8 @@ export function migrateStorage(unknownStorage: unknown): RedBlockStorage {
       case 'v0.14.0.0':
         return from_v0_14_0_0_To_v0_14_1_0(storage)
       default:
-        throw new Error('unreachable')
+        console.warn('reject unknown storage %o', unknownStorage)
+        return defaultStorage
     }
   } catch (err) {
     console.error(err)
@@ -45,14 +52,10 @@ export function migrateStorage(unknownStorage: unknown): RedBlockStorage {
   }
 }
 
-async function migrateSelf() {
+export async function migrateSelf() {
   const storage = await browser.storage.local.get()
   const migrated = migrateStorage(storage)
   await browser.storage.local.set(migrated)
-}
-
-export function handleMigrationOnExtensionUpdate() {
-  browser.runtime.onInstalled.addListener(migrateSelf)
 }
 
 export async function safelyImportStorage(unknownStorage: unknown) {

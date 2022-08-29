@@ -1,6 +1,6 @@
 import browser from 'webextension-polyfill'
 
-import { handleMigrationOnExtensionUpdate } from '\\/scripts/common/storage/migration'
+import { migrateSelf } from '\\/scripts/common/storage/migration'
 import { loadUIOptions } from '\\/scripts/common/storage/options'
 import { assertNever, sendBrowserRuntimeMessage } from '\\/scripts/common/utilities'
 import * as i18n from '\\/scripts/i18n'
@@ -148,7 +148,8 @@ function checkMessage(msg: object): msg is RBMessageToBackgroundType {
   return true
 }
 
-function initialize() {
+async function initialize() {
+  await migrateSelf()
   browser.runtime.onMessage.addListener((msg: object, sender: browser.Runtime.MessageSender) => {
     if (checkMessage(msg)) {
       handleExtensionMessage(msg, sender)
@@ -157,7 +158,6 @@ function initialize() {
     }
   })
   loadUIOptions().then(({ menus }) => initializeContextMenu(sessionManager, menus))
-  handleMigrationOnExtensionUpdate()
   initializeWebRequest()
   downloadCleaner()
 }
