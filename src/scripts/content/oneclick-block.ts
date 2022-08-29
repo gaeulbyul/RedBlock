@@ -1,6 +1,6 @@
 import browser from 'webextension-polyfill'
 
-import { loadBadWords } from '\\/scripts/common/storage/badwords'
+import { badWordsSchema, loadBadWords } from '\\/scripts/common/storage/badwords'
 import { loadOptions } from '\\/scripts/common/storage/options'
 import { sendBrowserRuntimeMessage } from '\\/scripts/common/utilities'
 import * as i18n from '\\/scripts/i18n'
@@ -24,8 +24,8 @@ loadBadWords().then(refreshBadWordsList)
 
 browser.storage.onChanged.addListener((changes: Partial<RedBlockStorageChanges>) => {
   if (changes.badWords) {
-    const newBadWords = changes.badWords.newValue as BadWordItem[]
-    refreshBadWordsList(newBadWords || [])
+    const newBadWords = badWordsSchema.parse(changes.badWords.newValue)
+    refreshBadWordsList(newBadWords)
   }
   if (changes.options) {
     showBlockButtonForNFTAvatars = changes.options.newValue.oneClickBlockNFT

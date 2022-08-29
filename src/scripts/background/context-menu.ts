@@ -1,5 +1,4 @@
-import { defaultUIOptions } from '\\/scripts/common/storage/default-options'
-import { loadOptions, loadUIOptions } from '\\/scripts/common/storage/options'
+import { loadOptions, loadUIOptions, uiOptionsSchema } from '\\/scripts/common/storage/options'
 import type { RedBlockStorageChanges, RedBlockUIOptions } from '\\/scripts/common/storage/schema'
 import TwitterURL from '\\/scripts/common/twitter-url'
 import { sendBrowserTabMessage, toggleOneClickBlockMode } from '\\/scripts/common/utilities'
@@ -608,7 +607,7 @@ browser.storage.onChanged.addListener((changes: Partial<RedBlockStorageChanges>)
     return
   }
   if (changes.uiOptions) {
-    const newUiOptions = Object.assign({}, defaultUIOptions, changes.uiOptions.newValue || {})
+    const newUiOptions = uiOptionsSchema.parse(changes.uiOptions.newValue)
     initializeContextMenu(connectedSessionManager, newUiOptions.menus)
   } else if (changes.options) {
     loadUIOptions().then(uiOptions =>
