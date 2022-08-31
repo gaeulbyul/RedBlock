@@ -25,7 +25,7 @@ task('build', async () => {
         return !/\.tsx?$/.test(filename)
       },
     }),
-    exec('webpack'),
+    exec('yarn node ./esbuild.config.js'),
   ])
 })
 
