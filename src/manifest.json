@@ -34,7 +34,7 @@
   },
 
   "background": {
-    "scripts": ["bundled/runtime.bun.js", "bundled/background.bun.js"]
+    "scripts": ["bundled/background.bun.js"]
   },
 
   "content_scripts": [
@@ -52,17 +52,16 @@
         "https://*.twitter.com/i/tweetdeck_release_notes"
       ],
       "css": ["styles/oneclick-block.css"],
-      "js": ["bundled/runtime.bun.js", "bundled/twitter.bun.js"]
+      "js": ["bundled/twitter.bun.js"]
     },
     {
       "matches": ["https://tweetdeck.twitter.com/*"],
       "css": ["styles/oneclick-block.css"],
-      "js": ["bundled/runtime.bun.js", "bundled/tweetdeck.bun.js"]
+      "js": ["bundled/tweetdeck.bun.js"]
     }
   ],
 
   "web_accessible_resources": [
-    "bundled/runtime.bun.js",
     "bundled/twitter_inject.bun.js",
     "bundled/blackbird_inject.bun.js",
     "bundled/gryphon_inject.bun.js"
