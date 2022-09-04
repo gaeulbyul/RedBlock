@@ -7,11 +7,11 @@ export interface UserIdScraper {
   [Symbol.asyncIterator](): ScrapedUserIdsIterator
 }
 class FromUserScraper implements UserIdScraper {
-  public get totalCount() {
-    return this.userScraper.totalCount
-  }
+  public totalCount: number | null
 
-  public constructor(private readonly userScraper: UserScraper) {}
+  public constructor(private readonly userScraper: UserScraper) {
+    this.totalCount = userScraper.totalCount
+  }
   public async *[Symbol.asyncIterator]() {
     for await (const response of this.userScraper) {
       if (response.ok) {
@@ -26,13 +26,14 @@ class FromUserScraper implements UserIdScraper {
 
 // 단순 스크래퍼. 기존 체인블락 방식
 class SimpleScraper implements UserIdScraper {
-  private scrapingClient = UserScrapingAPI.UserScrapingAPIClient.fromClientOptions(
-    this.request.retriever.clientOptions,
-  )
+  private readonly scrapingClient: UserScrapingAPI.UserScrapingAPIClient
 
   public totalCount: number
   public constructor(private request: SessionRequest<FollowerSessionTarget>) {
     const { user, list: followKind } = request.target
+    this.scrapingClient = UserScrapingAPI.UserScrapingAPIClient.fromClientOptions(
+      this.request.retriever.clientOptions,
+    )
     this.totalCount = getFollowersCount(user, followKind)!
   }
 
@@ -44,12 +45,14 @@ class SimpleScraper implements UserIdScraper {
 
 // 맞팔로우 스크래퍼
 class MutualFollowerScraper implements UserIdScraper {
-  private scrapingClient = UserScrapingAPI.UserScrapingAPIClient.fromClientOptions(
-    this.request.retriever.clientOptions,
-  )
+  private readonly scrapingClient: UserScrapingAPI.UserScrapingAPIClient
 
   public totalCount: number | null = null
-  public constructor(private request: SessionRequest<FollowerSessionTarget>) {}
+  public constructor(private request: SessionRequest<FollowerSessionTarget>) {
+    this.scrapingClient = UserScrapingAPI.UserScrapingAPIClient.fromClientOptions(
+      this.request.retriever.clientOptions,
+    )
+  }
   public async *[Symbol.asyncIterator]() {
     const mutualFollowersIds = await this.scrapingClient.getAllMutualFollowersIds(
       this.request.target.user,
@@ -60,13 +63,13 @@ class MutualFollowerScraper implements UserIdScraper {
 }
 
 class ExportMyBlocklistScraper implements UserIdScraper {
-  private scrapingClient = UserScrapingAPI.UserScrapingAPIClient.fromClientOptions(
-    this.request.retriever.clientOptions,
-  )
+  private readonly scrapingClient: UserScrapingAPI.UserScrapingAPIClient
 
-  public totalCount: null = null
+  public totalCount = null
   public constructor(private request: SessionRequest<ExportMyBlocklistTarget>) {
-    this.request.target
+    this.scrapingClient = UserScrapingAPI.UserScrapingAPIClient.fromClientOptions(
+      this.request.retriever.clientOptions,
+    )
   }
 
   public async *[Symbol.asyncIterator]() {

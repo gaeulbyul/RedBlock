@@ -21,19 +21,21 @@ function wrapSingleUserToEitherRight(user: TwitterUser): EitherRight<UsersObject
 
 // 단순 스크래퍼. 기존 체인블락 방식
 class SimpleScraper implements UserScraper {
-  private retrieverScrapingClient = UserScrapingAPI.UserScrapingAPIClient.fromClientOptions(
-    this.request.retriever.clientOptions,
-  )
-
-  private executorScrapingClient = UserScrapingAPI.UserScrapingAPIClient.fromClientOptions(
-    this.request.executor.clientOptions,
-  )
-
+  private readonly retrieverScrapingClient: UserScrapingAPI.UserScrapingAPIClient
+  private readonly executorScrapingClient: UserScrapingAPI.UserScrapingAPIClient
   public totalCount: number
+
   public constructor(
     private request: SessionRequest<FollowerSessionTarget | LockPickerSessionTarget>,
   ) {
     const { user, list: followKind } = request.target
+    this.retrieverScrapingClient = UserScrapingAPI.UserScrapingAPIClient.fromClientOptions(
+      request.retriever.clientOptions,
+    )
+
+    this.executorScrapingClient = UserScrapingAPI.UserScrapingAPIClient.fromClientOptions(
+      request.executor.clientOptions,
+    )
     this.totalCount = getFollowersCount(user, followKind)!
   }
 
@@ -87,16 +89,18 @@ class SimpleScraper implements UserScraper {
 
 // 맞팔로우 스크래퍼
 class MutualFollowerScraper implements UserScraper {
-  private retrieverScrapingClient = UserScrapingAPI.UserScrapingAPIClient.fromClientOptions(
-    this.request.retriever.clientOptions,
-  )
-
-  private executorScrapingClient = UserScrapingAPI.UserScrapingAPIClient.fromClientOptions(
-    this.request.executor.clientOptions,
-  )
-
+  private readonly retrieverScrapingClient: UserScrapingAPI.UserScrapingAPIClient
+  private readonly executorScrapingClient: UserScrapingAPI.UserScrapingAPIClient
   public totalCount: number | null = null
-  public constructor(private request: SessionRequest<FollowerSessionTarget>) {}
+
+  public constructor(private request: SessionRequest<FollowerSessionTarget>) {
+    this.retrieverScrapingClient = UserScrapingAPI.UserScrapingAPIClient.fromClientOptions(
+      request.retriever.clientOptions,
+    )
+    this.executorScrapingClient = UserScrapingAPI.UserScrapingAPIClient.fromClientOptions(
+      request.executor.clientOptions,
+    )
+  }
   public async *[Symbol.asyncIterator]() {
     const { user } = this.request.target
     let mutualFollowersIds: string[]
@@ -121,26 +125,34 @@ class MutualFollowerScraper implements UserScraper {
   }
 
   private async getMutualFollowersIdsNormally() {
-    return this.executorScrapingClient.getAllMutualFollowersIds(this.request.target.user)
+    return this.executorScrapingClient.getAllMutualFollowersIds(
+      this.request.target.user,
+    )
   }
 
   private async getMutualFollowersIdsBlockBuster() {
-    return this.retrieverScrapingClient.getAllMutualFollowersIds(this.request.target.user)
+    return this.retrieverScrapingClient.getAllMutualFollowersIds(
+      this.request.target.user,
+    )
   }
 }
 
 // 트윗반응 유저 스크래퍼
 export class TweetReactedUserScraper implements UserScraper {
-  private retrieverScrapingClient = UserScrapingAPI.UserScrapingAPIClient.fromClientOptions(
-    this.request.retriever.clientOptions,
-  )
-
-  private executorScrapingClient = UserScrapingAPI.UserScrapingAPIClient.fromClientOptions(
-    this.request.executor.clientOptions,
-  )
+  private readonly retrieverScrapingClient: UserScrapingAPI.UserScrapingAPIClient
+  private readonly executorScrapingClient: UserScrapingAPI.UserScrapingAPIClient
 
   public totalCount: number
-  public constructor(private request: SessionRequest<TweetReactionSessionTarget>) {
+  public constructor(
+    private request: SessionRequest<TweetReactionSessionTarget>,
+  ) {
+    this.retrieverScrapingClient = UserScrapingAPI.UserScrapingAPIClient.fromClientOptions(
+      request.retriever.clientOptions,
+    )
+
+    this.executorScrapingClient = UserScrapingAPI.UserScrapingAPIClient.fromClientOptions(
+      request.executor.clientOptions,
+    )
     this.totalCount = getTotalCountOfReactions(request.target)
   }
 
@@ -153,7 +165,9 @@ export class TweetReactedUserScraper implements UserScraper {
     yield* reactions
   }
 
-  private async *rehydrate(scraper: ScrapedUsersIterator): ScrapedUsersIterator {
+  private async *rehydrate(
+    scraper: ScrapedUsersIterator,
+  ): ScrapedUsersIterator {
     // retriever를 갖고 가져온 유저들은 followed_by, blocking 등이 retriever기준으로 되어있다.
     // 실제로 필요한건 executor기준으로 된 값이므로 유저를 다시 가져온다.
     const userIds = new Set<string>()
@@ -179,10 +193,14 @@ export class TweetReactedUserScraper implements UserScraper {
     } = this.request.target
     const scrapers: ScrapedUsersIterator[] = []
     if (blockRetweeters) {
-      scrapers.push(this.retrieverScrapingClient.getAllReactedUserList('retweeted', tweet))
+      scrapers.push(
+        this.retrieverScrapingClient.getAllReactedUserList('retweeted', tweet),
+      )
     }
     if (blockLikers) {
-      scrapers.push(this.retrieverScrapingClient.getAllReactedUserList('liked', tweet))
+      scrapers.push(
+        this.retrieverScrapingClient.getAllReactedUserList('liked', tweet),
+      )
     } else if (includedReactionsV2.length > 0) {
       const reactedUserIterator = this.retrieverScrapingClient.getAllReactedV2UserList(
         tweet,
@@ -193,13 +211,17 @@ export class TweetReactedUserScraper implements UserScraper {
     if (blockMentionedUsers) {
       const mentions = tweet.entities.user_mentions || []
       const mentionedUserIds = mentions.map(e => e.id_str)
-      scrapers.push(this.retrieverScrapingClient.lookupUsersByIds(mentionedUserIds))
+      scrapers.push(
+        this.retrieverScrapingClient.lookupUsersByIds(mentionedUserIds),
+      )
     }
     if (blockQuotedUsers) {
       scrapers.push(this.retrieverScrapingClient.getQuotedUsers(tweet))
     }
     if (blockNonLinkedMentions) {
-      const userNames = findNonLinkedMentionsFromTweet(this.request.target.tweet)
+      const userNames = findNonLinkedMentionsFromTweet(
+        this.request.target.tweet,
+      )
       scrapers.push(this.retrieverScrapingClient.lookupUsersByNames(userNames))
     }
     if (this.request.options.alsoBlockTargetItself) {
@@ -216,12 +238,15 @@ export class TweetReactedUserScraper implements UserScraper {
 }
 
 class ImportUserScraper implements UserScraper {
-  private scrapingClient = UserScrapingAPI.UserScrapingAPIClient.fromClientOptions(
-    this.request.executor.clientOptions,
-  )
+  private readonly scrapingClient: UserScrapingAPI.UserScrapingAPIClient
 
-  public totalCount = this.request.target.userIds.length + this.request.target.userNames.length
-  public constructor(private request: SessionRequest<ImportSessionTarget>) {}
+  public totalCount: number
+  public constructor(private request: SessionRequest<ImportSessionTarget>) {
+    this.scrapingClient = UserScrapingAPI.UserScrapingAPIClient.fromClientOptions(
+      request.executor.clientOptions,
+    )
+    this.totalCount = request.target.userIds.length + request.target.userNames.length
+  }
   public async *[Symbol.asyncIterator]() {
     // 여러 파일을 import한다면 유저ID와 유저네임 둘 다 있을 수 있다.
     const { userIds, userNames } = this.request.target
@@ -248,12 +273,14 @@ class ImportUserScraper implements UserScraper {
 }
 
 class UserSearchScraper implements UserScraper {
-  private scrapingClient = UserScrapingAPI.UserScrapingAPIClient.fromClientOptions(
-    this.request.executor.clientOptions,
-  )
+  private readonly scrapingClient: UserScrapingAPI.UserScrapingAPIClient
 
   public totalCount = null
-  public constructor(private request: SessionRequest<UserSearchSessionTarget>) {}
+  public constructor(private request: SessionRequest<UserSearchSessionTarget>) {
+    this.scrapingClient = UserScrapingAPI.UserScrapingAPIClient.fromClientOptions(
+      request.executor.clientOptions,
+    )
+  }
   public async *[Symbol.asyncIterator]() {
     let scraper: ScrapedUsersIterator = this.scrapingClient.getUserSearchResults(
       this.request.target.query,
@@ -268,19 +295,28 @@ class UserSearchScraper implements UserScraper {
 }
 
 export class AudioSpaceScraper implements UserScraper {
-  private scrapingClient = UserScrapingAPI.UserScrapingAPIClient.fromClientOptions(
-    this.request.executor.clientOptions,
-  )
+  private readonly scrapingClient: UserScrapingAPI.UserScrapingAPIClient
 
-  public totalCount = getParticipantsInAudioSpaceCount(this.request.target)
-  public constructor(private request: SessionRequest<AudioSpaceSessionTarget>) {}
+  public totalCount: number
+  public constructor(private request: SessionRequest<AudioSpaceSessionTarget>) {
+    this.scrapingClient = UserScrapingAPI.UserScrapingAPIClient.fromClientOptions(
+      request.executor.clientOptions,
+    )
+    this.totalCount = getParticipantsInAudioSpaceCount(this.request.target)
+  }
   public async *[Symbol.asyncIterator]() {
-    const { audioSpace, includeHostsAndSpeakers, includeListeners } = this.request.target
-    let scraper: ScrapedUsersIterator = this.scrapingClient.getParticipantsInAudioSpace({
+    const {
       audioSpace,
-      hostsAndSpeakers: includeHostsAndSpeakers,
-      listeners: includeListeners,
-    })
+      includeHostsAndSpeakers,
+      includeListeners,
+    } = this.request.target
+    let scraper: ScrapedUsersIterator = this.scrapingClient.getParticipantsInAudioSpace(
+      {
+        audioSpace,
+        hostsAndSpeakers: includeHostsAndSpeakers,
+        listeners: includeListeners,
+      },
+    )
     scraper = ExtraScraper.scrapeUsersOnBio(
       this.scrapingClient,
       scraper,
@@ -290,25 +326,41 @@ export class AudioSpaceScraper implements UserScraper {
   }
 }
 
-export function initScraper(request: SessionRequest<AnySessionTarget>): UserScraper {
+export function initScraper(
+  request: SessionRequest<AnySessionTarget>,
+): UserScraper {
   const { target } = request
   switch (target.type) {
     case 'import':
-      return new ImportUserScraper(request as SessionRequest<ImportSessionTarget>)
+      return new ImportUserScraper(
+        request as SessionRequest<ImportSessionTarget>,
+      )
     case 'tweet_reaction':
-      return new TweetReactedUserScraper(request as SessionRequest<TweetReactionSessionTarget>)
+      return new TweetReactedUserScraper(
+        request as SessionRequest<TweetReactionSessionTarget>,
+      )
     case 'user_search':
-      return new UserSearchScraper(request as SessionRequest<UserSearchSessionTarget>)
+      return new UserSearchScraper(
+        request as SessionRequest<UserSearchSessionTarget>,
+      )
     case 'lockpicker':
-      return new SimpleScraper(request as SessionRequest<LockPickerSessionTarget>)
+      return new SimpleScraper(
+        request as SessionRequest<LockPickerSessionTarget>,
+      )
     case 'follower':
       if (target.list === 'mutual-followers') {
-        return new MutualFollowerScraper(request as SessionRequest<FollowerSessionTarget>)
+        return new MutualFollowerScraper(
+          request as SessionRequest<FollowerSessionTarget>,
+        )
       } else {
-        return new SimpleScraper(request as SessionRequest<FollowerSessionTarget>)
+        return new SimpleScraper(
+          request as SessionRequest<FollowerSessionTarget>,
+        )
       }
     case 'audio_space':
-      return new AudioSpaceScraper(request as SessionRequest<AudioSpaceSessionTarget>)
+      return new AudioSpaceScraper(
+        request as SessionRequest<AudioSpaceSessionTarget>,
+      )
     case 'export_my_blocklist':
       // 오로지 export만 쓰므로 userScraper는 안 쓴다 (user-id scraper만 쓰지)
       throw new Error('unreachable')

@@ -16,14 +16,16 @@ const EXPORT_MAX_SIZE = 100_000
 
 export default class ExportSession {
   private stopReason: StopReason | null = null
-  private readonly sessionInfo = this.initSessionInfo()
+  private readonly sessionInfo: SessionInfo
   public readonly eventEmitter = new EventEmitter<SessionEventEmitter>()
   private exportResult: ExportResult = {
     filename: this.generateFilename(this.request.target),
     userIds: new Set<string>(),
   }
 
-  public constructor(private request: SessionRequest<ExportableSessionTarget>) {}
+  public constructor(private request: SessionRequest<ExportableSessionTarget>) {
+    this.sessionInfo = this.initSessionInfo()
+  }
   public getSessionInfo(): Readonly<SessionInfo> {
     return copyFrozenObject(this.sessionInfo)
   }

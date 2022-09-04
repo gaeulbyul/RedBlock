@@ -22,11 +22,13 @@ const MAX_USERS_TO_SCRAPE_AFTER_REWIND = 200
 
 export default class ChainBlockSession {
   private stopReason: StopReason | null = null
-  private readonly sessionInfo = this.initSessionInfo()
+  private readonly sessionInfo: SessionInfo
   private readonly scrapedUserIds = new Set<string>()
   private maxUsersToScrape = Infinity
   public readonly eventEmitter = new EventEmitter<SessionEventEmitter>()
-  public constructor(private request: SessionRequest<AnySessionTarget>) {}
+  public constructor(private request: SessionRequest<AnySessionTarget>) {
+    this.sessionInfo = this.initSessionInfo(request)
+  }
   public getSessionInfo(): Readonly<SessionInfo> {
     return copyFrozenObject(this.sessionInfo)
   }
@@ -261,11 +263,11 @@ export default class ChainBlockSession {
     }
   }
 
-  private initSessionInfo(): SessionInfo {
+  private initSessionInfo(request: SessionRequest<AnySessionTarget>): SessionInfo {
     return {
       sessionId: this.generateSessionId(),
-      request: this.request,
-      progress: this.initProgress(),
+      request,
+      progress: this.initProgress(request),
       status: 'Initial',
       limit: null,
     }
@@ -275,7 +277,7 @@ export default class ChainBlockSession {
     return `session/${Date.now()}`
   }
 
-  private initProgress(): SessionInfo['progress'] {
+  private initProgress(request: SessionRequest<AnySessionTarget>): SessionInfo['progress'] {
     return {
       already: 0,
       success: {
@@ -290,7 +292,7 @@ export default class ChainBlockSession {
       skipped: 0,
       error: 0,
       scraped: 0,
-      total: getCountOfUsersToBlock(this.request),
+      total: getCountOfUsersToBlock(request),
     }
   }
 
