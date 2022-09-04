@@ -80,7 +80,10 @@ export function getReactionsV2CountsFromTweet(tweet: Tweet): { [react in Reactio
     Sad: 0,
     Cheer: 0,
   } as const
-  Object.assign(result, Object.fromEntries(tweet.ext.signalsReactionMetadata.r.ok.reactionTypeMap))
+  const ext = tweet.ext as any
+  if ('signalsReactionMetadata' in ext) {
+    Object.assign(result, Object.fromEntries(ext.signalsReactionMetadata.r.ok.reactionTypeMap))
+  }
   return result
 }
 

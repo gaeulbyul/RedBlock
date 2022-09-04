@@ -486,7 +486,22 @@ function setDefaultParams(params: URLSearchParams): void {
   params.set('simple_quoted_tweet', 'true')
   params.set(
     'ext',
-    'mediaStats,highlightedLabel,signalsReactionPerspective,signalsReactionMetadata,voiceInfo,birdwatchPivot,superFollowMetadata',
+    [
+      'mediaStats',
+      'highlightedLabel',
+      'hasNftAvatar',
+      'signalsReactionMetadata',
+      'signalsReactionPerspective',
+      'replyvotingDownvotePerspective',
+      'voiceInfo',
+      'birdwatchPivot',
+      'enrichments',
+      'superFollowMetadata',
+      'unmentionInfo',
+      'editControl',
+      'collab_control',
+      'vibe',
+    ].join(),
   )
 }
 
@@ -726,9 +741,10 @@ export interface Tweet {
     urls?: UrlEntity[]
   }
   ext: {
+    // 2022-09-04 Reactions v2 관련 속성 사라졌다...
     // 남들의 반응
-    signalsReactionMetadata: SignalsReactionMetadata
-    // 내 반응. 당장 안 쓰이므로 생략
+    // signalsReactionMetadata: SignalsReactionMetadata
+    // 내 반응
     // signalsReactionPerspective
   }
   // CoTweet 관련
@@ -830,6 +846,7 @@ interface Contributee {
 
 export type ReactionV2Kind = 'Like' | 'Cheer' | 'Hmm' | 'Sad' | 'Haha'
 
+/* 2022-09-04: 사라졌다.
 interface SignalsReactionMetadata {
   r: {
     ok: {
@@ -837,6 +854,7 @@ interface SignalsReactionMetadata {
     }
   }
 }
+*/
 
 interface ReactionV2MapItem {
   type: ReactionV2Kind
