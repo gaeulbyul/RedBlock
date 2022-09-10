@@ -874,7 +874,7 @@
     "message": "你确定要删除 Twitter 相关的 cookies 吗？"
   },
   "delete_cookie_description": {
-    "message": "如果你用度使用批量屏蔽后 Twitter 遇到故障，请尝试点击这个按钮删除 Twitter 相关的 cookies。注意删除 cookies 后你的帐号会立即登出。"
+    "message": "如果你过度使用批量屏蔽后 Twitter 遇到故障，请尝试点击这个按钮删除 Twitter 相关的 cookies。注意删除 cookies 后你的帐号会立即登出。"
   },
   "cookie_delete_complete": {
     "message": "Cookie 已删除！"
@@ -1027,12 +1027,12 @@
     "message": "运行批量屏蔽会话时，启用此选项将包含目标本身（而不是只对关注者/转推者/点喜欢的人……）。"
   },
   "verified_user": {
-    "message": "Verified User"
+    "message": "认证用户"
   },
   "has_nft_avatar": {
-    "message": "Has NFT Avatar"
+    "message": "拥有 NFT 头像"
   },
   "oneclick_block_nft_avatar": {
-    "message": "Show One-click block button to the users with NFT(hexagon-shaped) avatar"
+    "message": "对拥有 NFT（六边形）头像的用户显示一键屏蔽按钮"
   }
 }
