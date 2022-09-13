@@ -18,13 +18,14 @@ export default class ExportSession {
   private stopReason: StopReason | null = null
   private readonly sessionInfo: SessionInfo
   public readonly eventEmitter = new EventEmitter<SessionEventEmitter>()
-  private exportResult: ExportResult = {
-    filename: this.generateFilename(this.request.target),
-    userIds: new Set<string>(),
-  }
+  private exportResult: ExportResult
 
   public constructor(private request: SessionRequest<ExportableSessionTarget>) {
-    this.sessionInfo = this.initSessionInfo()
+    this.sessionInfo = this.initSessionInfo(request)
+    this.exportResult = {
+      filename: this.generateFilename(request.target),
+      userIds: new Set<string>(),
+    }
   }
   public getSessionInfo(): Readonly<SessionInfo> {
     return copyFrozenObject(this.sessionInfo)
@@ -117,11 +118,11 @@ export default class ExportSession {
     }
   }
 
-  private initSessionInfo(): SessionInfo {
+  private initSessionInfo(request: SessionRequest<ExportableSessionTarget>): SessionInfo {
     return {
       sessionId: this.generateSessionId(),
-      request: this.request,
-      progress: this.initProgress(),
+      request,
+      progress: this.initProgress(request),
       status: 'Initial',
       limit: null,
     }
@@ -131,7 +132,7 @@ export default class ExportSession {
     return `session/${Date.now()}`
   }
 
-  private initProgress(): SessionInfo['progress'] {
+  private initProgress(request: SessionRequest<ExportableSessionTarget>): SessionInfo['progress'] {
     return {
       already: 0,
       success: {
@@ -146,7 +147,7 @@ export default class ExportSession {
       skipped: 0,
       error: 0,
       scraped: 0,
-      total: getCountOfUsersToBlock(this.request),
+      total: getCountOfUsersToBlock(request),
     }
   }
 
